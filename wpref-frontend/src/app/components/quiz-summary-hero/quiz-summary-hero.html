@@ -1,0 +1,54 @@
+<div class="summary-header">
+  <p-button
+    (onClick)="onBack()"
+    icon="pi pi-arrow-left"
+    label="Retour a la liste"
+    severity="secondary"
+    text
+  ></p-button>
+</div>
+
+<section class="summary-hero">
+  <div class="summary-hero__main">
+    <div class="summary-hero__eyebrow">
+      <p-tag [severity]="statusSeverity()" [value]="statusLabel()"></p-tag>
+      <span class="summary-hero__mode">{{ session().mode }}</span>
+      @if (!session().can_answer && session().answer_correctness_state) {
+        <span class="summary-hero__detail">Correction {{ session().answer_correctness_state }}</span>
+      }
+    </div>
+
+    <h1 class="summary-hero__title">{{ session().quiz_template_title }}</h1>
+
+    @if (session().quiz_template_description) {
+      <p class="summary-hero__description">{{ session().quiz_template_description }}</p>
+    }
+
+    <div class="summary-hero__facts">
+      @for (fact of facts(); track fact.label) {
+        <div class="summary-hero__fact">
+          <span class="summary-hero__fact-label">{{ fact.label }}</span>
+          <span class="summary-hero__fact-value">{{ fact.value }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="summary-hero__score">
+    <span class="summary-hero__score-label">Score</span>
+    <span class="summary-hero__score-value">{{ scoreLabel() }}</span>
+    <span class="summary-hero__score-meta">{{ scoreMetaLabel() }}</span>
+  </div>
+
+  <div class="summary-hero__aside">
+    @if (!session().started_at) {
+      <p-button (onClick)="onStart()" icon="pi pi-play" label="Demarrer le quiz" severity="primary"></p-button>
+    } @else if (session().can_answer) {
+      <p-button (onClick)="onOpenQuestion()" icon="pi pi-arrow-right" label="Continuer le quiz" severity="primary"></p-button>
+    } @else if (canReview()) {
+      <p-button (onClick)="onOpenQuestion()" icon="pi pi-eye" label="Voir la correction" severity="primary"></p-button>
+    } @else {
+      <p-button [disabled]="true" icon="pi pi-check" label="Quiz termine" severity="secondary"></p-button>
+    }
+  </div>
+</section>

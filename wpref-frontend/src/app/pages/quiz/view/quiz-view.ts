@@ -2,9 +2,8 @@ import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize} from 'rxjs';
-import {Button} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../../api/generated';
+import {QuizSummaryFact, QuizSummaryHeroComponent} from '../../../components/quiz-summary-hero/quiz-summary-hero';
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
@@ -12,8 +11,7 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 @Component({
   selector: 'app-view',
   imports: [
-    Button,
-    TagModule,
+    QuizSummaryHeroComponent,
   ],
   templateUrl: './quiz-view.html',
   styleUrl: './quiz-view.scss',
@@ -72,7 +70,7 @@ export class QuizView implements OnInit {
       return [];
     }
 
-    const facts: Array<{label: string; value: string}> = [
+    const facts: QuizSummaryFact[] = [
       {label: 'Timer', value: this.timerLabel()},
     ];
 
