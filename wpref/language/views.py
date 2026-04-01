@@ -7,6 +7,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
 )
 from rest_framework import filters
+from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny
 from wpref.tools import ErrorDetailSerializer, MyModelViewSet
 
@@ -166,3 +167,16 @@ class LanguageViewSet(MyModelViewSet):
         if self.action == "partial_update":
             return LanguagePartialSerializer
         return LanguageWriteSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        instance = self.get_queryset().get(code=response.data["code"])
+        return Response(LanguageReadSerializer(instance, context=self.get_serializer_context()).data, status=response.status_code)
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        return Response(LanguageReadSerializer(self.get_object(), context=self.get_serializer_context()).data, status=response.status_code)
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        return Response(LanguageReadSerializer(self.get_object(), context=self.get_serializer_context()).data, status=response.status_code)

@@ -7,6 +7,25 @@ import {
 } from './quiz-session-state';
 
 describe('quiz session state helpers', () => {
+  const domain = {
+    id: 1,
+    translations: {
+      [LanguageEnumDto.Fr]: {
+        name: 'Domaine',
+        description: '',
+      },
+    },
+    allowed_languages: [],
+    active: true,
+    owner: {
+      id: 1,
+      username: 'owner',
+    },
+    staff: [],
+    created_at: '2026-03-30T12:00:00Z',
+    updated_at: '2026-03-30T12:00:00Z',
+  };
+
   const questions: QuizQuestionReadDto[] = [
     {
       id: 10,
@@ -14,6 +33,7 @@ describe('quiz session state helpers', () => {
       weight: 1,
       question: {
         id: 100,
+        domain,
         allow_multiple_correct: false,
         active: true,
         is_mode_practice: true,
@@ -37,6 +57,7 @@ describe('quiz session state helpers', () => {
       weight: 1,
       question: {
         id: 101,
+        domain,
         allow_multiple_correct: false,
         active: true,
         is_mode_practice: true,

@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
+from django.utils import translation
 from domain.models import Domain
 from question.models import Question, AnswerOption
 from quiz.constants import (
@@ -20,6 +21,7 @@ User = get_user_model()
 
 class QuizModelsTestCase(TestCase):
     def setUp(self):
+        translation.activate("fr")
         self.u1 = User.objects.create_user(username="u1", password="u1pass")
 
         # ✅ Domain obligatoire pour Question.domain (NOT NULL) + Domain.owner obligatoire
@@ -48,6 +50,10 @@ class QuizModelsTestCase(TestCase):
         self.qq2 = QuizQuestion.objects.create(quiz=self.qt, question=self.q2, sort_order=2, weight=3)
 
         self.quiz = Quiz.objects.create(quiz_template=self.qt, user=self.u1, active=False)
+
+    def tearDown(self):
+        translation.deactivate_all()
+        super().tearDown()
 
     # ---------------------------------------------------------------------
     # Helpers
@@ -425,7 +431,7 @@ class QuizModelsTestCase(TestCase):
             QuizQuestionAnswer.objects.create(quiz=self.quiz, quizquestion=self.qq1, question_order=2)
 
         # Optionnel: vérifier le message (souple)
-        self.assertIn("already exists", str(ctx.exception))
+        self.assertIn("existe déjà", str(ctx.exception))
 
     def test_answer_unique_together_quiz_question_order(self):
         self.quiz.active = True
@@ -436,7 +442,7 @@ class QuizModelsTestCase(TestCase):
         with self.assertRaises(ValidationError) as ctx:
             QuizQuestionAnswer.objects.create(quiz=self.quiz, quizquestion=self.qq2, question_order=1)
 
-        self.assertIn("already exists", str(ctx.exception))
+        self.assertIn("existe déjà", str(ctx.exception))
 
     def test_answer_compute_score_correct(self):
         self.quiz.active = True

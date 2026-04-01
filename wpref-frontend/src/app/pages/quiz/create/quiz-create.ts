@@ -29,6 +29,8 @@ import {
   SubjectReadDto,
   VisibilityEnumDto,
 } from '../../../api/generated';
+import {QuizQuestionLibraryComponent} from '../../../components/quiz-question-library/quiz-question-library';
+import {QuizTemplateCompositionComponent} from '../../../components/quiz-template-composition/quiz-template-composition';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
@@ -51,15 +53,7 @@ import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-
-type SelectedQuestionRef = QuestionReadDto | QuestionInQuizQuestionDto;
-
-type SelectedQuizQuestion = {
-  question: SelectedQuestionRef;
-  weight: number;
-  sort_order: number;
-  quiz_question_id?: number;
-};
+import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 
 @Component({
   standalone: true,
@@ -74,6 +68,8 @@ type SelectedQuizQuestion = {
     DialogModule,
     InputNumberModule,
     InputTextModule,
+    QuizQuestionLibraryComponent,
+    QuizTemplateCompositionComponent,
     QuestionPreviewDialogComponent,
     QuestionEditorFormComponent,
     SelectModule,
@@ -210,6 +206,21 @@ export class QuizCreate implements OnInit {
         return haystack.includes(term);
       });
   });
+  readonly availableQuestionCards = computed<QuestionLibraryCard[]>(() =>
+    this.availableQuestions().map((question) => ({
+      question,
+      title: this.getQuestionTitle(question),
+      subjectsLabel: this.getQuestionSubjects(question),
+    })),
+  );
+  readonly selectedQuestionCards = computed<SelectedQuestionCard[]>(() =>
+    this.selectedQuestions().map((item) => ({
+      item,
+      questionId: item.question.id,
+      title: this.getQuestionTitle(item.question),
+      subjectsLabel: this.getQuestionSubjects(item.question),
+    })),
+  );
 
   readonly canSave = computed(() => {
     return this.isAdmin() &&
@@ -359,6 +370,10 @@ export class QuizCreate implements OnInit {
     this.previewQuestionId.set(question.id);
   }
 
+  openQuestionPreviewById(questionId: number): void {
+    this.previewQuestionId.set(questionId);
+  }
+
   closeQuestionPreview(): void {
     this.previewQuestionId.set(null);
   }
@@ -386,20 +401,6 @@ export class QuizCreate implements OnInit {
         ? {...item, weight: nextWeight}
         : item
     )));
-  }
-
-  onSortOrderChange(index: number, event: Event): void {
-    const target = event.target as HTMLInputElement | null;
-    const parsed = Number(target?.value ?? index + 1);
-    const requestedOrder = Number.isFinite(parsed) ? Math.max(1, Math.floor(parsed)) : index + 1;
-
-    this.selectedQuestions.update((items) => {
-      const next = [...items];
-      const [moved] = next.splice(index, 1);
-      const targetIndex = Math.min(requestedOrder - 1, next.length);
-      next.splice(targetIndex, 0, moved);
-      return this.renumberSelectedQuestions(next);
-    });
   }
 
   openQuestionDialog(): void {

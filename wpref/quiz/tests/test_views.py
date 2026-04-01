@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
+from django.utils import translation
 from domain.models import Domain
 from question.models import Question, AnswerOption, QuestionSubject
 from quiz.constants import VISIBILITY_IMMEDIATE, VISIBILITY_NEVER
@@ -48,6 +49,8 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
     # Setup
     # ---------------------------------------------------------------------
     def setUp(self):
+        translation.activate("fr")
+
         # Users
         self.admin = User.objects.create_user(
             username="admin", password="adminpass", is_staff=True, is_superuser=True
@@ -124,6 +127,10 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             "api:quiz-api:quiz-list",
             "quiz-api:quiz-list",
         )
+
+    def tearDown(self):
+        translation.deactivate_all()
+        super().tearDown()
 
     def _auth(self, user):
         self.client.force_authenticate(user=user)
@@ -954,10 +961,89 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self._auth(self.u1)
         res = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["answer_correctness_state"], "full")
         question_payload = res.data["questions"][0]["question"]
         self.assertEqual(question_payload["translations"]["en"]["title"], "Question EN")
         self.assertEqual(question_payload["answer_options"][0]["content"], "Answer EN")
         self.assertIn("is_correct", question_payload["answer_options"][0])
+
+    def test_quiz_retrieve_returns_unknown_correctness_for_running_exam(self):
+        qt_exam = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_EXAM_RUNNING",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=1,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        qq = QuizQuestion.objects.create(quiz=qt_exam, question=self.q1, sort_order=1, weight=1)
+        quiz = self._create_quiz(qt_exam, self.u1, active=True, started_at=timezone.now())
+
+        url = self._rev(
+            "api:quiz-api:quiz-detail",
+            "quiz-api:quiz-detail",
+            quiz_id=quiz.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["answer_correctness_state"], "unknown")
+        options = res.data["questions"][0]["question"]["answer_options"]
+        self.assertEqual(len(options), qq.question.answer_options.count())
+        self.assertIn("is_correct", options[0])
+        self.assertIsNone(options[0]["is_correct"])
+
+    def test_quiz_retrieve_returns_correctness_for_closed_exam_when_details_visible(self):
+        qt_exam = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_EXAM_CLOSED",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=1,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        QuizQuestion.objects.create(quiz=qt_exam, question=self.q1, sort_order=1, weight=1)
+        quiz = self._create_quiz(
+            qt_exam,
+            self.u1,
+            active=False,
+            started_at=timezone.now() - timezone.timedelta(minutes=5),
+            ended_at=timezone.now(),
+        )
+
+        url = self._rev(
+            "api:quiz-api:quiz-detail",
+            "quiz-api:quiz-detail",
+            quiz_id=quiz.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["answer_correctness_state"], "full")
+        options = res.data["questions"][0]["question"]["answer_options"]
+        self.assertIn(options[0]["is_correct"], (True, False))
 
     # ---------------------------------------------------------------------
     # QuizViewSet: get_queryset swagger_fake_view -> return Quiz.objects.none()

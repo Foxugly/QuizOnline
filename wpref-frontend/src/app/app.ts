@@ -5,6 +5,7 @@ import {BackendStatusService} from './services/status/status';
 import {FooterComponent} from './components/footer/footer';
 import {AuthService} from './services/auth/auth';
 import {UserService} from './services/user/user';
+import {logApiError} from './shared/api/api-errors';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +33,7 @@ export class App implements OnInit {
 
     this.userService.getMe().subscribe({
       error: (error) => {
-        console.error('Erreur de rehydratation de session', error);
+        logApiError('app.session-rehydrate', error);
         this.authService.logout();
       },
     });

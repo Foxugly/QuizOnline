@@ -9,6 +9,7 @@ import {DomainService, DomainTranslationDto} from '../../../services/domain/doma
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
+import {logApiError} from '../../../shared/api/api-errors';
 
 
 type LangCode = `${LanguageEnumDto}`;
@@ -60,7 +61,7 @@ export class DomainList implements OnInit{
           this.first = 0;  // retour à la première page à chaque recherche
         },
         error: (err: unknown) => {
-          console.error('Erreur lors du chargement des sujets', err);
+          logApiError('domain.list.load', err);
           this.domains.set([]);
         }
       });

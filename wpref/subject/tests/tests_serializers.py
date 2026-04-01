@@ -200,11 +200,11 @@ class SubjectSerializersTestCase(TestCase):
 
         self.assertIn("fr", data["translations"])
         self.assertEqual(data["translations"]["fr"]["name"], "Sujet FR")
-        self.assertEqual(data["translations"]["fr"]["domain_name"], "Domaine FR")
+        self.assertEqual(data["translations"]["fr"]["domain"]["name"], "Domaine FR")
 
         self.assertIn("nl", data["translations"])
         self.assertEqual(data["translations"]["nl"]["name"], "Onderwerp NL")
-        self.assertEqual(data["translations"]["nl"]["domain_name"], "Domein NL")
+        self.assertEqual(data["translations"]["nl"]["domain"]["name"], "Domein NL")
 
     # ---------------------------------------------------------------------
     # SubjectDetailSerializer

@@ -12,6 +12,7 @@ import {QuizListDto, QuizTemplateDto} from '../../../api/generated';
 import {QuizService, QuizSubjectCreatePayload} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
 import {QuizSubjectForm} from '../subject-form/subject-form';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 interface UserQuizListItem extends QuizListDto {
   earned_score: number | null;
@@ -146,7 +147,8 @@ export class QuizList implements OnInit {
           this.myQuizzes.set(myQuizzes);
         },
         error: (err: unknown) => {
-          console.error('Erreur lors du chargement des quizz', err);
+          logApiError('quiz.list.load', err);
+          this.success.set(userFacingApiMessage(err, 'Impossible de charger les quiz.'));
           this.availableTemplates.set([]);
           this.managedTemplates.set([]);
           this.myQuizzes.set([]);
@@ -175,7 +177,8 @@ export class QuizList implements OnInit {
           this.load();
         },
         error: (err: unknown): void => {
-          console.error('Erreur génération quiz', err);
+          logApiError('quiz.list.generate', err);
+          this.success.set(userFacingApiMessage(err, 'Impossible de générer ce quiz.'));
         },
       });
   }
@@ -189,7 +192,7 @@ export class QuizList implements OnInit {
           this.maxQuestions.set(data.count);
         },
         error: (err: unknown): void => {
-          console.error('Erreur getQuestionCountBySubjects', err);
+          logApiError('quiz.list.questions-count', err);
         },
       });
   }
@@ -224,7 +227,8 @@ export class QuizList implements OnInit {
           this.quizService.goView(quiz.id);
         },
         error: (err: unknown) => {
-          console.error('Erreur lors de la création du quiz', err);
+          logApiError('quiz.list.create-session', err);
+          this.success.set(userFacingApiMessage(err, 'Impossible de créer ce quiz.'));
         },
       });
   }

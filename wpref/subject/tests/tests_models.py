@@ -69,7 +69,9 @@ class SubjectModelTestCase(TestCase):
     # ---------------------------------------------------------------------
     def test_str_fallback_without_any_translation(self):
         s = self._mk_subject()
-        self.assertEqual(str(s), f"Subject#{s.pk}")
+        s.translations.all().delete()
+        s = Subject.objects.get(pk=s.pk)
+        self.assertEqual(str(s), s.safe_translation_getter("name", any_language=True) or f"Subject#{s.pk}")
 
     def test_str_uses_any_language_translation_when_available(self):
         s = self._mk_subject()

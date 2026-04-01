@@ -15,6 +15,7 @@ import {
   findQuizNavItem,
   updateQuizNavItem,
 } from '../../../shared/quiz/quiz-session-state';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 @Component({
   selector: 'app-quiz-question-view',
@@ -168,8 +169,12 @@ export class QuizQuestionView implements OnInit {
           afterSave?.();
         },
         error: (err: unknown): void => {
-          console.error('Erreur lors de la sauvegarde de la réponse', err);
-          this.error.set(this.isTimedOut() ? 'Le temps du quiz est écoulé.' : "Impossible d'enregistrer cette réponse.");
+          logApiError('quiz.question.save-answer', err);
+          this.error.set(
+            this.isTimedOut()
+              ? 'Le temps du quiz est écoulé.'
+              : userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."),
+          );
           if (this.isTimedOut()) {
             this.closeQuizAndRedirect(true);
           }
@@ -214,7 +219,7 @@ export class QuizQuestionView implements OnInit {
         next: ({session, answers}) => {
           const readonlySession = !!session.started_at && !session.can_answer;
           this.reviewMode = readonlySession;
-          this.showCorrect = this.canReviewAnswers(session);
+          this.showCorrect = session.answer_correctness_state === 'full';
 
           const navItems = applyQuizAnswers(buildQuizNavItems(session.questions), answers);
           if (!navItems.length) {
@@ -228,8 +233,8 @@ export class QuizQuestionView implements OnInit {
           this.changeQuestion(1);
         },
         error: (err: unknown) => {
-          console.error('Erreur chargement quizSession', err);
-          this.error.set('Impossible de charger ce quiz.');
+          logApiError('quiz.question.load-session', err);
+          this.error.set(userFacingApiMessage(err, 'Impossible de charger ce quiz.'));
         },
       });
   }
@@ -300,12 +305,12 @@ export class QuizQuestionView implements OnInit {
           this.quizService.goView(this.quiz_id);
         },
         error: (err: unknown): void => {
-          console.error('Erreur lors de la clôture du quiz', err);
+          logApiError('quiz.question.close-quiz', err);
           if (triggeredByTimer) {
             this.quizService.goView(this.quiz_id);
             return;
           }
-          this.error.set('Impossible de clôturer ce quiz.');
+          this.error.set(userFacingApiMessage(err, 'Impossible de clôturer ce quiz.'));
         },
       });
   }
@@ -336,13 +341,4 @@ export class QuizQuestionView implements OnInit {
     return value.toString().padStart(2, '0');
   }
 
-  private canReviewAnswers(session: QuizDto): boolean {
-    if (!session.started_at || session.active) {
-      return false;
-    }
-
-    return session.questions.some((quizQuestion) =>
-      quizQuestion.question.answer_options.some((option) => option.is_correct !== undefined),
-    );
-  }
 }

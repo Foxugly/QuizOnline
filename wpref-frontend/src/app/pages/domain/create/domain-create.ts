@@ -25,6 +25,7 @@ import {
   getLocalizedTextGroup,
   syncLocalizedTextControls,
 } from '../../../shared/forms/localized-text-form';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 
@@ -151,8 +152,8 @@ export class DomainCreate implements OnInit {
           this.recomputePickList();
         },
         error: (err) => {
-          console.error(err);
-          this.submitError.set('Erreur lors du chargement initial.');
+          logApiError('domain.create.load-initial', err);
+          this.submitError.set(userFacingApiMessage(err, 'Erreur lors du chargement initial.'));
         },
       });
 
@@ -246,8 +247,8 @@ export class DomainCreate implements OnInit {
         if (needDesc && out['description'] !== undefined) descCtrl.setValue(out['description']);
       }
     } catch (e) {
-      console.error(e);
-      this.submitError.set('Erreur lors de la traduction.');
+      logApiError('domain.create.translate', e);
+      this.submitError.set(userFacingApiMessage(e, 'Erreur lors de la traduction.'));
     } finally {
       this.translating.set(false);
     }
@@ -273,8 +274,8 @@ export class DomainCreate implements OnInit {
       .subscribe({
         next: () => this.domainService.goList(),
         error: (err) => {
-          console.error(err);
-          this.submitError.set('Erreur backend lors de la création.');
+          logApiError('domain.create.submit', err);
+          this.submitError.set(userFacingApiMessage(err, 'Erreur backend lors de la création.'));
         },
       });
   }

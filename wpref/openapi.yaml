@@ -2549,6 +2549,16 @@ paths:
           description: Lien invalide / token invalide
 components:
   schemas:
+    AnswerCorrectnessStateEnum:
+      enum:
+      - full
+      - unknown
+      - hidden
+      type: string
+      description: |-
+        * `full` - full
+        * `unknown` - unknown
+        * `hidden` - hidden
     BulkCreateFromTemplateInputRequest:
       type: object
       properties:
@@ -3341,6 +3351,8 @@ components:
         duration:
           type: integer
           minimum: 1
+        is_public:
+          type: boolean
         active:
           type: boolean
         result_visibility:
@@ -3384,6 +3396,8 @@ components:
           readOnly: true
         is_correct:
           type: boolean
+          nullable: true
+          readOnly: true
         sort_order:
           type: integer
           maximum: 9223372036854775807
@@ -3392,6 +3406,7 @@ components:
       required:
       - content
       - id
+      - is_correct
       - translations
     QuestionAnswerOptionWrite:
       type: object
@@ -3735,7 +3750,12 @@ components:
           format: double
           nullable: true
           readOnly: true
+        answer_correctness_state:
+          allOf:
+          - $ref: '#/components/schemas/AnswerCorrectnessStateEnum'
+          readOnly: true
       required:
+      - answer_correctness_state
       - answers
       - can_answer
       - correct_answers
@@ -4059,6 +4079,12 @@ components:
           nullable: true
           title: Détail visible à partir de
           description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
+        is_public:
+          type: boolean
+          title: Public ?
+        created_by:
+          type: integer
+          readOnly: true
         quiz_questions:
           type: array
           items:
@@ -4067,6 +4093,7 @@ components:
       required:
       - can_answer
       - created_at
+      - created_by
       - id
       - questions_count
       - quiz_questions
@@ -4114,6 +4141,9 @@ components:
           minimum: 0
           format: int64
           title: Temps (en minutes)
+        is_public:
+          type: boolean
+          title: Public ?
         active:
           type: boolean
           title: Actif ?

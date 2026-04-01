@@ -19,6 +19,7 @@ import {ButtonModule} from 'primeng/button';
 import {ROUTES} from '../../../app.routes-paths';
 import {Router} from '@angular/router';
 import {SelectModule} from 'primeng/select';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 @Component({
   selector: 'app-register',
@@ -129,7 +130,7 @@ export class Register implements OnInit {
           this.form.get('language')?.setValue(String(defaultLang));
         },
         error: (err) => {
-          console.error(err);
+          logApiError('auth.register.submit', err);
           this.errorMessage = this.formatRegisterError(err);
         },
       });
@@ -155,9 +156,9 @@ export class Register implements OnInit {
           }
         },
         error: (err) => {
-          console.error(err);
+          logApiError('auth.register.load-languages', err);
           this.languages = [];
-          this.errorMessage = "Impossible de charger la liste des langues. Réessayez.";
+          this.errorMessage = userFacingApiMessage(err, "Impossible de charger la liste des langues. Réessayez.");
 
           // Fallback safe
           if (!this.form.get('language')?.value) {

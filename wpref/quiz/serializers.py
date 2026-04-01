@@ -7,6 +7,14 @@ from rest_framework import serializers
 from wpref.serializers import UserSummarySerializer
 
 from .models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer
+from .policies import (
+    ANSWER_CORRECTNESS_FULL,
+    ANSWER_CORRECTNESS_HIDDEN,
+    ANSWER_CORRECTNESS_UNKNOWN,
+    answer_correctness_state,
+    can_show_quiz_result,
+    is_quiz_admin,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -323,6 +331,7 @@ class QuizSerializer(QuizListSerializer):
     correct_answers = serializers.SerializerMethodField()
     earned_score = serializers.SerializerMethodField()
     max_score = serializers.SerializerMethodField()
+    answer_correctness_state = serializers.SerializerMethodField()
 
     class Meta(QuizListSerializer.Meta):
         fields = QuizListSerializer.Meta.fields + [
@@ -332,26 +341,34 @@ class QuizSerializer(QuizListSerializer):
             "correct_answers",
             "earned_score",
             "max_score",
+            "answer_correctness_state",
         ]
         read_only_fields = QuizListSerializer.Meta.read_only_fields
 
     def _is_admin(self) -> bool:
         req = self.context.get("request")
-        if not req or not hasattr(req, "user"):
-            return False
-        u = req.user
-        return bool(u and (u.is_staff or u.is_superuser))
+        return is_quiz_admin(getattr(req, "user", None))
 
-    def _can_show_details(self, quiz) -> bool:
-        return self._is_admin() or bool(quiz.quiz_template.can_show_details())
+    def _answer_correctness_state(self, quiz) -> str:
+        req = self.context.get("request")
+        return answer_correctness_state(quiz=quiz, user=getattr(req, "user", None))
 
     def _can_show_result(self, quiz) -> bool:
-        return self._is_admin() or bool(quiz.quiz_template.can_show_result())
+        req = self.context.get("request")
+        return can_show_quiz_result(quiz=quiz, user=getattr(req, "user", None))
+
+    @extend_schema_field(
+        serializers.ChoiceField(
+            choices=[ANSWER_CORRECTNESS_FULL, ANSWER_CORRECTNESS_UNKNOWN, ANSWER_CORRECTNESS_HIDDEN]
+        )
+    )
+    def get_answer_correctness_state(self, obj) -> str:
+        return self._answer_correctness_state(obj)
 
     @extend_schema_field(QuizQuestionReadSerializer(many=True))
     def get_questions(self, obj) -> serializers.ModelSerializer:
         qt = obj.quiz_template
-        show_details = self._can_show_details(obj)
+        correctness_state = self._answer_correctness_state(obj)
         qs = (
             qt.quiz_questions
             .select_related("question")
@@ -363,7 +380,7 @@ class QuizSerializer(QuizListSerializer):
             many=True,
             context={
                 **self.context,
-                "show_correct": show_details,
+                "show_correct_state": correctness_state,
             },
         ).data
 

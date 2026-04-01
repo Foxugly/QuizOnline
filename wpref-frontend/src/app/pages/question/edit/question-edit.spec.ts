@@ -1,6 +1,11 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
+import {of} from 'rxjs';
 
 import {QuestionEdit} from './question-edit';
+import {QuestionService} from '../../../services/question/question';
+import {SubjectService} from '../../../services/subject/subject';
+import {UserService} from '../../../services/user/user';
 
 describe('QuestionEdit', () => {
   let component: QuestionEdit;
@@ -8,7 +13,60 @@ describe('QuestionEdit', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QuestionEdit]
+      imports: [QuestionEdit],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({questionId: '1'}),
+            },
+          },
+        },
+        {
+          provide: QuestionService,
+          useValue: {
+            retrieve: () => of({
+              id: 1,
+              domain: {
+                id: 1,
+                translations: {},
+                allowed_languages: [],
+                active: true,
+                owner: {id: 1, username: 'owner'},
+                staff: [],
+                created_at: '',
+                updated_at: '',
+              },
+              translations: {},
+              allow_multiple_correct: false,
+              active: true,
+              is_mode_practice: true,
+              is_mode_exam: true,
+              subjects: [],
+              answer_options: [],
+              media: [],
+              created_at: '',
+            }),
+            delete: () => of({}),
+            update: () => of({}),
+            goBack: jasmine.createSpy('goBack'),
+          },
+        },
+        {
+          provide: SubjectService,
+          useValue: {
+            list: () => of([]),
+          },
+        },
+        {
+          provide: UserService,
+          useValue: {
+            currentLang: 'fr',
+          },
+        },
+      ],
     })
       .compileComponents();
 

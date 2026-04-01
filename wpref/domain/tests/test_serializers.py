@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.test import TestCase
+from django.utils import translation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
@@ -38,15 +39,17 @@ class DomainSerializersTestCase(TestCase):
         cls.domain.staff.set([cls.staff1, cls.staff2])
 
         # Parler translations
-        cls.domain.set_current_language("fr")
-        cls.domain.name = "Domaine FR"
-        cls.domain.description = "Desc FR"
-        cls.domain.save()
-
-        cls.domain.set_current_language("nl")
-        cls.domain.name = "Domein NL"
-        cls.domain.description = "Desc NL"
-        cls.domain.save()
+        translation_model = cls.domain._parler_meta.root_model
+        translation_model.objects.update_or_create(
+            master_id=cls.domain.pk,
+            language_code="fr",
+            defaults={"name": "Domaine FR", "description": "Desc FR"},
+        )
+        translation_model.objects.update_or_create(
+            master_id=cls.domain.pk,
+            language_code="nl",
+            defaults={"name": "Domein NL", "description": "Desc NL"},
+        )
 
     # -------------------------
     # DomainReadSerializer

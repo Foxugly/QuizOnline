@@ -15,6 +15,7 @@ import {DomainService, DomainTranslations} from '../../../services/domain/domain
 import {QuizSubjectCreatePayload} from '../../../services/quiz/quiz';
 import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 
 type QuizSubjectFormModel = {
@@ -64,7 +65,7 @@ export class QuizSubjectForm implements OnInit {
   form = this.fb.group({
     title: this.fb.control('Quiz'),
     domain_id: this.fb.control(0),
-    subject_ids: this.fb.control<number[]>([]),
+    subject_ids: this.fb.control<number[]>({value: [], disabled: true}),
     max_questions: this.fb.control(10),
     with_duration: this.fb.control(true),
     duration: this.fb.control(10),
@@ -112,9 +113,11 @@ export class QuizSubjectForm implements OnInit {
   }
 
   ngOnInit(): void {
+    this.syncSubjectControlState(this.form.controls.domain_id.getRawValue());
     this.form.controls.domain_id.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+      .subscribe((domainId) => {
+        this.syncSubjectControlState(domainId);
         this.form.controls.subject_ids.setValue([], {emitEvent: false});
         this.subjectsChange.emit([]);
       });
@@ -187,8 +190,8 @@ export class QuizSubjectForm implements OnInit {
           }
         },
         error: (err: unknown) => {
-          console.error('Erreur chargement domaines', err);
-          this.error.set('Erreur lors du chargement des domaines.');
+          logApiError('quiz.subject-form.load-domains', err);
+          this.error.set(userFacingApiMessage(err, 'Erreur lors du chargement des domaines.'));
         },
       });
 
@@ -203,8 +206,8 @@ export class QuizSubjectForm implements OnInit {
           this.subjects.set(subjects);
         },
         error: (err: unknown) => {
-          console.error('Erreur chargement sujets', err);
-          this.error.set('Erreur lors du chargement des sujets.');
+          logApiError('quiz.subject-form.load-subjects', err);
+          this.error.set(userFacingApiMessage(err, 'Erreur lors du chargement des sujets.'));
         },
       });
   }
@@ -212,5 +215,14 @@ export class QuizSubjectForm implements OnInit {
   private getDomainLabel(domain: DomainReadDto, lang: string): string {
     const translations = domain.translations as DomainTranslations | undefined;
     return translations?.[lang]?.name?.trim() || `Domain #${domain.id}`;
+  }
+
+  private syncSubjectControlState(domainId: number): void {
+    if (domainId) {
+      this.form.controls.subject_ids.enable({emitEvent: false});
+      return;
+    }
+
+    this.form.controls.subject_ids.disable({emitEvent: false});
   }
 }

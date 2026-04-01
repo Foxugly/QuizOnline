@@ -2,7 +2,6 @@
   display: block;
 }
 
-/* -------- Layout général -------- */
 .quiz-question {
   display: flex;
   flex-direction: column;
@@ -10,8 +9,7 @@
 }
 
 .quiz-question--card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
   border: 1px solid #d8e1ea;
   border-radius: 20px;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
@@ -29,12 +27,12 @@
 }
 
 .header-left {
-  width: 32px; /* pour garder le centre parfaitement centré */
+  width: 32px;
   text-align: center;
 }
 
 .header-right {
-  width: 90px; /* pour garder le centre parfaitement centré */
+  width: 90px;
   text-align: left;
 }
 
@@ -43,49 +41,30 @@
   text-align: center;
 }
 
-/* -------- Sujets -------- */
-.quiz-question__subjects {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #6b7280;
-
-  .subject-badge {
-
-    //border: 1px solid #c7d2fe;
-    padding: 0.15rem 0.5rem;
-    //border-radius: 0.4rem;
-    //font-size: 0.8rem;
-  }
-}
-
-/* -------- Médias -------- */
 .quiz-question__media {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   margin: 0.75rem 0 1.25rem;
-  background: transparent;
+}
 
-  &-image,
-  &-video,
-  &-iframe {
-    max-width: 100%;
-    border-radius: 0.4rem;
-    display: block;
-  }
+.quiz-question__media-image,
+.quiz-question__media-video,
+.quiz-question__media-iframe {
+  display: block;
+  max-width: 100%;
+  border-radius: 0.4rem;
+}
 
-  &-image {
-    width: fit-content;
-    max-width: min(100%, 38rem);
-  }
+.quiz-question__media-image {
+  width: fit-content;
+  max-width: min(100%, 38rem);
+}
 
-  &-video,
-  &-iframe {
-    max-height: 360px;
-  }
+.quiz-question__media-video,
+.quiz-question__media-iframe {
+  max-height: 360px;
 }
 
 :host ::ng-deep .quiz-question__media-image img {
@@ -94,20 +73,17 @@
   max-width: min(100%, 38rem);
   max-height: 24rem;
   object-fit: contain;
-  border-radius: 14px;
   border: 1px solid #d5dee8;
+  border-radius: 14px;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
   cursor: zoom-in;
 }
 
-/* -------- Description -------- */
 .quiz-question__description {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-inline: 0.5rem;
   color: #334155;
 }
 
-/* -------- Réponses -------- */
 .quiz-question__answers {
   display: flex;
   flex-direction: column;
@@ -115,16 +91,12 @@
   padding-top: 1rem;
 }
 
-/* Une ligne de réponse */
 .answer-line {
   display: flex;
-  align-items: center; /* ✅ centrage vertical */
+  align-items: center;
   gap: 0.75rem;
-  padding-top: 0.6rem;
-  padding-bottom: 0.6rem;
-  padding-left: 0.6rem;
-  padding-right: 0.8rem;
-  background: #ffffff;
+  padding: 0.6rem 0.8rem 0.6rem 0.6rem;
+  background: #fff;
   border: 1px solid #d5dee8;
   border-radius: 14px;
   transition: border-color 150ms ease, background 150ms ease;
@@ -142,7 +114,8 @@
   box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.15);
 }
 
-.answer-line--readonly {
+.answer-line--readonly,
+.answer-line--readonly .answer-label {
   cursor: default;
 }
 
@@ -154,8 +127,8 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #94a3b8;
-  color: #ffffff;
-  background: #ffffff;
+  color: #fff;
+  background: #fff;
 }
 
 .answer-indicator--checkbox {
@@ -176,7 +149,6 @@
   font-weight: 700;
 }
 
-/* Label de la réponse */
 .answer-label {
   display: block;
   flex: 1 1 auto;
@@ -185,20 +157,11 @@
   cursor: pointer;
 }
 
-.answer-line--readonly .answer-label {
-  cursor: default;
-}
-
 .answer-label__content {
   display: block;
   width: 100%;
 }
 
-/* ================================
-   Corriger l’alignement PrimeNG
-   ================================ */
-
-/* On cible les composants PrimeNG DANS ce composant */
 :host ::ng-deep .answer-line .p-checkbox,
 :host ::ng-deep .answer-line .p-radiobutton {
   display: inline-flex;
@@ -206,39 +169,16 @@
   justify-content: center;
 }
 
-/* On enlève les marges bizarres éventuelles */
 :host ::ng-deep .answer-line .p-checkbox .p-checkbox-box,
 :host ::ng-deep .answer-line .p-radiobutton .p-radiobutton-box {
   margin: 0;
 }
 
-/* Optionnel : réduire un peu la taille des icônes */
-/*
-:host ::ng-deep .p-checkbox .p-checkbox-box,
-:host ::ng-deep .p-radiobutton .p-radiobutton-box {
-  width: 1rem;
-  height: 1rem;
-}
-*/
-
-@media (max-width: 600px) {
-  .quiz-question {
-    gap: 1rem;
-  }
-
-  .answer-line {
-    gap: 0.4rem;
-  }
-}
-
 .youtube-wrapper {
   width: 60%;
-  //max-width: 900px;         /* limite optionnelle */
-  margin: 1rem auto; /* centre horizontalement */
+  margin: 1rem auto;
   position: relative;
-
-  /* Conserve le ratio 16:9 */
-  padding-bottom: 56.25%; /* 9 / 16 * 100 */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 12px;
@@ -267,19 +207,19 @@
 }
 
 .quiz-question__explanation {
+  margin-top: 0.5rem;
+  padding: 1rem 1.1rem;
   background: linear-gradient(180deg, #f7fafc, #eef4f8);
   border: 1px solid #d5dee8;
   border-radius: 16px;
-  margin-top: 0.5rem;
-  padding: 1rem 1.1rem;
 }
 
 .quiz-question__explanation-label {
+  margin: 0 0 0.5rem;
   color: #486171;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  margin: 0 0 0.5rem;
   text-transform: uppercase;
 }
 
@@ -289,8 +229,8 @@
 
 .card-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
@@ -329,5 +269,15 @@
 
   :host ::ng-deep .card-footer__group .p-button {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .quiz-question {
+    gap: 1rem;
+  }
+
+  .answer-line {
+    gap: 0.4rem;
   }
 }

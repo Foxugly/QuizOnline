@@ -18,6 +18,7 @@ import {
   patchLocalizedTextRecord,
   syncLocalizedTextControls,
 } from '../../../shared/forms/localized-text-form';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 
@@ -140,19 +141,19 @@ export class DomainEdit implements OnInit {
     forkJoin({
       domain: this.domainService.detail(this.id).pipe(
         catchError((err) => {
-          console.error('Erreur chargement domain', err);
+          logApiError('domain.edit.load-domain', err);
           return of(null as DomainDetailDto | null);
         }),
       ),
       users: this.userService.list().pipe(
         catchError((err) => {
-          console.error('Erreur chargement users', err);
+          logApiError('domain.edit.load-users', err);
           return of([] as CustomUserReadDto[]);
         }),
       ),
       languages: this.languageService.list().pipe(
         catchError((err) => {
-          console.error('Erreur chargement languages', err);
+          logApiError('domain.edit.load-languages', err);
           return of([] as LanguageReadDto[]);
         }),
       ),
@@ -286,8 +287,8 @@ export class DomainEdit implements OnInit {
       .subscribe({
         next: () => this.goList(),
         error: (err) => {
-          console.error('Erreur update domain', err);
-          this.submitError.set("Erreur lors de l'enregistrement.");
+          logApiError('domain.edit.submit', err);
+          this.submitError.set(userFacingApiMessage(err, "Erreur lors de l'enregistrement."));
         },
       });
   }
@@ -330,8 +331,8 @@ export class DomainEdit implements OnInit {
         if (needDesc && out['description'] !== undefined) descCtrl.setValue(out['description']);
       }
     } catch (e) {
-      console.error(e);
-      this.submitError.set('Erreur lors de la traduction.');
+      logApiError('domain.edit.translate', e);
+      this.submitError.set(userFacingApiMessage(e, 'Erreur lors de la traduction.'));
     } finally {
       this.translating.set(false);
     }

@@ -147,6 +147,7 @@ class QuestionAnswerOptionPublicReadSerializer(serializers.ModelSerializer):
 class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
+    is_correct = serializers.SerializerMethodField()
 
     class Meta:
         model = AnswerOption  # adapte si ton modèle s'appelle autrement
@@ -155,6 +156,18 @@ class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
 
     def get_content(self, obj) -> str:
         return _translated_value(obj, "content")
+
+    @extend_schema_field(serializers.BooleanField(allow_null=True))
+    def get_is_correct(self, obj) -> bool | None:
+        state = _correctness_state(self.context)
+
+        if state == "unknown":
+            return None
+
+        if state == "full":
+            return bool(obj.is_correct)
+
+        return None
 
     @extend_schema_field(
         localized_translations_map_schema(
@@ -187,6 +200,20 @@ class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
         return value
 
 
+def _correctness_state(context: dict) -> str:
+    state = context.get("show_correct_state")
+    if state is not None:
+        return state
+    if "show_correct" in context:
+        return "full" if bool(context.get("show_correct", False)) else "hidden"
+    return "full"
+
+
+def _option_read_serializer(context: dict, swagger: bool):
+    state = _correctness_state(context)
+    return QuestionAnswerOptionReadSerializer if (state in {"full", "unknown"} or swagger) else QuestionAnswerOptionPublicReadSerializer
+
+
 class QuestionInQuizQuestionSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     answer_options = serializers.SerializerMethodField()
@@ -200,11 +227,8 @@ class QuestionInQuizQuestionSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:
-        show_correct = bool(self.context.get("show_correct", False))
         swagger = bool(getattr(self.context.get("view"), "swagger_fake_view", False))
-
-        qaors = QuestionAnswerOptionReadSerializer if (
-                show_correct or swagger) else QuestionAnswerOptionPublicReadSerializer
+        qaors = _option_read_serializer(self.context, swagger)
         return qaors(obj.answer_options.all(), many=True, context=self.context).data
 
 
@@ -244,11 +268,8 @@ class QuestionReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:
-        show_correct = bool(self.context.get("show_correct", False))
         swagger = bool(getattr(self.context.get("view"), "swagger_fake_view", False))
-
-        qaors = QuestionAnswerOptionReadSerializer if (
-                show_correct or swagger) else QuestionAnswerOptionPublicReadSerializer
+        qaors = _option_read_serializer(self.context, swagger)
         return qaors(obj.answer_options.all(), many=True, context=self.context).data
 
 

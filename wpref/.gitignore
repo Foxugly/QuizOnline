@@ -6,3 +6,4 @@ media/question_media/*
 .coverage
 htmlcov/
 .env
+/db.fullstack.sqlite3

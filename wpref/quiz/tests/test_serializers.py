@@ -3,6 +3,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
+from django.utils import translation
 from domain.models import Domain
 from question.models import Question, AnswerOption
 from quiz.constants import VISIBILITY_IMMEDIATE, VISIBILITY_NEVER, VISIBILITY_SCHEDULED
@@ -25,6 +26,16 @@ from rest_framework.test import APIRequestFactory
 User = get_user_model()
 
 
+class LocalizedTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+        translation.activate("fr")
+
+    def tearDown(self):
+        translation.deactivate_all()
+        super().tearDown()
+
+
 # -----------------------
 # Helpers (compatibles avec tes modèles Parler + Domain obligatoire)
 # -----------------------
@@ -34,11 +45,15 @@ def make_user(username="u", is_staff=False, is_superuser=False):
 
 def make_domain(owner, name="Test domain", description=""):
     # Domain est TranslatableModel, on peut passer name/description directement
+    if translation.get_language() is None:
+        translation.activate("fr")
     return Domain.objects.create(owner=owner, name=name, description=description, active=True)
 
 
 def make_question(domain, title="Q", active=True):
     # Question est TranslatableModel + domain NOT NULL
+    if translation.get_language() is None:
+        translation.activate("fr")
     q = Question.objects.create(
         domain=domain,
         title=title,
@@ -54,10 +69,14 @@ def make_question(domain, title="Q", active=True):
 
 def make_option(question, content="A", is_correct=False, sort_order=1):
     # AnswerOption est TranslatableModel
+    if translation.get_language() is None:
+        translation.activate("fr")
     return AnswerOption.objects.create(question=question, content=content, is_correct=is_correct, sort_order=sort_order)
 
 
 def make_template(domain, **kwargs):
+    if translation.get_language() is None:
+        translation.activate("fr")
     defaults = dict(
         domain=domain,
         title="Template",
@@ -95,7 +114,7 @@ def make_quiz(qt, user, active=True, started=True):
 # ==========================================================
 # 0) Simple Input Serializers
 # ==========================================================
-class InputSerializersTests(TestCase):
+class InputSerializersTests(LocalizedTestCase):
     def test_generate_from_subjects_input_serializer_valid(self):
         s = GenerateFromSubjectsInputSerializer(
             data={"title": "T", "subject_ids": [1, 2, 3], "max_questions": 5}
@@ -133,7 +152,7 @@ class InputSerializersTests(TestCase):
 # ==========================================================
 # 1) QuizQuestionSerializer
 # ==========================================================
-class QuizQuestionSerializerTests(TestCase):
+class QuizQuestionSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.domain = make_domain(self.user, "D1")
@@ -185,7 +204,7 @@ class QuizQuestionSerializerTests(TestCase):
 # ==========================================================
 # 2) QuizTemplateSerializer
 # ==========================================================
-class QuizTemplateSerializerTests(TestCase):
+class QuizTemplateSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.domain = make_domain(self.user, "D1")
@@ -231,7 +250,7 @@ class QuizTemplateSerializerTests(TestCase):
 # ==========================================================
 # 3) QuizQuestionWriteSerializer
 # ==========================================================
-class QuizQuestionWriteSerializerTests(TestCase):
+class QuizQuestionWriteSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.domain = make_domain(self.user, "D1")
@@ -310,7 +329,7 @@ class QuizQuestionWriteSerializerTests(TestCase):
 # ==========================================================
 # 4) QuizQuestionAnswerSerializer (read-only mapping)
 # ==========================================================
-class QuizQuestionAnswerSerializerTests(TestCase):
+class QuizQuestionAnswerSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.domain = make_domain(self.user, "D1")
@@ -336,7 +355,7 @@ class QuizQuestionAnswerSerializerTests(TestCase):
 # ==========================================================
 # 5) QuizQuestionReadSerializer (init show_correct)
 # ==========================================================
-class QuizQuestionReadSerializerTests(TestCase):
+class QuizQuestionReadSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.domain = make_domain(self.user, "D1")
@@ -354,7 +373,7 @@ class QuizQuestionReadSerializerTests(TestCase):
 # ==========================================================
 # 6) QuizSerializer (admin vs non-admin + cache + show_details)
 # ==========================================================
-class QuizSerializerTests(TestCase):
+class QuizSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
 
@@ -479,7 +498,7 @@ class QuizSerializerTests(TestCase):
 # ==========================================================
 # 7) QuizQuestionAnswerWriteSerializer (grosse partie de la couverture)
 # ==========================================================
-class QuizQuestionAnswerWriteSerializerTests(TestCase):
+class QuizQuestionAnswerWriteSerializerTests(LocalizedTestCase):
     def setUp(self):
         self.user = make_user("u1")
         self.other_user = make_user("u2")

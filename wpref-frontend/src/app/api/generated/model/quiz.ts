@@ -38,5 +38,5 @@ export interface QuizDto {
     readonly correct_answers: number | null;
     readonly earned_score: number | null;
     readonly max_score: number | null;
+    readonly answer_correctness_state: 'full' | 'unknown' | 'hidden';
 }
-

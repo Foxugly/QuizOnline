@@ -159,15 +159,19 @@ export class QuizQuestionComponent implements OnChanges {
   }
 
   isCorrectOption(option: QuestionAnswerOptionReadDto): boolean {
-    return !!option.is_correct;
+    return option.is_correct === true;
+  }
+
+  hasCorrection(option: QuestionAnswerOptionReadDto): boolean {
+    return option.is_correct === true || option.is_correct === false;
   }
 
   isSelectedWrongOption(option: QuestionAnswerOptionReadDto): boolean {
-    return this.isChecked(option.id) && !this.isCorrectOption(option);
+    return this.hasCorrection(option) && this.isChecked(option.id) && !this.isCorrectOption(option);
   }
 
   answerLineClass(option: QuestionAnswerOptionReadDto): string {
-    if ((this.showCorrectAnswers || this.readonlyMode) && this.isCorrectOption(option)) {
+    if ((this.showCorrectAnswers || this.readonlyMode) && this.hasCorrection(option) && this.isCorrectOption(option)) {
       return 'answer-line answer-line--correct';
     }
 
@@ -237,19 +241,19 @@ export class QuizQuestionComponent implements OnChanges {
   protected getT(question: QuestionReadDto): any {
     const lang: LanguageEnumDto = this.currentLang();
     const translations: any = question.translations;
-    return translations?.[lang];
+    return translations?.[lang] ?? Object.values(translations ?? {})[0] ?? null;
   }
 
   protected getTitle(question: QuestionReadDto): string {
-    return this.getT(question).title?.trim() ?? '';
+    return this.getT(question)?.title?.trim() ?? '';
   }
 
   protected getDescription(question: QuestionReadDto): string {
-    return this.getT(question).description?.trim() ?? '';
+    return this.getT(question)?.description?.trim() ?? '';
   }
 
   protected getExplanation(question: QuestionReadDto): string {
-    return this.getT(question).explanation?.trim() ?? '';
+    return this.getT(question)?.explanation?.trim() ?? '';
   }
 
   protected getAnswerContent(option: QuestionAnswerOptionReadDto): string {

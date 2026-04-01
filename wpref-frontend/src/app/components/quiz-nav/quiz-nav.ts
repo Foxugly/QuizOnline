@@ -104,7 +104,7 @@ export class QuizNav {
     }
 
     const options = item.question.answer_options ?? [];
-    const hasCorrection = options.some((option) => option.is_correct !== undefined);
+    const hasCorrection = options.some((option) => option.is_correct === true || option.is_correct === false);
     if (!hasCorrection) {
       return 'neutral';
     }

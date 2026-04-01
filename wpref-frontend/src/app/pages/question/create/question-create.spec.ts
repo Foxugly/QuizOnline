@@ -10,6 +10,7 @@ import {SubjectService} from '../../../services/subject/subject';
 import {TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {QuestionCreate} from './question-create';
+import {uploadQuestionEditorMediaAssets} from '../../../services/question/question-editor-form';
 
 describe('QuestionCreate media uploads', () => {
   let component: QuestionCreate;
@@ -74,8 +75,10 @@ describe('QuestionCreate media uploads', () => {
   });
 
   async function createMediaAssets(media: MediaSelectorValue[]) {
-    component.form.controls.media.setValue(media);
-    return (component as any)._createMediaAsset();
+    return uploadQuestionEditorMediaAssets(
+      media,
+      (params) => questionService.questionMediaCreate(params),
+    );
   }
 
   function mediaAsset(id: number): MediaAssetDto {

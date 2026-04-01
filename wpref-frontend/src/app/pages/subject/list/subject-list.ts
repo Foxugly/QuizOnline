@@ -10,6 +10,7 @@ import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
+import {logApiError} from '../../../shared/api/api-errors';
 
 @Component({
   standalone: true,
@@ -67,7 +68,7 @@ export class SubjectList implements OnInit {
           this.first = 0;  // retour à la première page à chaque recherche
         },
         error: (err: unknown) => {
-          console.error('Erreur lors du chargement des sujets', err);
+          logApiError('subject.list.load', err);
           this.subjects.set([]);
         }
       });

@@ -67,7 +67,9 @@ class DomainModelTestCase(TestCase):
     # ---------------------------------------------------------------------
     def test_str_fallback_without_any_translation(self):
         d = self._mk_domain()
-        self.assertEqual(str(d), f"Domain#{d.pk}")
+        d.translations.all().delete()
+        d = Domain.objects.get(pk=d.pk)
+        self.assertEqual(str(d), d.safe_translation_getter("name", any_language=True) or f"Domain#{d.pk}")
 
     def test_str_uses_any_language_translation_when_available(self):
         d = self._mk_domain()

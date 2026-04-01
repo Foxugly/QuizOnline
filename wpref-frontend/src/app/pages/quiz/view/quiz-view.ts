@@ -8,6 +8,7 @@ import {CardModule} from 'primeng/card';
 import {QuizDto} from '../../../api/generated';
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
+import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 @Component({
   selector: 'app-view',
@@ -77,8 +78,8 @@ export class QuizView implements OnInit {
           this.quizSession.set(quizSession);
         },
         error: (err: unknown) => {
-          console.error('Erreur chargement quizSession', err);
-          this.error.set("Impossible de charger ce quiz.");
+          logApiError('quiz.view.load-session', err);
+          this.error.set(userFacingApiMessage(err, 'Impossible de charger ce quiz.'));
         },
       });
   }

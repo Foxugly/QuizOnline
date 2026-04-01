@@ -11,6 +11,7 @@ import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {TooltipModule} from 'primeng/tooltip';
 import {DomainService} from '../../../services/domain/domain';
+import {logApiError} from '../../../shared/api/api-errors';
 
 
 @Component({
@@ -45,7 +46,7 @@ export class QuestionList implements OnInit {
           this.first = 0;
         },
         error: (err: unknown) => {
-          console.error('Erreur lors du chargement des questions', err);
+          logApiError('question.list.load', err);
           this.questions.set([]);
         }
       });
