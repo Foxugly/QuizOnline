@@ -6,21 +6,20 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {forkJoin, of} from 'rxjs';
 import {catchError, finalize} from 'rxjs/operators';
 
-import {TabsModule} from 'primeng/tabs';
-import {Editor} from 'primeng/editor';
-import {InputTextModule} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {SelectModule} from 'primeng/select';
-import {PickListModule} from 'primeng/picklist';
-import {BadgeModule} from 'primeng/badge';
-import {SelectButtonModule} from 'primeng/selectbutton';
+import {ButtonModule} from 'primeng/button';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
-import {LangCode, TranslationService} from '../../../services/translation/translation';
+import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
+import {
+  buildLocalizedTextRecord,
+  getLocalizedTextGroup,
+  patchLocalizedTextRecord,
+  syncLocalizedTextControls,
+} from '../../../shared/forms/localized-text-form';
+import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 
 import {
   CustomUserReadDto,
@@ -28,19 +27,23 @@ import {
   DomainWriteRequestDto,
   LanguageEnumDto,
   LanguageReadDto,
+  UserSummaryDto,
 } from '../../../api/generated';
-import {isLangCode} from '../create/domain-create';
 
 type UserOption = { label: string; value: number };
+type DomainUserRef = UserSummaryDto;
+type DomainWritePayload = DomainWriteRequestDto & {
+  owner: number | null;
+  translations: DomainTranslations;
+};
 
 
 function asNumber(x: unknown): number | null {
   return typeof x === 'number' && Number.isFinite(x) ? x : null;
 }
 
-function getUserId(u: unknown): number | null {
-  if (!u || typeof u !== 'object') return null;
-  return asNumber((u as any).id);
+function getUserId(userRef: DomainUserRef | null | undefined): number | null {
+  return asNumber(userRef?.id);
 }
 
 @Component({
@@ -48,15 +51,8 @@ function getUserId(u: unknown): number | null {
   selector: 'app-domain-edit',
   imports: [
     ReactiveFormsModule,
-    TabsModule,
-    Editor,
-    InputTextModule,
-    Button,
-    ToggleSwitchModule,
-    SelectModule,
-    PickListModule,
-    BadgeModule,
-    SelectButtonModule,
+    ButtonModule,
+    DomainEditorFormComponent,
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',
@@ -245,7 +241,7 @@ export class DomainEdit implements OnInit {
   }
 
   langGroup(code: string): FormGroup {
-    return this.translationsGroup().get(code) as FormGroup;
+    return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
   onStaffPickListChange(): void {
@@ -320,7 +316,7 @@ export class DomainEdit implements OnInit {
         const descCtrl = target.get('description') as FormControl<string>;
 
         const needName = !(nameCtrl.value ?? '').trim();
-        const needDesc = this.isEmptyHtml(descCtrl.value ?? '');
+        const needDesc = isEmptyRichText(descCtrl.value ?? '');
 
         const items: Array<{ key: string; text: string; format: 'text' | 'html' }> = [];
         if (needName) items.push({key: 'name', text: sourceName, format: 'text'});
@@ -350,8 +346,8 @@ export class DomainEdit implements OnInit {
     const ownerId = getUserId(dto.owner);
 
     const staffIds = (dto.staff ?? [])
-      .map((u: any) => getUserId(u))
-      .filter((id: any): id is number => typeof id === 'number');
+      .map((userRef) => getUserId(userRef))
+      .filter((id): id is number => id !== null);
 
     this.form.patchValue({
       active: dto.active ?? true,
@@ -362,49 +358,17 @@ export class DomainEdit implements OnInit {
 
   private syncTranslationControls(codes: string[]): void {
     const tg = this.translationsGroup();
-
-    const wanted = new Set<string>(codes);
-    const existing = new Set<string>(Object.keys(tg.controls));
-
-    // add missing
-    for (const code of wanted) {
-      if (!existing.has(code)) {
-        tg.addControl(
-          code,
-          this.fb.group({
-            name: new FormControl<string>('', {
-              nonNullable: true,
-              validators: [Validators.required, Validators.minLength(2)],
-            }),
-            description: new FormControl<string>('', {nonNullable: true}),
-          }),
-        );
-      }
-    }
-
-    // remove obsolete
-    for (const code of existing) {
-      if (!wanted.has(code)) tg.removeControl(code);
-    }
+    syncLocalizedTextControls(this.fb, tg, codes);
 
     // patch values from DTO for all wanted codes (stable, no emit)
     const dto = this.domain();
     if (dto) {
       const tr = (dto.translations ?? {}) as DomainTranslations;
-      const patch: Record<string, { name: string; description: string }> = {};
-
-      for (const code of wanted) {
-        patch[code] = {
-          name: tr[code]?.name ?? '',
-          description: tr[code]?.description ?? '',
-        };
-      }
-
-      tg.patchValue(patch, {emitEvent: false});
+      patchLocalizedTextRecord(tg, codes, tr);
     }
   }
 
-  private buildPayload(): DomainWriteRequestDto {
+  private buildPayload(): DomainWritePayload {
     const codes = this.form.controls.allowed_language_codes.value ?? [];
     const idMap = this.langIdByCode();
 
@@ -412,13 +376,15 @@ export class DomainEdit implements OnInit {
       .map(c => idMap[String(c)])
       .filter((id): id is number => typeof id === 'number');
 
+    const translations = buildLocalizedTextRecord(this.translationsGroup()) as DomainTranslations;
+
     return {
       active: this.form.controls.active.value,
       owner: this.form.controls.owner.value,
       staff: this.form.controls.staff.value,
       allowed_languages,
-      translations: this.translationsGroup().getRawValue(),
-    } as any;
+      translations,
+    };
   }
 
   private ensureMeInStaff(emitEvent: boolean): number | null {
@@ -440,10 +406,5 @@ export class DomainEdit implements OnInit {
 
     this.selectedStaff.set(all.filter(o => selectedIds.has(o.value)));
     this.availableStaff.set(all.filter(o => !selectedIds.has(o.value)));
-  }
-
-  private isEmptyHtml(html: string): boolean {
-    const s = (html ?? '').trim().toLowerCase();
-    return !s || s === '<p><br></p>' || s === '<p></p>';
   }
 }

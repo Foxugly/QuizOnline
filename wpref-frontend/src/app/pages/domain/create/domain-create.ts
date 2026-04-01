@@ -6,15 +6,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {forkJoin, of} from 'rxjs';
 import {catchError, finalize} from 'rxjs/operators';
 
-import {TabsModule} from 'primeng/tabs';
-import {Editor} from 'primeng/editor';
-import {InputTextModule} from 'primeng/inputtext';
 import {Button, ButtonModule} from 'primeng/button';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {SelectModule} from 'primeng/select';
-import {PickListModule} from 'primeng/picklist';
-import {MessageModule} from 'primeng/message';
-import {SelectButtonModule} from 'primeng/selectbutton';
 import {CardModule} from 'primeng/card';
 
 import {
@@ -26,18 +18,21 @@ import {
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
-import {TranslationService} from '../../../services/translation/translation';
+import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
 import {LanguageService} from '../../../services/language/language';
+import {
+  buildLocalizedTextRecord,
+  getLocalizedTextGroup,
+  syncLocalizedTextControls,
+} from '../../../shared/forms/localized-text-form';
+import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 
 type UserOption = { label: string; value: number };
-//type DomainTr = { name?: string; description?: string };
-//type DomainTranslations = Record<string, DomainTr>;
-type LangCode = `${LanguageEnumDto}`;
-const LANG_CODES = Object.values(LanguageEnumDto) as LangCode[];
-
-export function isLangCode(value: string): value is LangCode {
-  return (LANG_CODES as readonly string[]).includes(value);
-}
+type DomainWritePayload = DomainWriteRequestDto & {
+  owner: number | null;
+  translations: DomainTranslations;
+};
 
 @Component({
   selector: 'app-domain-create',
@@ -45,16 +40,9 @@ export function isLangCode(value: string): value is LangCode {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TabsModule,
-    Editor,
-    InputTextModule,
     ButtonModule,
-    ToggleSwitchModule,
-    SelectModule,
-    SelectButtonModule,
-    PickListModule,
-    MessageModule,
     CardModule,
+    DomainEditorFormComponent,
   ],
   templateUrl: './domain-create.html',
   styleUrl: './domain-create.scss',
@@ -200,7 +188,7 @@ export class DomainCreate implements OnInit {
   }
 
   langGroup(code: string): FormGroup {
-    return this.translationsGroup().get(code) as FormGroup;
+    return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
   onStaffPickListChange(): void {
@@ -244,7 +232,7 @@ export class DomainCreate implements OnInit {
         const descCtrl = target.get('description') as FormControl<string>;
 
         const needName = !(nameCtrl.value ?? '').trim();
-        const needDesc = this.isEmptyHtml(descCtrl.value ?? '');
+        const needDesc = isEmptyRichText(descCtrl.value ?? '');
 
         const items: Array<{ key: string; text: string; format: 'text' | 'html' }> = [];
         if (needName) items.push({key: 'name', text: sourceName, format: 'text'});
@@ -299,7 +287,7 @@ export class DomainCreate implements OnInit {
     return this.form.get('translations') as FormGroup;
   }
 
-  private buildDto(): DomainWriteRequestDto {
+  private buildDto(): DomainWritePayload {
     const codes = this.form.controls.allowed_language_codes.value ?? [];
     const idMap = this.langIdByCode();
 
@@ -307,49 +295,18 @@ export class DomainCreate implements OnInit {
       .map(c => idMap[String(c)])
       .filter((id): id is number => typeof id === 'number');
 
-    const translations: DomainTranslations = {};
-    const tg = this.translationsGroup();
-
-    for (const code of Object.keys(tg.controls)) {
-      const g = tg.get(code) as FormGroup;
-      translations[code] = {
-        name: (g.get('name') as FormControl<string>)?.value ?? '',
-        description: (g.get('description') as FormControl<string>)?.value ?? '',
-      };
-    }
+    const translations = buildLocalizedTextRecord(this.translationsGroup()) as DomainTranslations;
     return {
       active: this.form.controls.active.value ?? true,
       owner: this.form.controls.owner.value ?? null,
       staff: this.form.controls.staff.value ?? [],
       allowed_languages,
       translations,
-    } as any;
+    };
   }
 
   private syncTranslationControls(codes: string[]): void {
-    const tg = this.translationsGroup();
-
-    const wanted = new Set<string>(codes);
-    const existing = new Set<string>(Object.keys(tg.controls));
-
-    for (const code of wanted) {
-      if (!existing.has(code)) {
-        tg.addControl(
-          code,
-          this.fb.group({
-            name: new FormControl<string>('', {
-              nonNullable: true,
-              validators: [Validators.required, Validators.minLength(2)],
-            }),
-            description: new FormControl<string>('', {nonNullable: true}),
-          }),
-        );
-      }
-    }
-
-    for (const code of existing) {
-      if (!wanted.has(code)) tg.removeControl(code);
-    }
+    syncLocalizedTextControls(this.fb, this.translationsGroup(), codes);
   }
 
   private recomputePickList(): void {
@@ -382,10 +339,5 @@ export class DomainCreate implements OnInit {
       }
     }
 
-  }
-
-  private isEmptyHtml(html: string): boolean {
-    const s = (html ?? '').trim().toLowerCase();
-    return !s || s === '<p><br></p>' || s === '<p></p>';
   }
 }

@@ -1,5 +1,9 @@
+import logging
+
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class DeepLError(Exception):
@@ -16,7 +20,15 @@ def deepl_translate_many(texts: list[str], source: str, target: str, fmt: str = 
     Appelle DeepL pour traduire plusieurs textes en une requête.
     Retourne la liste traduite dans le même ordre.
     """
-    print("DEEPL", texts, source, target, fmt)
+    logger.debug(
+        "DeepL translate batch requested",
+        extra={
+            "source_lang": source,
+            "target_lang": target,
+            "format": fmt,
+            "item_count": len(texts),
+        },
+    )
     if not settings.DEEPL_AUTH_KEY:
         raise DeepLError("DEEPL_AUTH_KEY is not configured")
 
@@ -51,5 +63,14 @@ def deepl_translate_many(texts: list[str], source: str, target: str, fmt: str = 
     translations = payload.get("translations") or []
     # On renvoie dans le même ordre
     out = [t.get("text", "") for t in translations]
-    print(out)
+    logger.debug(
+        "DeepL translate batch completed",
+        extra={
+            "source_lang": source,
+            "target_lang": target,
+            "format": fmt,
+            "item_count": len(texts),
+            "translated_count": len(out),
+        },
+    )
     return out

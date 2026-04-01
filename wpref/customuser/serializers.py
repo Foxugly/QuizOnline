@@ -3,21 +3,29 @@ from typing import List
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from domain.models import Domain
-from drf_spectacular.utils import inline_serializer
 from quiz.models import Quiz
 from rest_framework import serializers
 
 User = get_user_model()
 
-PasswordResetOKSerializer = inline_serializer(
-    name="PasswordResetOK",
-    fields={"detail": serializers.CharField()},
-)
+
+class PasswordResetOKSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
+class StrictFieldsModelSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        unknown = set(self.initial_data.keys()) - set(self.fields.keys())
+        if unknown:
+            raise serializers.ValidationError(
+                {field: "This field is not allowed." for field in sorted(unknown)}
+            )
+        return attrs
 
 
 class CustomUserReadSerializer(serializers.ModelSerializer):
-    current_domain_title = serializers.CharField(source="current_domain.title", read_only=True)
-
+    current_domain_title = serializers.SerializerMethodField()
     owned_domain_ids = serializers.SerializerMethodField()
     managed_domain_ids = serializers.SerializerMethodField()
 
@@ -40,6 +48,12 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "username", "is_staff", "is_superuser", "is_active"]
 
+    def get_current_domain_title(self, obj) -> str:
+        domain = getattr(obj, "current_domain", None)
+        if domain is None:
+            return ""
+        return domain.safe_translation_getter("name", any_language=True) or ""
+
     def get_owned_domain_ids(self, obj) -> List[int]:
         return list(obj.owned_domains.values_list("id", flat=True))
 
@@ -47,15 +61,18 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         return list(obj.managed_domains.values_list("id", flat=True))
 
 
-class CustomUserCreateSerializer(serializers.ModelSerializer):
+class CustomUserCreateSerializer(StrictFieldsModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name", "password", "language"]
 
+    def validate_password(self, value: str) -> str:
+        validate_password(value)
+        return value
+
     def create(self, validated_data):
-        # IMPORTANT: set_password
         password = validated_data.pop("password")
         user = User(**validated_data)
         user.set_password(password)
@@ -63,15 +80,22 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class CustomUserUpdateSerializer(serializers.ModelSerializer):
-    # optionnel: si tu veux permettre le changement de password via PUT/PATCH ici,
-    # sinon retire le champ et garde un endpoint dédié.
+class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "first_name", "last_name", "language"]
+
+
+class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "password", "is_active"]
-        read_only_fields = []  # is_active si réservé au staff -> gère via permissions/validate
+        fields = ["email", "first_name", "last_name", "language", "password", "is_active"]
+
+    def validate_password(self, value: str) -> str:
+        validate_password(value, user=self.instance)
+        return value
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
@@ -91,7 +115,7 @@ class QuizSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz
-        fields = ["id", "title", ]
+        fields = ["id", "title"]
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
@@ -134,7 +158,6 @@ class SetCurrentDomainSerializer(serializers.Serializer):
     def validate(self, attrs):
         user = self.context["request"].user
 
-        # reset
         if "domain_id" not in attrs or attrs["domain_id"] is None:
             attrs["domain"] = None
             return attrs

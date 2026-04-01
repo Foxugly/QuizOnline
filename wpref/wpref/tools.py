@@ -2,24 +2,19 @@ import logging
 
 from django.conf import settings
 from django.http import Http404
-from drf_spectacular.utils import inline_serializer
-from rest_framework import serializers
-from rest_framework import viewsets
-from rest_framework.exceptions import NotFound
+from rest_framework import serializers, viewsets
+from rest_framework.exceptions import APIException, NotFound
 
 logger = logging.getLogger(__name__)
 
-ErrorDetailSerializer = inline_serializer(
-    name="ErrorDetail",
-    fields={
-        "detail": serializers.CharField(required=False),
-    },
-)
+
+class ErrorDetailSerializer(serializers.Serializer):
+    detail = serializers.CharField(required=False)
 
 
 def mask_sensitive_data(data):
     """
-    Masque récursivement les champs sensibles dans dicts & listes.
+    Masque recursivement les champs sensibles dans dicts et listes.
     """
     if isinstance(data, dict):
         return {
@@ -39,12 +34,7 @@ class MyModelViewSet(viewsets.ModelViewSet):
     def _log_call(self, *, method_name: str, endpoint: str, input_expected: str, output: str,
                   extra: dict | None = None):
         """
-        Log standardisé pour tracer :
-        - endpoint
-        - input/output
-        - user
-        - action
-        - payload (prudent) + params
+        Log standardise pour tracer endpoint, IO, user, action, payload masque et params.
         """
         user_id = getattr(getattr(self.request, "user", None), "id", None)
         action = getattr(self, "action", None)
@@ -54,7 +44,7 @@ class MyModelViewSet(viewsets.ModelViewSet):
         except Exception:
             masked_payload = "<unreadable>"
 
-        logger.info(
+        logger.debug(
             "[%s] action=%s user=%s endpoint=%s input=%s output=%s payload_keys=%s params=%s extra=%s",
             method_name,
             action,
@@ -69,14 +59,23 @@ class MyModelViewSet(viewsets.ModelViewSet):
 
     def handle_exception(self, exc):
         """
-        Loggue l'exception avec contexte supplémentaire.
+        Loggue les erreurs inattendues en exception et les erreurs API attendues en debug.
         """
-        logger.exception(
-            "Erreur dans %s (action=%s, user=%s)",
-            self.__class__.__name__,
-            getattr(self, "action", None),
-            getattr(self.request.user, "id", None),
-        )
+        if isinstance(exc, APIException):
+            logger.debug(
+                "API exception in %s (action=%s, user=%s): %s",
+                self.__class__.__name__,
+                getattr(self, "action", None),
+                getattr(self.request.user, "id", None),
+                exc,
+            )
+        else:
+            logger.exception(
+                "Erreur dans %s (action=%s, user=%s)",
+                self.__class__.__name__,
+                getattr(self, "action", None),
+                getattr(self.request.user, "id", None),
+            )
         if isinstance(exc, Http404):
-            exc = NotFound()  # ou NotFound("Not found.")
+            exc = NotFound()
         return super().handle_exception(exc)

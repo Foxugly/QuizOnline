@@ -1,47 +1,37 @@
 <div class="quiz-question">
   <p-card class="quiz-question--card">
-    <!-- HEADER -->
     <ng-template pTemplate="header">
       <div class="quiz-question--card-header">
+        <div class="header-left"></div>
 
-        <!-- Gauche : statut question.active -->
-        <div class="header-left">
-          @if (displayMode === 'preview') {
-            <i
-              [ngClass]="question.active ? 'pi-check-circle active-icon' : 'pi-times-circle inactive-icon'"
-              class="pi"
-            ></i>
-          }
-        </div>
-
-        <!-- Centre : label -->
         <div class="header-center">
-          Question {{ quizNavItem.index }}
+          Question : {{ getTitle(question) || quizNavItem.index }}
         </div>
 
-        <!-- Droite : icône fixe -->
         <div class="header-right">
-          <p-togglebutton
-            (onChange)="flagToggled.emit($event.checked)"
-            [ngModel]="quizNavItem.flagged"
-            class="w-36"
-            offIcon="pi pi-bookmark"
-            onIcon="pi pi-bookmark-fill"></p-togglebutton>
+          @if (!readonlyMode) {
+            <p-togglebutton
+              (onChange)="flagToggled.emit($event.checked)"
+              [ngModel]="quizNavItem.flagged"
+              class="w-36"
+              offIcon="pi pi-bookmark"
+              onIcon="pi pi-bookmark-fill"></p-togglebutton>
+          }
         </div>
       </div>
     </ng-template>
 
-    <!-- Médias -->
     @if (question.media.length) {
       <div class="quiz-question__media">
         @for (m of question.media; track m.id ?? m.sort_order; let i = $index) {
           @switch (m.asset.kind) {
             @case ('image') {
-              <img
+              <p-image
                 [alt]="getTitle(question)"
+                [preview]="true"
                 [src]="mediaSrc(m)"
                 class="quiz-question__media-image"
-              />
+              ></p-image>
             }
             @case ('video') {
               <video
@@ -49,7 +39,7 @@
                 class="quiz-question__media-video"
                 controls
               >
-                Votre navigateur ne supporte pas la vidéo.
+                Votre navigateur ne supporte pas la video.
               </video>
             }
             @case ('external') {
@@ -61,24 +51,44 @@
                     frameborder="0"
                   ></iframe>
                 </div>
+              } @else if (externalLinkUrl(m); as link) {
+                <a
+                  [href]="link"
+                  class="quiz-question__external-link"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  Ouvrir le lien video
+                </a>
               }
             }
           }
         }
       </div>
     }
-    <!-- Description -->
+
     @if (getDescription(question)) {
       <div
         [innerHTML]="stripOuterP(getDescription(question))"
         class="quiz-question__description"
       ></div>
     }
-    <div class="quiz-question__answers">
+
+      <div class="quiz-question__answers">
       @for (opt of question.answer_options; track opt.id; let i = $index) {
-        <div [ngClass]="{ 'answer-line--correct': showCorrectAnswers && opt.is_correct}" class="answer-line">
-          @if (allowMultiple) {
-            <!-- MULTI → checkbox -->
+        <div [class]="answerLineClass(opt)">
+          @if (readonlyMode) {
+            <span
+              class="answer-indicator"
+              [class.answer-indicator--selected]="isChecked(opt.id)"
+              [class.answer-indicator--checkbox]="allowMultiple"
+              [class.answer-indicator--radio]="!allowMultiple"
+            >
+              @if (isChecked(opt.id)) {
+                <i class="pi pi-check"></i>
+              }
+            </span>
+          } @else if (allowMultiple) {
             <p-checkbox
               [binary]="true"
               [ngModel]="isChecked(opt.id)"
@@ -86,7 +96,6 @@
               (onChange)="onToggleCheckbox(opt.id, $event.checked)"
             ></p-checkbox>
           } @else {
-            <!-- SINGLE → radio -->
             <p-radioButton
               (ngModelChange)="onSelectRadio($event)"
               [(ngModel)]="selectedRadioId"
@@ -97,44 +106,58 @@
           }
 
           <label [for]="'opt' + opt.id" class="answer-label">
-            {{ opt.id }}
-            <div [innerHTML]="stripOuterP(opt.content)"></div>
+            <div class="answer-label__content" [innerHTML]="stripOuterP(getAnswerContent(opt))"></div>
           </label>
         </div>
       }
-      <!-- Description -->
-      @if (showCorrectAnswers && getExplanation(question)) {
-        <div
-          [innerHTML]="stripOuterP(getExplanation(question))"
-          class="quiz-question__description"
-        ></div>
+
+      @if ((showCorrectAnswers || readonlyMode) && getExplanation(question)) {
+        <section class="quiz-question__explanation">
+          <p class="quiz-question__explanation-label">Explication</p>
+          <div
+            [innerHTML]="stripOuterP(getExplanation(question))"
+            class="quiz-question__explanation-body"
+          ></div>
+        </section>
       }
     </div>
-    <ng-template pTemplate="footer">
-      <div class="card-footer">
-        <p-button
-          (onClick)="onPreviousClick()"
-          [disabled]="!hasPrevious"
-          icon="pi pi-chevron-left"
-          label="Précédent"
-          severity="secondary"
-          styleClass="p-button-text"
-        ></p-button>
 
-        <span class="spacer"></span>
+    @if (showFooter) {
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="card-footer__group card-footer__group--left">
+            <p-button
+              (onClick)="onPreviousClick()"
+              [disabled]="!hasPrevious"
+              icon="pi pi-chevron-left"
+              label="Précédent"
+              severity="secondary"
+              variant="outlined"
+            ></p-button>
+          </div>
 
-        <p-button
-          (onClick)="onNextClick()"
-          [disabled]="!hasNext"
-          icon="pi pi-chevron-right"
-          iconPos="right"
-          label="Suivant"
-          severity="secondary"
-          styleClass="p-button-text"
-        ></p-button>
-      </div>
-    </ng-template>
+          <div class="card-footer__group card-footer__group--center">
+            <p-button
+              (onClick)="onBackClick()"
+              icon="pi pi-arrow-left"
+              label="Retour au quiz"
+              severity="secondary"
+              variant="outlined"
+            ></p-button>
+          </div>
 
+          <div class="card-footer__group card-footer__group--right">
+            <p-button
+              (onClick)="onNextClick()"
+              icon="pi pi-chevron-right"
+              iconPos="right"
+              [label]="hasNext ? 'Suivant' : (readonlyMode ? 'Terminer la relecture' : 'Terminer')"
+              severity="secondary"
+              variant="outlined"
+            ></p-button>
+          </div>
+        </div>
+      </ng-template>
+    }
   </p-card>
-  <!-- Réponses -->
 </div>

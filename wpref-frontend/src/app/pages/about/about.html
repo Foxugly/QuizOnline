@@ -1,1 +1,48 @@
-<p>about works!</p>
+<section class="about-page">
+  <header class="hero">
+    <p class="eyebrow">A propos du projet</p>
+    <h1>WpRef</h1>
+    <p class="lead">
+      Plateforme de gestion et de passage de quiz avec contenus multilingues, édition des questions
+      et suivi des sessions.
+    </p>
+    <a class="repo-link" [href]="repositoryUrl" rel="noreferrer" target="_blank">
+      Voir le repository
+    </a>
+  </header>
+
+  <section class="about-grid">
+    <article class="card">
+      <h2>Repository</h2>
+      <p>Code source principal du projet :</p>
+      <p class="mono">{{ repositoryUrl }}</p>
+    </article>
+
+    <article class="card">
+      <h2>Frontend</h2>
+      <ul>
+        @for (item of frontendStack; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Backend</h2>
+      <ul>
+        @for (item of backendStack; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Fonctionnalités</h2>
+      <ul>
+        @for (item of projectHighlights; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </article>
+  </section>
+</section>

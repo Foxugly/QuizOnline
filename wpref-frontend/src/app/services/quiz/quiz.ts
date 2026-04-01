@@ -1,20 +1,23 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {catchError, Observable, of, switchMap, throwError} from 'rxjs';
+import {map, Observable, of, switchMap} from 'rxjs';
 import {
-  CreateQuizInputRequestDto, GenerateFromSubjectsInputRequestDto,
+  CreateQuizInputRequestDto,
+  GenerateFromSubjectsInputRequestDto,
+  QuestionApi,
   QuizAnswerApi,
   QuizApi,
   QuizDto,
+  QuizListDto,
   QuizQuestionAnswerDto,
   QuizQuestionAnswerWriteRequestDto,
-  QuizTemplateApi, QuizTemplateDto, QuizTemplateGenerateFromSubjectsCreateRequestParams,
-  SubjectApi,
+  QuizTemplateApi,
+  QuizTemplateDto,
+  QuizTemplateGenerateFromSubjectsCreateRequestParams,
 } from '../../api/generated';
-import {HttpResponse} from '@angular/common/http';
-
 
 export interface QuizSubjectCreatePayload {
+  title: string;
   subject_ids: number[];
   max_questions: number;
   with_duration: boolean;
@@ -25,35 +28,49 @@ export interface QuizSubjectCreatePayload {
   providedIn: 'root',
 })
 export class QuizService {
-  constructor(private quizApi: QuizApi,
-              private qtApi: QuizTemplateApi,
-              private subjectApi: SubjectApi,
-              private answerApi: QuizAnswerApi,
-              private router: Router) {
-  }
+  constructor(
+    private quizApi: QuizApi,
+    private qtApi: QuizTemplateApi,
+    private questionApi: QuestionApi,
+    private answerApi: QuizAnswerApi,
+    private router: Router,
+  ) {}
 
   goList(): void {
     this.router.navigate(['/quiz', 'list']);
   }
 
-  startQuiz(id: number, cqir: CreateQuizInputRequestDto): Observable<QuizDto> {
-    return this.quizApi.quizStartCreate({quizId: id, createQuizInputRequestDto: cqir});
+  startQuiz(id: number): Observable<QuizDto> {
+    return this.quizApi.quizStartCreate({quizId: id});
   }
 
-  goStart(id: number, cqir: CreateQuizInputRequestDto): void {
-    this.startQuiz(id, cqir).subscribe({
+  createQuizFromTemplate(quizTemplateId: number): Observable<QuizDto> {
+    return this.quizApi.quizCreate({
+      createQuizInputRequestDto: {quiz_template_id: quizTemplateId},
+    });
+  }
+
+  closeQuiz(id: number): Observable<QuizDto> {
+    return this.quizApi.quizCloseCreate({quizId: id});
+  }
+
+  goStart(id: number): void {
+    this.startQuiz(id).subscribe({
       next: (session: QuizDto): void => {
-        // TODO
+        this.goQuestion(session.id);
       },
-      error: (err) => {
+      error: (err: unknown): void => {
         console.error('Erreur startQuizSession', err);
       },
     });
   }
 
-
   goView(id: number): void {
     this.router.navigate(['/quiz', id]);
+  }
+
+  goCompose(): void {
+    this.router.navigate(['/quiz', 'add']);
   }
 
   goQuestion(id: number): void {
@@ -61,82 +78,57 @@ export class QuizService {
   }
 
   getQuestionCountBySubjects(subjectIds: number[]): Observable<{ count: number }> {
-    return of({count: 0}); //this.questionApi.questionCountBySubjects(subjectIds); // TODO
+    if (!subjectIds.length) {
+      return of({count: 0});
+    }
+
+    const selected = new Set(subjectIds);
+    return this.questionApi.questionList({active: true}).pipe(
+      map((questions) => ({
+        count: questions.filter((question) =>
+          question.subjects.some((subject) => selected.has(subject.id)),
+        ).length,
+      })),
+    );
   }
 
-  generateQuiz(gen: GenerateFromSubjectsInputRequestDto): Observable<QuizTemplateDto> {
-    const payload :QuizTemplateGenerateFromSubjectsCreateRequestParams = {generateFromSubjectsInputRequestDto:gen};
-    return this.qtApi.quizTemplateGenerateFromSubjectsCreate(payload)
+  generateQuiz(payload: GenerateFromSubjectsInputRequestDto): Observable<QuizDto> {
+    const params: QuizTemplateGenerateFromSubjectsCreateRequestParams = {
+      generateFromSubjectsInputRequestDto: payload,
+    };
+    return this.qtApi.quizTemplateGenerateFromSubjectsCreate(params).pipe(
+      switchMap((quizTemplate) => this.createQuizFromTemplate(quizTemplate.id)),
+    );
   }
 
-  listQuiz(params?: {name?: string;  search?: string }): Observable<QuizDto[]> {
-    return this.quizApi.quizList({name:params?.name, search:params?.search});
+  listQuiz(params?: {name?: string; search?: string}): Observable<QuizListDto[]> {
+    return this.quizApi.quizList({name: params?.name, search: params?.search});
+  }
+
+  listTemplates(): Observable<QuizTemplateDto[]> {
+    return this.qtApi.quizTemplateList();
   }
 
   retrieveQuiz(id: number): Observable<QuizDto> {
     return this.quizApi.quizRetrieve({quizId: id});
   }
 
-  saveAnswer(quizId: number, payload: QuizQuestionAnswerWriteRequestDto) {
+  saveAnswer(
+    quizId: number,
+    payload: QuizQuestionAnswerWriteRequestDto,
+  ): Observable<QuizQuestionAnswerDto> {
     if (payload.question_order == null) {
-      return null;
-    }
-    const questionOrder: number = payload.question_order;
-    if (questionOrder == null) {
-      return throwError(() => new Error('question_order is required'));
+      throw new Error('question_order is required');
     }
 
-    // 1) On tente de récupérer la réponse existante
-    return this.answerApi.quizAnswerRetrieve(
-      {quizId, answerId: questionOrder},
-      'response'
-    ).pipe(
-      // 2) Si elle existe => update
-      switchMap((resp: HttpResponse<QuizQuestionAnswerDto>) => {
-        const body = resp.body;
-        if (!body) {
-          // sécurité: si backend renvoie 200 sans body, on force le fallback create/update
-          return this.answerApi.quizAnswerUpdate(
-            {
-              quizId,
-              answerId: questionOrder,
-              quizQuestionAnswerWriteRequestDto: payload,
-            },
-            'response'
-          );
-        }
-
-        return this.answerApi.quizAnswerUpdate(
-          {
-            quizId,
-            answerId: body.question_order ?? questionOrder, // ou questionOrder directement
-            quizQuestionAnswerWriteRequestDto: payload,
-          },
-          'response'
-        );
-      }),
-
-      // 3) Si retrieve échoue (404 typiquement) => create
-      catchError((err: any) => {
-        // Option: ne créer que si 404, sinon rethrow
-        if (err?.status && err.status !== 404) {
-          return throwError(() => err);
-        }
-
-        return this.answerApi.quizAnswerCreate(
-          {quizId, quizQuestionAnswerWriteRequestDto: payload},
-          'response'
-        );
-      })
-    );
+    return this.answerApi.quizAnswerCreate({quizId, quizQuestionAnswerWriteRequestDto: payload});
   }
 
-
-  getAnswer(quiz_id: number, question_order: number) {
-    return this.answerApi.quizAnswerRetrieve({answerId: question_order, quizId: quiz_id})
+  listAnswers(quizId: number): Observable<QuizQuestionAnswerDto[]> {
+    return this.answerApi.quizAnswerList({quizId});
   }
 
-  goSubject() {
+  goSubject(): void {
     this.router.navigate(['/quiz/subject']);
   }
 }

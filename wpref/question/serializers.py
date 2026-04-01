@@ -1,8 +1,10 @@
 import hashlib
 from typing import List, Any
 
+from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
+from django.utils import translation
 from domain.models import Domain
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import inline_serializer, extend_schema_field
@@ -11,9 +13,63 @@ from subject.models import Subject
 from subject.serializers import SubjectReadSerializer, SubjectWriteSerializer
 
 from .models import Question, QuestionMedia, AnswerOption, MediaAsset
-from wpref.serializers import JSONDictOrStringField, JSONListOrStringField
+from wpref.serializers import (
+    JSONDictOrStringField,
+    LocalizedAnswerOptionTranslationSerializer,
+    LocalizedTranslationsJSONField,
+    LocalizedQuestionTranslationSerializer,
+    SerializerListJSONField,
+    localized_translations_map_schema,
+)
 
 from domain.serializers import DomainReadSerializer
+
+
+def _translated_value(obj, field: str) -> str:
+    language_code = translation.get_language() or settings.LANGUAGE_CODE
+    translation_model = obj._parler_meta.root_model
+    current_value = (
+        translation_model.objects
+        .filter(master_id=obj.pk, language_code=language_code)
+        .values_list(field, flat=True)
+        .first()
+    )
+    if current_value:
+        return current_value
+
+    fallback_value = (
+        translation_model.objects
+        .filter(master_id=obj.pk)
+        .values_list(field, flat=True)
+        .first()
+    )
+    return fallback_value or ""
+
+
+def _serialized_translations(obj, fields: list[str]) -> dict:
+    translation_model = obj._parler_meta.root_model
+    data = {}
+    for translation_obj in translation_model.objects.filter(master_id=obj.pk):
+        data[translation_obj.language_code] = {
+            field: getattr(translation_obj, field, "") or ""
+            for field in fields
+        }
+    return data
+
+
+def _upsert_translations(obj, translations: dict, *, fields: list[str]) -> None:
+    translation_model = obj._parler_meta.root_model
+    for language_code, payload in translations.items():
+        defaults = {
+            field: payload.get(field, "")
+            for field in fields
+            if field in payload
+        }
+        translation_model.objects.update_or_create(
+            master_id=obj.pk,
+            language_code=language_code,
+            defaults=defaults,
+        )
 
 
 class QuestionLiteSerializer(serializers.ModelSerializer):
@@ -24,7 +80,7 @@ class QuestionLiteSerializer(serializers.ModelSerializer):
         fields = ["id", "title"]
 
     def get_title(self, obj: Question) -> str:
-        return obj.safe_translation_getter("title", any_language=True) or ""
+        return _translated_value(obj, "title")
 
 
 class MediaAssetSerializer(serializers.ModelSerializer):
@@ -44,11 +100,8 @@ class QuestionMediaReadSerializer(serializers.ModelSerializer):
 
 
 class MediaAssetUploadSerializer(serializers.Serializer):
-    # multipart: file=<...>
     file = serializers.FileField(required=False)
-    # JSON or form: external_url="https://..."
     external_url = serializers.URLField(required=False)
-    # optional explicit kind (otherwise inferred)
     kind = serializers.ChoiceField(
         choices=[MediaAsset.IMAGE, MediaAsset.VIDEO, MediaAsset.EXTERNAL],
         required=False,
@@ -88,23 +141,36 @@ class QuestionAnswerOptionPublicReadSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def get_content(self, obj) -> str:
-        return obj.safe_translation_getter("content", any_language=True) or ""
+        return _translated_value(obj, "content")
 
 
 class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
+    translations = serializers.SerializerMethodField()
 
     class Meta:
         model = AnswerOption  # adapte si ton modèle s'appelle autrement
-        fields = ["id", "content", "is_correct", "sort_order"]
+        fields = ["id", "content", "translations", "is_correct", "sort_order"]
         read_only_fields = ["id"]
 
     def get_content(self, obj) -> str:
-        return obj.safe_translation_getter("content", any_language=True) or ""
+        return _translated_value(obj, "content")
+
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedAnswerOptionTranslationSerializer,
+            "LocalizedAnswerOptionTranslations",
+        )
+    )
+    def get_translations(self, obj) -> dict:
+        return _serialized_translations(obj, ["content"])
 
 
 class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
-    translations = JSONDictOrStringField(write_only=True)
+    translations = LocalizedTranslationsJSONField(
+        value_serializer=LocalizedAnswerOptionTranslationSerializer,
+        write_only=True,
+    )
 
     class Meta:
         model = AnswerOption
@@ -122,12 +188,15 @@ class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
 
 
 class QuestionInQuizQuestionSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source="safe_translation_getter", read_only=True)
+    title = serializers.SerializerMethodField()
     answer_options = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
         fields = ["id", "title", "answer_options"]
+
+    def get_title(self, obj: Question) -> str:
+        return _translated_value(obj, "title")
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:
@@ -163,15 +232,14 @@ class QuestionReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedQuestionTranslationSerializer,
+            "LocalizedQuestionTranslations",
+        )
+    )
     def get_translations(self, obj: Question) -> dict:
-        data = {}
-        for t in obj.translations.all():
-            data[t.language_code] = {
-                "title": t.title or "",
-                "description": t.description or "",
-                "explanation": t.explanation or "",
-            }
-        return data
+        return _serialized_translations(obj, ["title", "description", "explanation"])
 
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
@@ -185,12 +253,14 @@ class QuestionReadSerializer(serializers.ModelSerializer):
 
 
 class QuestionWriteSerializer(serializers.ModelSerializer):
-    translations = JSONDictOrStringField(
+    translations = LocalizedTranslationsJSONField(
+        value_serializer=LocalizedQuestionTranslationSerializer,
         write_only=True,
         required=False,
         help_text="Object or JSON string (multipart). Dict keyed by language code."
     )
-    answer_options = JSONListOrStringField(
+    answer_options = SerializerListJSONField(
+        item_serializer=QuestionAnswerOptionWriteSerializer,
         write_only=True,
         required=False,
         help_text="List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}"
@@ -243,17 +313,38 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
             for i, aid in enumerate(set_asset_ids)
         ])
 
+    def _validate_subject_ids_for_domain(self, domain: Domain, subject_ids: list[int]) -> None:
+        if not subject_ids:
+            return
+
+        subjects = list(Subject.objects.filter(id__in=subject_ids).only("id", "domain_id"))
+        found = {subject.id for subject in subjects}
+        missing = set(subject_ids) - found
+        if missing:
+            raise serializers.ValidationError({"subject_ids": f"Subjects inexistants: {sorted(missing)}"})
+
+        invalid = sorted(subject.id for subject in subjects if subject.domain_id != domain.id)
+        if invalid:
+            raise serializers.ValidationError({"subject_ids": f"Subjects hors domain {domain.id}: {invalid}"})
+
+    def _validate_existing_subjects_for_domain(self, question: Question, domain: Domain) -> None:
+        invalid = sorted(question.subjects.exclude(domain=domain).values_list("id", flat=True))
+        if invalid:
+            raise serializers.ValidationError({
+                "subject_ids": (
+                    "Les subjects déjà liés à la question ne correspondent pas au nouveau domain. "
+                    f"Subjects invalides: {invalid}"
+                )
+            })
+
     # ---------- helpers ----------
     def _apply_question_translations(self, question: Question, translations: dict):
-        for lang_code, data in translations.items():
-            question.set_current_language(lang_code)
-            if "title" in data:
-                question.title = data["title"]
-            if "description" in data:
-                question.description = data["description"]
-            if "explanation" in data:
-                question.explanation = data["explanation"]
-            question.save()
+        _upsert_translations(
+            question,
+            translations,
+            fields=["title", "description", "explanation"],
+        )
+        question.refresh_from_db()
 
     def _recreate_answer_options(self, question: Question, answer_options_data: List, allowed_langs: set[str]):
         question.answer_options.all().delete()
@@ -271,12 +362,11 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
             ao.pop("translations", None)
 
             opt = AnswerOption.objects.create(question=question, **ao)
-
-            for lang_code in allowed_langs:
-                data = ao_trans.get(lang_code, {})
-                opt.set_current_language(lang_code)
-                opt.content = data.get("content", "")
-                opt.save()
+            _upsert_translations(
+                opt,
+                {lang_code: ao_trans.get(lang_code, {}) for lang_code in allowed_langs},
+                fields=["content"],
+            )
 
     # ---------------------------
     # CREATE
@@ -363,6 +453,11 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"translations": f"Langues manquantes: {sorted(missing)}"})
             if extra:
                 raise serializers.ValidationError({"translations": f"Langues non autorisées: {sorted(extra)}"})
+
+        if "subject_ids" in attrs:
+            self._validate_subject_ids_for_domain(domain, attrs.get("subject_ids") or [])
+        elif self.instance is not None and "domain" in attrs:
+            self._validate_existing_subjects_for_domain(self.instance, domain)
 
         # ---- answer_options rules ----
         allow_multiple = attrs.get(

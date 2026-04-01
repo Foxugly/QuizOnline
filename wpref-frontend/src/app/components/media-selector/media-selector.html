@@ -3,7 +3,7 @@
     <p-tablist>
       <p-tab value="media">
         <span class="pi pi-images tab-icon"></span>
-        <span>Image ou vidéo</span>
+        <span>Image ou video</span>
       </p-tab>
 
       <p-tab value="youtube">
@@ -13,16 +13,14 @@
     </p-tablist>
 
     <p-tabpanels>
-      <!-- Onglet 1 : Upload médias -->
       <p-tabpanel value="media">
         <div class="tab-panel tab-panel--media">
           <p class="hint">
-            Tu peux déposer une ou plusieurs images ou vidéos.
+            Tu peux deposer une ou plusieurs images ou videos.
             Seuls les fichiers avec un type MIME
-            <code>image/*</code> ou <code>video/*</code> sont acceptés.
+            <code>image/*</code> ou <code>video/*</code> sont acceptes.
           </p>
 
-          <!-- Zone d’upload -->
           <label [class.upload-zone--disabled]="disabled" class="upload-zone">
             <input
               (change)="onFilesSelected($event)"
@@ -42,12 +40,11 @@
         </div>
       </p-tabpanel>
 
-      <!-- Onglet 2 : Lien YouTube / externe -->
       <p-tabpanel value="youtube">
         <div class="tab-panel tab-panel--youtube">
-          <label for="youtube-url">Lien YouTube ou URL externe</label>
+          <label for="youtube-url">Lien YouTube</label>
           <input
-            (ngModelChange)="youtubeUrl.set($event)"
+            (ngModelChange)="onYoutubeUrlChange($event)"
             [disabled]="disabled"
             [ngModelOptions]="{ standalone: true }"
             [ngModel]="youtubeUrl()"
@@ -58,10 +55,14 @@
           />
 
           <p class="hint">
-            Colle un lien complet YouTube ou une URL courte.
-            Le composant l’ajoutera comme média de type
-            <code>external</code>.
+            Colle un lien YouTube complet ou une URL courte
+            <code>youtu.be</code>.
+            Les autres domaines sont refuses.
           </p>
+
+          @if (youtubeError(); as error) {
+            <p class="input-error">{{ error }}</p>
+          }
 
           <p-button
             (click)="addYoutubeLink()"
@@ -75,13 +76,13 @@
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>
+
   @if (items.length) {
     <div class="media-list">
       @for (m of items; track m; let i = $index) {
         <div class="media-list__item">
           <div class="media-list__thumb">
             @switch (m.kind) {
-
               @case ('image') {
                 @if (mediaSrc(m); as src) {
                   <a
@@ -89,10 +90,9 @@
                     target="_blank"
                     rel="noopener"
                     class="media-thumb-link">
-                    <!-- href="{{ getMediaLabel(m) }}">-->
                     <img
                       [src]="src"
-                      alt="Aperçu image"
+                      alt="Apercu image"
                       class="media-thumb-image"
                     />
                   </a>
@@ -101,7 +101,6 @@
                 }
               }
               @case ('video') {
-
                 @if (mediaSrc(m); as src) {
                   <a
                     [href]="src"
@@ -118,10 +117,8 @@
                 } @else {
                   <span class="pi pi-video media-list__icon"></span>
                 }
-
               }
               @case ('external') {
-
                 @if (mediaSrc(m); as src) {
                   <a
                     [href]="src"
@@ -134,9 +131,7 @@
                 } @else {
                   <span class="pi pi-link media-list__icon"></span>
                 }
-
               }
-
             }
           </div>
 
@@ -175,7 +170,7 @@
     </div>
   } @else {
     <p class="media-list--empty">
-      Aucun média sélectionné pour l’instant.
+      Aucun media selectionne pour l'instant.
     </p>
   }
 </div>

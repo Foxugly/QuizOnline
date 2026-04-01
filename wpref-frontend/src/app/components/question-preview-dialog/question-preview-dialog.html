@@ -1,0 +1,20 @@
+<p-dialog
+  [modal]="true"
+  [style]="{ width: '92vw', maxWidth: '1080px' }"
+  [visible]="visible"
+  header="Aperçu de la question"
+  (visibleChange)="onVisibleChange($event)">
+  @if (loading) {
+    <div class="question-preview-dialog__state">Chargement de l'aperçu...</div>
+  } @else if (error) {
+    <div class="alert alert--error">{{ error }}</div>
+  } @else if (previewItem; as item) {
+    <app-quiz-question
+      [quizNavItem]="item"
+      [readonlyMode]="true"
+      [showCorrectAnswers]="false"
+      [showFooter]="false"
+      displayMode="preview">
+    </app-quiz-question>
+  }
+</p-dialog>

@@ -1,1 +1,133 @@
-<p>preferences works!</p>
+<div class="preferences-page">
+  <div class="preferences-shell">
+    <section class="hero">
+      <div class="hero__copy">
+        <p class="hero__eyebrow">Mon compte</p>
+        <h1>Préférences</h1>
+        <p class="hero__text">
+          Gérez votre profil, votre langue d’interface et votre domaine courant.
+        </p>
+      </div>
+      <div class="hero__meta">
+        <span class="meta-pill">{{ roleLabel }}</span>
+        <span class="meta-pill meta-pill--soft">{{ currentUser()?.username || '-' }}</span>
+      </div>
+    </section>
+
+    <div class="preferences-grid">
+      <p-card class="panel panel--form">
+        <ng-template pTemplate="title">Profil</ng-template>
+        <ng-template pTemplate="subtitle">Informations personnelles et préférences d’affichage.</ng-template>
+
+        @if (loading()) {
+          <p class="state">Chargement...</p>
+        } @else {
+          <form [formGroup]="form" class="form" (ngSubmit)="save()">
+            <div class="field-grid">
+              <div class="field">
+                <label for="username">Nom d’utilisateur</label>
+                <input id="username" pInputText formControlName="username">
+              </div>
+
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" pInputText formControlName="email" type="email">
+              </div>
+
+              <div class="field">
+                <label for="first_name">Prénom</label>
+                <input id="first_name" pInputText formControlName="first_name">
+              </div>
+
+              <div class="field">
+                <label for="last_name">Nom</label>
+                <input id="last_name" pInputText formControlName="last_name">
+              </div>
+
+              <div class="field">
+                <label for="language">Langue</label>
+                <p-select
+                  inputId="language"
+                  [options]="languageOptions"
+                  formControlName="language"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Choisir une langue"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="current_domain">Domaine courant</label>
+                <p-select
+                  inputId="current_domain"
+                  [options]="domainOptions"
+                  formControlName="current_domain"
+                  optionLabel="label"
+                  optionValue="value"
+                  [showClear]="true"
+                  placeholder="Aucun domaine"
+                ></p-select>
+              </div>
+            </div>
+
+            @if (error()) {
+              <p class="message message--error">{{ error() }}</p>
+            }
+            @if (success()) {
+              <p class="message message--success">{{ success() }}</p>
+            }
+
+            <div class="actions">
+              <p-button
+                type="submit"
+                label="Enregistrer"
+                icon="pi pi-save"
+                [loading]="saving()"
+              ></p-button>
+              <p-button
+                type="button"
+                label="Changer le mot de passe"
+                icon="pi pi-lock"
+                severity="secondary"
+                [text]="true"
+                (onClick)="goChangePassword()"
+              ></p-button>
+            </div>
+          </form>
+        }
+      </p-card>
+
+      <p-card class="panel panel--summary">
+        <ng-template pTemplate="title">Résumé</ng-template>
+        <ng-template pTemplate="subtitle">Vue rapide de votre compte courant.</ng-template>
+
+        <dl class="summary">
+          <div class="summary__row">
+            <dt>Rôle</dt>
+            <dd>{{ roleLabel }}</dd>
+          </div>
+          <div class="summary__row">
+            <dt>Utilisateur</dt>
+            <dd>{{ currentUser()?.username || '-' }}</dd>
+          </div>
+          <div class="summary__row">
+            <dt>Domaine actuel</dt>
+            <dd>{{ currentUser()?.current_domain_title || 'Aucun' }}</dd>
+          </div>
+          <div class="summary__row">
+            <dt>Domaines gérés</dt>
+            <dd>{{ currentUser()?.managed_domain_ids?.length || 0 }}</dd>
+          </div>
+          <div class="summary__row">
+            <dt>Domaines possédés</dt>
+            <dd>{{ currentUser()?.owned_domain_ids?.length || 0 }}</dd>
+          </div>
+          <div class="summary__row">
+            <dt>Compte actif</dt>
+            <dd>{{ currentUser()?.is_active ? 'Oui' : 'Non' }}</dd>
+          </div>
+        </dl>
+      </p-card>
+    </div>
+  </div>
+</div>

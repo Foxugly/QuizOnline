@@ -1,0 +1,31 @@
+<div class="page">
+  <div class="title">Supprimer un template de quiz</div>
+
+  <div class="card">
+    @if (error()) {
+      <p class="muted">{{ error() }}</p>
+    } @else if (template()) {
+      <p>Es-tu sur de vouloir supprimer <b>{{ template()!.title }}</b> ?</p>
+
+      <div class="actions">
+        <p-button
+          (onClick)="confirm()"
+          icon="pi pi-trash"
+          label="Supprimer"
+          severity="danger"
+          type="button">
+        </p-button>
+
+        <p-button
+          (onClick)="goBack()"
+          icon="pi pi-times"
+          label="Annuler"
+          severity="secondary"
+          type="button">
+        </p-button>
+      </div>
+    } @else {
+      <p class="muted">Chargement...</p>
+    }
+  </div>
+</div>

@@ -1,19 +1,39 @@
-<p-menubar [model]="menuItems">
-  <!-- GAUCHE : logo + liens + langues -->
-  <ng-template pTemplate="start">
-    <a class="logo-container" routerLink="/">
-      <img alt="Logo" class="logo" src={{app.logoSvg}} />
-    </a>
-  </ng-template>
+<header class="topbar">
+  <div class="topbar__inner">
+    <button (click)="goHome()" class="brand" type="button">
+      <span class="brand__mark">
+        <img [alt]="app.name" [src]="app.logoSvg" class="brand__logo">
+      </span>
+      <span class="brand__text">
+        <span class="brand__name">{{ app.name }}</span>
+      </span>
+    </button>
 
-  <ng-template pTemplate="end">
-    <div class="right-zone">
-      <a routerLink="/about" routerLinkActive="active" class="link">A propos</a>
+    <nav class="nav" aria-label="Navigation principale">
+      @for (item of navItems; track item.label) {
+        <a
+          [routerLink]="item.link"
+          class="nav__link"
+          routerLinkActive="nav__link--active"
+          [class.nav__link--accent]="item.accent"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="topbar__actions">
+      @if (isStaff) {
+        <span class="role-chip">Staff</span>
+      } @else {
+        <span class="role-chip role-chip--user">Utilisateur</span>
+      }
       <app-lang-select
         (langChange)="onLangChange($event)"
-        [lang]="currentLang">
+        [lang]="currentLang"
+      >
       </app-lang-select>
       <app-user-menu></app-user-menu>
     </div>
-  </ng-template>
-</p-menubar>
+  </div>
+</header>

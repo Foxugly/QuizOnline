@@ -47,6 +47,12 @@
     color: $gray-muted;
   }
 
+  .input-error {
+    margin: -0.25rem 0 0;
+    font-size: 0.8rem;
+    color: #b91c1c;
+  }
+
   // ---------- Zone d'upload ----------
   .upload-zone {
     position: relative;

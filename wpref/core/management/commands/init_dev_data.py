@@ -121,25 +121,144 @@ class Command(BaseCommand):
 
     # ---------- SUBJECTS ----------
     def _init_subjects(self, *, waterpolo: Domain, it_domain: Domain) -> None:
-        # Water-polo (FR)
-        self._get_or_create_subject(domain=waterpolo, lang="fr", name="Règlement général")
-        self._get_or_create_subject(domain=waterpolo, lang="fr", name="Dimensions, champ de jeu et durée")
+        # Water-polo
+        self._get_or_create_subject(
+            domain=waterpolo,
+            translations={
+                "fr": {"name": "Règlement général", "description": "Les bases du jeu."},
+                "nl": {"name": "Algemeen reglement", "description": "De basis van het spel."},
+                "en": {"name": "General rules", "description": "Game fundamentals."},
+            },
+        )
 
-        # IT (FR)
-        for name in ["Programmation", "Réseau", "Django", "Python"]:
-            self._get_or_create_subject(domain=it_domain, lang="fr", name=name)
+        self._get_or_create_subject(
+            domain=waterpolo,
+            translations={
+                "fr": {
+                    "name": "Dimensions, champ de jeu et durée",
+                    "description": "Dimensions du bassin, zones de jeu et durée des matchs."
+                },
+                "nl": {
+                    "name": "Afmetingen, speelveld en speeltijd",
+                    "description": "Afmetingen van het bad, speelzones en speeltijd."
+                },
+                "en": {
+                    "name": "Field dimensions and match duration",
+                    "description": "Pool dimensions, playing areas and match duration."
+                },
+            }
+        )
 
-    def _get_or_create_subject(self, *, domain: Domain, lang: str, name: str) -> Subject:
-        subject = Subject.objects.filter(domain=domain, translations__name=name).distinct().first()
+        # IT
+        self._get_or_create_subject(
+            domain=it_domain,
+            translations={
+                "fr": {"name": "Programmation", "description": "Principes fondamentaux de la programmation."},
+                "nl": {"name": "Programmeren", "description": "Basisprincipes van programmeren."},
+                "en": {"name": "Programming", "description": "Fundamental programming principles."},
+                "it": {"name": "Programmazione", "description": "Principi fondamentali della programmazione."},
+                "es": {"name": "Programación", "description": "Principios fundamentales de la programación."},
+            }
+        )
+
+        self._get_or_create_subject(
+            domain=it_domain,
+            translations={
+                "fr": {"name": "Réseau", "description": "Concepts réseaux fondamentaux."},
+                "nl": {"name": "Netwerken", "description": "Basisnetwerkconcepten."},
+                "en": {"name": "Networking", "description": "Core networking concepts."},
+                "it": {"name": "Reti", "description": "Concetti fondamentali di rete."},
+                "es": {"name": "Redes", "description": "Conceptos básicos de redes."},
+            }
+        )
+
+        self._get_or_create_subject(
+            domain=it_domain,
+            translations={
+                "fr": {"name": "Django", "description": "Framework web Python orienté rapidité et robustesse."},
+                "nl": {"name": "Django", "description": "Python webframework voor snelle ontwikkeling."},
+                "en": {"name": "Django", "description": "Python web framework for rapid development."},
+                "it": {"name": "Django", "description": "Framework web Python per sviluppo rapido."},
+                "es": {"name": "Django", "description": "Framework web Python para desarrollo rápido."},
+            }
+        )
+
+        self._get_or_create_subject(
+            domain=it_domain,
+            translations={
+                "fr": {"name": "Python", "description": "Langage de programmation polyvalent et lisible."},
+                "nl": {"name": "Python", "description": "Veelzijdige en leesbare programmeertaal."},
+                "en": {"name": "Python", "description": "Versatile and readable programming language."},
+                "it": {"name": "Python", "description": "Linguaggio di programmazione versatile e leggibile."},
+                "es": {"name": "Python", "description": "Lenguaje de programación versátil y legible."},
+            }
+        )
+
+    def _get_or_create_subject(
+            self,
+            *,
+            domain: Domain,
+            name: str | None = None,
+            description: str | None = "",
+            translations: dict[str, dict[str, str]] | None = None,
+    ) -> Subject:
+        """
+        Idempotent subject init:
+        - subject is searched by any provided translated name (if translations) or by `name`
+        - for each allowed language of the domain, ensures (name, description) are set
+        """
+
+        # 1) Determine target languages for the subject
+        domain_langs = list(domain.allowed_languages.all())
+        if not domain_langs:
+            domain_langs = list(Language.objects.all())  # fallback if domain has none
+
+        lang_codes = [l.code for l in domain_langs]
+
+        # 2) Find existing subject (by any translated name)
+        lookup_names: list[str] = []
+        if translations:
+            lookup_names = [v.get("name", "") for v in translations.values() if v.get("name")]
+        if not lookup_names and name:
+            lookup_names = [name]
+
+        subject = None
+        if lookup_names:
+            subject = (
+                Subject.objects
+                .filter(domain=domain, translations__name__in=lookup_names)
+                .distinct()
+                .first()
+            )
+
         created = False
         if not subject:
             subject = Subject.objects.create(domain=domain, active=True)
             created = True
 
-        subject.set_current_language(lang)
-        subject.name = name
-        subject.description = ""
-        subject.save()
+        # 3) Prepare per-language payload
+        # If translations provided, use it. Otherwise replicate (name/description) across all languages.
+        if translations is None:
+            if not name:
+                raise CommandError("Provide either `name` or `translations` for subject creation.")
+            translations = {code: {"name": name, "description": description or ""} for code in lang_codes}
 
-        self.stdout.write(f"✔ subject {domain} / {name} → {'created' if created else 'exists'}")
+        # 4) Ensure every domain language has a translation
+        for code in lang_codes:
+            payload = translations.get(code)
+
+            # fallback strategy if missing:
+            # - try "en", else first provided translation, else domain default `name`
+            if not payload:
+                payload = translations.get("en") or next(iter(translations.values()), None) or {"name": name or "",
+                                                                                                "description": description or ""}
+
+            subject.set_current_language(code)
+            subject.name = payload.get("name", name or "") or ""
+            subject.description = payload.get("description", "") or ""
+            subject.save()
+
+        self.stdout.write(
+            f"✔ subject {domain.id} / {lookup_names[0] if lookup_names else 'subject'} → {'created' if created else 'exists'}"
+        )
         return subject

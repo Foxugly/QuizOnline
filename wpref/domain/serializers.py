@@ -5,6 +5,12 @@ from drf_spectacular.utils import extend_schema_field
 from language.models import Language
 from language.serializers import LanguageReadSerializer
 from rest_framework import serializers
+from wpref.serializers import (
+    LocalizedNameDescriptionTranslationSerializer,
+    LocalizedTranslationsDictField,
+    UserSummarySerializer,
+    localized_translations_map_schema,
+)
 
 from .models import Domain
 from subject.serializers import SubjectReadSerializer
@@ -34,15 +40,11 @@ class DomainReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
         extra_kwargs = {"owner": {"read_only": True}}
 
-    def get_translations(self, obj: Domain) -> dict[str, dict[str, str]]:
-        data = {}
-        for t in obj.translations.all():
-            data[t.language_code] = {"name": t.name or "", "description": t.description or ""}
-        return data
-
+    @extend_schema_field(UserSummarySerializer)
     def get_owner(self, obj: Domain) -> dict[str, int | str]:
         return {"id": obj.owner_id, "username": obj.owner.username}
 
+    @extend_schema_field(UserSummarySerializer(many=True))
     def get_staff(self, obj: Domain) -> list[dict[str, int | str]]:
         return [{"id": u.id, "username": u.username} for u in obj.staff.all()]
 
@@ -51,13 +53,29 @@ class DomainReadSerializer(serializers.ModelSerializer):
         qs = obj.allowed_languages.filter(active=True).order_by("id")
         return LanguageReadSerializer(qs, many=True, context=self.context).data
 
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedNameDescriptionTranslationSerializer,
+            "LocalizedNameDescriptionTranslations",
+        )
+    )
+    def get_translations(self, obj: Domain) -> dict[str, dict[str, str]]:
+        data = {}
+        for t in obj.translations.all():
+            data[t.language_code] = {"name": t.name or "", "description": t.description or ""}
+        return data
+
     def validate(self, attrs):
         raise serializers.ValidationError("This serializer is read-only.")
 
 
 class DomainWriteSerializer(serializers.ModelSerializer):
     allowed_languages = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all(), many=True, required=True)
-    translations = serializers.DictField(child=serializers.DictField(), write_only=True, required=True)
+    translations = LocalizedTranslationsDictField(
+        value_serializer=LocalizedNameDescriptionTranslationSerializer,
+        write_only=True,
+        required=True,
+    )
     staff = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=True)
 
     class Meta:
@@ -166,7 +184,11 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
 class DomainPartialSerializer(DomainWriteSerializer):
     allowed_languages = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all(), many=True, required=False)
-    translations = serializers.DictField(child=serializers.DictField(), write_only=True, required=False)
+    translations = LocalizedTranslationsDictField(
+        value_serializer=LocalizedNameDescriptionTranslationSerializer,
+        write_only=True,
+        required=False,
+    )
     staff = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False)
     active = serializers.BooleanField(required=False)
 

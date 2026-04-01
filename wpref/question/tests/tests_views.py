@@ -132,6 +132,7 @@ class QuestionViewSetTests(APITestCase):
         self.staff = self._mk_user(is_staff=True)
         self.user = self._mk_user(is_staff=False)
         self.domain = self._mk_domain(self.staff, allowed_codes=("fr", "nl"))
+        self.other_domain = self._mk_domain(self.staff, allowed_codes=("fr", "nl"))
 
     # =========================================================
     # Permissions
@@ -163,6 +164,33 @@ class QuestionViewSetTests(APITestCase):
         self.assertEqual(resp2.status_code, status.HTTP_200_OK)
 
         self.assertEqual(resp1.json()["id"], resp2.json()["id"])
+
+    def test_media_external_youtube_url_is_normalized(self):
+        self.client.force_authenticate(self.staff)
+
+        resp = self.client.post(
+            self._media_url(),
+            data={"external_url": "https://youtu.be/dQw4w9WgXcQ?t=43"},
+            format="json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.json())
+        self.assertEqual(
+            resp.json()["external_url"],
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        )
+
+    def test_media_external_invalid_youtube_url_is_rejected(self):
+        self.client.force_authenticate(self.staff)
+
+        resp = self.client.post(
+            self._media_url(),
+            data={"external_url": "https://www.youtube.com/watch?feature=share"},
+            format="json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("external_url", resp.json())
 
     def test_media_file_dedup_by_sha256_returns_200_on_second_upload(self):
         self.client.force_authenticate(self.staff)
@@ -245,6 +273,25 @@ class QuestionViewSetTests(APITestCase):
         # show_correct=True for staff => is_correct present
         self.assertIn("answer_options", resp.json())
         self.assertIn("is_correct", resp.json()["answer_options"][0])
+        self.assertEqual(
+            resp.json()["answer_options"][0]["translations"]["fr"]["content"],
+            "A",
+        )
+
+    def test_create_rejects_subject_from_other_domain(self):
+        valid_subject = self._mk_subject(self.domain, name_fr="S1")
+        foreign_subject = self._mk_subject(self.other_domain, name_fr="Foreign S")
+
+        payload = self._payload_create(
+            self.domain,
+            subject_ids=[valid_subject.pk, foreign_subject.pk],
+        )
+
+        self.client.force_authenticate(self.staff)
+        resp = self.client.post(self._list_url(), data=payload, format="json")
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("subject_ids", resp.json())
 
     # =========================================================
     # CREATE (multipart) - ensures _coerce_json_fields works
@@ -347,6 +394,25 @@ class QuestionViewSetTests(APITestCase):
         ids = list(q.media.values_list("asset_id", flat=True))
         self.assertEqual(ids, [new_ext.pk])
         self.assertFalse(q.media.filter(asset_id=old_ext.pk).exists())
+
+    def test_patch_rejects_domain_change_when_existing_subjects_belong_to_other_domain(self):
+        q = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        q.set_current_language("fr")
+        q.title = "Keep domain consistency"
+        q.save()
+
+        subject = self._mk_subject(self.domain, name_fr="Current S")
+        q.subjects.set([subject])
+
+        self.client.force_authenticate(self.staff)
+        resp = self.client.patch(
+            self._detail_url(q),
+            data={"domain": self.other_domain.pk},
+            format="json",
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("subject_ids", resp.json())
 
     # =========================================================
     # DESTROY

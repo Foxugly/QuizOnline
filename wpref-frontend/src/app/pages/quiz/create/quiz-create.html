@@ -1,0 +1,375 @@
+<div class="page">
+  <div class="header-line header-line--grid">
+    <div class="header-spacer"></div>
+
+    <div class="header-center">
+      <h1 class="title">{{ pageTitle() }}</h1>
+      <p class="subtitle muted">{{ pageSubtitle() }}</p>
+    </div>
+
+    <div class="header-actions">
+      <p-button
+        (onClick)="goBack()"
+        icon="pi pi-arrow-left"
+        label="Retour"
+        severity="secondary"
+        type="button">
+      </p-button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card">
+      <p class="muted">Chargement...</p>
+    </div>
+  } @else if (!isAdmin()) {
+    <div class="card">
+      <div class="alert alert--error">La composition de quiz est reservee aux administrateurs.</div>
+    </div>
+  } @else {
+    @if (error()) {
+      <div class="card">
+        <div class="alert alert--error">{{ error() }}</div>
+      </div>
+    }
+
+    <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="builder-stack">
+      <div class="card builder-card">
+        <div class="card-head">
+          <h2 class="card-title">{{ uiText().settingsTitle }}</h2>
+        </div>
+
+        <div class="builder-grid">
+          <label class="field">
+            <span class="field__label">{{ uiText().domain }}</span>
+            <p-select
+              appendTo="body"
+              class="field__control"
+              formControlName="domain"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Choisir un domaine"
+              [options]="domainOptions()">
+            </p-select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().mode }}</span>
+            <p-select
+              appendTo="body"
+              class="field__control"
+              formControlName="mode"
+              optionLabel="label"
+              optionValue="value"
+              [options]="modeOptions()">
+            </p-select>
+          </label>
+
+          <label class="field field--checkbox">
+            <span class="field__label">{{ uiText().timer }}</span>
+            <p-toggleswitch formControlName="with_duration" inputId="with_duration"></p-toggleswitch>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().duration }}</span>
+            <p-inputnumber
+              styleClass="field__number"
+              buttonLayout="horizontal"
+              formControlName="duration"
+              inputId="duration"
+              mode="decimal"
+              placeholder="Minutes"
+              spinnerMode="horizontal"
+              [showButtons]="true"
+              [min]="1"
+              [max]="9999"
+              [step]="1"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0">
+              <ng-template #incrementbuttonicon>
+                <span class="pi pi-plus"></span>
+              </ng-template>
+              <ng-template #decrementbuttonicon>
+                <span class="pi pi-minus"></span>
+              </ng-template>
+            </p-inputnumber>
+          </label>
+        </div>
+
+        <div class="builder-grid builder-grid--secondary">
+          <label class="field field--checkbox">
+            <span class="field__label">{{ uiText().active }}</span>
+            <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+          </label>
+
+          <label class="field field--checkbox">
+            <span class="field__label">{{ uiText().permanent }}</span>
+            <p-toggleswitch formControlName="permanent" inputId="permanent"></p-toggleswitch>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().startedAt }}</span>
+            <p-datepicker
+              appendTo="body"
+              class="field__control"
+              [dateFormat]="datePickerFormat()"
+              formControlName="started_at"
+              inputId="started_at"
+              [showTime]="true"
+              hourFormat="24">
+            </p-datepicker>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().endedAt }}</span>
+            <p-datepicker
+              appendTo="body"
+              class="field__control"
+              [dateFormat]="datePickerFormat()"
+              formControlName="ended_at"
+              inputId="ended_at"
+              [showTime]="true"
+              hourFormat="24">
+            </p-datepicker>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().detailVisibility }}</span>
+            <p-select
+              appendTo="body"
+              class="field__control"
+              formControlName="detail_visibility"
+              optionLabel="label"
+              optionValue="value"
+              [options]="visibilityOptions()">
+            </p-select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ uiText().detailAvailableAt }}</span>
+            <p-datepicker
+              appendTo="body"
+              class="field__control"
+              [dateFormat]="datePickerFormat()"
+              formControlName="detail_available_at"
+              inputId="detail_available_at"
+              [showTime]="true"
+              hourFormat="24">
+            </p-datepicker>
+          </label>
+        </div>
+
+        <div class="builder-grid">
+          <label class="field field--full">
+            <span class="field__label">{{ uiText().quizTitle }}</span>
+            <input formControlName="title" pInputText placeholder="Ex: Examen blanc chimie" type="text" />
+          </label>
+
+          <label class="field field--full">
+            <span class="field__label">{{ uiText().quizDescription }}</span>
+            <textarea
+              class="field__control field__control--textarea"
+              formControlName="description"
+              placeholder="Contexte ou consignes du quiz">
+            </textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="builder-columns">
+        <div class="card builder-card">
+          <div class="card-head card-head--split">
+            <div>
+              <h2 class="card-title">Questions du domaine</h2>
+            </div>
+
+            <div class="card-head__actions">
+              <input
+                class="field__control field__control--search"
+                [value]="search()"
+                (input)="onSearchInput($event)"
+                placeholder="Rechercher une question"
+                type="search" />
+
+              <p-button
+                (onClick)="openQuestionDialog()"
+                [disabled]="!selectedDomainId()"
+                icon="pi pi-plus"
+                label="Creer une question"
+                type="button">
+              </p-button>
+            </div>
+          </div>
+
+          @if (!selectedDomainId()) {
+            <div class="empty-state">Choisis un domaine pour charger les questions disponibles.</div>
+          } @else if (questionsLoading()) {
+            <div class="empty-state">Chargement des questions...</div>
+          } @else if (availableQuestions().length === 0) {
+            <div class="empty-state">Aucune question active disponible pour ce domaine.</div>
+          } @else {
+            <div class="question-list">
+              @for (question of availableQuestions(); track question.id) {
+                <article class="question-card">
+                  <div class="question-card__body">
+                    <h3>{{ getQuestionTitle(question) }}</h3>
+                    <p class="muted">{{ getQuestionSubjects(question) || 'Sans sujet' }}</p>
+                  </div>
+
+                  <div class="question-card__actions">
+                    <p-button
+                      (onClick)="openQuestionPreview(question)"
+                      icon="pi pi-eye"
+                      severity="secondary"
+                      size="small"
+                      type="button"
+                      variant="outlined">
+                    </p-button>
+                    <p-button
+                      (onClick)="addExistingQuestion(question)"
+                      icon="pi pi-arrow-right"
+                      label="Ajouter"
+                      size="small"
+                      type="button">
+                    </p-button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="card builder-card">
+          <div class="card-head">
+            <h2 class="card-title">Composition du quiz</h2>
+            <p class="muted">Ajuste l'ordre et le poids de chaque question avant enregistrement.</p>
+          </div>
+
+          @if (selectedQuestions().length === 0) {
+            <div class="empty-state">Ajoute au moins une question pour composer le quiz.</div>
+          } @else {
+            <div class="selected-list">
+              @for (item of selectedQuestions(); track item.question.id; let i = $index) {
+                <article class="selected-card">
+                  <div class="selected-card__header">
+                    <div>
+                      <span class="order-pill">#{{ item.sort_order }}</span>
+                      <h3>{{ getQuestionTitle(item.question) }}</h3>
+                    </div>
+
+                    <div class="selected-card__actions">
+                      <p-button
+                        (onClick)="openQuestionPreview(item.question)"
+                        icon="pi pi-eye"
+                        severity="secondary"
+                        size="small"
+                        type="button"
+                        variant="outlined">
+                      </p-button>
+                      <p-button
+                        (onClick)="moveSelectedQuestion(i, -1)"
+                        [disabled]="i === 0"
+                        icon="pi pi-arrow-up"
+                        severity="secondary"
+                        size="small"
+                        type="button">
+                      </p-button>
+                      <p-button
+                        (onClick)="moveSelectedQuestion(i, 1)"
+                        [disabled]="i === selectedQuestions().length - 1"
+                        icon="pi pi-arrow-down"
+                        severity="secondary"
+                        size="small"
+                        type="button">
+                      </p-button>
+                      <p-button
+                        (onClick)="removeSelectedQuestion(i)"
+                        icon="pi pi-trash"
+                        severity="danger"
+                        size="small"
+                        type="button">
+                      </p-button>
+                    </div>
+                  </div>
+
+                  @if (getQuestionSubjects(item.question); as subjects) {
+                    <p class="muted">{{ subjects }}</p>
+                  }
+
+                  <div class="selected-card__grid">
+                    <label class="field">
+                      <span class="field__label">Poids</span>
+                      <input
+                        class="field__control"
+                        [value]="item.weight"
+                        (change)="onWeightChange(i, $event)"
+                        min="1"
+                        type="number" />
+                    </label>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (submitError()) {
+        <div class="error">{{ submitError() }}</div>
+      }
+
+      <div class="actions">
+        <p-button
+          [disabled]="!canSave()"
+          [loading]="saving()"
+          icon="pi pi-save"
+          [label]="submitLabel()"
+          type="submit">
+        </p-button>
+
+        <p-button
+          (onClick)="goBack()"
+          icon="pi pi-times"
+          label="Annuler"
+          severity="secondary"
+          type="button">
+        </p-button>
+      </div>
+    </form>
+  }
+</div>
+
+<p-dialog
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '1100px' }"
+  [visible]="questionDialogVisible()"
+  [header]="isEditMode() ? 'Creer une question pour ce template' : 'Creer une question pour ce quiz'"
+  (visibleChange)="questionDialogVisible.set($event)">
+  <app-question-editor-form
+    [activeLang]="questionDialogActiveLang()"
+    [domainReadonlyLabel]="selectedDomainLabel()"
+    [emptyLanguagesMessage]="questionEmptyLanguagesMessage"
+    [form]="questionForm"
+    [practiceTooltip]="questionPracticeTooltip"
+    [saving]="questionSaving()"
+    [showDomainSelect]="false"
+    [showTranslateAction]="true"
+    [subjectOptions]="subjectOptions()"
+    [submitError]="questionSubmitError()"
+    submitLabel="Creer la question"
+    [tabCodes]="questionDialogLangs()"
+    [translating]="questionTranslating()"
+    (addOptionClicked)="addQuestionOption()"
+    (cancelClicked)="closeQuestionDialog()"
+    (removeOptionClicked)="removeQuestionOption($event)"
+    (submitted)="saveNewQuestion()"
+    (tabChanged)="onQuestionDialogTabChange($event)"
+    (translateActive)="translateNewQuestion()">
+  </app-question-editor-form>
+</p-dialog>
+
+<app-question-preview-dialog
+  [questionId]="previewQuestionId()"
+  [visible]="!!previewQuestionId()"
+  (visibleChange)="!$event ? closeQuestionPreview() : null">
+</app-question-preview-dialog>

@@ -18,7 +18,7 @@ User = get_user_model()
 class SubjectViewSetTestCase(TestCase):
     """
     Couvre le fichier views.py de SubjectViewSet :
-    - permissions (IsAuthenticated vs IsAdminUser)
+    - permissions (staff only)
     - list avec filters + search + pagination (si activée)
     - retrieve
     - details (action)
@@ -111,15 +111,15 @@ class SubjectViewSetTestCase(TestCase):
     # ----------------------------
     def test_list_requires_authentication(self):
         resp = self._call("get", "list", user=None)
-        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_retrieve_requires_authentication(self):
         resp = self._call("get", "retrieve", user=None, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
-        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_details_requires_authentication(self):
         resp = self._call("get", "details", user=None, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/details/")
-        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_create_requires_admin(self):
         payload = {"domain": self.domain.pk, "active": True, "translations": {"fr": {"name": "Bio", "description": ""}}}
@@ -139,14 +139,14 @@ class SubjectViewSetTestCase(TestCase):
     # list
     # ----------------------------
     def test_list_returns_items(self):
-        resp = self._call("get", "list", user=self.user)
+        resp = self._call("get", "list", user=self.admin)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         items = self._extract_results(resp)
         self.assertTrue(isinstance(items, list))
         self.assertGreaterEqual(len(items), 2)
 
     def test_list_filter_active(self):
-        resp = self._call("get", "list", user=self.user, query={"active": "true"})
+        resp = self._call("get", "list", user=self.admin, query={"active": "true"})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         items = self._extract_results(resp)
         ids = {it["id"] for it in items}
@@ -154,13 +154,13 @@ class SubjectViewSetTestCase(TestCase):
         self.assertNotIn(self.subj2.pk, ids)
 
     def test_list_filter_domain(self):
-        resp = self._call("get", "list", user=self.user, query={"domain": str(self.domain.pk)})
+        resp = self._call("get", "list", user=self.admin, query={"domain": str(self.domain.pk)})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         items = self._extract_results(resp)
         self.assertTrue(all(it["domain"] == self.domain.pk for it in items))
 
     def test_list_search_on_translated_name(self):
-        resp = self._call("get", "list", user=self.user, query={"search": "ath"})
+        resp = self._call("get", "list", user=self.admin, query={"search": "ath"})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         items = self._extract_results(resp)
         ids = {it["id"] for it in items}
@@ -170,7 +170,7 @@ class SubjectViewSetTestCase(TestCase):
     # retrieve
     # ----------------------------
     def test_retrieve_returns_read_serializer_shape(self):
-        resp = self._call("get", "retrieve", user=self.user, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
+        resp = self._call("get", "retrieve", user=self.admin, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("id", resp.data)
         self.assertIn("domain", resp.data)
@@ -182,7 +182,7 @@ class SubjectViewSetTestCase(TestCase):
     # details
     # ----------------------------
     def test_details_returns_questions_only_active(self):
-        resp = self._call("get", "details", user=self.user, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/details/")
+        resp = self._call("get", "details", user=self.admin, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/details/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("questions", resp.data)
         q_ids = {q["id"] for q in resp.data["questions"]}

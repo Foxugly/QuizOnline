@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import List
 
@@ -13,7 +14,8 @@ from .serializers import (
 )
 from .services.deepl import deepl_translate_many, DeepLError
 
-USE_DEEPL = False
+USE_DEEPL = True
+logger = logging.getLogger(__name__)
 
 
 def _is_effectively_empty_html(html: str) -> bool:
@@ -22,7 +24,15 @@ def _is_effectively_empty_html(html: str) -> bool:
 
 
 def mock_deepl(texts: List, source: str, target: str, fmt: str)->List:
-    print("MOCK", texts, source, target, fmt, f"[{len(texts)}]")
+    logger.debug(
+        "Mock DeepL translate batch requested",
+        extra={
+            "source_lang": source,
+            "target_lang": target,
+            "format": fmt,
+            "item_count": len(texts),
+        },
+    )
     out = []
     for t in texts:
         if fmt == "html":
@@ -51,7 +61,16 @@ def mock_deepl(texts: List, source: str, target: str, fmt: str)->List:
         else:
             raise ValueError(f"Unsupported fmt: {fmt}")
 
-    print(out, f"[{len(out)}]")
+    logger.debug(
+        "Mock DeepL translate batch completed",
+        extra={
+            "source_lang": source,
+            "target_lang": target,
+            "format": fmt,
+            "item_count": len(texts),
+            "translated_count": len(out),
+        },
+    )
     return out
 
 
@@ -166,11 +185,12 @@ class TranslateBatchView(APIView):
                 if USE_DEEPL:
                     out = deepl_translate_many(texts, source, target, fmt="html")
                 else:
-                    out = mock_deepl(texts, source, target, fmt="text")
+                    out = mock_deepl(texts, source, target, fmt="html")
                 for k, translated in zip(keys, out):
                     translations[k] = translated
 
         except DeepLError as e:
+            logger.warning("Translation upstream error: %s", e)
             return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
 
         resp_ser = TranslateBatchResponseSerializer({"translations": translations})

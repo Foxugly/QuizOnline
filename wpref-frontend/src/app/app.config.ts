@@ -9,7 +9,7 @@ import {NetworkInterceptor} from './network-interceptor';
 //import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {provideNoopAnimations} from '@angular/platform-browser/animations';
 import {Configuration} from './api/generated/configuration';
-import {environment} from '../environments/environment';
+import {resolveApiBaseUrl} from './shared/api/runtime-api-base-url';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: Configuration,
       useFactory: () =>
-        new Configuration({basePath: environment.apiBaseUrl}),
+        new Configuration({basePath: resolveApiBaseUrl()}),
     },
     provideNoopAnimations(),
     // 🔹 Configuration du thème PrimeNG

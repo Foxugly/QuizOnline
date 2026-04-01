@@ -1,4 +1,44 @@
-# WpRef API – Documentation des endpoints
+# WpRef
+
+Monorepo contenant deux applications distinctes :
+
+- `wpref/` : backend Django REST
+- `wpref-frontend/` : frontend Angular
+
+## Position recommandée
+
+Ne splitte pas le projet en deux repos pour l'instant. La bonne étape maintenant est de formaliser le monorepo et de rendre la frontière backend/frontend plus explicite.
+
+## Structure actuelle
+
+```text
+WpRef/
+|-- wpref/
+|-- wpref-frontend/
+|-- docs/
+`-- scripts/
+```
+
+## Workflow de développement
+
+- Backend : `cd wpref` puis `python manage.py runserver`
+- Frontend : `cd wpref-frontend` puis `npm start`
+- Synchronisation OpenAPI : `powershell -ExecutionPolicy Bypass -File .\scripts\sync-openapi.ps1`
+
+## Principes de structure
+
+- Le backend et le frontend restent découplés à l'exécution.
+- Le contrat partagé passe par OpenAPI, pas par du code partagé.
+- Les artefacts locaux ne doivent pas être committés.
+- La séparation en deux repos ne devient utile que si les cycles de release, les équipes ou les permissions divergent.
+
+## Documentation de structure
+
+Le cadrage cible du dépôt est décrit dans [docs/repository-structure.md](docs/repository-structure.md).
+
+## Référence API
+
+La documentation ci-dessous décrit les endpoints exposés par le backend.
 
 Version OpenAPI : 3.0.3  
 Base path (dev) : `http://localhost:8000`

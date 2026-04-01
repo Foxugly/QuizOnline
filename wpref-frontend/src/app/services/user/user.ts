@@ -4,8 +4,10 @@ import {BehaviorSubject, Observable, tap} from 'rxjs';
 import {
   CustomUserReadDto,
   LanguageEnumDto, SubjectApi,
+  PatchedCustomUserProfileUpdateRequestDto,
   SubjectReadDto,
   UserApi,
+  UserMeCurrentDomainCreateRequestParams,
   UserMePartialUpdateRequestParams
 } from '../../api/generated';
 import {isSupportedLanguage, SupportedLanguage} from '../../../environments/language';
@@ -70,9 +72,35 @@ export class UserService {
   }
 
   updateMeLanguage(language: LanguageEnumDto): Observable<CustomUserReadDto> {
-    const payload: UserMePartialUpdateRequestParams = {patchedCustomUserReadRequestDto: {language: language}};
-    return this.userApi.userMePartialUpdate(payload).pipe(
+    const payload: UserMePartialUpdateRequestParams = {
+      patchedCustomUserProfileUpdateRequestDto: {language},
+    };
+    return this.updateMeProfile({language}).pipe(
       tap((me: CustomUserReadDto) => this.syncLanguageFromMe(me)),
+    );
+  }
+
+  updateMeProfile(payload: PatchedCustomUserProfileUpdateRequestDto): Observable<CustomUserReadDto> {
+    const requestPayload: UserMePartialUpdateRequestParams = {
+      patchedCustomUserProfileUpdateRequestDto: payload,
+    };
+    return this.userApi.userMePartialUpdate(requestPayload).pipe(
+      tap((me: CustomUserReadDto) => {
+        this.currentUser.set(me);
+        this.syncLanguageFromMe(me);
+      }),
+    );
+  }
+
+  setCurrentDomain(domainId: number | null): Observable<CustomUserReadDto> {
+    const payload: UserMeCurrentDomainCreateRequestParams = {
+      setCurrentDomainRequestDto: {domain_id: domainId},
+    };
+    return this.userApi.userMeCurrentDomainCreate(payload).pipe(
+      tap((me: CustomUserReadDto) => {
+        this.currentUser.set(me);
+        this.syncLanguageFromMe(me);
+      }),
     );
   }
 

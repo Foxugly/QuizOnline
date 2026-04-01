@@ -12,6 +12,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 
   h2 {
     margin: 0;
@@ -20,11 +21,31 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   .actions {
-    margin-right: 20px;
     display: flex;
     align-items: center;
     gap: 1rem;
+  }
+}
 
+.list-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem;
+  }
+
+  p {
+    color: $color-muted;
+    margin: 0;
   }
 }
 
@@ -82,7 +103,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
 .row-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 0.5rem;
 
   p-button {
@@ -104,4 +125,21 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
 .center-cell {
   text-align: center;
+}
+
+.empty-cell {
+  color: $color-muted;
+  padding: 1rem;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar .actions {
+    flex-wrap: wrap;
+  }
 }

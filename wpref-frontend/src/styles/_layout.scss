@@ -1,8 +1,10 @@
 /* src/styles/_layout.scss */
 @use 'tokens' as t;
 
+$page-max-width: 1440px;
+
 .page {
-  max-width: 1280px;
+  max-width: $page-max-width;
   margin: 0 auto;
   padding: 1.25rem 0;
   display: flex;

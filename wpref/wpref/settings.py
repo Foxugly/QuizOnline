@@ -19,6 +19,15 @@ from django.utils.translation import gettext_lazy as _
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
+    DEBUG=(bool, True),
+    SECRET_KEY=(str, "django-insecure-dev-key-change-me"),
+    ALLOWED_HOSTS=(list, ["*"]),
+    CORS_ALLOWED_ORIGINS=(list, ["http://localhost:4200", "http://127.0.0.1:4200"]),
+    DEFAULT_FROM_EMAIL=(str, "no-reply@monapp.com"),
+    FRONTEND_BASE_URL=(str, "http://127.0.0.1:4200"),
+    PASSWORD_RESET_FRONTEND_PATH_PREFIX=(str, "/user/reset-password"),
+    SQLITE_NAME=(str, "db.sqlite3"),
+    MEDIA_ROOT_DIR=(str, "media"),
     DEEPL_IS_FREE=(bool, False),
 )
 ENV_FILE = BASE_DIR / ".env"
@@ -28,11 +37,11 @@ environ.Env.read_env(str(ENV_FILE))
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t6y&^m%4-jo!7ov3ux2-j53r87^=w4&^u%@o7pnfamcz_nvzi6'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DEBUG = env("DEBUG")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 # Application definition
 
@@ -65,6 +74,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -99,23 +109,19 @@ WSGI_APPLICATION = 'wpref.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / env("SQLITE_NAME"),
     }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = []
-#    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#    },
-#    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#    },
-#    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#    },
-#    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#    },
-# ]
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 
 # Internationalization
@@ -135,9 +141,7 @@ TIME_ZONE = "Europe/Brussels"
 USE_I18N = True
 USE_TZ = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200", "http://127.0.0.1:4200"
-]
+CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
@@ -169,7 +173,7 @@ SPECTACULAR_SETTINGS = {
 
 STATIC_URL = "static/"
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = BASE_DIR / env("MEDIA_ROOT_DIR")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -177,7 +181,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@monapp.com"
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL").rstrip("/")
+PASSWORD_RESET_FRONTEND_PATH_PREFIX = "/" + env("PASSWORD_RESET_FRONTEND_PATH_PREFIX").strip("/")
 
 SENSITIVE_FIELDS = {
     "password",

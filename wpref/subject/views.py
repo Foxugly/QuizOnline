@@ -10,12 +10,12 @@ from drf_spectacular.utils import (
 )
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from wpref.tools import MyModelViewSet, ErrorDetailSerializer
 
 from .models import Subject
-from .serializers import SubjectReadSerializer, SubjectWriteSerializer, SubjectDetailSerializer
+from .serializers import SubjectReadSerializer, SubjectWriteSerializer, SubjectPartialSerializer, SubjectDetailSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ logger = logging.getLogger(__name__)
                 description="ID du sujet.",
             )
         ],
-        request=SubjectWriteSerializer,
+        request=SubjectPartialSerializer,
         responses={
             200: SubjectReadSerializer,
             400: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Validation error"),
@@ -169,11 +169,11 @@ class SubjectViewSet(MyModelViewSet):
             return SubjectReadSerializer
         elif self.action in ["details"]:
             return SubjectDetailSerializer
+        elif self.action == "partial_update":
+            return SubjectPartialSerializer
         return SubjectWriteSerializer
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "details"]:
-            return [IsAuthenticated()]
         return [IsAdminUser()]
 
     # ==========================================================
@@ -273,7 +273,7 @@ class SubjectViewSet(MyModelViewSet):
         self._log_call(
             method_name="partial_update",
             endpoint="PATCH /api/subject/{subject_id}/",
-            input_expected="path subject_id + body JSON partiel (SubjectSerializer)",
+            input_expected="path subject_id + body JSON partiel (SubjectPartialSerializer)",
             output="200 + SubjectReadSerializer | 400 | 404",
         )
         kwargs["partial"] = True

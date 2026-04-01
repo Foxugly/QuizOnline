@@ -1,22 +1,26 @@
 import {Injectable} from '@angular/core';
+import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths';
-
 import {
-  LanguageEnumDto, MediaAssetDto,
+  LanguageEnumDto,
+  MediaAssetDto,
   QuestionApi,
-  QuestionCreateRequestParams, QuestionMediaCreateRequestParams,
+  QuestionCreateRequestParams,
+  QuestionDestroyRequestParams,
+  QuestionListRequestParams,
+  QuestionMediaCreateRequestParams,
+  QuestionPartialUpdateRequestParams,
   QuestionReadDto,
+  QuestionRetrieveRequestParams,
   QuestionUpdateRequestParams,
-  QuestionWriteRequestDto,
+  QuestionWritePayloadRequestDto,
+  PatchedQuestionPartialWritePayloadRequestDto,
 } from '../../api/generated';
-
-import {LangCode} from '../translation/translation';
-import {MediaSelectorValue} from '../../components/media-selector/media-selector';
-import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {selectTranslation} from '../../shared/i18n/select-translation';
+import {LangCode} from '../translation/translation';
 
 export type QuestionTrGroup = FormGroup<{
   title: FormControl<string>;
@@ -53,46 +57,49 @@ export type QuestionCreateJsonPayload = {
   media_asset_ids: number[];
 };
 
-
 @Injectable({providedIn: 'root'})
 export class QuestionService {
   constructor(private api: QuestionApi, private router: Router) {
   }
 
-  // ==========
-  // API
-  // ==========
-
-  list(params?: { search?: string; subjectId?: number; domainId?: number }): Observable<QuestionReadDto[]> {
-    // si ton client généré n'expose pas ces params,
-    // garde "as any" mais idéalement adapte aux vrais noms
-    return this.api.questionList({
+  list(params?: { search?: string; subjectId?: number; domainId?: number; active?: boolean }): Observable<QuestionReadDto[]> {
+    const requestParams: QuestionListRequestParams = {
+      active: params?.active,
       search: params?.search,
-      subjectId: params?.subjectId,
-      domainId: params?.domainId,
-    } as any);
+      domain: params?.domainId,
+    };
+
+    return this.api.questionList(requestParams);
   }
 
   retrieve(questionId: number): Observable<QuestionReadDto> {
-    return this.api.questionRetrieve({questionId} as any);
+    const requestParams: QuestionRetrieveRequestParams = {questionId};
+    return this.api.questionRetrieve(requestParams);
   }
 
-  create(qwrdto: QuestionWriteRequestDto): Observable<QuestionReadDto> {
-    console.log(qwrdto);
-    return this.api.questionCreate({questionWriteRequestDto:qwrdto} as QuestionCreateRequestParams);
+  create(question: QuestionWritePayloadRequestDto): Observable<QuestionReadDto> {
+    const requestParams: QuestionCreateRequestParams = {
+      questionWritePayloadRequestDto: question,
+    };
+    return this.api.questionCreate(requestParams);
   }
 
   update(qurp: QuestionUpdateRequestParams): Observable<QuestionReadDto> {
     return this.api.questionUpdate(qurp);
   }
 
-  delete(questionId: number): Observable<void> {
-    return this.api.questionDestroy({questionId} as any).pipe(map(() => void 0));
+  updatePartial(questionId: number, payload: PatchedQuestionPartialWritePayloadRequestDto): Observable<QuestionReadDto> {
+    const requestParams: QuestionPartialUpdateRequestParams = {
+      questionId,
+      patchedQuestionPartialWritePayloadRequestDto: payload,
+    };
+    return this.api.questionPartialUpdate(requestParams);
   }
 
-  // ==========
-  // Navigation
-  // ==========
+  delete(questionId: number): Observable<void> {
+    const requestParams: QuestionDestroyRequestParams = {questionId};
+    return this.api.questionDestroy(requestParams).pipe(map(() => void 0));
+  }
 
   goList(): void {
     this.router.navigate(ROUTES.question.list());
@@ -124,10 +131,6 @@ export class QuestionService {
     this.router.navigate(ROUTES.subject.edit(subjectId));
   }
 
-  // ==========
-  // Builders
-  // ==========
-
   getQuestionTranslationForm(question: QuestionReadDto, lang: LanguageEnumDto): QuestionTranslationForm {
     const tr = question.translations as Record<string, QuestionTranslationForm> | undefined;
     return (
@@ -136,7 +139,7 @@ export class QuestionService {
     );
   }
 
-  questionMediaCreate(param:QuestionMediaCreateRequestParams):Observable<MediaAssetDto> {
+  questionMediaCreate(param: QuestionMediaCreateRequestParams): Observable<MediaAssetDto> {
     return this.api.questionMediaCreate(param);
   }
 }

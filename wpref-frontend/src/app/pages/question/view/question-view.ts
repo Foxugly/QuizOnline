@@ -31,7 +31,10 @@ export class QuestionView implements OnInit {
   isAdmin = this.userService.isAdmin();
 
   ngOnInit(): void {
-    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.id = Number(
+      this.route.snapshot.paramMap.get('questionId') ??
+      this.route.snapshot.paramMap.get('id')
+    );
     if (!this.id || Number.isNaN(this.id)) {
       this.error.set('Identifiant de question invalide.');
       return;

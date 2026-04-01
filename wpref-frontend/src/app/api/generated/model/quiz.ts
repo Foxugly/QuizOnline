@@ -8,18 +8,21 @@
  * Do not edit the class manually.
  */
 import { QuizQuestionAnswerDto } from './quiz-question-answer';
+import { UserSummaryDto } from './user-summary';
 import { QuizQuestionReadDto } from './quiz-question-read';
 
 
 /**
- * Représente une session de quiz (Quiz).
+ * ReprÃ©sente une session de quiz (Quiz).
  */
 export interface QuizDto { 
     readonly id: number;
     domain?: number | null;
     quiz_template: number;
     readonly quiz_template_title: string;
+    readonly quiz_template_description: string;
     readonly user: number | null;
+    readonly user_summary: UserSummaryDto | null;
     readonly mode: string;
     readonly created_at: string;
     started_at?: string | null;
@@ -27,13 +30,13 @@ export interface QuizDto {
     active?: boolean;
     readonly can_answer: boolean;
     readonly max_questions: number;
+    readonly with_duration: boolean;
+    readonly duration: number;
     readonly questions: Array<QuizQuestionReadDto>;
     readonly answers: Array<QuizQuestionAnswerDto>;
     readonly total_answers: number | null;
     readonly correct_answers: number | null;
     readonly earned_score: number | null;
     readonly max_score: number | null;
-    readonly with_duration: boolean;
-    readonly duration: number;
 }
 

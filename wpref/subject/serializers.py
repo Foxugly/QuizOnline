@@ -1,7 +1,16 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema_field
+from domain.models import Domain
 from question.models import Question
 from rest_framework import serializers
+from wpref.serializers import (
+    LocalizedNameDescriptionTranslationSerializer,
+    LocalizedQuestionTitleTranslationSerializer,
+    LocalizedSubjectDetailTranslationSerializer,
+    LocalizedSubjectTranslationSerializer,
+    LocalizedTranslationsDictField,
+    localized_translations_map_schema,
+)
 
 from .models import Subject
 LANG_CODES = {code for code, _ in settings.LANGUAGES}
@@ -17,6 +26,12 @@ class QuestionInSubjectSerializer(serializers.ModelSerializer):
             "title",
         ]
 
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedQuestionTitleTranslationSerializer,
+            "LocalizedQuestionTitleTranslations",
+        )
+    )
     def get_title(self, obj: Question) -> dict:
         data = {}
         for t in obj.translations.all():
@@ -25,8 +40,8 @@ class QuestionInSubjectSerializer(serializers.ModelSerializer):
 
 
 class SubjectWriteSerializer(serializers.ModelSerializer):
-    translations = serializers.DictField(
-        child=serializers.DictField(),
+    translations = LocalizedTranslationsDictField(
+        value_serializer=LocalizedNameDescriptionTranslationSerializer,
         write_only=True,
         required=True,
         help_text=(
@@ -97,6 +112,17 @@ class SubjectWriteSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class SubjectPartialSerializer(SubjectWriteSerializer):
+    translations = serializers.DictField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False,
+        help_text=SubjectWriteSerializer._declared_fields["translations"].help_text,
+    )
+    domain = serializers.PrimaryKeyRelatedField(queryset=Domain.objects.all(), required=False)
+    active = serializers.BooleanField(required=False)
+
+
 class SubjectReadSerializer(serializers.ModelSerializer):
     translations = serializers.SerializerMethodField()
 
@@ -105,6 +131,12 @@ class SubjectReadSerializer(serializers.ModelSerializer):
         fields = ["id", "domain", "active", "translations"]
         read_only_fields = fields
 
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedSubjectTranslationSerializer,
+            "LocalizedSubjectTranslations",
+        )
+    )
     def get_translations(self, obj: Subject) -> dict:
         data = {}
         for t in obj.translations.all():
@@ -130,6 +162,12 @@ class SubjectDetailSerializer(serializers.ModelSerializer):
         model = Subject
         fields = ["id", "active", "domain", "translations", "questions"]
 
+    @extend_schema_field(
+        localized_translations_map_schema(
+            LocalizedSubjectDetailTranslationSerializer,
+            "LocalizedSubjectDetailTranslations",
+        )
+    )
     def get_translations(self, obj: Subject) -> dict:
         data = {}
         for t in obj.translations.all():

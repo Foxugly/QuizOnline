@@ -9,6 +9,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {DividerModule} from 'primeng/divider';
 import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip'; // pour [tooltip], optionnel
+import {toCanonicalYoutubeUrl} from '../../shared/media/youtube';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null;
 
@@ -45,6 +46,7 @@ export interface MediaSelectorValue {
 export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
   /** URL saisie pour YouTube / externe dans l’onglet 2 */
   youtubeUrl = signal<string>('');
+  youtubeError = signal<string | null>(null);
   selectedTab: 'media' | 'youtube' = 'media';
   @Input() multiple = true;
   @Input() placeholderYoutube = 'https://www.youtube.com/watch?v=...';
@@ -153,19 +155,30 @@ export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
     if (this.disabled) return;
     const url = this.youtubeUrl().trim();
     if (!url) return;
+    const canonicalUrl = toCanonicalYoutubeUrl(url);
+    if (!canonicalUrl) {
+      this.youtubeError.set('Le lien doit être une URL YouTube valide.');
+      return;
+    }
 
     const current = [...this._items()];
 
     current.push({
       kind: 'external',
       file: null,
-      external_url: url,
+      external_url: canonicalUrl,
       sort_order: current.length + 1,
     });
 
+    this.youtubeError.set(null);
     this.youtubeUrl.set('');
     this._items.set(current);
     this.propagate();
+  }
+
+  onYoutubeUrlChange(value: string): void {
+    this.youtubeError.set(null);
+    this.youtubeUrl.set(value);
   }
 
   // ----- Upload de fichiers (onglet Médias) -----
@@ -226,7 +239,7 @@ export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
     }
 
     if (m.external_url) {
-      return {icon: 'pi-link', label: 'Lien externe', severity: 'warn'};
+      return {icon: 'pi-youtube', label: 'Video YouTube', severity: 'warn'};
     }
 
     return {icon: 'pi-question-circle', label: 'Inconnu', severity: null};

@@ -36,7 +36,14 @@ export class QuestionDelete implements OnInit {
   });
 
   ngOnInit(): void {
-    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.id = Number(
+      this.route.snapshot.paramMap.get('questionId') ??
+      this.route.snapshot.paramMap.get('id'),
+    );
+    if (!this.id || Number.isNaN(this.id)) {
+      this.submitError.set('Identifiant de question invalide.');
+      return;
+    }
     this.loading.set(true);
 
     this.questionService

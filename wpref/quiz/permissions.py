@@ -18,6 +18,12 @@ class IsStaffOrReadOnly(BasePermission):
         return bool(user and user.is_authenticated and (user.is_staff or user.is_superuser))
 
 
+class IsStaffOrSuperuser(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(user and user.is_authenticated and (user.is_staff or user.is_superuser))
+
+
 class IsOwnerOrStaff(BasePermission):
     """
     Pour les objets liés à un utilisateur :

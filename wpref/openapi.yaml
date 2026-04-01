@@ -418,13 +418,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedLanguageWriteRequest'
+              $ref: '#/components/schemas/PatchedLanguagePartialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedLanguageWriteRequest'
+              $ref: '#/components/schemas/PatchedLanguagePartialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedLanguageWriteRequest'
+              $ref: '#/components/schemas/PatchedLanguagePartialRequest'
       security:
       - jwtAuth: []
       responses:
@@ -550,7 +550,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
+              $ref: '#/components/schemas/QuestionWritePayloadRequest'
         required: true
       security:
       - jwtAuth: []
@@ -629,7 +629,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
+              $ref: '#/components/schemas/QuestionWritePayloadRequest'
         required: true
       security:
       - jwtAuth: []
@@ -680,13 +680,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuestionPartialWritePayloadRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuestionPartialWritePayloadRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuestionPartialWritePayloadRequest'
       security:
       - jwtAuth: []
       responses:
@@ -784,6 +784,49 @@ paths:
           description: ''
         '400':
           description: Validation error
+  /api/question/media/external/:
+    post:
+      operationId: question_media_external_create
+      tags:
+      - question
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionWrite'
+          description: ''
+  /api/question/media/upload/:
+    post:
+      operationId: question_media_upload_create
+      tags:
+      - question
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionWrite'
+          description: ''
   /api/quiz/:
     get:
       operationId: quiz_list
@@ -816,7 +859,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Quiz'
+                  $ref: '#/components/schemas/QuizList'
           description: ''
         '401':
           content:
@@ -839,13 +882,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/CreateQuizInputRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/CreateQuizInputRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/CreateQuizInputRequest'
         required: true
       security:
       - jwtAuth: []
@@ -892,13 +935,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/QuizUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/QuizUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/QuizUpdateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -924,13 +967,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/PatchedQuizPartialUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/PatchedQuizPartialUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/PatchedQuizPartialUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1096,13 +1139,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionAnswerWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionAnswerPartialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionAnswerWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionAnswerPartialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionAnswerWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionAnswerPartialRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1161,7 +1204,7 @@ paths:
   /api/quiz/{quiz_id}/start/:
     post:
       operationId: quiz_start_create
-      summary: Créer un quiz pour l’utilisateur courant
+      summary: Démarrer une session de quiz existante
       parameters:
       - in: path
         name: quiz_id
@@ -1170,22 +1213,10 @@ paths:
         required: true
       tags:
       - Quiz
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateQuizInputRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CreateQuizInputRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CreateQuizInputRequest'
-        required: true
       security:
       - jwtAuth: []
       responses:
-        '201':
+        '200':
           content:
             application/json:
               schema:
@@ -1222,7 +1253,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Quiz'
+                  $ref: '#/components/schemas/QuizList'
           description: ''
         '400':
           description: Input invalide
@@ -1254,13 +1285,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1307,13 +1338,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizTemplateRequest'
+              $ref: '#/components/schemas/QuizTemplateWriteRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1339,13 +1370,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizTemplateRequest'
+              $ref: '#/components/schemas/PatchedQuizTemplatePartialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizTemplateRequest'
+              $ref: '#/components/schemas/PatchedQuizTemplatePartialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizTemplateRequest'
+              $ref: '#/components/schemas/PatchedQuizTemplatePartialRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1424,7 +1455,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuizQuestionWrite'
+                $ref: '#/components/schemas/QuizQuestionRead'
           description: ''
         '400':
           description: Validation error
@@ -1491,7 +1522,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuizQuestionWrite'
+                $ref: '#/components/schemas/QuizQuestionRead'
           description: ''
     patch:
       operationId: quiz_template_question_partial_update
@@ -1513,13 +1544,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionPartialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionPartialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizQuestionWriteRequest'
+              $ref: '#/components/schemas/PatchedQuizQuestionPartialRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1527,7 +1558,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuizQuestionWrite'
+                $ref: '#/components/schemas/QuizQuestionRead'
           description: ''
     delete:
       operationId: quiz_template_question_destroy
@@ -1838,13 +1869,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSubjectWriteRequest'
+              $ref: '#/components/schemas/PatchedSubjectPartialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSubjectWriteRequest'
+              $ref: '#/components/schemas/PatchedSubjectPartialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSubjectWriteRequest'
+              $ref: '#/components/schemas/PatchedSubjectPartialRequest'
       security:
       - jwtAuth: []
       responses:
@@ -2192,13 +2223,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomUserUpdateRequest'
+              $ref: '#/components/schemas/CustomUserAdminUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomUserUpdateRequest'
+              $ref: '#/components/schemas/CustomUserAdminUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomUserUpdateRequest'
+              $ref: '#/components/schemas/CustomUserAdminUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -2224,13 +2255,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserUpdateRequest'
+              $ref: '#/components/schemas/PatchedCustomUserAdminUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserUpdateRequest'
+              $ref: '#/components/schemas/PatchedCustomUserAdminUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserUpdateRequest'
+              $ref: '#/components/schemas/PatchedCustomUserAdminUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -2329,13 +2360,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserReadRequest'
+              $ref: '#/components/schemas/PatchedCustomUserProfileUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserReadRequest'
+              $ref: '#/components/schemas/PatchedCustomUserProfileUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserReadRequest'
+              $ref: '#/components/schemas/PatchedCustomUserProfileUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -2450,7 +2481,7 @@ paths:
       operationId: user_password_reset_create
       description: |-
         Envoie un email avec un lien de réinitialisation.
-        ⚠️ Répond toujours 200 pour ne pas révéler si l'email existe.
+        Répond toujours 200 pour ne pas révéler si l'email existe.
       summary: Demander un reset de mot de passe
       tags:
       - Auth
@@ -2537,6 +2568,31 @@ components:
           type: integer
       required:
       - quiz_template_id
+    CustomUserAdminUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
     CustomUserCreateRequest:
       type: object
       properties:
@@ -2633,29 +2689,6 @@ components:
       - managed_domain_ids
       - owned_domain_ids
       - username
-    CustomUserUpdateRequest:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email address
-          maxLength: 254
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        password:
-          type: string
-          writeOnly: true
-          minLength: 1
-        is_active:
-          type: boolean
-          title: Active
-          description: Designates whether this user should be treated as active. Unselect
-            this instead of deleting accounts.
     DomainDetail:
       type: object
       properties:
@@ -2663,11 +2696,8 @@ components:
           type: integer
           readOnly: true
         translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
+          allOf:
+          - $ref: '#/components/schemas/LocalizedNameDescriptionTranslations'
           readOnly: true
         allowed_languages:
           type: array
@@ -2678,20 +2708,13 @@ components:
           type: boolean
           readOnly: true
         owner:
-          type: object
-          additionalProperties:
-            oneOf:
-            - type: integer
-            - type: string
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
           readOnly: true
         staff:
           type: array
           items:
-            type: object
-            additionalProperties:
-              oneOf:
-              - type: integer
-              - type: string
+            $ref: '#/components/schemas/UserSummary'
           readOnly: true
         created_at:
           type: string
@@ -2716,6 +2739,16 @@ components:
       - subjects
       - translations
       - updated_at
+    DomainNameSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+      - id
+      - name
     DomainRead:
       type: object
       properties:
@@ -2723,11 +2756,8 @@ components:
           type: integer
           readOnly: true
         translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
+          allOf:
+          - $ref: '#/components/schemas/LocalizedNameDescriptionTranslations'
           readOnly: true
         allowed_languages:
           type: array
@@ -2738,20 +2768,13 @@ components:
           type: boolean
           readOnly: true
         owner:
-          type: object
-          additionalProperties:
-            oneOf:
-            - type: integer
-            - type: string
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
           readOnly: true
         staff:
           type: array
           items:
-            type: object
-            additionalProperties:
-              oneOf:
-              - type: integer
-              - type: string
+            $ref: '#/components/schemas/UserSummary'
           readOnly: true
         created_at:
           type: string
@@ -2776,8 +2799,7 @@ components:
         translations:
           type: object
           additionalProperties:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/LocalizedNameDescriptionTranslationRequest'
           writeOnly: true
         allowed_languages:
           type: array
@@ -2818,6 +2840,14 @@ components:
             type: integer
         max_questions:
           type: integer
+          default: 10
+        with_duration:
+          type: boolean
+          default: true
+        duration:
+          type: integer
+          minimum: 1
+          nullable: true
           default: 10
       required:
       - subject_ids
@@ -2878,6 +2908,129 @@ components:
       required:
       - code
       - name
+    LocalizedAnswerOptionTranslation:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+      - content
+    LocalizedAnswerOptionTranslationRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+      required:
+      - content
+    LocalizedAnswerOptionTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedAnswerOptionTranslation'
+    LocalizedNameDescriptionTranslation:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+      - description
+      - name
+    LocalizedNameDescriptionTranslationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+      required:
+      - description
+      - name
+    LocalizedNameDescriptionTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedNameDescriptionTranslation'
+    LocalizedQuestionTitleTranslation:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+      - title
+    LocalizedQuestionTitleTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedQuestionTitleTranslation'
+    LocalizedQuestionTranslation:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        explanation:
+          type: string
+      required:
+      - description
+      - explanation
+      - title
+    LocalizedQuestionTranslationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        explanation:
+          type: string
+          minLength: 1
+      required:
+      - description
+      - explanation
+      - title
+    LocalizedQuestionTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedQuestionTranslation'
+    LocalizedSubjectDetailTranslation:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        domain_name:
+          type: string
+      required:
+      - description
+      - domain_name
+      - name
+    LocalizedSubjectDetailTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedSubjectDetailTranslation'
+    LocalizedSubjectTranslation:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          $ref: '#/components/schemas/DomainNameSummary'
+      required:
+      - description
+      - domain
+      - name
+    LocalizedSubjectTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedSubjectTranslation'
     MediaAsset:
       type: object
       properties:
@@ -3005,7 +3158,7 @@ components:
           minLength: 1
       required:
       - email
-    PatchedCustomUserReadRequest:
+    PatchedCustomUserAdminUpdateRequest:
       type: object
       properties:
         email:
@@ -3021,10 +3174,16 @@ components:
           maxLength: 150
         language:
           $ref: '#/components/schemas/LanguageEnum'
-        current_domain:
-          type: integer
-          nullable: true
-    PatchedCustomUserUpdateRequest:
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+    PatchedCustomUserProfileUpdateRequest:
       type: object
       properties:
         email:
@@ -3038,23 +3197,15 @@ components:
         last_name:
           type: string
           maxLength: 150
-        password:
-          type: string
-          writeOnly: true
-          minLength: 1
-        is_active:
-          type: boolean
-          title: Active
-          description: Designates whether this user should be treated as active. Unselect
-            this instead of deleting accounts.
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
     PatchedDomainPartialRequest:
       type: object
       properties:
         translations:
           type: object
           additionalProperties:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/LocalizedNameDescriptionTranslationRequest'
           writeOnly: true
         allowed_languages:
           type: array
@@ -3066,43 +3217,36 @@ components:
           type: array
           items:
             type: integer
-    PatchedLanguageWriteRequest:
+    PatchedLanguagePartialRequest:
       type: object
       properties:
         code:
           type: string
           minLength: 1
-          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
-          maxLength: 10
         name:
           type: string
           minLength: 1
-          description: 'Nom lisible (ex: Français, Nederlands, English)'
-          maxLength: 100
         active:
           type: boolean
-          description: Langue disponible pour la saisie et l'affichage
-    PatchedQuestionWriteRequest:
+    PatchedQuestionPartialWritePayloadRequest:
       type: object
       properties:
         domain:
           type: integer
         translations:
           type: object
-          additionalProperties: {}
+          additionalProperties:
+            $ref: '#/components/schemas/LocalizedQuestionTranslationRequest'
           writeOnly: true
-          description: Object or JSON string (multipart). Dict keyed by language code.
+          description: Object keyed by language code.
         allow_multiple_correct:
           type: boolean
-          title: Plusieurs bonnes réponses ?
         active:
           type: boolean
         is_mode_practice:
           type: boolean
-          title: Pour s'exercer
         is_mode_exam:
           type: boolean
-          title: Pour les examens
         subject_ids:
           type: array
           items:
@@ -3111,19 +3255,36 @@ components:
         answer_options:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
           writeOnly: true
-          description: 'List or JSON string (multipart). Each item: {is_correct, sort_order,
-            translations{lang:{content}}}'
         media_asset_ids:
           type: array
           items:
             type: integer
           writeOnly: true
-          description: IDs des MediaAsset uploadés au préalable. L'ordre dans la liste
-            définit l'ordre d'affichage des médias.
-    PatchedQuizQuestionAnswerWriteRequest:
+          description: Ordered MediaAsset IDs linked to the question.
+    PatchedQuizPartialUpdateRequest:
+      type: object
+      properties:
+        domain:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        user:
+          type: integer
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        active:
+          type: boolean
+    PatchedQuizQuestionAnswerPartialRequest:
       type: object
       properties:
         question_id:
@@ -3137,7 +3298,7 @@ components:
           type: array
           items:
             type: integer
-    PatchedQuizQuestionWriteRequest:
+    PatchedQuizQuestionPartialRequest:
       type: object
       properties:
         question_id:
@@ -3145,40 +3306,12 @@ components:
           writeOnly: true
         sort_order:
           type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
+          minimum: 1
         weight:
           type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          description: Poids de la question dans le score.
-    PatchedQuizRequest:
+          minimum: 1
+    PatchedQuizTemplatePartialRequest:
       type: object
-      description: Représente une session de quiz (Quiz).
-      properties:
-        domain:
-          type: integer
-          nullable: true
-        quiz_template:
-          type: integer
-        started_at:
-          type: string
-          format: date-time
-          nullable: true
-        ended_at:
-          type: string
-          format: date-time
-          nullable: true
-        active:
-          type: boolean
-    PatchedQuizTemplateRequest:
-      type: object
-      description: |-
-        Serializer principal pour QuizTemplate (usage admin).
-        - lecture : inclut les QuizQuestion avec la Question associée
-        - écriture : tu peux rester simple et gérer les QuizQuestion via des endpoints dédiés.
       properties:
         domain:
           type: integer
@@ -3186,22 +3319,15 @@ components:
         title:
           type: string
           minLength: 1
-          title: Titre du quiz
-          maxLength: 200
         mode:
           $ref: '#/components/schemas/ModeEnum'
         description:
           type: string
         max_questions:
           type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          title: Nombre de questions dans le quiz
-          description: Nombre de questions à poser parmi le pool lié.
+          minimum: 1
         permanent:
           type: boolean
-          title: Permanent ?
         started_at:
           type: string
           format: date-time
@@ -3212,49 +3338,24 @@ components:
           nullable: true
         with_duration:
           type: boolean
-          title: Avec Timer ?
         duration:
           type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          title: Temps (en minutes)
+          minimum: 1
         active:
           type: boolean
-          title: Actif ?
         result_visibility:
-          allOf:
-          - $ref: '#/components/schemas/VisibilityEnum'
-          title: Visibilité du résultat global
-          description: |-
-            Quand le score global du quiz peut être affiché à l'utilisateur.
-
-            * `immediate` - Immédiat
-            * `scheduled` - À partir d'une date
-            * `never` - Jamais
+          $ref: '#/components/schemas/VisibilityEnum'
         result_available_at:
           type: string
           format: date-time
           nullable: true
-          title: Résultat global visible à partir de
-          description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
         detail_visibility:
-          allOf:
-          - $ref: '#/components/schemas/VisibilityEnum'
-          title: Visibilité du détail des réponses
-          description: |-
-            Quand les réponses détaillées (réponses de l'utilisateur et bonnes réponses) peuvent être affichées.
-
-            * `immediate` - Immédiat
-            * `scheduled` - À partir d'une date
-            * `never` - Jamais
+          $ref: '#/components/schemas/VisibilityEnum'
         detail_available_at:
           type: string
           format: date-time
           nullable: true
-          title: Détail visible à partir de
-          description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
-    PatchedSubjectWriteRequest:
+    PatchedSubjectPartialRequest:
       type: object
       properties:
         translations:
@@ -3277,6 +3378,10 @@ components:
         content:
           type: string
           readOnly: true
+        translations:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedAnswerOptionTranslations'
+          readOnly: true
         is_correct:
           type: boolean
         sort_order:
@@ -3287,6 +3392,54 @@ components:
       required:
       - content
       - id
+      - translations
+    QuestionAnswerOptionWrite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        is_correct:
+          type: boolean
+        sort_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - id
+    QuestionAnswerOptionWritePayloadRequest:
+      type: object
+      properties:
+        is_correct:
+          type: boolean
+        sort_order:
+          type: integer
+          minimum: 0
+        translations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
+          writeOnly: true
+      required:
+      - translations
+    QuestionAnswerOptionWriteRequest:
+      type: object
+      properties:
+        is_correct:
+          type: boolean
+        sort_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        translations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
+          writeOnly: true
+      required:
+      - translations
     QuestionInQuizQuestion:
       type: object
       properties:
@@ -3312,8 +3465,8 @@ components:
           type: integer
           readOnly: true
         title:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/LocalizedQuestionTitleTranslations'
           readOnly: true
       required:
       - id
@@ -3346,8 +3499,8 @@ components:
           - $ref: '#/components/schemas/DomainRead'
           readOnly: true
         translations:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/LocalizedQuestionTranslations'
           readOnly: true
         allow_multiple_correct:
           type: boolean
@@ -3395,6 +3548,66 @@ components:
       - media
       - subjects
       - translations
+    QuestionWrite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        domain:
+          type: integer
+        allow_multiple_correct:
+          type: boolean
+          title: Plusieurs bonnes réponses ?
+        active:
+          type: boolean
+        is_mode_practice:
+          type: boolean
+          title: Pour s'exercer
+        is_mode_exam:
+          type: boolean
+          title: Pour les examens
+      required:
+      - domain
+      - id
+    QuestionWritePayloadRequest:
+      type: object
+      properties:
+        domain:
+          type: integer
+        translations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LocalizedQuestionTranslationRequest'
+          writeOnly: true
+          description: Object keyed by language code.
+        allow_multiple_correct:
+          type: boolean
+        active:
+          type: boolean
+        is_mode_practice:
+          type: boolean
+        is_mode_exam:
+          type: boolean
+        subject_ids:
+          type: array
+          items:
+            type: integer
+          writeOnly: true
+        answer_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
+          writeOnly: true
+        media_asset_ids:
+          type: array
+          items:
+            type: integer
+          writeOnly: true
+          description: Ordered MediaAsset IDs linked to the question.
+      required:
+      - domain
+      - translations
     QuestionWriteRequest:
       type: object
       properties:
@@ -3402,7 +3615,8 @@ components:
           type: integer
         translations:
           type: object
-          additionalProperties: {}
+          additionalProperties:
+            $ref: '#/components/schemas/LocalizedQuestionTranslationRequest'
           writeOnly: true
           description: Object or JSON string (multipart). Dict keyed by language code.
         allow_multiple_correct:
@@ -3424,8 +3638,7 @@ components:
         answer_options:
           type: array
           items:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/QuestionAnswerOptionWriteRequest'
           writeOnly: true
           description: 'List or JSON string (multipart). Each item: {is_correct, sort_order,
             translations{lang:{content}}}'
@@ -3440,7 +3653,7 @@ components:
       - domain
     Quiz:
       type: object
-      description: Représente une session de quiz (Quiz).
+      description: ReprÃ©sente une session de quiz (Quiz).
       properties:
         id:
           type: integer
@@ -3453,10 +3666,18 @@ components:
         quiz_template_title:
           type: string
           readOnly: true
+        quiz_template_description:
+          type: string
+          readOnly: true
         user:
           type: integer
           readOnly: true
           nullable: true
+        user_summary:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
         mode:
           type: string
           readOnly: true
@@ -3478,6 +3699,12 @@ components:
           type: boolean
           readOnly: true
         max_questions:
+          type: integer
+          readOnly: true
+        with_duration:
+          type: boolean
+          readOnly: true
+        duration:
           type: integer
           readOnly: true
         questions:
@@ -3508,12 +3735,6 @@ components:
           format: double
           nullable: true
           readOnly: true
-        with_duration:
-          type: boolean
-          readOnly: true
-        duration:
-          type: integer
-          readOnly: true
       required:
       - answers
       - can_answer
@@ -3527,14 +3748,85 @@ components:
       - mode
       - questions
       - quiz_template
+      - quiz_template_description
       - quiz_template_title
       - total_answers
       - user
+      - user_summary
+      - with_duration
+    QuizList:
+      type: object
+      description: RÃ©sumÃ© lÃ©ger d'une session de quiz pour la liste.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        domain:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        quiz_template_title:
+          type: string
+          readOnly: true
+        quiz_template_description:
+          type: string
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        user_summary:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
+        mode:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        active:
+          type: boolean
+        can_answer:
+          type: boolean
+          readOnly: true
+        max_questions:
+          type: integer
+          readOnly: true
+        with_duration:
+          type: boolean
+          readOnly: true
+        duration:
+          type: integer
+          readOnly: true
+      required:
+      - can_answer
+      - created_at
+      - duration
+      - id
+      - max_questions
+      - mode
+      - quiz_template
+      - quiz_template_description
+      - quiz_template_title
+      - user
+      - user_summary
       - with_duration
     QuizQuestion:
       type: object
       description: |-
-        Représente une question incluse dans un template de quiz.
+        ReprÃ©sente une question incluse dans un template de quiz.
         On expose quelques infos de la Question en read-only.
       properties:
         id:
@@ -3566,7 +3858,7 @@ components:
     QuizQuestionAnswer:
       type: object
       description: |-
-        Réponse à une question dans un quiz donné.
+        RÃ©ponse Ã  une question dans un quiz donnÃ©.
         On travaille en nested sous /quiz/{quiz_id}/answer/
       properties:
         id:
@@ -3623,7 +3915,7 @@ components:
           readOnly: true
         question:
           allOf:
-          - $ref: '#/components/schemas/QuestionInQuizQuestion'
+          - $ref: '#/components/schemas/QuestionRead'
           readOnly: true
         sort_order:
           type: integer
@@ -3639,43 +3931,6 @@ components:
       required:
       - id
       - question
-    QuizQuestionRequest:
-      type: object
-      description: |-
-        Représente une question incluse dans un template de quiz.
-        On expose quelques infos de la Question en read-only.
-      properties:
-        question_id:
-          type: integer
-          writeOnly: true
-        sort_order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          default: 0
-        weight:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          description: Poids de la question dans le score.
-      required:
-      - question_id
-    QuizQuestionWrite:
-      type: object
-      properties:
-        sort_order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-        weight:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          description: Poids de la question dans le score.
     QuizQuestionWriteRequest:
       type: object
       properties:
@@ -3695,27 +3950,6 @@ components:
           description: Poids de la question dans le score.
       required:
       - question_id
-    QuizRequest:
-      type: object
-      description: Représente une session de quiz (Quiz).
-      properties:
-        domain:
-          type: integer
-          nullable: true
-        quiz_template:
-          type: integer
-        started_at:
-          type: string
-          format: date-time
-          nullable: true
-        ended_at:
-          type: string
-          format: date-time
-          nullable: true
-        active:
-          type: boolean
-      required:
-      - quiz_template
     QuizSimple:
       type: object
       properties:
@@ -3732,8 +3966,8 @@ components:
       type: object
       description: |-
         Serializer principal pour QuizTemplate (usage admin).
-        - lecture : inclut les QuizQuestion avec la Question associée
-        - écriture : tu peux rester simple et gérer les QuizQuestion via des endpoints dédiés.
+        - lecture : inclut les QuizQuestion avec la Question associÃ©e
+        - Ã©criture : tu peux rester simple et gÃ©rer les QuizQuestion via des endpoints dÃ©diÃ©s.
       properties:
         id:
           type: integer
@@ -3838,12 +4072,8 @@ components:
       - quiz_questions
       - slug
       - title
-    QuizTemplateRequest:
+    QuizTemplateWriteRequest:
       type: object
-      description: |-
-        Serializer principal pour QuizTemplate (usage admin).
-        - lecture : inclut les QuizQuestion avec la Question associée
-        - écriture : tu peux rester simple et gérer les QuizQuestion via des endpoints dédiés.
       properties:
         domain:
           type: integer
@@ -3921,6 +4151,29 @@ components:
           description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
       required:
       - title
+    QuizUpdateRequest:
+      type: object
+      properties:
+        domain:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        user:
+          type: integer
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        active:
+          type: boolean
+      required:
+      - quiz_template
     SetCurrentDomainRequest:
       type: object
       properties:
@@ -3938,8 +4191,8 @@ components:
         domain:
           type: integer
         translations:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/LocalizedSubjectDetailTranslations'
           readOnly: true
         questions:
           type: array
@@ -3964,8 +4217,8 @@ components:
           type: boolean
           readOnly: true
         translations:
-          type: object
-          additionalProperties: {}
+          allOf:
+          - $ref: '#/components/schemas/LocalizedSubjectTranslations'
           readOnly: true
       required:
       - active
@@ -3978,8 +4231,7 @@ components:
         translations:
           type: object
           additionalProperties:
-            type: object
-            additionalProperties: {}
+            $ref: '#/components/schemas/LocalizedNameDescriptionTranslationRequest'
           writeOnly: true
           description: 'Ex: {"fr":{"name":"Math","description":""},"nl":{"name":"Wiskunde","description":""}}'
         domain:
@@ -4075,6 +4327,16 @@ components:
       required:
       - key
       - text
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+      required:
+      - id
+      - username
     VisibilityEnum:
       enum:
       - immediate

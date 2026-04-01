@@ -1,0 +1,122 @@
+@if (showDomainSelect()) {
+  <div class="card form-card">
+    <div class="card-head">
+      <h2 class="card-title">Domaine</h2>
+      <span class="badge">{{ domainOptions().length }} disponible(s)</span>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-item meta-item--full">
+        <label class="meta-label">Domaine</label>
+        <div class="meta-value">
+          <p-select
+            (onChange)="onDomainChange($event.value)"
+            [disabled]="loading() || translating()"
+            [ngModel]="selectedDomainId()"
+            [ngModelOptions]="{standalone: true}"
+            [filter]="true"
+            [options]="domainOptions()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Choisir un domaine">
+          </p-select>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showTranslations() && tabCodes().length > 0) {
+  <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
+    <div class="card-head card-head--with-badge">
+      <h2 class="card-title">Traductions</h2>
+      <span class="badge">{{ tabCodes().length }} langue(s)</span>
+    </div>
+
+    <p-tabs
+      (valueChange)="onTabChange($event)"
+      [value]="activeLang() ?? undefined"
+      class="tabs">
+
+      <p-tablist>
+        @for (lang of tabCodes(); track lang) {
+          <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+        }
+      </p-tablist>
+
+      <p-tabpanels>
+        @for (lang of tabCodes(); track lang) {
+          <p-tabpanel [value]="lang">
+            <div class="lang-panel" formGroupName="translations">
+              <div class="lang-toolbar">
+                <p-button
+                  (click)="onTranslateActive()"
+                  [disabled]="translating()"
+                  [loading]="translating()"
+                  icon="pi pi-language"
+                  label="Traduire vers les autres langues"
+                  severity="info"
+                  type="button">
+                </p-button>
+              </div>
+
+              <div [formGroupName]="lang" class="meta-grid">
+                <div class="meta-item meta-item--full">
+                  <label class="meta-label">Nom ({{ lang.toUpperCase() }})</label>
+                  <div class="meta-value">
+                    <input formControlName="name" pInputText placeholder="Nom du sujet" />
+                  </div>
+
+                  @if (langGroup(lang).get('name')?.invalid && langGroup(lang).get('name')?.touched) {
+                    <div class="meta-hint meta-hint--error">Champ requis.</div>
+                  }
+                </div>
+
+                <div class="meta-item meta-item--full">
+                  <label class="meta-label">Description ({{ lang.toUpperCase() }})</label>
+                  <div class="meta-value">
+                    <p-editor class="editor-compact" formControlName="description"></p-editor>
+                  </div>
+                </div>
+              </div>
+
+              @if (translating()) {
+                <div class="inline-status">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <span>Traduction en cours...</span>
+                </div>
+              }
+            </div>
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
+  </form>
+} @else if (showTranslations()) {
+  <div class="card">
+    <div class="alert alert--info">{{ emptyLanguagesMessage() }}</div>
+  </div>
+}
+
+@if (submitError()) {
+  <div class="card">
+    <div class="alert alert--error">{{ submitError() }}</div>
+  </div>
+}
+
+<div class="footer-actions">
+  <p-button
+    (onClick)="submit()"
+    icon="pi pi-save"
+    [label]="submitLabel()"
+    type="button">
+  </p-button>
+
+  <p-button
+    (onClick)="onCancel()"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    type="button">
+  </p-button>
+</div>

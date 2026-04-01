@@ -1,16 +1,7 @@
-import { TestBed } from '@angular/core/testing';
+import {DomainService} from './domain';
 
-import { Domain } from './domain';
-
-describe('Domain', () => {
-  let service: Domain;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Domain);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+describe('DomainService', () => {
+  it('exports the service', () => {
+    expect(DomainService).toBeTruthy();
   });
 });

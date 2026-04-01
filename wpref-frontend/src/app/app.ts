@@ -1,8 +1,10 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject, OnInit} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {TopmenuComponent} from './components/topmenu/topmenu';
 import {BackendStatusService} from './services/status/status';
 import {FooterComponent} from './components/footer/footer';
+import {AuthService} from './services/auth/auth';
+import {UserService} from './services/user/user';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +18,23 @@ import {FooterComponent} from './components/footer/footer';
   //    `,
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
   status = inject(BackendStatusService);
   backendDown = computed(() => this.status.backendUp() === false);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   //protected readonly title = signal('wpref-frontend');
+
+  ngOnInit(): void {
+    if (!this.authService.authenticated || this.userService.currentUser()) {
+      return;
+    }
+
+    this.userService.getMe().subscribe({
+      error: (error) => {
+        console.error('Erreur de rehydratation de session', error);
+        this.authService.logout();
+      },
+    });
+  }
 }

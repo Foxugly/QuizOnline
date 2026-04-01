@@ -1,4 +1,4 @@
-import {Component, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
@@ -22,8 +22,31 @@ export class DomainService {
   }
 
   list(params?: { name?: string; search?: string }): Observable<DomainReadDto[]> {
-    // return this.api.domainList({name:params?.name, search:params?.search}); TODO
-    return this.api.domainList();
+    return this.api.domainList().pipe(
+      map((domains) => {
+        const nameFilter = params?.name?.trim().toLowerCase();
+        const searchFilter = params?.search?.trim().toLowerCase();
+
+        if (!nameFilter && !searchFilter) {
+          return domains;
+        }
+
+        return domains.filter((domain) => {
+          const translations = Object.values(domain.translations ?? {});
+          const haystack = translations
+            .flatMap((translation) => [
+              translation.name ?? '',
+              translation.description ?? '',
+            ])
+            .join(' ')
+            .toLowerCase();
+
+          const matchesName = !nameFilter || haystack.includes(nameFilter);
+          const matchesSearch = !searchFilter || haystack.includes(searchFilter);
+          return matchesName && matchesSearch;
+        });
+      }),
+    );
   }
 
   retrieve(domainId: number): Observable<DomainReadDto> {

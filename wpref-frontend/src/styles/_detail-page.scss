@@ -1,0 +1,59 @@
+@use 'tokens' as t;
+@use 'layout' as l;
+
+@mixin detail-page-shell($max-width: l.$page-max-width) {
+  .page {
+    max-width: $max-width;
+    margin: 0 auto;
+    padding: 1.5rem 0;
+  }
+
+  .question__header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .header-left {
+    justify-self: start;
+  }
+
+  .header-title {
+    text-align: center;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+
+  .header-right {
+    justify-self: end;
+  }
+
+  @media (max-width: 768px) {
+    .page {
+      padding: 1rem;
+    }
+
+    .question__header {
+      grid-template-columns: 1fr;
+    }
+
+    .header-title,
+    .header-left,
+    .header-right {
+      justify-self: start;
+      text-align: left;
+    }
+  }
+}
+
+@mixin banner-state($border-color, $background, $text-color) {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: t.$radius;
+  border: 1px solid $border-color;
+  background: $background;
+  color: $text-color;
+}

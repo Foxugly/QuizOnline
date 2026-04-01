@@ -1,6 +1,8 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-
+import {of} from 'rxjs';
 import {QuizSubjectForm} from './subject-form';
+import {SubjectService} from '../../../services/subject/subject';
+import {UserService} from '../../../services/user/user';
 
 describe('QuizSubjectForm', () => {
   let component: QuizSubjectForm;
@@ -8,9 +10,22 @@ describe('QuizSubjectForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QuizSubjectForm]
-    })
-      .compileComponents();
+      imports: [QuizSubjectForm],
+      providers: [
+        {
+          provide: SubjectService,
+          useValue: {
+            list: () => of([]),
+          },
+        },
+        {
+          provide: UserService,
+          useValue: {
+            currentLang: 'fr',
+          },
+        },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuizSubjectForm);
     component = fixture.componentInstance;

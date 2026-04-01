@@ -1,71 +1,125 @@
 import {Routes} from '@angular/router';
 
-// MENU
-import {About} from './pages/about/about';
-
-// AUTH
-import {authGuard} from '../app/guards/auth.guard';
-import {Login} from './pages/auth/login/login';
-import {Home} from './pages/home/home';
-import {Preferences} from './pages/auth/preferences/preferences';
-import {ResetPassword} from './pages/auth/reset-password/reset-password';
-import {ChangePassword} from './pages/auth/change-password/change-password';
-import {Register} from './pages/auth/register/register';
-
-// DOMAIN
-import {DomainList} from './pages/domain/list/domain-list';
-import {DomainCreate} from './pages/domain/create/domain-create';
-import {DomainEdit} from './pages/domain/edit/domain-edit';
-import {DomainDelete} from './pages/domain/delete/domain-delete';
-
-// SUBJECT
-import {SubjectList} from './pages/subject/list/subject-list';
-import {SubjectCreate} from './pages/subject/create/subject-create';
-import {SubjectEdit} from './pages/subject/edit/subject-edit';
-import {SubjectDelete} from './pages/subject/delete/subject-delete';
-
-// QUESTION
-import {QuestionList} from './pages/question/list/question-list';
-import {QuestionCreate} from './pages/question/create/question-create';
-import {QuestionEdit} from './pages/question/edit/question-edit';
-import {QuestionDelete} from './pages/question/delete/question-delete';
-import {QuestionView} from './pages/question/view/question-view';
-
-// QUIZ
-import {QuizList} from './pages/quiz/list/quiz-list';
-import {QuizView} from './pages/quiz/view/quiz-view';
-import {QuizPlay} from './components/quiz-play/quiz-play';
-import {QuizQuestionView} from './pages/quiz/question-view/question-view';
-
+import {authGuard} from './guards/auth.guard';
+import {staffGuard} from './guards/staff.guard';
 
 export const routes: Routes = [
-  {path: '', redirectTo: 'subjects', pathMatch: 'full'},
-  {path: 'login', component: Login},
-  {path: 'home', component: Home},
-  {path: 'about', component: About},
-  {path: 'preferences', component: Preferences},
-  {path: 'reset-password', component: ResetPassword},
-  {path: 'change-password', component: ChangePassword},
-  {path: 'register', component: Register},
-  // DOMAIN
-  {path: 'domain/list', component: DomainList, canActivate: [authGuard]},
-  {path: 'domain/add', component: DomainCreate, canActivate: [authGuard]},
-  {path: 'domain/:id/edit', component: DomainEdit, canActivate: [authGuard]},
-  {path: 'domain/:id/delete', component: DomainDelete, canActivate: [authGuard]},
-  // SUBJECT
-  {path: 'subject/list', component: SubjectList, canActivate: [authGuard]},
-  {path: 'subject/add', component: SubjectCreate, canActivate: [authGuard]},
-  {path: 'subject/:id/edit', component: SubjectEdit, canActivate: [authGuard]},
-  {path: 'subject/:id/delete', component: SubjectDelete, canActivate: [authGuard]},
-  // QUESTION
-  {path: 'question/list', component: QuestionList, canActivate: [authGuard]},
-  {path: 'question/add', component: QuestionCreate, canActivate: [authGuard]},
-  {path: 'question/:questionId/edit', component: QuestionEdit, canActivate: [authGuard]},
-  {path: 'question/:questionId/delete', component: QuestionDelete, canActivate: [authGuard]},
-  {path: 'question/:questionId/view', component: QuestionView, canActivate: [authGuard]},
-  // QUIZ
-  {path: 'quiz/list', component: QuizList},
-  {path: 'quiz/:id', component: QuizView},
-  {path: 'quiz/:quiz_id/questions', component: QuizQuestionView},
-  {path: 'quiz/test', component: QuizPlay},
+  {path: '', redirectTo: 'home', pathMatch: 'full'},
+  {path: 'login', loadComponent: () => import('./pages/auth/login/login').then((m) => m.Login)},
+  {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
+  {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},
+  {
+    path: 'preferences',
+    loadComponent: () => import('./pages/auth/preferences/preferences').then((m) => m.Preferences),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./pages/auth/reset-password/reset-password').then((m) => m.ResetPassword),
+  },
+  {
+    path: 'user/reset-password/:uid/:token',
+    loadComponent: () => import('./pages/auth/reset-password-confirm/reset-password-confirm').then((m) => m.ResetPasswordConfirm),
+  },
+  {
+    path: 'change-password',
+    loadComponent: () => import('./pages/auth/change-password/change-password').then((m) => m.ChangePassword),
+  },
+  {path: 'register', loadComponent: () => import('./pages/auth/register/register').then((m) => m.Register)},
+  {
+    path: 'domain/list',
+    loadComponent: () => import('./pages/domain/list/domain-list').then((m) => m.DomainList),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'domain/add',
+    loadComponent: () => import('./pages/domain/create/domain-create').then((m) => m.DomainCreate),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'domain/:id/edit',
+    loadComponent: () => import('./pages/domain/edit/domain-edit').then((m) => m.DomainEdit),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'domain/:id/delete',
+    loadComponent: () => import('./pages/domain/delete/domain-delete').then((m) => m.DomainDelete),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'subject/list',
+    loadComponent: () => import('./pages/subject/list/subject-list').then((m) => m.SubjectList),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'subject/add',
+    loadComponent: () => import('./pages/subject/create/subject-create').then((m) => m.SubjectCreate),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'subject/:id/edit',
+    loadComponent: () => import('./pages/subject/edit/subject-edit').then((m) => m.SubjectEdit),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'subject/:id/delete',
+    loadComponent: () => import('./pages/subject/delete/subject-delete').then((m) => m.SubjectDelete),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'question/list',
+    loadComponent: () => import('./pages/question/list/question-list').then((m) => m.QuestionList),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'question/add',
+    loadComponent: () => import('./pages/question/create/question-create').then((m) => m.QuestionCreate),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'question/:questionId/edit',
+    loadComponent: () => import('./pages/question/edit/question-edit').then((m) => m.QuestionEdit),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'question/:questionId/delete',
+    loadComponent: () => import('./pages/question/delete/question-delete').then((m) => m.QuestionDelete),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'question/:questionId/view',
+    loadComponent: () => import('./pages/question/view/question-view').then((m) => m.QuestionView),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'quiz/add',
+    loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'quiz/template/:templateId/edit',
+    loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'quiz/template/:templateId/delete',
+    loadComponent: () => import('./pages/quiz/delete/quiz-template-delete').then((m) => m.QuizTemplateDelete),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'quiz/list',
+    loadComponent: () => import('./pages/quiz/list/quiz-list').then((m) => m.QuizList),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'quiz/:id',
+    loadComponent: () => import('./pages/quiz/view/quiz-view').then((m) => m.QuizView),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'quiz/:quiz_id/questions',
+    loadComponent: () => import('./pages/quiz/question-view/question-view').then((m) => m.QuizQuestionView),
+    canActivate: [authGuard],
+  },
+  {path: 'quiz/test', loadComponent: () => import('./components/quiz-play/quiz-play').then((m) => m.QuizPlay)},
 ];

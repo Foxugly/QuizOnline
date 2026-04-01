@@ -3,7 +3,7 @@
     <div class="header-spacer"></div>
 
     <div class="header-center">
-      <h1 class="title">Éditer le sujet</h1>
+      <h1 class="title">&#201;diter le sujet</h1>
       <p class="subtitle muted">Traductions et contenu</p>
     </div>
 
@@ -27,86 +27,24 @@
 
   @if (loading()) {
     <div class="card">
-      <p class="muted">Chargement…</p>
+      <p class="muted">Chargement...</p>
     </div>
   } @else {
+    <app-subject-editor-form
+      [activeLang]="activeLang()"
+      [form]="form"
+      [loading]="loading()"
+      [showDomainSelect]="false"
+      [submitError]="submitError()"
+      submitLabel="Enregistrer"
+      [tabCodes]="tabCodes()"
+      [translating]="translating()"
+      (cancel)="goList()"
+      (submitForm)="save()"
+      (tabChange)="onTabChange($event)"
+      (translateActive)="translateFromActiveTab()">
+    </app-subject-editor-form>
 
-    <!-- FORM CARD -->
-    <form (ngSubmit)="save()" [formGroup]="form" class="card form-card">
-      <div class="card-head card-head--with-badge">
-        <h2 class="card-title">Traductions</h2>
-        <span class="badge">{{ allowedLanguages().length }} langue(s)</span>
-      </div>
-
-      <p-tabs
-        (valueChange)="onTabChange($event)"
-        [value]="activeLang() ?? undefined"
-        class="tabs">
-        <p-tablist>
-          @for (lang of allowedLanguages(); track lang.code) {
-            <p-tab [value]="lang.code">{{ lang.code.toUpperCase() }}</p-tab>
-          }
-        </p-tablist>
-
-        <p-tabpanels>
-          @for (lang of allowedLanguages(); track lang.code) {
-            <p-tabpanel [value]="lang.code">
-              <div class="lang-panel" formGroupName="translations">
-                <div class="lang-toolbar">
-                  <p-button
-                    (click)="translateFromActiveTab()"
-                    [disabled]="translating()"
-                    [loading]="translating()"
-                    icon="pi pi-language"
-                    label="Traduire vers les autres langues"
-                    severity="info"
-                    type="button">
-                  </p-button>
-                </div>
-                <div [formGroupName]="lang.code" class="meta-grid">
-                  <div class="meta-item meta-item--full">
-                    <label class="meta-label">Nom ({{ lang.code.toUpperCase() }})</label>
-                    <div class="meta-value">
-                      <input formControlName="name" pInputText placeholder="Nom du sujet"/>
-                    </div>
-
-                    @if (langGroup(lang.code).get('name')?.touched &&
-                    langGroup(lang.code).get('name')?.invalid) {
-                      <div class="meta-hint meta-hint--error">
-                        Nom requis (min. 2 caractères)
-                      </div>
-                    }
-                  </div>
-
-                  <div class="meta-item meta-item--full">
-                    <label class="meta-label">Description ({{ lang.code.toUpperCase() }})</label>
-                    <div class="meta-value">
-                      <p-editor
-                        class="editor-compact"
-                        formControlName="description">
-                      </p-editor>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </p-tabpanel>
-          }
-        </p-tabpanels>
-      </p-tabs>
-
-      <div class="footer-actions">
-        <p-button icon="pi pi-save" label="Enregistrer" type="submit"></p-button>
-        <p-button
-          (onClick)="goList()"
-          icon="pi pi-times"
-          label="Annuler"
-          severity="secondary"
-          type="button">
-        </p-button>
-      </div>
-    </form>
-
-    <!-- RELATED LIST CARD -->
     <div class="card">
       <div class="card-head">
         <h2 class="card-title">Questions</h2>
@@ -129,8 +67,7 @@
           showGridlines
           size="small"
           stripedRows
-          styleClass="table"
-        >
+          styleClass="table">
           <ng-template #header>
             <tr>
               <th>Titre</th>
@@ -151,7 +88,7 @@
                     type="button">
                   </p-button>
                   <p-button
-                    (onClick)="goQuestionDelete(q[id])"
+                    (onClick)="goQuestionDelete(q.id)"
                     icon="pi pi-trash"
                     severity="danger"
                     size="small"

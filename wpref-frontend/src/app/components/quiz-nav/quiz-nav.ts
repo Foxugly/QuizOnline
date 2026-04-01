@@ -27,6 +27,7 @@ export class QuizNav {
 
   /** Nombre de colonnes (boutons par ligne) */
   @Input() columns = 5;
+  @Input() reviewMode = false;
 
   /** Événement émis au clic sur un bouton */
   @Output() questionSelected = new EventEmitter<number>();
@@ -37,6 +38,13 @@ export class QuizNav {
 
   /** Couleur de fond selon l'état de la question */
   getBackgroundColor(item: QuizNavItem): string {
+    const reviewState = this.getReviewState(item);
+    if (reviewState === 'correct') {
+      return '#dcfce7';
+    }
+    if (reviewState === 'wrong') {
+      return '#fee2e2';
+    }
     /*if (item.flagged) {
       // Question marquée : fond clair
       return '#fff7f7';
@@ -51,6 +59,13 @@ export class QuizNav {
 
   /** Couleur de bordure selon l'état de la question */
   getBorderColor(item: QuizNavItem): string {
+    const reviewState = this.getReviewState(item);
+    if (reviewState === 'correct') {
+      return '#16a34a';
+    }
+    if (reviewState === 'wrong') {
+      return '#dc2626';
+    }
     if (item.flagged) {
       return '#d32f2f'; // rouge pour marquée
     }
@@ -62,6 +77,9 @@ export class QuizNav {
 
   /** Épaisseur de bordure selon l'état de la question */
   getBorderWidth(item: QuizNavItem): string {
+    if (this.getReviewState(item) !== 'neutral') {
+      return '2px';
+    }
     if (item.flagged) {
       return '3px';
     }
@@ -72,9 +90,43 @@ export class QuizNav {
   }
 
   getTextColor(item: QuizNavItem): string {
+    const reviewState = this.getReviewState(item);
+    if (reviewState === 'correct') return '#166534';
+    if (reviewState === 'wrong') return '#991b1b';
     if (item.flagged) return '#b71c1c';      // rouge foncé
     if (item.answered) return '#0d47a1';     // bleu foncé
     return '#333333';                        // gris foncé par défaut
   }
 
+  private getReviewState(item: QuizNavItem): 'correct' | 'wrong' | 'neutral' {
+    if (!this.reviewMode || !item.answered) {
+      return 'neutral';
+    }
+
+    const options = item.question.answer_options ?? [];
+    const hasCorrection = options.some((option) => option.is_correct !== undefined);
+    if (!hasCorrection) {
+      return 'neutral';
+    }
+
+    const selected = new Set(item.selectedOptionIds ?? []);
+    const correct = new Set(
+      options
+        .filter((option) => option.is_correct)
+        .map((option) => option.id)
+        .filter((id): id is number => id != null),
+    );
+
+    if (selected.size !== correct.size) {
+      return 'wrong';
+    }
+
+    for (const id of correct) {
+      if (!selected.has(id)) {
+        return 'wrong';
+      }
+    }
+
+    return 'correct';
+  }
 }

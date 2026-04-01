@@ -66,6 +66,11 @@ class QuestionSerializersTestCase(TestCase):
         self._set_parler_translation(self.domain, "fr", name="Domaine FR", description="")
         self._set_parler_translation(self.domain, "en", name="Domain EN", description="")
 
+        self.other_domain = Domain.objects.create(active=True, owner=self.owner)
+        self.other_domain.allowed_languages.set([self.lang_fr, self.lang_en])
+        self._set_parler_translation(self.other_domain, "fr", name="Autre domaine FR", description="")
+        self._set_parler_translation(self.other_domain, "en", name="Other domain EN", description="")
+
         # Subjects
         self.subj1 = Subject.objects.create(domain=self.domain, active=True)
         self._set_parler_translation(self.subj1, "fr", name="Sujet 1 FR", description="")
@@ -75,10 +80,16 @@ class QuestionSerializersTestCase(TestCase):
         self._set_parler_translation(self.subj2, "fr", name="Sujet 2 FR", description="")
         self._set_parler_translation(self.subj2, "en", name="Subject 2 EN", description="")
 
+        self.other_subj = Subject.objects.create(domain=self.other_domain, active=True)
+        self._set_parler_translation(self.other_subj, "fr", name="Sujet autre FR", description="")
+        self._set_parler_translation(self.other_subj, "en", name="Other subject EN", description="")
+
         # Refetch "clean" (évite caches parler)
         self.domain = Domain.objects.get(pk=self.domain.pk)
+        self.other_domain = Domain.objects.get(pk=self.other_domain.pk)
         self.subj1 = Subject.objects.get(pk=self.subj1.pk)
         self.subj2 = Subject.objects.get(pk=self.subj2.pk)
+        self.other_subj = Subject.objects.get(pk=self.other_subj.pk)
 
     def tearDown(self):
         translation.deactivate_all()
@@ -93,10 +104,12 @@ class QuestionSerializersTestCase(TestCase):
         - initialize=True force la création de la traduction si absente
         - refresh_from_db pour éviter tout cache “sale”
         """
-        obj.set_current_language(lang, initialize=True)
-        for k, v in fields.items():
-            setattr(obj, k, v)
-        obj.save()
+        translation_model = obj._parler_meta.root_model
+        translation_model.objects.update_or_create(
+            master_id=obj.pk,
+            language_code=lang,
+            defaults=fields,
+        )
         obj.refresh_from_db()
         return obj
 
@@ -219,6 +232,8 @@ class QuestionSerializersTestCase(TestCase):
         data = QuestionAnswerOptionReadSerializer(ao).data
         self.assertIn("is_correct", data)
         self.assertTrue(data["is_correct"])
+        self.assertEqual(data["translations"]["fr"]["content"], "A FR")
+        self.assertEqual(data["translations"]["en"]["content"], "A EN")
 
     def test_answer_option_write_serializer_validate_translations_shape(self):
         payload = {"is_correct": True, "sort_order": 0, "translations": {"fr": {"content": "A"}, "en": {"content": "A"}}}
@@ -288,6 +303,8 @@ class QuestionSerializersTestCase(TestCase):
         s2 = QuestionReadSerializer(q, context={"show_correct": True, "view": view})
         data2 = s2.data
         self.assertIn("is_correct", data2["answer_options"][0])
+        self.assertEqual(data2["answer_options"][0]["translations"]["fr"]["content"], "A")
+        self.assertEqual(data2["answer_options"][1]["translations"]["en"]["content"], "B")
 
     # ---------------------------------------------------------------------
     # QuestionWriteSerializer: validate + create
@@ -324,6 +341,26 @@ class QuestionSerializersTestCase(TestCase):
         self.assertFalse(s.is_valid())
         self.assertIn("answer_options[0].translations", s.errors)
         self.assertIn("Langues manquantes", str(s.errors["answer_options[0].translations"]))
+
+    def test_question_write_serializer_rejects_subject_from_other_domain(self):
+        payload = self._base_question_payload()
+        payload["subject_ids"] = [self.subj1.id, self.other_subj.id]
+
+        s = QuestionWriteSerializer(data=payload)
+        self.assertFalse(s.is_valid())
+        self.assertIn("subject_ids", s.errors)
+        self.assertIn("Subjects hors domain", str(s.errors["subject_ids"]))
+
+    def test_question_write_serializer_rejects_domain_change_if_existing_subjects_do_not_match(self):
+        q = self._mk_question_with_translations()
+        q.subjects.set([self.subj1])
+
+        payload = {"domain": self.other_domain.id}
+        s = QuestionWriteSerializer(instance=q, data=payload, partial=True)
+
+        self.assertFalse(s.is_valid())
+        self.assertIn("subject_ids", s.errors)
+        self.assertIn("nouveau domain", str(s.errors["subject_ids"]))
 
     def test_question_write_serializer_create_full(self):
         a1 = self._mk_external_asset("https://example.com/a1")

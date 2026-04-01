@@ -1,7 +1,17 @@
-// src/app/components/quiz-question/quiz-question.ts
-import {Component, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges,} from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  signal,
+  SimpleChanges,
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
-import {DomSanitizer, SafeResourceUrl,} from '@angular/platform-browser';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {CardModule} from 'primeng/card';
 import {ChipModule} from 'primeng/chip';
 import {CheckboxModule} from 'primeng/checkbox';
@@ -11,9 +21,14 @@ import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {ToggleButtonModule} from 'primeng/togglebutton';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
-import {LanguageEnumDto, QuestionMediaReadDto, QuestionReadDto} from '../../api/generated';
+import {
+  LanguageEnumDto,
+  QuestionAnswerOptionReadDto,
+  QuestionMediaReadDto,
+  QuestionReadDto
+} from '../../api/generated';
 import {UserService} from '../../services/user/user';
-
+import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
 
 export interface AnswerPayload {
   questionId: number;
@@ -40,25 +55,36 @@ export interface AnswerPayload {
 })
 export class QuizQuestionComponent implements OnChanges {
   userService: UserService = inject(UserService);
+
   @Input({required: true}) quizNavItem!: QuizNavItem;
   @Input() showCorrectAnswers = false;
+  @Input() readonlyMode = false;
   @Input() displayMode: 'preview' | 'exam' = 'preview';
   @Input() hasPrevious = false;
   @Input() hasNext = false;
+  @Input() showFooter = true;
+
   @Output() answeredToggled = new EventEmitter<void>();
   @Output() flagToggled = new EventEmitter<boolean>();
-  // ➜ nouveaux events pour laisser le parent gérer la navigation
   @Output() goNext = new EventEmitter<AnswerPayload>();
   @Output() goPrevious = new EventEmitter<AnswerPayload>();
+  @Output() goBack = new EventEmitter<void>();
+  @Output() finish = new EventEmitter<AnswerPayload>();
+
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
   selectedOptionIds: number[] = [];
-  // Pour le radio uniquement (choix unique)
   selectedRadioId: number | null = null;
 
   private sanitizer = inject(DomSanitizer);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
+    this.userService.lang$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((lang) => {
+        this.currentLang.set(lang ?? LanguageEnumDto.Fr);
+      });
   }
 
   get question(): QuestionReadDto {
@@ -69,133 +95,183 @@ export class QuizQuestionComponent implements OnChanges {
     return !!this.quizNavItem.question.allow_multiple_correct;
   }
 
-  /** RADIO : choix unique */
   onSelectRadio(optionId: number | null): void {
+    if (this.readonlyMode) {
+      return;
+    }
     this.selectedRadioId = optionId;
     this.selectedOptionIds = optionId == null ? [] : [optionId];
   }
 
   onNextClick(): void {
-    this.goNext.emit(this.buildPayload());
+    if (this.readonlyMode) {
+      if (this.hasNext) {
+        this.goNext.emit(this.buildPayload());
+        return;
+      }
+      this.finish.emit(this.buildPayload());
+      return;
+    }
+    const payload = this.buildPayload();
+    if (this.hasNext) {
+      this.goNext.emit(payload);
+      return;
+    }
+    this.finish.emit(payload);
   }
 
   onPreviousClick(): void {
     this.goPrevious.emit(this.buildPayload());
   }
 
-  /** CHECKBOX : choix multiple */
-  onToggleCheckbox(optionId: number | undefined, checked: boolean) {
+  onBackClick(): void {
+    this.goBack.emit();
+  }
+
+  onToggleCheckbox(optionId: number | undefined, checked: boolean): void {
+    if (this.readonlyMode) {
+      return;
+    }
     if (optionId == null) {
       return;
     }
+
     if (checked) {
       if (!this.selectedOptionIds.includes(optionId)) {
         this.selectedOptionIds = [...this.selectedOptionIds, optionId];
       }
-    } else {
-      this.selectedOptionIds = this.selectedOptionIds.filter(id => id !== optionId);
+      return;
     }
+
+    this.selectedOptionIds = this.selectedOptionIds.filter(id => id !== optionId);
   }
 
   isChecked(optionId?: number): boolean {
-    return optionId != null && this.selectedOptionIds.includes(optionId);
+    if (optionId == null) {
+      return false;
+    }
+
+    const source = this.readonlyMode
+      ? (this.quizNavItem?.selectedOptionIds ?? this.selectedOptionIds)
+      : this.selectedOptionIds;
+
+    return source.includes(optionId);
+  }
+
+  isCorrectOption(option: QuestionAnswerOptionReadDto): boolean {
+    return !!option.is_correct;
+  }
+
+  isSelectedWrongOption(option: QuestionAnswerOptionReadDto): boolean {
+    return this.isChecked(option.id) && !this.isCorrectOption(option);
+  }
+
+  answerLineClass(option: QuestionAnswerOptionReadDto): string {
+    if ((this.showCorrectAnswers || this.readonlyMode) && this.isCorrectOption(option)) {
+      return 'answer-line answer-line--correct';
+    }
+
+    if ((this.showCorrectAnswers || this.readonlyMode) && this.isSelectedWrongOption(option)) {
+      return 'answer-line answer-line--wrong';
+    }
+
+    if (this.readonlyMode) {
+      return 'answer-line answer-line--readonly';
+    }
+
+    return 'answer-line';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['quizNavItem'] && this.quizNavItem) {
-      // on reset la sélection quand on change de question
-      const ids = this.quizNavItem.selectedOptionIds ?? [];
-
-      // On met à jour l'état interne du composant
-      this.selectedOptionIds = [...ids];
-
-      if (!this.allowMultiple) {
-        // Cas choix unique : on synchronise aussi le radio
-        this.selectedRadioId = ids.length ? ids[0] : null;
-      }
+    if (!changes['quizNavItem'] || !this.quizNavItem) {
+      return;
     }
-  }
 
+    const ids = this.quizNavItem.selectedOptionIds ?? [];
+    this.selectedOptionIds = [...ids];
+    this.selectedRadioId = ids.length ? ids[0] : null;
+  }
 
   mediaSrc(m: QuestionMediaReadDto): string {
-    // Pour images/vidéos : on part du principe que file est déjà une URL absolue ou relative
     return (m.asset.file as string | null) || m.asset.external_url || '';
-  }
-
-  // ---------- Médias ----------
-
-  toYoutubeEmbed(url: string): string {
-    try {
-      const u = new URL(url);
-      // https://www.youtube.com/watch?v=ID
-      if (u.hostname.includes('youtube.com')) {
-        const v = u.searchParams.get('v');
-        if (v) {
-          return `https://www.youtube.com/embed/${v}`;
-        }
-      }
-      // https://youtu.be/ID
-      if (u.hostname.includes('youtu.be')) {
-        const id = u.pathname.replace('/', '');
-        if (id) {
-          return `https://www.youtube.com/embed/${id}`;
-        }
-      }
-      // fallback : on renvoie l’URL
-      return url;
-    } catch {
-      return url;
-    }
   }
 
   externalSafeUrl(m: QuestionMediaReadDto): SafeResourceUrl | null {
     const raw = m.asset.external_url || '';
-    if (!raw) return null;
-    const embed = this.isYoutubeUrl(raw) ? this.toYoutubeEmbed(raw) : raw;
+    const embed = toYoutubeEmbedUrl(raw);
+
+    if (!embed) {
+      return null;
+    }
+
     return this.sanitizer.bypassSecurityTrustResourceUrl(embed);
   }
 
+  externalLinkUrl(m: QuestionMediaReadDto): string | null {
+    return m.asset.external_url || null;
+  }
+
+  isYoutubeMedia(m: QuestionMediaReadDto): boolean {
+    return isYoutubeUrl(m.asset.external_url || '');
+  }
+
   stripOuterP(html: string): string {
-    if (!html) return html;
+    if (!html) {
+      return html;
+    }
+
     const trimmed = html.trim();
     let inner = trimmed;
+
     if (trimmed.startsWith('<p') && trimmed.endsWith('</p>')) {
       const startTagEnd = trimmed.indexOf('>') + 1;
       const endTagStart = trimmed.lastIndexOf('</p>');
       inner = trimmed.substring(startTagEnd, endTagStart).trim();
     }
-    inner = inner
+
+    return inner
       .replace(/&nbsp;/g, ' ')
       .replace(/\u00A0/g, ' ');
-    return inner;
   }
 
-  protected getT(question:QuestionReadDto):any {
+  protected getT(question: QuestionReadDto): any {
     const lang: LanguageEnumDto = this.currentLang();
-    const tr: any = question.translations;
-    return tr?.[lang];
-  }
-  protected getTitle(question: QuestionReadDto) {
-    return this.getT(question).title?.trim();
+    const translations: any = question.translations;
+    return translations?.[lang];
   }
 
-  protected getDescription(question: QuestionReadDto) {
-    return this.getT(question).description?.trim();
+  protected getTitle(question: QuestionReadDto): string {
+    return this.getT(question).title?.trim() ?? '';
   }
 
-  protected getExplanation(question: QuestionReadDto) {
-    return this.getT(question).explanation?.trim();
+  protected getDescription(question: QuestionReadDto): string {
+    return this.getT(question).description?.trim() ?? '';
+  }
+
+  protected getExplanation(question: QuestionReadDto): string {
+    return this.getT(question).explanation?.trim() ?? '';
+  }
+
+  protected getAnswerContent(option: QuestionAnswerOptionReadDto): string {
+    const lang = this.currentLang();
+    const current = option.translations?.[lang]?.content?.trim();
+
+    if (current) {
+      return current;
+    }
+
+    const fallback = Object.values(option.translations ?? {})
+      .map((translation) => translation.content?.trim())
+      .find((content) => !!content);
+
+    return fallback ?? option.content ?? '';
   }
 
   private buildPayload(): AnswerPayload {
     return {
       questionId: this.question.id,
       index: this.quizNavItem.index,
-      selectedOptionIds: this.selectedOptionIds, // copie
+      selectedOptionIds: this.selectedOptionIds,
     };
-  }
-
-  private isYoutubeUrl(url: string): boolean {
-    return /youtu\.be|youtube\.com/.test(url);
   }
 }

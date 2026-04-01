@@ -44,11 +44,11 @@ export class SubjectList implements OnInit {
   }
   getDomain(d: SubjectReadDto): string {
     const t = this.getSTDto(d);
-    return t?.domain?.name ?? '';
+    return t?.domain?.name ?? `Domain #${d.domain}`;
   }
 
-  goDomain(d:{}): void{
-    return this.domainService.goEdit(1);
+  goDomain(domainId: number): void{
+    this.domainService.goEdit(domainId);
   }
   // 📌 Pagination
   first = 0;  // index de départ

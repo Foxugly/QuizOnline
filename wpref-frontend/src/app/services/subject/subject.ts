@@ -4,7 +4,7 @@ import {map, Observable} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths'
 import {
-  PatchedSubjectWriteRequestDto,
+  PatchedSubjectPartialRequestDto,
   SubjectApi,
   SubjectDetailDto,
   SubjectReadDto,
@@ -49,8 +49,8 @@ export class SubjectService {
     return this.api.subjectUpdate({subjectId: subjectId, subjectWriteRequestDto: payload});
   }
 
-  updatePartial(subjectId: number, payload: PatchedSubjectWriteRequestDto): Observable<SubjectReadDto> {
-    return this.api.subjectPartialUpdate({subjectId: subjectId, patchedSubjectWriteRequestDto: payload});
+  updatePartial(subjectId: number, payload: PatchedSubjectPartialRequestDto): Observable<SubjectReadDto> {
+    return this.api.subjectPartialUpdate({subjectId: subjectId, patchedSubjectPartialRequestDto: payload});
   }
 
   delete(subjectId: number): Observable<void> {

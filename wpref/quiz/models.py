@@ -90,6 +90,14 @@ class QuizTemplate(models.Model):
         blank=True,
         help_text="Utilisé uniquement si la visibilité est 'À partir d'une date'.",
     )
+    is_public = models.BooleanField("Public ?", default=False)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="created_quiz_templates",
+    )
     active = models.BooleanField("Actif ?", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -271,6 +279,21 @@ class Quiz(models.Model):
         if self.ended_at is None:
             return True
         return self.started_at <= timezone.now() <= self.ended_at
+
+    def expire_if_needed(self, at=None, save=True) -> bool:
+        if at is None:
+            at = timezone.now()
+
+        if not self.active or not self.started_at or self.ended_at is None:
+            return False
+
+        if at < self.ended_at:
+            return False
+
+        self.active = False
+        if save and self.pk:
+            Quiz.objects.filter(pk=self.pk, active=True).update(active=False)
+        return True
 
     def start(self):
         self.active = True

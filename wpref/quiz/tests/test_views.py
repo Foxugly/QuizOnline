@@ -55,6 +55,9 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.staff = User.objects.create_user(
             username="staff", password="staffpass", is_staff=True, is_superuser=False
         )
+        self.root = User.objects.create_user(
+            username="root", password="rootpass", is_staff=False, is_superuser=True
+        )
         self.u1 = User.objects.create_user(username="u1", password="u1pass")
         self.u2 = User.objects.create_user(username="u2", password="u2pass")
 
@@ -82,6 +85,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             ended_at=None,
             with_duration=False,
             duration=10,
+            is_public=True,
             active=True,
             result_visibility=VISIBILITY_IMMEDIATE,
             result_available_at=None,
@@ -103,6 +107,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             ended_at=None,
             with_duration=False,
             duration=10,
+            is_public=False,
             active=False,  # => can_answer False
             result_visibility=VISIBILITY_IMMEDIATE,
             result_available_at=None,
@@ -152,12 +157,22 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
 
         # relier via through (QuestionSubject a des champs extra => pas de q.subjects.set())
         for i, subj in enumerate(subjects, start=1):
-            QuestionSubject.objects.create(question=q, subject=subj, sort_order=i, weight=1)
+            QuestionSubject.objects.create(question=q, subject=subj, sort_order=i)
 
         # 2 options minimum + 1 correcte
         AnswerOption.objects.create(question=q, content="A", is_correct=True, sort_order=1)
         AnswerOption.objects.create(question=q, content="B", is_correct=False, sort_order=2)
         return q
+
+    def _set_translation(self, obj, lang: str, **fields):
+        translation_model = obj._parler_meta.root_model
+        translation_model.objects.update_or_create(
+            master_id=obj.pk,
+            language_code=lang,
+            defaults=fields,
+        )
+        obj.refresh_from_db()
+        return obj
 
     def _create_quiz(self, qt: QuizTemplate, user: User, active=False, started_at=None, ended_at=None) -> Quiz:
         return Quiz.objects.create(
@@ -198,6 +213,34 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertIn(self.qt_ok.id, ids)
         self.assertNotIn(self.qt_no.id, ids)
 
+    def test_quiztemplate_list_as_user_includes_assigned_private_template(self):
+        private_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_ASSIGNED",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        Quiz.objects.create(quiz_template=private_qt, user=self.u1, active=False)
+
+        self._auth(self.admin)
+        res = self.client.get(self.qt_list_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.data.get("results") if isinstance(res.data, dict) else res.data
+        ids = [x["id"] for x in data]
+        self.assertIn(private_qt.id, ids)
+
     def test_quiztemplate_list_as_admin_returns_all(self):
         self._auth(self.admin)
         res = self.client.get(self.qt_list_url)
@@ -233,6 +276,29 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self._auth(self.admin)
         res2 = self.client.post(self.qt_list_url, payload, format="json")
         self.assertEqual(res2.status_code, status.HTTP_201_CREATED)
+
+    def test_quiztemplate_create_allows_superuser_without_staff(self):
+        payload = {
+            "domain": self.domain.id,
+            "title": "ROOT_T",
+            "mode": QuizTemplate.MODE_PRACTICE,
+            "description": "",
+            "max_questions": 5,
+            "permanent": True,
+            "started_at": None,
+            "ended_at": None,
+            "with_duration": False,
+            "duration": 10,
+            "active": True,
+            "result_visibility": VISIBILITY_IMMEDIATE,
+            "result_available_at": None,
+            "detail_visibility": VISIBILITY_IMMEDIATE,
+            "detail_available_at": None,
+        }
+
+        self._auth(self.root)
+        res = self.client.post(self.qt_list_url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_quiztemplate_retrieve_requires_auth(self):
         detail_url = self._rev(
@@ -306,7 +372,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_generate_from_subjects_missing_title_400(self):
-        self._auth(self.u1)
+        self._auth(self.admin)
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
             "quiz-api:quiz-template-generate-from-subjects",
@@ -315,7 +381,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_generate_from_subjects_invalid_subject_ids_400(self):
-        self._auth(self.u1)
+        self._auth(self.admin)
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
             "quiz-api:quiz-template-generate-from-subjects",
@@ -324,7 +390,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_generate_from_subjects_no_questions_400(self):
-        self._auth(self.u1)
+        self._auth(self.admin)
         subj_empty = self._make_subject("Empty")
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
@@ -339,7 +405,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         Si QuizTemplate.domain est NOT NULL chez toi, ça casserait.
         Comme tes tests passent déjà "en vrai", on valide le comportement ici.
         """
-        self._auth(self.u1)
+        self._auth(self.admin)
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
             "quiz-api:quiz-template-generate-from-subjects",
@@ -353,6 +419,30 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         qt_id = res.data["id"]
         qt = QuizTemplate.objects.get(pk=qt_id)
         self.assertEqual(qt.quiz_questions.count(), 2)
+
+    def test_generate_from_subjects_persists_duration_settings(self):
+        self._auth(self.admin)
+        url = self._rev(
+            "api:quiz-api:quiz-template-generate-from-subjects",
+            "quiz-api:quiz-template-generate-from-subjects",
+        )
+        res = self.client.post(
+            url,
+            {
+                "title": "GEN TIMER",
+                "subject_ids": [self.subj1.id],
+                "max_questions": 1,
+                "with_duration": False,
+                "duration": 25,
+            },
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        qt_id = res.data["id"]
+        qt = QuizTemplate.objects.get(pk=qt_id)
+        self.assertFalse(qt.with_duration)
+        self.assertEqual(qt.duration, 10)
 
     # ---------------------------------------------------------------------
     # QuizTemplateViewSet: list -> branche "page is not None"
@@ -373,7 +463,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
     # QuizTemplateViewSet: generate_from_subjects -> branche questions_qs.exists() False (mock)
     # ---------------------------------------------------------------------
     def test_generate_from_subjects_questions_qs_exists_false_400(self):
-        self._auth(self.u1)
+        self._auth(self.admin)
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
             "quiz-api:quiz-template-generate-from-subjects",
@@ -437,6 +527,38 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         res7 = self.client.delete(detail_url)
         self.assertEqual(res7.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_nested_quizquestion_create_rejects_question_from_other_domain(self):
+        other_domain = Domain.objects.create(owner=self.admin, name="D2", description="", active=True)
+        other_subject = Subject.objects.create(domain=other_domain, name="Other")
+        other_question = Question.objects.create(
+            domain=other_domain,
+            title="Q_OTHER",
+            description="desc",
+            explanation="expl",
+            allow_multiple_correct=False,
+            active=True,
+            is_mode_practice=True,
+            is_mode_exam=True,
+        )
+        QuestionSubject.objects.create(question=other_question, subject=other_subject, sort_order=1)
+        AnswerOption.objects.create(question=other_question, content="A", is_correct=True, sort_order=1)
+        AnswerOption.objects.create(question=other_question, content="B", is_correct=False, sort_order=2)
+
+        list_url = self._rev(
+            "api:quiz-api:quiz-template-question-list",
+            "quiz-api:quiz-template-question-list",
+            qt_id=self.qt_ok.id,
+        )
+
+        self._auth(self.admin)
+        res = self.client.post(
+            list_url,
+            {"question_id": other_question.id, "sort_order": 3, "weight": 1},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("question_id", res.data)
+
     # ---------------------------------------------------------------------
     # QuizTemplateQuizQuestionViewSet: get_queryset -> 2 retours .none()
     # ---------------------------------------------------------------------
@@ -477,8 +599,37 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertIn(quiz_u1.id, ids2)
         self.assertIn(quiz_u2.id, ids2)
 
+    def test_quiz_list_search_filters_on_quiz_template_title(self):
+        matching = self._create_quiz(self.qt_ok, self.u1)
+        other = self._create_quiz(self.qt_no, self.u1)
+
+        self._auth(self.admin)
+        res = self.client.get(self.quiz_list_url, {"search": "T_OK"})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.data.get("results") if isinstance(res.data, dict) else res.data
+        ids = [x["id"] for x in data]
+        self.assertIn(matching.id, ids)
+        self.assertNotIn(other.id, ids)
+
+    def test_quiz_list_returns_summary_contract(self):
+        quiz = self._create_quiz(self.qt_ok, self.u1)
+
+        self._auth(self.admin)
+        res = self.client.get(self.quiz_list_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        data = res.data.get("results") if isinstance(res.data, dict) else res.data
+        row = next(item for item in data if item["id"] == quiz.id)
+
+        self.assertEqual(
+            row["user_summary"],
+            {"id": self.u1.id, "username": self.u1.username},
+        )
+        self.assertEqual(row["quiz_template_description"], self.qt_ok.description)
+        self.assertNotIn("questions", row)
+        self.assertNotIn("answers", row)
+
     def test_quiz_create_missing_template_id_400(self):
-        self._auth(self.u1)
+        self._auth(self.admin)
         res = self.client.post(self.quiz_list_url, {}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -488,8 +639,26 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_quiz_create_template_not_available_400(self):
-        self._auth(self.u1)
-        res = self.client.post(self.quiz_list_url, {"quiz_template_id": self.qt_no.id}, format="json")
+        unavailable_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_UNAVAILABLE",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=True,
+            active=False,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        self._auth(self.admin)
+        res = self.client.post(self.quiz_list_url, {"quiz_template_id": unavailable_qt.id}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_quiz_create_for_other_user_forbidden_if_not_admin(self):
@@ -510,6 +679,59 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data["user"], self.u2.id)
+
+    def test_quiz_create_private_template_forbidden_for_simple_user(self):
+        private_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_PRIVATE",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+
+        self._auth(self.u1)
+        res = self.client.post(self.quiz_list_url, {"quiz_template_id": private_qt.id}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_quiztemplate_retrieve_private_template_forbidden_if_not_assigned(self):
+        private_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_PRIVATE_RETRIEVE",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=private_qt.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(detail_url)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     # ---------------------------------------------------------------------
     # QuizViewSet: bulk_create_from_template (admin only)
@@ -555,6 +777,24 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
 
         res = self.client.post(url, {"quiz_template_id": 999999, "user_ids": [self.u1.id]}, format="json")
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_bulk_create_from_template_rejects_user_from_other_domain(self):
+        other_owner = User.objects.create_user(username="other-owner", password="pass")
+        other_domain = Domain.objects.create(owner=other_owner, name="D2", description="", active=True)
+        other_owner.current_domain = other_domain
+        other_owner.save(update_fields=["current_domain"])
+
+        url = self._rev(
+            "api:quiz-api:quiz-bulk-create-from-template",
+            "quiz-api:quiz-bulk-create-from-template",
+        )
+        self._auth(self.admin)
+        res = self.client.post(
+            url,
+            {"quiz_template_id": self.qt_ok.id, "user_ids": [other_owner.id]},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     # ---------------------------------------------------------------------
     # QuizViewSet: start / close
@@ -659,6 +899,65 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         quiz.refresh_from_db()
         self.assertEqual(quiz.ended_at, ended)  # non écrasé
         self.assertFalse(quiz.active)
+
+    def test_quiz_retrieve_auto_expires_elapsed_session(self):
+        quiz = self._create_quiz(
+            self.qt_ok,
+            self.u1,
+            active=True,
+            started_at=timezone.now() - timezone.timedelta(minutes=10),
+            ended_at=timezone.now() - timezone.timedelta(seconds=5),
+        )
+
+        url = self._rev(
+            "api:quiz-api:quiz-detail",
+            "quiz-api:quiz-detail",
+            quiz_id=quiz.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        quiz.refresh_from_db()
+        self.assertFalse(quiz.active)
+
+    def test_quiz_retrieve_uses_accept_language_for_answer_options(self):
+        quiz = self._create_quiz(self.qt_ok, self.u1, active=True, started_at=timezone.now())
+
+        self._set_translation(
+            self.qq1.question,
+            "fr",
+            title="Question FR",
+            description="Desc FR",
+            explanation="Expl FR",
+        )
+        self._set_translation(
+            self.qq1.question,
+            "en",
+            title="Question EN",
+            description="Desc EN",
+            explanation="Expl EN",
+        )
+
+        first_option = self.qq1.question.answer_options.order_by("id").first()
+        self.assertIsNotNone(first_option)
+        self._set_translation(first_option, "fr", content="Reponse FR")
+        self._set_translation(first_option, "en", content="Answer EN")
+
+        url = self._rev(
+            "api:quiz-api:quiz-detail",
+            "quiz-api:quiz-detail",
+            quiz_id=quiz.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        question_payload = res.data["questions"][0]["question"]
+        self.assertEqual(question_payload["translations"]["en"]["title"], "Question EN")
+        self.assertEqual(question_payload["answer_options"][0]["content"], "Answer EN")
+        self.assertIn("is_correct", question_payload["answer_options"][0])
 
     # ---------------------------------------------------------------------
     # QuizViewSet: get_queryset swagger_fake_view -> return Quiz.objects.none()
@@ -803,6 +1102,31 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         # delete
         res4 = self.client.delete(detail_url)
         self.assertEqual(res4.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_answer_create_rejects_and_expires_elapsed_quiz(self):
+        quiz = self._create_quiz(
+            self.qt_ok,
+            self.u1,
+            active=True,
+            started_at=timezone.now() - timezone.timedelta(minutes=10),
+            ended_at=timezone.now() - timezone.timedelta(seconds=5),
+        )
+        self._auth(self.u1)
+
+        correct = self.qq1.question.answer_options.filter(is_correct=True).first()
+        res = self.client.post(
+            self._answers_list_url(quiz),
+            {
+                "question_order": 1,
+                "selected_options": [correct.id] if correct else [],
+            },
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", res.data)
+
+        quiz.refresh_from_db()
+        self.assertFalse(quiz.active)
 
     # ---------------------------------------------------------------------
     # QuizQuestionAnswerViewSet: get_queryset swagger_fake_view -> .none()

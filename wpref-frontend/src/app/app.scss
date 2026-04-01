@@ -1,3 +1,13 @@
+:host {
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fafc, #eef2f7);
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .backend-banner {
   width: 100%;
   padding: 10px 16px;
@@ -9,5 +19,10 @@
 }
 
 .main-container {
+  box-sizing: border-box;
+  flex: 1;
+  margin: 0 auto;
+  max-width: 1440px;
   padding: var(--s-6, 24px);
+  width: 100%;
 }

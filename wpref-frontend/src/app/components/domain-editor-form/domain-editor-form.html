@@ -1,0 +1,157 @@
+<form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
+  <div class="card-head card-head--with-badge">
+    <h2 class="card-title">Traductions</h2>
+    <span class="badge">{{ tabCodes().length }} langue(s)</span>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item meta-item--full meta-item--center">
+      <label class="meta-label">Langues autorisees</label>
+      <div class="meta-value meta-value--center">
+        <p-selectButton
+          [multiple]="true"
+          [options]="langCodeOptions()"
+          class="lang-select"
+          formControlName="allowed_language_codes"
+          optionLabel="label"
+          optionValue="value">
+        </p-selectButton>
+      </div>
+
+      @if (form().get('allowed_language_codes')?.touched && form().get('allowed_language_codes')?.invalid) {
+        <div class="meta-hint meta-hint--error">
+          Selectionne au moins une langue.
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (tabCodes().length > 0) {
+    <p-tabs (valueChange)="onTabValueChange($event)" [value]="activeTab()" class="tabs">
+      <p-tablist>
+        @for (code of tabCodes(); track code) {
+          <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+        }
+      </p-tablist>
+
+      <p-tabpanels>
+        @for (code of tabCodes(); track code) {
+          <p-tabpanel [value]="code">
+            <div [formGroup]="langGroup(code)" class="lang-panel">
+              <div class="lang-toolbar">
+                <p-button
+                  (click)="onTranslateClick(code)"
+                  [disabled]="translating()"
+                  [loading]="translating()"
+                  icon="pi pi-language"
+                  label="Traduire vers les autres langues"
+                  severity="info"
+                  type="button">
+                </p-button>
+              </div>
+
+              <div class="meta-grid">
+                <div class="meta-item meta-item--full">
+                  <label class="meta-label">{{ titleLabel() }} ({{ code.toUpperCase() }})</label>
+                  <div class="meta-value">
+                    <input formControlName="name" pInputText placeholder="Nom du domaine" />
+                  </div>
+
+                  @if (langGroup(code).get('name')?.touched && langGroup(code).get('name')?.invalid) {
+                    <div class="meta-hint meta-hint--error">
+                      Le nom est requis.
+                    </div>
+                  }
+                </div>
+
+                <div class="meta-item meta-item--full">
+                  <label class="meta-label">Description ({{ code.toUpperCase() }})</label>
+                  <div class="meta-value">
+                    <p-editor class="editor-compact" formControlName="description"></p-editor>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
+  }
+
+  <div class="divider"></div>
+
+  <div class="card-head">
+    <h2 class="card-title">Parametres</h2>
+    <span class="badge">active + acces</span>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item meta-item--full">
+      <label class="meta-label" for="active">Actif</label>
+      <div class="meta-value widget-center">
+        <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+      </div>
+    </div>
+
+    <div class="meta-item meta-item--full">
+      <label class="meta-label" for="owner">Owner</label>
+      <div class="meta-value widget-center">
+        <p-select
+          [filter]="true"
+          [options]="ownerOptions()"
+          [showClear]="!ownerReadonly()"
+          formControlName="owner"
+          inputId="owner"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="ownerPlaceholder()">
+        </p-select>
+        @if (ownerReadonly()) {
+          <span class="badge badge--soft">readonly</span>
+        }
+      </div>
+    </div>
+
+    <div class="meta-item meta-item--full">
+      <label class="meta-label" for="staff">Staff</label>
+      <div class="meta-value widget-center">
+        <p-picklist
+          (onMoveAllToSource)="onStaffChange()"
+          (onMoveAllToTarget)="onStaffChange()"
+          (onMoveToSource)="onStaffChange()"
+          (onMoveToTarget)="onStaffChange()"
+          [dragdrop]="true"
+          [filterBy]="'label'"
+          [showSourceControls]="false"
+          [showTargetControls]="false"
+          [sourceStyle]="{ height: '240px' }"
+          [source]="availableStaff()"
+          [targetStyle]="{ height: '240px' }"
+          [target]="selectedStaff()"
+          sourceHeader="Disponibles"
+          targetHeader="Selectionnes">
+          <ng-template let-item pTemplate="item">
+            <div class="pick-item">
+              <span class="pick-label">{{ item.label }}</span>
+            </div>
+          </ng-template>
+        </p-picklist>
+      </div>
+    </div>
+  </div>
+
+  @if (submitError()) {
+    <p-message [text]="submitError()!" severity="error"></p-message>
+  }
+
+  <div class="footer-actions">
+    <p-button icon="pi pi-save" [label]="submitLabel()" type="submit"></p-button>
+    <p-button
+      (onClick)="onCancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button">
+    </p-button>
+  </div>
+</form>

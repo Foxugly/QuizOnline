@@ -3,7 +3,6 @@ import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@
 import {
   FormControl,
   FormGroup,
-  FormsModule,
   NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators,
@@ -12,18 +11,21 @@ import {catchError, finalize} from 'rxjs/operators';
 import {EMPTY} from 'rxjs';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 
-import {Editor} from 'primeng/editor';
-import {TabsModule} from 'primeng/tabs';
-import {SelectModule} from 'primeng/select';
 import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
 import {CardModule} from 'primeng/card';
 
 import {DomainReadDto, LanguageEnumDto, SubjectWriteRequestDto} from '../../../api/generated';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {SubjectService, SubjectLangGroup} from '../../../services/subject/subject';
-import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
+import {isLangCode, LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
+import {
+  buildLocalizedTextRecord,
+  createLocalizedTextGroup,
+  getLocalizedTextGroup,
+} from '../../../shared/forms/localized-text-form';
+import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 
 
 @Component({
@@ -34,16 +36,14 @@ import {UserService} from '../../../services/user/user';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule,
-    Editor,
-    TabsModule,
-    SelectModule,
     ButtonModule,
-    InputTextModule,
     CardModule,
+    SubjectEditorFormComponent,
   ],
 })
 export class SubjectCreate implements OnInit {
+  readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues configurees.";
+
   // UI state
   loading = signal(false);
   error = signal<string | null>(null);
@@ -101,7 +101,7 @@ export class SubjectCreate implements OnInit {
     // load domains
     this.loading.set(true);
     this.domainService
-      .list({asStaff: true} as any)
+      .list()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
@@ -162,7 +162,7 @@ export class SubjectCreate implements OnInit {
   }
 
   langGroup(code: string): FormGroup {
-    return (this.form.get('translations') as FormGroup).get(code) as FormGroup;
+    return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
   async translateFrom(sourceLang: LangCode): Promise<void> {
@@ -187,7 +187,7 @@ export class SubjectCreate implements OnInit {
         const descCtrl = target.controls.description;
 
         const needName = overwrite || !(nameCtrl.value ?? '').trim();
-        const needDesc = overwrite || this.isEmptyHtml(descCtrl.value ?? '');
+        const needDesc = overwrite || isEmptyRichText(descCtrl.value ?? '');
 
         const items: TranslateBatchItem[] = [];
         if (needName) items.push({key: 'name', text: sourceName, format: 'text'});
@@ -273,22 +273,13 @@ export class SubjectCreate implements OnInit {
 
     for (const code of codes) {
       if (!tg.contains(code)) {
-        tg.addControl(
-          code,
-          this.fb.group({
-            name: this.fb.control('', {validators: [Validators.required, Validators.minLength(2), Validators.maxLength(120)]}),
-            description: this.fb.control(''),
-          }),
-        );
+        tg.addControl(code, createLocalizedTextGroup(this.fb, {nameMaxLength: 120}));
       }
     }
   }
 
   private getTranslationGroup(code: LangCode): SubjectLangGroup {
-    const tg = this.translationsGroup();
-    const fg = tg.get(code) as SubjectLangGroup | null;
-    if (!fg) throw new Error(`Missing form group for language: ${code}`);
-    return fg;
+    return getLocalizedTextGroup(this.translationsGroup(), code) as SubjectLangGroup;
   }
 
   private isValid(): boolean {
@@ -305,15 +296,7 @@ export class SubjectCreate implements OnInit {
   private buildPayload(): SubjectWriteRequestDto {
     const domainId = this.form.controls.domain.value;
     const langs = this.domainLangs();
-    const tg = this.translationsGroup();
-
-    const translations: Record<string, { name: string; description: string }> = {};
-    for (const lang of langs) {
-      const fg = tg.get(lang) as SubjectLangGroup | null;
-      if (!fg) continue;
-      const v = fg.getRawValue();
-      translations[lang] = {name: v.name, description: v.description};
-    }
+    const translations = buildLocalizedTextRecord(this.translationsGroup(), langs);
 
     return this.subjectService.buildWritePayload(domainId, translations);
   }
@@ -334,27 +317,12 @@ export class SubjectCreate implements OnInit {
   }
 
   private extractLangCodes(domain: DomainReadDto): LangCode[] {
-    const d: any = domain;
+    const codes = (domain.allowed_languages ?? [])
+      .filter((language) => language.active)
+      .map((language) => language.code)
+      .filter(isLangCode);
 
-    if (Array.isArray(d.allowed_language_codes)) {
-      return d.allowed_language_codes as LangCode[];
-    }
-
-    if (Array.isArray(d.allowed_languages)) {
-      return (d.allowed_languages as any[])
-        .map((x) => x?.code)
-        .filter(Boolean) as LangCode[];
-    }
-
-    return [LanguageEnumDto.Fr as unknown as LangCode];
+    return codes.length ? codes : [LanguageEnumDto.Fr as LangCode];
   }
 
-  private isEmptyHtml(html: string): boolean {
-    const cleaned = (html ?? '')
-      .replace(/<br\s*\/?>/gi, '')
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/<[^>]+>/g, '')
-      .trim();
-    return cleaned.length === 0;
-  }
 }

@@ -1,0 +1,101 @@
+.about-page {
+  display: grid;
+  gap: 2rem;
+  padding: 1rem 0 2rem;
+}
+
+.hero {
+  padding: 2rem;
+  border: 1px solid #d7dfeb;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(229, 122, 43, 0.14), transparent 28%),
+    linear-gradient(135deg, #f5f8fc 0%, #ffffff 100%);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a4b20;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3.25rem);
+  line-height: 1;
+  color: #1e2c38;
+}
+
+.lead {
+  max-width: 60rem;
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #455564;
+}
+
+.repo-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 999px;
+  background: #1e2c38;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid #dde5ef;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(30, 44, 56, 0.06);
+}
+
+.card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  color: #1e2c38;
+}
+
+.card p {
+  margin: 0 0 0.75rem;
+  color: #4f6170;
+}
+
+.card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #334250;
+}
+
+.card li + li {
+  margin-top: 0.45rem;
+}
+
+.mono {
+  font-family: "Consolas", "Courier New", monospace;
+  word-break: break-all;
+  color: #1e2c38;
+}
+
+@media (max-width: 900px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 1.5rem;
+  }
+}

@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatedFields, TranslatableModel
 from subject.models import Subject
 
+from .youtube import normalize_external_url
+
 
 class Question(TranslatableModel):
     domain = models.ForeignKey(
@@ -96,6 +98,10 @@ class MediaAsset(models.Model):
                 raise ValidationError("External media requires external_url only.")
             if self.sha256:
                 raise ValidationError("External media must not have sha256.")
+            try:
+                self.external_url = normalize_external_url(self.external_url)
+            except ValueError as exc:
+                raise ValidationError({"external_url": str(exc)}) from exc
         else:
             # FILE: file obligatoire + interdit external_url + sha256 obligatoire
             if not file_present or self.external_url:

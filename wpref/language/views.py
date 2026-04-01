@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 from wpref.tools import ErrorDetailSerializer, MyModelViewSet
 
 from .models import Language
-from .serializers import LanguageReadSerializer, LanguageWriteSerializer
+from .serializers import LanguageReadSerializer, LanguageWriteSerializer, LanguagePartialSerializer
 
 
 @extend_schema_view(
@@ -117,7 +117,7 @@ from .serializers import LanguageReadSerializer, LanguageWriteSerializer
                 description="ID de la langue.",
             )
         ],
-        request=LanguageWriteSerializer,
+        request=LanguagePartialSerializer,
         responses={
             200: LanguageReadSerializer,
             400: OpenApiResponse(description="Validation error"),
@@ -163,4 +163,6 @@ class LanguageViewSet(MyModelViewSet):
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return LanguageReadSerializer
+        if self.action == "partial_update":
+            return LanguagePartialSerializer
         return LanguageWriteSerializer

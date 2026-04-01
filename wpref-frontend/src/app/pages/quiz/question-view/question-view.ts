@@ -1,300 +1,348 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {QuizService} from '../../../services/quiz/quiz';
-import {QuestionService} from '../../../services/question/question';
-import {UserService} from '../../../services/user/user';
+import {finalize, forkJoin} from 'rxjs';
 import {AnswerPayload, QuizQuestionComponent} from '../../../components/quiz-question/quiz-question';
 import {QuizNav, QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
 import {
-  QuestionReadDto,
   QuizDto,
-  QuizQuestionAnswerDto,
   QuizQuestionAnswerWriteRequestDto,
-  QuizQuestionReadDto
 } from '../../../api/generated';
-import {HttpResponse} from '@angular/common/http';
+import {QuizService} from '../../../services/quiz/quiz';
+import {
+  applyQuizAnswers,
+  buildQuizNavItems,
+  findQuizNavItem,
+  updateQuizNavItem,
+} from '../../../shared/quiz/quiz-session-state';
 
 @Component({
   selector: 'app-quiz-question-view',
   imports: [
     QuizQuestionComponent,
-    QuizNav
+    QuizNav,
   ],
   templateUrl: './question-view.html',
   styleUrl: './question-view.scss',
 })
 export class QuizQuestionView implements OnInit {
   quiz_id!: number;
-  question_id!: number;
-  index: number = 1;
+  index = 1;
   loading = signal(false);
   error = signal<string | null>(null);
   quizSession = signal<QuizDto | null>(null);
   quizNavItem = signal<QuizNavItem | null>(null);
   quizNavItems = signal<QuizNavItem[]>([]);
-  protected showCorrect: boolean = false;
-  private route = inject(ActivatedRoute);
-  private quizService = inject(QuizService);
-  private questionService = inject(QuestionService);
-  private userService = inject(UserService);
+  remainingSeconds = signal<number | null>(null);
+  autoClosing = signal(false);
+  protected showCorrect = false;
+  protected reviewMode = false;
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly quizService = inject(QuizService);
+  private readonly destroyRef = inject(DestroyRef);
+  private timerId: number | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.clearTimer());
+  }
 
   ngOnInit(): void {
     this.quiz_id = Number(this.route.snapshot.paramMap.get('quiz_id'));
-    this.question_id = 1;
     if (!this.quiz_id || Number.isNaN(this.quiz_id)) {
-      this.error.set('Identifiant de question invalide.');
+      this.error.set('Identifiant de quiz invalide.');
       return;
     }
-    this.loadQuestion();
+
+    this.loadQuizSession();
   }
 
-  /**
-   * Appelé par le composant enfant quand l'utilisateur clique sur "Suivante"
-   */
   onNextQuestion(payload: AnswerPayload): void {
-    const qqawr: QuizQuestionAnswerWriteRequestDto = {
-      question_id: payload.questionId,
-      question_order: payload.index,
-      selected_options: payload.selectedOptionIds,
-    };
-    this.saveAnswer(qqawr, () => {
-      this.goQuestionNext(this.index);
+    if (this.reviewMode) {
+      this.goQuestionNext(payload.index);
+      return;
+    }
+    this.persistAnswer(payload, () => {
+      this.goQuestionNext(payload.index);
     });
   }
 
-  /**
-   * Appelé par le composant enfant quand l'utilisateur clique sur "Précédente"
-   */
   onPreviousQuestion(payload: AnswerPayload): void {
-    const qqawr: QuizQuestionAnswerWriteRequestDto = {
-      question_id: payload.questionId,
-      question_order: payload.index,
-      selected_options: payload.selectedOptionIds,
-    };
-    this.saveAnswer(qqawr, () => {
-      this.goQuestionPrev(this.index);
+    if (this.reviewMode) {
+      this.goQuestionPrev(payload.index);
+      return;
+    }
+    this.persistAnswer(payload, () => {
+      this.goQuestionPrev(payload.index);
     });
   }
 
-  goQuestionNext(index: number): void {
-    if (this.hasQuestionNext(index)) {
-      this.changeQuestion(index + 1);
+  onFinishQuiz(payload: AnswerPayload): void {
+    if (this.reviewMode) {
+      this.quizService.goView(this.quiz_id);
+      return;
     }
-  }
-
-  goQuestionPrev(index: number): void {
-    if (this.hasQuestionPrev(index)) {
-      this.changeQuestion(index - 1);
-    }
+    this.persistAnswer(payload, () => {
+      this.closeQuizAndRedirect();
+    });
   }
 
   onQuestionSelected(index: number): void {
     this.changeQuestion(index);
   }
 
-  markAnswered(index: number): void {
-    this.quizNavItems.update(items =>
-      items.map(item => {
-        if (item.index === index) {
-          const updated = {...item, answered: true};
-          return updated;
-        }
-        return item;
-      })
-    );
+  goBackToQuiz(): void {
+    this.quizService.goView(this.quiz_id);
   }
 
   toggleFlag(): void {
-    this.quizNavItems.update(items =>
-      items.map(item => {
-        if (item.index === this.index) {
-          const updated = {...item, flagged: !item.flagged};
-          return updated;
-        }
-        return item;
-      })
-    );
+    this.setCurrentItem({
+      flagged: !this.quizNavItem()?.flagged,
+    });
   }
 
-
   protected hasQuestionNext(index: number): boolean {
-    return index < (this.quizSession()?.questions.length ?? 0);
+    return index < this.quizNavItems().length;
   }
 
   protected hasQuestionPrev(index: number): boolean {
     return index > 1;
   }
 
-  protected changeQuestion(index: number): void {
-    const item = this.quizNavItems().find(q => q.index === index);
-    if (!item) {
-      console.warn("QuestionNavItem introuvable pour index", index);
+  protected hasTimer(): boolean {
+    const session = this.quizSession();
+    return Boolean(session?.with_duration && session?.ended_at);
+  }
+
+  protected formattedRemainingTime(): string {
+    const totalSeconds = this.remainingSeconds();
+    if (totalSeconds == null) {
+      return '--:--';
+    }
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${this.padTime(hours)}:${this.padTime(minutes)}:${this.padTime(seconds)}`;
+    }
+
+    return `${this.padTime(minutes)}:${this.padTime(seconds)}`;
+  }
+
+  private goQuestionNext(index: number): void {
+    if (this.hasQuestionNext(index)) {
+      this.changeQuestion(index + 1);
+    }
+  }
+
+  private goQuestionPrev(index: number): void {
+    if (this.hasQuestionPrev(index)) {
+      this.changeQuestion(index - 1);
+    }
+  }
+
+  private persistAnswer(payload: AnswerPayload, afterSave?: () => void): void {
+    if (this.isAnswerLocked()) {
+      this.error.set('Le temps du quiz est écoulé.');
+      this.closeQuizAndRedirect(true);
       return;
     }
+
+    const answerPayload: QuizQuestionAnswerWriteRequestDto = {
+      question_id: payload.questionId,
+      question_order: payload.index,
+      selected_options: payload.selectedOptionIds,
+    };
+
+    this.quizService
+      .saveAnswer(this.quiz_id, answerPayload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.setCurrentItem({
+            answered: true,
+            selectedOptionIds: payload.selectedOptionIds,
+          });
+          afterSave?.();
+        },
+        error: (err: unknown): void => {
+          console.error('Erreur lors de la sauvegarde de la réponse', err);
+          this.error.set(this.isTimedOut() ? 'Le temps du quiz est écoulé.' : "Impossible d'enregistrer cette réponse.");
+          if (this.isTimedOut()) {
+            this.closeQuizAndRedirect(true);
+          }
+        },
+      });
+  }
+
+  private changeQuestion(index: number): void {
+    const item = findQuizNavItem(this.quizNavItems(), index);
+    if (!item) {
+      return;
+    }
+
     this.index = index;
     this.quizNavItem.set(item);
   }
 
-  private saveAnswer(payload: QuizQuestionAnswerWriteRequestDto, afterSave?: () => void): void {
-    // À adapter au nom réel de ta méthode d'API :
-    // ex: this.quizService.saveAnswer(this.quiz_id, payload)
-    // @ts-ignore
-    this.quizService.saveAnswer(this.quiz_id, payload).subscribe({
-      next: (resp: HttpResponse<QuizQuestionAnswerDto>): void => {
-        // on marque la question comme répondue
-        if (resp.status === 200 || resp.status === 201) {
-          if (payload.question_order == null) {
-            return;
-          }
-          this.markAnswered(payload.question_order);
-          // 2) stocker les réponses de l'utilisateur dans QuizNavItems
-          this.quizNavItems.update(items =>
-            items.map(item => {
-              if (item.index === payload.question_order) {
-                return {
-                  ...item,
-                  answered: true,
-                  selectedOptionIds: payload.selected_options ?? [],
-                };
-              }
-              return item;
-            })
-          );
+  private setCurrentItem(changes: Partial<QuizNavItem>): void {
+    const current = this.quizNavItem();
+    if (!current) {
+      return;
+    }
 
-          // 3) garder quizNavItem courant en phase
-          this.quizNavItem.update(current => {
-            if (!current || current.index !== payload.question_order) {
-              return current;
-            }
-            return {
-              ...current,
-              answered: true,
-              selectedOptionIds: payload.selected_options ?? [],
-            };
-          });
-        }
-        if (afterSave) {
-          afterSave();
-        }
-      },
-      error: (err: any): void => {
-        console.error('Erreur lors de la sauvegarde de la réponse', err);
-      }
-    });
+    const updatedItems = updateQuizNavItem(this.quizNavItems(), current.index, changes);
+    this.quizNavItems.set(updatedItems);
+    this.quizNavItem.set(findQuizNavItem(updatedItems, current.index));
   }
 
-  /**
-   * Interroge le backend pour chaque question (par question_order = index)
-   * et met à jour quizNavItems avec les réponses déjà sauvegardées.
-   */
-  private hydrateNavItemsFromBackend(): void {
-    const quizId = this.quiz_id;
-    const items = this.quizNavItems();
-
-    items.forEach(item => {
-      this.quizService.getAnswer(quizId, item.index).subscribe({
-        next: (answer: QuizQuestionAnswerDto) => {
-          const selectedIds = answer.selected_options;
-          if (selectedIds.length === 0) {
-            return;
-          }
-          this.quizNavItems.update(current =>
-            current.map(navItem =>
-              navItem.index === item.index
-                ? {
-                  ...navItem,
-                  answered: true,
-                  selectedOptionIds: selectedIds,
-                }
-                : navItem
-            )
-          );
-
-          // Si la question actuelle est celle-ci, on aligne aussi quizNavItem
-          this.quizNavItem.update(current => {
-            if (!current || current.index !== item.index) {
-              return current;
-            }
-            return {
-              ...current,
-              answered: true,
-              selectedOptionIds: selectedIds,
-            };
-          });
-        },
-        error: (err) => {
-          console.error(
-            `Erreur lors de la récupération de la réponse pour la question ${item.index}`,
-            err
-          );
-        }
-      });
-    });
-  }
-
-
-  private buildQuestionNavItems(questions: QuizQuestionReadDto[]): void {
-    // @ts-ignore
-    const navItems: QuizNavItem[] = questions.map((qq: QuizQuestionRead, idx: number) => ({
-      index: qq.sort_order,
-      id: qq.id,
-      answered: false,
-      flagged: false,
-      question: qq.question,
-      selectedOptionIds: [],
-    }));
-
-    this.quizNavItems.set(navItems);
-  }
-
-  private loadQuestion(): void {
+  private loadQuizSession(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.quizService.retrieveQuiz(this.quiz_id).subscribe({
-      next: (session: QuizDto): void => {
-        this.quizSession.set(session);
 
-        // Récupérer l'index de la question dans la session
-        const index: number = this.question_id - 1;
-        this.buildQuestionNavItems(session.questions); // TODO envoyer les questions
-        this.hydrateNavItemsFromBackend();
-        if (index < 0 || index >= this.quizNavItems().length) {
-          console.error('Index de question invalide', index);
-          this.error.set("Cette question n'existe pas dans ce quiz.");
-          this.loading.set(false);
-          return;
-        }
+    forkJoin({
+      session: this.quizService.retrieveQuiz(this.quiz_id),
+      answers: this.quizService.listAnswers(this.quiz_id),
+    })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: ({session, answers}) => {
+          const readonlySession = !!session.started_at && !session.can_answer;
+          this.reviewMode = readonlySession;
+          this.showCorrect = this.canReviewAnswers(session);
 
-        const id = this.quizNavItems()[index].id;
-
-        this.questionService.retrieve(id).subscribe({
-          next: q => {
-            const items = this.quizNavItems();
-            const existing = items.find(item => item.id === q.id);
-
-            const navItem: QuizNavItem = existing
-              ? {...existing, question: q} // on garde answered/flagged
-              : {
-                index: items.length + 1,
-                id: q.id,
-                answered: false,
-                flagged: false,
-                question: q,
-              };
-
-            this.quizNavItem.set(navItem);
-          },
-          error: err => {
-            console.error('Erreur chargement question', err);
-            this.error.set("Impossible de charger cette question.");
+          const navItems = applyQuizAnswers(buildQuizNavItems(session.questions), answers);
+          if (!navItems.length) {
+            this.error.set('Ce quiz ne contient aucune question.');
+            return;
           }
-        });
-      },
-      error: (err) => {
-        console.error('Erreur chargement quizSession', err);
-        this.error.set("Impossible de charger cette question.");
-        this.loading.set(false);
-      },
-    });
+
+          this.quizSession.set(session);
+          this.quizNavItems.set(navItems);
+          this.syncTimer(session);
+          this.changeQuestion(1);
+        },
+        error: (err: unknown) => {
+          console.error('Erreur chargement quizSession', err);
+          this.error.set('Impossible de charger ce quiz.');
+        },
+      });
+  }
+
+  private syncTimer(session: QuizDto): void {
+    this.clearTimer();
+
+    if (!session.with_duration || !session.ended_at || !session.active) {
+      this.remainingSeconds.set(null);
+      return;
+    }
+
+    this.updateRemainingSeconds(session.ended_at);
+    if ((this.remainingSeconds() ?? 0) <= 0) {
+      this.handleTimerExpired();
+      return;
+    }
+
+    this.timerId = window.setInterval(() => {
+      const currentSession = this.quizSession();
+      if (!currentSession?.ended_at) {
+        this.clearTimer();
+        return;
+      }
+
+      this.updateRemainingSeconds(currentSession.ended_at);
+      if ((this.remainingSeconds() ?? 0) <= 0) {
+        this.handleTimerExpired();
+      }
+    }, 1000);
+  }
+
+  private updateRemainingSeconds(endedAt: string): void {
+    const targetTime = new Date(endedAt).getTime();
+    if (Number.isNaN(targetTime)) {
+      this.remainingSeconds.set(null);
+      return;
+    }
+
+    const deltaMs = targetTime - Date.now();
+    this.remainingSeconds.set(Math.max(0, Math.ceil(deltaMs / 1000)));
+  }
+
+  private handleTimerExpired(): void {
+    this.clearTimer();
+    this.remainingSeconds.set(0);
+    this.error.set('Le temps du quiz est écoulé. Clôture automatique en cours.');
+    this.closeQuizAndRedirect(true);
+  }
+
+  private closeQuizAndRedirect(triggeredByTimer = false): void {
+    if (this.autoClosing()) {
+      return;
+    }
+
+    this.autoClosing.set(true);
+    this.clearTimer();
+
+    this.quizService
+      .closeQuiz(this.quiz_id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.autoClosing.set(false)),
+      )
+      .subscribe({
+        next: (session) => {
+          this.quizSession.set(session);
+          this.quizService.goView(this.quiz_id);
+        },
+        error: (err: unknown): void => {
+          console.error('Erreur lors de la clôture du quiz', err);
+          if (triggeredByTimer) {
+            this.quizService.goView(this.quiz_id);
+            return;
+          }
+          this.error.set('Impossible de clôturer ce quiz.');
+        },
+      });
+  }
+
+  private clearTimer(): void {
+    if (this.timerId == null) {
+      return;
+    }
+
+    window.clearInterval(this.timerId);
+    this.timerId = null;
+  }
+
+  private isAnswerLocked(): boolean {
+    return this.reviewMode || this.autoClosing() || this.isTimedOut();
+  }
+
+  private isTimedOut(): boolean {
+    const session = this.quizSession();
+    if (!session?.with_duration || !session.ended_at) {
+      return false;
+    }
+
+    return new Date(session.ended_at).getTime() <= Date.now();
+  }
+
+  private padTime(value: number): string {
+    return value.toString().padStart(2, '0');
+  }
+
+  private canReviewAnswers(session: QuizDto): boolean {
+    if (!session.started_at || session.active) {
+      return false;
+    }
+
+    return session.questions.some((quizQuestion) =>
+      quizQuestion.question.answer_options.some((option) => option.is_correct !== undefined),
+    );
   }
 }

@@ -1,10 +1,33 @@
 <p-card>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    @if (error()) {
+      <p class="field-error">{{ error() }}</p>
+    }
+
+    <div class="field">
+      <label for="title">Titre</label>
+      <input formControlName="title" id="title" pInputText type="text" />
+    </div>
+
+    <div class="field">
+      <label for="domain">Domaine</label>
+      <p-select
+        formControlName="domain_id"
+        [options]="domainOptions"
+        optionLabel="name"
+        optionValue="code"
+        appendTo="body"
+        id="domain"
+        placeholder="Choisir un domaine">
+      </p-select>
+    </div>
+
     <div class="field">
       <label for="subjects">Sujets</label>
       <p-multiSelect
         formControlName="subject_ids"
         [options]="subjectOptions"
+        [disabled]="!form.controls.domain_id.value"
         [showClear]="true"
         class="w-full"
         id="subjects"
@@ -12,7 +35,7 @@
         optionValue="code"
         (onChange)="onChangeSubjects()"
         [panelStyle]="{ 'max-height': '250px', 'overflow-y': 'auto' }"
-        placeholder="Select your subject(s)">
+        placeholder="Choisir un ou plusieurs sujets">
       </p-multiSelect>
     </div>
 

@@ -1,11 +1,13 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {DatePipe} from '@angular/common';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {UserService} from '../../../services/user/user';
-import {QuizService} from '../../../services/quiz/quiz';
+import {finalize} from 'rxjs';
 import {Button} from 'primeng/button';
 import {CardModule} from 'primeng/card';
-import {DatePipe} from '@angular/common';
-import {CreateQuizInputRequestDto, QuizDto} from '../../../api/generated';
+import {QuizDto} from '../../../api/generated';
+import {QuizService} from '../../../services/quiz/quiz';
+import {UserService} from '../../../services/user/user';
 
 @Component({
   selector: 'app-view',
@@ -22,27 +24,38 @@ export class QuizView implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   quizSession = signal<QuizDto | null>(null);
-  private route = inject(ActivatedRoute);
-  private quizService = inject(QuizService);
-  private userService = inject(UserService);
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly quizService = inject(QuizService);
+  private readonly userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
+
   isAdmin = this.userService.isAdmin();
+  readonly canReview = computed(() => {
+    const session = this.quizSession();
+    if (!session?.started_at) {
+      return false;
+    }
+
+    return !session.can_answer;
+  });
 
   ngOnInit(): void {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     if (!this.id || Number.isNaN(this.id)) {
-      this.error.set('Identifiant de question invalide.');
+      this.error.set('Identifiant de quiz invalide.');
       return;
     }
+
     this.loadQuizSession();
   }
 
   goBack(): void {
-    this.quizService.goList()
+    this.quizService.goList();
   }
 
   goStart(): void {
-    const payload: CreateQuizInputRequestDto = {quiz_template_id : this.id};
-    this.quizService.goStart(this.id, payload);
+    this.quizService.goStart(this.id);
   }
 
   goQuestion(): void {
@@ -53,16 +66,20 @@ export class QuizView implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.quizService.retrieveQuiz(this.id).subscribe({
-      next: (q) => {
-        this.quizSession.set(q);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Erreur chargement quizSession', err);
-        this.error.set("Impossible de charger cette question.");
-        this.loading.set(false);
-      },
-    });
+    this.quizService
+      .retrieveQuiz(this.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: (quizSession: QuizDto) => {
+          this.quizSession.set(quizSession);
+        },
+        error: (err: unknown) => {
+          console.error('Erreur chargement quizSession', err);
+          this.error.set("Impossible de charger ce quiz.");
+        },
+      });
   }
 }

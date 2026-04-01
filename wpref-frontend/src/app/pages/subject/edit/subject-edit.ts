@@ -6,23 +6,35 @@ import {catchError, finalize} from 'rxjs/operators';
 import {EMPTY} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {Editor} from 'primeng/editor';
 import {InputTextModule} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-import {TabsModule} from 'primeng/tabs';
-import {PickListModule} from 'primeng/picklist';
+import {ButtonModule} from 'primeng/button';
 
-import {DomainReadDto, LanguageReadDto, SubjectDetailDto, SubjectWriteRequestDto,} from '../../../api/generated';
+import {
+  DomainReadDto,
+  LanguageEnumDto,
+  LanguageReadDto,
+  QuestionInSubjectDto,
+  SubjectDetailDto,
+  SubjectWriteRequestDto,
+} from '../../../api/generated';
 
 import {SubjectLangGroup, SubjectService, SubjectTranslationsWrite} from '../../../services/subject/subject';
 import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {QuestionService} from '../../../services/question/question';
-import {LangCode, TranslateBatchItem, TranslationService,} from '../../../services/translation/translation';
+import {isLangCode, LangCode, TranslateBatchItem, TranslationService,} from '../../../services/translation/translation';
 import {TableModule} from 'primeng/table';
+import {
+  buildLocalizedTextRecord,
+  createLocalizedTextGroup,
+  getLocalizedTextGroup,
+  patchLocalizedTextRecord,
+} from '../../../shared/forms/localized-text-form';
+import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 
 
-type QuestionListItem = { id: number; title?: string } | any;
+type QuestionTitleMap = Record<string, { title?: string }>;
 
 
 @Component({
@@ -30,12 +42,10 @@ type QuestionListItem = { id: number; title?: string } | any;
   selector: 'app-subject-edit',
   imports: [
     ReactiveFormsModule,
-    Editor,
     InputTextModule,
-    Button,
-    TabsModule,
-    PickListModule,
+    ButtonModule,
     TableModule,
+    SubjectEditorFormComponent,
   ],
   templateUrl: './subject-edit.html',
   styleUrl: './subject-edit.scss',
@@ -57,7 +67,7 @@ export class SubjectEdit implements OnInit {
   activeLang = signal<LangCode | undefined>(undefined);
 
   // questions
-  questions = signal<QuestionListItem[]>([]);
+  questions = signal<QuestionInSubjectDto[]>([]);
 
   private fb = inject(FormBuilder);
   form = this.fb.group({
@@ -68,11 +78,9 @@ export class SubjectEdit implements OnInit {
   private subjectService = inject(SubjectService);
   private domainService = inject(DomainService);
   private userService = inject(UserService);
-  // Normalisation safe de la langue UI courante -> LangCode
   currentLang = computed<LangCode>(() => {
-    const v: unknown = (this.userService as any).currentLang;
-    const s = typeof v === 'string' ? v : String(v ?? 'fr');
-    return (['fr', 'en', 'nl', 'it', 'es'].includes(s) ? s : 'fr') as LangCode;
+    const value = this.userService.currentLang;
+    return isLangCode(value) ? value : LanguageEnumDto.Fr;
   });
   private translator = inject(TranslationService);
   private questionService = inject(QuestionService);
@@ -88,11 +96,13 @@ export class SubjectEdit implements OnInit {
   }
 
   langGroup(code: string): FormGroup {
-    return this.translationsGroup().get(code) as FormGroup;
+    return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
   tabCodes(): LangCode[] {
-    return (this.allowedLanguages().map((l) => l.code) as unknown as LangCode[]);
+    return this.allowedLanguages()
+      .map((language) => language.code)
+      .filter(isLangCode);
   }
 
   onTabChange(value: string | number | undefined): void {
@@ -168,7 +178,7 @@ export class SubjectEdit implements OnInit {
         const descCtrl = target.controls.description;
 
         const needName = overwrite || !(nameCtrl.value ?? '').trim();
-        const needDesc = overwrite || this.isEmptyHtml(descCtrl.value ?? '');
+        const needDesc = overwrite || isEmptyRichText(descCtrl.value ?? '');
 
         const items: TranslateBatchItem[] = [];
         if (needName) items.push({key: 'name', text: sourceName, format: 'text'});
@@ -220,8 +230,7 @@ export class SubjectEdit implements OnInit {
       )
       .subscribe((s: SubjectDetailDto) => {
         this.domainId.set(s.domain);
-        console.log(s);
-        this.questions.set((s as SubjectDetailDto).questions ?? []);
+        this.questions.set(s.questions ?? []);
 
         const domainId = s.domain ?? null;
         if (domainId) {
@@ -250,7 +259,9 @@ export class SubjectEdit implements OnInit {
         const activeLangs = (d.allowed_languages ?? []).filter((l) => l.active);
         this.allowedLanguages.set(activeLangs);
 
-        const codes = activeLangs.map((l) => l.code as unknown as LangCode);
+        const codes = activeLangs
+          .map((language) => language.code)
+          .filter(isLangCode);
 
         // IMPORTANT: reset avant de recréer les controls
         this.resetTranslationsControls();
@@ -272,42 +283,18 @@ export class SubjectEdit implements OnInit {
 
     for (const code of codes) {
       if (!tg.contains(code)) {
-        tg.addControl(
-          code,
-          this.fb.group({
-            name: new FormControl<string>('', {
-              nonNullable: true,
-              validators: [
-                Validators.required,
-                Validators.minLength(2),
-                Validators.maxLength(120),
-              ],
-            }),
-            description: new FormControl<string>('', {nonNullable: true}),
-          }),
-        );
+        tg.addControl(code, createLocalizedTextGroup(this.fb, {nameMaxLength: 120}));
       }
     }
   }
 
   private patchTranslationsFromDto(dto: SubjectDetailDto, codes: LangCode[]): void {
     const tr = (dto.translations ?? {}) as SubjectTranslationsWrite;
-
-    const patch: SubjectTranslationsWrite = {};
-    for (const code of codes) {
-      patch[code] = {
-        name: tr[code]?.name ?? '',
-        description: tr[code]?.description ?? '',
-      };
-    }
-
-    this.translationsGroup().patchValue(patch);
+    patchLocalizedTextRecord(this.translationsGroup(), codes, tr);
   }
 
   private getTranslationGroup(code: LangCode): SubjectLangGroup {
-    const fg = this.translationsGroup().get(code) as SubjectLangGroup | null;
-    if (!fg) throw new Error(`Missing form group for language: ${code}`);
-    return fg;
+    return getLocalizedTextGroup(this.translationsGroup(), code) as SubjectLangGroup;
   }
 
   private setInitialTab(codes: LangCode[]): void {
@@ -322,7 +309,7 @@ export class SubjectEdit implements OnInit {
 
     this.allowedLanguages.set(
       codes.map((code) => ({
-        id: 0 as any,
+        id: 0,
         code,
         name: code,
         active: true,
@@ -339,35 +326,17 @@ export class SubjectEdit implements OnInit {
 
   private buildPayload(): SubjectWriteRequestDto {
     const domainId = this.domainId();
-    const tg = this.translationsGroup();
     const codes = this.tabCodes();
 
     // Ne renvoyer que les langues du domain (onglets)
-    const translations: Record<string, { name: string; description: string;}> = {};
-    for (const code of codes) {
-    const fg = tg.get(code) as SubjectLangGroup | null;
-    if (!fg) continue;
+    const translations = buildLocalizedTextRecord(this.translationsGroup(), codes);
 
-    translations[code] = {
-      name: fg.controls.name.value ?? '',
-      description: fg.controls.description.value ?? '',
-    };
+    return this.subjectService.buildWritePayload(domainId, translations);
   }
 
-  return this.subjectService.buildWritePayload(domainId, translations);
-  }
-
-  private isEmptyHtml(html: string): boolean {
-    const cleaned = (html ?? '')
-      .replace(/<br\s*\/?>/gi, '')
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/<[^>]+>/g, '')
-      .trim();
-    return cleaned.length === 0;
-  }
-
-  protected getQuestionTitle(q: QuestionListItem):string {
+  protected getQuestionTitle(q: QuestionInSubjectDto): string {
     const lang = String(this.activeLang()).toLowerCase();
-    return q.title?.[lang]?.title ??`Question #${q.id}`;
+    const titles = (q.title ?? {}) as QuestionTitleMap;
+    return titles[lang]?.title ?? `Question #${q.id}`;
   }
 }

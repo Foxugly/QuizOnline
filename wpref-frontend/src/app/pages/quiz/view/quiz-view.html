@@ -30,15 +30,12 @@
 
           <div class="quiz-summary-item">
             <span class="quiz-summary-label">Utilisateur</span>
-            <span class="quiz-summary-value">{{ quizSession()?.user }}</span>
+            <span class="quiz-summary-value">{{ quizSession()?.user_summary?.username || '-' }}</span>
           </div>
 
           <div class="quiz-summary-item">
             <span class="quiz-summary-label">Description</span>
-            <span class="quiz-summary-value">
-              <!-- À adapter si tu as une liste de subjects -->
-
-            </span>
+            <span class="quiz-summary-value">{{ quizSession()?.quiz_template_description || '-' }}</span>
           </div>
 
           <!-- Colonne 2 -->
@@ -83,14 +80,35 @@
               {{ quizSession()?.ended_at | date : 'short' }}
             </span>
           </div>
+
+          @if (quizSession()?.total_answers !== null) {
+            <div class="quiz-summary-item">
+              <span class="quiz-summary-label">Réponses</span>
+              <span class="quiz-summary-value">{{ quizSession()?.total_answers }}</span>
+            </div>
+
+            <div class="quiz-summary-item">
+              <span class="quiz-summary-label">Correctes</span>
+              <span class="quiz-summary-value">{{ quizSession()?.correct_answers }}</span>
+            </div>
+
+            <div class="quiz-summary-item">
+              <span class="quiz-summary-label">Score</span>
+              <span class="quiz-summary-value">{{ quizSession()?.earned_score }} / {{ quizSession()?.max_score }}</span>
+            </div>
+          }
         </div>
 
         <div class="quiz-summary-footer">
-          @if (quizSession()?.started_at) {
+          @if (!quizSession()?.started_at) {
+            <p-button (onClick)="goStart()" icon="pi pi-play" label="Démarrer le quiz" severity="primary"></p-button>
+          } @else if (quizSession()?.can_answer) {
             <p-button (onClick)="goQuestion()" icon="pi pi-arrow-right" label="Aller au quiz"
                       severity="primary"></p-button>
+          } @else if (canReview()) {
+            <p-button (onClick)="goQuestion()" icon="pi pi-eye" label="Revoir le quiz" severity="primary"></p-button>
           } @else {
-            <p-button (onClick)="goStart()" icon="pi pi-play" label="Démarrer le quiz" severity="primary"></p-button>
+            <p-button [disabled]="true" icon="pi pi-check" label="Quiz terminé" severity="secondary"></p-button>
           }
         </div>
       </p-card>

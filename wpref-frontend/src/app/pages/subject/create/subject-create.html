@@ -1,11 +1,9 @@
 <div class="page">
-
-  <!-- HEADER -->
   <div class="header-line header-line--grid">
     <div class="header-spacer"></div>
 
     <div class="header-center">
-      <h1 class="title">Créer un sujet</h1>
+      <h1 class="title">Cr&#233;er un sujet</h1>
       <p class="subtitle muted">Choix du domaine + traductions</p>
     </div>
 
@@ -20,140 +18,28 @@
     </div>
   </div>
 
-  <!-- LOADING -->
   @if (loading()) {
     <div class="card">
-      <p class="muted">Chargement…</p>
+      <p class="muted">Chargement...</p>
     </div>
   } @else {
-
-    <!-- CARD: Domaine -->
-    <div class="card form-card">
-
-      <div class="card-head">
-        <h2 class="card-title">Domaine</h2>
-        <span class="badge">{{ domainOptions().length }} disponible(s)</span>
-      </div>
-
-      <div class="meta-grid">
-        <div class="meta-item meta-item--full">
-          <label class="meta-label">Domaine</label>
-          <div class="meta-value">
-            <p-select
-              (onChange)="onDomainChange($event.value)"
-              [disabled]="loading() || translating()"
-              [filter]="true"
-              [ngModel]="selectedDomainId()"
-              [options]="domainOptions()"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Choisir un domaine"
-            ></p-select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CARD: Traductions -->
-    @if (selectedDomainId() && tabCodes().length > 0) {
-      <form (ngSubmit)="submit()" [formGroup]="form" class="card form-card">
-
-        <div class="card-head card-head--with-badge">
-          <h2 class="card-title">Traductions</h2>
-          <span class="badge">{{ tabCodes().length }} langue(s)</span>
-        </div>
-
-        <p-tabs
-          (valueChange)="onTabChange($event)"
-          [value]="activeLang() ?? undefined"
-          class="tabs">
-
-          <p-tablist>
-            @for (lang of tabCodes(); track lang) {
-              <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
-            }
-          </p-tablist>
-
-          <p-tabpanels>
-            @for (lang of tabCodes(); track lang) {
-              <p-tabpanel [value]="lang">
-                <div class="lang-panel" formGroupName="translations">
-
-                  <div class="lang-toolbar">
-                    <p-button
-                      (click)="translateFromActiveTab()"
-                      [disabled]="translating()"
-                      [loading]="translating()"
-                      icon="pi pi-language"
-                      label="Traduire vers les autres langues"
-                      severity="info"
-                      type="button">
-                    </p-button>
-                  </div>
-
-                  <div [formGroupName]="lang" class="meta-grid">
-                    <div class="meta-item meta-item--full">
-                      <label class="meta-label">Nom ({{ lang.toUpperCase() }})</label>
-                      <div class="meta-value">
-                        <input formControlName="name" pInputText placeholder="Ex: Math"/>
-                      </div>
-
-                      @if (langGroup(lang).get('name')?.invalid && langGroup(lang).get('name')?.touched) {
-                        <div class="meta-hint meta-hint--error">Champ requis.</div>
-                      }
-                    </div>
-
-                    <div class="meta-item meta-item--full">
-                      <label class="meta-label">Description ({{ lang.toUpperCase() }})</label>
-                      <div class="meta-value">
-                        <p-editor class="editor-compact" formControlName="description"></p-editor>
-                      </div>
-                    </div>
-                  </div>
-
-                  @if (translating()) {
-                    <div class="inline-status">
-                      <i class="pi pi-spin pi-spinner"></i>
-                      <span>Traduction en cours…</span>
-                    </div>
-                  }
-                </div>
-              </p-tabpanel>
-            }
-          </p-tabpanels>
-        </p-tabs>
-      </form>
-    } @else if (selectedDomainId() && tabCodes().length === 0) {
-      <div class="card">
-        <div class="alert alert--info">
-          Ce domaine n’a pas de langues configurées.
-        </div>
-      </div>
-    }
-
-    <!-- SUBMIT ERROR -->
-    @if (submitError()) {
-      <div class="card">
-        <div class="alert alert--error">{{ submitError() }}</div>
-      </div>
-    }
-
-    <!-- FOOTER ACTIONS -->
-    <div class="footer-actions">
-      <p-button
-        (onClick)="submit()"
-        icon="pi pi-save"
-        label="Créer"
-        type="button">
-      </p-button>
-
-      <p-button
-        (onClick)="goList()"
-        icon="pi pi-times"
-        label="Annuler"
-        severity="secondary"
-        type="button">
-      </p-button>
-    </div>
+    <app-subject-editor-form
+      [activeLang]="activeLang()"
+      [domainOptions]="domainOptions()"
+      [emptyLanguagesMessage]="emptyLanguagesMessage"
+      [form]="form"
+      [loading]="loading()"
+      [selectedDomainId]="selectedDomainId()"
+      [showDomainSelect]="true"
+      [submitError]="submitError()"
+      submitLabel="Cr&#233;er"
+      [tabCodes]="tabCodes()"
+      [translating]="translating()"
+      (cancel)="goList()"
+      (domainChange)="onDomainChange($event)"
+      (submitForm)="submit()"
+      (tabChange)="onTabChange($event)"
+      (translateActive)="translateFromActiveTab()">
+    </app-subject-editor-form>
   }
 </div>

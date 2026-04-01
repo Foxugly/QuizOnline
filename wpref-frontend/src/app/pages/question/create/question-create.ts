@@ -1,55 +1,38 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {finalize} from 'rxjs/operators';
+import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {firstValueFrom, forkJoin} from 'rxjs';
+import {finalize} from 'rxjs/operators';
 
-import {Editor} from 'primeng/editor';
-import {TabsModule} from 'primeng/tabs';
-import {SelectModule} from 'primeng/select';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {CheckboxModule} from 'primeng/checkbox';
-import {InputTextModule} from 'primeng/inputtext';
-import {InputNumberModule} from 'primeng/inputnumber';
 import {ButtonModule} from 'primeng/button';
-import {PanelModule} from 'primeng/panel';
 import {CardModule} from 'primeng/card';
-import {TooltipModule} from 'primeng/tooltip';
 
-
-import {
-  DomainReadDto,
-  LanguageEnumDto,
-  MediaAssetDto,
-  MediaAssetUploadKindEnumDto,
-  QuestionCreateRequestParams,
-  QuestionMediaCreateRequestParams,
-  QuestionReadDto, QuestionWriteRequestDto,
-  SubjectReadDto
-} from '../../../api/generated';
+import {DomainReadDto, LanguageEnumDto, SubjectReadDto} from '../../../api/generated';
+import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
-import {SubjectService} from '../../../services/subject/subject';
 import {
-  AnswerOptionForm,
-  AnswerTrGroup,
-  QuestionService,
-  QuestionTrGroup,
-  QuestionCreateJsonPayload
-} from '../../../services/question/question';
+  addQuestionAnswerOption,
+  buildQuestionCreatePayload,
+  createQuestionEditorForm,
+  ensureQuestionTranslationControls,
+  getAnswerContentControl,
+  getQuestionCorrectCount,
+  getQuestionTrGroup,
+  isEmptyQuestionHtml,
+  isQuestionEditorFormValid,
+  QuestionEditorForm,
+  resetQuestionTranslationsOnly,
+  syncLangAnswerArraysWithRoot,
+  uploadQuestionEditorMediaAssets,
+  removeQuestionAnswerOption,
+} from '../../../services/question/question-editor-form';
+import {QuestionService} from '../../../services/question/question';
+import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {MediaSelectorComponent, MediaSelectorValue} from '../../../components/media-selector/media-selector';
-import {Divider} from 'primeng/divider';
 
 @Component({
   standalone: true,
@@ -59,99 +42,72 @@ import {Divider} from 'primeng/divider';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    Editor,
-    TabsModule,
-    SelectModule,
-    MultiSelectModule,
-    CheckboxModule,
-    InputTextModule,
-    InputNumberModule,
     ButtonModule,
-    PanelModule,
     CardModule,
-    TooltipModule,
-
-    MediaSelectorComponent,
-    Divider,
+    QuestionEditorFormComponent,
   ],
 })
 export class QuestionCreate implements OnInit {
-  // ===== Loading states =====
-  loading = signal(true);      // domains + subjects
-  domainLoading = signal(false);   // retrieve selected domain
+  readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues actives configurees.";
+  readonly practiceTooltip = 'la question sera publique et selectionnable pour les quizzes generes.';
+
+  loading = signal(true);
+  domainLoading = signal(false);
   saving = signal(false);
   translating = signal(false);
 
   error = signal<string | null>(null);
   submitError = signal<string | null>(null);
 
-  readonly isLocked = computed(() => this.loading() || this.domainLoading() || this.saving() || this.translating());
+  readonly isLocked = computed(
+    () => this.loading() || this.domainLoading() || this.saving() || this.translating(),
+  );
 
-  // ===== Data =====
   domains = signal<DomainReadDto[]>([]);
   subjects = signal<SubjectReadDto[]>([]);
-
-  // ===== Domain selection as signal (critical) =====
   selectedDomainId = signal<number>(0);
-
-  // Langs du domaine sélectionné
   domainLangs = signal<LangCode[]>([]);
   activeLang = signal<LangCode | null>(null);
-
-  // UI lang (labels domain/subject)
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
-
   translateOverwrite = signal(false);
 
-  domainOptions = computed<DomainOption[]>(() => {
+  readonly domainOptions = computed<DomainOption[]>(() => {
     const lang = this.currentLang();
-    return (this.domains() ?? []).map((d) => ({
-      id: d.id,
-      name: this.getDomainLabel(d, lang),
+    return this.domains().map((domain) => ({
+      id: domain.id,
+      name: this.getDomainLabel(domain, lang),
     }));
   });
 
-  filteredSubjects = computed<SubjectReadDto[]>(() => {
+  readonly filteredSubjects = computed(() => {
     const domainId = this.selectedDomainId();
-    if (!domainId) return [];
-    return (this.subjects() ?? []).filter((s) => s.domain === domainId);
+    if (!domainId) {
+      return [];
+    }
+    return this.subjects().filter((subject) => subject.domain === domainId);
   });
 
-  subjectOptions = computed<Array<{ name: string; code: number }>>(() => {
+  readonly subjectOptions = computed<Array<{ name: string; code: number }>>(() => {
     const lang = this.currentLang();
-    return this.filteredSubjects().map((s) => {
-      const t = selectTranslation<{ name: string }>(
-        s.translations as Record<string, { name: string }>,
+    return this.filteredSubjects().map((subject) => {
+      const translation = selectTranslation<{ name: string }>(
+        subject.translations as Record<string, { name: string }>,
         lang,
       );
-      return {name: t?.name ?? `Subject #${s.id}`, code: s.id};
+      return {
+        name: translation?.name ?? `Subject #${subject.id}`,
+        code: subject.id,
+      };
     });
   });
 
-  subjectsDisabled = computed(() => {
+  readonly subjectsDisabled = computed(() => {
     return this.isLocked() || !this.selectedDomainId() || this.subjectOptions().length === 0;
   });
 
-  // ===== deps =====
   private fb = inject(NonNullableFormBuilder);
-  // ===== form =====
-  form = this.fb.group({
-    domain: this.fb.control<number>(0, {validators: [Validators.required]}),
-    subject_ids: new FormControl<number[]>({value: [], disabled: true}, {nonNullable: true}),
+  form: QuestionEditorForm = createQuestionEditorForm(this.fb, {subjectIdsDisabled: true});
 
-    active: this.fb.control(true),
-    //allow_multiple_correct: this.fb.control(false), // TODO rajouter dans le submit
-    is_mode_practice: this.fb.control(true),
-    is_mode_exam: this.fb.control(false),
-
-    media: this.fb.control<MediaSelectorValue[]>([]),
-
-    // translations[lang] contains title/desc/expl + answer_options[ {content} ... ]
-    translations: this.fb.group({}),
-
-    // root answer_options contains only meta: is_correct + sort_order
-    answer_options: this.fb.array<FormGroup>([]),
-  });
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
   private domainService = inject(DomainService);
@@ -161,45 +117,38 @@ export class QuestionCreate implements OnInit {
   private userService = inject(UserService);
 
   constructor() {
-    // enable/disable controls without destroying DOM
     effect(() => {
       const locked = this.isLocked();
 
-      if (locked) this.form.controls.domain.disable({emitEvent: false});
-      else this.form.controls.domain.enable({emitEvent: false});
+      if (locked) {
+        this.form.controls.domain.disable({emitEvent: false});
+      } else {
+        this.form.controls.domain.enable({emitEvent: false});
+      }
 
-      const shouldEnableSubjects = !locked && !!this.selectedDomainId() && this.subjectOptions().length > 0;
-      if (shouldEnableSubjects) this.form.controls.subject_ids.enable({emitEvent: false});
-      else this.form.controls.subject_ids.disable({emitEvent: false});
+      const enableSubjects = !locked && !!this.selectedDomainId() && this.subjectOptions().length > 0;
+      if (enableSubjects) {
+        this.form.controls.subject_ids.enable({emitEvent: false});
+      } else {
+        this.form.controls.subject_ids.disable({emitEvent: false});
+      }
     });
-  }
-
-  // ===== getters =====
-  get answerOptions(): FormArray {
-    return this.form.controls.answer_options as unknown as FormArray;
   }
 
   tabCodes(): LangCode[] {
     return this.domainLangs();
   }
 
-  translationsGroup(): FormGroup {
-    return this.form.get('translations') as FormGroup;
-  }
-
-  // ===== lifecycle =====
   ngOnInit(): void {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
 
-    // react to domain changes (single source of truth)
     this.form.controls.domain.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(v => this.onDomainChange(Number(v ?? 0)));
+      .subscribe((value) => this.onDomainChange(Number(value ?? 0)));
 
-    // load domains + subjects together (pageLoading)
     this.loading.set(true);
     forkJoin({
-      domains: this.domainService.list({asStaff: true} as any),
+      domains: this.domainService.list(),
       subjects: this.subjectService.list(),
     })
       .pipe(
@@ -213,18 +162,16 @@ export class QuestionCreate implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.error.set('Impossible de charger les données initiales.');
-        }
+          this.error.set('Impossible de charger les donnees initiales.');
+        },
       });
-    // preselect domain from query param
-    const qpDomainId = Number(this.route.snapshot.queryParamMap.get('domainId') ?? 0);
-    if (qpDomainId > 0) {
-      this.form.controls.domain.setValue(qpDomainId);
-      // handleDomainChange will be triggered by valueChanges
+
+    const queryDomainId = Number(this.route.snapshot.queryParamMap.get('domainId') ?? 0);
+    if (queryDomainId > 0) {
+      this.form.controls.domain.setValue(queryDomainId);
     }
   }
 
-  // ===== navigation =====
   goList(): void {
     this.questionService.goList();
   }
@@ -234,200 +181,172 @@ export class QuestionCreate implements OnInit {
   }
 
   onTabChange(value: string | number | undefined): void {
-    if (value === undefined || value === null) return;
+    if (value === undefined || value === null) {
+      return;
+    }
     const code = String(value) as LangCode;
-    if (!this.domainLangs().includes(code)) return;
+    if (!this.domainLangs().includes(code)) {
+      return;
+    }
     this.activeLang.set(code);
   }
 
-  // ===== answers meta =====
   addOption(): void {
-    const idx = this.answerOptions.length;
-
-    // root meta
-    const group = this.fb.group({
-      is_correct: this.fb.control(false),
-      sort_order: this.fb.control(idx + 1),
-    });
-    this.answerOptions.push(group as any);
-
-    // per-lang content
-    for (const lang of this.domainLangs()) {
-      this.langAnswerOptions(lang).push(
-        this.fb.group({
-          content: this.fb.control('', {validators: [Validators.required]}),
-          //is_correct: this.fb.control(false),
-        }) as any,
-      );
-    }
+    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
   }
 
   removeOption(index: number): void {
-    if (this.answerOptions.length <= 2) return; // backend min 2
-
-    this.answerOptions.removeAt(index);
-
-    for (const lang of this.domainLangs()) {
-      const arr = this.langAnswerOptions(lang);
-      if (arr.length > index) arr.removeAt(index);
-    }
-
-    // renumber sort_order
-    this.answerOptions.controls.forEach((ctrl, i) => {
-      ctrl.get('sort_order')?.setValue(i + 1);
-    });
+    removeQuestionAnswerOption(this.form, this.domainLangs(), index);
   }
 
-  setOnlyCorrect(index: number): void {
-    this.answerOptions.controls.forEach((ctrl, i) => {
-      ctrl.get('is_correct')?.setValue(i === index);
-    });
+  answerContentCtrl(index: number, lang: LangCode): FormControl<string> {
+    return getAnswerContentControl(this.form, index, lang);
   }
 
-  // ===== per-lang answer content access =====
-  langAnswerOptions(lang: LangCode): FormArray {
-    return this.langGroup(lang).get('answer_options') as unknown as FormArray;
-  }
-
-  answerContentCtrl(i: number, lang: LangCode): FormControl<string> {
-    const arr = this.langAnswerOptions(lang);
-    const row = arr.at(i) as AnswerTrGroup;
-    return row.get('content') as FormControl<string>;
-  }
-
-  // ===== translate =====
   async translateFromActiveTab(): Promise<void> {
-    const src = this.activeLang();
-    if (!src) return;
-    await this.translateFrom(src);
+    const source = this.activeLang();
+    if (!source) {
+      return;
+    }
+    await this.translateFrom(source);
   }
 
   async translateFrom(sourceLang: LangCode): Promise<void> {
     const codes = this.tabCodes();
-    if (!codes.includes(sourceLang)) return;
+    if (!codes.includes(sourceLang)) {
+      return;
+    }
 
     this.translating.set(true);
     this.submitError.set(null);
 
     try {
-      const srcQ = this.getQuestionTrGroup(sourceLang);
-      const srcTitle = srcQ.controls.title.value ?? '';
-      const srcDesc = srcQ.controls.description.value ?? '';
-      const srcExpl = srcQ.controls.explanation.value ?? '';
-
+      const sourceGroup = getQuestionTrGroup(this.form, sourceLang);
+      const sourceTitle = sourceGroup.controls.title.value ?? '';
+      const sourceDescription = sourceGroup.controls.description.value ?? '';
+      const sourceExplanation = sourceGroup.controls.explanation.value ?? '';
       const overwrite = this.translateOverwrite();
 
       for (const targetLang of codes) {
-        if (targetLang === sourceLang) continue;
+        if (targetLang === sourceLang) {
+          continue;
+        }
 
-        const tgtQ = this.getQuestionTrGroup(targetLang);
-
+        const targetGroup = getQuestionTrGroup(this.form, targetLang);
         const items: TranslateBatchItem[] = [];
 
-        const needTitle = overwrite || !(tgtQ.controls.title.value ?? '').trim();
-        if (needTitle) items.push({key: 'title', text: srcTitle, format: 'text'});
-
-        const needDesc = overwrite || this.isEmptyHtml(tgtQ.controls.description.value ?? '');
-        if (needDesc) items.push({key: 'description', text: srcDesc, format: 'html'});
-
-        const needExpl = overwrite || this.isEmptyHtml(tgtQ.controls.explanation.value ?? '');
-        if (needExpl) items.push({key: 'explanation', text: srcExpl, format: 'html'});
-
-        for (let i = 0; i < this.answerOptions.length; i++) {
-          const tgtCtrl = this.answerContentCtrl(i, targetLang);
-          const needAns = overwrite || this.isEmptyHtml(tgtCtrl.value ?? '');
-          if (!needAns) continue;
-
-          const srcCtrl = this.answerContentCtrl(i, sourceLang);
-          items.push({key: `ans_${i}`, text: srcCtrl.value ?? '', format: 'html'});
+        const needsTitle = overwrite || !(targetGroup.controls.title.value ?? '').trim();
+        if (needsTitle) {
+          items.push({key: 'title', text: sourceTitle, format: 'text'});
         }
 
-        if (!items.length) continue;
-        console.log('TRANSLATE items', items);
-        const out = await this.translator.translateBatch(sourceLang, targetLang, items);
-        console.log('retour TRANSLATE items', out);
-        if (needTitle && out['title'] !== undefined) {
-          tgtQ.controls.title.setValue(out['title']);
-          tgtQ.controls.title.markAsDirty();
-        }
-        if (needDesc && out['description'] !== undefined) {
-          tgtQ.controls.description.setValue(out['description']);
-          tgtQ.controls.description.markAsDirty();
-        }
-        if (needExpl && out['explanation'] !== undefined) {
-          tgtQ.controls.explanation.setValue(out['explanation']);
-          tgtQ.controls.explanation.markAsDirty();
+        const needsDescription = overwrite || isEmptyQuestionHtml(targetGroup.controls.description.value ?? '');
+        if (needsDescription) {
+          items.push({key: 'description', text: sourceDescription, format: 'html'});
         }
 
-        for (let i = 0; i < this.answerOptions.length; i++) {
-          const k = `ans_${i}`;
-          if (out[k] === undefined) continue;
-          const tgt = this.answerContentCtrl(i, targetLang);
-          tgt.setValue(out[k]);
-          tgt.markAsDirty();
+        const needsExplanation = overwrite || isEmptyQuestionHtml(targetGroup.controls.explanation.value ?? '');
+        if (needsExplanation) {
+          items.push({key: 'explanation', text: sourceExplanation, format: 'html'});
+        }
+
+        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
+          const targetControl = this.answerContentCtrl(i, targetLang);
+          const needsAnswer = overwrite || isEmptyQuestionHtml(targetControl.value ?? '');
+          if (!needsAnswer) {
+            continue;
+          }
+
+          const sourceControl = this.answerContentCtrl(i, sourceLang);
+          items.push({key: `ans_${i}`, text: sourceControl.value ?? '', format: 'html'});
+        }
+
+        if (!items.length) {
+          continue;
+        }
+
+        const translated = await this.translator.translateBatch(sourceLang, targetLang, items);
+
+        if (needsTitle && translated['title'] !== undefined) {
+          targetGroup.controls.title.setValue(translated['title']);
+          targetGroup.controls.title.markAsDirty();
+        }
+        if (needsDescription && translated['description'] !== undefined) {
+          targetGroup.controls.description.setValue(translated['description']);
+          targetGroup.controls.description.markAsDirty();
+        }
+        if (needsExplanation && translated['explanation'] !== undefined) {
+          targetGroup.controls.explanation.setValue(translated['explanation']);
+          targetGroup.controls.explanation.markAsDirty();
+        }
+
+        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
+          const key = `ans_${i}`;
+          if (translated[key] === undefined) {
+            continue;
+          }
+          const targetControl = this.answerContentCtrl(i, targetLang);
+          targetControl.setValue(translated[key]);
+          targetControl.markAsDirty();
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
       this.submitError.set('Erreur lors de la traduction.');
     } finally {
       this.translating.set(false);
     }
   }
 
-  // ===== submit =====
   async save(): Promise<void> {
     this.error.set(null);
     this.submitError.set(null);
 
-    if (!this.isValid()) {
-      this.error.set('Merci de sélectionner un domaine et de compléter au minimum le titre dans chaque langue et toutes les réponses.');
+    if (!isQuestionEditorFormValid(this.form, this.domainLangs(), {requireDomain: true})) {
+      this.error.set(
+        'Merci de selectionner un domaine et de completer au minimum le titre dans chaque langue et toutes les reponses.',
+      );
       this.form.markAllAsTouched();
       return;
     }
 
-    const correctCount = this.answerOptions.controls.filter(
-      (ctrl) => !!ctrl.get('is_correct')?.value
-    ).length;
-
-    if (correctCount === 0) {
-      this.submitError.set('Il faut cocher au moins une réponse correcte.');
+    if (getQuestionCorrectCount(this.form) === 0) {
+      this.submitError.set('Il faut cocher au moins une reponse correcte.');
       return;
     }
-    // récupérer les medias
 
     this.saving.set(true);
+
     try {
-      const mediaAssetIds = await this._createMediaAsset();
-      const qwrdto:QuestionWriteRequestDto = this.buildQuestionWriteRequestDto(mediaAssetIds);
-
-      await firstValueFrom(
-        this.questionService.create(qwrdto).pipe(
-          takeUntilDestroyed(this.destroyRef),
-          finalize(() => this.saving.set(false)),
-        )
+      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
+        this.form.controls.media.value ?? [],
+        (params) => this.questionService.questionMediaCreate(params),
       );
+      const payload = buildQuestionCreatePayload(this.form, this.domainLangs(), mediaAssetIds);
 
+      await firstValueFrom(this.questionService.create(payload));
       this.goList();
-    } catch (err) {
-      console.error('Erreur création question', err);
+    } catch (error) {
+      console.error('Erreur creation question', error);
       this.submitError.set("Erreur lors de l'enregistrement de la question.");
+    } finally {
       this.saving.set(false);
     }
   }
 
-  // ===== domain selection =====
   protected onDomainChange(domainId: number): void {
     this.error.set(null);
     this.submitError.set(null);
     this.selectedDomainId.set(domainId);
-    // reset when domain changes
+
     this.form.controls.subject_ids.setValue([]);
-    this.resetTranslationsOnly();
+    resetQuestionTranslationsOnly(this.form);
     this.domainLangs.set([]);
     this.activeLang.set(null);
 
-    if (!domainId || domainId <= 0) return;
+    if (!domainId || domainId <= 0) {
+      return;
+    }
 
     this.domainLoading.set(true);
     this.domainService
@@ -437,272 +356,47 @@ export class QuestionCreate implements OnInit {
         finalize(() => this.domainLoading.set(false)),
       )
       .subscribe({
-        next: (d: DomainReadDto) => {
-          const codes = (d.allowed_languages ?? [])
-            .filter((l) => !!l.active)
-            .map((x) => x?.code)
-            .filter((x): x is LangCode => !!x);
+        next: (domain) => {
+          const codes = (domain.allowed_languages ?? [])
+            .filter((language) => !!language.active)
+            .map((language) => language.code)
+            .filter((code): code is LangCode => !!code);
 
           const langs = codes.length ? codes : [LanguageEnumDto.Fr as unknown as LangCode];
-
           this.domainLangs.set(langs);
 
-          // create translations[lang] groups (including per-lang answer_options array)
-          this.ensureQuestionTranslationControls(langs);
-          if (this.answerOptions.length === 0) {
-            this.addOption();
-            this.addOption();
+          ensureQuestionTranslationControls(this.fb, this.form, langs);
+          if (this.form.controls.answer_options.length === 0) {
+            addQuestionAnswerOption(this.fb, this.form, langs);
+            addQuestionAnswerOption(this.fb, this.form, langs);
+          } else {
+            syncLangAnswerArraysWithRoot(this.fb, this.form, langs);
           }
-          // make sure per-lang answer_options arrays have same length as root answerOptions
-          this.syncLangAnswerArraysWithRoot(langs);
 
           this.activeLang.set(langs[0] ?? null);
         },
-        error: (err) => {
-          console.error(err);
-          this.error.set('Impossible de charger le domaine sélectionné.');
+        error: (error) => {
+          console.error(error);
+          this.error.set('Impossible de charger le domaine selectionne.');
         },
       });
   }
 
-  protected answerMetaGroup(i: number): FormGroup {
-    return this.answerOptions.at(i) as FormGroup;
-  }
-
-  // ===== helpers =====
-  private langGroup(lang: LangCode): FormGroup {
-    return this.translationsGroup().get(lang) as FormGroup;
-  }
-
   private getDomainLabel(domain: DomainReadDto, lang: LanguageEnumDto): string {
-    const tr = domain.translations as DomainTranslations | undefined;
-
-    const inCurrent = tr?.[lang]?.name?.trim();
-    if (inCurrent) return inCurrent;
+    const translations = domain.translations as DomainTranslations | undefined;
+    const current = translations?.[lang]?.name?.trim();
+    if (current) {
+      return current;
+    }
 
     const fallbacks: LanguageEnumDto[] = [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl];
-    for (const fb of fallbacks) {
-      const v = tr?.[fb]?.name?.trim();
-      if (v) return v;
+    for (const fallback of fallbacks) {
+      const value = translations?.[fallback]?.name?.trim();
+      if (value) {
+        return value;
+      }
     }
+
     return `Domain #${domain.id}`;
   }
-
-  private syncLangAnswerArraysWithRoot(langs: LangCode[]): void {
-    const needed = this.answerOptions.length;
-
-    for (const lang of langs) {
-      const arr = this.langAnswerOptions(lang);
-
-      while (arr.length < needed) {
-        arr.push(
-          this.fb.group({
-            content: this.fb.control('', {validators: [Validators.required]}),
-            //is_correct: this.fb.control(false),
-          }) as any,
-        );
-      }
-      while (arr.length > needed) {
-        arr.removeAt(arr.length - 1);
-      }
-    }
-  }
-
-  private ensureQuestionTranslationControls(codes: LangCode[]): void {
-    const tg = this.translationsGroup();
-
-    // remove old controls not in codes
-    Object.keys(tg.controls).forEach((k) => {
-      if (!codes.includes(k as LangCode)) tg.removeControl(k);
-    });
-
-    // add missing
-    for (const code of codes) {
-      if (!tg.contains(code)) {
-        tg.addControl(
-          code,
-          this.fb.group({
-            title: this.fb.control('', {
-              validators: [Validators.required, Validators.minLength(2), Validators.maxLength(200)],
-            }),
-            description: this.fb.control(''),
-            explanation: this.fb.control(''),
-            answer_options: this.fb.array<AnswerTrGroup>([]),
-          }),
-        );
-      }
-    }
-  }
-
-  private resetTranslationsOnly(): void {
-    const qtg = this.translationsGroup();
-    Object.keys(qtg.controls).forEach((k) => qtg.removeControl(k));
-  }
-
-  private getQuestionTrGroup(code: LangCode): QuestionTrGroup {
-    const fg = this.translationsGroup().get(code) as QuestionTrGroup | null;
-    if (!fg) throw new Error(`Missing question translation group for: ${code}`);
-    return fg;
-  }
-
-  private isValid(): boolean {
-    const domainId = this.selectedDomainId();
-    if (!domainId) return false;
-
-    const langs = this.domainLangs();
-    if (!langs.length) return false;
-
-    // title required per lang
-    const okTitles = langs.every((l) => this.getQuestionTrGroup(l).controls.title.valid === true);
-    if (!okTitles) return false;
-
-    // answers: min 2
-    if (this.answerOptions.length < 2) return false;
-
-    // per-lang answer content required
-    for (const l of langs) {
-      const arr = this.langAnswerOptions(l);
-      if (arr.length !== this.answerOptions.length) return false;
-
-      for (let i = 0; i < arr.length; i++) {
-        const g = arr.at(i) as AnswerTrGroup;
-        if (!g || g.controls.content.invalid) return false;
-      }
-    }
-    return true;
-  }
-
-  private buildQuestionWriteRequestDto(media_ids: number[]): QuestionWriteRequestDto {
-    const langs = this.domainLangs();
-    const tg = this.translationsGroup();
-
-    const translations: QuestionCreateJsonPayload['translations'] = {} as any;
-    for (const l of langs) {
-      const g = tg.get(l) as QuestionTrGroup;
-      translations[l] = {
-        title: g.controls.title.value ?? '',
-        description: g.controls.description.value ?? '',
-        explanation: g.controls.explanation.value ?? '',
-      };
-    }
-
-    const answer_options: AnswerOptionForm[] = [];
-    let correctCount = 0;
-    for (let i = 0; i < this.answerOptions.length; i++) {
-      const opt = this.answerOptions.at(i) as FormGroup;
-
-      const isCorrect = !!opt.get('is_correct')?.value;
-      if (isCorrect) correctCount++;
-
-      const perLang: AnswerOptionForm['translations'] = {} as any;
-      for (const l of langs) {
-        const contentCtrl = this.answerContentCtrl(i, l);
-        perLang[l] = {content: contentCtrl.value ?? ''};
-      }
-
-      answer_options.push({
-        is_correct: isCorrect,
-        sort_order: Number(opt.get('sort_order')?.value ?? (i + 1)),
-        translations: perLang,
-      });
-    }
-
-    return {
-      domain: Number(this.form.controls.domain.value),
-      subject_ids: this.form.controls.subject_ids.value ?? [],
-      allow_multiple_correct: correctCount > 1,
-      active: !!this.form.controls.active.value,
-      is_mode_practice: !!this.form.controls.is_mode_practice.value,
-      is_mode_exam: !!this.form.controls.is_mode_exam.value,
-      translations: translations,
-      answer_options: answer_options,
-      media_asset_ids: media_ids ?? [],
-    };
-  }
-
-  private getTitle(question: QuestionReadDto): string {
-    return this.questionService.getQuestionTranslationForm(question, this.currentLang()).title ?? ' ';
-  }
-
-  private getDescription(question: QuestionReadDto): string {
-    return this.questionService.getQuestionTranslationForm(question, this.currentLang()).description ?? ' ';
-  }
-
-  private getExplanation(question: QuestionReadDto): string {
-    return this.questionService.getQuestionTranslationForm(question, this.currentLang()).explanation ?? ' ';
-  }
-
-
-  private isEmptyHtml(html: string): boolean {
-    const cleaned = (html ?? '')
-      .replace(/<br\s*\/?>/gi, '')
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/<[^>]+>/g, '')
-      .trim();
-    return cleaned.length === 0;
-  }
-
-  private async _createMediaAsset(): Promise<number[]> {
-    const media: MediaSelectorValue[] = this.form.get('media')?.value ?? [];
-    if (!media.length) return [];
-
-    const ids: number[] = [];
-
-    for (const m of media) {
-      // --------------------------------------------------
-      // 1) Media déjà existant
-      // --------------------------------------------------
-      if (m.id) {
-        ids.push(m.id);
-        continue;
-      }
-
-      // --------------------------------------------------
-      // 2) Media externe
-      // --------------------------------------------------
-      if (m.kind === MediaAssetUploadKindEnumDto.External && m.external_url) {
-        const params: QuestionMediaCreateRequestParams = {
-          kind: m.kind as MediaAssetUploadKindEnumDto,
-          externalUrl: m.external_url,
-        };
-
-        const res: MediaAssetDto = await firstValueFrom(
-          this.questionService.questionMediaCreate(params)
-        );
-
-        ids.push(res.id);
-        continue;
-      }
-
-      // --------------------------------------------------
-      // 3) Upload fichier (image / video)
-      // --------------------------------------------------
-      if (
-        (m.kind === MediaAssetUploadKindEnumDto.Image || m.kind === MediaAssetUploadKindEnumDto.Video) &&
-        m.file instanceof File
-      ) {
-        const fd = new FormData();
-        fd.append('file', m.file);
-        fd.append('kind', m.kind); // string enum OK
-
-        const res = await firstValueFrom(
-          this.questionService.questionMediaCreate(fd as any)
-        );
-
-        ids.push(res.id);
-        continue;
-      }
-
-      // --------------------------------------------------
-      // 4) Sécurité
-      // --------------------------------------------------
-      throw new Error(`Media invalide: ${JSON.stringify(m)}`);
-    }
-
-    // --------------------------------------------------
-    // 5) Dédup en conservant l'ordre
-    // --------------------------------------------------
-    return [...new Set(ids)];
-  }
-
 }

@@ -1,8 +1,30 @@
 <div class="layout">
   <aside class="layout__left">
+    @if (hasTimer() && !reviewMode) {
+      <section class="timer-banner" [class.timer-banner--danger]="(remainingSeconds() ?? 0) <= 30">
+        <div>
+          <p class="timer-banner__label">Temps restant</p>
+          <strong class="timer-banner__value">{{ formattedRemainingTime() }}</strong>
+        </div>
+        @if (autoClosing()) {
+          <p class="timer-banner__state">Clôture automatique en cours…</p>
+        }
+      </section>
+    }
+
+    @if (reviewMode) {
+      <section class="timer-banner">
+        <div>
+          <p class="timer-banner__label">Mode</p>
+          <strong class="timer-banner__value">Correction</strong>
+        </div>
+      </section>
+    }
+
     <app-quiz-nav
       (questionSelected)="onQuestionSelected($event)"
       [columns]="5"
+      [reviewMode]="reviewMode"
       [items]="quizNavItems()">
 
     </app-quiz-nav>
@@ -12,11 +34,14 @@
     @if (quizNavItem()) {
       <app-quiz-question
         [quizNavItem]="quizNavItem()!"
+        [readonlyMode]="reviewMode"
         [showCorrectAnswers]="showCorrect"
         displayMode="preview"
         (answeredToggled)="toggleFlag()"
+        (finish)="onFinishQuiz($event)"
         (goNext)="onNextQuestion($event)"
         (goPrevious)="onPreviousQuestion($event)"
+        (goBack)="goBackToQuiz()"
         (flagToggled)="toggleFlag()"
         [hasNext]="hasQuestionNext(index)"
         [hasPrevious]="hasQuestionPrev(index)"

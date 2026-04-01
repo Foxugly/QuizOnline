@@ -109,6 +109,30 @@ class QuestionModelsTestCase(TestCase):
         )
         asset.full_clean()  # ne doit pas lever
 
+    def test_mediaasset_external_youtube_url_is_normalized(self):
+        asset = MediaAsset(
+            kind=MediaAsset.EXTERNAL,
+            external_url="https://youtu.be/dQw4w9WgXcQ?t=43",
+        )
+
+        asset.full_clean()
+
+        self.assertEqual(
+            asset.external_url,
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        )
+
+    def test_mediaasset_external_invalid_youtube_url_is_rejected(self):
+        asset = MediaAsset(
+            kind=MediaAsset.EXTERNAL,
+            external_url="https://www.youtube.com/watch?feature=share",
+        )
+
+        with self.assertRaises(ValidationError) as ctx:
+            asset.full_clean()
+
+        self.assertIn("external_url", ctx.exception.message_dict)
+
     def test_mediaasset_external_invalid_with_file(self):
         asset = MediaAsset(kind=MediaAsset.EXTERNAL, external_url="https://example.com")
         asset.file = SimpleUploadedFile("x.txt", b"abc", content_type="text/plain")

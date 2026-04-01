@@ -11,6 +11,7 @@ from quiz.serializers import (
     GenerateFromSubjectsInputSerializer,
     BulkCreateFromTemplateInputSerializer,
     CreateQuizInputSerializer,
+    QuizListSerializer,
     QuizQuestionSerializer,
     QuizTemplateSerializer,
     QuizQuestionWriteSerializer,
@@ -267,6 +268,19 @@ class QuizQuestionWriteSerializerTests(TestCase):
         self.assertFalse(s.is_valid())
         self.assertIn("question_id", s.errors)
 
+    def test_validate_rejects_question_from_other_domain(self):
+        other_domain = make_domain(self.user, "D2")
+        other_question = make_question(other_domain, "Q OTHER", active=True)
+        make_option(other_question, "A", True, 1)
+        make_option(other_question, "B", False, 2)
+
+        s = QuizQuestionWriteSerializer(
+            data={"question_id": other_question.id, "sort_order": 2, "weight": 1},
+            context={"quiz_template": self.qt},
+        )
+        self.assertFalse(s.is_valid())
+        self.assertIn("question_id", s.errors)
+
     def test_create_sets_quiz_from_context(self):
         s = QuizQuestionWriteSerializer(
             data={"question_id": self.q_active.id, "sort_order": 7, "weight": 3},
@@ -351,6 +365,7 @@ class QuizSerializerTests(TestCase):
         self.qt = make_template(
             self.domain,
             title="T Quiz",
+            description="Description quiz",
             mode=QuizTemplate.MODE_EXAM,
             permanent=True,
             active=True,
@@ -377,12 +392,25 @@ class QuizSerializerTests(TestCase):
         req.user = user
         return QuizSerializer(self.quiz, context={"request": req}).data
 
+    def _serialize_list_as(self, user):
+        req = self.factory.get("/fake")
+        req.user = user
+        return QuizListSerializer(self.quiz, context={"request": req}).data
+
     def test_questions_are_ordered_and_present(self):
         data = self._serialize_as(self.user)
         self.assertIn("questions", data)
         self.assertEqual(len(data["questions"]), 2)
         self.assertEqual(data["questions"][0]["sort_order"], 1)
         self.assertEqual(data["questions"][1]["sort_order"], 2)
+
+    def test_questions_include_full_question_payload(self):
+        data = self._serialize_as(self.user)
+
+        question = data["questions"][0]["question"]
+        self.assertIn("translations", question)
+        self.assertIn("media", question)
+        self.assertIn("subjects", question)
 
     def test_result_fields_hidden_when_template_forbids_and_user_not_admin(self):
         data = self._serialize_as(self.user)
@@ -436,6 +464,16 @@ class QuizSerializerTests(TestCase):
         data = QuizSerializer(self.quiz, context={}).data
         # pas d'admin => résultat interdit par template => None
         self.assertIsNone(data["total_answers"])
+
+    def test_list_serializer_exposes_user_summary_and_template_description(self):
+        data = self._serialize_list_as(self.user)
+        self.assertEqual(data["quiz_template_description"], "Description quiz")
+        self.assertEqual(data["user_summary"], {"id": self.user.id, "username": self.user.username})
+
+    def test_list_serializer_omits_detail_collections(self):
+        data = self._serialize_list_as(self.user)
+        self.assertNotIn("questions", data)
+        self.assertNotIn("answers", data)
 
 
 # ==========================================================

@@ -34,3 +34,9 @@ class LanguageWriteSerializer(serializers.ModelSerializer):
         if len(v) < 2 or len(v) > 10:
             raise serializers.ValidationError("Code de langue invalide (ex: fr, nl, en).")
         return v
+
+
+class LanguagePartialSerializer(LanguageWriteSerializer):
+    code = serializers.CharField(required=False)
+    name = serializers.CharField(required=False)
+    active = serializers.BooleanField(required=False)

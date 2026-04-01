@@ -9,6 +9,8 @@ export let ROUTES = {
   auth : {
     register: () => ['/register/'] as const,
     login:() => ['/login/'] as const,
+    resetPasswordRequest: () => ['/reset-password'] as const,
+    resetPasswordConfirm: (uid: string, token: string) => ['/user/reset-password', uid, token] as const,
   },
   question: {
     add: () => ['/question/add'] as const,
@@ -29,6 +31,14 @@ export let ROUTES = {
     edit: (domain_id: number) => ['/domain', domain_id, 'edit'] as const,
     delete: (domain_id: number) => ['/domain', domain_id, 'delete'] as const,
     list: () => ['/domain/list'] as const,
+  },
+  quiz: {
+    add: () => ['/quiz/add'] as const,
+    list: () => ['/quiz/list'] as const,
+    editTemplate: (templateId: number) => ['/quiz/template', templateId, 'edit'] as const,
+    deleteTemplate: (templateId: number) => ['/quiz/template', templateId, 'delete'] as const,
+    view: (quizId: number) => ['/quiz', quizId] as const,
+    questions: (quizId: number) => ['/quiz', quizId, 'questions'] as const,
   }
 };
 
