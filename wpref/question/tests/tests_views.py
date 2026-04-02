@@ -131,8 +131,18 @@ class QuestionViewSetTests(APITestCase):
     def setUp(self):
         self.staff = self._mk_user(is_staff=True)
         self.user = self._mk_user(is_staff=False)
+        self.domain_owner = self._mk_user(is_staff=False)
+        self.domain_staff = self._mk_user(is_staff=False)
+        self.outsider = self._mk_user(is_staff=False)
         self.domain = self._mk_domain(self.staff, allowed_codes=("fr", "nl"))
         self.other_domain = self._mk_domain(self.staff, allowed_codes=("fr", "nl"))
+        self.domain.owner = self.domain_owner
+        self.domain.save(update_fields=["owner"])
+        self.domain.staff.add(self.domain_staff)
+        self.domain_owner.current_domain = self.domain
+        self.domain_owner.save(update_fields=["current_domain"])
+        self.domain_staff.current_domain = self.domain
+        self.domain_staff.save(update_fields=["current_domain"])
 
     # =========================================================
     # Permissions
@@ -141,13 +151,21 @@ class QuestionViewSetTests(APITestCase):
         resp = self.client.get(self._list_url())
         self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
-    def test_permissions_list_forbidden_for_non_staff(self):
-        self.client.force_authenticate(self.user)
+    def test_permissions_list_returns_empty_for_user_without_visible_domain(self):
+        self.client.force_authenticate(self.outsider)
         resp = self.client.get(self._list_url())
-        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        self.assertEqual(items, [])
 
-    def test_permissions_list_ok_for_staff(self):
-        self.client.force_authenticate(self.staff)
+    def test_permissions_list_ok_for_domain_owner(self):
+        self.client.force_authenticate(self.domain_owner)
+        resp = self.client.get(self._list_url())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_permissions_list_ok_for_domain_staff(self):
+        self.client.force_authenticate(self.domain_staff)
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -164,10 +182,7 @@ class QuestionViewSetTests(APITestCase):
         hidden.title = "Hidden"
         hidden.save()
 
-        self.staff.current_domain = self.domain
-        self.staff.save(update_fields=["current_domain"])
-
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_staff)
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.json()
@@ -250,7 +265,7 @@ class QuestionViewSetTests(APITestCase):
         q2.title = "Bar"
         q2.save()
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.get(self._list_url(), {"search": "foo"})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -278,7 +293,7 @@ class QuestionViewSetTests(APITestCase):
             media_asset_ids=[a_ext.pk, a_img.pk, a_ext.pk],  # duplicate -> dedup in serializer helper
         )
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.post(self._list_url(), data=payload, format="json")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.json())
 
@@ -312,11 +327,20 @@ class QuestionViewSetTests(APITestCase):
             subject_ids=[valid_subject.pk, foreign_subject.pk],
         )
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.post(self._list_url(), data=payload, format="json")
 
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("subject_ids", resp.json())
+
+    def test_create_rejects_domain_not_manageable_by_user(self):
+        payload = self._payload_create(self.other_domain)
+
+        self.client.force_authenticate(self.domain_owner)
+        resp = self.client.post(self._list_url(), data=payload, format="json")
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("domain", resp.json())
 
     # =========================================================
     # CREATE (multipart) - ensures _coerce_json_fields works
@@ -335,7 +359,7 @@ class QuestionViewSetTests(APITestCase):
         )
         mp = self._payload_to_multipart(payload)
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.post(self._list_url(), data=mp, format="multipart")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.json())
 
@@ -363,7 +387,7 @@ class QuestionViewSetTests(APITestCase):
         new_img = self._upload_image("new.png", b"zzz")
 
         payload = self._payload_create(self.domain, media_asset_ids=[new_ext.pk, new_img.pk])
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.put(self._detail_url(q), data=payload, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.json())
 
@@ -384,7 +408,7 @@ class QuestionViewSetTests(APITestCase):
         old_ext = self._upload_external("https://example.com/keep")
         QuestionMedia.objects.create(question=q, asset=old_ext, sort_order=0)
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.patch(self._detail_url(q), data={"active": False}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.json())
 
@@ -407,7 +431,7 @@ class QuestionViewSetTests(APITestCase):
 
         new_ext = self._upload_external("https://example.com/new")
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.patch(
             self._detail_url(q),
             data={"media_asset_ids": [new_ext.pk]},
@@ -429,6 +453,10 @@ class QuestionViewSetTests(APITestCase):
         subject = self._mk_subject(self.domain, name_fr="Current S")
         q.subjects.set([subject])
 
+        self.domain.staff.add(self.staff)
+        self.staff.current_domain = self.domain
+        self.staff.save(update_fields=["current_domain"])
+
         self.client.force_authenticate(self.staff)
         resp = self.client.patch(
             self._detail_url(q),
@@ -448,8 +476,18 @@ class QuestionViewSetTests(APITestCase):
         q.title = "ToDel"
         q.save()
 
-        self.client.force_authenticate(self.staff)
+        self.client.force_authenticate(self.domain_owner)
         resp = self.client.delete(self._detail_url(q))
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertFalse(Question.objects.filter(pk=q.pk).exists())
+    def test_retrieve_hidden_for_user_outside_domain(self):
+        q = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        q.set_current_language("fr")
+        q.title = "Hidden"
+        q.save()
+
+        self.client.force_authenticate(self.outsider)
+        resp = self.client.get(self._detail_url(q))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        self.assertTrue(Question.objects.filter(pk=q.pk).exists())

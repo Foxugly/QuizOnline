@@ -65,11 +65,14 @@ class MyModelViewSet(viewsets.ModelViewSet):
             exc = NotFound()
 
         if isinstance(exc, APIException):
-            logger.debug(
-                "API exception in %s (action=%s, user=%s): %s",
+            status_code = getattr(exc, "status_code", None)
+            log_method = logger.warning if status_code in {401, 403} else logger.info
+            log_method(
+                "API exception in %s (action=%s, user=%s, status=%s): %s",
                 self.__class__.__name__,
                 getattr(self, "action", None),
                 getattr(self.request.user, "id", None),
+                status_code,
                 exc,
             )
         else:

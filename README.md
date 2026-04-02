@@ -64,9 +64,20 @@ Variables backend notables :
 - `CELERY_BROKER_URL`
 - `CELERY_RESULT_BACKEND`
 - `CELERY_TASK_ALWAYS_EAGER`
+- `API_PAGE_SIZE`
+- `DATA_UPLOAD_MAX_MEMORY_SIZE`
+- `FILE_UPLOAD_MAX_MEMORY_SIZE`
+- `MAX_UPLOAD_FILE_SIZE`
 - `USE_DEEPL`
 - `DEEPL_AUTH_KEY`
 - `DEEPL_IS_FREE`
+
+Variables d upload / pagination :
+
+- `API_PAGE_SIZE` definit la taille de page par defaut des endpoints pagines
+- `DATA_UPLOAD_MAX_MEMORY_SIZE` borne la taille totale d une requete uploadable en memoire
+- `FILE_UPLOAD_MAX_MEMORY_SIZE` borne la taille d un fichier garde en memoire avant bascule fichier temporaire
+- `MAX_UPLOAD_FILE_SIZE` borne la taille maximale acceptee pour `MediaAsset.file`
 
 Les emails applicatifs passent par une outbox base de donnees traitee par Celery + Redis :
 
@@ -119,15 +130,23 @@ Fichiers principaux :
 
 La CI GitHub valide notamment :
 
+- lint backend `ruff`
 - tests backend decoupes par domaines fonctionnels
 - `translation.tests`
 - `makemigrations --check --dry-run`
 - `check --deploy`
+- lint frontend
 - typecheck frontend
 - unit tests frontend
 - build frontend
 - e2e frontend
 - synchro OpenAPI / client genere
+
+Logging :
+
+- en `dev`, les logs applicatifs sont plus verbeux (`DEBUG`)
+- en `prod`, les logs applicatifs restent a `INFO`
+- les refus d acces `401/403` sont journalises en `WARNING`
 
 ## Principes
 

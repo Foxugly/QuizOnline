@@ -4,11 +4,14 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from django.core.cache import cache
 from django.test import override_settings
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from customuser.throttling import PasswordResetRateThrottle, TokenObtainRateThrottle
 
 User = get_user_model()
 
@@ -26,6 +29,7 @@ class UserViewsTests(APITestCase):
     TOKEN_URL = "/api/token/"
 
     def setUp(self):
+        cache.clear()
         self.u1 = User.objects.create_user(
             username="u1", password="u1pass123!", email="u1@example.com", first_name="U", last_name="One"
         )
@@ -38,6 +42,10 @@ class UserViewsTests(APITestCase):
         self.superuser = User.objects.create_user(
             username="admin", password="adminpass123!", email="admin@example.com", is_superuser=True, is_staff=True
         )
+
+    def tearDown(self):
+        cache.clear()
+        super().tearDown()
 
     def _as_list(self, data):
         if isinstance(data, dict) and "results" in data:
@@ -281,6 +289,26 @@ class UserViewsTests(APITestCase):
         self.assertIn("access", res.data)
         self.assertIn("refresh", res.data)
 
+    def test_token_obtain_pair_is_rate_limited(self):
+        self.u1.email_confirmed = True
+        self.u1.save(update_fields=["email_confirmed"])
+
+        with patch.object(TokenObtainRateThrottle, "rate", "2/min", create=True):
+            for _ in range(2):
+                res = self.client.post(
+                    self.TOKEN_URL,
+                    {"username": "u1", "password": "u1pass123!"},
+                    format="json",
+                )
+                self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+            res = self.client.post(
+                self.TOKEN_URL,
+                {"username": "u1", "password": "u1pass123!"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
     def test_password_change_requires_auth(self):
         res = self.client.post(
             self.PASSWORD_CHANGE_URL,
@@ -288,6 +316,18 @@ class UserViewsTests(APITestCase):
             format="json",
         )
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+
+    def test_password_reset_request_is_rate_limited(self):
+        with patch.object(PasswordResetRateThrottle, "rate", "2/hour", create=True), patch(
+            "customuser.services.send_password_reset_email"
+        ):
+            for _ in range(2):
+                res = self.client.post(self.PASSWORD_RESET_REQUEST_URL, {"email": "u1@example.com"}, format="json")
+                self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+            res = self.client.post(self.PASSWORD_RESET_REQUEST_URL, {"email": "u1@example.com"}, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
     def test_password_change_wrong_old_password_returns_400(self):
         self.client.force_authenticate(user=self.u1)

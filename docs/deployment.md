@@ -19,6 +19,10 @@ Configuration attendue :
 - `DEFAULT_FROM_EMAIL`
 - `CELERY_BROKER_URL`
 - `CELERY_RESULT_BACKEND`
+- `API_PAGE_SIZE`
+- `DATA_UPLOAD_MAX_MEMORY_SIZE`
+- `FILE_UPLOAD_MAX_MEMORY_SIZE`
+- `MAX_UPLOAD_FILE_SIZE`
 - `USE_DEEPL`
 - `DEEPL_AUTH_KEY`
 - `DEEPL_IS_FREE`
@@ -33,6 +37,8 @@ Recommandations production :
 - stockage des medias hors filesystem local si plusieurs instances
 - Redis pour le broker Celery
 - worker Celery dedie pour traiter l outbox email
+- `MAX_UPLOAD_FILE_SIZE` coherent avec le reverse proxy si upload media actif
+- `API_PAGE_SIZE` stable entre acceptance et prod pour garder des reponses coherentes
 
 Commandes minimales :
 
@@ -55,6 +61,7 @@ Notes d exploitation :
 - Redis est une dependance runtime du flux email
 - si `USE_DEEPL=True`, la cle DeepL doit rester hors Git et etre geree comme un secret
 - les erreurs transitoires DeepL sont retriees cote HTTP client puis remontees sous une forme applicative simple
+- en prod, les refus `401/403` remontent en `WARNING`, le bruit de debug restant reserve au profil dev
 
 Architecture email :
 

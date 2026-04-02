@@ -45,5 +45,6 @@ class CustomUserListTests(APITestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.data, list)
-        self.assertGreaterEqual(len(response.data), 1)
+        results = response.data["results"] if isinstance(response.data, dict) else response.data
+        self.assertIsInstance(results, list)
+        self.assertGreaterEqual(len(results), 1)

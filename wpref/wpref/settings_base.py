@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 
 import environ
@@ -27,6 +28,10 @@ env = environ.Env(
     CELERY_BROKER_URL=(str, "redis://127.0.0.1:6379/0"),
     CELERY_RESULT_BACKEND=(str, "redis://127.0.0.1:6379/1"),
     CELERY_TASK_ALWAYS_EAGER=(bool, False),
+    API_PAGE_SIZE=(int, 20),
+    DATA_UPLOAD_MAX_MEMORY_SIZE=(int, 10 * 1024 * 1024),
+    FILE_UPLOAD_MAX_MEMORY_SIZE=(int, 10 * 1024 * 1024),
+    MAX_UPLOAD_FILE_SIZE=(int, 10 * 1024 * 1024),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))
@@ -136,6 +141,12 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": env("API_PAGE_SIZE"),
+    "DEFAULT_THROTTLE_RATES": {
+        "token_obtain": "5/min",
+        "password_reset": "3/hour",
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -167,6 +178,9 @@ CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER")
 CELERY_TASK_EAGER_PROPAGATES = True
+DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE")
+FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE")
+MAX_UPLOAD_FILE_SIZE = env("MAX_UPLOAD_FILE_SIZE")
 
 SENSITIVE_FIELDS = {
     "password",
@@ -200,6 +214,12 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+DEV_LOGGING = deepcopy(LOGGING)
+DEV_LOGGING["root"]["level"] = "DEBUG"
+
+PROD_LOGGING = deepcopy(LOGGING)
+PROD_LOGGING["root"]["level"] = "INFO"
 
 DEEPL_AUTH_KEY = env("DEEPL_AUTH_KEY", default="")
 USE_DEEPL = env.bool("USE_DEEPL", default=False)

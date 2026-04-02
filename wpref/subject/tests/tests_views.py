@@ -1,6 +1,7 @@
 # subject/tests/test_views.py
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import translation
@@ -165,6 +166,23 @@ class SubjectViewSetTestCase(TestCase):
         items = self._extract_results(resp)
         ids = {it["id"] for it in items}
         self.assertIn(self.subj1.pk, ids)
+
+    def test_list_is_paginated_when_global_pagination_is_enabled(self):
+        page_size = settings.REST_FRAMEWORK["PAGE_SIZE"]
+        for index in range(page_size + 3):
+            subject = Subject.objects.create(domain=self.domain, active=True)
+            subject.set_current_language("fr")
+            subject.name = f"Subject {index}"
+            subject.description = ""
+            subject.save()
+
+        resp = self._call("get", "list", user=self.admin)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(resp.data, dict)
+        self.assertIn("count", resp.data)
+        self.assertIn("results", resp.data)
+        self.assertEqual(len(resp.data["results"]), page_size)
+        self.assertGreater(resp.data["count"], len(resp.data["results"]))
 
     # ----------------------------
     # retrieve

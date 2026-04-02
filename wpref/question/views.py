@@ -15,7 +15,6 @@ from drf_spectacular.utils import (
 from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from wpref.tools import ErrorDetailSerializer
 from wpref.tools import MyModelViewSet
@@ -26,6 +25,7 @@ from wpref.serializers import (
 )
 
 from .models import Question, MediaAsset
+from .permissions import IsQuestionDomainManager
 from .querysets import accessible_question_queryset
 from .serializers import QuestionReadSerializer, QuestionWriteSerializer, MediaAssetSerializer, \
     MediaAssetUploadSerializer, _infer_kind_from_upload, _sha256_file
@@ -240,7 +240,7 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
 )
 class QuestionViewSet(MyModelViewSet):
     queryset = Question.objects.none()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsQuestionDomainManager]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["domain", "active", "is_mode_practice", "is_mode_exam"]
     lookup_field = "pk"
@@ -261,7 +261,6 @@ class QuestionViewSet(MyModelViewSet):
         ctx["show_correct"] = bool(
             user
             and user.is_authenticated
-            and (user.is_staff or user.is_superuser)
         )
         return ctx
 
@@ -277,7 +276,7 @@ class QuestionViewSet(MyModelViewSet):
     # ==========================================================
 
     def get_permissions(self):
-        return [IsAdminUser()]
+        return [IsQuestionDomainManager()]
 
     # ==========================================================
     # coercion JSON fields

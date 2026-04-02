@@ -38,6 +38,7 @@ from .serializers import (
     QuizSimpleSerializer,
     SetCurrentDomainSerializer,
 )
+from .throttling import PasswordResetRateThrottle
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -258,6 +259,7 @@ class PasswordResetRequestView(GenericAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = PasswordResetRequestSerializer
+    throttle_classes = [PasswordResetRateThrottle]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)

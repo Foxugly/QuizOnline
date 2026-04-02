@@ -39,7 +39,7 @@ def accessible_quiz_template_queryset(user):
 
 
 def quiz_queryset_for_user(user, *, include_details: bool):
-    queryset = Quiz.objects.select_related("quiz_template", "user")
+    queryset = Quiz.objects.select_related("quiz_template", "user").order_by("-created_at", "-id")
     if include_details:
         queryset = queryset.prefetch_related(
             "answers__selected_options",

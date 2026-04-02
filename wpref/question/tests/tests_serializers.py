@@ -6,7 +6,8 @@ from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.utils import timezone
 from django.utils import translation
 from rest_framework import serializers
 
@@ -55,6 +56,7 @@ class QuestionSerializersTestCase(TestCase):
         # Users
         self.owner = User.objects.create_user(username="owner", password="pwd")
         self.staff = User.objects.create_user(username="staff", password="pwd", is_staff=True)
+        self.outsider = User.objects.create_user(username="outsider", password="pwd")
 
         # Languages (doivent correspondre à settings.LANGUAGES)
         self.lang_fr = Language.objects.create(code="fr", name="Français", active=True)
@@ -169,6 +171,13 @@ class QuestionSerializersTestCase(TestCase):
 
         s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload()})
         self.assertTrue(s.is_valid(), s.errors)
+
+    @override_settings(MAX_UPLOAD_FILE_SIZE=4)
+    def test_media_asset_upload_serializer_rejects_file_too_large(self):
+        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload(content=b"12345")})
+        self.assertFalse(s.is_valid())
+        self.assertIn("file", s.errors)
+        self.assertIn("Maximum allowed size", str(s.errors["file"]))
 
     # ---------------------------------------------------------------------
     # _sha256_file / _infer_kind_from_upload
@@ -346,10 +355,19 @@ class QuestionSerializersTestCase(TestCase):
         payload = self._base_question_payload()
         payload["subject_ids"] = [self.subj1.id, self.other_subj.id]
 
-        s = QuestionWriteSerializer(data=payload)
+        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
         self.assertFalse(s.is_valid())
         self.assertIn("subject_ids", s.errors)
         self.assertIn("Subjects hors domain", str(s.errors["subject_ids"]))
+
+    def test_question_write_serializer_rejects_unmanageable_domain(self):
+        payload = self._base_question_payload()
+        payload["domain"] = self.other_domain.id
+
+        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.outsider)})
+        self.assertFalse(s.is_valid())
+        self.assertIn("domain", s.errors)
+        self.assertIn("Vous ne pouvez pas gerer ce domaine", str(s.errors["domain"]))
 
     def test_question_write_serializer_rejects_domain_change_if_existing_subjects_do_not_match(self):
         q = self._mk_question_with_translations()
@@ -369,7 +387,7 @@ class QuestionSerializersTestCase(TestCase):
         payload = self._base_question_payload()
         payload["media_asset_ids"] = [a1.id, a2.id, a1.id]  # duplicate => dedup
 
-        s = QuestionWriteSerializer(data=payload)
+        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
         self.assertTrue(s.is_valid(), s.errors)
         q = s.save()
 
@@ -389,8 +407,80 @@ class QuestionSerializersTestCase(TestCase):
         payload = self._base_question_payload()
         payload["media_asset_ids"] = [999999]
 
-        s = QuestionWriteSerializer(data=payload)
+        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
         self.assertTrue(s.is_valid(), s.errors)
         with self.assertRaises(serializers.ValidationError) as ctx:
             s.save()
         self.assertIn("media_asset_ids", ctx.exception.detail)
+
+    def test_question_write_serializer_update_preserves_existing_answer_option_ids(self):
+        q = self._mk_question_with_translations()
+        first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
+        second = self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
+
+        payload = {
+            "answer_options": [
+                {
+                    "id": first.id,
+                    "is_correct": False,
+                    "sort_order": 2,
+                    "translations": {"fr": {"content": "A2 FR"}, "en": {"content": "A2 EN"}},
+                },
+                {
+                    "id": second.id,
+                    "is_correct": True,
+                    "sort_order": 1,
+                    "translations": {"fr": {"content": "B2 FR"}, "en": {"content": "B2 EN"}},
+                },
+            ]
+        }
+
+        s = QuestionWriteSerializer(instance=q, data=payload, partial=True, context={"request": SimpleNamespace(user=self.owner)})
+        self.assertTrue(s.is_valid(), s.errors)
+        updated = s.save()
+
+        option_ids = list(updated.answer_options.order_by("id").values_list("id", flat=True))
+        self.assertEqual(option_ids, [first.id, second.id])
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual(first.sort_order, 2)
+        self.assertFalse(first.is_correct)
+        self.assertEqual(first.safe_translation_getter("content", language_code="fr"), "A2 FR")
+        self.assertTrue(second.is_correct)
+        self.assertEqual(second.safe_translation_getter("content", language_code="en"), "B2 EN")
+
+    def test_question_write_serializer_update_rejects_removal_of_answer_option_used_in_quiz(self):
+        from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
+
+        q = self._mk_question_with_translations()
+        first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
+        second = self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
+
+        template = QuizTemplate.objects.create(title="Serializer Quiz", created_by=self.owner)
+        quiz_question = QuizQuestion.objects.create(quiz=template, question=q, sort_order=1, weight=1)
+        quiz = Quiz.objects.create(
+            quiz_template=template,
+            user=self.owner,
+            active=True,
+            started_at=timezone.now(),
+        )
+        answer = QuizQuestionAnswer.objects.create(quiz=quiz, quizquestion=quiz_question, question_order=1)
+        answer.selected_options.set([second])
+
+        payload = {
+            "answer_options": [
+                {
+                    "id": first.id,
+                    "is_correct": True,
+                    "sort_order": 0,
+                    "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                }
+            ]
+        }
+
+        s = QuestionWriteSerializer(instance=q, data=payload, partial=True, context={"request": SimpleNamespace(user=self.owner)})
+        self.assertTrue(s.is_valid(), s.errors)
+        with self.assertRaises(serializers.ValidationError) as ctx:
+            s.save()
+        self.assertIn("answer_options", ctx.exception.detail)
+        self.assertIn("deja utilisees", str(ctx.exception.detail["answer_options"]))

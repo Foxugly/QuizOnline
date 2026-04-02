@@ -100,7 +100,14 @@ def deepl_translate_many(texts: list[str], source: str, target: str, fmt: str = 
         )
         _raise_deepl_error(resp)
 
-    payload = resp.json()
+    try:
+        payload = resp.json()
+    except ValueError as exc:
+        logger.warning(
+            "deepl.invalid_json",
+            extra={"source_lang": source, "target_lang": target},
+        )
+        raise DeepLError("DeepL returned an invalid response.") from exc
     translations = payload.get("translations") or []
     # On renvoie dans le même ordre
     out = [t.get("text", "") for t in translations]

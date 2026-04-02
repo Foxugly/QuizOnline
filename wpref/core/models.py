@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F
 from django.utils import timezone
 
 
@@ -16,5 +17,5 @@ class OutboundEmail(models.Model):
         ordering = ["created_at", "id"]
 
     def mark_attempt(self) -> None:
-        self.attempts += 1
-
+        type(self).objects.filter(pk=self.pk).update(attempts=F("attempts") + 1)
+        self.refresh_from_db(fields=["attempts"])

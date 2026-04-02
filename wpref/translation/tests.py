@@ -84,3 +84,14 @@ class DeepLServiceTests(APITestCase):
 
         with self.assertRaisesMessage(DeepLError, "DeepL service timed out."):
             deepl_translate_many(["Bonjour"], "fr", "nl")
+
+    @override_settings(DEEPL_AUTH_KEY="test-key", DEEPL_IS_FREE=True)
+    @patch("translation.services.deepl._build_session")
+    def test_deepl_translate_many_raises_clean_invalid_json_error(self, build_session):
+        session = build_session.return_value
+        response = session.post.return_value
+        response.status_code = 200
+        response.json.side_effect = ValueError("invalid json")
+
+        with self.assertRaisesMessage(DeepLError, "DeepL returned an invalid response."):
+            deepl_translate_many(["Bonjour"], "fr", "nl")

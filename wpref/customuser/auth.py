@@ -4,6 +4,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .throttling import TokenObtainRateThrottle
+
 
 class EmailConfirmedTokenObtainPairSerializer(TokenObtainPairSerializer):
     default_error_messages = {
@@ -28,3 +30,4 @@ class EmailConfirmedTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class EmailConfirmedTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailConfirmedTokenObtainPairSerializer
+    throttle_classes = [TokenObtainRateThrottle]

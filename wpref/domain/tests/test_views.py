@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework import status
@@ -115,6 +116,26 @@ class DomainViewSetTests(TestCase):
         self.assertIn(self.domain_active.id, ids)
         self.assertIn(self.domain_inactive.id, ids)
         self.assertIn(self.domain_other_active.id, ids)
+
+    def test_list_is_paginated_when_global_pagination_is_enabled(self):
+        page_size = settings.REST_FRAMEWORK["PAGE_SIZE"]
+        for index in range(page_size + 3):
+            domain = Domain.objects.create(owner=self.owner, active=True)
+            domain.allowed_languages.set([self.lang_fr])
+            domain.set_current_language("fr")
+            domain.name = f"Domain {index}"
+            domain.save()
+
+        view = DomainViewSet.as_view({"get": "list"})
+        request = self.factory.get("/api/domain/")
+        response = view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+        self.assertIn("count", response.data)
+        self.assertIn("results", response.data)
+        self.assertEqual(len(response.data["results"]), page_size)
+        self.assertGreater(response.data["count"], len(response.data["results"]))
 
     # ----------------------------
     # RETRIEVE

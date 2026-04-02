@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from kombu.exceptions import KombuError
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import close_old_connections, transaction
@@ -55,4 +56,7 @@ def process_pending_outbound_emails(*, limit: int = 100) -> int:
 def trigger_outbound_email_delivery() -> None:
     from core.tasks import deliver_outbound_emails_task
 
-    deliver_outbound_emails_task.delay(limit=100)
+    try:
+        deliver_outbound_emails_task.delay(limit=100)
+    except (ConnectionError, OSError, KombuError) as exc:
+        logger.warning("email.delivery_dispatch_failed", extra={"error": str(exc)})

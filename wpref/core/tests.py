@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+from kombu.exceptions import OperationalError
+
 from django.test import TestCase
 
 from core.mailers import send_password_reset_email, send_quiz_assignment_email
@@ -74,3 +76,16 @@ class CoreMailerTests(TestCase):
         self.assertEqual(outbound.subject, "WpRef - nouveau quiz a completer")
         self.assertIn("Bonjour", outbound.body)
         self.assertIn("Lien", outbound.body)
+
+    @patch("core.tasks.deliver_outbound_emails_task.delay", side_effect=OperationalError("broker down"))
+    def test_send_password_reset_email_tolerates_broker_dispatch_failure(self, _delay):
+        user = CustomUser.objects.create_user(
+            username="mail-user-broker",
+            password="Pass1234!",
+            email="mail-user-broker@example.com",
+        )
+
+        send_password_reset_email(user)
+
+        outbound = OutboundEmail.objects.get(recipients=["mail-user-broker@example.com"])
+        self.assertIsNone(outbound.sent_at)

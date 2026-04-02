@@ -15,6 +15,12 @@ User = get_user_model()
 
 
 class QuizAlertsApiTestCase(APITestCase):
+    @staticmethod
+    def _as_list(data):
+        if isinstance(data, dict) and "results" in data:
+            return data["results"]
+        return data
+
     def setUp(self):
         super().setUp()
         translation.activate("fr")
@@ -113,8 +119,9 @@ class QuizAlertsApiTestCase(APITestCase):
         self._auth(self.owner)
         list_res = self.client.get(create_url)
         self.assertEqual(list_res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(list_res.data), 1)
-        self.assertTrue(list_res.data[0]["unread"])
+        results = self._as_list(list_res.data)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0]["unread"])
 
         unread_url = self._rev("quiz-alert-unread-count")
         unread_res = self.client.get(unread_url)

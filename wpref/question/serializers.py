@@ -13,6 +13,7 @@ from rest_framework import serializers
 from subject.models import Subject
 from subject.serializers import SubjectReadSerializer, SubjectWriteSerializer
 
+from .answer_option_sync import sync_question_answer_options
 from .models import Question, QuestionMedia, AnswerOption, MediaAsset
 from wpref.serializers import (
     JSONDictOrStringField,
@@ -113,6 +114,11 @@ class MediaAssetUploadSerializer(serializers.Serializer):
         url = attrs.get("external_url")
         if bool(f) == bool(url):
             raise serializers.ValidationError("Provide exactly one of: file OR external_url.")
+        if f is not None and f.size > settings.MAX_UPLOAD_FILE_SIZE:
+            max_size_mb = settings.MAX_UPLOAD_FILE_SIZE / (1024 * 1024)
+            raise serializers.ValidationError(
+                {"file": f"File too large. Maximum allowed size is {max_size_mb:.0f} MB."}
+            )
         return attrs
 
 
@@ -194,6 +200,7 @@ class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
 
 
 class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     translations = LocalizedTranslationsJSONField(
         value_serializer=LocalizedAnswerOptionTranslationSerializer,
         write_only=True,
@@ -202,7 +209,6 @@ class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerOption
         fields = ["id", "is_correct", "sort_order", "translations"]
-        read_only_fields = ["id"]
 
     def validate_translations(self, value: dict) -> dict:
         # (optionnel) contrôle minimal de forme
@@ -381,28 +387,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         )
         question.refresh_from_db()
 
-    def _recreate_answer_options(self, question: Question, answer_options_data: List, allowed_langs: set[str]):
-        question.answer_options.all().delete()
-
-        for i, ao in enumerate(answer_options_data):
-            if not isinstance(ao, dict):
-                raise serializers.ValidationError({f"answer_options[{i}]": "Each item must be an object."})
-
-            ao_trans = ao.get("translations") or {}
-            if not isinstance(ao_trans, dict):
-                raise serializers.ValidationError(
-                    {f"answer_options[{i}].translations": "Must be an object keyed by language code."})
-
-            ao = dict(ao)
-            ao.pop("translations", None)
-
-            opt = AnswerOption.objects.create(question=question, **ao)
-            _upsert_translations(
-                opt,
-                {lang_code: ao_trans.get(lang_code, {}) for lang_code in allowed_langs},
-                fields=["content"],
-            )
-
     # ---------------------------
     # CREATE
     # ---------------------------
@@ -430,7 +414,12 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
 
         allowed = set(question.domain.allowed_languages.values_list("code", flat=True))
         if answer_options_data:
-            self._recreate_answer_options(question, answer_options_data, allowed)
+            sync_question_answer_options(
+                question=question,
+                answer_options_data=answer_options_data,
+                allowed_langs=allowed,
+                upsert_translations=_upsert_translations,
+            )
         if asset_ids:
             self._set_media_assets(question, asset_ids, replace=False)
         return question
@@ -462,7 +451,12 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
 
         if answer_options_data is not None:
             allowed = set(instance.domain.allowed_languages.values_list("code", flat=True))
-            self._recreate_answer_options(instance, answer_options_data, allowed)
+            sync_question_answer_options(
+                question=instance,
+                answer_options_data=answer_options_data,
+                allowed_langs=allowed,
+                upsert_translations=_upsert_translations,
+            )
         # les médias sont gérés dans le ViewSet via _handle_media_upload()
         if asset_ids is not None:
             self._set_media_assets(instance, asset_ids, replace=True)
@@ -472,6 +466,11 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         domain: Domain = attrs.get("domain") or getattr(self.instance, "domain", None)
         if domain is None:
             raise serializers.ValidationError({"domain": "Champ requis."})
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and getattr(user, "is_authenticated", False):
+            if not getattr(user, "is_superuser", False) and not user.can_manage_domain(domain):
+                raise serializers.ValidationError({"domain": "Vous ne pouvez pas gerer ce domaine."})
         allowed = set(domain.allowed_languages.values_list("code", flat=True))
 
         is_create = self.instance is None
