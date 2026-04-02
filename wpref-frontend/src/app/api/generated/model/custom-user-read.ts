@@ -20,6 +20,8 @@ export interface CustomUserReadDto {
     first_name?: string;
     last_name?: string;
     language?: LanguageEnumDto;
+    readonly must_change_password?: boolean;
+    readonly new_password_asked?: boolean;
     /**
      * Designates that this user has all permissions without explicitly assigning them.
      */
@@ -37,6 +39,5 @@ export interface CustomUserReadDto {
     readonly owned_domain_ids: Array<number>;
     readonly managed_domain_ids: Array<number>;
 }
-
 
 

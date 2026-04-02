@@ -2,13 +2,14 @@
 import {Component, inject, signal} from '@angular/core';
 
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AuthService} from '../../../services/auth/auth';
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
 import {ButtonModule} from 'primeng/button';
 import {CheckboxModule} from 'primeng/checkbox';
 import {MessageModule} from 'primeng/message';
+import {ROUTES} from '../../../app.routes-paths';
 
 
 @Component({
@@ -23,6 +24,7 @@ export class LoginPage {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   remember: boolean = false;
   hide = signal(true);
   loading = signal(false);
@@ -51,9 +53,16 @@ export class LoginPage {
     this.loading.set(true);
     const {username, password, remember} = this.form.getRawValue();
     this.auth.login(username, password, remember).subscribe({
-      next: () => {
+      next: (user) => {
         this.loading.set(false);
-        this.router.navigate(['/home']);
+        const nextUrl = this.route.snapshot.queryParamMap.get('next');
+        if (this.auth.requiresPasswordChange(user)) {
+          this.router.navigate(ROUTES.auth.changePassword(), {
+            queryParams: nextUrl ? {next: nextUrl} : undefined,
+          });
+          return;
+        }
+        this.router.navigateByUrl(nextUrl || ROUTES.home()[0]);
       },
       error: (err) => {
         this.loading.set(false);

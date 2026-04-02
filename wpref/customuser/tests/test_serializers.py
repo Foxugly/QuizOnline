@@ -42,6 +42,8 @@ class CustomUserReadSerializerTests(TestCase):
                 "first_name",
                 "last_name",
                 "language",
+                "must_change_password",
+                "new_password_asked",
                 "is_staff",
                 "is_superuser",
                 "is_active",
@@ -60,6 +62,8 @@ class CustomUserReadSerializerTests(TestCase):
     def test_read_only_fields_are_read_only(self):
         serializer = CustomUserReadSerializer()
         self.assertTrue(serializer.get_fields()["id"].read_only)
+        self.assertTrue(serializer.get_fields()["must_change_password"].read_only)
+        self.assertTrue(serializer.get_fields()["new_password_asked"].read_only)
         self.assertTrue(serializer.get_fields()["is_staff"].read_only)
         self.assertTrue(serializer.get_fields()["is_superuser"].read_only)
         self.assertTrue(serializer.get_fields()["is_active"].read_only)
@@ -176,6 +180,8 @@ class CustomUserAdminUpdateSerializerTests(TestCase):
 
         self.assertTrue(user.check_password("BrandNewPass123!"))
         self.assertFalse(user.check_password("OldPass123!"))
+        self.assertTrue(user.must_change_password)
+        self.assertFalse(user.new_password_asked)
 
     def test_admin_update_serializer_validates_password(self):
         with patch("customuser.serializers.validate_password") as mock_validate:

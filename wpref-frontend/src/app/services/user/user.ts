@@ -17,6 +17,7 @@ import {isSupportedLanguage, SupportedLanguage} from '../../../environments/lang
 export class UserService {
   // --------- Méthode moderne : on stocke /me dans un signal ---------
   currentUser = signal<CustomUserReadDto | null>(null);
+  requiresPasswordChange = computed(() => this.shouldForcePasswordChange());
   isAdmin = computed(() => {
     const me: CustomUserReadDto | null = this.currentUser();
     return !!me && (me.is_staff || me.is_superuser);
@@ -32,6 +33,10 @@ export class UserService {
 
   get currentLang(): SupportedLanguage {
     return this._lang$.value;
+  }
+
+  shouldForcePasswordChange(user: CustomUserReadDto | null | undefined = this.currentUser()): boolean {
+    return !!user && (user.must_change_password === true || user.new_password_asked === true);
   }
 
   list(): Observable<CustomUserReadDto[]> {

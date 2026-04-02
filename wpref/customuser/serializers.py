@@ -38,6 +38,8 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "language",
+            "must_change_password",
+            "new_password_asked",
             "is_superuser",
             "is_staff",
             "is_active",
@@ -46,7 +48,15 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             "owned_domain_ids",
             "managed_domain_ids",
         ]
-        read_only_fields = ["id", "username", "is_staff", "is_superuser", "is_active"]
+        read_only_fields = [
+            "id",
+            "username",
+            "must_change_password",
+            "new_password_asked",
+            "is_staff",
+            "is_superuser",
+            "is_active",
+        ]
 
     def get_current_domain_title(self, obj) -> str:
         domain = getattr(obj, "current_domain", None)
@@ -91,7 +101,16 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "language", "password", "is_active"]
+        fields = [
+            "email",
+            "first_name",
+            "last_name",
+            "language",
+            "password",
+            "is_active",
+            "must_change_password",
+            "new_password_asked",
+        ]
 
     def validate_password(self, value: str) -> str:
         validate_password(value, user=self.instance)
@@ -103,6 +122,8 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
             setattr(instance, attr, value)
         if password:
             instance.set_password(password)
+            instance.must_change_password = True
+            instance.new_password_asked = False
         instance.save()
         return instance
 

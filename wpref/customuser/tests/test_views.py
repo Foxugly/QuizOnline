@@ -180,6 +180,18 @@ class UserViewsTests(APITestCase):
             self.assertEqual(res.status_code, status.HTTP_200_OK)
             instance.save.assert_not_called()
 
+    def test_password_reset_request_marks_user_as_new_password_asked(self):
+        self.assertFalse(self.u1.new_password_asked)
+
+        with patch("customuser.views.PasswordResetForm") as MockForm:
+            instance = MockForm.return_value
+            instance.is_valid.return_value = False
+            res = self.client.post(self.PASSWORD_RESET_REQUEST_URL, {"email": "u1@example.com"}, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.u1.refresh_from_db()
+        self.assertTrue(self.u1.new_password_asked)
+
     def test_password_reset_confirm_invalid_uid_returns_400(self):
         with patch("customuser.views.urlsafe_base64_decode", side_effect=ValueError("bad")):
             res = self.client.post(
@@ -207,6 +219,9 @@ class UserViewsTests(APITestCase):
     def test_password_reset_confirm_success_changes_password(self):
         uid_bytes = str(self.u1.pk).encode("utf-8")
         new_pw = "NewPass123!Aa"
+        self.u1.must_change_password = True
+        self.u1.new_password_asked = True
+        self.u1.save(update_fields=["must_change_password", "new_password_asked"])
         with patch("customuser.views.urlsafe_base64_decode", return_value=uid_bytes), patch(
             "customuser.views.default_token_generator.check_token",
             return_value=True,
@@ -220,6 +235,8 @@ class UserViewsTests(APITestCase):
 
         self.u1.refresh_from_db()
         self.assertTrue(self.u1.check_password(new_pw))
+        self.assertFalse(self.u1.must_change_password)
+        self.assertFalse(self.u1.new_password_asked)
 
     def test_password_change_requires_auth(self):
         res = self.client.post(
@@ -241,6 +258,9 @@ class UserViewsTests(APITestCase):
 
     def test_password_change_success(self):
         self.client.force_authenticate(user=self.u1)
+        self.u1.must_change_password = True
+        self.u1.new_password_asked = True
+        self.u1.save(update_fields=["must_change_password", "new_password_asked"])
         res = self.client.post(
             self.PASSWORD_CHANGE_URL,
             {"old_password": "u1pass123!", "new_password": "NewPass123!"},
@@ -249,6 +269,8 @@ class UserViewsTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.u1.refresh_from_db()
         self.assertTrue(self.u1.check_password("NewPass123!"))
+        self.assertFalse(self.u1.must_change_password)
+        self.assertFalse(self.u1.new_password_asked)
 
     def test_me_requires_auth(self):
         res = self.client.get(self.ME_URL)
@@ -256,9 +278,12 @@ class UserViewsTests(APITestCase):
 
     def test_me_get_returns_current_user(self):
         self.client.force_authenticate(user=self.u1)
+        self.u1.must_change_password = True
+        self.u1.save(update_fields=["must_change_password"])
         res = self.client.get(self.ME_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["username"], "u1")
+        self.assertTrue(res.data["must_change_password"])
 
     def test_me_patch_updates_profile_but_not_sensitive_fields(self):
         self.client.force_authenticate(user=self.u1)

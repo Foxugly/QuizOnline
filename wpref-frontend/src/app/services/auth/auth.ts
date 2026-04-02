@@ -148,6 +148,10 @@ export class AuthService {
     );
   }
 
+  requiresPasswordChange(user: CustomUserReadDto | null | undefined): boolean {
+    return this.userService.shouldForcePasswordChange(user);
+  }
+
   // -------------------------
   // Getters / state
 

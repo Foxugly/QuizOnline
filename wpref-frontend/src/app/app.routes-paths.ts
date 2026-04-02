@@ -9,6 +9,7 @@ export let ROUTES = {
   auth : {
     register: () => ['/register/'] as const,
     login:() => ['/login/'] as const,
+    changePassword: () => ['/change-password'] as const,
     resetPasswordRequest: () => ['/reset-password'] as const,
     resetPasswordConfirm: (uid: string, token: string) => ['/user/reset-password', uid, token] as const,
   },

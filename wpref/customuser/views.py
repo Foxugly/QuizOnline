@@ -242,6 +242,10 @@ class PasswordResetRequestView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
+        user = User.objects.filter(email__iexact=email).first()
+        if user:
+            user.new_password_asked = True
+            user.save(update_fields=["new_password_asked"])
         form = PasswordResetForm(data={"email": email})
         if form.is_valid():
             form.save(
@@ -297,7 +301,9 @@ class PasswordResetConfirmView(GenericAPIView):
             )
 
         user.set_password(new_password)
-        user.save()
+        user.must_change_password = False
+        user.new_password_asked = False
+        user.save(update_fields=["password", "must_change_password", "new_password_asked"])
 
         return Response(
             {"detail": "Mot de passe mis à jour avec succès."},
@@ -338,7 +344,9 @@ class PasswordChangeView(GenericAPIView):
             return Response({"detail": "Ancien mot de passe incorrect."}, status=status.HTTP_400_BAD_REQUEST)
 
         user.set_password(new_password)
-        user.save()
+        user.must_change_password = False
+        user.new_password_asked = False
+        user.save(update_fields=["password", "must_change_password", "new_password_asked"])
 
         return Response(
             {"detail": "Mot de passe modifié avec succès."},

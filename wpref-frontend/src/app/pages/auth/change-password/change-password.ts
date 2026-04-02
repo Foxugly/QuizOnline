@@ -1,22 +1,25 @@
 import {Component} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
 import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 
-import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth/auth';
 import {PasswordChangeRequestDto} from '../../../api/generated';
 import {environment} from '../../../../environments/environment';
+import {UserService} from '../../../services/user/user';
+import {ROUTES} from '../../../app.routes-paths';
 
 (window as any).__APP__ = {
   name: environment.appName,
   author: environment.author,
   year: environment.year,
-  logoSvg : environment.logoSvg,
-  logoIco : environment.logoIco,
-  logoPng : environment.logoPng,
+  logoSvg: environment.logoSvg,
+  logoIco: environment.logoIco,
+  logoPng: environment.logoPng,
 };
 
 @Component({
@@ -28,15 +31,19 @@ import {environment} from '../../../../environments/environment';
 })
 export class ChangePasswordPage {
   app = window.__APP__!;
-  form!: FormGroup;
+  form: FormGroup;
   submitted = false;
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
+  infoMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = this.fb.nonNullable.group(
       {
@@ -48,9 +55,12 @@ export class ChangePasswordPage {
         validators: [this.passwordsMatchValidator],
       },
     );
+
+    this.infoMessage = this.userService.requiresPasswordChange()
+      ? 'Le changement de mot de passe est requis avant de continuer.'
+      : '';
   }
 
-  // --- Validateur custom pour comparer les 2 nouveaux mots de passe ---
   private passwordsMatchValidator(group: AbstractControl) {
     const newPwd = group.get('new_password')?.value;
     const confirm = group.get('confirm_new_password')?.value;
@@ -59,7 +69,9 @@ export class ChangePasswordPage {
       group.get('confirm_new_password')?.setErrors({passwordMismatch: true});
     } else {
       const ctrl = group.get('confirm_new_password');
-      if (!ctrl) return null;
+      if (!ctrl) {
+        return null;
+      }
 
       const errors = ctrl.errors;
       if (errors && errors['passwordMismatch']) {
@@ -70,7 +82,6 @@ export class ChangePasswordPage {
     return null;
   }
 
-  // Raccourci pour le template
   get f() {
     return this.form.controls;
   }
@@ -86,24 +97,23 @@ export class ChangePasswordPage {
     }
 
     this.isSubmitting = true;
-
-    // 🔴 AVANT : const { old_password, new_password1, new_password2 } = ...
-    // ✅ MAINTENANT : on récupère les vrais noms des contrôles
     const payload: PasswordChangeRequestDto = this.form.getRawValue();
-
 
     this.authService.changePassword(payload).subscribe({
       next: () => {
-        this.isSubmitting = false;
-        this.successMessage = 'Votre mot de passe a été modifié.';
-        this.form.reset();
-        this.submitted = false;
+        this.userService.getMe().subscribe({
+          next: () => {
+            this.handlePasswordChangeSuccess();
+          },
+          error: () => {
+            this.handlePasswordChangeSuccess();
+          },
+        });
       },
       error: (err) => {
         this.isSubmitting = false;
         console.error(err);
 
-        // Petit traitement des erreurs typiques DRF
         if (err.status === 400 && err.error) {
           const e = err.error;
           if (e.old_password && Array.isArray(e.old_password)) {
@@ -118,11 +128,24 @@ export class ChangePasswordPage {
             this.errorMessage = e.non_field_errors.join(' ');
             return;
           }
+          if (typeof e.detail === 'string' && e.detail) {
+            this.errorMessage = e.detail;
+            return;
+          }
         }
 
-        this.errorMessage =
-          "Une erreur est survenue lors de la modification du mot de passe.";
+        this.errorMessage = 'Une erreur est survenue lors de la modification du mot de passe.';
       },
     });
+  }
+
+  private handlePasswordChangeSuccess(): void {
+    this.isSubmitting = false;
+    this.successMessage = 'Votre mot de passe a ete modifie.';
+    this.infoMessage = '';
+    this.form.reset();
+    this.submitted = false;
+    const nextUrl = this.route.snapshot.queryParamMap.get('next');
+    void this.router.navigateByUrl(nextUrl || ROUTES.home()[0]);
   }
 }

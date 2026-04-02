@@ -10,6 +10,8 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     language = models.CharField(_("language"), max_length=8, choices=settings.LANGUAGES,
                                 default=getattr(settings, "LANGUAGE_CODE", "en"))
+    must_change_password = models.BooleanField(default=False)
+    new_password_asked = models.BooleanField(default=False)
 
     current_domain = models.ForeignKey(
         "domain.Domain",
@@ -175,3 +177,7 @@ class CustomUser(AbstractUser):
     @property
     def has_current_domain(self) -> bool:
         return self.current_domain_id is not None
+
+    @property
+    def requires_password_change(self) -> bool:
+        return self.must_change_password or self.new_password_asked
