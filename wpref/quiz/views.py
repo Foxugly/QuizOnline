@@ -19,7 +19,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from subject.models import Subject
-from core.emailing import send_quiz_assignment_email, send_quiz_completed_email
 from wpref.tools import ErrorDetailSerializer
 from wpref.tools import MyModelViewSet
 
@@ -31,6 +30,7 @@ from .alerting import (
     unread_total_for_queryset,
 )
 from .session_integrity import synchronize_closed_quiz_answers
+from .services import close_quiz_session, create_quizzes_from_template
 from .serializers import (
     QuizTemplateSerializer,
     QuizTemplateWriteSerializer,
@@ -902,18 +902,11 @@ class QuizViewSet(MyModelViewSet):
             raise PermissionDenied("Vous ne pouvez pas envoyer ce quiz.")
 
         users = get_user_model().objects.filter(id__in=user_ids)
-        created = []
-        with transaction.atomic():
-            for u in users:
-                self._validate_target_user_domain(qt, u)
-                quiz = Quiz.objects.create(
-                    domain=qt.domain,
-                    quiz_template=qt,
-                    user=u,
-                    active=False,
-                )
-                created.append(quiz)
-                send_quiz_assignment_email(quiz)
+        created = create_quizzes_from_template(
+            quiz_template=qt,
+            users=users,
+            validate_target_user=self._validate_target_user_domain,
+        )
         logger.debug(
             "bulk_create_from_template: created=%s quiz_template_id=%s users_count=%s",
             len(created),
@@ -961,75 +954,18 @@ class QuizViewSet(MyModelViewSet):
 
             if quiz.started_at is None:
                 return Response(
-                    {"detail": "Impossible de clôturer : le quiz n'a jamais été démarré."},
+                    {"detail": "Impossible de cl??turer : le quiz n'a jamais ??t?? d??marr??."},
                     status=status.HTTP_409_CONFLICT,
                 )
 
             if quiz.active is False:
                 return Response(
-                    {"detail": "Impossible de clôturer : le quiz est déjà clôturé."},
+                    {"detail": "Impossible de cl??turer : le quiz est d??j?? cl??tur??."},
                     status=status.HTTP_409_CONFLICT,
                 )
-            quiz_questions = list(
-                quiz.quiz_template.quiz_questions
-                .select_related("question")
-                .prefetch_related("question__answer_options")
-                .order_by("sort_order", "id")
-            )
 
-            existing_answer_ids = set(
-                quiz.answers.values_list("quizquestion_id", flat=True)
-            )
-            for quiz_question in quiz_questions:
-                if quiz_question.id in existing_answer_ids:
-                    continue
-                QuizQuestionAnswer.objects.create(
-                    quiz=quiz,
-                    quizquestion=quiz_question,
-                    question_order=quiz_question.sort_order,
-                )
+            quiz = close_quiz_session(quiz=quiz)
 
-            # 3) calcule les scores des réponses
-            answers = (
-                quiz.answers
-                .select_related("quizquestion__question")
-                .prefetch_related(
-                    "selected_options",
-                    "quizquestion__question__answer_options",
-                )
-            )
-
-            to_update = []
-            for a in answers:
-                # correct options (depuis le prefetch)
-                correct_ids = {
-                    opt.id for opt in a.quizquestion.question.answer_options.all()
-                    if opt.is_correct
-                }
-                selected_ids = {opt.id for opt in a.selected_options.all()}
-                weight = float(a.quizquestion.weight or 0)
-                a.max_score = weight
-
-                if correct_ids and selected_ids == correct_ids:
-                    a.earned_score = weight
-                    a.is_correct = True
-                else:
-                    a.earned_score = 0.0
-                    a.is_correct = False
-
-                to_update.append(a)
-
-            if to_update:
-                QuizQuestionAnswer.objects.bulk_update(
-                    to_update,
-                    ["earned_score", "max_score", "is_correct"]
-                )
-
-            quiz.active = False
-            if not quiz.ended_at:
-                quiz.ended_at = timezone.now()
-            quiz.save(update_fields=["active", "ended_at"])
-            send_quiz_completed_email(quiz)
         logger.debug("close: closed quiz_id=%s ended_at=%s", quiz.id, quiz.ended_at)
         return self.retrieve(request, *args, **kwargs)
 

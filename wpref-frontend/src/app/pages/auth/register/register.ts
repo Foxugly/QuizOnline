@@ -8,17 +8,17 @@ import {
   Validators,
 } from '@angular/forms';
 import {finalize} from 'rxjs/operators';
+import {Router} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
+import {ButtonModule} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
 
 import {AuthService} from '../../../services/auth/auth';
 import {LanguageService} from '../../../services/language/language';
 import {LanguageReadDto} from '../../../api/generated';
-import {ButtonModule} from 'primeng/button';
 import {ROUTES} from '../../../app.routes-paths';
-import {Router} from '@angular/router';
-import {SelectModule} from 'primeng/select';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 @Component({
@@ -32,14 +32,10 @@ export class Register implements OnInit {
   app = window.__APP__!;
 
   form: FormGroup;
-
   submitted = false;
   isSubmitting = false;
-
   successMessage = '';
   errorMessage = '';
-
-  // Langues backend
   languages: LanguageReadDto[] = [];
   loadingLanguages = false;
 
@@ -55,7 +51,7 @@ export class Register implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         first_name: ['', [Validators.required]],
         last_name: ['', [Validators.required]],
-        language: ['', [Validators.required]], // <- valeur fixée après chargement
+        language: ['', [Validators.required]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirm_password: ['', [Validators.required]],
       },
@@ -63,19 +59,18 @@ export class Register implements OnInit {
     );
   }
 
-  // ----- Helper template -----
   get f() {
     return this.form.controls;
   }
 
-  // ----- Validator password/confirm (set error on confirm_password) -----
   private static passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
     const pwd = control.get('password')?.value;
     const confirmCtrl = control.get('confirm_password');
     const confirm = confirmCtrl?.value;
 
-    if (!confirmCtrl) return null;
-    if (!pwd || !confirm) return null;
+    if (!confirmCtrl || !pwd || !confirm) {
+      return null;
+    }
 
     if (pwd !== confirm) {
       const current = confirmCtrl.errors ?? {};
@@ -97,12 +92,10 @@ export class Register implements OnInit {
     this.loadLanguages();
   }
 
-  // ----- Submit -----
   onSubmit(): void {
     this.submitted = true;
     this.successMessage = '';
     this.errorMessage = '';
-
     this.form.updateValueAndValidity();
 
     if (this.form.invalid) {
@@ -111,9 +104,7 @@ export class Register implements OnInit {
     }
 
     this.isSubmitting = true;
-
-    const {username, email, first_name, last_name, language, password} =
-      this.form.getRawValue();
+    const {username, email, first_name, last_name, language, password} = this.form.getRawValue();
 
     this.authService
       .register({username, email, first_name, last_name, language, password})
@@ -121,10 +112,8 @@ export class Register implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage =
-            'Votre compte a été créé. Vous pouvez maintenant vous connecter.';
+            'Votre compte a ete cree. Verifiez votre boite mail pour confirmer votre inscription.';
           this.submitted = false;
-
-          // reset propre + remettre langue par défaut
           this.form.reset();
           const defaultLang = this.languages[0]?.code ?? 'en';
           this.form.get('language')?.setValue(String(defaultLang));
@@ -136,7 +125,6 @@ export class Register implements OnInit {
       });
   }
 
-  // ----- Langues (backend) -----
   private loadLanguages(): void {
     this.loadingLanguages = true;
 
@@ -145,11 +133,9 @@ export class Register implements OnInit {
       .pipe(finalize(() => (this.loadingLanguages = false)))
       .subscribe({
         next: (langs) => {
-          // Some generated DTOs may have active?: boolean; if not present, this keeps all.
-          const active = (langs ?? []).filter((l: any) => l?.active !== false);
+          const active = (langs ?? []).filter((lang: any) => lang?.active !== false);
           this.languages = active;
 
-          // Default language (if empty)
           if (!this.form.get('language')?.value) {
             const defaultLang = active[0]?.code ?? 'en';
             this.form.get('language')?.setValue(String(defaultLang));
@@ -158,9 +144,7 @@ export class Register implements OnInit {
         error: (err) => {
           logApiError('auth.register.load-languages', err);
           this.languages = [];
-          this.errorMessage = userFacingApiMessage(err, "Impossible de charger la liste des langues. Réessayez.");
-
-          // Fallback safe
+          this.errorMessage = userFacingApiMessage(err, 'Impossible de charger la liste des langues.');
           if (!this.form.get('language')?.value) {
             this.form.get('language')?.setValue('en');
           }
@@ -168,28 +152,29 @@ export class Register implements OnInit {
       });
   }
 
-  // ----- DRF error formatting (best-effort) -----
   private formatRegisterError(err: any): string {
     const data = err?.error;
 
-    // DRF: {"detail": "..."}
     if (typeof data?.detail === 'string' && data.detail.trim()) {
       return data.detail;
     }
 
-    // DRF: field errors {"email": ["..."], "username": ["..."]}
     if (data && typeof data === 'object') {
       const keys = Object.keys(data);
       if (keys.length) {
-        const k = keys[0];
-        const v = data[k];
-        if (Array.isArray(v) && typeof v[0] === 'string') return v[0];
-        if (typeof v === 'string') return v;
+        const value = data[keys[0]];
+        if (Array.isArray(value) && typeof value[0] === 'string') {
+          return value[0];
+        }
+        if (typeof value === 'string') {
+          return value;
+        }
       }
     }
 
-    return "L'inscription a échoué. Vérifiez les informations et réessayez.";
+    return "L'inscription a echoue. Verifiez les informations et reessayez.";
   }
+
   goRegister(): void {
     this.router.navigate(ROUTES.auth.register());
   }

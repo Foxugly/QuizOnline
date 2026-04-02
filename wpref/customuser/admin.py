@@ -9,12 +9,12 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = (
-        'username', 'email', 'first_name', 'last_name', 'language', 'must_change_password', 'new_password_asked',
+        'username', 'email', 'first_name', 'last_name', 'language', 'email_confirmed', 'must_change_password', 'new_password_asked',
         'is_active', 'is_superuser',)
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'must_change_password', 'new_password_asked')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'email_confirmed', 'must_change_password', 'new_password_asked')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'language')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'language', 'email_confirmed')}),
         (_('Security'), {'fields': ('must_change_password', 'new_password_asked')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',)}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),

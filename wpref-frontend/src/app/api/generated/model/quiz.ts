@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { QuizQuestionAnswerDto } from './quiz-question-answer';
+import { AnswerCorrectnessStateEnumDto } from './answer-correctness-state-enum';
 import { UserSummaryDto } from './user-summary';
 import { QuizQuestionReadDto } from './quiz-question-read';
 
@@ -38,5 +39,8 @@ export interface QuizDto {
     readonly correct_answers: number | null;
     readonly earned_score: number | null;
     readonly max_score: number | null;
-    readonly answer_correctness_state: 'full' | 'unknown' | 'hidden';
+    readonly answer_correctness_state: AnswerCorrectnessStateEnumDto;
 }
+
+
+

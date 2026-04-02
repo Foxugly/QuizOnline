@@ -14,6 +14,7 @@ export interface QuestionAnswerOptionReadDto {
     readonly id: number;
     readonly content: string;
     readonly translations: { [key: string]: LocalizedAnswerOptionTranslationDto; };
-    is_correct?: boolean | null;
+    readonly is_correct: boolean | null;
     sort_order?: number;
 }
+

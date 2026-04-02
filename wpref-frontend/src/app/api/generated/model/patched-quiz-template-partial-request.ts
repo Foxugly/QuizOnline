@@ -22,6 +22,7 @@ export interface PatchedQuizTemplatePartialRequestDto {
     ended_at?: string | null;
     with_duration?: boolean;
     duration?: number;
+    is_public?: boolean;
     active?: boolean;
     result_visibility?: VisibilityEnumDto;
     result_available_at?: string | null;

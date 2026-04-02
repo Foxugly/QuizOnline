@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     language = models.CharField(_("language"), max_length=8, choices=settings.LANGUAGES,
                                 default=getattr(settings, "LANGUAGE_CODE", "en"))
+    email_confirmed = models.BooleanField(default=False)
     must_change_password = models.BooleanField(default=False)
     new_password_asked = models.BooleanField(default=False)
 

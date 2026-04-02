@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="container__card">
+    <div class="card__brand">
+      <h1 class="brand__title">Confirmation d'email</h1>
+      <p class="brand__subtitle">Validation de votre inscription</p>
+    </div>
+
+    @if (loading()) {
+      <p-message severity="info">Confirmation en cours...</p-message>
+    }
+
+    @if (successMessage()) {
+      <p-message severity="success">{{ successMessage() }}</p-message>
+    }
+
+    @if (errorMessage()) {
+      <p-message severity="error">{{ errorMessage() }}</p-message>
+    }
+
+    <div class="actions">
+      <p-button (onClick)="goLogin()" label="Aller a la connexion" icon="pi pi-sign-in"></p-button>
+    </div>
+  </div>
+</div>

@@ -38,6 +38,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "language",
+            "email_confirmed",
             "must_change_password",
             "new_password_asked",
             "is_superuser",
@@ -51,6 +52,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "username",
+            "email_confirmed",
             "must_change_password",
             "new_password_asked",
             "is_staff",
@@ -85,6 +87,7 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop("password")
         user = User(**validated_data)
+        user.email_confirmed = False
         user.set_password(password)
         user.save()
         return user
@@ -161,6 +164,11 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         if attrs["new_password1"] != attrs["new_password2"]:
             raise serializers.ValidationError({"new_password2": "Les mots de passe ne correspondent pas."})
         return attrs
+
+
+class EmailConfirmationSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
 
 
 class PasswordChangeSerializer(serializers.Serializer):

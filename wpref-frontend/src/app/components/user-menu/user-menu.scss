@@ -1,10 +1,12 @@
-/* Assure que le wrapper est visible */
 .user-menu {
   display: flex;
   align-items: center;
 }
 
-/* Bouton utilisateur toujours visible */
+.user-menu__panel-wrap {
+  position: relative;
+}
+
 :host ::ng-deep .user-trigger.p-button {
   background: transparent !important;
   border: none !important;
@@ -13,7 +15,6 @@
   opacity: 1 !important;
 }
 
-/* Supprimer TOUT changement au survol */
 :host ::ng-deep .user-trigger.p-button:hover,
 :host ::ng-deep .user-trigger.p-button:focus,
 :host ::ng-deep .user-trigger.p-button:active {
@@ -22,4 +23,42 @@
   color: inherit !important;
   box-shadow: none !important;
   opacity: 1 !important;
+}
+
+.user-menu__panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 15rem;
+  padding: 0.4rem;
+  border: 1px solid var(--surface-border, #d6d9e0);
+  border-radius: 0.85rem;
+  background: var(--surface-card, #fff);
+  box-shadow: 0 18px 40px rgba(16, 24, 40, 0.12);
+  display: grid;
+  gap: 0.25rem;
+  z-index: 20;
+}
+
+.user-menu__item {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+:host ::ng-deep .user-menu__item.p-button {
+  background: transparent;
+  border: none;
+  color: var(--text-color, #22304a);
+}
+
+:host ::ng-deep .user-menu__item.p-button:hover {
+  background: rgba(34, 48, 74, 0.08);
+}
+
+:host ::ng-deep .user-menu__item--danger.p-button {
+  color: #b42318;
+}
+
+:host ::ng-deep .user-menu__item--danger.p-button:hover {
+  background: rgba(180, 35, 24, 0.08);
 }

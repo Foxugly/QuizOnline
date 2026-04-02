@@ -1,32 +1,16 @@
 import {LanguageEnumDto} from '../../../../api/generated';
 import {QuizAlertThreadDetailDto} from '../../../../services/quiz-alert/quiz-alert';
+import {formatLocalizedDateTime, languageLocale} from '../../../../shared/i18n/date-time';
 
 export function quizAlertDateLocale(lang: LanguageEnumDto): string {
-  switch (lang) {
-    case LanguageEnumDto.Fr:
-      return 'fr-BE';
-    case LanguageEnumDto.Nl:
-      return 'nl-BE';
-    case LanguageEnumDto.It:
-      return 'it-IT';
-    case LanguageEnumDto.Es:
-      return 'es-ES';
-    case LanguageEnumDto.En:
-    default:
-      return 'en-US';
-  }
+  return languageLocale(lang);
 }
 
 export function formatQuizAlertMessageDate(value: string, lang: LanguageEnumDto): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(quizAlertDateLocale(lang), {
+  return formatLocalizedDateTime(value, lang, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(date);
+  }) ?? value;
 }
 
 export function isClosedThread(thread: QuizAlertThreadDetailDto | null): boolean {

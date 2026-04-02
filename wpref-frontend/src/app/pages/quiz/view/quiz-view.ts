@@ -7,6 +7,7 @@ import {QuizSummaryFact, QuizSummaryHeroComponent} from '../../../components/qui
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {formatLocalizedDateTime} from '../../../shared/i18n/date-time';
 
 @Component({
   selector: 'app-view',
@@ -118,22 +119,7 @@ export class QuizView implements OnInit {
   }
 
   protected formatDateTime(value: string | null | undefined): string {
-    if (!value) {
-      return QuizView.FALLBACK_LABEL;
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return QuizView.FALLBACK_LABEL;
-    }
-
-    return new Intl.DateTimeFormat(this.userService.currentLang, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+    return formatLocalizedDateTime(value, this.userService.currentLang) ?? QuizView.FALLBACK_LABEL;
   }
 
   private loadQuizSession(): void {

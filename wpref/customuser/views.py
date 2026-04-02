@@ -1,12 +1,7 @@
 import logging
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -20,15 +15,22 @@ from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from core.emailing import send_registration_confirmation_email
 from wpref.tools import ErrorDetailSerializer
 
 from .permissions import IsSelf, IsSelfOrStaffOrSuperuser
+from .services import (
+    change_password,
+    confirm_email,
+    confirm_password_reset,
+    register_user,
+    request_password_reset,
+)
 from .serializers import (
     CustomUserAdminUpdateSerializer,
     CustomUserCreateSerializer,
     CustomUserProfileUpdateSerializer,
     CustomUserReadSerializer,
+    EmailConfirmationSerializer,
     PasswordChangeSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetOKSerializer,
@@ -131,8 +133,7 @@ class CustomUserViewSet(
         return [IsSelfOrStaffOrSuperuser()]
 
     def perform_create(self, serializer):
-        user = serializer.save()
-        send_registration_confirmation_email(user)
+        register_user(serializer)
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -247,22 +248,7 @@ class PasswordResetRequestView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
-        user = User.objects.filter(email__iexact=email).first()
-        if user:
-            user.new_password_asked = True
-            user.save(update_fields=["new_password_asked"])
-        form = PasswordResetForm(data={"email": email})
-        if form.is_valid():
-            form.save(
-                request=request,
-                use_https=request.is_secure(),
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                email_template_name="password_reset_email.html",
-                extra_email_context={
-                    "frontend_base_url": settings.FRONTEND_BASE_URL,
-                    "password_reset_path_prefix": settings.PASSWORD_RESET_FRONTEND_PATH_PREFIX,
-                },
-            )
+        request_password_reset(email, request)
 
         return Response(
             {"detail": "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."},
@@ -293,22 +279,9 @@ class PasswordResetConfirmView(GenericAPIView):
         token = serializer.validated_data["token"]
         new_password = serializer.validated_data["new_password1"]
 
-        try:
-            uid_int = force_str(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=uid_int)
-        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        user = confirm_password_reset(uid, token, new_password)
+        if not user:
             return Response({"detail": "Lien invalide."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not default_token_generator.check_token(user, token):
-            return Response(
-                {"detail": "Lien ou token invalide ou expiré."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user.set_password(new_password)
-        user.must_change_password = False
-        user.new_password_asked = False
-        user.save(update_fields=["password", "must_change_password", "new_password_asked"])
 
         return Response(
             {"detail": "Mot de passe mis à jour avec succès."},
@@ -345,15 +318,42 @@ class PasswordChangeView(GenericAPIView):
 
         user = request.user
 
-        if not user.check_password(old_password):
+        if not change_password(user, old_password, new_password):
             return Response({"detail": "Ancien mot de passe incorrect."}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.set_password(new_password)
-        user.must_change_password = False
-        user.new_password_asked = False
-        user.save(update_fields=["password", "must_change_password", "new_password_asked"])
 
         return Response(
             {"detail": "Mot de passe modifié avec succès."},
+            status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Auth"],
+        summary="Confirmer une adresse email",
+        request=EmailConfirmationSerializer,
+        responses={
+            200: PasswordResetOKSerializer,
+            400: OpenApiResponse(response=ErrorDetailSerializer, description="Lien invalide / token invalide"),
+        },
+    ),
+)
+class EmailConfirmView(GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = EmailConfirmationSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        uid = serializer.validated_data["uid"]
+        token = serializer.validated_data["token"]
+
+        user = confirm_email(uid, token)
+        if not user:
+            return Response({"detail": "Lien invalide."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"detail": "Adresse email confirmée avec succès."},
             status=status.HTTP_200_OK,
         )

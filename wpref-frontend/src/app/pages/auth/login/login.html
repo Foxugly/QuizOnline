@@ -10,6 +10,10 @@
       <p-message severity="error" styleClass="alert alert--error">{{errorMsg()}}</p-message>
     }
 
+    @if (infoMsg()) {
+      <p-message severity="info" styleClass="alert alert--info">{{infoMsg()}}</p-message>
+    }
+
     <form
       [formGroup]="form"
       (ngSubmit)="submit()"

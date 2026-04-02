@@ -3,7 +3,10 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.test import override_settings
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -17,8 +20,10 @@ class UserViewsTests(APITestCase):
 
     PASSWORD_RESET_REQUEST_URL = "/api/user/password/reset/"
     PASSWORD_RESET_CONFIRM_URL = "/api/user/password/reset/confirm/"
+    EMAIL_CONFIRM_URL = "/api/user/email/confirm/"
     PASSWORD_CHANGE_URL = "/api/user/password/change/"
     ME_URL = "/api/user/me/"
+    TOKEN_URL = "/api/token/"
 
     def setUp(self):
         self.u1 = User.objects.create_user(
@@ -157,7 +162,7 @@ class UserViewsTests(APITestCase):
         PASSWORD_RESET_FRONTEND_PATH_PREFIX="/reset-password",
     )
     def test_password_reset_request_always_returns_200_and_passes_frontend_link_context(self):
-        with patch("customuser.views.PasswordResetForm") as MockForm:
+        with patch("customuser.services.PasswordResetForm") as MockForm:
             instance = MockForm.return_value
             instance.is_valid.return_value = True
 
@@ -172,7 +177,7 @@ class UserViewsTests(APITestCase):
             self.assertEqual(kwargs["extra_email_context"]["password_reset_path_prefix"], "/reset-password")
 
     def test_password_reset_request_returns_200_even_if_form_invalid(self):
-        with patch("customuser.views.PasswordResetForm") as MockForm:
+        with patch("customuser.services.PasswordResetForm") as MockForm:
             instance = MockForm.return_value
             instance.is_valid.return_value = False
 
@@ -183,7 +188,7 @@ class UserViewsTests(APITestCase):
     def test_password_reset_request_marks_user_as_new_password_asked(self):
         self.assertFalse(self.u1.new_password_asked)
 
-        with patch("customuser.views.PasswordResetForm") as MockForm:
+        with patch("customuser.services.PasswordResetForm") as MockForm:
             instance = MockForm.return_value
             instance.is_valid.return_value = False
             res = self.client.post(self.PASSWORD_RESET_REQUEST_URL, {"email": "u1@example.com"}, format="json")
@@ -193,7 +198,7 @@ class UserViewsTests(APITestCase):
         self.assertTrue(self.u1.new_password_asked)
 
     def test_password_reset_confirm_invalid_uid_returns_400(self):
-        with patch("customuser.views.urlsafe_base64_decode", side_effect=ValueError("bad")):
+        with patch("customuser.services.resolve_user_from_uid", return_value=None):
             res = self.client.post(
                 self.PASSWORD_RESET_CONFIRM_URL,
                 {"uid": "bad", "token": "tkn", "new_password1": "NewPass123!Aa", "new_password2": "NewPass123!Aa"},
@@ -203,27 +208,26 @@ class UserViewsTests(APITestCase):
             self.assertIn("detail", res.data)
 
     def test_password_reset_confirm_invalid_token_returns_400(self):
-        uid_bytes = str(self.u1.pk).encode("utf-8")
-        with patch("customuser.views.urlsafe_base64_decode", return_value=uid_bytes), patch(
-            "customuser.views.default_token_generator.check_token",
+        uid = "encoded"
+        with patch("customuser.services.resolve_user_from_uid", return_value=self.u1), patch(
+            "customuser.services.token_is_valid",
             return_value=False,
         ):
             res = self.client.post(
                 self.PASSWORD_RESET_CONFIRM_URL,
-                {"uid": "encoded", "token": "bad", "new_password1": "NewPass123!Aa", "new_password2": "NewPass123!Aa"},
+                {"uid": uid, "token": "bad", "new_password1": "NewPass123!Aa", "new_password2": "NewPass123!Aa"},
                 format="json",
             )
             self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn("detail", res.data)
 
     def test_password_reset_confirm_success_changes_password(self):
-        uid_bytes = str(self.u1.pk).encode("utf-8")
         new_pw = "NewPass123!Aa"
         self.u1.must_change_password = True
         self.u1.new_password_asked = True
         self.u1.save(update_fields=["must_change_password", "new_password_asked"])
-        with patch("customuser.views.urlsafe_base64_decode", return_value=uid_bytes), patch(
-            "customuser.views.default_token_generator.check_token",
+        with patch("customuser.services.resolve_user_from_uid", return_value=self.u1), patch(
+            "customuser.services.token_is_valid",
             return_value=True,
         ):
             res = self.client.post(
@@ -237,6 +241,58 @@ class UserViewsTests(APITestCase):
         self.assertTrue(self.u1.check_password(new_pw))
         self.assertFalse(self.u1.must_change_password)
         self.assertFalse(self.u1.new_password_asked)
+
+    def test_email_confirm_success_marks_user_as_confirmed(self):
+        uid = urlsafe_base64_encode(force_bytes(self.u1.pk))
+        token = default_token_generator.make_token(self.u1)
+
+        res = self.client.post(
+            self.EMAIL_CONFIRM_URL,
+            {"uid": uid, "token": token},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.u1.refresh_from_db()
+        self.assertTrue(self.u1.email_confirmed)
+
+    def test_email_confirm_invalid_token_returns_400(self):
+        uid = urlsafe_base64_encode(force_bytes(self.u1.pk))
+
+        res = self.client.post(
+            self.EMAIL_CONFIRM_URL,
+            {"uid": uid, "token": "bad-token"},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_token_obtain_pair_rejects_unconfirmed_email(self):
+        self.u1.email_confirmed = False
+        self.u1.save(update_fields=["email_confirmed"])
+
+        res = self.client.post(
+            self.TOKEN_URL,
+            {"username": "u1", "password": "u1pass123!"},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(res.data["detail"], "Confirmez votre adresse email avant de vous connecter.")
+
+    def test_token_obtain_pair_accepts_confirmed_email(self):
+        self.u1.email_confirmed = True
+        self.u1.save(update_fields=["email_confirmed"])
+
+        res = self.client.post(
+            self.TOKEN_URL,
+            {"username": "u1", "password": "u1pass123!"},
+            format="json",
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("access", res.data)
+        self.assertIn("refresh", res.data)
 
     def test_password_change_requires_auth(self):
         res = self.client.post(

@@ -25,6 +25,7 @@ export interface QuizTemplateWriteRequestDto {
     ended_at?: string | null;
     with_duration?: boolean;
     duration?: number;
+    is_public?: boolean;
     active?: boolean;
     /**
      * Quand le score global du quiz peut être affiché à l\'utilisateur.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais

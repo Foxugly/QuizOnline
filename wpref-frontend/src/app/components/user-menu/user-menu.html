@@ -1,20 +1,33 @@
 <div class="user-menu">
   @if (auth.isLoggedIn()) {
-    <p-menu
-      id="user_menu"
-      #user_menu
-      [model]="items"
-      [popup]="true"/>
-    <p-button
-      icon="pi pi-user"
-      severity="secondary"
-      class="user-trigger"
-      (click)="user_menu.toggle($event)"
-      label="{{ auth.getUsername() }}"/>
+    <div class="user-menu__panel-wrap">
+      <p-button
+        icon="pi pi-user"
+        severity="secondary"
+        class="user-trigger"
+        [label]="auth.getUsername()"
+        (click)="toggleMenu($event)"
+      ></p-button>
+
+      @if (open()) {
+        <div class="user-menu__panel" (click)="$event.stopPropagation()">
+          <button pButton type="button" class="user-menu__item" (click)="goPreferences()">
+            Preferences
+          </button>
+          <button pButton type="button" class="user-menu__item" (click)="goChangePassword()">
+            Changer de mot de passe
+          </button>
+          <button pButton type="button" class="user-menu__item user-menu__item--danger" (click)="logout()">
+            Deconnexion
+          </button>
+        </div>
+      }
+    </div>
   } @else {
     <p-button
       routerLink="/login"
       routerLinkActive="active"
-      label="login"/>
+      label="login"
+    ></p-button>
   }
 </div>

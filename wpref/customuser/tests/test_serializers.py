@@ -42,6 +42,7 @@ class CustomUserReadSerializerTests(TestCase):
                 "first_name",
                 "last_name",
                 "language",
+                "email_confirmed",
                 "must_change_password",
                 "new_password_asked",
                 "is_staff",
@@ -62,6 +63,7 @@ class CustomUserReadSerializerTests(TestCase):
     def test_read_only_fields_are_read_only(self):
         serializer = CustomUserReadSerializer()
         self.assertTrue(serializer.get_fields()["id"].read_only)
+        self.assertTrue(serializer.get_fields()["email_confirmed"].read_only)
         self.assertTrue(serializer.get_fields()["must_change_password"].read_only)
         self.assertTrue(serializer.get_fields()["new_password_asked"].read_only)
         self.assertTrue(serializer.get_fields()["is_staff"].read_only)
@@ -85,6 +87,7 @@ class CustomUserCreateSerializerTests(TestCase):
 
         self.assertEqual(user.username, "newuser")
         self.assertEqual(user.email, "new@example.com")
+        self.assertFalse(user.email_confirmed)
         self.assertTrue(user.check_password("SecretPass123!"))
 
     def test_create_serializer_password_is_write_only(self):

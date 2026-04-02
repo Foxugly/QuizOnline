@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/reset-password-confirm/reset-password-confirm').then((m) => m.ResetPasswordConfirmPage),
   },
   {
+    path: 'user/confirm-email/:uid/:token',
+    loadComponent: () => import('./pages/auth/confirm-email/confirm-email').then((m) => m.ConfirmEmailPage),
+  },
+  {
     path: 'change-password',
     loadComponent: () => import('./pages/auth/change-password/change-password').then((m) => m.ChangePasswordPage),
     canActivate: [authGuard],

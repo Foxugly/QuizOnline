@@ -51,6 +51,8 @@ export interface QuizTemplateDto {
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
     detail_available_at?: string | null;
+    is_public?: boolean;
+    readonly created_by: number;
     readonly quiz_questions: Array<QuizQuestionDto>;
 }
 

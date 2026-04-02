@@ -6,6 +6,7 @@ import {FooterComponent} from './components/footer/footer';
 import {AuthService} from './services/auth/auth';
 import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
+import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
 
 @Component({
@@ -30,17 +31,41 @@ export class App implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.authService.authenticated || !this.userService.requiresPasswordChange()) {
+      const redirect = requiredSessionRedirect(
+        this.userService.currentUser(),
+        this.router.url,
+        {
+          authenticated: this.authService.authenticated,
+          requiresEmailConfirmation: (user) => this.userService.shouldConfirmEmail(user),
+          requiresPasswordChange: (user) => this.userService.shouldForcePasswordChange(user),
+        },
+      );
+      if (!redirect || redirect.kind !== 'login') {
         return;
       }
 
-      const currentUrl = this.router.url;
-      if (currentUrl.startsWith('/change-password')) {
+      this.authService.logout();
+      void this.router.navigate(ROUTES.auth.login(), {
+        queryParams: redirect.queryParams,
+      });
+    });
+
+    effect(() => {
+      const redirect = requiredSessionRedirect(
+        this.userService.currentUser(),
+        this.router.url,
+        {
+          authenticated: this.authService.authenticated,
+          requiresEmailConfirmation: (user) => this.userService.shouldConfirmEmail(user),
+          requiresPasswordChange: (user) => this.userService.shouldForcePasswordChange(user),
+        },
+      );
+      if (!redirect || redirect.kind !== 'change-password') {
         return;
       }
 
       void this.router.navigate(ROUTES.auth.changePassword(), {
-        queryParams: {next: currentUrl},
+        queryParams: redirect.queryParams,
       });
     });
   }

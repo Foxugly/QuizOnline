@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 
 class CustomUserApiTests(APITestCase):
-    @patch("customuser.views.send_registration_confirmation_email")
+    @patch("customuser.services.send_registration_confirmation_email")
     def test_create_user(self, send_registration_confirmation_email):
         url = reverse("api:user-api:api-root")  # /api/user/
         payload = {

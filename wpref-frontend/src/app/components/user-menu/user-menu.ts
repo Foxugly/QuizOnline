@@ -1,8 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, inject, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {MenuModule} from 'primeng/menu';
 import {ButtonModule} from 'primeng/button';
-import {MenuItem} from 'primeng/api';
+
 import {AuthService} from '../../services/auth/auth';
 
 @Component({
@@ -11,63 +10,39 @@ import {AuthService} from '../../services/auth/auth';
   imports: [
     RouterLink,
     RouterLinkActive,
-    MenuModule,
-    ButtonModule
+    ButtonModule,
   ],
   templateUrl: './user-menu.html',
   styleUrl: './user-menu.scss',
 })
-export class UserMenuComponent implements OnInit {
-  items: MenuItem[] = [];
-
-  constructor(
-    public auth: AuthService,
-    private router: Router,
-  ) {
-  }
-
-  ngOnInit(): void {
-    this.buildItems();
-  }
+export class UserMenuComponent {
+  readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  protected readonly open = signal(false);
 
   goPreferences() {
-    this.router.navigate(['/preferences']);
+    this.open.set(false);
+    void this.router.navigate(['/preferences']);
   }
 
   goChangePassword() {
-    this.router.navigate(['/change-password']);
+    this.open.set(false);
+    void this.router.navigate(['/change-password']);
   }
 
   logout() {
+    this.open.set(false);
     this.auth.logout();
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 
-  private buildItems() {
-    if (!this.auth.isLoggedIn()) {
-      this.items = [];
-      return;
-    }
+  toggleMenu(event?: Event) {
+    event?.stopPropagation();
+    this.open.update((value) => !value);
+  }
 
-    this.items = [
-      {
-        label: 'Préférences',
-        icon: 'pi pi-cog',
-        command: () => this.goPreferences(),
-      },
-      {
-        label: 'Changer de mot de passe',
-        icon: 'pi pi-key',
-        command: () => this.goChangePassword(),
-      },
-      {
-        separator: true
-      },
-      {
-        label: 'Déconnexion',
-        icon: 'pi pi-sign-out',
-        command: () => this.logout(),
-      },
-    ];
+  @HostListener('document:click')
+  closeMenu() {
+    this.open.set(false);
   }
 }

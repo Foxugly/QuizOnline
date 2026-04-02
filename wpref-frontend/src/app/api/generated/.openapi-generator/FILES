@@ -7,6 +7,7 @@ api/auth.service.ts
 api/domain.service.ts
 api/language.service.ts
 api/question.service.ts
+api/quiz-alert.service.ts
 api/quiz-answer.service.ts
 api/quiz-template.service.ts
 api/quiz.service.ts
@@ -19,6 +20,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/answer-correctness-state-enum.ts
 model/bulk-create-from-template-input-request.ts
 model/create-quiz-input-request.ts
 model/custom-user-admin-update-request.ts
@@ -58,6 +60,7 @@ model/patched-custom-user-profile-update-request.ts
 model/patched-domain-partial-request.ts
 model/patched-language-partial-request.ts
 model/patched-question-partial-write-payload-request.ts
+model/patched-quiz-alert-thread-partial-request.ts
 model/patched-quiz-partial-update-request.ts
 model/patched-quiz-question-answer-partial-request.ts
 model/patched-quiz-question-partial-request.ts
@@ -74,6 +77,11 @@ model/question-read.ts
 model/question-write-payload-request.ts
 model/question-write-request.ts
 model/question-write.ts
+model/quiz-alert-message-create-request.ts
+model/quiz-alert-message.ts
+model/quiz-alert-thread-create-request.ts
+model/quiz-alert-thread-detail.ts
+model/quiz-alert-thread-list.ts
 model/quiz-list.ts
 model/quiz-question-answer-write-request.ts
 model/quiz-question-answer.ts
@@ -86,6 +94,7 @@ model/quiz-template.ts
 model/quiz-update-request.ts
 model/quiz.ts
 model/set-current-domain-request.ts
+model/status-enum.ts
 model/subject-detail.ts
 model/subject-read.ts
 model/subject-write-request.ts
