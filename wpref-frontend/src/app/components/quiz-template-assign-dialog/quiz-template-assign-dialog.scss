@@ -1,0 +1,13 @@
+.dialog-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.dialog-intro {
+  color: #6b7280;
+  margin: 0 0 1rem;
+}
+
+:host ::ng-deep .w-full {
+  width: 100%;
+}

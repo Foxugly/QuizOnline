@@ -35,6 +35,7 @@ from .serializers import (
     QuizTemplateWriteSerializer,
     QuizTemplatePartialSerializer,
     QuizListSerializer,
+    QuizAssignmentListSerializer,
     QuizSerializer,
     QuizUpdateSerializer,
     QuizPartialUpdateSerializer,
@@ -107,7 +108,7 @@ class QuizTemplateViewSet(MyModelViewSet):
           - generate_from_subjects, available : user authentifié
           - tout le reste (CRUD, questions)   : staff uniquement
         """
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "sessions"]:
             return [IsAuthenticated()]
 
         return [IsStaffOrSuperuser()]
@@ -138,6 +139,16 @@ class QuizTemplateViewSet(MyModelViewSet):
         if hasattr(user, "can_manage_domain"):
             return user.can_manage_domain(quiz_template.domain)
         return False
+
+    def _user_can_manage_template_assignments(self, user, quiz_template: QuizTemplate) -> bool:
+        return bool(
+            user
+            and (
+                user.is_staff
+                or user.is_superuser
+                or quiz_template.created_by_id == user.id
+            )
+        )
 
     # ==========================================================
     # CRUD NATIF : SURCHARGES
@@ -176,6 +187,30 @@ class QuizTemplateViewSet(MyModelViewSet):
         if not self._user_can_access_template(request.user, instance):
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        tags=["QuizTemplate"],
+        summary="Lister les sessions envoyées pour un template",
+        responses={200: QuizAssignmentListSerializer(many=True)},
+    )
+    @action(detail=True, methods=["get"], url_path="sessions")
+    def sessions(self, request, *args, **kwargs):
+        quiz_template = self.get_object()
+        if not self._user_can_manage_template_assignments(request.user, quiz_template):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        sessions = (
+            quiz_template.quiz
+            .select_related("user", "quiz_template")
+            .prefetch_related("answers")
+            .order_by("-created_at", "-id")
+        )
+        serializer = QuizAssignmentListSerializer(
+            sessions,
+            many=True,
+            context=self.get_serializer_context(),
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -669,11 +704,11 @@ class QuizViewSet(MyModelViewSet):
     def get_permissions(self):
         """
         Permissions:
-          - bulk_create_from_template : admin only
+          - bulk_create_from_template : createur du template ou admin
           - autres actions            : IsOwnerOrStaff
         """
         if self.action == "bulk_create_from_template":
-            return [IsStaffOrSuperuser()]
+            return [IsAuthenticated()]
 
         return super().get_permissions()
 
@@ -700,6 +735,16 @@ class QuizViewSet(MyModelViewSet):
         if not quiz_template.is_public:
             return False
         return self._user_matches_template_domain(user, quiz_template) or getattr(user, "current_domain_id", None) is None
+
+    def _user_can_manage_template_assignments(self, user, quiz_template: QuizTemplate) -> bool:
+        return bool(
+            user
+            and (
+                user.is_staff
+                or user.is_superuser
+                or quiz_template.created_by_id == user.id
+            )
+        )
 
     def _validate_target_user_domain(self, quiz_template: QuizTemplate, target_user):
         if quiz_template.domain_id is None:
@@ -830,7 +875,7 @@ class QuizViewSet(MyModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=["post"], url_path="bulk-create-from-template",
-            permission_classes=[IsStaffOrSuperuser])
+            permission_classes=[IsAuthenticated])
     def bulk_create_from_template(self, request, *args, **kwargs):
         quiz_template_id = request.data.get("quiz_template_id")
         user_ids = request.data.get("user_ids", [])
@@ -851,6 +896,9 @@ class QuizViewSet(MyModelViewSet):
                 {"detail": "QuizTemplate introuvable."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        if not self._user_can_manage_template_assignments(request.user, qt):
+            raise PermissionDenied("Vous ne pouvez pas envoyer ce quiz.")
 
         users = get_user_model().objects.filter(id__in=user_ids)
         created = []

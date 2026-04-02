@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {map, Observable, of, switchMap} from 'rxjs';
 import {
@@ -15,6 +16,7 @@ import {
   QuizTemplateDto,
   QuizTemplateGenerateFromSubjectsCreateRequestParams,
 } from '../../api/generated';
+import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export interface QuizSubjectCreatePayload {
   title: string;
@@ -24,15 +26,25 @@ export interface QuizSubjectCreatePayload {
   duration: number | null;
 }
 
+export interface QuizTemplateAssignmentSessionDto extends QuizListDto {
+  earned_score: number | null;
+  max_score: number | null;
+  total_answers: number | null;
+  correct_answers: number | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class QuizService {
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+
   constructor(
     private quizApi: QuizApi,
     private qtApi: QuizTemplateApi,
     private questionApi: QuestionApi,
     private answerApi: QuizAnswerApi,
+    private http: HttpClient,
     private router: Router,
   ) {}
 
@@ -107,6 +119,19 @@ export class QuizService {
 
   listTemplates(): Observable<QuizTemplateDto[]> {
     return this.qtApi.quizTemplateList();
+  }
+
+  assignTemplateToUsers(quizTemplateId: number, userIds: number[]): Observable<QuizListDto[]> {
+    return this.http.post<QuizListDto[]>(`${this.apiBaseUrl}/quiz/bulk-create-from-template/`, {
+      quiz_template_id: quizTemplateId,
+      user_ids: userIds,
+    });
+  }
+
+  listTemplateSessions(quizTemplateId: number): Observable<QuizTemplateAssignmentSessionDto[]> {
+    return this.http.get<QuizTemplateAssignmentSessionDto[]>(
+      `${this.apiBaseUrl}/quiz/template/${quizTemplateId}/sessions/`,
+    );
   }
 
   retrieveQuiz(id: number): Observable<QuizDto> {

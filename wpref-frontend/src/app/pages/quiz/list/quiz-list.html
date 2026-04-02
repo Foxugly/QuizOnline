@@ -43,7 +43,7 @@
               <th>Public</th>
               <th>Actif</th>
               <th>Disponible</th>
-              <th style="width: 220px;">Actions</th>
+              <th style="width: 280px;">Actions</th>
             </tr>
           </ng-template>
           <ng-template #body let-template>
@@ -65,6 +65,20 @@
                     text
                   ></p-button>
                 }
+                <p-button
+                  (onClick)="openAssignDialog(template)"
+                  icon="pi pi-send"
+                  severity="help"
+                  size="small"
+                  text
+                ></p-button>
+                <p-button
+                  (onClick)="openResultsDialog(template)"
+                  icon="pi pi-chart-bar"
+                  severity="secondary"
+                  size="small"
+                  text
+                ></p-button>
                 @if (isAdmin()) {
                   <p-button
                     (onClick)="goEditTemplate(template.id)"
@@ -234,3 +248,25 @@
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
+
+<app-quiz-template-assign-dialog
+  [visible]="assignDialogVisible()"
+  [template]="selectedTemplate()"
+  [users]="assignableUsers()"
+  [selectedRecipientIds]="selectedRecipientIds()"
+  [assigning]="assigning()"
+  (visibleChange)="assignDialogVisible.set($event)"
+  (selectedRecipientIdsChange)="selectedRecipientIds.set($event)"
+  (cancel)="closeAssignDialog()"
+  (submit)="submitAssignments()"
+></app-quiz-template-assign-dialog>
+
+<app-quiz-template-results-dialog
+  [visible]="resultsDialogVisible()"
+  [template]="selectedTemplate()"
+  [sessions]="templateSessions()"
+  [loading]="resultsLoading()"
+  (visibleChange)="resultsDialogVisible.set($event)"
+  (close)="closeResultsDialog()"
+  (viewQuiz)="goView($event)"
+></app-quiz-template-results-dialog>

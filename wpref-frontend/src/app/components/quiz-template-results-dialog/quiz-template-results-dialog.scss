@@ -1,0 +1,23 @@
+.dialog-intro {
+  color: #6b7280;
+  margin: 0 0 1rem;
+}
+
+.center-cell {
+  text-align: center;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.empty-cell {
+  color: #6b7280;
+  padding: 1rem;
+  text-align: center;
+}
+
+:host ::ng-deep .p-datatable thead > tr > th {
+  text-align: center !important;
+}

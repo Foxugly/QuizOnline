@@ -437,6 +437,38 @@ class QuizSerializer(QuizListSerializer):
         return sum(a.max_score for a in self._answers_qs(obj))
 
 
+class QuizAssignmentListSerializer(QuizListSerializer):
+    earned_score = serializers.SerializerMethodField()
+    max_score = serializers.SerializerMethodField()
+    total_answers = serializers.SerializerMethodField()
+    correct_answers = serializers.SerializerMethodField()
+
+    class Meta(QuizListSerializer.Meta):
+        fields = QuizListSerializer.Meta.fields + [
+            "earned_score",
+            "max_score",
+            "total_answers",
+            "correct_answers",
+        ]
+
+    def _answers_qs(self, obj):
+        if not hasattr(obj, "_answers_cache"):
+            obj._answers_cache = obj.answers.all()
+        return obj._answers_cache
+
+    def get_total_answers(self, obj) -> int:
+        return self._answers_qs(obj).count()
+
+    def get_correct_answers(self, obj) -> int:
+        return self._answers_qs(obj).filter(is_correct=True).count()
+
+    def get_earned_score(self, obj) -> float:
+        return sum(answer.earned_score for answer in self._answers_qs(obj))
+
+    def get_max_score(self, obj) -> float:
+        return sum(answer.max_score for answer in self._answers_qs(obj))
+
+
 class QuizUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz

@@ -1,0 +1,40 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [style]="{width: '34rem'}"
+  header="Envoyer le quiz"
+  (onHide)="onCancel()"
+>
+  @if (template(); as selectedTemplate) {
+    <div class="dialog-stack">
+      <p class="dialog-intro">
+        Selectionne une ou plusieurs personnes pour leur envoyer
+        <strong>{{ selectedTemplate.title }}</strong>.
+      </p>
+
+      <p-multiSelect
+        [ngModel]="selectedRecipientIds()"
+        (ngModelChange)="onRecipientsChange($event)"
+        [options]="users()"
+        appendTo="body"
+        display="chip"
+        optionLabel="username"
+        optionValue="id"
+        placeholder="Choisir des utilisateurs"
+        styleClass="w-full"
+      ></p-multiSelect>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <p-button (onClick)="onCancel()" label="Annuler" severity="secondary" text></p-button>
+    <p-button
+      (onClick)="onSubmit()"
+      [disabled]="!selectedRecipientIds().length"
+      [loading]="assigning()"
+      icon="pi pi-send"
+      label="Envoyer"
+    ></p-button>
+  </ng-template>
+</p-dialog>

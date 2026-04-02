@@ -18,6 +18,7 @@ quiztemplate_detail = QuizTemplateViewSet.as_view({
     "patch": "partial_update",
     "delete": "destroy",
 })
+quiztemplate_sessions = QuizTemplateViewSet.as_view({"get": "sessions"})
 quiztemplate_generate = QuizTemplateViewSet.as_view({"post": "generate_from_subjects"})
 # # --- QuizQuestion nested under template ---
 template_question_list = QuizTemplateQuizQuestionViewSet.as_view({"get": "list", "post": "create"})
@@ -61,6 +62,7 @@ urlpatterns = [
     #     # QuizTemplate
     path("template/", quiztemplate_list, name="quiz-template-list"),
     path("template/<int:qt_id>/", quiztemplate_detail, name="quiz-template-detail"),
+    path("template/<int:qt_id>/sessions/", quiztemplate_sessions, name="quiz-template-sessions"),
     path("template/generate-from-subjects/", quiztemplate_generate, name="quiz-template-generate-from-subjects"),
     #
     #     # Template -> questions (QuizQuestion)

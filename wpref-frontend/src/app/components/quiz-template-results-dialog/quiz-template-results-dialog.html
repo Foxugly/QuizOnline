@@ -1,0 +1,65 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [style]="{width: '62rem'}"
+  [draggable]="false"
+  header="Resultats des quiz envoyes"
+  (onHide)="onClose()"
+>
+  @if (template(); as selectedTemplate) {
+    <p class="dialog-intro">
+      Sessions envoyees pour <strong>{{ selectedTemplate.title }}</strong>.
+    </p>
+  }
+
+  <p-table [value]="sessions()" showGridlines size="small" stripedRows>
+    <ng-template #header>
+      <tr>
+        <th>Utilisateur</th>
+        <th>Statut</th>
+        <th>Demarre le</th>
+        <th>Termine le</th>
+        <th>Reponses</th>
+        <th>Score</th>
+        <th style="width: 120px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-quiz>
+      <tr>
+        <td>{{ quiz.user_summary?.username || '-' }}</td>
+        <td class="center-cell">{{ statusLabel(quiz) }}</td>
+        <td class="center-cell">{{ quiz.started_at | date : 'short' }}</td>
+        <td class="center-cell">{{ quiz.ended_at | date : 'short' }}</td>
+        <td class="center-cell">{{ quiz.total_answers ?? 0 }} / {{ quiz.max_questions }}</td>
+        <td class="center-cell">
+          @if (quiz.earned_score !== null && quiz.max_score !== null) {
+            {{ quiz.earned_score }} / {{ quiz.max_score }}
+          } @else {
+            -
+          }
+        </td>
+        <td class="row-actions">
+          <p-button
+            (onClick)="openQuiz(quiz.id)"
+            icon="pi pi-eye"
+            label="Voir"
+            severity="secondary"
+            size="small"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td class="empty-cell" colspan="7">
+          @if (loading()) {
+            Chargement...
+          } @else {
+            Aucune session envoyee.
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

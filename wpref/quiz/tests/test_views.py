@@ -759,6 +759,39 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res2.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(res2.data), 2)
 
+    def test_bulk_create_from_template_template_creator_allowed(self):
+        creator = User.objects.create_user(username="creator", password="pass", is_staff=False)
+        template = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_CREATOR",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+            created_by=creator,
+        )
+
+        url = self._rev(
+            "api:quiz-api:quiz-bulk-create-from-template",
+            "quiz-api:quiz-bulk-create-from-template",
+        )
+        payload = {"quiz_template_id": template.id, "user_ids": [self.u1.id]}
+
+        self._auth(creator)
+        res = self.client.post(url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(res.data), 1)
+
     def test_bulk_create_from_template_invalid_input_400(self):
         url = self._rev(
             "api:quiz-api:quiz-bulk-create-from-template",
@@ -802,6 +835,36 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             format="json",
         )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_quiztemplate_sessions_visible_for_template_creator(self):
+        creator = User.objects.create_user(username="creator-2", password="pass")
+        template = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_RESULTS",
+            mode=QuizTemplate.MODE_PRACTICE,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=False,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+            created_by=creator,
+        )
+        Quiz.objects.create(domain=self.domain, quiz_template=template, user=self.u1, active=False)
+        url = f"/api/quiz/template/{template.id}/sessions/"
+
+        self._auth(creator)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]["user_summary"]["id"], self.u1.id)
 
     # ---------------------------------------------------------------------
     # QuizViewSet: start / close
