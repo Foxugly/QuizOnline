@@ -12,20 +12,20 @@
       @if (open()) {
         <div class="user-menu__panel" (click)="$event.stopPropagation()">
           <button pButton type="button" class="user-menu__item" (click)="goPreferences()">
-            Preferences
+            {{ ui.userMenu.preferences }}
           </button>
           <button pButton type="button" class="user-menu__item" (click)="goChangePassword()">
-            Changer de mot de passe
+            {{ ui.userMenu.changePassword }}
           </button>
           <button pButton type="button" class="user-menu__item user-menu__item--danger" (click)="logout()">
-            Deconnexion
+            {{ ui.userMenu.logout }}
           </button>
         </div>
       }
     </div>
   } @else {
     <p-button
-      label="login"
+      [label]="ui.userMenu.login"
       (click)="goLogin()"
     ></p-button>
   }

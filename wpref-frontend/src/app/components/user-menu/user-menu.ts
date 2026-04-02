@@ -3,6 +3,8 @@ import {Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
 import {AuthService} from '../../services/auth/auth';
+import {UserService} from '../../services/user/user';
+import {getUiText} from '../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-user-menu',
@@ -16,7 +18,12 @@ import {AuthService} from '../../services/auth/auth';
 export class UserMenuComponent {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
   protected readonly open = signal(false);
+
+  get ui() {
+    return getUiText(this.userService.currentLang);
+  }
 
   goPreferences() {
     this.open.set(false);

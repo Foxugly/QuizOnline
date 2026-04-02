@@ -9,6 +9,7 @@ import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
 import {ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
+import {getUiText} from '../../shared/i18n/ui-text';
 
 declare global {
   interface Window {
@@ -54,11 +55,15 @@ export class TopMenuComponent implements OnInit {
 
   currentLang: SupportedLanguage = this.userService.currentLang;
 
+  get ui() {
+    return getUiText(this.userService.currentLang);
+  }
+
   get navItems(): NavItem[] {
     const isStaff = this.userService.isAdmin();
     const items: NavItem[] = [
       {
-        label: 'Quiz',
+        label: this.ui.topmenu.quiz,
         link: ROUTES.quiz.list(),
       },
     ];
@@ -66,22 +71,22 @@ export class TopMenuComponent implements OnInit {
     if (isStaff) {
       items.unshift(
         {
-          label: 'Domaines',
+          label: this.ui.topmenu.domains,
           link: ROUTES.domain.list(),
         },
         {
-          label: 'Sujets',
+          label: this.ui.topmenu.subjects,
           link: ROUTES.subject.list(),
         },
         {
-          label: 'Questions',
+          label: this.ui.topmenu.questions,
           link: ROUTES.question.list(),
         },
       );
     }
 
     items.push({
-      label: 'A propos',
+      label: this.ui.topmenu.about,
       link: ['/about'],
     });
 

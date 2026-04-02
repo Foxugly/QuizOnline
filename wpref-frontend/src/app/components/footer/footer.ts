@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {UserService} from '../../services/user/user';
+import {getUiText} from '../../shared/i18n/ui-text';
 
 declare global {
   interface Window {
@@ -22,4 +24,9 @@ declare global {
 })
 export class FooterComponent {
   app = window.__APP__!;
+  private readonly userService = inject(UserService);
+
+  get ui() {
+    return getUiText(this.userService.currentLang);
+  }
 }

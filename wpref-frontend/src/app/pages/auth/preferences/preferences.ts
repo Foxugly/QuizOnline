@@ -11,6 +11,7 @@ import {SelectModule} from 'primeng/select';
 import {CustomUserReadDto, DomainReadDto, LanguageEnumDto} from '../../../api/generated';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
+import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-preferences',
@@ -48,13 +49,19 @@ export class Preferences implements OnInit {
     current_domain: [null as number | null],
   });
 
-  readonly languageOptions = [
-    {label: 'Français', value: LanguageEnumDto.Fr},
-    {label: 'Nederlands', value: LanguageEnumDto.Nl},
-    {label: 'English', value: LanguageEnumDto.En},
-    {label: 'Italiano', value: LanguageEnumDto.It},
-    {label: 'Español', value: LanguageEnumDto.Es},
-  ];
+  get ui() {
+    return getUiText(this.userService.currentLang);
+  }
+
+  get languageOptions() {
+    return [
+      {label: 'Français', value: LanguageEnumDto.Fr},
+      {label: 'Nederlands', value: LanguageEnumDto.Nl},
+      {label: 'English', value: LanguageEnumDto.En},
+      {label: 'Italiano', value: LanguageEnumDto.It},
+      {label: 'Español', value: LanguageEnumDto.Es},
+    ];
+  }
 
   get domainOptions() {
     return this.domains().map((domain) => ({
@@ -69,12 +76,12 @@ export class Preferences implements OnInit {
       return '-';
     }
     if (me.is_superuser) {
-      return 'Superuser';
+      return this.ui.preferences.roleSuperuser;
     }
     if (me.is_staff) {
-      return 'Staff';
+      return this.ui.preferences.roleStaff;
     }
-    return 'Utilisateur';
+    return this.ui.preferences.roleUser;
   }
 
   ngOnInit(): void {
@@ -103,9 +110,8 @@ export class Preferences implements OnInit {
             current_domain: currentUser.current_domain ?? null,
           });
         },
-        error: (err) => {
-          console.error(err);
-          this.error.set('Impossible de charger vos préférences.');
+        error: () => {
+          this.error.set(this.ui.preferences.loadError);
         },
       });
   }
@@ -121,7 +127,7 @@ export class Preferences implements OnInit {
 
     const me = this.currentUser();
     if (!me) {
-      this.error.set('Utilisateur introuvable.');
+      this.error.set(this.ui.preferences.userMissing);
       return;
     }
 
@@ -157,17 +163,16 @@ export class Preferences implements OnInit {
             language: updatedUser.language ?? LanguageEnumDto.En,
             current_domain: updatedUser.current_domain ?? null,
           });
-          this.success.set('Préférences enregistrées.');
+          this.success.set(this.ui.preferences.saveSuccess);
         },
-        error: (err) => {
-          console.error(err);
-          this.error.set('Impossible d’enregistrer les préférences.');
+        error: () => {
+          this.error.set(this.ui.preferences.saveError);
         },
       });
   }
 
   goChangePassword(): void {
-    this.router.navigate(['/change-password']);
+    void this.router.navigate(['/change-password']);
   }
 
   private getDomainLabel(domain: DomainReadDto): string {

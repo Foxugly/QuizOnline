@@ -9,6 +9,8 @@ import {PasswordModule} from 'primeng/password';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {AuthService} from '../../../services/auth/auth';
+import {UserService} from '../../../services/user/user';
+import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   standalone: true,
@@ -30,6 +32,7 @@ export class LoginPage implements OnInit {
   app = window.__APP__!;
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -48,9 +51,13 @@ export class LoginPage implements OnInit {
     return this.form.controls;
   }
 
+  get ui() {
+    return getUiText(this.userService.currentLang);
+  }
+
   ngOnInit() {
     if (this.route.snapshot.queryParamMap.get('email_confirmation_required') === '1') {
-      this.infoMsg.set('Confirme ton adresse email avant de te connecter.');
+      this.infoMsg.set(this.ui.login.confirmEmailRequired);
     }
   }
 
@@ -82,7 +89,7 @@ export class LoginPage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMsg.set(err?.error?.detail || 'Identifiants invalides. Reessaie.');
+        this.errorMsg.set(err?.error?.detail || this.ui.login.invalidCredentials);
       },
     });
   }

@@ -12,6 +12,7 @@ import {PasswordChangeRequestDto} from '../../../api/generated';
 import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
+import {getUiText} from '../../../shared/i18n/ui-text';
 
 (window as any).__APP__ = {
   name: environment.appName,
@@ -57,8 +58,12 @@ export class ChangePasswordPage {
     );
 
     this.infoMessage = this.userService.requiresPasswordChange()
-      ? 'Le changement de mot de passe est requis avant de continuer.'
+      ? this.ui.changePassword.forceMessage
       : '';
+  }
+
+  get ui() {
+    return getUiText(this.userService.currentLang);
   }
 
   private passwordsMatchValidator(group: AbstractControl) {
@@ -134,14 +139,14 @@ export class ChangePasswordPage {
           }
         }
 
-        this.errorMessage = 'Une erreur est survenue lors de la modification du mot de passe.';
+        this.errorMessage = this.ui.changePassword.error;
       },
     });
   }
 
   private handlePasswordChangeSuccess(): void {
     this.isSubmitting = false;
-    this.successMessage = 'Votre mot de passe a ete modifie.';
+    this.successMessage = this.ui.changePassword.success;
     this.infoMessage = '';
     this.form.reset();
     this.submitted = false;

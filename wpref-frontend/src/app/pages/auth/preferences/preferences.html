@@ -2,11 +2,9 @@
   <div class="preferences-shell">
     <section class="hero">
       <div class="hero__copy">
-        <p class="hero__eyebrow">Mon compte</p>
-        <h1>Préférences</h1>
-        <p class="hero__text">
-          Gérez votre profil, votre langue d’interface et votre domaine courant.
-        </p>
+        <p class="hero__eyebrow">{{ ui.preferences.eyebrow }}</p>
+        <h1>{{ ui.preferences.title }}</h1>
+        <p class="hero__text">{{ ui.preferences.subtitle }}</p>
       </div>
       <div class="hero__meta">
         <span class="meta-pill">{{ roleLabel }}</span>
@@ -16,48 +14,48 @@
 
     <div class="preferences-grid">
       <p-card class="panel panel--form">
-        <ng-template pTemplate="title">Profil</ng-template>
-        <ng-template pTemplate="subtitle">Informations personnelles et préférences d’affichage.</ng-template>
+        <ng-template pTemplate="title">{{ ui.preferences.profileTitle }}</ng-template>
+        <ng-template pTemplate="subtitle">{{ ui.preferences.profileSubtitle }}</ng-template>
 
         @if (loading()) {
-          <p class="state">Chargement...</p>
+          <p class="state">{{ ui.preferences.loading }}</p>
         } @else {
           <form [formGroup]="form" class="form" (ngSubmit)="save()">
             <div class="field-grid">
               <div class="field">
-                <label for="username">Nom d’utilisateur</label>
+                <label for="username">{{ ui.preferences.username }}</label>
                 <input id="username" pInputText formControlName="username">
               </div>
 
               <div class="field">
-                <label for="email">Email</label>
+                <label for="email">{{ ui.preferences.email }}</label>
                 <input id="email" pInputText formControlName="email" type="email">
               </div>
 
               <div class="field">
-                <label for="first_name">Prénom</label>
+                <label for="first_name">{{ ui.preferences.firstName }}</label>
                 <input id="first_name" pInputText formControlName="first_name">
               </div>
 
               <div class="field">
-                <label for="last_name">Nom</label>
+                <label for="last_name">{{ ui.preferences.lastName }}</label>
                 <input id="last_name" pInputText formControlName="last_name">
               </div>
 
               <div class="field">
-                <label for="language">Langue</label>
+                <label for="language">{{ ui.preferences.language }}</label>
                 <p-select
                   inputId="language"
                   [options]="languageOptions"
                   formControlName="language"
                   optionLabel="label"
                   optionValue="value"
-                  placeholder="Choisir une langue"
+                  [placeholder]="ui.preferences.chooseLanguage"
                 ></p-select>
               </div>
 
               <div class="field">
-                <label for="current_domain">Domaine courant</label>
+                <label for="current_domain">{{ ui.preferences.currentDomain }}</label>
                 <p-select
                   inputId="current_domain"
                   [options]="domainOptions"
@@ -65,7 +63,7 @@
                   optionLabel="label"
                   optionValue="value"
                   [showClear]="true"
-                  placeholder="Aucun domaine"
+                  [placeholder]="ui.preferences.noDomain"
                 ></p-select>
               </div>
             </div>
@@ -80,13 +78,13 @@
             <div class="actions">
               <p-button
                 type="submit"
-                label="Enregistrer"
+                [label]="ui.preferences.save"
                 icon="pi pi-save"
                 [loading]="saving()"
               ></p-button>
               <p-button
                 type="button"
-                label="Changer le mot de passe"
+                [label]="ui.preferences.changePassword"
                 icon="pi pi-lock"
                 severity="secondary"
                 [text]="true"
@@ -98,33 +96,33 @@
       </p-card>
 
       <p-card class="panel panel--summary">
-        <ng-template pTemplate="title">Résumé</ng-template>
-        <ng-template pTemplate="subtitle">Vue rapide de votre compte courant.</ng-template>
+        <ng-template pTemplate="title">{{ ui.preferences.summaryTitle }}</ng-template>
+        <ng-template pTemplate="subtitle">{{ ui.preferences.summarySubtitle }}</ng-template>
 
         <dl class="summary">
           <div class="summary__row">
-            <dt>Rôle</dt>
+            <dt>{{ ui.preferences.role }}</dt>
             <dd>{{ roleLabel }}</dd>
           </div>
           <div class="summary__row">
-            <dt>Utilisateur</dt>
+            <dt>{{ ui.preferences.user }}</dt>
             <dd>{{ currentUser()?.username || '-' }}</dd>
           </div>
           <div class="summary__row">
-            <dt>Domaine actuel</dt>
-            <dd>{{ currentUser()?.current_domain_title || 'Aucun' }}</dd>
+            <dt>{{ ui.preferences.currentDomainLabel }}</dt>
+            <dd>{{ currentUser()?.current_domain_title || ui.preferences.noDomain }}</dd>
           </div>
           <div class="summary__row">
-            <dt>Domaines gérés</dt>
+            <dt>{{ ui.preferences.managedDomains }}</dt>
             <dd>{{ currentUser()?.managed_domain_ids?.length || 0 }}</dd>
           </div>
           <div class="summary__row">
-            <dt>Domaines possédés</dt>
+            <dt>{{ ui.preferences.ownedDomains }}</dt>
             <dd>{{ currentUser()?.owned_domain_ids?.length || 0 }}</dd>
           </div>
           <div class="summary__row">
-            <dt>Compte actif</dt>
-            <dd>{{ currentUser()?.is_active ? 'Oui' : 'Non' }}</dd>
+            <dt>{{ ui.preferences.activeAccount }}</dt>
+            <dd>{{ currentUser()?.is_active ? ui.preferences.yes : ui.preferences.no }}</dd>
           </div>
         </dl>
       </p-card>

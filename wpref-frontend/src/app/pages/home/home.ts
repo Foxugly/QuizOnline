@@ -6,6 +6,9 @@ import {ButtonModule} from 'primeng/button';
 import {ROUTES} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
+import {getUiText} from '../../shared/i18n/ui-text';
+
+type QuickLinkKey = 'catalog' | 'preferences' | 'about';
 
 @Component({
   selector: 'app-home',
@@ -17,6 +20,7 @@ export class Home {
   readonly app = window.__APP__!;
   private readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
+  readonly ui = computed(() => getUiText(this.userService.currentLang));
 
   readonly isAuthenticated = computed(() => this.auth.isLoggedIn());
   readonly isAdmin = this.userService.isAdmin;
@@ -24,33 +28,18 @@ export class Home {
     this.isAuthenticated() ? ROUTES.quiz.list() : ROUTES.auth.login(),
   );
   readonly primaryCtaLabel = computed(() =>
-    this.isAuthenticated() ? 'Voir mes quiz' : 'Se connecter',
+    this.isAuthenticated() ? this.ui().home.primaryLoggedIn : this.ui().home.primaryLoggedOut,
   );
   readonly secondaryCta = computed(() =>
     this.isAdmin() ? ROUTES.quiz.add() : ROUTES.auth.register(),
   );
   readonly secondaryCtaLabel = computed(() =>
-    this.isAdmin() ? 'Composer un template' : 'Creer un compte',
+    this.isAdmin() ? this.ui().home.secondaryAdmin : this.ui().home.secondaryLoggedOut,
   );
 
-  readonly highlights = [
-    {
-      title: 'Passage fluide',
-      description: 'Quiz pratiques ou examens avec timer, reprise et correction localisee.',
-    },
-    {
-      title: 'Edition staff',
-      description: 'Questions multimedia, sujets, domaines et templates dans une interface unifiee.',
-    },
-    {
-      title: 'Suivi reel',
-      description: 'Affectations, resultats, alertes et corrections disponibles selon les regles metier.',
-    },
-  ];
-
   readonly quickLinks = [
-    {label: 'Catalogue des quiz', link: ROUTES.quiz.list()},
-    {label: 'Preferences', link: ['/preferences'] as const},
-    {label: 'A propos', link: ['/about'] as const},
+    {key: 'catalog' as QuickLinkKey, link: ROUTES.quiz.list()},
+    {key: 'preferences' as QuickLinkKey, link: ['/preferences'] as const},
+    {key: 'about' as QuickLinkKey, link: ['/about'] as const},
   ];
 }

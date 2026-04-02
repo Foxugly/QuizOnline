@@ -2,9 +2,9 @@
   <div class="login-page__shell">
     <div class="login-card">
       <div class="login-card__header">
-        <p class="login-card__eyebrow">Connexion</p>
-        <h2>Acceder a votre espace</h2>
-        <p>Identifiez-vous pour continuer.</p>
+        <p class="login-card__eyebrow">{{ ui.login.eyebrow }}</p>
+        <h2>{{ ui.login.title }}</h2>
+        <p>{{ ui.login.subtitle }}</p>
       </div>
 
       @if (errorMsg()) {
@@ -22,35 +22,35 @@
         autocomplete="on">
 
         <div class="field">
-          <label for="username">Utilisateur</label>
+          <label for="username">{{ ui.login.username }}</label>
           <input
             id="username"
             type="text"
             pInputText
             formControlName="username"
-            placeholder="Votre identifiant"
+            [placeholder]="ui.login.usernamePlaceholder"
             autofocus
           />
           @if (f.username.touched && f.username.invalid) {
             <small class="field__error">
-              Nom d utilisateur requis (min. 3 caracteres)
+              {{ ui.login.usernameError }}
             </small>
           }
         </div>
 
         <div class="field">
-          <label for="password">Mot de passe</label>
+          <label for="password">{{ ui.login.password }}</label>
           <p-password
             [feedback]="false"
             [toggleMask]="true"
             formControlName="password"
             id="password"
-            placeholder="Votre mot de passe"
+            [placeholder]="ui.login.passwordPlaceholder"
             fluid
           ></p-password>
           @if (f.password.touched && f.password.invalid) {
             <small class="field__error">
-              Mot de passe requis (min. 4 caracteres)
+              {{ ui.login.passwordError }}
             </small>
           }
         </div>
@@ -62,17 +62,17 @@
               formControlName="remember"
               [binary]="true"
             ></p-checkbox>
-            <label for="remember">Se souvenir de moi</label>
+            <label for="remember">{{ ui.login.remember }}</label>
           </div>
 
           <a routerLink="/reset-password" class="link">
-            Mot de passe oublie ?
+            {{ ui.login.forgotPassword }}
           </a>
         </div>
 
         <p-button
           type="submit"
-          label="Se connecter"
+          [label]="ui.login.submit"
           styleClass="login-submit"
           [disabled]="loading() || form.invalid"
           [loading]="loading()"
@@ -80,8 +80,8 @@
       </form>
 
       <div class="login-card__footer">
-        <span class="muted">Pas encore de compte ?</span>
-        <a routerLink="/register" class="link">Creer un compte</a>
+        <span class="muted">{{ ui.login.noAccount }}</span>
+        <a routerLink="/register" class="link">{{ ui.login.createAccount }}</a>
       </div>
     </div>
   </div>

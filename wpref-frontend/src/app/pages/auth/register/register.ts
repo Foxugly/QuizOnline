@@ -20,6 +20,8 @@ import {LanguageService} from '../../../services/language/language';
 import {LanguageReadDto} from '../../../api/generated';
 import {ROUTES} from '../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {UserService} from '../../../services/user/user';
+import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-register',
@@ -44,6 +46,7 @@ export class Register implements OnInit {
     private authService: AuthService,
     private languageService: LanguageService,
     private router: Router,
+    private userService: UserService,
   ) {
     this.form = this.fb.nonNullable.group(
       {
@@ -61,6 +64,10 @@ export class Register implements OnInit {
 
   get f() {
     return this.form.controls;
+  }
+
+  get ui() {
+    return getUiText(this.userService.currentLang);
   }
 
   private static passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -111,8 +118,7 @@ export class Register implements OnInit {
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: () => {
-          this.successMessage =
-            'Votre compte a ete cree. Verifiez votre boite mail pour confirmer votre inscription.';
+          this.successMessage = this.ui.register.success;
           this.submitted = false;
           this.form.reset();
           const defaultLang = this.languages[0]?.code ?? 'en';
@@ -144,7 +150,7 @@ export class Register implements OnInit {
         error: (err) => {
           logApiError('auth.register.load-languages', err);
           this.languages = [];
-          this.errorMessage = userFacingApiMessage(err, 'Impossible de charger la liste des langues.');
+          this.errorMessage = userFacingApiMessage(err, this.ui.register.loadLanguagesError);
           if (!this.form.get('language')?.value) {
             this.form.get('language')?.setValue('en');
           }
@@ -172,7 +178,7 @@ export class Register implements OnInit {
       }
     }
 
-    return "L'inscription a echoue. Verifiez les informations et reessayez.";
+    return this.ui.register.submitError;
   }
 
   goRegister(): void {
