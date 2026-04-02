@@ -1,86 +1,88 @@
-<div class="container">
-  <div class="container__card">
-    <div class="card__brand">
-      <img [src]="app.logoSvg" alt="Logo" class="brand__logo">
-      <h1 class="brand__title">{{ app.name }}</h1>
-      <p class="brand__subtitle">Connecte-toi pour continuer</p>
-    </div>
-
-    @if (errorMsg()) {
-      <p-message severity="error" styleClass="alert alert--error">{{errorMsg()}}</p-message>
-    }
-
-    @if (infoMsg()) {
-      <p-message severity="info" styleClass="alert alert--info">{{infoMsg()}}</p-message>
-    }
-
-    <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-      class="container__form"
-      autocomplete="on">
-
-      <!-- Utilisateur -->
-      <div class="field">
-        <label for="username">Utilisateur</label>
-        <input
-          id="username"
-          type="text"
-          pInputText
-          formControlName="username"
-          placeholder="ton identifiant"
-          autofocus
-        />
-        @if (f.username.touched && f.username.invalid) {
-          <small class="field__error">
-            Nom d’utilisateur requis (min. 3 caractères)
-          </small>
-        }
+<section class="login-page">
+  <div class="login-page__shell">
+    <div class="login-card">
+      <div class="login-card__header">
+        <p class="login-card__eyebrow">Connexion</p>
+        <h2>Acceder a votre espace</h2>
+        <p>Identifiez-vous pour continuer.</p>
       </div>
 
-      <!-- Mot de passe -->
-      <div class="field">
-        <label for="password">Mot de passe</label>
-        <div class="password">
-          <p-password [feedback]="false" [toggleMask]="true" formControlName="password" id="password"
-                      placeholder="******" fluid></p-password>
-        </div>
-        @if (f.password.touched && f.password.invalid) {
-          <small class="field__error">
-            Mot de passe requis (min. 4 caractères)
-          </small>
-        }
-      </div>
+      @if (errorMsg()) {
+        <p-message severity="error" styleClass="alert alert--error">{{ errorMsg() }}</p-message>
+      }
 
-      <!-- Remember + reset -->
-      <div class="row row--between">
-        <div class="checkbox">
-          <p-checkbox
-            inputId="remember"
-            formControlName="remember"
-            [binary]="true"
-          ></p-checkbox>
-          <label for="remember">Se souvenir de moi</label>
+      @if (infoMsg()) {
+        <p-message severity="info" styleClass="alert alert--info">{{ infoMsg() }}</p-message>
+      }
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        class="login-form"
+        autocomplete="on">
+
+        <div class="field">
+          <label for="username">Utilisateur</label>
+          <input
+            id="username"
+            type="text"
+            pInputText
+            formControlName="username"
+            placeholder="Votre identifiant"
+            autofocus
+          />
+          @if (f.username.touched && f.username.invalid) {
+            <small class="field__error">
+              Nom d utilisateur requis (min. 3 caracteres)
+            </small>
+          }
         </div>
 
-        <a routerLink="/reset-password" class="link">
-          Mot de passe oublié ?
-        </a>
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <p-password
+            [feedback]="false"
+            [toggleMask]="true"
+            formControlName="password"
+            id="password"
+            placeholder="Votre mot de passe"
+            fluid
+          ></p-password>
+          @if (f.password.touched && f.password.invalid) {
+            <small class="field__error">
+              Mot de passe requis (min. 4 caracteres)
+            </small>
+          }
+        </div>
+
+        <div class="login-form__meta">
+          <div class="checkbox">
+            <p-checkbox
+              inputId="remember"
+              formControlName="remember"
+              [binary]="true"
+            ></p-checkbox>
+            <label for="remember">Se souvenir de moi</label>
+          </div>
+
+          <a routerLink="/reset-password" class="link">
+            Mot de passe oublie ?
+          </a>
+        </div>
+
+        <p-button
+          type="submit"
+          label="Se connecter"
+          styleClass="login-submit"
+          [disabled]="loading() || form.invalid"
+          [loading]="loading()"
+        ></p-button>
+      </form>
+
+      <div class="login-card__footer">
+        <span class="muted">Pas encore de compte ?</span>
+        <a routerLink="/register" class="link">Creer un compte</a>
       </div>
-
-      <!-- Bouton submit -->
-      <p-button
-        type="submit"
-        label="Se connecter"
-        styleClass="btn btn--primary"
-        [disabled]="loading() || form.invalid"
-        [loading]="loading()"
-      ></p-button>
-    </form>
-
-    <div class="card__footer">
-      <span class="muted">Pas de compte ?</span>
-      <a routerLink="/register" class="link">Créer un compte</a>
     </div>
   </div>
-</div>
+</section>

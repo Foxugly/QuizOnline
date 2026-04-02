@@ -25,9 +25,8 @@
     </div>
   } @else {
     <p-button
-      routerLink="/login"
-      routerLinkActive="active"
       label="login"
+      (click)="goLogin()"
     ></p-button>
   }
 </div>

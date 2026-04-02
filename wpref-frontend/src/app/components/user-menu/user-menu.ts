@@ -1,5 +1,5 @@
 import {Component, HostListener, inject, signal} from '@angular/core';
-import {Router, RouterLink, RouterLinkActive} from '@angular/router';
+import {Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
 import {AuthService} from '../../services/auth/auth';
@@ -8,8 +8,6 @@ import {AuthService} from '../../services/auth/auth';
   selector: 'app-user-menu',
   standalone: true,
   imports: [
-    RouterLink,
-    RouterLinkActive,
     ButtonModule,
   ],
   templateUrl: './user-menu.html',
@@ -33,6 +31,10 @@ export class UserMenuComponent {
   logout() {
     this.open.set(false);
     this.auth.logout();
+    void this.router.navigate(['/login']);
+  }
+
+  goLogin() {
     void this.router.navigate(['/login']);
   }
 

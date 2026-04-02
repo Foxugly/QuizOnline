@@ -1,1 +1,61 @@
-<p>home works!</p>
+<section class="home-page">
+  <header class="hero">
+    <div class="hero__content">
+      <p class="hero__eyebrow">Quiz, templates et correction</p>
+      <h1>{{ app.name }}</h1>
+      <p class="hero__lead">
+        Un espace unique pour composer des quiz, les assigner, les passer et suivre les retours.
+      </p>
+
+      <div class="hero__actions">
+        <p-button [routerLink]="primaryCta()" [label]="primaryCtaLabel()"></p-button>
+        <p-button [routerLink]="secondaryCta()" [label]="secondaryCtaLabel()" variant="outlined"></p-button>
+      </div>
+    </div>
+
+    <aside class="hero__panel">
+      <div class="hero-stat">
+        <span class="hero-stat__label">Mode</span>
+        <strong>{{ isAdmin() ? 'Staff' : isAuthenticated() ? 'Utilisateur connecte' : 'Visiteur' }}</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Langues</span>
+        <strong>FR · EN · NL · IT · ES</strong>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Fonctions</span>
+        <strong>Quiz, alertes, affectations, correction</strong>
+      </div>
+    </aside>
+  </header>
+
+  <section class="highlights">
+    @for (item of highlights; track item.title) {
+      <article class="highlight-card">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+      </article>
+    }
+  </section>
+
+  <section class="home-grid">
+    <article class="info-card">
+      <h2>Ce que vous pouvez faire</h2>
+      <ul>
+        <li>Creer et organiser des banques de questions par domaine et sujet.</li>
+        <li>Composer des quiz pratiques ou examens avec regles de visibilite.</li>
+        <li>Assigner un quiz a des utilisateurs et suivre leurs resultats.</li>
+        <li>Relire une session en correction avec bonnes reponses et explications.</li>
+      </ul>
+    </article>
+
+    <article class="info-card">
+      <h2>Acces rapides</h2>
+      <div class="quick-links">
+        @for (item of quickLinks; track item.label) {
+          <a [routerLink]="item.link" class="quick-link">{{ item.label }}</a>
+        }
+      </div>
+    </article>
+  </section>
+</section>

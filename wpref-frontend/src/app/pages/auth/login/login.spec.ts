@@ -10,6 +10,16 @@ describe('LoginPage', () => {
   let fixture: ComponentFixture<LoginPage>;
 
   beforeEach(async () => {
+    (window as Window & {__APP__?: unknown}).__APP__ = {
+      name: 'WpRef',
+      version: 'test',
+      logoSvg: 'assets/qna.svg',
+      logoIco: 'assets/qna.ico',
+      logoPng: 'assets/qna.png',
+      author: 'Foxugly',
+      year: '2026',
+    };
+
     await TestBed.configureTestingModule({
       imports: [LoginPage],
       providers: [
