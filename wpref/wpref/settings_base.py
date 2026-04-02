@@ -24,6 +24,9 @@ env = environ.Env(
     USE_DEEPL=(bool, False),
     DEEPL_IS_FREE=(bool, False),
     DATABASE_URL=(str, ""),
+    CELERY_BROKER_URL=(str, "redis://127.0.0.1:6379/0"),
+    CELERY_RESULT_BACKEND=(str, "redis://127.0.0.1:6379/1"),
+    CELERY_TASK_ALWAYS_EAGER=(bool, False),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))
@@ -160,6 +163,10 @@ EMAIL_USE_TLS = env("EMAIL_USE_TLS")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL").rstrip("/")
 PASSWORD_RESET_FRONTEND_PATH_PREFIX = "/" + env("PASSWORD_RESET_FRONTEND_PATH_PREFIX").strip("/")
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER")
+CELERY_TASK_EAGER_PROPAGATES = True
 
 SENSITIVE_FIELDS = {
     "password",
@@ -195,8 +202,8 @@ LOGGING = {
 }
 
 DEEPL_AUTH_KEY = env("DEEPL_AUTH_KEY", default="")
-USE_DEEPL = env("USE_DEEPL", False)
-DEEPL_IS_FREE = env("DEEPL_IS_FREE", True)
+USE_DEEPL = env.bool("USE_DEEPL", default=False)
+DEEPL_IS_FREE = env.bool("DEEPL_IS_FREE", default=True)
 
 PARLER_LANGUAGES = {
     None: tuple({"code": code} for code, _ in LANGUAGES),

@@ -59,12 +59,45 @@ Le backend selectionne son profil via `DJANGO_ENV` :
 
 En profil `prod`, les variables critiques (`SECRET_KEY`, `ALLOWED_HOSTS`, `DATABASE_URL`, `FRONTEND_BASE_URL`, `DEFAULT_FROM_EMAIL`) sont obligatoires.
 
-Les emails applicatifs passent par une outbox base de donnees et doivent etre traites via :
+Variables backend notables :
+
+- `CELERY_BROKER_URL`
+- `CELERY_RESULT_BACKEND`
+- `CELERY_TASK_ALWAYS_EAGER`
+- `USE_DEEPL`
+- `DEEPL_AUTH_KEY`
+- `DEEPL_IS_FREE`
+
+Les emails applicatifs passent par une outbox base de donnees traitee par Celery + Redis :
+
+```bash
+redis-server
+cd wpref
+celery -A wpref worker -l info
+```
+
+Le traitement manuel de rattrapage reste disponible si necessaire :
 
 ```bash
 cd wpref
 python manage.py process_outbound_email --limit 100
 ```
+
+Tous les emails backend sont emis dans la langue du destinataire.
+
+Architecture email :
+
+- le code applicatif enfile un `OutboundEmail` en base
+- `transaction.on_commit(...)` declenche une tache Celery
+- le worker Celery lit l outbox et envoie le mail via le backend SMTP Django
+- la commande `process_outbound_email` sert uniquement de rattrapage
+
+DeepL :
+
+- `USE_DEEPL=True` active DeepL pour les endpoints de traduction
+- `USE_DEEPL=False` garde le backend de traduction simulé
+- `DEEPL_IS_FREE=True` cible `api-free.deepl.com`
+- en cas de timeout, rate limit ou erreur 5xx, le backend renvoie une erreur applicative propre sans exposer la reponse brute DeepL
 
 Fichiers principaux :
 
@@ -72,6 +105,7 @@ Fichiers principaux :
 - [`wpref/wpref/settings_base.py`](./wpref/wpref/settings_base.py)
 - [`wpref/wpref/settings_dev.py`](./wpref/wpref/settings_dev.py)
 - [`wpref/wpref/settings_prod.py`](./wpref/wpref/settings_prod.py)
+- [`wpref/wpref/celery.py`](./wpref/wpref/celery.py)
 
 ## Documentation
 
@@ -80,6 +114,20 @@ Fichiers principaux :
 - checklist acceptance / production : [`docs/acceptance-checklist.md`](./docs/acceptance-checklist.md)
 - contrat API backend : [`wpref/openapi.yaml`](./wpref/openapi.yaml)
 - contrat API frontend : [`wpref-frontend/openapi.yaml`](./wpref-frontend/openapi.yaml)
+
+## CI
+
+La CI GitHub valide notamment :
+
+- tests backend decoupes par domaines fonctionnels
+- `translation.tests`
+- `makemigrations --check --dry-run`
+- `check --deploy`
+- typecheck frontend
+- unit tests frontend
+- build frontend
+- e2e frontend
+- synchro OpenAPI / client genere
 
 ## Principes
 

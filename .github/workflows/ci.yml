@@ -61,7 +61,7 @@ jobs:
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
-        run: python manage.py test language.tests domain.tests subject.tests question.tests --verbosity 2 --parallel 2
+        run: python manage.py test language.tests domain.tests subject.tests question.tests translation.tests --verbosity 2 --parallel 2
 
   backend-quiz:
     runs-on: ubuntu-latest
@@ -131,6 +131,8 @@ jobs:
           DEFAULT_FROM_EMAIL: ci.local@wpref.test
           EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
           CSRF_TRUSTED_ORIGINS: https://ci.local
+          CELERY_BROKER_URL: redis://localhost:6379/0
+          CELERY_RESULT_BACKEND: redis://localhost:6379/1
         run: python manage.py check --deploy
 
   frontend:

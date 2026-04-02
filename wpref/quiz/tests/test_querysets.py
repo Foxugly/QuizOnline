@@ -15,11 +15,14 @@ class QuizQuerysetsTests(TestCase):
         self.owner = User.objects.create_user(username="owner", password="pass")
         self.user = User.objects.create_user(username="user", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
+        self.staff_user = User.objects.create_user(username="staff", password="pass", is_staff=True)
 
         self.domain = Domain.objects.create(owner=self.owner, name="Domain A", description="", active=True)
         self.other_domain = Domain.objects.create(owner=self.owner, name="Domain B", description="", active=True)
         self.user.current_domain = self.domain
         self.user.save(update_fields=["current_domain"])
+        self.staff_user.current_domain = self.domain
+        self.staff_user.save(update_fields=["current_domain"])
 
         self.public_same_domain = QuizTemplate.objects.create(
             domain=self.domain,
@@ -27,6 +30,7 @@ class QuizQuerysetsTests(TestCase):
             is_public=True,
             active=True,
             permanent=True,
+            created_by=self.owner,
         )
         self.public_other_domain = QuizTemplate.objects.create(
             domain=self.other_domain,
@@ -34,6 +38,7 @@ class QuizQuerysetsTests(TestCase):
             is_public=True,
             active=True,
             permanent=True,
+            created_by=self.owner,
         )
         self.private_assigned = QuizTemplate.objects.create(
             domain=self.other_domain,
@@ -41,6 +46,7 @@ class QuizQuerysetsTests(TestCase):
             is_public=False,
             active=True,
             permanent=True,
+            created_by=self.owner,
         )
         self.private_hidden = QuizTemplate.objects.create(
             domain=self.other_domain,
@@ -48,6 +54,7 @@ class QuizQuerysetsTests(TestCase):
             is_public=False,
             active=True,
             permanent=True,
+            created_by=self.other_user,
         )
         Quiz.objects.create(quiz_template=self.private_assigned, user=self.user, active=False)
 
@@ -61,5 +68,22 @@ class QuizQuerysetsTests(TestCase):
         self.assertTrue(hasattr(queryset, "filter"))
         self.assertCountEqual(
             list(queryset.values_list("id", flat=True)),
-            [self.public_same_domain.id, self.private_assigned.id],
+            [self.public_same_domain.id, self.public_other_domain.id, self.private_assigned.id],
+        )
+
+    def test_staff_user_is_limited_to_visible_domains_and_own_templates(self):
+        own_other_domain_template = QuizTemplate.objects.create(
+            domain=self.other_domain,
+            title="Staff own other domain",
+            is_public=False,
+            active=True,
+            permanent=True,
+            created_by=self.staff_user,
+        )
+
+        queryset = accessible_quiz_template_queryset(self.staff_user)
+
+        self.assertCountEqual(
+            list(queryset.values_list("id", flat=True)),
+            [self.public_same_domain.id, own_other_domain_template.id],
         )

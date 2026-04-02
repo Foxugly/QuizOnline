@@ -149,7 +149,7 @@ class QuizTemplateViewSet(MyModelViewSet):
             input_expected="query params (optionnels), body vide",
             output="200 + [QuizTemplateSerializer] (paginé si pagination activée)",
         )
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_superuser:
             return super().list(request, *args, **kwargs)
 
         qs = accessible_quiz_template_queryset(request.user)

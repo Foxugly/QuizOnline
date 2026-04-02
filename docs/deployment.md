@@ -17,6 +17,11 @@ Configuration attendue :
 - `EMAIL_HOST_PASSWORD`
 - `EMAIL_USE_TLS`
 - `DEFAULT_FROM_EMAIL`
+- `CELERY_BROKER_URL`
+- `CELERY_RESULT_BACKEND`
+- `USE_DEEPL`
+- `DEEPL_AUTH_KEY`
+- `DEEPL_IS_FREE`
 
 Recommandations production :
 
@@ -26,7 +31,8 @@ Recommandations production :
 - HSTS actif
 - base PostgreSQL recommandee
 - stockage des medias hors filesystem local si plusieurs instances
-- worker ou cron pour traiter l outbox email
+- Redis pour le broker Celery
+- worker Celery dedie pour traiter l outbox email
 
 Commandes minimales :
 
@@ -38,8 +44,24 @@ python manage.py collectstatic --noinput
 python manage.py test
 python manage.py check --deploy
 python manage.py spectacular --file openapi.yaml
-python manage.py process_outbound_email --limit 100
+celery -A wpref worker -l info
 ```
+
+Notes d exploitation :
+
+- les emails backend sont emis dans la langue du destinataire
+- `python manage.py process_outbound_email --limit 100` reste disponible pour du rattrapage, pas pour le flux nominal
+- le worker Celery doit tourner en continu ; ne pas compter sur le process web pour envoyer les mails
+- Redis est une dependance runtime du flux email
+- si `USE_DEEPL=True`, la cle DeepL doit rester hors Git et etre geree comme un secret
+- les erreurs transitoires DeepL sont retriees cote HTTP client puis remontees sous une forme applicative simple
+
+Architecture email :
+
+- application Django -> table `core_outboundemail`
+- hook `transaction.on_commit(...)`
+- tache Celery `deliver_outbound_emails_task`
+- worker Celery -> SMTP Office 365
 
 ## Frontend
 

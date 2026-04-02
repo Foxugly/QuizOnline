@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import threading
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -11,9 +10,6 @@ from django.utils import timezone
 from core.models import OutboundEmail
 
 logger = logging.getLogger(__name__)
-
-_delivery_lock = threading.Lock()
-_delivery_running = False
 
 
 def process_pending_outbound_emails(*, limit: int = 100) -> int:
@@ -56,24 +52,7 @@ def process_pending_outbound_emails(*, limit: int = 100) -> int:
     return sent
 
 
-def _delivery_worker() -> None:
-    global _delivery_running
-    try:
-        process_pending_outbound_emails(limit=100)
-    finally:
-        with _delivery_lock:
-            _delivery_running = False
-
-
 def trigger_outbound_email_delivery() -> None:
-    global _delivery_running
-    if not getattr(settings, "EMAIL_DELIVERY_AUTOMATIC", True):
-        return
+    from core.tasks import deliver_outbound_emails_task
 
-    with _delivery_lock:
-        if _delivery_running:
-            return
-        _delivery_running = True
-
-    thread = threading.Thread(target=_delivery_worker, name="outbound-email-delivery", daemon=True)
-    thread.start()
+    deliver_outbound_emails_task.delay(limit=100)

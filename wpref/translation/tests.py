@@ -2,8 +2,11 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from unittest.mock import patch
+import requests
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from translation.services.deepl import DeepLError, deepl_translate_many
 
 User = get_user_model()
 
@@ -60,3 +63,24 @@ class TranslateBatchViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["translations"]["description"], "<p>Bonjour nl</p>")
+
+
+class DeepLServiceTests(APITestCase):
+    @override_settings(DEEPL_AUTH_KEY="test-key", DEEPL_IS_FREE=True)
+    @patch("translation.services.deepl._build_session")
+    def test_deepl_translate_many_raises_clean_rate_limit_error(self, build_session):
+        session = build_session.return_value
+        response = session.post.return_value
+        response.status_code = 429
+
+        with self.assertRaisesMessage(DeepLError, "DeepL rate limit reached. Please retry later."):
+            deepl_translate_many(["Bonjour"], "fr", "nl")
+
+    @override_settings(DEEPL_AUTH_KEY="test-key", DEEPL_IS_FREE=True)
+    @patch("translation.services.deepl._build_session")
+    def test_deepl_translate_many_raises_clean_timeout_error(self, build_session):
+        session = build_session.return_value
+        session.post.side_effect = requests.Timeout("boom")
+
+        with self.assertRaisesMessage(DeepLError, "DeepL service timed out."):
+            deepl_translate_many(["Bonjour"], "fr", "nl")

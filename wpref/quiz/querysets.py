@@ -11,16 +11,31 @@ def quiz_template_queryset():
 
 def accessible_quiz_template_queryset(user):
     queryset = quiz_template_queryset()
-    if user.is_staff or user.is_superuser:
+    if not user or not getattr(user, "is_authenticated", False):
+        return queryset.filter(is_public=True)
+    if user.is_superuser:
         return queryset
 
-    public_filter = Q(is_public=True)
-    if user.current_domain_id is not None:
-        manageable_domain_ids = list(user.get_manageable_domains(active_only=False).values_list("id", flat=True))
-        visible_domain_ids = {user.current_domain_id, *manageable_domain_ids}
-        public_filter &= (Q(domain_id__in=visible_domain_ids) | Q(domain__isnull=True))
+    visible_domain_ids = set()
+    if getattr(user, "current_domain_id", None):
+        visible_domain_ids.add(user.current_domain_id)
 
-    return queryset.filter(Q(quiz__user=user) | public_filter).distinct()
+    if hasattr(user, "owned_domains"):
+        visible_domain_ids.update(user.owned_domains.values_list("id", flat=True))
+    if hasattr(user, "managed_domains"):
+        visible_domain_ids.update(user.managed_domains.values_list("id", flat=True))
+
+    public_filter = Q(is_public=True)
+    if user.is_staff:
+        public_filter = Q(is_public=True, domain__isnull=True)
+        if visible_domain_ids:
+            public_filter |= Q(is_public=True, domain_id__in=visible_domain_ids)
+
+    return queryset.filter(
+        Q(created_by_id=user.id)
+        | Q(quiz__user=user)
+        | public_filter
+    ).distinct()
 
 
 def quiz_queryset_for_user(user, *, include_details: bool):

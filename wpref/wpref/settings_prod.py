@@ -15,6 +15,8 @@ def require_env_value(name: str) -> str:
 SECRET_KEY = require_env_value("SECRET_KEY")
 FRONTEND_BASE_URL = require_env_value("FRONTEND_BASE_URL")
 DEFAULT_FROM_EMAIL = require_env_value("DEFAULT_FROM_EMAIL")
+CELERY_BROKER_URL = require_env_value("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = require_env_value("CELERY_RESULT_BACKEND")
 
 if SECRET_KEY == "django-insecure-dev-key-change-me":
     raise RuntimeError("Production SECRET_KEY must not use the development default.")
@@ -31,6 +33,9 @@ if EMAIL_BACKEND == "django.core.mail.backends.console.EmailBackend":  # noqa: F
 if EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":  # noqa: F405
     EMAIL_HOST_USER = require_env_value("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = require_env_value("EMAIL_HOST_PASSWORD")
+
+if CELERY_TASK_ALWAYS_EAGER:  # noqa: F405
+    raise RuntimeError("Production Celery must not run with CELERY_TASK_ALWAYS_EAGER=True.")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
