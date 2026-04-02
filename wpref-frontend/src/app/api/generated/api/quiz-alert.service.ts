@@ -17,6 +17,8 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { PaginatedQuizAlertThreadListListDto } from '../model/paginated-quiz-alert-thread-list-list';
+// @ts-ignore
 import { PatchedQuizAlertThreadPartialRequestDto } from '../model/patched-quiz-alert-thread-partial-request';
 // @ts-ignore
 import { QuizAlertMessageCreateRequestDto } from '../model/quiz-alert-message-create-request';
@@ -26,8 +28,6 @@ import { QuizAlertMessageDto } from '../model/quiz-alert-message';
 import { QuizAlertThreadCreateRequestDto } from '../model/quiz-alert-thread-create-request';
 // @ts-ignore
 import { QuizAlertThreadDetailDto } from '../model/quiz-alert-thread-detail';
-// @ts-ignore
-import { QuizAlertThreadListDto } from '../model/quiz-alert-thread-list';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -41,6 +41,11 @@ export interface QuizAlertsCloseCreateRequestParams {
 
 export interface QuizAlertsCreateRequestParams {
     quizAlertThreadCreateRequestDto: QuizAlertThreadCreateRequestDto;
+}
+
+export interface QuizAlertsListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface QuizAlertsMessageCreateRequestParams {
@@ -204,13 +209,19 @@ export class QuizAlertApi extends BaseService {
     /**
      * Lister les conversations d\&#39;alerte quiz
      * @endpoint get /api/quiz/alerts/
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public quizAlertsList(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuizAlertThreadListDto>>;
-    public quizAlertsList(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuizAlertThreadListDto>>>;
-    public quizAlertsList(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuizAlertThreadListDto>>>;
-    public quizAlertsList(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizAlertThreadListListDto>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizAlertThreadListListDto>>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizAlertThreadListListDto>>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -242,9 +253,10 @@ export class QuizAlertApi extends BaseService {
 
         let localVarPath = `/api/quiz/alerts/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuizAlertThreadListDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizAlertThreadListListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

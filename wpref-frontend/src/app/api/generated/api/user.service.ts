@@ -25,11 +25,13 @@ import { CustomUserReadDto } from '../model/custom-user-read';
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { PaginatedCustomUserReadListDto } from '../model/paginated-custom-user-read-list';
+// @ts-ignore
+import { PaginatedQuizSimpleListDto } from '../model/paginated-quiz-simple-list';
+// @ts-ignore
 import { PatchedCustomUserAdminUpdateRequestDto } from '../model/patched-custom-user-admin-update-request';
 // @ts-ignore
 import { PatchedCustomUserProfileUpdateRequestDto } from '../model/patched-custom-user-profile-update-request';
-// @ts-ignore
-import { QuizSimpleDto } from '../model/quiz-simple';
 // @ts-ignore
 import { SetCurrentDomainRequestDto } from '../model/set-current-domain-request';
 
@@ -41,6 +43,11 @@ import { BaseService } from '../api.base.service';
 
 export interface UserCreateRequestParams {
     customUserCreateRequestDto: CustomUserCreateRequestDto;
+}
+
+export interface UserListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface UserMeCurrentDomainCreateRequestParams {
@@ -59,6 +66,8 @@ export interface UserPartialUpdateRequestParams {
 export interface UserQuizListRequestParams {
     /** ID utilisateur. */
     userId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface UserRetrieveRequestParams {
@@ -156,13 +165,19 @@ export class UserApi extends BaseService {
      * Lister les utilisateurs
      * Admin/staff uniquement.
      * @endpoint get /api/user/
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userList(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<CustomUserReadDto>>;
-    public userList(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<CustomUserReadDto>>>;
-    public userList(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<CustomUserReadDto>>>;
-    public userList(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public userList(requestParameters?: UserListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedCustomUserReadListDto>;
+    public userList(requestParameters?: UserListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedCustomUserReadListDto>>;
+    public userList(requestParameters?: UserListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedCustomUserReadListDto>>;
+    public userList(requestParameters?: UserListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -194,9 +209,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<CustomUserReadDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedCustomUserReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -480,14 +496,19 @@ export class UserApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuizSimpleDto>>;
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuizSimpleDto>>>;
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuizSimpleDto>>>;
+    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizSimpleListDto>;
+    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizSimpleListDto>>;
+    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizSimpleListDto>>;
     public userQuizList(requestParameters: UserQuizListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const userId = requestParameters?.userId;
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userQuizList.');
         }
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -519,9 +540,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/quizzes/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuizSimpleDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizSimpleListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

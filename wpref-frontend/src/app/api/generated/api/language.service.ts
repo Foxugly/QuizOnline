@@ -23,6 +23,8 @@ import { LanguageReadDto } from '../model/language-read';
 // @ts-ignore
 import { LanguageWriteRequestDto } from '../model/language-write-request';
 // @ts-ignore
+import { PaginatedLanguageReadListDto } from '../model/paginated-language-read-list';
+// @ts-ignore
 import { PatchedLanguagePartialRequestDto } from '../model/patched-language-partial-request';
 
 // @ts-ignore
@@ -218,9 +220,9 @@ export class LanguageApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public langList(requestParameters?: LangListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<LanguageReadDto>>;
-    public langList(requestParameters?: LangListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<LanguageReadDto>>>;
-    public langList(requestParameters?: LangListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<LanguageReadDto>>>;
+    public langList(requestParameters?: LangListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedLanguageReadListDto>;
+    public langList(requestParameters?: LangListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedLanguageReadListDto>>;
+    public langList(requestParameters?: LangListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedLanguageReadListDto>>;
     public langList(requestParameters?: LangListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const active = requestParameters?.active;
         const code = requestParameters?.code;
@@ -273,7 +275,7 @@ export class LanguageApi extends BaseService {
 
         let localVarPath = `/api/lang/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<LanguageReadDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedLanguageReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

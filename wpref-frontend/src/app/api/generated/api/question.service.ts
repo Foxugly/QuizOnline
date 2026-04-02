@@ -25,6 +25,8 @@ import { MediaAssetDto } from '../model/media-asset';
 // @ts-ignore
 import { MediaAssetUploadKindEnumDto } from '../model/media-asset-upload-kind-enum';
 // @ts-ignore
+import { PaginatedQuestionReadListDto } from '../model/paginated-question-read-list';
+// @ts-ignore
 import { PatchedQuestionPartialWritePayloadRequestDto } from '../model/patched-question-partial-write-payload-request';
 // @ts-ignore
 import { QuestionAnswerOptionWriteRequestDto } from '../model/question-answer-option-write-request';
@@ -57,6 +59,8 @@ export interface QuestionListRequestParams {
     domain?: number;
     isModeExam?: boolean;
     isModePractice?: boolean;
+    /** A page number within the paginated result set. */
+    page?: number;
     /** Recherche simple (title__icontains). */
     search?: string;
 }
@@ -250,14 +254,15 @@ export class QuestionApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuestionReadDto>>;
-    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuestionReadDto>>>;
-    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuestionReadDto>>>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuestionReadListDto>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuestionReadListDto>>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuestionReadListDto>>;
     public questionList(requestParameters?: QuestionListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const active = requestParameters?.active;
         const domain = requestParameters?.domain;
         const isModeExam = requestParameters?.isModeExam;
         const isModePractice = requestParameters?.isModePractice;
+        const page = requestParameters?.page;
         const search = requestParameters?.search;
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -269,6 +274,8 @@ export class QuestionApi extends BaseService {
           <any>isModeExam, 'is_mode_exam');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>isModePractice, 'is_mode_practice');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>search, 'search');
 
@@ -302,7 +309,7 @@ export class QuestionApi extends BaseService {
 
         let localVarPath = `/api/question/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuestionReadDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

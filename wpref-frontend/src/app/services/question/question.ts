@@ -69,7 +69,7 @@ export class QuestionService {
       domain: params?.domainId,
     };
 
-    return this.api.questionList(requestParams);
+    return this.api.questionList(requestParams).pipe(map((response) => response.results ?? []));
   }
 
   retrieve(questionId: number): Observable<QuestionReadDto> {

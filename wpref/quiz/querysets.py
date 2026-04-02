@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.db.models import Q
+from wpref.domain_access import manageable_domain_ids
 
 from .models import Quiz, QuizQuestionAnswer, QuizTemplate
 
@@ -13,23 +14,13 @@ def accessible_quiz_template_queryset(user):
     queryset = quiz_template_queryset()
     if not user or not getattr(user, "is_authenticated", False):
         return queryset.filter(is_public=True)
-    if user.is_superuser:
+    if user.is_superuser or user.is_staff:
         return queryset
 
-    visible_domain_ids = set()
-    if getattr(user, "current_domain_id", None):
-        visible_domain_ids.add(user.current_domain_id)
-
-    if hasattr(user, "owned_domains"):
-        visible_domain_ids.update(user.owned_domains.values_list("id", flat=True))
-    if hasattr(user, "managed_domains"):
-        visible_domain_ids.update(user.managed_domains.values_list("id", flat=True))
-
-    public_filter = Q(is_public=True)
-    if user.is_staff:
-        public_filter = Q(is_public=True, domain__isnull=True)
-        if visible_domain_ids:
-            public_filter |= Q(is_public=True, domain_id__in=visible_domain_ids)
+    visible_domain_ids = manageable_domain_ids(user)
+    public_filter = Q(is_public=True, domain__isnull=True)
+    if visible_domain_ids:
+        public_filter |= Q(is_public=True, domain_id__in=visible_domain_ids)
 
     return queryset.filter(
         Q(created_by_id=user.id)

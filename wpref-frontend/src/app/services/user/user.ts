@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {computed, Injectable, signal} from '@angular/core';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {BehaviorSubject, map, Observable, tap} from 'rxjs';
 
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {PatchedCustomUserProfileUpdateRequestDto} from '../../api/generated/model/patched-custom-user-profile-update-request';
@@ -41,7 +41,9 @@ export class UserService {
   }
 
   list(): Observable<CustomUserReadDto[]> {
-    return this.http.get<CustomUserReadDto[]>(`${this.apiBaseUrl}/`);
+    return this.http.get<CustomUserReadDto[] | {results?: CustomUserReadDto[]}>(`${this.apiBaseUrl}/`).pipe(
+      map((response) => Array.isArray(response) ? response : (response.results ?? [])),
+    );
   }
 
   setLang(lang: SupportedLanguage) {

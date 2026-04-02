@@ -96,6 +96,7 @@ export class QuizService {
 
     const selected = new Set(subjectIds);
     return this.questionApi.questionList({active: true}).pipe(
+      map((response) => response.results ?? []),
       map((questions) => ({
         count: questions.filter((question) =>
           question.subjects.some((subject) => selected.has(subject.id)),
@@ -114,11 +115,13 @@ export class QuizService {
   }
 
   listQuiz(params?: {name?: string; search?: string}): Observable<QuizListDto[]> {
-    return this.quizApi.quizList({name: params?.name, search: params?.search});
+    return this.quizApi.quizList({name: params?.name, search: params?.search}).pipe(
+      map((response) => response.results ?? []),
+    );
   }
 
   listTemplates(): Observable<QuizTemplateDto[]> {
-    return this.qtApi.quizTemplateList();
+    return this.qtApi.quizTemplateList().pipe(map((response) => response.results ?? []));
   }
 
   assignTemplateToUsers(quizTemplateId: number, userIds: number[]): Observable<QuizListDto[]> {
@@ -150,7 +153,7 @@ export class QuizService {
   }
 
   listAnswers(quizId: number): Observable<QuizQuestionAnswerDto[]> {
-    return this.answerApi.quizAnswerList({quizId});
+    return this.answerApi.quizAnswerList({quizId}).pipe(map((response) => response.results ?? []));
   }
 
   goSubject(): void {

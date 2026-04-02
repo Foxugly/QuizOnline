@@ -30,7 +30,7 @@ export class SubjectService {
   }
 
   list(params?: { search?: string }): Observable<SubjectReadDto[]> {
-    return this.api.subjectList({search: params?.search});
+    return this.api.subjectList({search: params?.search}).pipe(map((response) => response.results ?? []));
   }
 
   retrieve(subjectId: number): Observable<SubjectReadDto> {

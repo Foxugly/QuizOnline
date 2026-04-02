@@ -290,6 +290,15 @@ function buildQuestionCreateResponse(body: JsonObject): JsonObject {
   };
 }
 
+function paginated<T>(results: T[]): {count: number; next: null; previous: null; results: T[]} {
+  return {
+    count: results.length,
+    next: null,
+    previous: null,
+    results,
+  };
+}
+
 export async function seedAuthenticatedSession(page: Page): Promise<void> {
   await page.addInitScript(() => {
     localStorage.setItem('access_token', 'test-access');
@@ -418,7 +427,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
     }
 
     if (path === '/api/user/' && request.method() === 'GET') {
-      await fulfillJson(route, users, 200);
+      await fulfillJson(route, paginated(users), 200);
       return;
     }
 
@@ -442,7 +451,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
     }
 
     if (path === '/api/domain/' && request.method() === 'GET') {
-      await fulfillJson(route, domains, 200);
+      await fulfillJson(route, paginated(domains), 200);
       return;
     }
 
@@ -453,12 +462,12 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
     }
 
     if (path === '/api/subject/' && request.method() === 'GET') {
-      await fulfillJson(route, subjects, 200);
+      await fulfillJson(route, paginated(subjects), 200);
       return;
     }
 
     if (path === '/api/question/' && request.method() === 'GET') {
-      await fulfillJson(route, questions, 200);
+      await fulfillJson(route, paginated(questions), 200);
       return;
     }
 
@@ -491,13 +500,13 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
 
     if (path === '/api/quiz/' && request.method() === 'GET') {
       const payload = createdQuiz ? [createdQuiz, ...quizzes] : quizzes;
-      await fulfillJson(route, payload, 200);
+      await fulfillJson(route, paginated(payload), 200);
       return;
     }
 
     if (path === '/api/quiz/template/' && request.method() === 'GET') {
       const payload = createdQuizTemplate ? [createdQuizTemplate, ...templates] : templates;
-      await fulfillJson(route, payload, 200);
+      await fulfillJson(route, paginated(payload), 200);
       return;
     }
 
@@ -594,7 +603,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
     }
 
     if (path.match(/^\/api\/quiz\/\d+\/answer\/$/) && request.method() === 'GET') {
-      await fulfillJson(route, Object.values(answersByOrder), 200);
+      await fulfillJson(route, paginated(Object.values(answersByOrder)), 200);
       return;
     }
 

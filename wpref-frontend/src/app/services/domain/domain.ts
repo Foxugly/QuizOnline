@@ -23,7 +23,8 @@ export class DomainService {
 
   list(params?: { name?: string; search?: string }): Observable<DomainReadDto[]> {
     return this.api.domainList().pipe(
-      map((domains) => {
+      map((response) => {
+        const domains = response.results ?? [];
         const nameFilter = params?.name?.trim().toLowerCase();
         const searchFilter = params?.search?.trim().toLowerCase();
 
@@ -32,7 +33,7 @@ export class DomainService {
         }
 
         return domains.filter((domain) => {
-          const translations = Object.values(domain.translations ?? {});
+          const translations = Object.values(domain.translations ?? {}) as DomainTranslationDto[];
           const haystack = translations
             .flatMap((translation) => [
               translation.name ?? '',

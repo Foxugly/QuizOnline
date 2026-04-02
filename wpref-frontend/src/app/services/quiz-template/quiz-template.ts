@@ -17,7 +17,7 @@ export class QuizTemplateService {
   constructor(private api: QuizTemplateApi) {}
 
   list(): Observable<QuizTemplateDto[]> {
-    return this.api.quizTemplateList();
+    return this.api.quizTemplateList().pipe(map((response) => response.results ?? []));
   }
 
   retrieve(quizTemplateId: number): Observable<QuizTemplateDto> {
@@ -53,7 +53,9 @@ export class QuizTemplateService {
   }
 
   listQuestions(quizTemplateId: number): Observable<QuizQuestionReadDto[]> {
-    return this.api.quizTemplateQuestionList({qtId: quizTemplateId});
+    return this.api.quizTemplateQuestionList({qtId: quizTemplateId}).pipe(
+      map((response) => response.results ?? []),
+    );
   }
 
   addQuestion(

@@ -25,6 +25,8 @@ import { DomainWriteRequestDto } from '../model/domain-write-request';
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { PaginatedDomainReadListDto } from '../model/paginated-domain-read-list';
+// @ts-ignore
 import { PatchedDomainPartialRequestDto } from '../model/patched-domain-partial-request';
 
 // @ts-ignore
@@ -45,6 +47,11 @@ export interface DomainDestroyRequestParams {
 export interface DomainDetailsRetrieveRequestParams {
     /** ID du domaine. */
     domainId: number;
+}
+
+export interface DomainListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface DomainPartialUpdateRequestParams {
@@ -268,13 +275,19 @@ export class DomainApi extends BaseService {
      * Lister les domaines accessibles
      * Retourne la liste des domaines visibles par l\&#39;utilisateur courant.  - **Superuser / staff global** : voit tous les domaines - **Utilisateur normal** : voit uniquement les domaines dont il est &#x60;owner&#x60; ou membre de &#x60;staff&#x60;
      * @endpoint get /api/domain/
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public domainList(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DomainReadDto>>;
-    public domainList(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DomainReadDto>>>;
-    public domainList(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DomainReadDto>>>;
-    public domainList(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainReadListDto>;
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainReadListDto>>;
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainReadListDto>>;
+    public domainList(requestParameters?: DomainListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -306,9 +319,10 @@ export class DomainApi extends BaseService {
 
         let localVarPath = `/api/domain/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<DomainReadDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedDomainReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

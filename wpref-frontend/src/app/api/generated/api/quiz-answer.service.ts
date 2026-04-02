@@ -17,6 +17,8 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { PaginatedQuizQuestionAnswerListDto } from '../model/paginated-quiz-question-answer-list';
+// @ts-ignore
 import { PatchedQuizQuestionAnswerPartialRequestDto } from '../model/patched-quiz-question-answer-partial-request';
 // @ts-ignore
 import { QuizQuestionAnswerDto } from '../model/quiz-question-answer';
@@ -41,6 +43,8 @@ export interface QuizAnswerDestroyRequestParams {
 
 export interface QuizAnswerListRequestParams {
     quizId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface QuizAnswerPartialUpdateRequestParams {
@@ -211,14 +215,19 @@ export class QuizAnswerApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuizQuestionAnswerDto>>;
-    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuizQuestionAnswerDto>>>;
-    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuizQuestionAnswerDto>>>;
+    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizQuestionAnswerListDto>;
+    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizQuestionAnswerListDto>>;
+    public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizQuestionAnswerListDto>>;
     public quizAnswerList(requestParameters: QuizAnswerListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const quizId = requestParameters?.quizId;
         if (quizId === null || quizId === undefined) {
             throw new Error('Required parameter quizId was null or undefined when calling quizAnswerList.');
         }
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -250,9 +259,10 @@ export class QuizAnswerApi extends BaseService {
 
         let localVarPath = `/api/quiz/${this.configuration.encodeParam({name: "quizId", value: quizId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/answer/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuizQuestionAnswerDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizQuestionAnswerListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -19,10 +19,6 @@ class QuizQuerysetsTests(TestCase):
 
         self.domain = Domain.objects.create(owner=self.owner, name="Domain A", description="", active=True)
         self.other_domain = Domain.objects.create(owner=self.owner, name="Domain B", description="", active=True)
-        self.user.current_domain = self.domain
-        self.user.save(update_fields=["current_domain"])
-        self.staff_user.current_domain = self.domain
-        self.staff_user.save(update_fields=["current_domain"])
 
         self.public_same_domain = QuizTemplate.objects.create(
             domain=self.domain,
@@ -57,6 +53,7 @@ class QuizQuerysetsTests(TestCase):
             created_by=self.other_user,
         )
         Quiz.objects.create(quiz_template=self.private_assigned, user=self.user, active=False)
+        self.domain.staff.add(self.user)
 
     def tearDown(self):
         translation.deactivate_all()
@@ -68,22 +65,26 @@ class QuizQuerysetsTests(TestCase):
         self.assertTrue(hasattr(queryset, "filter"))
         self.assertCountEqual(
             list(queryset.values_list("id", flat=True)),
-            [self.public_same_domain.id, self.public_other_domain.id, self.private_assigned.id],
+            [self.public_same_domain.id, self.private_assigned.id],
         )
 
-    def test_staff_user_is_limited_to_visible_domains_and_own_templates(self):
-        own_other_domain_template = QuizTemplate.objects.create(
-            domain=self.other_domain,
-            title="Staff own other domain",
-            is_public=False,
-            active=True,
-            permanent=True,
-            created_by=self.staff_user,
-        )
-
+    def test_staff_user_sees_all_templates_even_without_assigned_domain(self):
         queryset = accessible_quiz_template_queryset(self.staff_user)
 
         self.assertCountEqual(
             list(queryset.values_list("id", flat=True)),
-            [self.public_same_domain.id, own_other_domain_template.id],
+            [
+                self.public_same_domain.id,
+                self.public_other_domain.id,
+                self.private_assigned.id,
+                self.private_hidden.id,
+            ],
         )
+
+    def test_stale_current_domain_does_not_grant_template_access(self):
+        self.other_user.current_domain = self.domain
+        self.other_user.save(update_fields=["current_domain"])
+
+        queryset = accessible_quiz_template_queryset(self.other_user)
+
+        self.assertEqual(list(queryset.values_list("id", flat=True)), [self.private_hidden.id])

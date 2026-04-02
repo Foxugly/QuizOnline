@@ -169,6 +169,31 @@ class QuestionViewSetTests(APITestCase):
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_permissions_list_ok_for_global_staff_without_assigned_domain(self):
+        self.client.force_authenticate(self.staff)
+        resp = self.client.get(self._list_url())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_global_staff_sees_questions_from_all_domains(self):
+        visible = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        visible.set_current_language("fr")
+        visible.title = "Domain A"
+        visible.save()
+
+        other = Question.objects.create(domain=self.other_domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        other.set_current_language("fr")
+        other.title = "Domain B"
+        other.save()
+
+        self.client.force_authenticate(self.staff)
+        resp = self.client.get(self._list_url())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        returned_ids = {item["id"] for item in items}
+        self.assertIn(visible.id, returned_ids)
+        self.assertIn(other.id, returned_ids)
+
     def test_list_only_returns_questions_from_visible_domains(self):
         visible = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
         visible.set_current_language("fr")
@@ -190,6 +215,24 @@ class QuestionViewSetTests(APITestCase):
         returned_ids = {item["id"] for item in items}
         self.assertIn(visible.id, returned_ids)
         self.assertNotIn(hidden.id, returned_ids)
+
+    def test_stale_current_domain_does_not_grant_question_access(self):
+        visible = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        visible.set_current_language("fr")
+        visible.title = "Visible"
+        visible.save()
+
+        self.outsider.current_domain = self.domain
+        self.outsider.save(update_fields=["current_domain"])
+        self.domain.owner = self.domain_owner
+        self.domain.save(update_fields=["owner"])
+
+        self.client.force_authenticate(self.outsider)
+        resp = self.client.get(self._list_url())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        self.assertEqual(items, [])
 
     # =========================================================
     # Media endpoint

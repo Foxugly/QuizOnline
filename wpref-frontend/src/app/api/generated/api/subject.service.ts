@@ -19,6 +19,8 @@ import { Observable }                                        from 'rxjs';
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { PaginatedSubjectReadListDto } from '../model/paginated-subject-read-list';
+// @ts-ignore
 import { PatchedSubjectPartialRequestDto } from '../model/patched-subject-partial-request';
 // @ts-ignore
 import { SubjectDetailDto } from '../model/subject-detail';
@@ -50,6 +52,8 @@ export interface SubjectDetailsRetrieveRequestParams {
 export interface SubjectListRequestParams {
     active?: boolean;
     domain?: number;
+    /** A page number within the paginated result set. */
+    page?: number;
     /** Recherche simple (name__icontains). */
     search?: string;
 }
@@ -278,12 +282,13 @@ export class SubjectApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<SubjectReadDto>>;
-    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SubjectReadDto>>>;
-    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SubjectReadDto>>>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedSubjectReadListDto>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedSubjectReadListDto>>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedSubjectReadListDto>>;
     public subjectList(requestParameters?: SubjectListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const active = requestParameters?.active;
         const domain = requestParameters?.domain;
+        const page = requestParameters?.page;
         const search = requestParameters?.search;
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
@@ -291,6 +296,8 @@ export class SubjectApi extends BaseService {
           <any>active, 'active');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>domain, 'domain');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>search, 'search');
 
@@ -324,7 +331,7 @@ export class SubjectApi extends BaseService {
 
         let localVarPath = `/api/subject/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<SubjectReadDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedSubjectReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

@@ -27,7 +27,7 @@ test.describe('quiz flows', () => {
     await page.locator('app-quiz-template-table').first().locator('.row-actions button').nth(1).click();
 
     await expect(page.getByText('Envoyer le quiz')).toBeVisible();
-    await page.locator('input[id="assign-user-2"]').check({force: true});
+    await page.getByRole('checkbox').first().check({force: true});
     await page.locator('p-dialog').getByRole('button', {name: 'Envoyer'}).click({force: true});
 
     await expect.poll(() => api.requests.quizTemplateBulkAssign).toEqual([

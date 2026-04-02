@@ -212,6 +212,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_quiztemplate_list_as_user_filters_can_answer(self):
+        self.domain.staff.add(self.u1)
         self._auth(self.u1)
         res = self.client.get(self.qt_list_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)

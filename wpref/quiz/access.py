@@ -1,25 +1,13 @@
 from __future__ import annotations
 
 from rest_framework.exceptions import PermissionDenied
+from wpref.domain_access import manageable_domain_ids, user_can_access_domain
 
 from .querysets import accessible_quiz_template_queryset
 
 
-def _user_visible_domain_ids(user) -> set[int]:
-    visible_domain_ids: set[int] = set()
-    if getattr(user, "current_domain_id", None):
-        visible_domain_ids.add(user.current_domain_id)
-    if hasattr(user, "owned_domains"):
-        visible_domain_ids.update(user.owned_domains.values_list("id", flat=True))
-    if hasattr(user, "managed_domains"):
-        visible_domain_ids.update(user.managed_domains.values_list("id", flat=True))
-    return visible_domain_ids
-
-
 def user_matches_template_domain(user, quiz_template) -> bool:
-    if quiz_template.domain_id is None:
-        return True
-    return quiz_template.domain_id in _user_visible_domain_ids(user)
+    return user_can_access_domain(user, quiz_template.domain_id)
 
 
 def _can_access_public_template(user, quiz_template) -> bool:
@@ -72,7 +60,7 @@ def user_can_create_quiz_from_template(user, quiz_template) -> bool:
 def validate_target_user_domain(quiz_template, target_user) -> None:
     if quiz_template.domain_id is None:
         return
-    if not _user_visible_domain_ids(target_user):
+    if not manageable_domain_ids(target_user):
         return
     if user_matches_template_domain(target_user, quiz_template):
         return

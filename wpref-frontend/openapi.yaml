@@ -12,6 +12,13 @@ paths:
         - **Superuser / staff global** : voit tous les domaines
         - **Utilisateur normal** : voit uniquement les domaines dont il est `owner` ou membre de `staff`
       summary: Lister les domaines accessibles
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - Domain
       security:
@@ -22,9 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DomainRead'
+                $ref: '#/components/schemas/PaginatedDomainReadList'
           description: ''
     post:
       operationId: domain_create
@@ -288,9 +293,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LanguageRead'
+                $ref: '#/components/schemas/PaginatedLanguageReadList'
           description: ''
     post:
       operationId: lang_create
@@ -503,6 +506,12 @@ paths:
         name: is_mode_practice
         schema:
           type: boolean
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: query
         name: search
         schema:
@@ -517,9 +526,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuestionRead'
+                $ref: '#/components/schemas/PaginatedQuestionReadList'
           description: ''
         '403':
           content:
@@ -843,6 +850,12 @@ paths:
         schema:
           type: string
         description: Filtre exact (via DjangoFilterBackend).
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: query
         name: search
         schema:
@@ -857,9 +870,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizList'
+                $ref: '#/components/schemas/PaginatedQuizListList'
           description: ''
         '401':
           content:
@@ -1004,6 +1015,12 @@ paths:
       operationId: quiz_answer_list
       summary: Lister les réponses d’un quiz
       parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: path
         name: quiz_id
         schema:
@@ -1018,9 +1035,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizQuestionAnswer'
+                $ref: '#/components/schemas/PaginatedQuizQuestionAnswerList'
           description: ''
     post:
       operationId: quiz_answer_create
@@ -1230,6 +1245,13 @@ paths:
     get:
       operationId: quiz_alerts_list
       summary: Lister les conversations d'alerte quiz
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - QuizAlert
       security:
@@ -1239,9 +1261,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizAlertThreadList'
+                $ref: '#/components/schemas/PaginatedQuizAlertThreadListList'
           description: ''
     post:
       operationId: quiz_alerts_create
@@ -1411,6 +1431,13 @@ paths:
     post:
       operationId: quiz_bulk_create_from_template_create
       summary: Créer des quizzes depuis un template (bulk)
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - Quiz
       requestBody:
@@ -1432,9 +1459,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizList'
+                $ref: '#/components/schemas/PaginatedQuizListList'
           description: ''
         '400':
           description: Input invalide
@@ -1444,6 +1469,13 @@ paths:
     get:
       operationId: quiz_template_list
       summary: Lister les templates de quiz
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - QuizTemplate
       security:
@@ -1453,9 +1485,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizTemplate'
+                $ref: '#/components/schemas/PaginatedQuizTemplateList'
           description: ''
     post:
       operationId: quiz_template_create
@@ -1588,6 +1618,12 @@ paths:
       operationId: quiz_template_question_list
       summary: Lister les QuizQuestion d’un template (nested)
       parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: path
         name: qt_id
         schema:
@@ -1602,9 +1638,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizQuestionRead'
+                $ref: '#/components/schemas/PaginatedQuizQuestionReadList'
           description: ''
     post:
       operationId: quiz_template_question_create
@@ -1767,6 +1801,12 @@ paths:
       operationId: quiz_template_sessions_list
       summary: Lister les sessions envoyées pour un template
       parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: path
         name: qt_id
         schema:
@@ -1781,9 +1821,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizAssignmentList'
+                $ref: '#/components/schemas/PaginatedQuizAssignmentListList'
           description: ''
   /api/quiz/template/generate-from-subjects/:
     post:
@@ -1884,6 +1922,12 @@ paths:
         name: domain
         schema:
           type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: query
         name: search
         schema:
@@ -1898,9 +1942,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SubjectRead'
+                $ref: '#/components/schemas/PaginatedSubjectReadList'
           description: ''
         '401':
           content:
@@ -2312,6 +2354,13 @@ paths:
       operationId: user_list
       description: Admin/staff uniquement.
       summary: Lister les utilisateurs
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       tags:
       - User
       security:
@@ -2321,9 +2370,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CustomUserRead'
+                $ref: '#/components/schemas/PaginatedCustomUserReadList'
           description: ''
         '401':
           content:
@@ -2479,6 +2526,12 @@ paths:
         Accès: soi-même ou staff/superuser.
       summary: Lister les quizzes d’un utilisateur
       parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: path
         name: user_id
         schema:
@@ -2494,9 +2547,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/QuizSimple'
+                $ref: '#/components/schemas/PaginatedQuizSimpleList'
           description: ''
         '401':
           content:
@@ -3392,6 +3443,282 @@ components:
       description: |-
         * `practice` - Practice
         * `exam` - Examen
+    PaginatedCustomUserReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomUserRead'
+    PaginatedDomainReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainRead'
+    PaginatedLanguageReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageRead'
+    PaginatedQuestionReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionRead'
+    PaginatedQuizAlertThreadListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizAlertThreadList'
+    PaginatedQuizAssignmentListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizAssignmentList'
+    PaginatedQuizListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizList'
+    PaginatedQuizQuestionAnswerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizQuestionAnswer'
+    PaginatedQuizQuestionReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizQuestionRead'
+    PaginatedQuizSimpleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizSimple'
+    PaginatedQuizTemplateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizTemplate'
+    PaginatedSubjectReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubjectRead'
     PasswordChangeRequest:
       type: object
       properties:
@@ -3698,7 +4025,6 @@ components:
       properties:
         id:
           type: integer
-          readOnly: true
         is_correct:
           type: boolean
         sort_order:
@@ -3706,8 +4032,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-      required:
-      - id
     QuestionAnswerOptionWritePayloadRequest:
       type: object
       properties:
@@ -3726,6 +4050,8 @@ components:
     QuestionAnswerOptionWriteRequest:
       type: object
       properties:
+        id:
+          type: integer
         is_correct:
           type: boolean
         sort_order:

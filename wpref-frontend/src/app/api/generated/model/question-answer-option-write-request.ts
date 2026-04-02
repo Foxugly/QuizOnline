@@ -11,6 +11,7 @@ import { LocalizedAnswerOptionTranslationRequestDto } from './localized-answer-o
 
 
 export interface QuestionAnswerOptionWriteRequestDto { 
+    id?: number;
     is_correct?: boolean;
     sort_order?: number;
     translations: { [key: string]: LocalizedAnswerOptionTranslationRequestDto; };

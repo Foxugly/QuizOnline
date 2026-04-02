@@ -23,11 +23,11 @@ import { CreateQuizInputRequestDto } from '../model/create-quiz-input-request';
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { PaginatedQuizListListDto } from '../model/paginated-quiz-list-list';
+// @ts-ignore
 import { PatchedQuizPartialUpdateRequestDto } from '../model/patched-quiz-partial-update-request';
 // @ts-ignore
 import { QuizDto } from '../model/quiz';
-// @ts-ignore
-import { QuizListDto } from '../model/quiz-list';
 // @ts-ignore
 import { QuizUpdateRequestDto } from '../model/quiz-update-request';
 
@@ -39,6 +39,8 @@ import { BaseService } from '../api.base.service';
 
 export interface QuizBulkCreateFromTemplateCreateRequestParams {
     bulkCreateFromTemplateInputRequestDto: BulkCreateFromTemplateInputRequestDto;
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface QuizCloseCreateRequestParams {
@@ -56,6 +58,8 @@ export interface QuizDestroyRequestParams {
 export interface QuizListRequestParams {
     /** Filtre exact (via DjangoFilterBackend). */
     name?: string;
+    /** A page number within the paginated result set. */
+    page?: number;
     /** Recherche simple (name__icontains). */
     search?: string;
 }
@@ -95,14 +99,19 @@ export class QuizApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuizListDto>>;
-    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuizListDto>>>;
-    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuizListDto>>>;
+    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizListListDto>;
+    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizListListDto>>;
+    public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizListListDto>>;
     public quizBulkCreateFromTemplateCreate(requestParameters: QuizBulkCreateFromTemplateCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const bulkCreateFromTemplateInputRequestDto = requestParameters?.bulkCreateFromTemplateInputRequestDto;
         if (bulkCreateFromTemplateInputRequestDto === null || bulkCreateFromTemplateInputRequestDto === undefined) {
             throw new Error('Required parameter bulkCreateFromTemplateInputRequestDto was null or undefined when calling quizBulkCreateFromTemplateCreate.');
         }
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -145,10 +154,11 @@ export class QuizApi extends BaseService {
 
         let localVarPath = `/api/quiz/bulk-create-from-template/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuizListDto>>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizListListDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: bulkCreateFromTemplateInputRequestDto,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -355,16 +365,19 @@ export class QuizApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public quizList(requestParameters?: QuizListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<QuizListDto>>;
-    public quizList(requestParameters?: QuizListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<QuizListDto>>>;
-    public quizList(requestParameters?: QuizListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<QuizListDto>>>;
+    public quizList(requestParameters?: QuizListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizListListDto>;
+    public quizList(requestParameters?: QuizListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizListListDto>>;
+    public quizList(requestParameters?: QuizListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizListListDto>>;
     public quizList(requestParameters?: QuizListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const name = requestParameters?.name;
+        const page = requestParameters?.page;
         const search = requestParameters?.search;
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>name, 'name');
+        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+          <any>page, 'page');
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
           <any>search, 'search');
 
@@ -398,7 +411,7 @@ export class QuizApi extends BaseService {
 
         let localVarPath = `/api/quiz/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<QuizListDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizListListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,

@@ -7,11 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { QuizListDto } from './quiz-list';
 
 
-export interface QuestionAnswerOptionWriteDto { 
-    id?: number;
-    is_correct?: boolean;
-    sort_order?: number;
+export interface PaginatedQuizListListDto { 
+    count: number;
+    next?: string | null;
+    previous?: string | null;
+    results: Array<QuizListDto>;
 }
 
