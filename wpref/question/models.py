@@ -16,8 +16,8 @@ class Question(TranslatableModel):
         related_name="questions", null=False)
     translations = TranslatedFields(
         title=models.CharField(_("title"), max_length=250),
-        description=models.TextField(_("Description"), blank=True),
-        explanation=models.TextField(_("Explanation"), blank=True)
+        description=models.TextField(_("Description"), blank=True, max_length=4000),
+        explanation=models.TextField(_("Explanation"), blank=True, max_length=4000)
     )
     allow_multiple_correct = models.BooleanField(
         "Plusieurs bonnes réponses ?", default=False
@@ -138,7 +138,7 @@ class QuestionMedia(models.Model):
 
 class AnswerOption(TranslatableModel):
     question = models.ForeignKey(Question, related_name="answer_options", on_delete=models.CASCADE)
-    translations = TranslatedFields(content=models.TextField(_("possible answer")))  # rich text
+    translations = TranslatedFields(content=models.TextField(_("possible answer"), max_length=4000))  # rich text
     is_correct = models.BooleanField(default=False)
     sort_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

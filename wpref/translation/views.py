@@ -2,6 +2,7 @@ import logging
 import re
 from typing import List
 
+from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -14,7 +15,6 @@ from .serializers import (
 )
 from .services.deepl import deepl_translate_many, DeepLError
 
-USE_DEEPL = True
 logger = logging.getLogger(__name__)
 
 
@@ -171,7 +171,7 @@ class TranslateBatchView(APIView):
             if text_items:
                 keys = [k for k, _ in text_items]
                 texts = [t for _, t in text_items]
-                if USE_DEEPL:
+                if settings.USE_DEEPL:
                     out = deepl_translate_many(texts, source, target, fmt="text")
                 else:
                     out = mock_deepl(texts, source, target, fmt="text")
@@ -182,7 +182,7 @@ class TranslateBatchView(APIView):
             if html_items:
                 keys = [k for k, _ in html_items]
                 texts = [t for _, t in html_items]
-                if USE_DEEPL:
+                if settings.USE_DEEPL:
                     out = deepl_translate_many(texts, source, target, fmt="html")
                 else:
                     out = mock_deepl(texts, source, target, fmt="html")

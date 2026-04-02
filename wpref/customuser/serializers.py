@@ -66,11 +66,18 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             return ""
         return domain.safe_translation_getter("name", any_language=True) or ""
 
+    @staticmethod
+    def _related_ids(obj, relation_name: str) -> List[int]:
+        cache = getattr(obj, "_prefetched_objects_cache", {})
+        if relation_name in cache:
+            return [related.id for related in cache[relation_name]]
+        return list(getattr(obj, relation_name).values_list("id", flat=True))
+
     def get_owned_domain_ids(self, obj) -> List[int]:
-        return list(obj.owned_domains.values_list("id", flat=True))
+        return self._related_ids(obj, "owned_domains")
 
     def get_managed_domain_ids(self, obj) -> List[int]:
-        return list(obj.managed_domains.values_list("id", flat=True))
+        return self._related_ids(obj, "managed_domains")
 
 
 class CustomUserCreateSerializer(StrictFieldsModelSerializer):

@@ -1,4 +1,5 @@
 import logging
+from django.db import transaction
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -7,6 +8,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from core.models import OutboundEmail
+from core.delivery import trigger_outbound_email_delivery
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ def queue_plaintext_email(subject: str, body: str, recipients: list[str]) -> Non
     if not to:
         return
     OutboundEmail.objects.create(subject=subject, body=body, recipients=to)
+    transaction.on_commit(trigger_outbound_email_delivery)
     logger.info("email.enqueued", extra={"subject": subject, "recipients": to})
 
 

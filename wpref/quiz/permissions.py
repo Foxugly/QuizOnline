@@ -1,82 +1,53 @@
-# quiz/permissions.py
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+from wpref.permissions import is_authenticated_user, is_staff_user
 
 from .models import Quiz, QuizAlertThread, QuizQuestionAnswer
 
 
 class IsStaffOrReadOnly(BasePermission):
-    """
-    - Staff / superuser : tous droits
-    - Autres : lecture seule (GET, HEAD, OPTIONS)
-    Utile si tu veux un fallback générique.
-    """
-
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
-        user = request.user
-        return bool(user and user.is_authenticated and (user.is_staff or user.is_superuser))
+        return is_staff_user(request.user)
 
 
 class IsStaffOrSuperuser(BasePermission):
     def has_permission(self, request, view):
-        user = request.user
-        return bool(user and user.is_authenticated and (user.is_staff or user.is_superuser))
+        return is_staff_user(request.user)
 
 
 class IsOwnerOrStaff(BasePermission):
-    """
-    Pour les objets liés à un utilisateur :
-    - Staff / superuser : accès complet
-    - Sinon : uniquement si l'objet appartient à request.user
-      (Quiz.user ou QuizQuestionAnswer.quiz.user)
-    """
-
     def has_permission(self, request, view):
-        user = request.user
-        return bool(user and user.is_authenticated)
+        return is_authenticated_user(request.user)
 
     def has_object_permission(self, request, view, obj):
         user = request.user
-        if not user or not user.is_authenticated:
+        if not is_authenticated_user(user):
             return False
-
-        if user.is_staff or user.is_superuser:
+        if is_staff_user(user):
             return True
-
-        # Quiz : appartient à obj.user
         if isinstance(obj, Quiz):
             return obj.user_id == user.id
-
-        # QuizQuestionAnswer : appartient au propriétaire du quiz
         if isinstance(obj, QuizQuestionAnswer):
-            if obj.quiz_id is None:
-                return False
-            return obj.quiz.user_id == user.id
-
-        # fallback générique : attribut "user"
+            return bool(obj.quiz_id) and obj.quiz.user_id == user.id
         owner = getattr(obj, "user", None)
         return owner is not None and owner.id == user.id
 
 
 class IsQuizAlertParticipant(BasePermission):
     def has_permission(self, request, view):
-        user = request.user
-        return bool(user and user.is_authenticated)
+        return is_authenticated_user(request.user)
 
     def has_object_permission(self, request, view, obj):
         user = request.user
-        if not user or not user.is_authenticated:
+        if not is_authenticated_user(user):
             return False
-
-        if user.is_staff or user.is_superuser:
+        if is_staff_user(user):
             return True
-
         if isinstance(obj, QuizAlertThread):
             return obj.is_participant(user)
-
         thread = getattr(obj, "thread", None)
         if isinstance(thread, QuizAlertThread):
             return thread.is_participant(user)
-
         return False

@@ -1,4 +1,5 @@
 import hashlib
+import os
 from typing import List, Any
 
 from django.conf import settings
@@ -124,12 +125,25 @@ def _sha256_file(f: UploadedFile) -> str:
 
 def _infer_kind_from_upload(f: UploadedFile) -> str:
     ct = (getattr(f, "content_type", "") or "").lower()
-    if ct.startswith("image/"):
+    extension = os.path.splitext(getattr(f, "name", "") or "")[1].lower()
+
+    allowed_image_types = {"image/png", "image/jpeg", "image/webp", "image/gif"}
+    allowed_video_types = {"video/mp4", "video/webm", "video/ogg", "video/quicktime"}
+    allowed_image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+    allowed_video_extensions = {".mp4", ".webm", ".ogv", ".ogg", ".mov"}
+
+    if ct in allowed_image_types and extension in allowed_image_extensions:
         return MediaAsset.IMAGE
-    if ct.startswith("video/"):
+    if ct in allowed_video_types and extension in allowed_video_extensions:
         return MediaAsset.VIDEO
-    # fallback: treat as VIDEO? better to reject unknown
-    raise serializers.ValidationError({"file": f"Unsupported content_type '{ct}'. Only image/* or video/*."})
+    raise serializers.ValidationError(
+        {
+            "file": (
+                f"Unsupported file type '{ct}' / '{extension}'. "
+                "Only png, jpg, jpeg, webp, gif, mp4, webm, ogg and mov are allowed."
+            )
+        }
+    )
 
 
 class QuestionAnswerOptionPublicReadSerializer(serializers.ModelSerializer):

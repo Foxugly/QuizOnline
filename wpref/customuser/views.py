@@ -120,8 +120,20 @@ class CustomUserViewSet(
 ):
     lookup_field = "pk"
     lookup_url_kwarg = "user_id"
-    queryset = User.objects.all().order_by("id")
+    queryset = User.objects.none()
     lookup_value_regex = r"\d+"
+
+    @staticmethod
+    def _user_queryset():
+        return (
+            User.objects
+            .select_related("current_domain")
+            .prefetch_related("owned_domains", "managed_domains")
+            .order_by("id")
+        )
+
+    def get_queryset(self):
+        return self._user_queryset()
 
     def get_permissions(self):
         if self.action == "create":
@@ -146,20 +158,22 @@ class CustomUserViewSet(
 
     @action(detail=False, methods=["get", "patch"], url_path="me")
     def me(self, request):
+        user = self.get_queryset().get(pk=request.user.pk)
         if request.method.lower() == "get":
-            serializer = CustomUserReadSerializer(request.user, context={"request": request})
+            serializer = CustomUserReadSerializer(user, context={"request": request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         serializer = CustomUserProfileUpdateSerializer(
-            request.user,
+            user,
             data=request.data,
             partial=True,
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        user = self.get_queryset().get(pk=user.pk)
         return Response(
-            CustomUserReadSerializer(request.user, context={"request": request}).data,
+            CustomUserReadSerializer(user, context={"request": request}).data,
             status=status.HTTP_200_OK,
         )
 
@@ -169,7 +183,8 @@ class CustomUserViewSet(
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        out = CustomUserReadSerializer(request.user, context={"request": request})
+        user = self.get_queryset().get(pk=request.user.pk)
+        out = CustomUserReadSerializer(user, context={"request": request})
         return Response(out.data, status=status.HTTP_200_OK)
 
 

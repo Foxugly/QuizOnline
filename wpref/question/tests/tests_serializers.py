@@ -191,7 +191,7 @@ class QuestionSerializersTestCase(TestCase):
         up = SimpleUploadedFile("x.bin", b"x", content_type="application/octet-stream")
         with self.assertRaises(serializers.ValidationError) as ctx:
             _infer_kind_from_upload(up)
-        self.assertIn("Unsupported content_type", str(ctx.exception.detail))
+        self.assertIn("Unsupported file type", str(ctx.exception.detail))
 
     # ---------------------------------------------------------------------
     # Read serializers basics

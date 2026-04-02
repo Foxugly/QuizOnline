@@ -21,6 +21,7 @@ env = environ.Env(
     PASSWORD_RESET_FRONTEND_PATH_PREFIX=(str, "/user/reset-password"),
     SQLITE_NAME=(str, "db.sqlite3"),
     MEDIA_ROOT_DIR=(str, "media"),
+    USE_DEEPL=(bool, True),
     DEEPL_IS_FREE=(bool, False),
     DATABASE_URL=(str, ""),
 )
@@ -194,6 +195,7 @@ LOGGING = {
 }
 
 DEEPL_AUTH_KEY = env("DEEPL_AUTH_KEY", default="")
+USE_DEEPL = env("USE_DEEPL")
 DEEPL_IS_FREE = env("DEEPL_IS_FREE")
 
 PARLER_LANGUAGES = {

@@ -151,6 +151,31 @@ class QuestionViewSetTests(APITestCase):
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_list_only_returns_questions_from_visible_domains(self):
+        visible = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        visible.set_current_language("fr")
+        visible.title = "Visible"
+        visible.save()
+
+        foreign_owner = self._mk_user(is_staff=False)
+        foreign_domain = self._mk_domain(foreign_owner, allowed_codes=("fr", "nl"))
+        hidden = Question.objects.create(domain=foreign_domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        hidden.set_current_language("fr")
+        hidden.title = "Hidden"
+        hidden.save()
+
+        self.staff.current_domain = self.domain
+        self.staff.save(update_fields=["current_domain"])
+
+        self.client.force_authenticate(self.staff)
+        resp = self.client.get(self._list_url())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        returned_ids = {item["id"] for item in items}
+        self.assertIn(visible.id, returned_ids)
+        self.assertNotIn(hidden.id, returned_ids)
+
     # =========================================================
     # Media endpoint
     # =========================================================

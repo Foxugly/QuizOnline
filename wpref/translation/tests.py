@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 from unittest.mock import patch
 from rest_framework import status
@@ -25,6 +26,7 @@ class TranslateBatchViewTests(APITestCase):
 
         self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
+    @override_settings(USE_DEEPL=True)
     def test_translate_batch_preserves_html_mode_with_mock_backend(self):
         self.client.force_authenticate(self.user)
 
@@ -38,6 +40,23 @@ class TranslateBatchViewTests(APITestCase):
                 },
                 format="json",
             )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["translations"]["description"], "<p>Bonjour nl</p>")
+
+    @override_settings(USE_DEEPL=False)
+    def test_translate_batch_uses_mock_backend_when_disabled(self):
+        self.client.force_authenticate(self.user)
+
+        response = self.client.post(
+            self.url,
+            {
+                "source": "fr",
+                "target": "nl",
+                "items": [{"key": "description", "text": "<p>Bonjour</p>", "format": "html"}],
+            },
+            format="json",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["translations"]["description"], "<p>Bonjour nl</p>")

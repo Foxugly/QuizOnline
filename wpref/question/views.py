@@ -26,6 +26,7 @@ from wpref.serializers import (
 )
 
 from .models import Question, MediaAsset
+from .querysets import accessible_question_queryset
 from .serializers import QuestionReadSerializer, QuestionWriteSerializer, MediaAssetSerializer, \
     MediaAssetUploadSerializer, _infer_kind_from_upload, _sha256_file
 
@@ -238,12 +239,7 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
     ),
 )
 class QuestionViewSet(MyModelViewSet):
-    queryset = (
-        Question.objects
-        .all()
-        .select_related("domain")
-        .prefetch_related("subjects", "translations", "answer_options__translations", "media__asset", )
-    )
+    queryset = Question.objects.none()
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["domain", "active", "is_mode_practice", "is_mode_exam"]
@@ -255,6 +251,9 @@ class QuestionViewSet(MyModelViewSet):
         if action in ["create","update"]:
             return [JSONParser()]
         return super().get_parsers()
+
+    def get_queryset(self):
+        return accessible_question_queryset(getattr(self.request, "user", None))
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()

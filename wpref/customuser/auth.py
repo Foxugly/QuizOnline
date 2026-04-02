@@ -18,7 +18,7 @@ class EmailConfirmedTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         user = getattr(self, "user", None)
-        if user and getattr(user, "email_confirmed", True) is not True:
+        if user and getattr(user, "email_confirmed", False) is not True:
             raise AuthenticationFailed(
                 self.error_messages["email_not_confirmed"],
                 code="email_not_confirmed",
