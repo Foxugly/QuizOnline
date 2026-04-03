@@ -102,9 +102,9 @@ test('compose un quiz depuis un domaine avec ponderation personnalisee', async (
     .locator('input[id^="weight-"]')
     .fill('3');
 
-  await page.getByRole('tab', {name: 'Parametres'}).click();
+  await page.getByRole('tab', {name: 'Paramètres'}).click();
 
-  await page.getByRole('button', {name: /creer le template/i}).click();
+  await page.getByRole('button', {name: /créer le template/i}).click();
 
   await expect(page).toHaveURL(/\/quiz\/list$/);
   expect(api.requests.quizTemplateCreate).toHaveLength(1);

@@ -27,7 +27,7 @@ test.describe('quiz flows', () => {
     await page.getByRole('row', {name: /template admin/i}).locator('button').nth(1).click();
 
     await expect(page.getByText('Envoyer le quiz')).toBeVisible();
-    await page.getByRole('button', {name: /tout selectionner/i}).click();
+    await page.getByRole('button', {name: /tout sélectionner/i}).click();
     await page.locator('p-dialog').getByRole('button', {name: 'Envoyer'}).click({force: true});
 
     await expect.poll(() => api.requests.quizTemplateBulkAssign).toEqual([
