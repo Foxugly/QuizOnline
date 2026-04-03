@@ -43,14 +43,14 @@ Recommandations production :
 Commandes minimales :
 
 ```bash
-cd wpref
+cd quizonline-server
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py test
 python manage.py check --deploy
 python manage.py spectacular --file openapi.yaml
-celery -A wpref worker -l info
+celery -A config worker -l info
 ```
 
 Notes d exploitation :
@@ -75,14 +75,14 @@ Architecture email :
 ## Frontend
 
 ```bash
-cd wpref-frontend
+cd quizonline-frontend
 npm ci
 npm test -- --watch=false
 npm run build
 npm run test:e2e
 ```
 
-Le bundle de production est genere dans `wpref-frontend/dist/wpref-frontend`.
+Le bundle de production est genere dans `quizonline-frontend/dist/quizonline-frontend`.
 
 ## Contrat API
 
@@ -90,5 +90,5 @@ Avant une release :
 
 ```bash
 powershell -ExecutionPolicy Bypass -File .\scripts\sync-openapi.ps1
-git diff -- wpref/openapi.yaml wpref-frontend/openapi.yaml wpref-frontend/src/app/api/generated
+git diff -- quizonline-server/openapi.yaml quizonline-frontend/openapi.yaml quizonline-frontend/src/app/api/generated
 ```

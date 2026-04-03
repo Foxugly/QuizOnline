@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$backendDir = Join-Path $repoRoot "wpref"
-$frontendDir = Join-Path $repoRoot "wpref-frontend"
+$backendDir = Join-Path $repoRoot "quizonline-server"
+$frontendDir = Join-Path $repoRoot "quizonline-frontend"
 $venvPython = Join-Path $repoRoot ".venv\\Scripts\\python.exe"
 $pythonExe = if (Test-Path $venvPython) { $venvPython } else { "python" }
 $generatorArgs = @(

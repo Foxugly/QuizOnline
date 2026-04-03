@@ -2,15 +2,15 @@
 
 Monorepo contenant :
 
-- [`wpref/`](./wpref) : backend Django REST
-- [`wpref-frontend/`](./wpref-frontend) : frontend Angular
+- [`quizonline-server/`](./quizonline-server) : backend Django REST
+- [`quizonline-frontend/`](./quizonline-frontend) : frontend Angular
 
 ## Demarrage rapide
 
 Backend :
 
 ```bash
-cd wpref
+cd quizonline-server
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
@@ -19,7 +19,7 @@ python manage.py runserver
 Frontend :
 
 ```bash
-cd wpref-frontend
+cd quizonline-frontend
 npm ci
 npm start
 ```
@@ -29,7 +29,7 @@ npm start
 Backend :
 
 ```bash
-cd wpref
+cd quizonline-server
 python manage.py test
 pytest
 python manage.py spectacular --file openapi.yaml
@@ -38,7 +38,7 @@ python manage.py spectacular --file openapi.yaml
 Frontend :
 
 ```bash
-cd wpref-frontend
+cd quizonline-frontend
 npm run typecheck
 npm test -- --watch=false
 npm run build
@@ -89,14 +89,14 @@ Les emails applicatifs passent par une outbox base de donnees traitee par Celery
 
 ```bash
 redis-server
-cd wpref
-celery -A wpref worker -l info
+cd quizonline-server
+celery -A config worker -l info
 ```
 
 Le traitement manuel de rattrapage reste disponible si necessaire :
 
 ```bash
-cd wpref
+cd quizonline-server
 python manage.py process_outbound_email --limit 100
 ```
 
@@ -125,19 +125,19 @@ DeepL :
 
 Fichiers principaux :
 
-- [`wpref/wpref/settings.py`](./wpref/wpref/settings.py)
-- [`wpref/wpref/settings_base.py`](./wpref/wpref/settings_base.py)
-- [`wpref/wpref/settings_dev.py`](./wpref/wpref/settings_dev.py)
-- [`wpref/wpref/settings_prod.py`](./wpref/wpref/settings_prod.py)
-- [`wpref/wpref/celery.py`](./wpref/wpref/celery.py)
+- [`quizonline-server/config/settings.py`](./quizonline-server/config/settings.py)
+- [`quizonline-server/config/settings_base.py`](./quizonline-server/config/settings_base.py)
+- [`quizonline-server/config/settings_dev.py`](./quizonline-server/config/settings_dev.py)
+- [`quizonline-server/config/settings_prod.py`](./quizonline-server/config/settings_prod.py)
+- [`quizonline-server/config/celery.py`](./quizonline-server/config/celery.py)
 
 ## Documentation
 
 - structure du depot : [`docs/repository-structure.md`](./docs/repository-structure.md)
 - deploiement : [`docs/deployment.md`](./docs/deployment.md)
 - checklist acceptance / production : [`docs/acceptance-checklist.md`](./docs/acceptance-checklist.md)
-- contrat API backend : [`wpref/openapi.yaml`](./wpref/openapi.yaml)
-- contrat API frontend : [`wpref-frontend/openapi.yaml`](./wpref-frontend/openapi.yaml)
+- contrat API backend : [`quizonline-server/openapi.yaml`](./quizonline-server/openapi.yaml)
+- contrat API frontend : [`quizonline-frontend/openapi.yaml`](./quizonline-frontend/openapi.yaml)
 
 ## CI
 

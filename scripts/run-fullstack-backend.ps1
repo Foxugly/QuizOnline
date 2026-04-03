@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$backendRoot = Join-Path $repoRoot 'wpref'
+$backendRoot = Join-Path $repoRoot 'quizonline-server'
 $pythonExe = Join-Path $repoRoot '.venv\Scripts\python.exe'
 $dbPath = Join-Path $backendRoot 'db.fullstack.sqlite3'
 $mediaPath = Join-Path $backendRoot 'media-fullstack'

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: wpref
+        working-directory: quizonline-server
     steps:
       - uses: actions/checkout@v5
 
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: wpref
+        working-directory: quizonline-server
     steps:
       - uses: actions/checkout@v5
 
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: wpref
+        working-directory: quizonline-server
     steps:
       - uses: actions/checkout@v5
 
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: wpref
+        working-directory: quizonline-server
     steps:
       - uses: actions/checkout@v5
 
@@ -143,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: wpref-frontend
+        working-directory: quizonline-frontend
     steps:
       - uses: actions/checkout@v5
 
@@ -151,7 +151,7 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: wpref-frontend/package-lock.json
+          cache-dependency-path: quizonline-frontend/package-lock.json
 
       - uses: browser-actions/setup-chrome@v2
         id: setup-chrome
@@ -204,7 +204,7 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: wpref-frontend/package-lock.json
+          cache-dependency-path: quizonline-frontend/package-lock.json
 
       - uses: actions/setup-java@v4
         with:
@@ -214,9 +214,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r wpref/requirements.txt
+          pip install -r quizonline-server/requirements.txt
           pip install djangorestframework-simplejwt drf-nested-routers
-          cd wpref-frontend
+          cd quizonline-frontend
           npm ci
 
       - name: Regenerate OpenAPI and frontend client
@@ -224,4 +224,4 @@ jobs:
         run: ./scripts/sync-openapi.ps1
 
       - name: Ensure generated artifacts are committed
-        run: git diff --exit-code -- wpref/openapi.yaml wpref-frontend/openapi.yaml wpref-frontend/src/app/api/generated
+        run: git diff --exit-code -- quizonline-server/openapi.yaml quizonline-frontend/openapi.yaml quizonline-frontend/src/app/api/generated

@@ -8,8 +8,8 @@ The backend and frontend are already separated at runtime. The main shared bound
 
 ## Current State
 
-- `wpref/` contains the Django backend, local database, media, and OpenAPI generation.
-- `wpref-frontend/` contains the Angular frontend and the generated API client.
+- `quizonline-server/` contains the Django backend, local database, media, and OpenAPI generation.
+- `quizonline-frontend/` contains the Angular frontend and the generated API client.
 - The OpenAPI file is duplicated in both applications and synchronized manually.
 
 ## Target Structure
@@ -24,12 +24,12 @@ WpRef/
 |   `-- repository-structure.md
 |-- scripts/
 |   `-- sync-openapi.ps1
-|-- wpref/
+|-- quizonline-server/
 |   |-- manage.py
 |   |-- requirements.txt
 |   |-- openapi.yaml
 |   `-- ...
-`-- wpref-frontend/
+`-- quizonline-frontend/
     |-- package.json
     |-- openapi.yaml
     |-- src/
@@ -38,7 +38,7 @@ WpRef/
 
 ## Recommended Rules
 
-- Treat `wpref/` and `wpref-frontend/` as two independent applications in one repository.
+- Treat `quizonline-server/` and `quizonline-frontend/` as two independent applications in one repository.
 - Keep shared contracts explicit: OpenAPI only, not copied business logic.
 - Keep local artifacts out of Git: virtualenv, SQLite database, coverage, caches, IDE state.
 - Version the scripts that synchronize the contract.
