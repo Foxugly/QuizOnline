@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec "$CHROME_REAL_BIN" --no-sandbox --disable-dev-shm-usage "$@"

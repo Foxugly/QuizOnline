@@ -33,6 +33,7 @@ describe('DomainDelete', () => {
               active: true,
               owner: {id: 1, username: 'owner'},
               staff: [],
+              members: [],
               created_at: '',
               updated_at: '',
             }),
