@@ -10,6 +10,8 @@ django-filter
 requests
 drf-nested-routers
 coverage
+pytest
+pytest-django
 django-parler
 django-environ
 celery[redis]

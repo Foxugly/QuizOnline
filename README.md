@@ -31,6 +31,7 @@ Backend :
 ```bash
 cd wpref
 python manage.py test
+pytest
 python manage.py spectacular --file openapi.yaml
 ```
 
