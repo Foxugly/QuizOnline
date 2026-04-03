@@ -34,7 +34,9 @@ from question.serializers import (
     QuestionInQuizQuestionSerializer,
     QuestionReadSerializer,
     QuestionWriteSerializer,
+    _upsert_translations,
 )
+from question.answer_option_sync import sync_question_answer_options
 
 User = get_user_model()
 
@@ -238,7 +240,7 @@ class QuestionSerializersTestCase(TestCase):
     def test_answer_option_read_serializer_includes_is_correct(self):
         q = self._mk_question_with_translations()
         ao = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
-        data = QuestionAnswerOptionReadSerializer(ao).data
+        data = QuestionAnswerOptionReadSerializer(ao, context={"show_correct": True}).data
         self.assertIn("is_correct", data)
         self.assertTrue(data["is_correct"])
         self.assertEqual(data["translations"]["fr"]["content"], "A FR")
@@ -314,6 +316,20 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("is_correct", data2["answer_options"][0])
         self.assertEqual(data2["answer_options"][0]["translations"]["fr"]["content"], "A")
         self.assertEqual(data2["answer_options"][1]["translations"]["en"]["content"], "B")
+
+    def test_question_read_serializer_hides_correctness_without_explicit_context(self):
+        q = self._mk_question_with_translations()
+        self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A", en="A")
+        self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
+        q = (
+            Question.objects
+            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .get(pk=q.pk)
+        )
+
+        data = QuestionReadSerializer(q, context={}).data
+
+        self.assertNotIn("is_correct", data["answer_options"][0])
 
     # ---------------------------------------------------------------------
     # QuestionWriteSerializer: validate + create
@@ -487,6 +503,29 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("answer_options", ctx.exception.detail)
         self.assertIn("deja utilisees", str(ctx.exception.detail["answer_options"]))
 
+    def test_sync_question_answer_options_rejects_invalid_final_state(self):
+        q = self._mk_question_with_translations()
+        first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
+        self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
+
+        with self.assertRaises(serializers.ValidationError) as ctx:
+            sync_question_answer_options(
+                question=q,
+                answer_options_data=[
+                    {
+                        "id": first.id,
+                        "is_correct": True,
+                        "sort_order": 0,
+                        "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                    }
+                ],
+                allowed_langs={"fr", "en"},
+                upsert_translations=_upsert_translations,
+            )
+
+        self.assertIn("answer_options", ctx.exception.detail)
+        self.assertIn("Au moins 2 réponses", str(ctx.exception.detail["answer_options"]))
+
     def test_question_write_serializer_update_allows_text_change_for_answer_option_used_in_quiz(self):
         from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
 
@@ -575,3 +614,21 @@ class QuestionSerializersTestCase(TestCase):
             s.save()
         self.assertIn("answer_options", ctx.exception.detail)
         self.assertIn("correcte/incorrecte", str(ctx.exception.detail["answer_options"]))
+
+    def test_question_read_serializer_uses_prefetched_question_translations(self):
+        q = self._mk_question_with_translations()
+        self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
+        self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
+
+        prefetched = (
+            Question.objects
+            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .get(pk=q.pk)
+        )
+        serializer = QuestionReadSerializer()
+
+        with self.assertNumQueries(0):
+            translations = serializer.get_translations(prefetched)
+
+        self.assertEqual(translations["fr"]["title"], "Titre FR")
+        self.assertEqual(translations["en"]["title"], "Title EN")

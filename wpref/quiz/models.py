@@ -143,6 +143,9 @@ class QuizTemplate(models.Model):
     @property
     def questions_count(self) -> int:
         """Nombre total de questions attachées au quiz (le pool)."""
+        annotated_count = self.__dict__.get("_questions_count")
+        if annotated_count is not None:
+            return int(annotated_count)
         return self.questions.count()
 
     @property

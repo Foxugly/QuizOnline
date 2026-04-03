@@ -47,9 +47,8 @@ def _translated_value(obj, field: str) -> str:
 
 
 def _serialized_translations(obj, fields: list[str]) -> dict:
-    translation_model = obj._parler_meta.root_model
     data = {}
-    for translation_obj in translation_model.objects.filter(master_id=obj.pk):
+    for translation_obj in obj.translations.all():
         data[translation_obj.language_code] = {
             field: getattr(translation_obj, field, "") or ""
             for field in fields
@@ -224,7 +223,7 @@ def _correctness_state(context: dict) -> str:
         return state
     if "show_correct" in context:
         return "full" if bool(context.get("show_correct", False)) else "hidden"
-    return "full"
+    return "hidden"
 
 
 def _option_read_serializer(context: dict, swagger: bool):
@@ -402,10 +401,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         # 2) sujets (M2M)
         if subject_ids:
             subjects = list(Subject.objects.filter(id__in=subject_ids))
-            found = {s.id for s in subjects}
-            missing = set(subject_ids) - found
-            if missing:
-                raise serializers.ValidationError({"subject_ids": f"Subjects inexistants: {sorted(missing)}"})
             question.subjects.set(subjects)
 
         self._apply_question_translations(question, translations)
@@ -438,10 +433,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         # 2) sujets (M2M)
         if subject_ids is not None:
             subjects = list(Subject.objects.filter(id__in=subject_ids))
-            found = {s.id for s in subjects}
-            missing = set(subject_ids) - found
-            if missing:
-                raise serializers.ValidationError({"subject_ids": f"Subjects inexistants: {sorted(missing)}"})
             instance.subjects.set(subjects)
         # 3) réponses : stratégie simple = wipe + recreate
         if translations is not None:

@@ -336,6 +336,26 @@ class QuestionViewSetTests(APITestCase):
         self.assertIn("fr", items[0]["translations"])
         self.assertEqual(items[0]["translations"]["fr"]["title"], "UniqueFoo")
 
+    def test_list_search_truncates_oversized_query_param(self):
+        q1 = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        q1.set_current_language("fr")
+        q1.title = "A" * 200
+        q1.save()
+
+        q2 = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        q2.set_current_language("fr")
+        q2.title = "B" * 200
+        q2.save()
+
+        self.client.force_authenticate(self.domain_owner)
+        resp = self.client.get(self._list_url(), {"search": ("A" * 200) + ("B" * 5000)})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["translations"]["fr"]["title"], "A" * 200)
+
     # =========================================================
     # CREATE (JSON)
     # =========================================================

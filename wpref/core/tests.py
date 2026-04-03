@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from kombu.exceptions import OperationalError
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from core.mailers import send_password_reset_email, send_quiz_assignment_email
@@ -24,6 +25,16 @@ class CoreMailerTests(TestCase):
         outbound = OutboundEmail.objects.get()
         self.assertEqual(outbound.recipients, ["mail-user@example.com"])
         self.assertEqual(outbound.subject, "WpRef - password reset")
+
+    def test_outbound_email_rejects_invalid_recipients_payload(self):
+        with self.assertRaises(ValidationError) as ctx:
+            OutboundEmail.objects.create(
+                subject="Invalid",
+                body="Body",
+                recipients=["valid@example.com", "not-an-email", 123],
+            )
+
+        self.assertIn("recipients", ctx.exception.message_dict)
 
     @patch("core.mailers._common.transaction.on_commit")
     def test_send_password_reset_email_registers_automatic_delivery(self, on_commit):

@@ -82,4 +82,17 @@ def sync_question_answer_options(
                     )
                 }
             )
+
+    final_options = question.answer_options.exclude(id__in=removable_ids)
+    final_count = final_options.count()
+    correct_count = final_options.filter(is_correct=True).count()
+
+    if final_count < 2:
+        raise serializers.ValidationError({"answer_options": "Au moins 2 réponses sont requises."})
+    if correct_count == 0:
+        raise serializers.ValidationError({"answer_options": "Indique au moins une réponse correcte."})
+    if not question.allow_multiple_correct and correct_count != 1:
+        raise serializers.ValidationError({"answer_options": "Une seule réponse correcte est autorisée."})
+
+    if removable_ids:
         AnswerOption.objects.filter(id__in=removable_ids).delete()

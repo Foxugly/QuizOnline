@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db import models
 from django.db.models import F
 from django.utils import timezone
@@ -15,6 +17,28 @@ class OutboundEmail(models.Model):
 
     class Meta:
         ordering = ["created_at", "id"]
+
+    def clean(self):
+        super().clean()
+        if not isinstance(self.recipients, list):
+            raise ValidationError({"recipients": "Recipients must be a list of email addresses."})
+
+        errors = []
+        for index, recipient in enumerate(self.recipients):
+            if not isinstance(recipient, str):
+                errors.append(f"Item {index} must be a string.")
+                continue
+            try:
+                validate_email(recipient)
+            except ValidationError:
+                errors.append(f"Item {index} is not a valid email address.")
+
+        if errors:
+            raise ValidationError({"recipients": errors})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def mark_attempt(self) -> None:
         type(self).objects.filter(pk=self.pk).update(attempts=F("attempts") + 1)

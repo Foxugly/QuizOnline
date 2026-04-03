@@ -310,7 +310,7 @@ class QuestionViewSet(MyModelViewSet):
             output="200 + [QuestionSerializer] (paginé)",
         )
         qs = self.filter_queryset(self.get_queryset())
-        search = request.query_params.get("search")
+        search = (request.query_params.get("search") or "")[:200]
         if search:
             qs = qs.filter(translations__title__icontains=search).distinct()
         page = self.paginate_queryset(qs)

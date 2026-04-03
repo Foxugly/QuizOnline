@@ -138,6 +138,12 @@ class CustomUserModelTests(TestCase):
             self.assertTrue(self.owner.can_manage_domain(domain_like))
             rel.filter.assert_called_once_with(id=self.d_active_staffed.id)
 
+    def test_can_manage_domain_uses_prefetched_managed_domains_cache(self):
+        owner = User.objects.prefetch_related("managed_domains").get(pk=self.owner.pk)
+        domain_like = SimpleNamespace(id=self.d_active_staffed.id, owner_id=self.other.id)
+        with patch.object(type(owner.managed_domains), "filter", side_effect=AssertionError("DB fallback not expected")):
+            self.assertTrue(owner.can_manage_domain(domain_like))
+
     # ---------------------------------------------------------------------
     # get_manageable_domains / get_visible_domains
     # ---------------------------------------------------------------------
@@ -194,6 +200,12 @@ class CustomUserModelTests(TestCase):
         u.set_current_domain(self.d_active_owned, save=True)
         u.refresh_from_db()
         self.assertEqual(u.current_domain_id, self.d_active_owned.id)
+
+    def test_set_current_domain_inactive_raises_validation_error(self):
+        u = self.owner
+        with self.assertRaises(ValidationError) as ctx:
+            u.set_current_domain(self.d_inactive_owned, save=False)
+        self.assertIn("current_domain", ctx.exception.message_dict)
 
     def test_set_current_domain_save_false_does_not_persist(self):
         u = User.objects.create_user(username="u5", password="pass")
@@ -296,6 +308,13 @@ class CustomUserModelTests(TestCase):
         u = self.owner
         u.current_domain = self.d_active_staffed  # manageable via staff
         u.clean()  # ne doit pas lever
+
+    def test_clean_rejects_inactive_current_domain(self):
+        u = self.owner
+        u.current_domain = self.d_inactive_owned
+        with self.assertRaises(ValidationError) as ctx:
+            u.clean()
+        self.assertIn("current_domain", ctx.exception.message_dict)
 
     def test_clean_rejects_staff_global_when_current_domain_not_linked(self):
         u = self.global_staff

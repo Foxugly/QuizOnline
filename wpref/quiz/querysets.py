@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from django.db.models import Q
+from django.db.models import Count, Q
 from wpref.domain_access import manageable_domain_ids, visible_domain_ids
 
 from .models import Quiz, QuizQuestionAnswer, QuizTemplate
 
 
 def quiz_template_queryset():
-    return QuizTemplate.objects.all().prefetch_related("quiz_questions__question")
+    return (
+        QuizTemplate.objects
+        .annotate(_questions_count=Count("questions", distinct=True))
+        .prefetch_related("quiz_questions__question")
+    )
 
 
 def accessible_quiz_template_queryset(user):
@@ -49,7 +53,7 @@ def template_sessions_queryset(quiz_template):
     return (
         quiz_template.quiz
         .select_related("user", "quiz_template")
-        .prefetch_related("answers")
+        .prefetch_related("answers__selected_options")
         .order_by("-created_at", "-id")
     )
 

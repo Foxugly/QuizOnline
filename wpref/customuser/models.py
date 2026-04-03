@@ -73,6 +73,9 @@ class CustomUser(AbstractUser):
 
         # Grâce à Domain.staff.related_name="managed_domains"
         # => self.managed_domains est disponible
+        prefetched = getattr(self, "_prefetched_objects_cache", {})
+        if "managed_domains" in prefetched:
+            return any(prefetched_domain.id == domain.id for prefetched_domain in prefetched["managed_domains"])
         return self.managed_domains.filter(id=domain.id).exists()
 
     def get_manageable_domains(self, *, active_only: bool = False) -> QuerySet:
@@ -124,6 +127,8 @@ class CustomUser(AbstractUser):
 
         if not self.get_visible_domains(active_only=False).filter(id=domain.id).exists():
             raise PermissionError("User cannot set this domain as current.")
+        if hasattr(domain, "active") and domain.active is False:
+            raise ValidationError({"current_domain": "This domain is inactive."})
 
         self.current_domain = domain
         if save:
@@ -184,6 +189,8 @@ class CustomUser(AbstractUser):
 
         if not self.get_visible_domains(active_only=False).filter(id=self.current_domain_id).exists():
             raise ValidationError({"current_domain": "This domain is not visible to the user."})
+        if hasattr(self.current_domain, "active") and self.current_domain.active is False:
+            raise ValidationError({"current_domain": "This domain is inactive."})
 
     # -------------------------
     # Qualité de vie (facultatif)
