@@ -420,6 +420,20 @@ class QuestionViewSetTests(APITestCase):
 
         question = Question.objects.get(pk=resp.json()["id"])
         self.assertEqual(question.created_by_id, self.domain_owner.id)
+        self.assertEqual(question.updated_by_id, self.domain_owner.id)
+
+    def test_patch_sets_updated_by(self):
+        q = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)
+        q.set_current_language("fr")
+        q.title = "Patch audit"
+        q.save()
+
+        self.client.force_authenticate(self.domain_owner)
+        resp = self.client.patch(self._detail_url(q), data={"active": False}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.json())
+
+        q.refresh_from_db()
+        self.assertEqual(q.updated_by_id, self.domain_owner.id)
 
     def test_create_rejects_subject_from_other_domain(self):
         valid_subject = self._mk_subject(self.domain, name_fr="S1")

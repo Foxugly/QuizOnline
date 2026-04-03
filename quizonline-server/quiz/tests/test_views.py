@@ -286,6 +286,9 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self._auth(self.admin)
         res2 = self.client.post(self.qt_list_url, payload, format="json")
         self.assertEqual(res2.status_code, status.HTTP_201_CREATED)
+        qt = QuizTemplate.objects.get(pk=res2.data["id"])
+        self.assertEqual(qt.created_by_id, self.admin.id)
+        self.assertEqual(qt.updated_by_id, self.admin.id)
 
     def test_quiztemplate_create_allows_superuser_without_staff(self):
         payload = {
@@ -338,6 +341,8 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self._auth(self.admin)
         res2 = self.client.patch(detail_url, {"description": "hello"}, format="json")
         self.assertEqual(res2.status_code, status.HTTP_200_OK)
+        self.qt_ok.refresh_from_db()
+        self.assertEqual(self.qt_ok.updated_by_id, self.admin.id)
 
     def test_quiztemplate_destroy_requires_admin(self):
         qt = QuizTemplate.objects.create(

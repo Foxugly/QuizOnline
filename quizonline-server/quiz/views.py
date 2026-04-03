@@ -206,7 +206,7 @@ class QuizTemplateViewSet(MyModelViewSet):
         )
         write = self.get_serializer(data=request.data)
         write.is_valid(raise_exception=True)
-        instance = write.save(created_by=request.user)
+        instance = write.save(created_by=request.user, updated_by=request.user)
         read = QuizTemplateSerializer(instance, context=self.get_serializer_context())
         return Response(read.data, status=status.HTTP_201_CREATED)
 
@@ -222,7 +222,7 @@ class QuizTemplateViewSet(MyModelViewSet):
         self.check_object_permissions(request, instance)
         write = self.get_serializer(instance, data=request.data, partial=False)
         write.is_valid(raise_exception=True)
-        instance = write.save()
+        instance = write.save(updated_by=request.user)
         read = QuizTemplateSerializer(instance, context=self.get_serializer_context())
         return Response(read.data, status=status.HTTP_200_OK)
 
@@ -238,7 +238,7 @@ class QuizTemplateViewSet(MyModelViewSet):
         self.check_object_permissions(request, instance)
         write = self.get_serializer(instance, data=request.data, partial=True)
         write.is_valid(raise_exception=True)
-        instance = write.save()
+        instance = write.save(updated_by=request.user)
         read = QuizTemplateSerializer(instance, context=self.get_serializer_context())
         return Response(read.data, status=status.HTTP_200_OK)
 

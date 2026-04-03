@@ -342,7 +342,7 @@ class QuestionViewSet(MyModelViewSet):
         if not serializer.is_valid():
             logger.debug("CREATE errors: %s", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        question = serializer.save(created_by=request.user)
+        question = serializer.save(created_by=request.user, updated_by=request.user)
         logger.debug("Question created id=%s", question.id)
         return Response(QuestionReadSerializer(question, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED)
@@ -394,7 +394,7 @@ class QuestionViewSet(MyModelViewSet):
             logger.debug("UPDATE errors: %s", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        question = serializer.save()
+        question = serializer.save(updated_by=request.user)
 
         logger.debug("Question updated id=%s partial=%s", question.id, partial)
         return Response(QuestionReadSerializer(question, context=self.get_serializer_context()).data,

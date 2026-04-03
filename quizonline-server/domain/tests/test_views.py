@@ -274,6 +274,18 @@ class DomainViewSetTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         domain = Domain.objects.get(pk=response.data["id"])
         self.assertEqual(domain.created_by_id, self.owner.id)
+        self.assertEqual(domain.updated_by_id, self.owner.id)
+
+    def test_update_sets_updated_by(self):
+        view = DomainViewSet.as_view({"patch": "partial_update"})
+        payload = {"active": False}
+        request = self.factory.patch(f"/api/domain/{self.domain_active.id}/", payload, format="json")
+        force_authenticate(request, user=self.owner)
+        response = view(request, domain_id=self.domain_active.id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.domain_active.refresh_from_db()
+        self.assertEqual(self.domain_active.updated_by_id, self.owner.id)
 
     # ----------------------------
     # UPDATE (PUT)
