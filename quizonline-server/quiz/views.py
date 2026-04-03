@@ -12,6 +12,7 @@ from drf_spectacular.utils import (
     OpenApiTypes,
 )
 from question.models import Question
+from customuser.throttling import QuizAnswerRateThrottle
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -1145,6 +1146,7 @@ class QuizAlertThreadViewSet(MyModelViewSet):
 )
 class QuizQuestionAnswerViewSet(MyModelViewSet):
     permission_classes = [IsOwnerOrStaff]
+    throttle_classes = [QuizAnswerRateThrottle]
     lookup_field = "pk"
     lookup_url_kwarg = "answer_id"
 

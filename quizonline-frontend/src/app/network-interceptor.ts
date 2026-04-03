@@ -1,9 +1,10 @@
 import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {catchError, throwError, timeout} from 'rxjs';
+import {environment} from '../environments/environment';
 import {BackendStatusService} from './services/status/status';
 
-// délai max avant de considérer "pas de réponse" (adapter selon besoin)
+// Délai max avant de considérer "pas de réponse" (adapter selon besoin)
 const REQ_TIMEOUT_MS = 8000;
 
 export const NetworkInterceptor: HttpInterceptorFn = (req, next) => {
@@ -15,8 +16,8 @@ export const NetworkInterceptor: HttpInterceptorFn = (req, next) => {
       // Timeout RxJS "simule" un status 0 pour nous
       if (err instanceof HttpErrorResponse) {
         if (err.status === 0) {
-          // échec de connexion: serveur down, CORS, DNS, etc.
-          status.setDown('API inaccessible. Vérifie que Django tourne sur http://127.0.0.1:8000');
+          // Échec de connexion: serveur down, CORS, DNS, etc.
+          status.setDown(`API inaccessible. Vérifie que l'API tourne sur ${environment.apiUrl}`);
         } else {
           // HTTP valide (ex: 400/401/500), le backend répond
           status.setUp();

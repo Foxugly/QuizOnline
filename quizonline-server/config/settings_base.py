@@ -148,6 +148,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "token_obtain": "5/min",
         "password_reset": "3/hour",
+        "quiz_answer": "60/min",
     },
 }
 
