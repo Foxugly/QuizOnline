@@ -223,6 +223,11 @@ class QuizModelsTestCase(TestCase):
         self.qt.save()
         self.assertTrue(self.qt.can_show_result(now))
 
+    def test_quiztemplate_can_show_result_invalid_visibility_falls_back_to_false(self):
+        self.qt.mode = QuizTemplate.MODE_EXAM
+        self.qt.result_visibility = "unexpected"
+        self.assertFalse(self.qt.can_show_result())
+
     def test_quiztemplate_can_show_details_practice_always_true(self):
         self.qt.mode = QuizTemplate.MODE_PRACTICE
         self.qt.detail_visibility = VISIBILITY_NEVER
@@ -256,6 +261,11 @@ class QuizModelsTestCase(TestCase):
         self.qt.detail_available_at = now - timedelta(minutes=5)
         self.qt.save()
         self.assertTrue(self.qt.can_show_details(now))
+
+    def test_quiztemplate_can_show_details_invalid_visibility_falls_back_to_false(self):
+        self.qt.mode = QuizTemplate.MODE_EXAM
+        self.qt.detail_visibility = "unexpected"
+        self.assertFalse(self.qt.can_show_details())
 
     # ---------------------------------------------------------------------
     # QuizQuestion

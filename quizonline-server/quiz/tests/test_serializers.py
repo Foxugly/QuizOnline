@@ -1,9 +1,11 @@
 # quiz/tests/test_serializers_modelserializers.py
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 from django.utils import translation
+from unittest.mock import patch
 from domain.models import Domain
 from question.models import Question, AnswerOption
 from quiz.constants import VISIBILITY_IMMEDIATE, VISIBILITY_NEVER
@@ -22,6 +24,7 @@ from quiz.serializers import (
     QuizSerializer,
     QuizQuestionAnswerWriteSerializer,
 )
+from rest_framework import serializers
 from rest_framework.test import APIRequestFactory
 
 User = get_user_model()
@@ -273,6 +276,62 @@ class QuizTemplateSerializerTests(LocalizedTestCase):
         instance = serializer.save()
         self.assertEqual(instance.translations["en"]["title"], "Template EN")
         self.assertEqual(instance.title, "Template FR")
+
+    def test_write_serializer_accepts_blank_translation_description(self):
+        payload = {
+            "domain": self.domain.id,
+            "title": "Template FR",
+            "description": "",
+            "translations": {
+                "fr": {"title": "Template FR", "description": ""},
+            },
+            "mode": QuizTemplate.MODE_PRACTICE,
+            "max_questions": 3,
+            "permanent": True,
+            "with_duration": False,
+            "duration": 10,
+            "is_public": False,
+            "active": True,
+            "result_visibility": VISIBILITY_IMMEDIATE,
+            "detail_visibility": VISIBILITY_IMMEDIATE,
+        }
+        factory = APIRequestFactory()
+        request = factory.post("/api/quiz/template/")
+        request.user = self.user
+
+        serializer = QuizTemplateWriteSerializer(data=payload, context={"request": request})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        instance = serializer.save()
+        self.assertEqual(instance.translations["fr"]["description"], "")
+
+    def test_write_serializer_returns_validation_error_on_integrity_error(self):
+        payload = {
+            "domain": self.domain.id,
+            "title": "Template FR",
+            "description": "Desc FR",
+            "translations": {
+                "fr": {"title": "Template FR", "description": "Desc FR"},
+            },
+            "mode": QuizTemplate.MODE_PRACTICE,
+            "max_questions": 3,
+            "permanent": True,
+            "with_duration": False,
+            "duration": 10,
+            "is_public": False,
+            "active": True,
+            "result_visibility": VISIBILITY_IMMEDIATE,
+            "detail_visibility": VISIBILITY_IMMEDIATE,
+        }
+        factory = APIRequestFactory()
+        request = factory.post("/api/quiz/template/")
+        request.user = self.user
+
+        serializer = QuizTemplateWriteSerializer(data=payload, context={"request": request})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        with patch("quiz.serializers.QuizTemplate.save", side_effect=IntegrityError("duplicate")):
+            with self.assertRaises(serializers.ValidationError):
+                serializer.save()
 
     def test_read_only_fields_are_not_writable(self):
         payload = {

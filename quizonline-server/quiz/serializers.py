@@ -1,6 +1,7 @@
 import logging
 
 from drf_spectacular.utils import extend_schema_field
+from django.db import IntegrityError
 from question.models import Question
 from question.serializers import QuestionInQuizQuestionSerializer, QuestionReadSerializer
 from rest_framework import serializers
@@ -274,8 +275,13 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
         payload_language = self._payload_language(translations, validated_data.get("title", ""))
         instance = QuizTemplate(**validated_data)
         instance.translations = translations
-        instance.sync_fields_from_translations(payload_language)
-        instance.save(preferred_language=payload_language)
+        try:
+            instance.sync_fields_from_translations(payload_language)
+            instance.save(preferred_language=payload_language)
+        except IntegrityError as exc:
+            raise serializers.ValidationError(
+                {"title": "A quiz template with this title already exists."}
+            ) from exc
         return instance
 
     def update(self, instance, validated_data):
@@ -286,8 +292,13 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
         if translations is not None:
             instance.translations = translations
         payload_language = self._payload_language(instance.normalized_translations(), next_title)
-        instance.sync_fields_from_translations(payload_language)
-        instance.save(preferred_language=payload_language)
+        try:
+            instance.sync_fields_from_translations(payload_language)
+            instance.save(preferred_language=payload_language)
+        except IntegrityError as exc:
+            raise serializers.ValidationError(
+                {"title": "A quiz template with this title already exists."}
+            ) from exc
         return instance
 
     class Meta:

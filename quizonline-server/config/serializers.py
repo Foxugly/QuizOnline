@@ -49,7 +49,7 @@ class LocalizedSubjectDetailTranslationSerializer(serializers.Serializer):
 
 class LocalizedQuizTemplateTranslationSerializer(serializers.Serializer):
     title = serializers.CharField()
-    description = serializers.CharField()
+    description = serializers.CharField(allow_blank=True)
 
 
 @extend_schema_field(OpenApiTypes.OBJECT)

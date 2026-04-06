@@ -43,7 +43,7 @@ class QuizTemplate(AuditMixin, models.Model):
     mode = models.CharField(
         max_length=10,
         choices=MODE_CHOICES,
-        default=MODE_PRACTICE,  # par défaut : mode examen
+        default=MODE_PRACTICE,  # par défaut : mode pratique
     )
     description = models.TextField("Description", blank=True)
     translations = models.JSONField(default=dict, blank=True)
@@ -258,6 +258,7 @@ class QuizTemplate(AuditMixin, models.Model):
             if self.result_available_at is None:
                 return False
             return when >= self.result_available_at
+        return False
 
     # 🔹 Helpers visibilité détail réponses
 
@@ -282,6 +283,7 @@ class QuizTemplate(AuditMixin, models.Model):
             if self.detail_available_at is None:
                 return False
             return when >= self.detail_available_at
+        return False
 
 
 class QuizQuestion(models.Model):
