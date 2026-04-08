@@ -298,13 +298,17 @@ class DomainViewSet(MyModelViewSet):
                     target.is_staff = False
 
         target.save(update_fields=["is_active", "is_staff"])
+        if "domain_staff" in serializer.validated_data:
+            is_domain_staff = serializer.validated_data["domain_staff"]
+        else:
+            is_domain_staff = domain.staff.filter(pk=target.pk).exists()
         return Response(
             {
                 "id": target.id,
                 "username": target.username,
                 "is_active": target.is_active,
                 "is_staff": target.is_staff,
-                "domain_staff": domain.staff.filter(pk=target.pk).exists(),
+                "domain_staff": is_domain_staff,
             },
             status=status.HTTP_200_OK,
         )

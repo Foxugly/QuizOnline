@@ -21,7 +21,7 @@ def create_quizzes_from_template(*, quiz_template, users, validate_target_user, 
         for user in users:
             validate_target_user(quiz_template, user)
             quiz = Quiz.objects.create(
-                domain=quiz_template.domain,
+                domain_id=quiz_template.domain_id,
                 quiz_template=quiz_template,
                 user=user,
                 active=False,
