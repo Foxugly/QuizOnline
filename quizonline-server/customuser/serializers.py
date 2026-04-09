@@ -144,9 +144,12 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
 
     def update(self, instance, validated_data):
         managed_domain_ids = validated_data.pop("managed_domain_ids", None)
+        update_fields = []
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
+            update_fields.append(attr)
+        if update_fields:
+            instance.save(update_fields=update_fields)
 
         if managed_domain_ids is not None:
             instance.linked_domains.set(Domain.objects.filter(id__in=managed_domain_ids, active=True))
@@ -176,12 +179,16 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
+        update_fields = []
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+            update_fields.append(attr)
         if password:
             instance.set_password(password)
             instance.must_change_password = True
-        instance.save()
+            update_fields.extend(["password", "must_change_password"])
+        if update_fields:
+            instance.save(update_fields=update_fields)
         return instance
 
 

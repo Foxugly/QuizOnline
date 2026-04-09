@@ -234,7 +234,7 @@ class UserQuizListView(GenericAPIView):
 
             raise PermissionDenied("Vous ne pouvez voir que vos propres quiz.")
 
-        quiz = Quiz.objects.filter(sessions__user=user).distinct()
+        quiz = Quiz.objects.filter(user=user).select_related("quiz_template").order_by("-created_at")
 
         serializer = QuizSimpleSerializer(quiz, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

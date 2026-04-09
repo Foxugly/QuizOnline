@@ -33,12 +33,12 @@ export interface QuizDto {
     readonly max_questions: number;
     readonly with_duration: boolean;
     readonly duration: number;
+    readonly earned_score: number | null;
+    readonly max_score: number | null;
     readonly questions: Array<QuizQuestionReadDto>;
     readonly answers: Array<QuizQuestionAnswerDto>;
     readonly total_answers: number | null;
     readonly correct_answers: number | null;
-    readonly earned_score: number | null;
-    readonly max_score: number | null;
     readonly answer_correctness_state: AnswerCorrectnessStateEnumDto;
 }
 

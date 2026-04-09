@@ -84,9 +84,12 @@ class SubjectWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         translations = validated_data.pop("translations", None)
 
+        update_fields = []
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
+            update_fields.append(attr)
+        if update_fields:
+            instance.save(update_fields=update_fields)
 
         if translations:
             self._apply_translations(instance, translations)

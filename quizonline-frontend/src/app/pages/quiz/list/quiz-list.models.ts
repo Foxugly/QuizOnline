@@ -2,8 +2,6 @@ import {QuizListDto, QuizTemplateDto} from '../../../api/generated';
 import {QuizTemplateAssignmentSessionDto} from '../../../services/quiz/quiz';
 
 export interface UserQuizListItem extends QuizListDto {
-  earned_score: number | null;
-  max_score: number | null;
   status: 'in_progress' | 'answered';
 }
 

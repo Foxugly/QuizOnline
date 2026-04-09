@@ -34,16 +34,8 @@ class Question(AuditMixin, TranslatableModel):
         ordering = ["-pk"]
 
     def __str__(self):
-        try:
-            title = self.safe_translation_getter("title", any_language=True)
-        except ValueError:
-            title = None
-
-        if not title:
-            title = self.translations.values_list("title", flat=True).exclude(title="").first()
-        if title:
-            return title
-        return f"Question#{self.pk}"
+        title = self.safe_translation_getter("title", any_language=True)
+        return title or f"Question#{self.pk}"
 
 
 class QuestionSubject(models.Model):

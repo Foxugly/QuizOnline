@@ -24,6 +24,8 @@ env = environ.Env(
     USE_DEEPL=(bool, False),
     DEEPL_IS_FREE=(bool, False),
     DATABASE_URL=(str, ""),
+    CACHE_URL=(str, "locmemcache://"),
+    DB_CONN_MAX_AGE=(int, 0),
     CELERY_BROKER_URL=(str, "redis://127.0.0.1:6379/0"),
     CELERY_RESULT_BACKEND=(str, "redis://127.0.0.1:6379/1"),
     CELERY_TASK_ALWAYS_EAGER=(bool, False),
@@ -100,6 +102,9 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")}
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE")
+
+CACHES = {"default": env.cache("CACHE_URL")}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

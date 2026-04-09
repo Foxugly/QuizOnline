@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Count, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
@@ -277,27 +278,35 @@ class DomainViewSet(MyModelViewSet):
         if not domain.members.filter(pk=target.pk).exists() and domain.owner_id != target.pk:
             raise ValidationError({"user_id": "User must be linked to this domain first."})
 
-        if "is_active" in serializer.validated_data:
-            target.is_active = serializer.validated_data["is_active"]
+        update_fields: list[str] = []
 
-        if "domain_staff" in serializer.validated_data:
-            make_staff = serializer.validated_data["domain_staff"]
-            if make_staff:
-                domain.staff.add(target)
-                domain.members.add(target)
-                if request.user.is_superuser and not target.is_staff:
-                    target.is_staff = True
-            else:
-                domain.staff.remove(target)
-                if (
-                    request.user.is_superuser
-                    and target.is_staff
-                    and not target.is_superuser
-                    and not target.managed_domains.exclude(pk=domain.pk).exists()
-                ):
-                    target.is_staff = False
+        with transaction.atomic():
+            if "is_active" in serializer.validated_data:
+                target.is_active = serializer.validated_data["is_active"]
+                update_fields.append("is_active")
 
-        target.save(update_fields=["is_active", "is_staff"])
+            if "domain_staff" in serializer.validated_data:
+                make_staff = serializer.validated_data["domain_staff"]
+                if make_staff:
+                    domain.staff.add(target)
+                    domain.members.add(target)
+                    if request.user.is_superuser and not target.is_staff:
+                        target.is_staff = True
+                        update_fields.append("is_staff")
+                else:
+                    domain.staff.remove(target)
+                    if (
+                        request.user.is_superuser
+                        and target.is_staff
+                        and not target.is_superuser
+                        and not target.managed_domains.exclude(pk=domain.pk).exists()
+                    ):
+                        target.is_staff = False
+                        update_fields.append("is_staff")
+
+            if update_fields:
+                target.save(update_fields=update_fields)
+
         if "domain_staff" in serializer.validated_data:
             is_domain_staff = serializer.validated_data["domain_staff"]
         else:

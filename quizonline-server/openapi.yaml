@@ -4503,6 +4503,16 @@ components:
         duration:
           type: integer
           readOnly: true
+        earned_score:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        max_score:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
         questions:
           type: array
           items:
@@ -4519,16 +4529,6 @@ components:
           readOnly: true
         correct_answers:
           type: integer
-          nullable: true
-          readOnly: true
-        earned_score:
-          type: number
-          format: double
-          nullable: true
-          readOnly: true
-        max_score:
-          type: number
-          format: double
           nullable: true
           readOnly: true
         answer_correctness_state:
@@ -4940,12 +4940,22 @@ components:
         duration:
           type: integer
           readOnly: true
+        earned_score:
+          type: number
+          format: double
+          readOnly: true
+        max_score:
+          type: number
+          format: double
+          readOnly: true
       required:
       - can_answer
       - created_at
       - duration
+      - earned_score
       - id
       - max_questions
+      - max_score
       - mode
       - quiz_template
       - quiz_template_description

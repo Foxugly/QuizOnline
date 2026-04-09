@@ -21,7 +21,10 @@ def sync_question_answer_options(
         .values_list("id", flat=True)
     )
     retained_ids: set[int] = set()
-    retained_options: list[AnswerOption] = []
+
+    # Separate new vs existing, validate inline, collect (instance, translations) pairs.
+    new_pairs: list[tuple[AnswerOption, dict]] = []
+    update_pairs: list[tuple[AnswerOption, dict]] = []
 
     for i, raw_option in enumerate(answer_options_data):
         if not isinstance(raw_option, dict):
@@ -59,18 +62,26 @@ def sync_question_answer_options(
                 )
             for attr, value in option_payload.items():
                 setattr(option, attr, value)
-            option.save()
             retained_ids.add(option_id)
+            update_pairs.append((option, option_translations))
         else:
-            option = AnswerOption.objects.create(question=question, **option_payload)
-            retained_ids.add(option.id)
+            option = AnswerOption(question=question, **option_payload)
+            new_pairs.append((option, option_translations))
 
-        retained_options.append(option)
-        upsert_translations(
-            option,
-            {lang_code: option_translations.get(lang_code, {}) for lang_code in allowed_langs},
-            fields=["content"],
+    # Bulk create new options (sets PKs on instances in-place).
+    if new_pairs:
+        AnswerOption.objects.bulk_create([opt for opt, _ in new_pairs])
+        for opt, _ in new_pairs:
+            retained_ids.add(opt.id)
+
+    # Bulk update existing options.
+    if update_pairs:
+        AnswerOption.objects.bulk_update(
+            [opt for opt, _ in update_pairs],
+            fields=["is_correct", "sort_order"],
         )
+
+    retained_options = [opt for opt, _ in update_pairs + new_pairs]
 
     removable_ids = set(existing_options) - retained_ids
     if removable_ids:
@@ -97,3 +108,11 @@ def sync_question_answer_options(
 
     if removable_ids:
         AnswerOption.objects.filter(id__in=removable_ids).delete()
+
+    # Apply translations after all DB writes so PKs are guaranteed to exist.
+    for opt, translations in update_pairs + new_pairs:
+        upsert_translations(
+            opt,
+            {lang_code: translations.get(lang_code, {}) for lang_code in allowed_langs},
+            fields=["content"],
+        )

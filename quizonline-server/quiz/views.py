@@ -880,7 +880,7 @@ class QuizViewSet(MyModelViewSet):
             "bulk_create_from_template: created=%s quiz_template_id=%s users_count=%s",
             len(created),
             qt.id,
-            users.count(),
+            len(user_ids),
         )
         serializer = self.get_serializer(created, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -894,16 +894,22 @@ class QuizViewSet(MyModelViewSet):
             output="200 + QuizSerializer | 400 | 404",
             extra={"pk": quiz_id},
         )
-        quiz = self._expire_quiz_if_needed(self.get_object())
-        if not quiz.quiz_template.can_answer:
-            logger.warning("start: template not available quiz_id=%s qt_id=%s", quiz.id, quiz.quiz_template_id)
-            return Response(
-                {"detail": "Ce quiz n'est pas disponible actuellement."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        quiz.started_at = timezone.now()
-        quiz.active = True
-        quiz.save()
+        with transaction.atomic():
+            quiz = get_object_or_404(self.get_queryset().select_for_update(), pk=quiz_id)
+            quiz = self._expire_quiz_if_needed(quiz)
+            if not quiz.quiz_template.can_answer:
+                logger.warning("start: template not available quiz_id=%s qt_id=%s", quiz.id, quiz.quiz_template_id)
+                return Response(
+                    {"detail": "Ce quiz n'est pas disponible actuellement."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if quiz.started_at is not None:
+                logger.debug("start: already started quiz_id=%s", quiz.id)
+                serializer = self.get_serializer(quiz)
+                return Response(serializer.data)
+            quiz.started_at = timezone.now()
+            quiz.active = True
+            quiz.save(update_fields=["started_at", "active", "ended_at"])
         logger.debug("start: started quiz_id=%s", quiz.id)
         serializer = self.get_serializer(quiz)
         return Response(serializer.data)

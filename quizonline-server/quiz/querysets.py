@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from django.db.models import Count, Q
+from django.db.models import Count, FloatField, Prefetch, Q, Sum
+from django.db.models.functions import Coalesce
 
-from .models import Quiz, QuizQuestionAnswer, QuizTemplate
+from .models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
 
 
 def quiz_template_queryset():
@@ -39,13 +40,28 @@ def accessible_quiz_template_queryset(user):
 
 
 def quiz_queryset_for_user(user, *, include_details: bool):
-    queryset = Quiz.objects.select_related("quiz_template", "user").order_by("-created_at", "-id")
+    queryset = (
+        Quiz.objects
+        .select_related("quiz_template", "user")
+        .annotate(
+            _earned_score=Coalesce(Sum("answers__earned_score"), 0.0, output_field=FloatField()),
+            _max_score=Coalesce(Sum("answers__max_score"), 0.0, output_field=FloatField()),
+        )
+        .order_by("-created_at", "-id")
+    )
     if include_details:
+        quiz_questions_prefetch = Prefetch(
+            "quiz_template__quiz_questions",
+            queryset=QuizQuestion.objects.select_related("question").prefetch_related(
+                "question__answer_options",
+                "question__media__asset",
+                "question__subjects",
+            ),
+        )
         queryset = queryset.prefetch_related(
             "answers__selected_options",
-            "quiz_template__quiz_questions__question__answer_options",
-            "quiz_template__quiz_questions__question__media__asset",
-            "quiz_template__quiz_questions__question__subjects",
+            "answers__quizquestion__question__answer_options",
+            quiz_questions_prefetch,
         )
     if user.is_staff or user.is_superuser:
         return queryset

@@ -186,19 +186,19 @@ class SubjectViewSet(MyModelViewSet):
         if not getattr(user, "is_authenticated", False):
             return Subject.objects.none()
 
-        qs = Subject.objects.all().select_related("domain")
+        qs = Subject.objects.all().select_related("domain").prefetch_related(
+            "translations",
+            "domain__translations",
+        )
 
         if not getattr(user, "is_superuser", False):
             qs = qs.filter(domain__in=user.get_visible_domains(active_only=False))
 
         if self.action in ["retrieve", "details"]:
             qs = qs.prefetch_related(
-                "domain__translations",  # parler translations du Domain (pour domain_name)
                 "questions",  # M2M via related_name="questions"
                 "questions__translations",  # parler translations de Question (pour title)
             )
-            # optionnel (si tu veux éviter N+1 si ailleurs tu enrichis):
-            # qs = qs.prefetch_related("questions__answer_options", "questions__media")
 
         return qs.distinct()
 

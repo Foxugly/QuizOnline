@@ -30,5 +30,7 @@ export interface QuizListDto {
     readonly max_questions: number;
     readonly with_duration: boolean;
     readonly duration: number;
+    readonly earned_score: number;
+    readonly max_score: number;
 }
 

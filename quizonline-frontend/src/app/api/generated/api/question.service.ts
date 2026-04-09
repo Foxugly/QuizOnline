@@ -11,10 +11,10 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
@@ -143,6 +143,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionCreate(requestParameters: QuestionCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
     public questionCreate(requestParameters: QuestionCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
@@ -212,6 +213,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
     public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
@@ -270,6 +272,7 @@ export class QuestionApi extends BaseService {
      * @endpoint get /api/question/export-structured/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionExportStructuredRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
     public questionExportStructuredRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
@@ -325,6 +328,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
     public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
@@ -457,6 +461,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionList(requestParameters?: QuestionListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuestionReadListDto>;
     public questionList(requestParameters?: QuestionListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuestionReadListDto>>;
@@ -471,25 +476,79 @@ export class QuestionApi extends BaseService {
         const search = requestParameters?.search;
         const subjectIds = requestParameters?.subjectIds;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>active, 'active');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>domain, 'domain');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>isModeExam, 'is_mode_exam');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>isModePractice, 'is_mode_practice');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>pageSize, 'page_size');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>search, 'search');
-        if (subjectIds) {
-            localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                [...subjectIds].join(COLLECTION_FORMATS['csv']), 'subject_ids');
-        }
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'active',
+            <any>active,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'domain',
+            <any>domain,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'is_mode_exam',
+            <any>isModeExam,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'is_mode_practice',
+            <any>isModePractice,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page_size',
+            <any>pageSize,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'search',
+            <any>search,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'subject_ids',
+            <any>subjectIds,
+            QueryParamStyle.Form,
+            false,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -524,7 +583,7 @@ export class QuestionApi extends BaseService {
         return this.httpClient.request<PaginatedQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -542,6 +601,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MediaAssetDto>;
     public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MediaAssetDto>>;
@@ -630,6 +690,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
     public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
@@ -698,6 +759,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
     public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
@@ -829,6 +891,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
     public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
@@ -901,6 +964,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
     public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
@@ -961,6 +1025,7 @@ export class QuestionApi extends BaseService {
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
     public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;

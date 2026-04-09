@@ -110,12 +110,12 @@ def message_is_unread_for_user(message: "QuizAlertMessage", user) -> bool:
 
 
 def alert_last_message_preview(thread: "QuizAlertThread") -> str:
-    message = next(iter(getattr(thread, "prefetched_messages", []) or []), None)
-    if message is None:
-        message = thread.messages.order_by("-created_at").first()
-    if message is None:
+    # list() exploite le prefetch cache de Django si messages est prefetché ;
+    # sinon déclenche une requête DB. Messages sont ordonnés created_at asc.
+    messages = list(thread.messages.all())
+    if not messages:
         return ""
-    return (message.body or "").strip()[:120]
+    return (messages[-1].body or "").strip()[:120]
 
 
 def alert_thread_queryset():

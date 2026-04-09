@@ -460,6 +460,8 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
     user_summary = serializers.SerializerMethodField()
     with_duration = serializers.BooleanField(source="quiz_template.with_duration", read_only=True)
     duration = serializers.IntegerField(source="quiz_template.duration", read_only=True)
+    earned_score = serializers.FloatField(source="_earned_score", read_only=True)
+    max_score = serializers.FloatField(source="_max_score", read_only=True)
 
     class Meta:
         model = Quiz
@@ -480,6 +482,8 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
             "max_questions",
             "with_duration",
             "duration",
+            "earned_score",
+            "max_score",
         ]
         read_only_fields = [
             "created_at",
@@ -492,6 +496,8 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
             "max_questions",
             "with_duration",
             "duration",
+            "earned_score",
+            "max_score",
         ]
 
     @extend_schema_field(UserSummarySerializer(allow_null=True))
@@ -562,14 +568,8 @@ class QuizSerializer(QuizListSerializer):
     def get_questions(self, obj) -> serializers.ModelSerializer:
         qt = obj.quiz_template
         correctness_state = self._answer_correctness_state(obj)
-        qs = (
-            qt.quiz_questions
-            .select_related("question")
-            .prefetch_related("question__answer_options")
-            .order_by("sort_order")
-        )
         return QuizQuestionReadSerializer(
-            qs,
+            qt.quiz_questions.all(),
             many=True,
             context={
                 **self.context,
@@ -577,34 +577,34 @@ class QuizSerializer(QuizListSerializer):
             },
         ).data
 
-    def _answers_qs(self, obj):
+    def _answers_list(self, obj):
         if not hasattr(obj, "_answers_cache"):
-            obj._answers_cache = obj.answers.all()
+            obj._answers_cache = list(obj.answers.all())
         return obj._answers_cache
 
     @extend_schema_field(serializers.IntegerField(allow_null=True))
     def get_total_answers(self, obj) -> int:
         if not self._can_show_result(obj):
             return None
-        return self._answers_qs(obj).count()
+        return len(self._answers_list(obj))
 
     @extend_schema_field(serializers.IntegerField(allow_null=True))
     def get_correct_answers(self, obj) -> int:
         if not self._can_show_result(obj):
             return None
-        return self._answers_qs(obj).filter(is_correct=True).count()
+        return sum(1 for a in self._answers_list(obj) if a.is_correct)
 
     @extend_schema_field(serializers.FloatField(allow_null=True))
     def get_earned_score(self, obj) -> float:
         if not self._can_show_result(obj):
             return None
-        return sum(a.earned_score for a in self._answers_qs(obj))
+        return sum(a.earned_score for a in self._answers_list(obj))
 
     @extend_schema_field(serializers.FloatField(allow_null=True))
     def get_max_score(self, obj) -> float:
         if not self._can_show_result(obj):
             return None
-        return sum(a.max_score for a in self._answers_qs(obj))
+        return sum(a.max_score for a in self._answers_list(obj))
 
 
 class QuizAssignmentListSerializer(QuizListSerializer):
@@ -621,22 +621,22 @@ class QuizAssignmentListSerializer(QuizListSerializer):
             "correct_answers",
         ]
 
-    def _answers_qs(self, obj):
+    def _answers_list(self, obj):
         if not hasattr(obj, "_answers_cache"):
-            obj._answers_cache = obj.answers.all()
+            obj._answers_cache = list(obj.answers.all())
         return obj._answers_cache
 
     def get_total_answers(self, obj) -> int:
-        return self._answers_qs(obj).count()
+        return len(self._answers_list(obj))
 
     def get_correct_answers(self, obj) -> int:
-        return self._answers_qs(obj).filter(is_correct=True).count()
+        return sum(1 for a in self._answers_list(obj) if a.is_correct)
 
     def get_earned_score(self, obj) -> float:
-        return sum(answer.earned_score for answer in self._answers_qs(obj))
+        return sum(a.earned_score for a in self._answers_list(obj))
 
     def get_max_score(self, obj) -> float:
-        return sum(answer.max_score for answer in self._answers_qs(obj))
+        return sum(a.max_score for a in self._answers_list(obj))
 
 
 class QuizUpdateSerializer(serializers.ModelSerializer):
@@ -749,13 +749,16 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
         validated_data.pop("question_id", None)
         qq = validated_data.pop("quizquestion")
 
-        instance, created = QuizQuestionAnswer.objects.update_or_create(
-            quiz=quiz,
-            quizquestion=qq,
-            defaults={
-                "question_order": qq.sort_order,
-            },
-        )
+        try:
+            instance, _ = QuizQuestionAnswer.objects.update_or_create(
+                quiz=quiz,
+                quizquestion=qq,
+                defaults={
+                    "question_order": qq.sort_order,
+                },
+            )
+        except IntegrityError:
+            instance = QuizQuestionAnswer.objects.get(quiz=quiz, quizquestion=qq)
         instance.selected_options.set(selected)
         return instance
 
@@ -765,9 +768,10 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
         validated_data.pop("question_order", None)
         validated_data.pop("quizquestion", None)
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        if validated_data:
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save(update_fields=list(validated_data.keys()))
 
         if selected is not None:
             instance.selected_options.set(selected)

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python.exe manage.py test)",
+      "Bash(grep:*)",
+      "Bash(python.exe:*)",
+      "Bash(kill %1)",
+      "Bash(awk '/class QuizAlertThread/,/class [A-Z]/' /d/PycharmProjects/QuizOnline/quizonline-server/quiz/models.py)",
+      "Read(//d D:/PycharmProjects/QuizOnline/**)",
+      "Bash(find . -name \"*.py\" -type f -exec grep -l \"def.*alert\\\\|alert.*view\" {} \\\\;)",
+      "Bash(cd D:\\\\\\\\PycharmProjects\\\\\\\\QuizOnline\\\\\\\\quizonline-server)",
+      "Bash(find . -name \"*alert*views*\" -type f)",
+      "Bash(python manage.py test question.tests.tests_models quiz.tests)",
+      "Bash(python manage.py test customuser.tests)",
+      "Bash(python manage.py test quiz.tests)",
+      "Bash(powershell:*)"
+    ]
+  }
+}

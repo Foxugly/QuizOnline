@@ -174,11 +174,9 @@ class QuizTemplate(AuditMixin, models.Model):
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
-        existing_titles = set(qs.values_list("title", flat=True))
-
         title = base
         counter = 1
-        while title in existing_titles:
+        while qs.filter(title=title).exists():
             suffix = f" ({counter})"
             title = base[: max_len - len(suffix)] + suffix
             counter += 1
@@ -201,12 +199,10 @@ class QuizTemplate(AuditMixin, models.Model):
                 self.translations = translations
         if not self.slug:
             base_slug = slugify(self.title) or "quiz"
-            existing_slugs = set(
-                QuizTemplate.objects.exclude(pk=self.pk).values_list("slug", flat=True)
-            )
+            qs_slugs = QuizTemplate.objects.exclude(pk=self.pk) if self.pk else QuizTemplate.objects.all()
             slug = base_slug
             counter = 1
-            while slug in existing_slugs:
+            while qs_slugs.filter(slug=slug).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
@@ -342,6 +338,12 @@ class Quiz(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     active = models.BooleanField(default=False)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "active"], name="quiz_user_active_idx"),
+            models.Index(fields=["user", "-created_at"], name="quiz_user_created_idx"),
+        ]
+
     def __str__(self):
         return f"Quiz {self.user} - {self.quiz_template}"
 
@@ -427,11 +429,13 @@ class QuizQuestionAnswer(models.Model):
         Validation métier :
         - on ne peut créer/enregistrer une réponse
           que si la session de quiz peut encore être répondue.
+        Ignorée lors des opérations internes (bulk_create en clôture) via skip_answer_validation=True.
         """
         super().clean()
         if not self.quiz_id:
             return
-
+        if getattr(self, "_skip_answer_validation", False):
+            return
         if not self.quiz.can_answer:
             raise ValidationError("Ce quiz n'est plus disponible pour répondre.")
 

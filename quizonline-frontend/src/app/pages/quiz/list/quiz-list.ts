@@ -3,7 +3,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
-import {catchError, finalize, forkJoin, map, of, switchMap} from 'rxjs';
+import {catchError, finalize, forkJoin, map, of} from 'rxjs';
 import {TabsModule} from 'primeng/tabs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
@@ -238,7 +238,7 @@ export class QuizListPage implements OnInit {
       domains: this.domainService.list(),
       me: this.getCurrentUser(),
     }).pipe(
-      switchMap(({templates, quizzes, domains, me}) => {
+      map(({templates, quizzes, domains, me}) => {
         const currentUserId = me?.id ?? null;
         const normalizedTemplates = (templates as QuizTemplateListItem[])
           .map((template) => this.decorateTemplate(template, domains, me))
@@ -246,53 +246,19 @@ export class QuizListPage implements OnInit {
         const myQuizSessions = me ? quizzes.filter((quiz) => quiz.user === me.id) : [];
         const visibleMyQuizzes = myQuizSessions.filter((quiz) => quiz.started_at || quiz.ended_at);
 
-        return this.loadQuizScores(visibleMyQuizzes).pipe(
-          map((scoreByQuizId) => ({
-            currentUserId,
-            domains,
-            templates: normalizedTemplates,
-            myQuizzes: visibleMyQuizzes.map((quiz) =>
-              this.toUserQuizListItem(quiz, scoreByQuizId.get(quiz.id)),
-            ),
-          })),
-        );
+        return {
+          currentUserId,
+          domains,
+          templates: normalizedTemplates,
+          myQuizzes: visibleMyQuizzes.map((quiz) => this.toUserQuizListItem(quiz)),
+        };
       }),
     );
   }
 
-  private loadQuizScores(quizzes: QuizListDto[]) {
-    const answeredQuizIds = quizzes
-      .filter((quiz) => !!quiz.ended_at)
-      .map((quiz) => quiz.id);
-
-    if (!answeredQuizIds.length) {
-      return of(new Map<number, {earned_score: number | null; max_score: number | null}>());
-    }
-
-    return forkJoin(
-      answeredQuizIds.map((quizId) =>
-        this.quizService.retrieveQuiz(quizId).pipe(
-          map((quiz) => ({
-            id: quizId,
-            earned_score: quiz.earned_score,
-            max_score: quiz.max_score,
-          })),
-          catchError(() => of({id: quizId, earned_score: null, max_score: null})),
-        ),
-      ),
-    ).pipe(
-      map((scores) => new Map(scores.map((score) => [score.id, score]))),
-    );
-  }
-
-  private toUserQuizListItem(
-    quiz: QuizListDto,
-    score?: {earned_score: number | null; max_score: number | null},
-  ): UserQuizListItem {
+  private toUserQuizListItem(quiz: QuizListDto): UserQuizListItem {
     return {
       ...quiz,
-      earned_score: score?.earned_score ?? null,
-      max_score: score?.max_score ?? null,
       status: quiz.ended_at ? 'answered' : 'in_progress',
     };
   }

@@ -145,6 +145,9 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
     referenced_ids = {opt.pk for opt in all_opts if opt._answer_count > 0}
     kept_ids: set[int] = set()
 
+    new_pairs: list[tuple[AnswerOption, dict]] = []
+    update_pairs: list[tuple[AnswerOption, dict]] = []
+
     for opt_data in options_data:
         opt_id = opt_data.get("id")
         is_correct = opt_data.get("is_correct", False)
@@ -154,18 +157,32 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
         opt: AnswerOption | None = existing.get(opt_id) if opt_id else None
 
         if opt is None:
-            opt = AnswerOption.objects.create(
-                question=question,
-                is_correct=is_correct,
-                sort_order=sort_order,
-            )
+            new_pairs.append((
+                AnswerOption(question=question, is_correct=is_correct, sort_order=sort_order),
+                opt_translations,
+            ))
         else:
             opt.sort_order = sort_order
             if opt.pk not in referenced_ids:
                 opt.is_correct = is_correct
-            opt.save()
+            update_pairs.append((opt, opt_translations))
+            kept_ids.add(opt.pk)
 
-        kept_ids.add(opt.pk)
+    # Bulk create new options (sets PKs on instances in-place).
+    if new_pairs:
+        AnswerOption.objects.bulk_create([opt for opt, _ in new_pairs])
+        for opt, _ in new_pairs:
+            kept_ids.add(opt.pk)
+
+    # Bulk update existing options.
+    if update_pairs:
+        AnswerOption.objects.bulk_update(
+            [opt for opt, _ in update_pairs],
+            fields=["is_correct", "sort_order"],
+        )
+
+    # Apply translations after all DB writes so PKs are guaranteed to exist.
+    for opt, opt_translations in update_pairs + new_pairs:
         _apply_translations(opt, opt_translations, ["content"])
 
     # Supprime les options absentes du payload (sauf celles référencées)
@@ -256,7 +273,10 @@ def import_questions(data: dict, user) -> dict:
             question.is_mode_practice = q_data.get("is_mode_practice", question.is_mode_practice)
             question.is_mode_exam = q_data.get("is_mode_exam", question.is_mode_exam)
             question.updated_by = user
-            question.save()
+            question.save(update_fields=[
+                "domain_id", "active", "allow_multiple_correct",
+                "is_mode_practice", "is_mode_exam", "updated_by_id",
+            ])
             questions_updated += 1
 
         _apply_translations(question, q_translations, ["title", "description", "explanation"])

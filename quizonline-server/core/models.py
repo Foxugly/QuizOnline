@@ -37,7 +37,8 @@ class OutboundEmail(models.Model):
             raise ValidationError({"recipients": errors})
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        if not kwargs.get("update_fields"):
+            self.full_clean()
         return super().save(*args, **kwargs)
 
     def mark_attempt(self) -> None:

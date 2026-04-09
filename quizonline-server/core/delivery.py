@@ -40,13 +40,13 @@ def process_pending_outbound_emails(*, limit: int = 100) -> int:
                     )
                 except Exception as exc:  # pragma: no cover
                     email.last_error = str(exc)
-                    email.save(update_fields=["attempts", "last_error"])
+                    email.save(update_fields=["last_error"])
                     logger.warning("email.delivery_failed", extra={"email_id": email.id, "error": str(exc)})
                     continue
 
                 email.sent_at = timezone.now()
                 email.last_error = ""
-                email.save(update_fields=["attempts", "sent_at", "last_error"])
+                email.save(update_fields=["sent_at", "last_error"])
                 sent += 1
     finally:
         close_old_connections()

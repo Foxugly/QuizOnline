@@ -26,6 +26,10 @@ if not ALLOWED_HOSTS or ALLOWED_HOSTS == ["*"]:  # noqa: F405
 
 DATABASE_URL = require_env_value("DATABASE_URL")
 DATABASES = {"default": env.db("DATABASE_URL")}  # noqa: F405
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=600)  # noqa: F405
+
+CACHES = {"default": env.cache("CACHE_URL", default="redis://127.0.0.1:6379/2")}  # noqa: F405
+PARLER_ENABLE_CACHING = True
 
 if EMAIL_BACKEND == "django.core.mail.backends.console.EmailBackend":  # noqa: F405
     raise RuntimeError("Production EMAIL_BACKEND cannot use the console backend.")
