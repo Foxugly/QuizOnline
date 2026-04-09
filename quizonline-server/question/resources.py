@@ -10,7 +10,7 @@ from core.import_export import (
 from domain.models import Domain
 from subject.models import Subject
 
-from .models import Question
+from .models import AnswerOption, Question
 
 
 def build_question_resource():
@@ -68,3 +68,52 @@ def build_question_resource():
 
 
 QuestionResource = build_question_resource()
+
+
+def build_answer_option_resource():
+    translated_fields = ("content",)
+    translation_attrs, translation_columns = build_translation_resource_attrs(translated_fields)
+    translation_field_names = tuple(translation_columns.keys())
+
+    attrs = {
+        "question": fields.Field(
+            attribute="question",
+            column_name="question",
+            widget=ForeignKeyWidget(Question, "id"),
+        ),
+        "translation_columns": translation_columns,
+        "__module__": __name__,
+    }
+    attrs.update(translation_attrs)
+
+    for column_name, (language_code, field_name) in translation_columns.items():
+        def dehydrate(self, obj, lang=language_code, field=field_name):
+            return self._dehydrate_translation(obj, lang, field)
+
+        attrs[f"dehydrate_{column_name}"] = dehydrate
+
+    class Meta:
+        model = AnswerOption
+        import_id_fields = ("id",)
+        fields = (
+            "id",
+            "question",
+            "is_correct",
+            "sort_order",
+            "created_at",
+            "updated_at",
+            *translation_field_names,
+        )
+        export_order = fields
+        skip_unchanged = True
+
+    attrs["Meta"] = Meta
+
+    return type(
+        "AnswerOptionResource",
+        (ParlerTranslationResourceMixin, resources.ModelResource),
+        attrs,
+    )
+
+
+AnswerOptionResource = build_answer_option_resource()

@@ -16,7 +16,7 @@ from .models import (
     QuestionSubject,
     MediaAsset,
 )
-from .resources import QuestionResource
+from .resources import AnswerOptionResource, QuestionResource
 
 # ==========================================================
 # Formsets (validations inline)
@@ -181,7 +181,8 @@ class MediaAssetAdmin(admin.ModelAdmin):
 # ==========================================================
 
 @admin.register(AnswerOption)
-class AnswerOptionAdmin(TranslatableAdmin):
+class AnswerOptionAdmin(ImportExportMixin, TranslatableAdmin):
+    resource_classes = [AnswerOptionResource]
     list_display = ("id", "question", "content_any", "is_correct", "sort_order")
     list_filter = ("is_correct",)
     search_fields = ("translations__content", "question__translations__title")
