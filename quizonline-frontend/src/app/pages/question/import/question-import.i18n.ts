@@ -17,8 +17,15 @@ export type QuestionImportUiText = {
   formatInvalid: string;
   invalidJson: string;
   rootObjectError: string;
+  versionError: string;
+  domainObjectError: string;
+  subjectsArrayError: string;
   questionsArrayError: string;
+  domainIdError: string;
+  domainTranslationsError: string;
+  subjectObjectError: (item: number) => string;
   questionObjectError: (item: number) => string;
+  questionSubjectsReferenceError: (item: number) => string;
   questionDomainError: (item: number) => string;
   questionTranslationsError: (item: number) => string;
   questionTranslationShapeError: (item: number, lang: string) => string;
@@ -41,10 +48,10 @@ export type QuestionImportUiText = {
 
 const FR: QuestionImportUiText = {
   title: 'Import de questions',
-  subtitle: "Importez un fichier JSON contenant une ou plusieurs questions multilingues.",
+  subtitle: "Importez un fichier JSON structure contenant un domain, des subjects et des questions multilingues.",
   back: 'Retour',
   explanationTitle: 'Format attendu',
-  explanation: 'Le fichier doit etre un JSON avec une cle "questions" contenant une liste de payloads de creation.',
+  explanation: 'Le fichier doit etre un objet JSON avec les cles "version", "domain", "subjects" et "questions".',
   exampleButton: "Telecharger l'exemple",
   uploadTitle: 'Fichier JSON',
   chooseFile: 'Choisir un fichier',
@@ -56,8 +63,15 @@ const FR: QuestionImportUiText = {
   formatInvalid: 'Format invalide',
   invalidJson: "Le fichier n'est pas un JSON valide.",
   rootObjectError: 'Le fichier doit contenir un objet JSON.',
+  versionError: 'Le fichier doit contenir "version": "1.0".',
+  domainObjectError: 'Le fichier doit contenir une cle "domain" avec un objet.',
+  subjectsArrayError: 'Le fichier doit contenir une cle "subjects" avec une liste.',
   questionsArrayError: 'Le fichier doit contenir une cle "questions" avec une liste.',
+  domainIdError: 'Le domain doit contenir un id entier positif.',
+  domainTranslationsError: 'Le domain doit contenir un objet "translations".',
+  subjectObjectError: (item) => `Subject ${item}: format invalide.`,
   questionObjectError: (item) => `Question ${item}: format invalide.`,
+  questionSubjectsReferenceError: (item) => `Question ${item}: un subject reference n'existe pas dans "subjects".`,
   questionDomainError: (item) => `Question ${item}: "domain" doit etre un entier positif.`,
   questionTranslationsError: (item) => `Question ${item}: "translations" doit contenir au moins une langue.`,
   questionTranslationShapeError: (item, lang) => `Question ${item}: traduction "${lang}" invalide.`,
@@ -80,10 +94,10 @@ const FR: QuestionImportUiText = {
 
 const EN: QuestionImportUiText = {
   title: 'Question Import',
-  subtitle: 'Import a JSON file containing one or more multilingual questions.',
+  subtitle: 'Import a structured JSON file containing a domain, subjects, and multilingual questions.',
   back: 'Back',
   explanationTitle: 'Expected format',
-  explanation: 'The file must be a JSON object with a "questions" key containing a list of create payloads.',
+  explanation: 'The file must be a JSON object with "version", "domain", "subjects", and "questions" keys.',
   exampleButton: 'Download example',
   uploadTitle: 'JSON file',
   chooseFile: 'Choose file',
@@ -95,8 +109,15 @@ const EN: QuestionImportUiText = {
   formatInvalid: 'Invalid format',
   invalidJson: 'The file does not contain valid JSON.',
   rootObjectError: 'The file must contain a JSON object.',
+  versionError: 'The file must contain "version": "1.0".',
+  domainObjectError: 'The file must contain a "domain" object.',
+  subjectsArrayError: 'The file must contain a "subjects" key with a list.',
   questionsArrayError: 'The file must contain a "questions" key with a list.',
+  domainIdError: 'The domain must contain a positive integer id.',
+  domainTranslationsError: 'The domain must contain a "translations" object.',
+  subjectObjectError: (item) => `Subject ${item}: invalid format.`,
   questionObjectError: (item) => `Question ${item}: invalid format.`,
+  questionSubjectsReferenceError: (item) => `Question ${item}: a referenced subject is missing from "subjects".`,
   questionDomainError: (item) => `Question ${item}: "domain" must be a positive integer.`,
   questionTranslationsError: (item) => `Question ${item}: "translations" must contain at least one language.`,
   questionTranslationShapeError: (item, lang) => `Question ${item}: translation "${lang}" is invalid.`,
@@ -119,10 +140,10 @@ const EN: QuestionImportUiText = {
 
 const NL: QuestionImportUiText = {
   title: 'Vragen importeren',
-  subtitle: 'Importeer een JSON-bestand met een of meerdere meertalige vragen.',
+  subtitle: 'Importeer een gestructureerd JSON-bestand met een domein, onderwerpen en meertalige vragen.',
   back: 'Terug',
   explanationTitle: 'Verwacht formaat',
-  explanation: 'Het bestand moet een JSON-object zijn met een sleutel "questions" die een lijst met aanmaakpayloads bevat.',
+  explanation: 'Het bestand moet een JSON-object zijn met de sleutels "version", "domain", "subjects" en "questions".',
   exampleButton: 'Voorbeeld downloaden',
   uploadTitle: 'JSON-bestand',
   chooseFile: 'Bestand kiezen',
@@ -134,8 +155,15 @@ const NL: QuestionImportUiText = {
   formatInvalid: 'Ongeldig formaat',
   invalidJson: 'Het bestand is geen geldige JSON.',
   rootObjectError: 'Het bestand moet een JSON-object bevatten.',
+  versionError: 'Het bestand moet "version": "1.0" bevatten.',
+  domainObjectError: 'Het bestand moet een sleutel "domain" met een object bevatten.',
+  subjectsArrayError: 'Het bestand moet een sleutel "subjects" met een lijst bevatten.',
   questionsArrayError: 'Het bestand moet een sleutel "questions" met een lijst bevatten.',
+  domainIdError: 'Het domein moet een positief geheel getal als id bevatten.',
+  domainTranslationsError: 'Het domein moet een object "translations" bevatten.',
+  subjectObjectError: (item) => `Onderwerp ${item}: ongeldig formaat.`,
   questionObjectError: (item) => `Vraag ${item}: ongeldig formaat.`,
+  questionSubjectsReferenceError: (item) => `Vraag ${item}: een verwezen onderwerp ontbreekt in "subjects".`,
   questionDomainError: (item) => `Vraag ${item}: "domain" moet een positief geheel getal zijn.`,
   questionTranslationsError: (item) => `Vraag ${item}: "translations" moet minstens een taal bevatten.`,
   questionTranslationShapeError: (item, lang) => `Vraag ${item}: vertaling "${lang}" is ongeldig.`,
@@ -158,10 +186,10 @@ const NL: QuestionImportUiText = {
 
 const IT: QuestionImportUiText = {
   title: 'Importazione domande',
-  subtitle: 'Importa un file JSON con una o piu domande multilingue.',
+  subtitle: 'Importa un file JSON strutturato con un dominio, dei subject e domande multilingue.',
   back: 'Indietro',
   explanationTitle: 'Formato atteso',
-  explanation: 'Il file deve essere un oggetto JSON con una chiave "questions" che contiene un elenco di payload di creazione.',
+  explanation: 'Il file deve essere un oggetto JSON con le chiavi "version", "domain", "subjects" e "questions".',
   exampleButton: 'Scarica esempio',
   uploadTitle: 'File JSON',
   chooseFile: 'Scegli file',
@@ -173,8 +201,15 @@ const IT: QuestionImportUiText = {
   formatInvalid: 'Formato non valido',
   invalidJson: 'Il file non contiene un JSON valido.',
   rootObjectError: 'Il file deve contenere un oggetto JSON.',
+  versionError: 'Il file deve contenere "version": "1.0".',
+  domainObjectError: 'Il file deve contenere una chiave "domain" con un oggetto.',
+  subjectsArrayError: 'Il file deve contenere una chiave "subjects" con una lista.',
   questionsArrayError: 'Il file deve contenere una chiave "questions" con una lista.',
+  domainIdError: 'Il dominio deve contenere un id intero positivo.',
+  domainTranslationsError: 'Il dominio deve contenere un oggetto "translations".',
+  subjectObjectError: (item) => `Subject ${item}: formato non valido.`,
   questionObjectError: (item) => `Domanda ${item}: formato non valido.`,
+  questionSubjectsReferenceError: (item) => `Domanda ${item}: un subject referenziato manca in "subjects".`,
   questionDomainError: (item) => `Domanda ${item}: "domain" deve essere un intero positivo.`,
   questionTranslationsError: (item) => `Domanda ${item}: "translations" deve contenere almeno una lingua.`,
   questionTranslationShapeError: (item, lang) => `Domanda ${item}: traduzione "${lang}" non valida.`,
@@ -197,10 +232,10 @@ const IT: QuestionImportUiText = {
 
 const ES: QuestionImportUiText = {
   title: 'Importar preguntas',
-  subtitle: 'Importa un archivo JSON con una o varias preguntas multilingues.',
+  subtitle: 'Importa un archivo JSON estructurado con un domain, subjects y preguntas multilingues.',
   back: 'Volver',
   explanationTitle: 'Formato esperado',
-  explanation: 'El archivo debe ser un objeto JSON con una clave "questions" que contenga una lista de cargas de creacion.',
+  explanation: 'El archivo debe ser un objeto JSON con las claves "version", "domain", "subjects" y "questions".',
   exampleButton: 'Descargar ejemplo',
   uploadTitle: 'Archivo JSON',
   chooseFile: 'Elegir archivo',
@@ -212,8 +247,15 @@ const ES: QuestionImportUiText = {
   formatInvalid: 'Formato invalido',
   invalidJson: 'El archivo no contiene un JSON valido.',
   rootObjectError: 'El archivo debe contener un objeto JSON.',
+  versionError: 'El archivo debe contener "version": "1.0".',
+  domainObjectError: 'El archivo debe contener una clave "domain" con un objeto.',
+  subjectsArrayError: 'El archivo debe contener una clave "subjects" con una lista.',
   questionsArrayError: 'El archivo debe contener una clave "questions" con una lista.',
+  domainIdError: 'El domain debe contener un id entero positivo.',
+  domainTranslationsError: 'El domain debe contener un objeto "translations".',
+  subjectObjectError: (item) => `Subject ${item}: formato invalido.`,
   questionObjectError: (item) => `Pregunta ${item}: formato invalido.`,
+  questionSubjectsReferenceError: (item) => `Pregunta ${item}: un subject referenciado no existe en "subjects".`,
   questionDomainError: (item) => `Pregunta ${item}: "domain" debe ser un entero positivo.`,
   questionTranslationsError: (item) => `Pregunta ${item}: "translations" debe contener al menos un idioma.`,
   questionTranslationShapeError: (item, lang) => `Pregunta ${item}: traduccion "${lang}" invalida.`,

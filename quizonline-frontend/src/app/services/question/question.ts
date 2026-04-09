@@ -1,3 +1,4 @@
+import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -20,6 +21,7 @@ import {
   QuestionWritePayloadRequestDto,
   PatchedQuestionPartialWritePayloadRequestDto,
 } from '../../api/generated';
+import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {selectTranslation} from '../../shared/i18n/select-translation';
 import {LangCode} from '../translation/translation';
 
@@ -44,7 +46,7 @@ export type AnswerOptionForm = {
   id?: number;
   is_correct: boolean;
   sort_order: number;
-  translations: Record<LangCode, { content: string }>;
+  translations: Partial<Record<LangCode, { content: string }>>;
 };
 
 export type QuestionCreateJsonPayload = {
@@ -54,7 +56,7 @@ export type QuestionCreateJsonPayload = {
   active: boolean;
   is_mode_practice: boolean;
   is_mode_exam: boolean;
-  translations: Record<LangCode, QuestionTranslationForm>;
+  translations: Partial<Record<LangCode, QuestionTranslationForm>>;
   answer_options: Array<AnswerOptionForm>;
   media_asset_ids: number[];
 };
@@ -65,11 +67,11 @@ export type QuestionDuplicateDraft = {
   active: boolean;
   isModePractice: boolean;
   isModeExam: boolean;
-  translations: Record<LangCode, QuestionTranslationForm>;
+  translations: Partial<Record<LangCode, QuestionTranslationForm>>;
   answerOptions: Array<{
     is_correct: boolean;
     sort_order: number;
-    translations: Record<LangCode, { content: string }>;
+    translations: Partial<Record<LangCode, { content: string }>>;
   }>;
   media: Array<{
     id: number;
@@ -80,12 +82,65 @@ export type QuestionDuplicateDraft = {
   }>;
 };
 
+export type StructuredQuestionTranslations = Partial<Record<LangCode, QuestionTranslationForm>>;
+export type StructuredAnswerTranslations = Partial<Record<LangCode, { content: string }>>;
+
+export type StructuredQuestionAnswerOption = {
+  id?: number;
+  sort_order: number;
+  is_correct: boolean;
+  translations: StructuredAnswerTranslations;
+};
+
+export type StructuredSubjectItem = {
+  id: number;
+  hash?: string;
+  translations: Partial<Record<LangCode, { name: string }>>;
+};
+
+export type StructuredDomainItem = {
+  id: number;
+  hash?: string;
+  translations: Partial<Record<LangCode, { name: string; description: string }>>;
+};
+
+export type StructuredQuestionItem = {
+  id?: number;
+  domain_id: number;
+  subject_ids: number[];
+  active: boolean;
+  allow_multiple_correct: boolean;
+  is_mode_practice: boolean;
+  is_mode_exam: boolean;
+  translations: StructuredQuestionTranslations;
+  answer_options: StructuredQuestionAnswerOption[];
+};
+
+export type StructuredQuestionImportFile = {
+  version: '1.0';
+  exported_at?: string;
+  domain: StructuredDomainItem;
+  subjects: StructuredSubjectItem[];
+  questions: StructuredQuestionItem[];
+};
+
+export type StructuredQuestionImportResult = {
+  domain_created: boolean;
+  domain_id: number;
+  domain_remapped: boolean;
+  subjects_created: number;
+  subject_remaps: Record<string, number>;
+  questions_created: number;
+  questions_updated: number;
+};
+
 @Injectable({providedIn: 'root'})
 export class QuestionService {
   private static readonly DUPLICATE_DRAFT_STORAGE_KEY = 'question.duplicateDraft';
   private duplicateDraft: QuestionDuplicateDraft | null = null;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/question`;
 
-  constructor(private api: QuestionApi, private router: Router) {
+  constructor(private api: QuestionApi, private router: Router, private http: HttpClient) {
   }
 
   list(params?: {
@@ -270,6 +325,17 @@ export class QuestionService {
 
   questionMediaCreate(param: QuestionMediaCreateRequestParams): Observable<MediaAssetDto> {
     return this.api.questionMediaCreate(param);
+  }
+
+  exportStructured(domainId: number): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/export-structured/`, {
+      params: {domain: String(domainId)},
+      responseType: 'blob',
+    });
+  }
+
+  importStructured(payload: StructuredQuestionImportFile): Observable<StructuredQuestionImportResult> {
+    return this.http.post<StructuredQuestionImportResult>(`${this.apiBaseUrl}/import-structured/`, payload);
   }
 
   private persistDuplicateDraft(draft: QuestionDuplicateDraft): void {

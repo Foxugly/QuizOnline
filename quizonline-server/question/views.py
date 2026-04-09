@@ -340,7 +340,16 @@ class QuestionViewSet(MyModelViewSet):
             if csv_subjects:
                 subject_ids_raw = [part.strip() for part in csv_subjects.split(",") if part.strip()]
         if search:
-            qs = qs.filter(translations__title__icontains=search).distinct()
+            lowered_search = search.lower()
+            matching_ids = [
+                question.id
+                for question in qs
+                if any(
+                    lowered_search in ((translation.title or "").lower())
+                    for translation in question.translations.all()
+                )
+            ]
+            qs = qs.filter(id__in=matching_ids).distinct()
         if subject_ids_raw:
             try:
                 subject_ids = [int(value) for value in subject_ids_raw]

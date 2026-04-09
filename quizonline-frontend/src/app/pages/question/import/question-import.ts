@@ -8,19 +8,15 @@ import {FileUploadModule} from 'primeng/fileupload';
 import {MessageService} from 'primeng/api';
 
 import {
-  LocalizedAnswerOptionTranslationRequestDto,
-  LocalizedQuestionTranslationRequestDto,
-  QuestionAnswerOptionWritePayloadRequestDto,
-  QuestionWritePayloadRequestDto,
   LanguageEnumDto,
 } from '../../../api/generated';
-import {QuestionService} from '../../../services/question/question';
+import {
+  QuestionService,
+  StructuredQuestionImportFile,
+  StructuredQuestionImportResult,
+} from '../../../services/question/question';
 import {UserService} from '../../../services/user/user';
 import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i18n';
-
-type QuestionImportFile = {
-  questions: QuestionWritePayloadRequestDto[];
-};
 
 @Component({
   standalone: true,
@@ -36,11 +32,11 @@ type QuestionImportFile = {
 })
 export class QuestionImport implements OnInit {
   readonly text = computed<QuestionImportUiText>(() => getQuestionImportUiText(this.currentLang()));
-  readonly hasValidFile = computed(() => this.validationErrors().length === 0 && this.questions().length > 0);
+  readonly hasValidFile = computed(() => this.validationErrors().length === 0 && this.importFile() !== null);
 
   importing = signal(false);
   selectedFileName = signal<string | null>(null);
-  questions = signal<QuestionWritePayloadRequestDto[]>([]);
+  importFile = signal<StructuredQuestionImportFile | null>(null);
   validationErrors = signal<string[]>([]);
 
   private questionService = inject(QuestionService);
@@ -71,18 +67,18 @@ export class QuestionImport implements OnInit {
     try {
       const content = await file.text();
       const raw = JSON.parse(content) as unknown;
-      const {questions, errors} = this.parseImportFile(raw);
+      const {file: importFile, errors} = this.parseImportFile(raw);
 
-      this.questions.set(questions);
+      this.importFile.set(importFile);
       this.validationErrors.set(errors);
 
       if (errors.length === 0) {
-        this.showToast('success', this.text().formatValid, this.text().fileValidated(questions.length));
+        this.showToast('success', this.text().formatValid, this.text().fileValidated(importFile?.questions.length ?? 0));
       } else {
         this.showToast('error', this.text().formatInvalid, errors[0]);
       }
     } catch {
-      this.questions.set([]);
+      this.importFile.set(null);
       this.validationErrors.set([this.text().invalidJson]);
       this.showToast('error', this.text().formatInvalid, this.text().invalidJson);
     }
@@ -90,7 +86,7 @@ export class QuestionImport implements OnInit {
 
   clearSelection(): void {
     this.selectedFileName.set(null);
-    this.questions.set([]);
+    this.importFile.set(null);
     this.validationErrors.set([]);
   }
 
@@ -114,223 +110,181 @@ export class QuestionImport implements OnInit {
     this.importing.set(true);
 
     try {
-      const results = await Promise.allSettled(
-        this.questions().map((question) => firstValueFrom(this.questionService.create(question))),
-      );
-
-      const failedIndices = results
-        .map((result, index) => (result.status === 'rejected' ? index + 1 : null))
-        .filter((index): index is number => index !== null);
-      const successCount = results.length - failedIndices.length;
-
-      if (failedIndices.length === 0) {
-        this.showToast('success', this.text().importDone, this.text().importSuccess(successCount));
-        this.questionService.goList();
-        return;
-      }
-
-      this.showToast(
-        successCount > 0 ? 'warn' : 'error',
-        this.text().importPartialTitle,
-        successCount > 0
-          ? this.text().importPartialMessage(successCount, failedIndices.length)
-          : this.text().importFailure(failedIndices[0]),
-      );
+      const result = await firstValueFrom(this.questionService.importStructured(this.importFile()!));
+      const successCount = this.getImportedQuestionCount(result);
+      this.showToast('success', this.text().importDone, this.text().importSuccess(successCount));
+      this.questionService.goList();
     } finally {
       this.importing.set(false);
     }
   }
 
-  private parseImportFile(raw: unknown): { questions: QuestionWritePayloadRequestDto[]; errors: string[] } {
+  private parseImportFile(raw: unknown): { file: StructuredQuestionImportFile | null; errors: string[] } {
     const errors: string[] = [];
 
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-      return {questions: [], errors: [this.text().rootObjectError]};
+      return {file: null, errors: [this.text().rootObjectError]};
     }
 
-    const payload = raw as Partial<QuestionImportFile>;
+    const payload = raw as Partial<StructuredQuestionImportFile>;
+    if (payload.version !== '1.0') {
+      errors.push(this.text().versionError);
+    }
+    if (!payload.domain || typeof payload.domain !== 'object' || Array.isArray(payload.domain)) {
+      errors.push(this.text().domainObjectError);
+    }
+    if (!Array.isArray(payload.subjects)) {
+      errors.push(this.text().subjectsArrayError);
+    }
     if (!Array.isArray(payload.questions)) {
-      return {questions: [], errors: [this.text().questionsArrayError]};
+      errors.push(this.text().questionsArrayError);
+    }
+    if (errors.length > 0) {
+      return {file: null, errors};
     }
 
-    const normalizedQuestions = payload.questions.map((question, index) =>
-      this.normalizeQuestion(question, index + 1, errors),
-    );
+    const domain = this.normalizeDomain(payload.domain!, errors);
+    const subjects = this.normalizeSubjects(payload.subjects!, errors);
+    const questions = this.normalizeQuestions(payload.questions!, errors, subjects);
 
     return {
-      questions: normalizedQuestions.filter((question): question is QuestionWritePayloadRequestDto => question !== null),
+      file: errors.length === 0 && domain
+        ? {
+          version: '1.0',
+          domain,
+          subjects,
+          questions,
+        }
+        : null,
       errors,
     };
   }
 
-  private normalizeQuestion(
-    question: QuestionWritePayloadRequestDto | undefined,
-    itemNumber: number,
+  private normalizeDomain(
+    domain: StructuredQuestionImportFile['domain'],
     errors: string[],
-  ): QuestionWritePayloadRequestDto | null {
-    if (!question || typeof question !== 'object') {
-      errors.push(this.text().questionObjectError(itemNumber));
-      return null;
+  ): StructuredQuestionImportFile['domain'] | null {
+    if (!Number.isInteger(domain.id) || domain.id <= 0) {
+      errors.push(this.text().domainIdError);
+    }
+    if (!domain.translations || typeof domain.translations !== 'object' || Array.isArray(domain.translations)) {
+      errors.push(this.text().domainTranslationsError);
     }
 
-    if (!Number.isInteger(question.domain) || question.domain <= 0) {
-      errors.push(this.text().questionDomainError(itemNumber));
-    }
+    return errors.length === 0 ? {
+      id: domain.id,
+      hash: typeof domain.hash === 'string' ? domain.hash : undefined,
+      translations: domain.translations,
+    } : null;
+  }
 
-    const translations = this.normalizeQuestionTranslations(question.translations, itemNumber, errors);
-    const answers = this.normalizeAnswerOptions(question.answer_options, itemNumber, errors);
-    const subjectIds = this.normalizeNumberArray(question.subject_ids, this.text().questionSubjectsError(itemNumber), errors);
-    const mediaAssetIds = this.normalizeNumberArray(question.media_asset_ids, this.text().questionMediaError(itemNumber), errors);
+  private normalizeSubjects(
+    subjects: StructuredQuestionImportFile['subjects'],
+    errors: string[],
+  ): StructuredQuestionImportFile['subjects'] {
+    return subjects.filter((subject, index) => {
+      const itemNumber = index + 1;
+      const valid =
+        Number.isInteger(subject?.id) &&
+        subject.id > 0 &&
+        !!subject.translations &&
+        typeof subject.translations === 'object' &&
+        !Array.isArray(subject.translations);
+      if (!valid) {
+        errors.push(this.text().subjectObjectError(itemNumber));
+      }
+      return valid;
+    }).map((subject) => ({
+      id: subject.id,
+      hash: typeof subject.hash === 'string' ? subject.hash : undefined,
+      translations: subject.translations,
+    }));
+  }
 
-    if (!translations || !answers) {
-      return null;
-    }
-
-    return {
-      domain: question.domain,
-      translations,
-      allow_multiple_correct: !!question.allow_multiple_correct,
+  private normalizeQuestions(
+    questions: StructuredQuestionImportFile['questions'],
+    errors: string[],
+    subjects: StructuredQuestionImportFile['subjects'],
+  ): StructuredQuestionImportFile['questions'] {
+    const knownSubjectIds = new Set(subjects.map((subject) => subject.id));
+    return questions.filter((question, index) => {
+      const itemNumber = index + 1;
+      const valid =
+        !!question &&
+        typeof question === 'object' &&
+        Number.isInteger(question.domain_id) &&
+        question.domain_id > 0 &&
+        Array.isArray(question.subject_ids) &&
+        Array.isArray(question.answer_options) &&
+        !!question.translations &&
+        typeof question.translations === 'object' &&
+        !Array.isArray(question.translations);
+      if (!valid) {
+        errors.push(this.text().questionObjectError(itemNumber));
+        return false;
+      }
+      if (question.answer_options.length < 2) {
+        errors.push(this.text().questionAnswersError(itemNumber));
+        return false;
+      }
+      if (question.subject_ids.some((subjectId) => !knownSubjectIds.has(subjectId))) {
+        errors.push(this.text().questionSubjectsReferenceError(itemNumber));
+        return false;
+      }
+      if (!question.answer_options.some((answer) => !!answer.is_correct)) {
+        errors.push(this.text().questionCorrectAnswerError(itemNumber));
+        return false;
+      }
+      return true;
+    }).map((question, index) => ({
+      id: question.id,
+      domain_id: question.domain_id,
+      subject_ids: question.subject_ids,
       active: question.active ?? true,
+      allow_multiple_correct: !!question.allow_multiple_correct,
       is_mode_practice: !!question.is_mode_practice,
       is_mode_exam: !!question.is_mode_exam,
-      subject_ids: subjectIds ?? [],
-      answer_options: answers,
-      media_asset_ids: mediaAssetIds ?? [],
-    };
-  }
-
-  private normalizeQuestionTranslations(
-    translations: { [key: string]: LocalizedQuestionTranslationRequestDto } | undefined,
-    itemNumber: number,
-    errors: string[],
-  ): { [key: string]: LocalizedQuestionTranslationRequestDto } | null {
-    if (!translations || typeof translations !== 'object' || Array.isArray(translations)) {
-      errors.push(this.text().questionTranslationsError(itemNumber));
-      return null;
-    }
-
-    const entries = Object.entries(translations);
-    if (entries.length === 0) {
-      errors.push(this.text().questionTranslationsError(itemNumber));
-      return null;
-    }
-
-    const normalized: { [key: string]: LocalizedQuestionTranslationRequestDto } = {};
-
-    for (const [lang, value] of entries) {
-      if (!value || typeof value !== 'object') {
-        errors.push(this.text().questionTranslationShapeError(itemNumber, lang));
-        continue;
-      }
-
-      if (typeof value.title !== 'string' || typeof value.description !== 'string' || typeof value.explanation !== 'string') {
-        errors.push(this.text().questionTranslationShapeError(itemNumber, lang));
-        continue;
-      }
-
-      normalized[lang] = {
-        title: value.title,
-        description: value.description,
-        explanation: value.explanation,
-      };
-    }
-
-    return Object.keys(normalized).length > 0 ? normalized : null;
-  }
-
-  private normalizeAnswerOptions(
-    answers: QuestionAnswerOptionWritePayloadRequestDto[] | undefined,
-    itemNumber: number,
-    errors: string[],
-  ): QuestionAnswerOptionWritePayloadRequestDto[] | null {
-    if (!Array.isArray(answers) || answers.length < 2) {
-      errors.push(this.text().questionAnswersError(itemNumber));
-      return null;
-    }
-
-    let correctCount = 0;
-    const normalized = answers.map<QuestionAnswerOptionWritePayloadRequestDto | null>((answer, index) => {
-      if (!answer || typeof answer !== 'object') {
-        errors.push(this.text().answerShapeError(itemNumber, index + 1));
-        return null;
-      }
-
-      const translations = this.normalizeAnswerTranslations(answer.translations, itemNumber, index + 1, errors);
-      if (!translations) {
-        return null;
-      }
-
-      if (answer.is_correct) {
-        correctCount += 1;
-      }
-
-      return {
+      translations: question.translations,
+      answer_options: question.answer_options.map((answer, answerIndex) => ({
+        id: answer.id,
         is_correct: !!answer.is_correct,
-        sort_order: Number.isInteger(answer.sort_order) ? answer.sort_order : index + 1,
-        translations,
-      };
-    });
-
-    if (correctCount === 0) {
-      errors.push(this.text().questionCorrectAnswerError(itemNumber));
-    }
-
-    const validAnswers = normalized.filter((answer): answer is QuestionAnswerOptionWritePayloadRequestDto => answer !== null);
-    return validAnswers.length === answers.length ? validAnswers : null;
+        sort_order: Number.isInteger(answer.sort_order) ? answer.sort_order : answerIndex + 1,
+        translations: answer.translations,
+      })),
+    }));
   }
 
-  private normalizeAnswerTranslations(
-    translations: { [key: string]: LocalizedAnswerOptionTranslationRequestDto } | undefined,
-    itemNumber: number,
-    answerNumber: number,
-    errors: string[],
-  ): { [key: string]: LocalizedAnswerOptionTranslationRequestDto } | null {
-    if (!translations || typeof translations !== 'object' || Array.isArray(translations)) {
-      errors.push(this.text().answerTranslationsError(itemNumber, answerNumber));
-      return null;
-    }
-
-    const entries = Object.entries(translations);
-    if (entries.length === 0) {
-      errors.push(this.text().answerTranslationsError(itemNumber, answerNumber));
-      return null;
-    }
-
-    const normalized: { [key: string]: LocalizedAnswerOptionTranslationRequestDto } = {};
-    for (const [lang, value] of entries) {
-      if (!value || typeof value !== 'object' || typeof value.content !== 'string') {
-        errors.push(this.text().answerTranslationShapeError(itemNumber, answerNumber, lang));
-        continue;
-      }
-
-      normalized[lang] = {content: value.content};
-    }
-
-    return Object.keys(normalized).length > 0 ? normalized : null;
-  }
-
-  private normalizeNumberArray(
-    value: number[] | undefined,
-    errorMessage: string,
-    errors: string[],
-  ): number[] | null {
-    if (value === undefined) {
-      return [];
-    }
-
-    if (!Array.isArray(value) || value.some((item) => !Number.isInteger(item) || item <= 0)) {
-      errors.push(errorMessage);
-      return null;
-    }
-
-    return value;
-  }
-
-  private buildExampleFile(): QuestionImportFile {
+  private buildExampleFile(): StructuredQuestionImportFile {
     return {
+      version: '1.0',
+      domain: {
+        id: 1,
+        hash: 'replace-with-domain-hash-if-known',
+        translations: {
+          fr: {
+            name: 'Geographie',
+            description: 'Questions de geographie',
+          },
+          en: {
+            name: 'Geography',
+            description: 'Geography questions',
+          },
+        },
+      },
+      subjects: [
+        {
+          id: 2,
+          hash: 'replace-with-subject-hash-if-known',
+          translations: {
+            fr: {name: 'Capitales'},
+            en: {name: 'Capitals'},
+          },
+        },
+      ],
       questions: [
         {
-          domain: 1,
+          id: 100,
+          domain_id: 1,
           subject_ids: [2],
           allow_multiple_correct: false,
           active: true,
@@ -350,6 +304,7 @@ export class QuestionImport implements OnInit {
           },
           answer_options: [
             {
+              id: 1001,
               is_correct: true,
               sort_order: 1,
               translations: {
@@ -358,6 +313,7 @@ export class QuestionImport implements OnInit {
               },
             },
             {
+              id: 1002,
               is_correct: false,
               sort_order: 2,
               translations: {
@@ -366,10 +322,13 @@ export class QuestionImport implements OnInit {
               },
             },
           ],
-          media_asset_ids: [],
         },
       ],
     };
+  }
+
+  private getImportedQuestionCount(result: StructuredQuestionImportResult): number {
+    return (result.questions_created ?? 0) + (result.questions_updated ?? 0);
   }
 
   private showToast(severity: 'success' | 'error' | 'warn', summary: string, detail: string): void {

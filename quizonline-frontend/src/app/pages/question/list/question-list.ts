@@ -146,34 +146,24 @@ export class QuestionList implements OnInit {
   }
 
   exportRows(): void {
-    const headers = [
-      'id',
-      'title',
-      'active',
-      'modes',
-      'domain',
-      'subjects',
-    ];
-    const lines = this.rowsData().map((row) => [
-      row.id,
-      row.title,
-      row.active ? 'true' : 'false',
-      row.modesText,
-      row.domainName,
-      row.subjectsText,
-    ]);
-    const csv = [
-      headers.join(','),
-      ...lines.map((line) => line.map((value) => this.escapeCsv(String(value ?? ''))).join(',')),
-    ].join('\n');
+    const currentDomainId = this.userService.currentUser()?.current_domain ?? undefined;
+    if (!currentDomainId) {
+      return;
+    }
 
-    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'questions-export.csv';
-    anchor.click();
-    URL.revokeObjectURL(url);
+    this.questionService.exportStructured(currentDomainId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `questions-domain-${currentDomainId}.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err: unknown) => {
+        logApiError('question.list.export', err);
+      },
+    });
   }
 
   onPageChange(event: { first?: number; rows?: number; page?: number }): void {
@@ -238,10 +228,4 @@ export class QuestionList implements OnInit {
     );
     return t?.name ?? `Subject #${dto.id}`;
   }
-
-  private escapeCsv(value: string): string {
-    const escaped = value.replace(/"/g, '""');
-    return `"${escaped}"`;
-  }
-
 }
