@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import patch
 
 from question.models import (
     Question,
@@ -73,9 +74,10 @@ class QuestionModelsTestCase(TestCase):
 
     def test_question_str_without_translation(self):
         q = Question.objects.create(domain=self.domain)
-        q._parler_meta.root_model.objects.filter(master=q).delete()
-        q = Question.objects.get(pk=q.pk)
-        self.assertEqual(str(q), f"Question#{q.pk}")
+        q._parler_meta.root_model.objects.filter(master=q).update(title="")
+
+        with patch.object(q, "safe_translation_getter", return_value=None):
+            self.assertEqual(str(q), f"Question#{q.pk}")
 
     # ==========================================================
     # QuestionSubject
