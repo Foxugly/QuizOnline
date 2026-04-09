@@ -7,7 +7,7 @@ if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 
 set "BACKEND=%ROOT%\quizonline-server"
 set "FRONTEND=%ROOT%\quizonline-frontend"
-set "OPENAPI_FILE=%ROOT%\openapi.yaml"
+set "SYNC_OPENAPI=%ROOT%\scripts\sync-openapi.ps1"
 set "ERRORS=0"
 
 echo ============================================================
@@ -49,29 +49,19 @@ if errorlevel 1 (
 )
 echo.
 
-echo [3/5] OpenAPI schema generation...
-python manage.py spectacular --file "%OPENAPI_FILE%"
-if errorlevel 1 (
-    echo [FAIL] OpenAPI schema generation
-    set /a ERRORS+=1
-) else (
-    echo [OK]   OpenAPI schema generated
-)
+echo [3/5] OpenAPI sync and Angular client generation...
 popd >nul
-echo.
-
-echo [4/5] Angular client generation...
-pushd "%FRONTEND%" >nul
-call npx openapi-generator-cli generate -i "..\openapi.yaml" -g typescript-angular -o "src\app\api\generated" --additional-properties=ngVersion=21.0.0,providedIn=root,serviceSuffix=Api,modelSuffix=Dto,stringEnums=true,useSingleRequestParameter=true,fileNaming=kebab-case --inline-schema-name-mappings DomainDetail_translations_value=LocalizedNameDescriptionTranslation,QuestionAnswerOptionRead_translations_value=LocalizedAnswerOptionTranslation,QuestionInSubject_title_value=LocalizedQuestionTitleTranslation,QuestionRead_translations_value=LocalizedQuestionTranslation,SubjectDetail_translations_value=LocalizedSubjectDetailTranslation,SubjectRead_translations_value=LocalizedSubjectTranslation,SubjectRead_translations_value_domain=DomainNameSummary
+powershell -ExecutionPolicy Bypass -File "%SYNC_OPENAPI%"
 if errorlevel 1 (
-    echo [FAIL] Angular client generation
+    echo [FAIL] OpenAPI sync / Angular client generation
     set /a ERRORS+=1
 ) else (
-    echo [OK]   Angular client generated
+    echo [OK]   OpenAPI synced and Angular client generated
 )
 echo.
 
-echo [5/5] Angular lint and typecheck...
+echo [4/5] Angular lint and typecheck...
+pushd "%FRONTEND%" >nul
 call npm run lint
 if errorlevel 1 (
     echo [FAIL] Angular lint
@@ -88,6 +78,10 @@ if errorlevel 1 (
     echo [OK]   Typecheck OK
 )
 popd >nul
+echo.
+
+echo [5/5] Contract note...
+echo [INFO] Contract sync script: powershell -ExecutionPolicy Bypass -File "%SYNC_OPENAPI%"
 echo.
 
 :summary
