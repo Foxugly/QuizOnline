@@ -630,7 +630,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
 
     if (path.match(/^\/api\/quiz\/template\/\d+\/sessions\/$/) && request.method() === 'GET') {
       const templateId = path.split('/').filter(Boolean).at(-2) ?? '';
-      await fulfillJson(route, templateSessions[templateId] ?? [], 200);
+      await fulfillJson(route, paginated(templateSessions[templateId] ?? []), 200);
       return;
     }
 
