@@ -13,6 +13,7 @@ from domain.models import Domain
 from subject.models import Subject
 
 from .models import AnswerOption, Question
+<<<<<<< HEAD
 
 
 class DomainByNameWidget:
@@ -89,6 +90,8 @@ class SubjectsByNameWidget(ManyToManyWidget):
             subject_pks.append(existing.pk)
 
         return Subject.objects.filter(pk__in=subject_pks)
+=======
+>>>>>>> 1b06f30 (import, export answers)
 
 
 def build_question_resource():
