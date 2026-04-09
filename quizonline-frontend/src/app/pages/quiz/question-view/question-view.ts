@@ -139,7 +139,7 @@ export class QuizQuestionView implements OnInit {
         next: () => {
           this.reportDialogVisible.set(false);
           this.reportMessage.set('');
-          this.quizAlertService.refreshUnreadCount().subscribe();
+          this.quizAlertService.refreshUnreadCount().subscribe({error: () => {}});
         },
         error: (err: unknown) => {
           logApiError('quiz.question.alert', err);

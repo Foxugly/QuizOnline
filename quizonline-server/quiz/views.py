@@ -801,7 +801,7 @@ class QuizViewSet(MyModelViewSet):
             validate_target_user_domain(qt, target_user)
 
         quiz = Quiz.objects.create(
-            domain=qt.domain,
+            domain_id=qt.domain_id,
             quiz_template=qt,
             user=target_user,
             active=False,
