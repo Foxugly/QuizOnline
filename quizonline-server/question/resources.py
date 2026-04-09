@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.conf import settings
 from django.utils import translation as django_translation
 from import_export import fields, resources
-from import_export.widgets import ManyToManyWidget
+from import_export.widgets import ManyToManyWidget, ForeignKeyWidget
 
 from core.import_export import (
     ParlerTranslationResourceMixin,
