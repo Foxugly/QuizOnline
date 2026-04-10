@@ -42,7 +42,7 @@ class SubjectViewSetTestCase(TestCase):
         cls.domain.name = "Domaine FR"
         cls.domain.description = ""
         cls.domain.save()
-        cls.domain.staff.add(cls.domain_staff)
+        cls.domain.managers.add(cls.domain_staff)
         cls.domain.members.add(cls.domain_member)
 
         # Subjects

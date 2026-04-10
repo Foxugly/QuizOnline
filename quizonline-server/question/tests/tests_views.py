@@ -153,7 +153,7 @@ class QuestionViewSetTests(APITestCase):
         self.other_domain = self._mk_domain(self.staff, allowed_codes=("fr", "nl"))
         self.domain.owner = self.domain_owner
         self.domain.save(update_fields=["owner"])
-        self.domain.staff.add(self.domain_staff)
+        self.domain.managers.add(self.domain_staff)
         self.domain.members.add(self.domain_member)
         self.domain_owner.current_domain = self.domain
         self.domain_owner.save(update_fields=["current_domain"])
@@ -591,7 +591,7 @@ class QuestionViewSetTests(APITestCase):
         subject = self._mk_subject(self.domain, name_fr="Current S")
         q.subjects.set([subject])
 
-        self.domain.staff.add(self.staff)
+        self.domain.managers.add(self.staff)
         self.staff.current_domain = self.domain
         self.staff.save(update_fields=["current_domain"])
 
