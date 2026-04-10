@@ -86,28 +86,13 @@
           "builder": "@angular/build:extract-i18n"
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "runner": "vitest",
             "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/primeicons/fonts",
-                "output": "media"
-              }
-            ],
-            "styles": [
-              "src/styles.primeicons-karma.css",
-              "src/styles.scss"
+            "buildTarget": "quizonline-frontend:build:development",
+            "setupFiles": [
+              "src/test-setup.ts"
             ]
           }
         }

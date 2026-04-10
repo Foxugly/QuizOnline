@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "test": "ng test",
+    "test": "ng test --watch=false",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:fullstack": "playwright test -c playwright.fullstack.config.ts"
@@ -35,7 +35,7 @@
     "@angular/forms": "^21.0.5",
     "@angular/platform-browser": "^21.0.5",
     "@angular/router": "^21.0.5",
-    "@primeng/themes": "^21.0.4",
+    "@primeuix/themes": "^2.0.3",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.0.2",
@@ -55,13 +55,9 @@
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "^21.3.1",
     "eslint": "^10.1.0",
-    "jasmine-core": "~5.9.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
+    "jsdom": "^27.0.0",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^8.58.0"
+    "typescript-eslint": "^8.58.0",
+    "vitest": "^4.1.4"
   }
 }

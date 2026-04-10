@@ -4,7 +4,7 @@ import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/h
 import {routes} from './app.routes';
 import {providePrimeNG} from 'primeng/config';
 import {MessageService} from 'primeng/api';
-import Aura from '@primeng/themes/aura';
+import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
 import {NetworkInterceptor} from './network-interceptor';
 //import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
