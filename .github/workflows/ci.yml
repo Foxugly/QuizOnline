@@ -153,11 +153,11 @@ jobs:
           cache: "npm"
           cache-dependency-path: quizonline-frontend/package-lock.json
 
-      - uses: browser-actions/setup-chrome@v2
-        id: setup-chrome
-
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Run frontend lint
         run: npm run lint
@@ -166,21 +166,10 @@ jobs:
         run: npm run typecheck
 
       - name: Run unit tests
-        env:
-          CHROME_REAL_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
-        run: |
-          cat <<'EOF' > chrome-no-sandbox
-          #!/usr/bin/env bash
-          exec "$CHROME_REAL_BIN" --no-sandbox --disable-dev-shm-usage "$@"
-          EOF
-          chmod +x chrome-no-sandbox
-          CHROME_BIN="$PWD/chrome-no-sandbox" npm test -- --watch=false --browsers=ChromeHeadless
+        run: npm test
 
       - name: Run production build
         run: npm run build
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Run e2e tests
         run: npm run test:e2e
