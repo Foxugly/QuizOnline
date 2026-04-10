@@ -43,7 +43,7 @@
       <p-fileupload
         mode="basic"
         name="questionImportFile"
-        accept=".json,application/json"
+        accept=".json,.zip,application/json,application/zip"
         [auto]="false"
         [chooseLabel]="text().chooseFile"
         [multiple]="false"
@@ -59,7 +59,12 @@
     <section class="import-section validation-section">
       <h2>{{ text().validationTitle }}</h2>
 
-      @if (selectedFileName() && hasValidFile()) {
+      @if (selectedFileName() && hasValidFile() && importFileRaw()) {
+        <div class="validation-box validation-box--success">
+          <strong>{{ text().formatValid }}</strong>
+          <p>{{ text().zipFileReady }}</p>
+        </div>
+      } @else if (selectedFileName() && hasValidFile()) {
         <div class="validation-box validation-box--success">
           <strong>{{ text().formatValid }}</strong>
           <p>{{ text().fileValidated(importFile()?.questions?.length ?? 0) }}</p>

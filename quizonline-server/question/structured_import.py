@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-import json
 import hashlib
+import json
+import os
 
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Count
 
 from domain.models import Domain
 from subject.models import Subject
 
-from .models import AnswerOption, Question
+from .models import AnswerOption, MediaAsset, Question, QuestionMedia
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -119,6 +121,56 @@ def _resolve_subject(subject_data: dict, domain: Domain, user) -> tuple[Subject,
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Sync media
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _sync_question_media(
+    question: Question,
+    media_data: list[dict],
+    media_files: dict[str, bytes],
+) -> int:
+    """
+    Sync media assets for a question from ZIP media files.
+    Returns the number of new MediaAsset objects created.
+    media_data: list of {"type": ..., "hash": ..., "filename": ..., "sort_order": ...}
+    media_files: {filename_in_zip: bytes}
+    """
+    # Remove existing media links for this question
+    question.media.all().delete()
+
+    created_count = 0
+
+    for idx, item in enumerate(media_data):
+        sha256 = item.get("hash")
+        kind = item.get("type")
+        filename_in_zip = item.get("filename")
+        sort_order = item.get("sort_order", idx)
+
+        if not sha256 or not kind or not filename_in_zip:
+            continue
+
+        file_bytes = media_files.get(filename_in_zip)
+        if not file_bytes:
+            continue
+
+        # Find or create MediaAsset
+        asset = MediaAsset.objects.filter(sha256=sha256, kind=kind).first()
+        if asset is None:
+            ext = os.path.splitext(filename_in_zip)[1]
+            asset = MediaAsset(kind=kind, sha256=sha256)
+            asset.file.save(f"{sha256}{ext}", ContentFile(file_bytes), save=True)
+            created_count += 1
+
+        QuestionMedia.objects.get_or_create(
+            question=question,
+            asset=asset,
+            defaults={"sort_order": sort_order},
+        )
+
+    return created_count
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Sync answer options
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -196,7 +248,7 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @transaction.atomic
-def import_questions(data: dict, user) -> dict:
+def import_questions(data: dict, user, media_files: dict[str, bytes] | None = None) -> dict:
     """
     Importe des questions depuis le format d'export structuré.
     Retourne un résumé de l'opération.
@@ -232,6 +284,7 @@ def import_questions(data: dict, user) -> dict:
     # ── Questions ──────────────────────────────────────────────────────────────
     questions_created = 0
     questions_updated = 0
+    media_created = 0
 
     for q_data in questions_data:
         real_domain_id = domain_id_map.get(q_data["domain_id"], q_data["domain_id"])
@@ -283,6 +336,11 @@ def import_questions(data: dict, user) -> dict:
         question.subjects.set(real_subject_ids)
         _sync_answer_options(question, answer_options_data)
 
+        if media_files:
+            media_created += _sync_question_media(
+                question, q_data.get("media", []), media_files
+            )
+
     return {
         "domain_created": domain_created,
         "domain_id": resolved_domain.pk,
@@ -291,4 +349,5 @@ def import_questions(data: dict, user) -> dict:
         "subject_remaps": {k: v for k, v in subject_id_map.items() if k != v},
         "questions_created": questions_created,
         "questions_updated": questions_updated,
+        "media_created": media_created,
     }

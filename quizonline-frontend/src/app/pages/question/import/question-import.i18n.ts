@@ -8,6 +8,7 @@ export type QuestionImportUiText = {
   explanation: string;
   exampleButton: string;
   uploadTitle: string;
+  zipFileReady: string;
   chooseFile: string;
   clearFile: string;
   noFile: string;
@@ -53,7 +54,8 @@ const FR: QuestionImportUiText = {
   explanationTitle: 'Format attendu',
   explanation: 'Le fichier doit etre un objet JSON avec les cles "version", "domain", "subjects" et "questions".',
   exampleButton: "Telecharger l'exemple",
-  uploadTitle: 'Fichier JSON',
+  uploadTitle: 'Fichier JSON ou ZIP',
+  zipFileReady: 'Fichier ZIP pret a importer (validation cote serveur).',
   chooseFile: 'Choisir un fichier',
   clearFile: 'Effacer',
   noFile: 'Aucun fichier selectionne.',
@@ -99,7 +101,8 @@ const EN: QuestionImportUiText = {
   explanationTitle: 'Expected format',
   explanation: 'The file must be a JSON object with "version", "domain", "subjects", and "questions" keys.',
   exampleButton: 'Download example',
-  uploadTitle: 'JSON file',
+  uploadTitle: 'JSON or ZIP file',
+  zipFileReady: 'ZIP file ready to import (server-side validation).',
   chooseFile: 'Choose file',
   clearFile: 'Clear',
   noFile: 'No file selected.',
@@ -145,7 +148,8 @@ const NL: QuestionImportUiText = {
   explanationTitle: 'Verwacht formaat',
   explanation: 'Het bestand moet een JSON-object zijn met de sleutels "version", "domain", "subjects" en "questions".',
   exampleButton: 'Voorbeeld downloaden',
-  uploadTitle: 'JSON-bestand',
+  uploadTitle: 'JSON- of ZIP-bestand',
+  zipFileReady: 'ZIP-bestand klaar om te importeren (servervalidatie).',
   chooseFile: 'Bestand kiezen',
   clearFile: 'Wissen',
   noFile: 'Geen bestand geselecteerd.',
@@ -191,7 +195,8 @@ const IT: QuestionImportUiText = {
   explanationTitle: 'Formato atteso',
   explanation: 'Il file deve essere un oggetto JSON con le chiavi "version", "domain", "subjects" e "questions".',
   exampleButton: 'Scarica esempio',
-  uploadTitle: 'File JSON',
+  uploadTitle: 'File JSON o ZIP',
+  zipFileReady: 'File ZIP pronto per l\'importazione (validazione lato server).',
   chooseFile: 'Scegli file',
   clearFile: 'Cancella',
   noFile: 'Nessun file selezionato.',
@@ -237,7 +242,8 @@ const ES: QuestionImportUiText = {
   explanationTitle: 'Formato esperado',
   explanation: 'El archivo debe ser un objeto JSON con las claves "version", "domain", "subjects" y "questions".',
   exampleButton: 'Descargar ejemplo',
-  uploadTitle: 'Archivo JSON',
+  uploadTitle: 'Archivo JSON o ZIP',
+  zipFileReady: 'Archivo ZIP listo para importar (validacion del servidor).',
   chooseFile: 'Elegir archivo',
   clearFile: 'Borrar',
   noFile: 'Ningun archivo seleccionado.',

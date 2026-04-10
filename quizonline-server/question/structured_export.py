@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 
 from django.utils import timezone
 
 from domain.models import Domain
 from subject.models import Subject
 
-from .models import AnswerOption, Question
+from .models import AnswerOption, MediaAsset, Question
 
 
 def translations_hash(translations: dict) -> str:
@@ -52,6 +53,23 @@ def _answer_option_translations(option: AnswerOption) -> dict:
     }
 
 
+def _media_items(question: Question) -> list[dict]:
+    """Return serialisable media items for a question (image/video with file only)."""
+    items = []
+    for link in question.media.all():
+        asset = link.asset
+        if asset.kind not in (MediaAsset.IMAGE, MediaAsset.VIDEO) or not asset.file:
+            continue
+        ext = os.path.splitext(asset.file.name)[1]
+        items.append({
+            "type": asset.kind,
+            "hash": asset.sha256,
+            "filename": f"media/{asset.sha256}{ext}",
+            "sort_order": link.sort_order,
+        })
+    return items
+
+
 def export_questions(queryset) -> dict:
     """
     Serialise un queryset de Question vers le format d'export structuré.
@@ -65,6 +83,7 @@ def export_questions(queryset) -> dict:
             "subjects__translations",
             "translations",
             "answer_options__translations",
+            "media__asset",
         )
         .order_by("pk")
     )
@@ -78,7 +97,7 @@ def export_questions(queryset) -> dict:
             "questions": [],
         }
 
-    # Fix 2: validate all questions belong to the same domain
+    # Validate all questions belong to the same domain
     domain_ids = {q.domain_id for q in questions}
     if len(domain_ids) > 1:
         raise ValueError(
@@ -94,7 +113,6 @@ def export_questions(queryset) -> dict:
         for s in q.subjects.all():
             subject_map[s.pk] = s
 
-    # Fix 1: compute _subject_translations once per subject
     subjects_data = []
     for s in subject_map.values():
         s_trans = _subject_translations(s)
@@ -118,7 +136,6 @@ def export_questions(queryset) -> dict:
         questions_data.append({
             "id": q.pk,
             "domain_id": domain.pk,
-            # Fix 3: use prefetch cache via .all() instead of values_list()
             "subject_ids": sorted(s.pk for s in q.subjects.all()),
             "active": q.active,
             "allow_multiple_correct": q.allow_multiple_correct,
@@ -126,6 +143,7 @@ def export_questions(queryset) -> dict:
             "is_mode_exam": q.is_mode_exam,
             "translations": _question_translations(q),
             "answer_options": answer_options_data,
+            "media": _media_items(q),
         })
 
     return {

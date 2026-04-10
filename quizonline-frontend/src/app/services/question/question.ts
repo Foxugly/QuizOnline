@@ -327,15 +327,33 @@ export class QuestionService {
     return this.api.questionMediaCreate(param);
   }
 
-  exportStructured(domainId: number): Observable<Blob> {
+  exportStructured(domainId: number, questionIds?: number[]): Observable<{blob: Blob; filename: string}> {
+    const params: Record<string, string> = {domain: String(domainId)};
+    if (questionIds?.length) {
+      params['ids'] = questionIds.join(',');
+    }
     return this.http.get(`${this.apiBaseUrl}/export-structured/`, {
-      params: {domain: String(domainId)},
+      params,
       responseType: 'blob',
-    });
+      observe: 'response',
+    }).pipe(
+      map(response => {
+        const disposition = response.headers.get('Content-Disposition') ?? '';
+        const match = disposition.match(/filename="?([^";\n]+)"?/);
+        const filename = match?.[1] ?? `questions-domain-${domainId}`;
+        return {blob: response.body!, filename};
+      }),
+    );
   }
 
   importStructured(payload: StructuredQuestionImportFile): Observable<StructuredQuestionImportResult> {
     return this.http.post<StructuredQuestionImportResult>(`${this.apiBaseUrl}/import-structured/`, payload);
+  }
+
+  importStructuredFormData(file: File): Observable<StructuredQuestionImportResult> {
+    const formData = new FormData();
+    formData.append('json_file', file);
+    return this.http.post<StructuredQuestionImportResult>(`${this.apiBaseUrl}/import-structured/`, formData);
   }
 
   private persistDuplicateDraft(draft: QuestionDuplicateDraft): void {

@@ -266,7 +266,7 @@ export class QuestionApi extends BaseService {
     }
 
     /**
-     * Export les questions accessibles (filtrées par domain&#x3D; si fourni) en JSON structuré.
+     * Export les questions (filtrées par domain&#x3D; et/ou ids&#x3D;) en JSON ou ZIP (si médias).
      * @endpoint get /api/question/export-structured/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -320,7 +320,7 @@ export class QuestionApi extends BaseService {
     }
 
     /**
-     * Importe des questions depuis le format JSON structuré. Accepte un fichier multipart (json_file) ou un body JSON direct.
+     * Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias). Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
      * @endpoint post /api/question/import-structured/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

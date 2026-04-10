@@ -1,9 +1,13 @@
+import io
 import json
 import logging
+import os
+import zipfile
 
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, QueryDict
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema,
@@ -513,24 +517,70 @@ class QuestionViewSet(MyModelViewSet):
             permission_classes=[IsQuestionDomainManager])
     def export_structured(self, request, *args, **kwargs):
         """
-        Export les questions accessibles (filtrées par domain= si fourni) en JSON structuré.
+        Export les questions (filtrées par domain= et/ou ids=) en JSON ou ZIP (si médias).
         """
         qs = self.filter_queryset(self.get_queryset())
         domain_id = request.query_params.get("domain")
         if domain_id:
             qs = qs.filter(domain_id=domain_id)
 
+        ids_param = request.query_params.get("ids")
+        if ids_param:
+            try:
+                question_ids = [int(i.strip()) for i in ids_param.split(",") if i.strip()]
+            except ValueError:
+                return Response({"detail": "Paramètre 'ids' invalide."}, status=status.HTTP_400_BAD_REQUEST)
+            qs = qs.filter(pk__in=question_ids)
+
         data = export_questions(qs)
 
         if data["domain"] is None:
             return Response({"detail": "Aucune question à exporter."}, status=status.HTTP_204_NO_CONTENT)
 
-        filename = f"questions_export_{data['domain']['id']}.json"
+        timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
+        domain_id_val = data["domain"]["id"]
+        base_name = f"{timestamp}_{domain_id_val}_export"
+
+        # Collect media hashes from questions
+        media_hashes = set()
+        for q in data["questions"]:
+            for m in q.get("media", []):
+                if m.get("hash"):
+                    media_hashes.add(m["hash"])
+
+        if media_hashes:
+            # Build a ZIP containing the JSON + media files
+            hash_to_asset = {
+                a.sha256: a
+                for a in MediaAsset.objects.filter(
+                    sha256__in=media_hashes,
+                    kind__in=[MediaAsset.IMAGE, MediaAsset.VIDEO],
+                )
+                if a.file
+            }
+
+            buf = io.BytesIO()
+            with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr(f"{base_name}.json", json.dumps(data, ensure_ascii=False, indent=2))
+                for sha256, asset in hash_to_asset.items():
+                    ext = os.path.splitext(asset.file.name)[1]
+                    media_path = f"media/{sha256}{ext}"
+                    try:
+                        with asset.file.open("rb") as f:
+                            zf.writestr(media_path, f.read())
+                    except Exception:
+                        logger.warning("export_structured: cannot read media file sha256=%s", sha256)
+
+            buf.seek(0)
+            response = HttpResponse(buf.read(), content_type="application/zip")
+            response["Content-Disposition"] = f'attachment; filename="{base_name}.zip"'
+            return response
+
         content = json.dumps(data, ensure_ascii=False, indent=2)
         return HttpResponse(
             content,
             content_type="application/json",
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+            headers={"Content-Disposition": f'attachment; filename="{base_name}.json"'},
         )
 
     @action(detail=False, methods=["post"], url_path="import-structured",
@@ -538,15 +588,27 @@ class QuestionViewSet(MyModelViewSet):
             permission_classes=[IsQuestionDomainManager])
     def import_structured(self, request, *args, **kwargs):
         """
-        Importe des questions depuis le format JSON structuré.
-        Accepte un fichier multipart (json_file) ou un body JSON direct.
+        Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias).
+        Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
         """
+        media_files: dict[str, bytes] | None = None
+
         uploaded = request.FILES.get("json_file")
         if uploaded:
-            try:
-                data = json.loads(uploaded.read().decode("utf-8"))
-            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-                return Response({"detail": f"Fichier JSON invalide : {exc}"}, status=status.HTTP_400_BAD_REQUEST)
+            raw = uploaded.read()
+            # Detect ZIP by magic bytes (PK signature)
+            if raw[:2] == b"PK":
+                try:
+                    data, media_files = self._extract_zip(raw)
+                except zipfile.BadZipFile:
+                    return Response({"detail": "Fichier ZIP invalide."}, status=status.HTTP_400_BAD_REQUEST)
+                except ValueError as exc:
+                    return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    data = json.loads(raw.decode("utf-8"))
+                except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                    return Response({"detail": f"Fichier JSON invalide : {exc}"}, status=status.HTTP_400_BAD_REQUEST)
         elif isinstance(request.data, dict) and "version" in request.data:
             data = request.data
         else:
@@ -556,7 +618,7 @@ class QuestionViewSet(MyModelViewSet):
             )
 
         try:
-            result = import_questions(data, request.user)
+            result = import_questions(data, request.user, media_files=media_files)
         except StructuredImportPermissionError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
         except StructuredImportError as exc:
@@ -566,3 +628,49 @@ class QuestionViewSet(MyModelViewSet):
             return Response({"detail": f"Erreur inattendue : {exc}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(result, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _extract_zip(raw: bytes) -> tuple[dict, dict[str, bytes]]:
+        """
+        Extract JSON data and media files from a ZIP archive.
+        Returns (json_data, {filename_in_zip: bytes}).
+        Raises ValueError if the ZIP structure is invalid.
+        Raises ValueError if a media file's sha256 doesn't match the JSON.
+        """
+        data = None
+        media_files: dict[str, bytes] = {}
+
+        with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+            for name in zf.namelist():
+                if name.endswith("/"):
+                    continue
+                if name.startswith("media/"):
+                    media_files[name] = zf.read(name)
+                elif name.endswith(".json"):
+                    try:
+                        data = json.loads(zf.read(name).decode("utf-8"))
+                    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                        raise ValueError(f"JSON invalide dans le ZIP : {exc}") from exc
+
+        if data is None:
+            raise ValueError("Aucun fichier JSON trouvé dans le ZIP.")
+
+        # Verify sha256 hashes for all media referenced in questions
+        import hashlib as _hashlib
+        for q_data in data.get("questions", []):
+            for m in q_data.get("media", []):
+                fname = m.get("filename")
+                expected = m.get("hash")
+                if not fname or not expected:
+                    continue
+                file_bytes = media_files.get(fname)
+                if file_bytes is None:
+                    raise ValueError(f"Fichier média manquant dans le ZIP : {fname}")
+                actual = _hashlib.sha256(file_bytes).hexdigest()
+                if actual != expected:
+                    raise ValueError(
+                        f"Hash SHA-256 invalide pour {fname} "
+                        f"(attendu : {expected}, obtenu : {actual})."
+                    )
+
+        return data, media_files

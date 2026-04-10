@@ -68,15 +68,34 @@ class Command(BaseCommand):
         admin.set_password("secret123")
         admin.save()
 
+        testuser, _ = User.objects.get_or_create(
+            username="testuser",
+            defaults={
+                "email": "testuser@example.test",
+                "is_staff": False,
+                "is_superuser": False,
+                "language": "fr",
+            },
+        )
+        testuser.email = "testuser@example.test"
+        testuser.is_staff = False
+        testuser.is_superuser = False
+        testuser.language = "fr"
+        testuser.set_password("secret123")
+        testuser.save()
+
         domain, _ = Domain.objects.get_or_create(owner=admin, active=True)
         upsert_translation(domain, "fr", name="Sciences", description="Domaine seede pour Playwright.")
         upsert_translation(domain, "nl", name="Wetenschappen", description="Seedomein voor Playwright.")
         upsert_translation(domain, "en", name="Science", description="Playwright seed domain.")
         domain.allowed_languages.set(Language.objects.filter(code__in=["fr", "nl"]))
         domain.staff.set([admin])
+        domain.members.add(testuser)
 
         admin.current_domain = domain
         admin.save(update_fields=["current_domain"])
+        testuser.current_domain = domain
+        testuser.save(update_fields=["current_domain"])
 
         subject_physics, _ = Subject.objects.get_or_create(domain=domain, active=True)
         upsert_translation(subject_physics, "fr", name="Physique", description="Sujet seed.")

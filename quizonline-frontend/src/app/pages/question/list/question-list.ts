@@ -55,6 +55,7 @@ export class QuestionList implements OnInit {
   q = signal('');
   selectedSubjectIds = signal<number[]>([]);
   previewQuestionId = signal<number | null>(null);
+  selectedRows = signal<QuestionListRow[]>([]);
 
   private questionService = inject(QuestionService);
   private subjectService = inject(SubjectService);
@@ -81,6 +82,7 @@ export class QuestionList implements OnInit {
     }));
   });
 
+  readonly selectedCount = computed(() => this.selectedRows().length);
 
   ngOnInit() {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.En);
@@ -137,6 +139,18 @@ export class QuestionList implements OnInit {
     this.loadQuestions(1);
   }
 
+  onSelectionChange(rows: QuestionListRow[]): void {
+    this.selectedRows.set(rows);
+  }
+
+  selectAll(): void {
+    this.selectedRows.set([...this.rowsData()]);
+  }
+
+  clearSelection(): void {
+    this.selectedRows.set([]);
+  }
+
   goNew(): void {
     this.questionService.goNew();
   }
@@ -147,16 +161,18 @@ export class QuestionList implements OnInit {
 
   exportRows(): void {
     const currentDomainId = this.userService.currentUser()?.current_domain ?? undefined;
-    if (!currentDomainId) {
+    const selected = this.selectedRows();
+    if (!currentDomainId || !selected.length) {
       return;
     }
 
-    this.questionService.exportStructured(currentDomainId).subscribe({
-      next: (blob) => {
+    const questionIds = selected.map(row => row.id);
+    this.questionService.exportStructured(currentDomainId, questionIds).subscribe({
+      next: ({blob, filename}) => {
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement('a');
         anchor.href = url;
-        anchor.download = `questions-domain-${currentDomainId}.json`;
+        anchor.download = filename;
         anchor.click();
         URL.revokeObjectURL(url);
       },

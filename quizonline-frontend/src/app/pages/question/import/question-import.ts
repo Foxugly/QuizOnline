@@ -32,11 +32,14 @@ import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i
 })
 export class QuestionImport implements OnInit {
   readonly text = computed<QuestionImportUiText>(() => getQuestionImportUiText(this.currentLang()));
-  readonly hasValidFile = computed(() => this.validationErrors().length === 0 && this.importFile() !== null);
+  readonly hasValidFile = computed(
+    () => this.validationErrors().length === 0 && (this.importFile() !== null || this.importFileRaw() !== null),
+  );
 
   importing = signal(false);
   selectedFileName = signal<string | null>(null);
   importFile = signal<StructuredQuestionImportFile | null>(null);
+  importFileRaw = signal<File | null>(null);
   validationErrors = signal<string[]>([]);
 
   private questionService = inject(QuestionService);
@@ -63,6 +66,16 @@ export class QuestionImport implements OnInit {
     }
 
     this.selectedFileName.set(file.name);
+    this.importFile.set(null);
+    this.importFileRaw.set(null);
+    this.validationErrors.set([]);
+
+    if (file.name.toLowerCase().endsWith('.zip')) {
+      // ZIP file: skip client-side validation, server will validate
+      this.importFileRaw.set(file);
+      this.showToast('success', this.text().formatValid, this.text().zipFileReady);
+      return;
+    }
 
     try {
       const content = await file.text();
@@ -87,6 +100,7 @@ export class QuestionImport implements OnInit {
   clearSelection(): void {
     this.selectedFileName.set(null);
     this.importFile.set(null);
+    this.importFileRaw.set(null);
     this.validationErrors.set([]);
   }
 
@@ -110,7 +124,15 @@ export class QuestionImport implements OnInit {
     this.importing.set(true);
 
     try {
-      const result = await firstValueFrom(this.questionService.importStructured(this.importFile()!));
+      let result: StructuredQuestionImportResult;
+
+      const rawFile = this.importFileRaw();
+      if (rawFile) {
+        result = await firstValueFrom(this.questionService.importStructuredFormData(rawFile));
+      } else {
+        result = await firstValueFrom(this.questionService.importStructured(this.importFile()!));
+      }
+
       const successCount = this.getImportedQuestionCount(result);
       this.showToast('success', this.text().importDone, this.text().importSuccess(successCount));
       this.questionService.goList();

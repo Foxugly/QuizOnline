@@ -8,6 +8,9 @@ export type QuestionListUiText = {
   newQuestion: string;
   importQuestions: string;
   exportQuestions: string;
+  exportSelected: (n: number) => string;
+  selectAll: string;
+  unselectAll: string;
   titleCol: string;
   activeCol: string;
   modesCol: string;
@@ -26,6 +29,9 @@ const FR: QuestionListUiText = {
   newQuestion: 'Nouveau',
   importQuestions: 'Importer',
   exportQuestions: 'Exporter',
+  exportSelected: (n) => `Exporter (${n})`,
+  selectAll: 'Tout cocher',
+  unselectAll: 'Tout décocher',
   titleCol: 'Titre',
   activeCol: 'Actif',
   modesCol: 'Modes',
@@ -44,6 +50,9 @@ const EN: QuestionListUiText = {
   newQuestion: 'New',
   importQuestions: 'Import',
   exportQuestions: 'Export',
+  exportSelected: (n) => `Export (${n})`,
+  selectAll: 'Select all',
+  unselectAll: 'Deselect all',
   titleCol: 'Title',
   activeCol: 'Active',
   modesCol: 'Modes',
@@ -62,6 +71,9 @@ const NL: QuestionListUiText = {
   newQuestion: 'Nieuw',
   importQuestions: 'Importeren',
   exportQuestions: 'Exporteren',
+  exportSelected: (n) => `Exporteren (${n})`,
+  selectAll: 'Alles selecteren',
+  unselectAll: 'Alles deselecteren',
   titleCol: 'Titel',
   activeCol: 'Actief',
   modesCol: 'Modi',
@@ -80,6 +92,9 @@ const IT: QuestionListUiText = {
   newQuestion: 'Nuovo',
   importQuestions: 'Importa',
   exportQuestions: 'Esporta',
+  exportSelected: (n) => `Esporta (${n})`,
+  selectAll: 'Seleziona tutto',
+  unselectAll: 'Deseleziona tutto',
   titleCol: 'Titolo',
   activeCol: 'Attiva',
   modesCol: 'Modalita',
@@ -98,6 +113,9 @@ const ES: QuestionListUiText = {
   newQuestion: 'Nuevo',
   importQuestions: 'Importar',
   exportQuestions: 'Exportar',
+  exportSelected: (n) => `Exportar (${n})`,
+  selectAll: 'Seleccionar todo',
+  unselectAll: 'Deseleccionar todo',
   titleCol: 'Titulo',
   activeCol: 'Activo',
   modesCol: 'Modos',
