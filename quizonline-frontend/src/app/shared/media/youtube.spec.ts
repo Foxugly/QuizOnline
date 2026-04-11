@@ -22,7 +22,7 @@ describe('youtube helpers', () => {
     expect(toCanonicalYoutubeUrl('https://youtu.be/dQw4w9WgXcQ?t=43'))
       .toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     expect(toYoutubeEmbedUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
-      .toBe('https://www.youtube.com/embed/dQw4w9WgXcQ');
+      .toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
   });
 
   it('rejects invalid youtube urls', () => {

@@ -55,7 +55,9 @@ export function toCanonicalYoutubeUrl(url: string): string | null {
 
 export function toYoutubeEmbedUrl(url: string): string | null {
   const videoId = extractYoutubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  // Use youtube-nocookie.com to reduce cross-site tracking and to match the
+  // backend CSP frame-src policy (frame-src https://www.youtube-nocookie.com).
+  return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : null;
 }
 
 function isValidVideoId(value: string | undefined): value is string {

@@ -80,6 +80,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.log_middleware.LogContextMiddleware",
+    "config.security_headers.SecurityHeadersMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -137,7 +139,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        "rest_framework.permissions.IsAuthenticated",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
@@ -203,15 +205,21 @@ SENSITIVE_FIELDS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "log_context": {
+            "()": "config.log_middleware.LogContextFilter",
+        },
+    },
     "formatters": {
         "structured": {
-            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "format": "%(asctime)s %(levelname)s %(name)s req=%(request_id)s user=%(user_id)s %(message)s",
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "structured",
+            "filters": ["log_context"],
         },
     },
     "root": {

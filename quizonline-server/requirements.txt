@@ -16,3 +16,4 @@ django-parler
 django-environ
 celery[redis]
 django-import-export
+filetype

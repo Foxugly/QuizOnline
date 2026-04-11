@@ -2,6 +2,8 @@ import hashlib
 import os
 from typing import List, Any
 
+import filetype
+
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
@@ -126,9 +128,22 @@ def _infer_kind_from_upload(f: UploadedFile) -> str:
     allowed_image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
     allowed_video_extensions = {".mp4", ".webm", ".ogv", ".ogg", ".mov"}
 
+    header = f.read(512)
+    f.seek(0)
+    detected = filetype.guess(header)
+    detected_mime = detected.mime if detected else None
+
     if ct in allowed_image_types and extension in allowed_image_extensions:
+        if detected_mime not in allowed_image_types:
+            raise serializers.ValidationError(
+                {"file": f"File content does not match declared type '{ct}'."}
+            )
         return MediaAsset.IMAGE
     if ct in allowed_video_types and extension in allowed_video_extensions:
+        if detected_mime not in allowed_video_types:
+            raise serializers.ValidationError(
+                {"file": f"File content does not match declared type '{ct}'."}
+            )
         return MediaAsset.VIDEO
     raise serializers.ValidationError(
         {

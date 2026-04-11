@@ -31,10 +31,8 @@ export class AuthService {
     private userService: UserService,
     private accountAccess: AccountAccessService,
   ) {
-    this.accessToken =
-      localStorage.getItem(this.ACCESS_KEY) ??
-      sessionStorage.getItem(this.ACCESS_KEY);
-
+    // Access token is never persisted to storage (XSS risk).
+    // Refresh token is kept in storage for session continuity across page reloads.
     this.refreshToken =
       localStorage.getItem(this.REFRESH_KEY) ??
       sessionStorage.getItem(this.REFRESH_KEY);
@@ -93,7 +91,9 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.accessToken;
+    // Has either an in-memory access token or a stored refresh token that
+    // the interceptor can exchange for a new access token on the next 401.
+    return !!(this.accessToken || this.refreshToken);
   }
 
   getUsername(): string {
@@ -129,37 +129,32 @@ export class AuthService {
   }
 
   private clearStoredAuth(): void {
-    localStorage.removeItem(this.ACCESS_KEY);
     localStorage.removeItem(this.REFRESH_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.REMEMBER_KEY);
 
-    sessionStorage.removeItem(this.ACCESS_KEY);
     sessionStorage.removeItem(this.REFRESH_KEY);
     sessionStorage.removeItem(this.USER_KEY);
     sessionStorage.removeItem(this.REMEMBER_KEY);
   }
 
   private clearStoredTokensOnly(): void {
-    localStorage.removeItem(this.ACCESS_KEY);
     localStorage.removeItem(this.REFRESH_KEY);
-    sessionStorage.removeItem(this.ACCESS_KEY);
     sessionStorage.removeItem(this.REFRESH_KEY);
   }
 
   private setTokens(access: string, refresh: string, remember: boolean): void {
+    // Access token lives in memory only — never written to storage.
     this.accessToken = access;
     this.refreshToken = refresh;
     this.clearStoredTokensOnly();
 
     if (remember) {
-      localStorage.setItem(this.ACCESS_KEY, access);
       localStorage.setItem(this.REFRESH_KEY, refresh);
       localStorage.setItem(this.REMEMBER_KEY, '1');
       return;
     }
 
-    sessionStorage.setItem(this.ACCESS_KEY, access);
     sessionStorage.setItem(this.REFRESH_KEY, refresh);
     sessionStorage.removeItem(this.REMEMBER_KEY);
   }

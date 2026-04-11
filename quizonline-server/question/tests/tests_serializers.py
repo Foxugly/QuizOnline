@@ -151,11 +151,16 @@ class QuestionSerializersTestCase(TestCase):
     def _mk_external_asset(self, url="https://www.youtube.com/watch?v=dQw4w9WgXcQ") -> MediaAsset:
         return MediaAsset.objects.create(kind=MediaAsset.EXTERNAL, external_url=url)
 
-    def _mk_image_upload(self, name="img.png", content=b"pngbytes") -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content, content_type="image/png")
+    # Minimal PNG magic bytes (signature only — enough for filetype detection)
+    PNG_MAGIC = b'\x89PNG\r\n\x1a\n' + b'\x00' * 16
+    # Minimal MP4 magic bytes (ftyp box at offset 4)
+    MP4_MAGIC = b'\x00\x00\x00\x08ftypisom' + b'\x00' * 16
 
-    def _mk_video_upload(self, name="vid.mp4", content=b"mp4bytes") -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content, content_type="video/mp4")
+    def _mk_image_upload(self, name="img.png", content=None) -> SimpleUploadedFile:
+        return SimpleUploadedFile(name=name, content=content or self.PNG_MAGIC, content_type="image/png")
+
+    def _mk_video_upload(self, name="vid.mp4", content=None) -> SimpleUploadedFile:
+        return SimpleUploadedFile(name=name, content=content or self.MP4_MAGIC, content_type="video/mp4")
 
     # ---------------------------------------------------------------------
     # MediaAssetUploadSerializer
@@ -204,6 +209,19 @@ class QuestionSerializersTestCase(TestCase):
         with self.assertRaises(serializers.ValidationError) as ctx:
             _infer_kind_from_upload(up)
         self.assertIn("Unsupported file type", str(ctx.exception.detail))
+
+    def test_infer_kind_from_upload_rejects_spoofed_image(self):
+        """A file with PNG extension/content-type but non-PNG content must be rejected."""
+        up = SimpleUploadedFile("evil.png", b"not-a-real-png", content_type="image/png")
+        with self.assertRaises(serializers.ValidationError) as ctx:
+            _infer_kind_from_upload(up)
+        self.assertIn("does not match declared type", str(ctx.exception.detail))
+
+    def test_infer_kind_from_upload_resets_file_pointer(self):
+        """After _infer_kind_from_upload the file pointer must be back at 0."""
+        up = self._mk_image_upload()
+        _infer_kind_from_upload(up)
+        self.assertEqual(up.tell(), 0)
 
     # ---------------------------------------------------------------------
     # Read serializers basics

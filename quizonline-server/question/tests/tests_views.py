@@ -15,6 +15,9 @@ from question.models import Question, MediaAsset, QuestionMedia
 
 User = get_user_model()
 
+# Minimal PNG signature — enough for filetype magic-byte detection.
+_PNG_MAGIC = b'\x89PNG\r\n\x1a\n' + b'\x00' * 16
+
 
 class QuestionViewSetTests(APITestCase):
     # -------------------------
@@ -132,7 +135,7 @@ class QuestionViewSetTests(APITestCase):
         self.assertIn(resp.status_code, (status.HTTP_201_CREATED, status.HTTP_200_OK), resp.json())
         return MediaAsset.objects.get(pk=resp.json()["id"])
 
-    def _upload_image(self, name="x.png", content=b"fakepng") -> MediaAsset:
+    def _upload_image(self, name="x.png", content=_PNG_MAGIC) -> MediaAsset:
         self.client.force_authenticate(self.staff)
         f = SimpleUploadedFile(name, content, content_type="image/png")
         resp = self.client.post(self._media_url(), data={"file": f}, format="multipart")
@@ -336,11 +339,11 @@ class QuestionViewSetTests(APITestCase):
     def test_media_file_dedup_by_sha256_returns_200_on_second_upload(self):
         self.client.force_authenticate(self.staff)
 
-        f1 = SimpleUploadedFile("a.png", b"same-content", content_type="image/png")
+        f1 = SimpleUploadedFile("a.png", _PNG_MAGIC, content_type="image/png")
         r1 = self.client.post(self._media_url(), data={"file": f1}, format="multipart")
         self.assertEqual(r1.status_code, status.HTTP_201_CREATED)
 
-        f2 = SimpleUploadedFile("b.png", b"same-content", content_type="image/png")
+        f2 = SimpleUploadedFile("b.png", _PNG_MAGIC, content_type="image/png")
         r2 = self.client.post(self._media_url(), data={"file": f2}, format="multipart")
         self.assertEqual(r2.status_code, status.HTTP_200_OK)
 
@@ -398,7 +401,7 @@ class QuestionViewSetTests(APITestCase):
         s2 = self._mk_subject(self.domain, name_fr="S2")
 
         a_ext = self._upload_external("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        a_img = self._upload_image("img.png", b"img-content")
+        a_img = self._upload_image("img.png")
 
         payload = self._payload_create(
             self.domain,
@@ -522,7 +525,7 @@ class QuestionViewSetTests(APITestCase):
 
         # new media
         new_ext = self._upload_external("https://www.youtube.com/watch?v=9bZkp7q19f0")
-        new_img = self._upload_image("new.png", b"zzz")
+        new_img = self._upload_image("new.png")
 
         payload = self._payload_create(self.domain, media_asset_ids=[new_ext.pk, new_img.pk])
         self.client.force_authenticate(self.domain_owner)
