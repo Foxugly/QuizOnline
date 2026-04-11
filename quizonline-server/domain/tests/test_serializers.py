@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.test import TestCase
 from unittest.mock import patch
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.test import APIRequestFactory
 
 from django.contrib.auth import get_user_model
@@ -436,3 +436,43 @@ class DomainReadSerializerJoinPolicyTests(TestCase):
     def test_join_policy_field_is_serialized(self):
         data = DomainReadSerializer(self.domain).data
         self.assertEqual(data["join_policy"], "auto")
+
+
+class DomainWriteSerializerJoinPolicyTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="pwd")
+        self.manager = User.objects.create_user(username="m", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, active=True)
+        self.domain.managers.add(self.manager)
+        self.factory = APIRequestFactory()
+
+    def _ctx(self, user):
+        request = self.factory.patch(f"/api/domain/{self.domain.id}/")
+        request.user = user
+        return {"request": request}
+
+    def test_owner_can_change_join_policy(self):
+        s = DomainWriteSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.owner),
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "owner")
+
+    def test_manager_cannot_change_join_policy(self):
+        s = DomainWriteSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.manager),
+        )
+        with self.assertRaises(PermissionDenied):
+            s.is_valid(raise_exception=True)
+            s.save()

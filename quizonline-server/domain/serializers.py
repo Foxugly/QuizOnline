@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from language.models import Language
 from language.serializers import LanguageReadSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from config.serializers import (
     LocalizedNameDescriptionTranslationSerializer,
     LocalizedTranslationsDictField,
@@ -96,6 +97,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "owner",
             "managers",
         ]
@@ -137,6 +139,20 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
         return unique_languages
 
+    def validate_join_policy(self, value):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            raise DRFPermissionDenied("Authentication required.")
+        if getattr(user, "is_superuser", False):
+            return value
+        if self.instance is None:
+            # Creation: anyone authorized to create a domain may set the policy.
+            return value
+        if self.instance.owner_id != user.id:
+            raise DRFPermissionDenied("Only the domain owner can change the join policy.")
+        return value
+
     def _validate_owner_change(self, attrs: dict) -> None:
         request = self.context.get("request")
         instance = getattr(self, "instance", None)
@@ -153,13 +169,13 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         translations = attrs.get("translations")
-        if not translations:
+        if not translations and not self.partial:
             raise serializers.ValidationError({"translations": "Au moins une traduction est requise."})
 
         allowed_langs = attrs.get("allowed_languages")
         if "allowed_languages" in attrs and allowed_langs == []:
             raise serializers.ValidationError({"allowed_languages": "Au moins une langue est requise."})
-        if allowed_langs is not None:
+        if allowed_langs is not None and translations:
             allowed_codes = {language.code for language in allowed_langs}
             provided = set(translations.keys())
             invalid_codes = provided - LANG_CODES
