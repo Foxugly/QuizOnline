@@ -614,6 +614,24 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
 
     @action(detail=True, methods=["post"], url_path="cancel")
     def cancel(self, request, *args, **kwargs):
+        """
+        Cancel a pending join request.
+
+        Two intentional design choices that should NOT be "fixed":
+
+        1. No `transaction.atomic` / `select_for_update`. Cancellation is a
+           monotonic single-column write (pending → cancelled) with no side
+           effects. Two concurrent cancels collapse to the same terminal
+           state — idempotent at the row level. An approve-vs-cancel race
+           is last-write-wins by design (the HTTP client that lost the race
+           observes the final state on next fetch).
+
+        2. The approver gate (`_check_can_approve`) is intentionally NOT
+           reused here. Cancellation is a requester-only action: only the
+           user who created the request (or a superuser) can cancel it.
+           The domain owner can approve and reject, but cannot cancel
+           someone else's request — that's a different concept.
+        """
         domain = self._get_domain()
         join_request = drf_get_object_or_404(
             DomainJoinRequest.objects.all(),
