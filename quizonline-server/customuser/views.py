@@ -172,7 +172,7 @@ class CustomUserViewSet(
             return [IsAdminUser()]
         if self.action == "destroy":
             return [IsAuthenticated(), IsSuperuserOnly()]
-        if self.action in ("me", "set_current_domain"):
+        if self.action in ("me", "set_current_domain", "me_join_requests"):
             return [IsSelf()]
         return [IsSelfOrStaffOrSuperuser()]
 
@@ -218,6 +218,18 @@ class CustomUserViewSet(
         user = self.get_queryset().get(pk=request.user.pk)
         out = CustomUserReadSerializer(user, context={"request": request})
         return Response(out.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="me/join-requests")
+    def me_join_requests(self, request):
+        from domain.models import DomainJoinRequest
+        from domain.serializers import DomainJoinRequestReadSerializer
+        qs = (
+            DomainJoinRequest.objects
+            .filter(user=request.user, status=DomainJoinRequest.STATUS_PENDING)
+            .select_related("domain")
+            .order_by("-created_at")
+        )
+        return Response(DomainJoinRequestReadSerializer(qs, many=True).data)
 
 
 @extend_schema_view(

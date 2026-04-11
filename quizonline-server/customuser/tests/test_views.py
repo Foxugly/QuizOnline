@@ -528,3 +528,34 @@ class UserViewsTests(APITestCase):
             ids,
             {self.u1.id, self.u2.id, self.staff.id, self.superuser.id},
         )
+
+    def test_me_join_requests_returns_only_my_pending_requests(self):
+        from domain.models import DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        other_user = User.objects.create_user(username="other", password="o", email="o@e.test")
+        domain1 = Domain.objects.create(owner=self.staff, active=True)
+        domain1.set_current_language("fr")
+        domain1.name = "V1"
+        domain1.join_policy = JoinPolicy.OWNER
+        domain1.save()
+        domain2 = Domain.objects.create(owner=self.staff, active=True)
+        domain2.set_current_language("fr")
+        domain2.name = "V2"
+        domain2.join_policy = JoinPolicy.OWNER
+        domain2.save()
+
+        DomainJoinRequest.objects.create(domain=domain1, user=self.u1)  # pending, mine
+        rejected = DomainJoinRequest.objects.create(domain=domain2, user=self.u1)  # rejected, mine
+        rejected.status = DomainJoinRequest.STATUS_REJECTED
+        rejected.save(update_fields=["status"])
+        DomainJoinRequest.objects.create(domain=domain1, user=other_user)  # not mine
+
+        self.client.force_authenticate(user=self.u1)
+        res = self.client.get("/api/user/me/join-requests/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        statuses = [r["status"] for r in res.data]
+        domain_ids = [r["domain"] for r in res.data]
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(statuses, ["pending"])
+        self.assertEqual(domain_ids, [domain1.id])
