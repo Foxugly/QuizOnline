@@ -232,3 +232,79 @@ class JoinRequestListRetrieveTests(TestCase):
         res = self.client.get(self.URL_DETAIL.format(self.domain.id, self.pending.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["id"], self.pending.id)
+
+
+class JoinRequestApproveRejectTests(TestCase):
+    URL_APPROVE = "/api/domain/{}/join-request/{}/approve/"
+    URL_REJECT = "/api/domain/{}/join-request/{}/reject/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
+        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_owner_approves_adds_member_and_emails(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")
+        self.assertEqual(self.req.decided_by_id, self.owner.id)
+        self.assertIsNotNone(self.req.decided_at)
+        self.assertTrue(self.domain.members.filter(pk=self.joiner.pk).exists())
+        self.assertTrue(any(self.joiner.email in row.recipients for row in OutboundEmail.objects.all()))
+
+    def test_manager_cannot_approve_under_owner_policy(self):
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "pending")
+
+    def test_manager_can_approve_under_owner_managers_policy(self):
+        self.domain.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain.save(update_fields=["join_policy"])
+        self.domain.managers.add(self.manager)
+        self.client.force_authenticate(user=self.manager)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.decided_by_id, self.manager.id)
+
+    def test_owner_rejects_with_reason(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(
+                self.URL_REJECT.format(self.domain.id, self.req.id),
+                {"reason": "not in the org"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "rejected")
+        self.assertEqual(self.req.reject_reason, "not in the org")
+        self.assertFalse(self.domain.members.filter(pk=self.joiner.pk).exists())
+        self.assertTrue(any(self.joiner.email in row.recipients for row in OutboundEmail.objects.all()))
+
+    def test_reject_without_reason_is_allowed(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_REJECT.format(self.domain.id, self.req.id), {}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.reject_reason, "")
+
+    def test_cannot_approve_a_non_pending_request(self):
+        self.req.status = DomainJoinRequest.STATUS_REJECTED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)

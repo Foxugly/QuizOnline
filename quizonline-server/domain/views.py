@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import status, viewsets
@@ -10,7 +11,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from config.tools import MyModelViewSet
 
-from core.mailers.domain_join import send_join_request_created_email
+from core.mailers.domain_join import (
+    send_join_request_created_email,
+    send_join_request_approved_email,
+    send_join_request_rejected_email,
+)
 from .models import Domain, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
@@ -20,6 +25,7 @@ from .serializers import (
     DomainDetailSerializer,
     DomainMemberRoleSerializer,
     DomainJoinRequestReadSerializer,
+    DomainJoinRequestRejectSerializer,
 )
 from .services import users_who_can_approve
 from config.tools import ErrorDetailSerializer
@@ -552,3 +558,56 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=True, methods=["post"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        with transaction.atomic():
+            join_request = drf_get_object_or_404(
+                DomainJoinRequest.objects.select_for_update(),
+                pk=self.kwargs["req_id"],
+                domain=domain,
+            )
+            if join_request.status != DomainJoinRequest.STATUS_PENDING:
+                return Response(
+                    {"detail": "not_pending"},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            join_request.status = DomainJoinRequest.STATUS_APPROVED
+            join_request.decided_by = request.user
+            join_request.decided_at = timezone.now()
+            join_request.save(update_fields=["status", "decided_by", "decided_at", "updated_at"])
+            domain.members.add(join_request.user)
+            transaction.on_commit(
+                lambda jr=join_request: send_join_request_approved_email(join_request=jr)
+            )
+        return Response(self.get_serializer(join_request).data)
+
+    @action(detail=True, methods=["post"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        serializer = DomainJoinRequestRejectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reason = serializer.validated_data.get("reason", "")
+        with transaction.atomic():
+            join_request = drf_get_object_or_404(
+                DomainJoinRequest.objects.select_for_update(),
+                pk=self.kwargs["req_id"],
+                domain=domain,
+            )
+            if join_request.status != DomainJoinRequest.STATUS_PENDING:
+                return Response(
+                    {"detail": "not_pending"},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            join_request.status = DomainJoinRequest.STATUS_REJECTED
+            join_request.decided_by = request.user
+            join_request.decided_at = timezone.now()
+            join_request.reject_reason = reason
+            join_request.save(update_fields=["status", "decided_by", "decided_at", "reject_reason", "updated_at"])
+            transaction.on_commit(
+                lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
+            )
+        return Response(self.get_serializer(join_request).data)
