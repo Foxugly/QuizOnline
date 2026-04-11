@@ -143,7 +143,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = getattr(request, "user", None)
         if user is None or not user.is_authenticated:
-            raise DRFPermissionDenied("Authentication required.")
+            raise DRFPermissionDenied("Authentication is required.")
         if getattr(user, "is_superuser", False):
             return value
         if self.instance is None:
@@ -175,6 +175,9 @@ class DomainWriteSerializer(serializers.ModelSerializer):
         allowed_langs = attrs.get("allowed_languages")
         if "allowed_languages" in attrs and allowed_langs == []:
             raise serializers.ValidationError({"allowed_languages": "Au moins une langue est requise."})
+        # Cross-consistency between allowed_languages and translations is only enforced
+        # when both are provided here. The PATCH path goes through DomainPartialSerializer.validate()
+        # which performs its own translations-aware checks; see line ~252.
         if allowed_langs is not None and translations:
             allowed_codes = {language.code for language in allowed_langs}
             provided = set(translations.keys())

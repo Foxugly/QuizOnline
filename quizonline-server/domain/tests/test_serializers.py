@@ -475,4 +475,25 @@ class DomainWriteSerializerJoinPolicyTests(TestCase):
         )
         with self.assertRaises(PermissionDenied):
             s.is_valid(raise_exception=True)
-            s.save()
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "auto")
+
+    def test_manager_cannot_change_join_policy_via_partial_serializer(self):
+        """
+        Regression guard: the production PATCH path uses DomainPartialSerializer,
+        which inherits validate_join_policy from DomainWriteSerializer. If a future
+        maintainer adds a sibling override on the subclass that weakens the gate,
+        this test will catch it.
+        """
+        from domain.serializers import DomainPartialSerializer
+
+        s = DomainPartialSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.manager),
+        )
+        with self.assertRaises(PermissionDenied):
+            s.is_valid(raise_exception=True)
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "auto")
