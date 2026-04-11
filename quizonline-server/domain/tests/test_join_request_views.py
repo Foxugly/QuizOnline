@@ -115,14 +115,22 @@ class JoinRequestCreateEndpointTests(TestCase):
 
     def test_post_validation_domain_idempotent_returns_existing_pending(self):
         self.client.force_authenticate(user=self.joiner)
-        first = self.client.post(self.URL.format(self.domain_validation.id))
-        second = self.client.post(self.URL.format(self.domain_validation.id))
+        with self.captureOnCommitCallbacks(execute=True):
+            first = self.client.post(self.URL.format(self.domain_validation.id))
+        with self.captureOnCommitCallbacks(execute=True):
+            second = self.client.post(self.URL.format(self.domain_validation.id))
         self.assertEqual(second.status_code, status.HTTP_200_OK)
         self.assertEqual(second.data["request"]["id"], first.data["request"]["id"])
         self.assertEqual(
             DomainJoinRequest.objects.filter(domain=self.domain_validation, user=self.joiner).count(),
             1,
         )
+        # Only the first POST enqueues an email; the second is a pure no-op for
+        # the outbox. Lock that invariant.
+        emails_for_owner = sum(
+            1 for row in OutboundEmail.objects.all() if self.owner.email in row.recipients
+        )
+        self.assertEqual(emails_for_owner, 1)
 
     def test_post_when_already_member_returns_409(self):
         self.client.force_authenticate(user=self.member)

@@ -454,6 +454,8 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_200_OK,
             )
 
+        from django.db import IntegrityError
+
         with transaction.atomic():
             existing = (
                 DomainJoinRequest.objects
@@ -473,15 +475,44 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
                     },
                     status=status.HTTP_200_OK,
                 )
-            join_request = DomainJoinRequest.objects.create(
-                domain=domain,
-                user=user,
-                status=DomainJoinRequest.STATUS_PENDING,
-            )
+
+            # Resolve approvers eagerly (inside the transaction) so the email
+            # is sent to the people who could approve at the time of creation.
+            # Closure captures `approvers` by value, not `domain` by reference.
+            approvers = users_who_can_approve(domain)
+
+            try:
+                # Nested atomic so that an IntegrityError on this single insert
+                # rolls back only the create, not the parent transaction. This
+                # is the documented Django pattern for catching IntegrityError
+                # inside transaction.atomic.
+                with transaction.atomic():
+                    join_request = DomainJoinRequest.objects.create(
+                        domain=domain,
+                        user=user,
+                        status=DomainJoinRequest.STATUS_PENDING,
+                    )
+            except IntegrityError:
+                # Race: another POST inserted a pending row between our SELECT
+                # and our create. The partial unique constraint fired. Re-fetch
+                # the now-existing row and return it idempotently.
+                existing = DomainJoinRequest.objects.get(
+                    domain=domain,
+                    user=user,
+                    status=DomainJoinRequest.STATUS_PENDING,
+                )
+                return Response(
+                    {
+                        "status": "pending",
+                        "request": DomainJoinRequestReadSerializer(existing).data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
             transaction.on_commit(
                 lambda: send_join_request_created_email(
                     join_request=join_request,
-                    recipients=users_who_can_approve(domain),
+                    recipients=approvers,
                 )
             )
 
