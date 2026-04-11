@@ -35,6 +35,7 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "subjects_count",
             "questions_count",
             "owner",

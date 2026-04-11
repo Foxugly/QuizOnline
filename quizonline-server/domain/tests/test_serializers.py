@@ -64,6 +64,7 @@ class DomainSerializersTestCase(TestCase):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "owner",
             "managers",
             "members",
@@ -422,3 +423,16 @@ class DomainSerializersTestCase(TestCase):
         s = DomainDetailSerializer(data={"active": False}, context={"request": self.factory.get("/")})
         self.assertFalse(s.is_valid())
         self.assertIn("non_field_errors", s.errors)
+
+
+class DomainReadSerializerJoinPolicyTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, active=True)
+
+    def test_join_policy_field_is_serialized(self):
+        data = DomainReadSerializer(self.domain).data
+        self.assertEqual(data["join_policy"], "auto")
