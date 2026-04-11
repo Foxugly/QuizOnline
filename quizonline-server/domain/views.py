@@ -2,14 +2,16 @@ from django.db import transaction
 from django.db.models import Count, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.generics import get_object_or_404 as drf_get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from config.tools import MyModelViewSet
 
-from .models import Domain
+from core.mailers.domain_join import send_join_request_created_email
+from .models import Domain, DomainJoinRequest, JoinPolicy
 from .permissions import IsDomainOwnerOrManager
 from .serializers import (
     DomainReadSerializer,
@@ -17,7 +19,9 @@ from .serializers import (
     DomainPartialSerializer,
     DomainDetailSerializer,
     DomainMemberRoleSerializer,
+    DomainJoinRequestReadSerializer,
 )
+from .services import users_who_can_approve
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -411,3 +415,80 @@ class DomainViewSet(MyModelViewSet):
         if domain.managers.filter(pk=target.pk).exists():
             raise PermissionDenied("Un manager ne peut pas en retirer un autre.")
 
+
+class DomainJoinRequestViewSet(viewsets.GenericViewSet):
+    """
+    Nested under /api/domain/{domain_id}/join-request/.
+    """
+    serializer_class = DomainJoinRequestReadSerializer
+    queryset = DomainJoinRequest.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = "pk"
+    lookup_url_kwarg = "req_id"
+
+    def _get_domain(self):
+        return drf_get_object_or_404(
+            Domain.objects.filter(active=True),
+            pk=self.kwargs["domain_id"],
+        )
+
+    def create(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        user = request.user
+
+        if domain.owner_id == user.id:
+            return Response(
+                {"detail": "already_owner"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if domain.members.filter(pk=user.pk).exists():
+            return Response(
+                {"detail": "already_member"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if domain.join_policy == JoinPolicy.AUTO:
+            domain.members.add(user)
+            return Response(
+                {"status": "approved", "request": None},
+                status=status.HTTP_200_OK,
+            )
+
+        with transaction.atomic():
+            existing = (
+                DomainJoinRequest.objects
+                .select_for_update()
+                .filter(
+                    domain=domain,
+                    user=user,
+                    status=DomainJoinRequest.STATUS_PENDING,
+                )
+                .first()
+            )
+            if existing:
+                return Response(
+                    {
+                        "status": "pending",
+                        "request": DomainJoinRequestReadSerializer(existing).data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            join_request = DomainJoinRequest.objects.create(
+                domain=domain,
+                user=user,
+                status=DomainJoinRequest.STATUS_PENDING,
+            )
+            transaction.on_commit(
+                lambda: send_join_request_created_email(
+                    join_request=join_request,
+                    recipients=users_who_can_approve(domain),
+                )
+            )
+
+        return Response(
+            {
+                "status": "pending",
+                "request": DomainJoinRequestReadSerializer(join_request).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )

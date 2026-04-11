@@ -13,7 +13,7 @@ from config.serializers import (
     localized_translations_map_schema,
 )
 
-from .models import Domain
+from .models import Domain, DomainJoinRequest
 from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
@@ -333,3 +333,20 @@ class DomainMemberRoleSerializer(serializers.Serializer):
                     {"remove_member": "Cannot be combined with is_active or is_domain_manager."}
                 )
         return attrs
+
+
+class DomainJoinRequestReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DomainJoinRequest
+        fields = (
+            "id",
+            "domain",
+            "user",
+            "status",
+            "decided_by",
+            "decided_at",
+            "reject_reason",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
