@@ -203,6 +203,13 @@ class JoinRequestListRetrieveTests(TestCase):
         res = self.client.get(self.URL_LIST.format(self.domain.id))
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_anonymous_cannot_list(self):
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertIn(
+            res.status_code,
+            (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+        )
+
     def test_status_filter(self):
         # Create one rejected request to test the filter
         rejected = DomainJoinRequest.objects.create(domain=self.domain, user=self.stranger)
@@ -213,6 +220,12 @@ class JoinRequestListRetrieveTests(TestCase):
         ids = [item["id"] for item in res.data]
         self.assertIn(self.pending.id, ids)
         self.assertNotIn(rejected.id, ids)
+
+    def test_status_filter_rejects_invalid_value(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id) + "?status=foo")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("status", res.data)
 
     def test_retrieve_owner_ok(self):
         self.client.force_authenticate(user=self.owner)

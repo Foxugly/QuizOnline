@@ -435,7 +435,7 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
     def _check_can_approve(self, domain):
         perm = CanApproveJoinRequest()
         if not perm.has_object_permission(self.request, self, domain):
-            raise PermissionDenied()
+            raise PermissionDenied("cannot_approve_join_requests")
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
@@ -443,6 +443,9 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
         qs = DomainJoinRequest.objects.filter(domain_id=self.kwargs["domain_id"])
         status_filter = self.request.query_params.get("status")
         if status_filter:
+            valid_statuses = {code for code, _ in DomainJoinRequest.STATUS_CHOICES}
+            if status_filter not in valid_statuses:
+                raise ValidationError({"status": "invalid"})
             qs = qs.filter(status=status_filter)
         return qs.select_related("user", "decided_by", "domain").order_by("-created_at")
 
@@ -450,13 +453,13 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
         domain = self._get_domain()
         self._check_can_approve(domain)
         qs = self.get_queryset()
-        return Response(DomainJoinRequestReadSerializer(qs, many=True).data)
+        return Response(self.get_serializer(qs, many=True).data)
 
     def retrieve(self, request, *args, **kwargs):
         domain = self._get_domain()
         self._check_can_approve(domain)
         obj = drf_get_object_or_404(self.get_queryset(), pk=self.kwargs["req_id"])
-        return Response(DomainJoinRequestReadSerializer(obj).data)
+        return Response(self.get_serializer(obj).data)
 
     def create(self, request, *args, **kwargs):
         domain = self._get_domain()
