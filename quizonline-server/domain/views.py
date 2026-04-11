@@ -4,7 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from config.tools import MyModelViewSet
@@ -269,34 +269,65 @@ class DomainViewSet(MyModelViewSet):
         domain = self.get_object()
         serializer = DomainMemberRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        validated = serializer.validated_data
 
         user_model = get_user_model()
-        target = user_model.objects.filter(pk=serializer.validated_data["user_id"]).first()
+        target = user_model.objects.filter(pk=validated["user_id"]).first()
         if not target:
             raise ValidationError({"user_id": "User not found."})
 
         if not domain.members.filter(pk=target.pk).exists() and domain.owner_id != target.pk:
             raise ValidationError({"user_id": "User must be linked to this domain first."})
 
-        update_fields: list[str] = []
+        requester = request.user
+        is_superuser = bool(getattr(requester, "is_superuser", False))
 
         with transaction.atomic():
-            if "is_active" in serializer.validated_data:
-                target.is_active = serializer.validated_data["is_active"]
+            # --- Intent A: scoped removal from this domain only ---
+            # Never touches User.is_active. The serializer guarantees this
+            # branch is exclusive (no is_active / is_domain_manager combined).
+            if validated.get("remove_member"):
+                self._authorize_remove_member(
+                    requester=requester, target=target, domain=domain, is_superuser=is_superuser
+                )
+                domain.managers.remove(target)
+                domain.members.remove(target)
+                target.refresh_from_db(fields=["is_active", "is_staff"])
+                return Response(
+                    {
+                        "id": target.id,
+                        "username": target.username,
+                        "is_active": target.is_active,
+                        "is_staff": target.is_staff,
+                        "is_domain_manager": False,
+                        "is_member": False,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            update_fields: list[str] = []
+
+            # --- Intent B: global account flag, strict guards ---
+            if "is_active" in validated:
+                self._authorize_is_active_change(
+                    requester=requester, target=target, domain=domain, is_superuser=is_superuser
+                )
+                target.is_active = validated["is_active"]
                 update_fields.append("is_active")
 
-            if "is_domain_manager" in serializer.validated_data:
-                make_manager = serializer.validated_data["is_domain_manager"]
+            # --- Intent C: domain-scoped manager flag ---
+            if "is_domain_manager" in validated:
+                make_manager = validated["is_domain_manager"]
                 if make_manager:
                     domain.managers.add(target)
                     domain.members.add(target)
-                    if request.user.is_superuser and not target.is_staff:
+                    if is_superuser and not target.is_staff:
                         target.is_staff = True
                         update_fields.append("is_staff")
                 else:
                     domain.managers.remove(target)
                     if (
-                        request.user.is_superuser
+                        is_superuser
                         and target.is_staff
                         and not target.is_superuser
                         and not target.managed_domains.exclude(pk=domain.pk).exists()
@@ -307,8 +338,8 @@ class DomainViewSet(MyModelViewSet):
             if update_fields:
                 target.save(update_fields=update_fields)
 
-        if "is_domain_manager" in serializer.validated_data:
-            is_domain_manager = serializer.validated_data["is_domain_manager"]
+        if "is_domain_manager" in validated:
+            is_domain_manager = validated["is_domain_manager"]
         else:
             is_domain_manager = domain.managers.filter(pk=target.pk).exists()
         return Response(
@@ -321,4 +352,62 @@ class DomainViewSet(MyModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
+    @staticmethod
+    def _authorize_is_active_change(*, requester, target, domain, is_superuser: bool) -> None:
+        """
+        Toggling ``User.is_active`` is a global operation: it locks/unlocks the
+        account on the entire platform, not just on this domain. Allow only
+        when the requester is a superuser, or when **all** of these hold:
+
+        - the target is not a superuser;
+        - the target is not the owner of this domain;
+        - the target is not another manager of this domain (managers cannot
+          deactivate their peers);
+        - the target is not the requester themselves (no self-lockout);
+        - the target is **exclusively** in this domain (no other membership,
+          ownership, or manager role on any other domain).
+
+        The last rule is the core of the model: a manager only has global
+        authority over a user if they de facto control that user's whole
+        footprint on the platform.
+        """
+        if is_superuser:
+            return
+        if getattr(target, "is_superuser", False):
+            raise PermissionDenied("Vous ne pouvez pas désactiver un superuser.")
+        if target.pk == domain.owner_id:
+            raise PermissionDenied("Vous ne pouvez pas désactiver le owner du domaine.")
+        if target.pk == requester.pk:
+            raise PermissionDenied("Vous ne pouvez pas vous désactiver vous-même.")
+        if domain.managers.filter(pk=target.pk).exists():
+            raise PermissionDenied("Vous ne pouvez pas désactiver un autre manager du domaine.")
+
+        other_link = (
+            Domain.objects
+            .filter(Q(members=target) | Q(owner=target) | Q(managers=target))
+            .exclude(pk=domain.pk)
+            .exists()
+        )
+        if other_link:
+            raise PermissionDenied(
+                "L'utilisateur appartient à d'autres domaines — seul un superuser peut "
+                "désactiver son compte globalement."
+            )
+
+    @staticmethod
+    def _authorize_remove_member(*, requester, target, domain, is_superuser: bool) -> None:
+        """
+        Removing a user from a domain is scoped, but we still refuse a few
+        nonsensical or hostile cases. Superusers bypass the peer/owner checks
+        because they may legitimately need to clean up.
+        """
+        if target.pk == domain.owner_id:
+            raise PermissionDenied("Le owner d'un domaine ne peut pas en être retiré.")
+        if is_superuser:
+            return
+        if target.pk == requester.pk:
+            raise PermissionDenied("Vous ne pouvez pas vous retirer vous-même du domaine.")
+        if domain.managers.filter(pk=target.pk).exists():
+            raise PermissionDenied("Un manager ne peut pas en retirer un autre.")
 

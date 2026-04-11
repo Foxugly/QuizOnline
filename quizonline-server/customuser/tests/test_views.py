@@ -59,6 +59,10 @@ class UserViewsTests(APITestCase):
         self.domain.name = "Alpha"
         self.domain.description = ""
         self.domain.save()
+        # u1 is a member of staff's domain so staff (non-superuser) is allowed
+        # to retrieve/update them under the scoped get_queryset rules. u2 is
+        # deliberately left out to act as the negative test fixture.
+        self.domain.members.add(self.u1)
 
     def tearDown(self):
         cache.clear()
@@ -120,7 +124,10 @@ class UserViewsTests(APITestCase):
 
         self.client.force_authenticate(user=self.u2)
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        # u2 has no shared domain with u1 → scoped queryset hides u1, so the
+        # API may answer either 403 (permission) or 404 (object not visible).
+        # 404 is preferred because it doesn't leak existence.
+        self.assertIn(res.status_code, (status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND))
 
         self.client.force_authenticate(user=self.u1)
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
@@ -136,7 +143,9 @@ class UserViewsTests(APITestCase):
 
         self.client.force_authenticate(user=self.u2)
         res = self.client.patch(url, {"email": "hacked@example.com"}, format="json")
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        # See test_user_retrieve_requires_self_or_staff: scoped queryset
+        # answers 404 instead of 403 when the target is out of scope.
+        self.assertIn(res.status_code, (status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND))
 
         self.client.force_authenticate(user=self.u1)
         res = self.client.patch(url, {"email": "newu1@example.com", "language": "fr"}, format="json")
@@ -488,3 +497,34 @@ class UserViewsTests(APITestCase):
         self.u1.refresh_from_db()
         self.assertEqual(list(self.u1.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(self.u1.current_domain_id, self.domain.id)
+
+    # ------------------------------------------------------------------
+    # Scoped get_queryset (non-superuser staff sees only users in their
+    # owned/managed domains, plus themselves).
+    # ------------------------------------------------------------------
+    def test_user_list_for_staff_excludes_users_outside_their_domains(self):
+        # u1 is in self.domain (added in setUp) — staff manages this domain.
+        # u2 is in no domain at all → staff must NOT see u2.
+        self.client.force_authenticate(user=self.staff)
+        res = self.client.get(self.USER_LIST_CREATE_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        ids = {u["id"] for u in self._as_list(res.data)}
+        self.assertIn(self.u1.id, ids)
+        self.assertIn(self.staff.id, ids)
+        self.assertNotIn(self.u2.id, ids)
+
+    def test_user_retrieve_for_staff_outside_scope_returns_404(self):
+        # u2 is not linked to any domain managed by staff.
+        self.client.force_authenticate(user=self.staff)
+        res = self.client.get(self.USER_DETAIL_URL(self.u2.id))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_list_for_superuser_sees_everyone(self):
+        self.client.force_authenticate(user=self.superuser)
+        res = self.client.get(self.USER_LIST_CREATE_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        ids = {u["id"] for u in self._as_list(res.data)}
+        self.assertGreaterEqual(
+            ids,
+            {self.u1.id, self.u2.id, self.staff.id, self.superuser.id},
+        )

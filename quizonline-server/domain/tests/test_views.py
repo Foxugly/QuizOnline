@@ -411,3 +411,202 @@ class DomainViewSetTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(self.domain_active.managers.filter(pk=self.member.pk).exists())
         self.assertTrue(self.domain_active.members.filter(pk=self.member.pk).exists())
+
+
+class DomainMemberRoleHardeningTests(TestCase):
+    """
+    Covers the strict guards on ``member_role``:
+
+    - ``is_active`` (global flag) is only allowed for superusers, or for an
+      owner/manager of a domain when the target is exclusively scoped to
+      that domain and is not a peer/owner/self.
+    - ``remove_member`` is a separate, scoped intent that never touches
+      ``User.is_active``.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.factory = APIRequestFactory()
+        cls.lang_fr = Language.objects.create(code="fr", name="Francais", active=True)
+
+    def setUp(self):
+        # Owner of the primary domain. Acts as the requester in most tests.
+        self.owner = User.objects.create_user(username="owner", password="pwd")
+        self.other_manager = User.objects.create_user(username="mgr2", password="pwd")
+        self.exclusive_member = User.objects.create_user(username="solo", password="pwd")
+        self.shared_member = User.objects.create_user(username="shared", password="pwd")
+        self.superuser = User.objects.create_user(
+            username="root", password="pwd", is_staff=True, is_superuser=True
+        )
+        self.target_su = User.objects.create_user(
+            username="otherroot", password="pwd", is_staff=True, is_superuser=True
+        )
+
+        self.domain = Domain.objects.create(owner=self.owner, active=True)
+        self.domain.allowed_languages.set([self.lang_fr])
+        self.domain.set_current_language("fr")
+        self.domain.name = "Primary"
+        self.domain.save()
+        self.domain.managers.add(self.other_manager)
+        self.domain.members.add(self.other_manager, self.exclusive_member, self.shared_member, self.target_su)
+
+        # A second domain that hosts shared_member to prove "exclusively in
+        # this domain" is enforced.
+        self.other_domain = Domain.objects.create(owner=self.superuser, active=True)
+        self.other_domain.allowed_languages.set([self.lang_fr])
+        self.other_domain.set_current_language("fr")
+        self.other_domain.name = "Secondary"
+        self.other_domain.save()
+        self.other_domain.members.add(self.shared_member)
+
+        self.view = DomainViewSet.as_view({"post": "member_role"})
+
+    def _post(self, *, requester, payload, domain=None):
+        target_domain = domain or self.domain
+        request = self.factory.post(
+            f"/api/domain/{target_domain.id}/member-role/",
+            payload,
+            format="json",
+        )
+        force_authenticate(request, user=requester)
+        return self.view(request, domain_id=target_domain.id)
+
+    # -------- is_active guards (non-superuser owner) --------
+    def test_is_active_allowed_when_target_is_exclusive_to_this_domain(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.exclusive_member.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.exclusive_member.refresh_from_db()
+        self.assertFalse(self.exclusive_member.is_active)
+
+    def test_is_active_refused_when_target_belongs_to_another_domain(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.shared_member.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.shared_member.refresh_from_db()
+        self.assertTrue(self.shared_member.is_active)
+
+    def test_is_active_refused_on_domain_owner(self):
+        # Promote other_manager to owner-equivalent target by trying to
+        # deactivate the domain owner from a manager perspective.
+        response = self._post(
+            requester=self.other_manager,
+            payload={"user_id": self.owner.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.owner.refresh_from_db()
+        self.assertTrue(self.owner.is_active)
+
+    def test_is_active_refused_on_self(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.owner.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.owner.refresh_from_db()
+        self.assertTrue(self.owner.is_active)
+
+    def test_is_active_refused_on_peer_manager(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.other_manager.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.other_manager.refresh_from_db()
+        self.assertTrue(self.other_manager.is_active)
+
+    def test_is_active_refused_on_superuser_target(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.target_su.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.target_su.refresh_from_db()
+        self.assertTrue(self.target_su.is_active)
+
+    def test_is_active_superuser_bypasses_all_guards(self):
+        response = self._post(
+            requester=self.superuser,
+            payload={"user_id": self.shared_member.id, "is_active": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.shared_member.refresh_from_db()
+        self.assertFalse(self.shared_member.is_active)
+
+    # -------- remove_member --------
+    def test_remove_member_strips_membership_without_touching_is_active(self):
+        original_is_active = self.shared_member.is_active
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.shared_member.id, "remove_member": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.domain.members.filter(pk=self.shared_member.pk).exists())
+        self.assertFalse(self.domain.managers.filter(pk=self.shared_member.pk).exists())
+        self.shared_member.refresh_from_db()
+        self.assertEqual(self.shared_member.is_active, original_is_active)
+        # The other domain still has them.
+        self.assertTrue(self.other_domain.members.filter(pk=self.shared_member.pk).exists())
+
+    def test_remove_member_refused_on_domain_owner(self):
+        response = self._post(
+            requester=self.superuser,  # even superuser can't strip the owner
+            payload={"user_id": self.owner.id, "remove_member": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_remove_member_refused_on_self_for_non_superuser(self):
+        response = self._post(
+            requester=self.other_manager,
+            payload={"user_id": self.other_manager.id, "remove_member": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_remove_member_refused_on_peer_manager_for_non_superuser(self):
+        # Promote a second manager and have the original owner try to kick them.
+        # Owner is allowed (they own the domain), so this rule applies to the
+        # peer-manager case where the requester is themselves a manager.
+        peer = User.objects.create_user(username="peer-mgr", password="pwd")
+        self.domain.members.add(peer)
+        self.domain.managers.add(peer)
+
+        response = self._post(
+            requester=self.other_manager,  # not the owner, just a manager
+            payload={"user_id": peer.id, "remove_member": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(self.domain.managers.filter(pk=peer.pk).exists())
+
+    def test_remove_member_superuser_can_remove_a_manager(self):
+        response = self._post(
+            requester=self.superuser,
+            payload={"user_id": self.other_manager.id, "remove_member": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.domain.members.filter(pk=self.other_manager.pk).exists())
+        self.assertFalse(self.domain.managers.filter(pk=self.other_manager.pk).exists())
+
+    def test_remove_member_cannot_be_combined_with_other_intents(self):
+        response = self._post(
+            requester=self.owner,
+            payload={
+                "user_id": self.exclusive_member.id,
+                "remove_member": True,
+                "is_active": False,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.exclusive_member.refresh_from_db()
+        self.assertTrue(self.exclusive_member.is_active)
+        self.assertTrue(self.domain.members.filter(pk=self.exclusive_member.pk).exists())
+
+    def test_remove_member_false_is_rejected(self):
+        response = self._post(
+            requester=self.owner,
+            payload={"user_id": self.exclusive_member.id, "remove_member": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

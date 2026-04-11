@@ -276,11 +276,40 @@ class DomainDetailSerializer(DomainReadSerializer):
 
 
 class DomainMemberRoleSerializer(serializers.Serializer):
+    """
+    Three intents are supported on a single endpoint:
+
+    - ``is_domain_manager``: add/remove the user from this domain's managers
+      (scoped to the domain).
+    - ``is_active``: toggle the global ``User.is_active`` flag (locks/unlocks
+      the account on the entire platform). Permitted only with strong guards
+      enforced in the view — see ``DomainViewSet._authorize_is_active_change``.
+    - ``remove_member``: remove the user from this domain's members (and
+      managers) entirely. Scoped operation, never touches ``User.is_active``.
+      Cannot be combined with the other intents (a remove + flip would be
+      ambiguous to audit).
+    """
+
     user_id = serializers.IntegerField(min_value=1)
     is_domain_manager = serializers.BooleanField(required=False)
     is_active = serializers.BooleanField(required=False)
+    remove_member = serializers.BooleanField(required=False)
+
+    _ACTION_FIELDS = ("is_domain_manager", "is_active", "remove_member")
 
     def validate(self, attrs):
-        if "is_domain_manager" not in attrs and "is_active" not in attrs:
-            raise serializers.ValidationError("At least one field must be provided.")
+        provided = [name for name in self._ACTION_FIELDS if name in attrs]
+        if not provided:
+            raise serializers.ValidationError(
+                "At least one of is_domain_manager, is_active, remove_member must be provided."
+            )
+        if "remove_member" in attrs:
+            if not attrs["remove_member"]:
+                raise serializers.ValidationError(
+                    {"remove_member": "Only the value true is supported (use is_domain_manager to add)."}
+                )
+            if len(provided) > 1:
+                raise serializers.ValidationError(
+                    {"remove_member": "Cannot be combined with is_active or is_domain_manager."}
+                )
         return attrs

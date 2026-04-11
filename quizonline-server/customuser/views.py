@@ -1,7 +1,9 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from domain.models import Domain
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -136,7 +138,32 @@ class CustomUserViewSet(
         )
 
     def get_queryset(self):
-        return self._user_queryset()
+        qs = self._user_queryset()
+        user = self.request.user
+        if not getattr(user, "is_authenticated", False):
+            return qs.none()
+        if getattr(user, "is_superuser", False):
+            return qs
+
+        # Non-superuser staff: restrict visibility to users that share at
+        # least one domain with the requester (where the requester is owner
+        # or manager). A staff user with no managed/owned domain only sees
+        # themselves — this prevents the global address-book leak that the
+        # member_role privilege escalation could otherwise be chained with.
+        scoped_domain_ids = list(
+            Domain.objects
+            .filter(Q(owner=user) | Q(managers=user))
+            .values_list("id", flat=True)
+            .distinct()
+        )
+        if not scoped_domain_ids:
+            return qs.filter(pk=user.pk)
+        return qs.filter(
+            Q(pk=user.pk)
+            | Q(linked_domains__in=scoped_domain_ids)
+            | Q(managed_domains__in=scoped_domain_ids)
+            | Q(owned_domains__in=scoped_domain_ids)
+        ).distinct()
 
     def get_permissions(self):
         if self.action == "create":
