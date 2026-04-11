@@ -323,3 +323,48 @@ class JoinRequestApproveRejectTests(TestCase):
         self.req.refresh_from_db()
         self.assertEqual(self.req.status, "approved")  # unchanged
         self.assertEqual(self.req.reject_reason, "")  # unchanged
+
+
+class JoinRequestCancelTests(TestCase):
+    URL = "/api/domain/{}/join-request/{}/cancel/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd")
+        self.other = User.objects.create_user(username="ot", password="pwd")
+        self.superuser = User.objects.create_user(username="root", password="pwd", is_superuser=True, is_staff=True)
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_requester_can_cancel(self):
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "cancelled")
+
+    def test_non_requester_cannot_cancel(self):
+        self.client.force_authenticate(user=self.other)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_owner_cannot_cancel_someone_elses_request(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_superuser_can_cancel(self):
+        self.client.force_authenticate(user=self.superuser)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_cannot_cancel_non_pending(self):
+        self.req.status = DomainJoinRequest.STATUS_APPROVED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)

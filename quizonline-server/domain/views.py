@@ -611,3 +611,23 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
                 lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
             )
         return Response(self.get_serializer(join_request).data)
+
+    @action(detail=True, methods=["post"], url_path="cancel")
+    def cancel(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        join_request = drf_get_object_or_404(
+            DomainJoinRequest.objects.all(),
+            pk=self.kwargs["req_id"],
+            domain=domain,
+        )
+        is_superuser = bool(getattr(request.user, "is_superuser", False))
+        if join_request.user_id != request.user.id and not is_superuser:
+            raise PermissionDenied("only_requester_can_cancel")
+        if join_request.status != DomainJoinRequest.STATUS_PENDING:
+            return Response(
+                {"detail": "not_pending"},
+                status=status.HTTP_409_CONFLICT,
+            )
+        join_request.status = DomainJoinRequest.STATUS_CANCELLED
+        join_request.save(update_fields=["status", "updated_at"])
+        return Response(self.get_serializer(join_request).data)
