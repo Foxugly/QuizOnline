@@ -41,3 +41,10 @@ class DomainJoinRequestModelTests(TestCase):
         first.save(update_fields=["status"])
         # Should not raise — the partial unique only applies to status="pending".
         DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
+
+    def test_partial_unique_allows_new_pending_after_cancellation(self):
+        first = DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
+        first.status = DomainJoinRequest.STATUS_CANCELLED
+        first.save(update_fields=["status"])
+        # Should not raise — the partial unique only applies to status="pending".
+        DomainJoinRequest.objects.create(domain=self.domain, user=self.user)

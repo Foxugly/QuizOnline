@@ -149,3 +149,6 @@ class DomainJoinRequest(models.Model):
             models.Index(fields=["user", "status"], name="dom_join_req_user_st_idx"),
         ]
         ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user} → {self.domain} ({self.status})"
