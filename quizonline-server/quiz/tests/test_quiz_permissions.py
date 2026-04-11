@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import translation
+from domain.models import Domain
 from quiz.access import user_manages_template_domain
 from quiz.models import Quiz, QuizTemplate
 from rest_framework import status
@@ -10,11 +12,13 @@ User = get_user_model()
 
 class QuizPermissionsTest(APITestCase):
     def setUp(self):
+        translation.activate("fr")
         self.admin = User.objects.create_user("admin", "a@a.com", "pass", is_staff=True, is_superuser=True)
         self.u1 = User.objects.create_user("u1", "u1@u1.com", "pass")
         self.u2 = User.objects.create_user("u2", "u2@u2.com", "pass")
 
-        self.qt = QuizTemplate.objects.create(title="T1", permanent=True, active=True)
+        self.domain = Domain.objects.create(owner=self.admin, name="D1", description="", active=True)
+        self.qt = QuizTemplate.objects.create(title="T1", domain=self.domain, permanent=True, active=True)
         self.quiz_u1 = Quiz.objects.create(quiz_template=self.qt, user=self.u1, active=False)
 
     def _auth(self, user):
@@ -40,5 +44,5 @@ class QuizPermissionsTest(APITestCase):
         res = self.client.post(url, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_user_manages_template_domain_rejects_anonymous_even_without_domain(self):
+    def test_user_manages_template_domain_rejects_anonymous(self):
         self.assertFalse(user_manages_template_domain(None, self.qt))

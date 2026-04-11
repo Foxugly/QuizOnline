@@ -3339,6 +3339,8 @@ components:
         title:
           type: string
           minLength: 1
+        domain_id:
+          type: integer
         subject_ids:
           type: array
           items:
@@ -3355,6 +3357,7 @@ components:
           nullable: true
           default: 10
       required:
+      - domain_id
       - subject_ids
       - title
     LanguageEnum:
@@ -5158,7 +5161,6 @@ components:
           readOnly: true
         domain:
           type: integer
-          nullable: true
         title:
           type: string
           readOnly: true
@@ -5268,6 +5270,7 @@ components:
       - created_by
       - created_by_username
       - description
+      - domain
       - id
       - questions_count
       - quiz_questions
@@ -5279,7 +5282,6 @@ components:
       properties:
         domain:
           type: integer
-          nullable: true
         title:
           type: string
           minLength: 1
@@ -5362,6 +5364,7 @@ components:
           title: Détail visible à partir de
           description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
       required:
+      - domain
       - title
     QuizUpdateRequest:
       type: object
@@ -5467,14 +5470,16 @@ components:
         access:
           type: string
           readOnly: true
+        refresh:
+          type: string
       required:
       - access
+      - refresh
     TokenRefreshRequest:
       type: object
       properties:
         refresh:
           type: string
-          writeOnly: true
           minLength: 1
       required:
       - refresh

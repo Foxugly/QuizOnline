@@ -473,11 +473,6 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_generate_from_subjects_happy_path_201_creates_template_and_quizquestions(self):
-        """
-        NOTE: ta view generate_from_subjects crée un QuizTemplate sans domain.
-        Si QuizTemplate.domain est NOT NULL chez toi, ça casserait.
-        Comme tes tests passent déjà "en vrai", on valide le comportement ici.
-        """
         self._auth(self.admin)
         url = self._rev(
             "api:quiz-api:quiz-template-generate-from-subjects",
@@ -485,15 +480,35 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         )
         res = self.client.post(
             url,
-            {"title": "GEN", "subject_ids": [self.subj1.id, self.subj2.id], "max_questions": 2},
+            {
+                "title": "GEN",
+                "domain_id": self.domain.id,
+                "subject_ids": [self.subj1.id, self.subj2.id],
+                "max_questions": 2,
+            },
             format="json",
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         qt_id = res.data["id"]
         qt = QuizTemplate.objects.get(pk=qt_id)
+        self.assertEqual(qt.domain_id, self.domain.id)
         self.assertEqual(qt.quiz_questions.count(), 2)
         self.assertEqual(qt.created_by_id, self.admin.id)
         self.assertEqual(qt.updated_by_id, self.admin.id)
+
+    def test_generate_from_subjects_requires_domain_id(self):
+        self._auth(self.admin)
+        url = self._rev(
+            "api:quiz-api:quiz-template-generate-from-subjects",
+            "quiz-api:quiz-template-generate-from-subjects",
+        )
+        res = self.client.post(
+            url,
+            {"title": "GEN", "subject_ids": [self.subj1.id], "max_questions": 1},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("domain_id", res.data)
 
     def test_generate_from_subjects_persists_duration_settings(self):
         self._auth(self.admin)
@@ -505,6 +520,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             url,
             {
                 "title": "GEN TIMER",
+                "domain_id": self.domain.id,
                 "subject_ids": [self.subj1.id],
                 "max_questions": 1,
                 "with_duration": False,
@@ -552,7 +568,11 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         qs2.exists.return_value = False
 
         with patch("quiz.views.Question.objects.filter", side_effect=[qs1, qs2]):
-            res = self.client.post(url, {"title": "GENX", "subject_ids": [self.subj1.id]}, format="json")
+            res = self.client.post(
+                url,
+                {"title": "GENX", "domain_id": self.domain.id, "subject_ids": [self.subj1.id]},
+                format="json",
+            )
             self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn("detail", res.data)
 

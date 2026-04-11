@@ -284,6 +284,7 @@ class QuizTemplateViewSet(MyModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         title = serializer.validated_data["title"]
+        domain_id = serializer.validated_data["domain_id"]
         subject_ids = serializer.validated_data["subject_ids"]
         max_questions = serializer.validated_data["max_questions"]
         with_duration = serializer.validated_data["with_duration"]
@@ -312,6 +313,7 @@ class QuizTemplateViewSet(MyModelViewSet):
 
         quiz_template = QuizTemplate.objects.create(
             title=title,
+            domain_id=domain_id,
             max_questions=n_questions,
             permanent=True,
             active=True,

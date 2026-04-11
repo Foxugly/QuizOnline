@@ -34,8 +34,6 @@ class QuizTemplate(AuditMixin, models.Model):
         "domain.Domain",
         on_delete=models.PROTECT,
         related_name="quiz_templates",
-        blank=True,
-        null=True,
     )
 
     title = models.CharField("Titre du quiz", max_length=200, unique=True)

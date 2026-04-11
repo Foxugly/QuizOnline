@@ -259,7 +259,9 @@ class CustomUserAdminUpdateSerializerTests(TestCase):
 
 class QuizSimpleSerializerTests(TestCase):
     def test_quiz_simple_serializer_reads_title_from_quiz_template(self):
-        qt = QuizTemplate.objects.create(title="Template Title", slug="template-title")
+        owner = get_user_model().objects.create_user(username="qs_owner", password="pass")
+        domain = Domain.objects.create(owner=owner, name="QSDomain", description="", active=True)
+        qt = QuizTemplate.objects.create(title="Template Title", slug="template-title", domain=domain)
         quiz = Quiz.objects.create(quiz_template=qt)
 
         data = QuizSimpleSerializer(instance=quiz).data

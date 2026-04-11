@@ -18,7 +18,7 @@ import { VisibilityEnumDto } from './visibility-enum';
  */
 export interface QuizTemplateDto { 
     readonly id: number;
-    domain?: number | null;
+    domain: number;
     readonly title: string;
     readonly slug: string;
     mode?: ModeEnumDto;

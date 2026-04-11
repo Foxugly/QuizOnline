@@ -11,6 +11,7 @@
 
 export interface GenerateFromSubjectsInputRequestDto { 
     title: string;
+    domain_id: number;
     subject_ids: Array<number>;
     max_questions?: number;
     with_duration?: boolean;

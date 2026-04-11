@@ -13,6 +13,13 @@ def require_env_value(name: str) -> str:
 
 
 SECRET_KEY = require_env_value("SECRET_KEY")
+_jwt_signing_key_prod = require_env_value("JWT_SIGNING_KEY")
+JWT_SIGNING_KEY = _jwt_signing_key_prod
+SIMPLE_JWT["SIGNING_KEY"] = JWT_SIGNING_KEY  # noqa: F405
+
+if JWT_SIGNING_KEY == SECRET_KEY:
+    raise RuntimeError("Production JWT_SIGNING_KEY must be different from SECRET_KEY.")
+
 FRONTEND_BASE_URL = require_env_value("FRONTEND_BASE_URL")
 DEFAULT_FROM_EMAIL = require_env_value("DEFAULT_FROM_EMAIL")
 CELERY_BROKER_URL = require_env_value("CELERY_BROKER_URL")

@@ -13,7 +13,7 @@ import { VisibilityEnumDto } from './visibility-enum';
 
 
 export interface QuizTemplateWriteRequestDto { 
-    domain?: number | null;
+    domain: number;
     title: string;
     mode?: ModeEnumDto;
     description?: string;

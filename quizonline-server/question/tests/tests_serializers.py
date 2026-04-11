@@ -498,7 +498,7 @@ class QuestionSerializersTestCase(TestCase):
         first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
         second = self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
 
-        template = QuizTemplate.objects.create(title="Serializer Quiz", created_by=self.owner)
+        template = QuizTemplate.objects.create(title="Serializer Quiz", domain=self.domain, created_by=self.owner)
         quiz_question = QuizQuestion.objects.create(quiz=template, question=q, sort_order=1, weight=1)
         quiz = Quiz.objects.create(
             quiz_template=template,
@@ -585,7 +585,7 @@ class QuestionSerializersTestCase(TestCase):
         first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
         second = self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
 
-        template = QuizTemplate.objects.create(title="Serializer Quiz", created_by=self.owner)
+        template = QuizTemplate.objects.create(title="Serializer Quiz", domain=self.domain, created_by=self.owner)
         quiz_question = QuizQuestion.objects.create(quiz=template, question=q, sort_order=1, weight=1)
         quiz = Quiz.objects.create(
             quiz_template=template,
@@ -631,7 +631,7 @@ class QuestionSerializersTestCase(TestCase):
         first = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
         second = self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B FR", en="B EN")
 
-        template = QuizTemplate.objects.create(title="Serializer Quiz", created_by=self.owner)
+        template = QuizTemplate.objects.create(title="Serializer Quiz", domain=self.domain, created_by=self.owner)
         quiz_question = QuizQuestion.objects.create(quiz=template, question=q, sort_order=1, weight=1)
         quiz = Quiz.objects.create(
             quiz_template=template,

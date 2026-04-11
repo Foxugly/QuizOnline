@@ -84,15 +84,15 @@ class QuizModelsTestCase(TestCase):
         self.assertEqual(str(self.qt), "Mon Template")
 
     def test_quiztemplate_slug_is_generated_and_unique(self):
-        qt1 = QuizTemplate.objects.create(title="Titre Unique", permanent=True, active=True)
-        qt2 = QuizTemplate.objects.create(title="Titre Unique", permanent=True, active=True)
+        qt1 = QuizTemplate.objects.create(title="Titre Unique", domain=self.domain, permanent=True, active=True)
+        qt2 = QuizTemplate.objects.create(title="Titre Unique", domain=self.domain, permanent=True, active=True)
 
         self.assertTrue(qt1.slug)
         self.assertTrue(qt2.slug)
         self.assertNotEqual(qt1.slug, qt2.slug)
 
     def test_quiztemplate_save_keeps_existing_slug(self):
-        qt = QuizTemplate.objects.create(title="ABC", permanent=True, active=True, slug="custom-slug")
+        qt = QuizTemplate.objects.create(title="ABC", domain=self.domain, permanent=True, active=True, slug="custom-slug")
         self.assertEqual(qt.slug, "custom-slug")
 
         qt.title = "ABC changed"
@@ -101,21 +101,21 @@ class QuizModelsTestCase(TestCase):
         self.assertEqual(qt.slug, "custom-slug")
 
     def test_quiztemplate_make_unique_title_default_quiz_when_blank(self):
-        qt = QuizTemplate(title="   ", permanent=True, active=True)
+        qt = QuizTemplate(title="   ", domain=self.domain, permanent=True, active=True)
         qt.save()
         self.assertTrue(qt.title.startswith("Quiz"))
         self.assertTrue(qt.slug)
 
     def test_quiztemplate_make_unique_title_excludes_self_on_update(self):
-        qt = QuizTemplate.objects.create(title="SameTitle", permanent=True, active=True)
+        qt = QuizTemplate.objects.create(title="SameTitle", domain=self.domain, permanent=True, active=True)
         qt.title = "SameTitle"
         qt.save()
         qt.refresh_from_db()
         self.assertEqual(qt.title, "SameTitle")
 
     def test_quiztemplate_make_unique_title_adds_suffix_on_collision(self):
-        qt1 = QuizTemplate.objects.create(title="Collision", permanent=True, active=True)
-        qt2 = QuizTemplate.objects.create(title="Collision", permanent=True, active=True)
+        qt1 = QuizTemplate.objects.create(title="Collision", domain=self.domain, permanent=True, active=True)
+        qt2 = QuizTemplate.objects.create(title="Collision", domain=self.domain, permanent=True, active=True)
         self.assertNotEqual(qt1.title, qt2.title)
         self.assertTrue(qt2.title.startswith("Collision"))
 

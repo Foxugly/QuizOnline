@@ -11,5 +11,6 @@
 
 export interface TokenRefreshDto { 
     readonly access: string;
+    refresh: string;
 }
 

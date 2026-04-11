@@ -195,6 +195,7 @@ export class QuizSubjectForm implements OnInit {
 
     this.generate.emit({
       title: rawValue.title.trim(),
+      domain_id: rawValue.domain_id,
       subject_ids: rawValue.subject_ids,
       max_questions: rawValue.max_questions,
       with_duration: rawValue.with_duration,

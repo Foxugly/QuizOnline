@@ -20,12 +20,21 @@ async function login(
   await expect(page).toHaveURL(/\/home$/);
 }
 
-async function getAccessToken(page: import('@playwright/test').Page): Promise<string> {
-  const token = await page.evaluate(() =>
-    sessionStorage.getItem('access_token') ?? localStorage.getItem('access_token'),
-  );
-  expect(token).toBeTruthy();
-  return token!;
+async function getAccessToken(
+  page: import('@playwright/test').Page,
+  username = 'admin',
+  password = 'secret123',
+): Promise<string> {
+  // The SPA never persists the access token (XSS hardening). Obtain one
+  // directly from the backend so the test can call the API as a bearer
+  // client without depending on AuthService internals.
+  const response = await page.request.post(`${API}/api/token/`, {
+    data: {username, password},
+  });
+  expect(response.ok()).toBeTruthy();
+  const payload = (await response.json()) as {access?: string};
+  expect(payload.access).toBeTruthy();
+  return payload.access!;
 }
 
 test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa liste', async ({page}) => {
@@ -90,7 +99,7 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   const sessionsPanel = page.locator('p-tabpanel').filter({has: page.locator('app-quiz-session-table')}).first();
   await expect(sessionsPanel.getByRole('cell', {name: 'Quiz full-stack', exact: true}).first()).toBeVisible();
 
-  const testuserToken = await getAccessToken(page);
+  const testuserToken = await getAccessToken(page, 'testuser', 'secret123');
   const quizResp = await page.request.get(`${API}/api/quiz/${assignedQuizId}/`, {
     headers: {Authorization: `Bearer ${testuserToken}`},
   });

@@ -14,12 +14,21 @@ async function login(page: import('@playwright/test').Page): Promise<void> {
   await expect(page).toHaveURL(/\/home$/);
 }
 
-async function getAccessToken(page: import('@playwright/test').Page): Promise<string> {
-  const token = await page.evaluate(() =>
-    sessionStorage.getItem('access_token') ?? localStorage.getItem('access_token'),
-  );
-  expect(token).toBeTruthy();
-  return token!;
+async function getAccessToken(
+  page: import('@playwright/test').Page,
+  username = 'admin',
+  password = 'secret123',
+): Promise<string> {
+  // The SPA never persists the access token (XSS hardening). Obtain one
+  // directly from the backend so the test can call the API as a bearer
+  // client without depending on AuthService internals.
+  const response = await page.request.post('http://127.0.0.1:8001/api/token/', {
+    data: {username, password},
+  });
+  expect(response.ok()).toBeTruthy();
+  const payload = (await response.json()) as {access?: string};
+  expect(payload.access).toBeTruthy();
+  return payload.access!;
 }
 
 test('parcourt un quiz reel et persiste une reponse cote backend', async ({page}) => {

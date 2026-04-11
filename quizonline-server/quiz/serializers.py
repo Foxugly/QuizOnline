@@ -71,10 +71,17 @@ class ShowCorrectContextMixin:
 
 class GenerateFromSubjectsInputSerializer(serializers.Serializer):
     title = serializers.CharField()
+    domain_id = serializers.IntegerField()
     subject_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
     max_questions = serializers.IntegerField(required=False, default=10)
     with_duration = serializers.BooleanField(required=False, default=True)
     duration = serializers.IntegerField(required=False, allow_null=True, min_value=1, default=10)
+
+    def validate_domain_id(self, value):
+        from domain.models import Domain
+        if not Domain.objects.filter(id=value, active=True).exists():
+            raise serializers.ValidationError("Domaine introuvable ou inactif.")
+        return value
 
     def validate(self, attrs):
         if not attrs.get("with_duration", True):

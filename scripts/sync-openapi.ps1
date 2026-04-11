@@ -1,3 +1,4 @@
+
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -27,7 +28,7 @@ finally {
 
 Push-Location $frontendDir
 try {
-    npx @generatorArgs
+    & npx @generatorArgs
 }
 finally {
     Pop-Location

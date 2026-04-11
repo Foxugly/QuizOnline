@@ -22,6 +22,7 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export interface QuizSubjectCreatePayload {
   title: string;
+  domain_id: number;
   subject_ids: number[];
   max_questions: number;
   with_duration: boolean;

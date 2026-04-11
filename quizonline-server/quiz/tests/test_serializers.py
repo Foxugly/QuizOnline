@@ -120,24 +120,47 @@ def make_quiz(qt, user, active=True, started=True):
 # 0) Simple Input Serializers
 # ==========================================================
 class InputSerializersTests(LocalizedTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Domain is a parler TranslatableModel; setUpTestData runs before
+        # LocalizedTestCase.setUp(), so the active language must be set here
+        # to allow creating translated fields (name/description).
+        translation.activate("fr")
+        cls.owner = make_user("owner", is_staff=True)
+        cls.domain = Domain.objects.create(owner=cls.owner, name="TestDomain", description="", active=True)
+
     def test_generate_from_subjects_input_serializer_valid(self):
         s = GenerateFromSubjectsInputSerializer(
-            data={"title": "T", "subject_ids": [1, 2, 3], "max_questions": 5}
+            data={"title": "T", "domain_id": self.domain.id, "subject_ids": [1, 2, 3], "max_questions": 5}
         )
         self.assertTrue(s.is_valid(), s.errors)
         self.assertEqual(s.validated_data["title"], "T")
+        self.assertEqual(s.validated_data["domain_id"], self.domain.id)
         self.assertEqual(s.validated_data["subject_ids"], [1, 2, 3])
         self.assertEqual(s.validated_data["max_questions"], 5)
 
     def test_generate_from_subjects_input_serializer_default_max_questions(self):
-        s = GenerateFromSubjectsInputSerializer(data={"title": "T", "subject_ids": [1]})
+        s = GenerateFromSubjectsInputSerializer(data={"title": "T", "domain_id": self.domain.id, "subject_ids": [1]})
         self.assertTrue(s.is_valid(), s.errors)
         self.assertEqual(s.validated_data["max_questions"], 10)
 
     def test_generate_from_subjects_input_serializer_rejects_empty_subject_ids(self):
-        s = GenerateFromSubjectsInputSerializer(data={"title": "T", "subject_ids": []})
+        s = GenerateFromSubjectsInputSerializer(data={"title": "T", "domain_id": self.domain.id, "subject_ids": []})
         self.assertFalse(s.is_valid())
         self.assertIn("subject_ids", s.errors)
+
+    def test_generate_from_subjects_input_serializer_rejects_missing_domain_id(self):
+        s = GenerateFromSubjectsInputSerializer(data={"title": "T", "subject_ids": [1]})
+        self.assertFalse(s.is_valid())
+        self.assertIn("domain_id", s.errors)
+
+    def test_generate_from_subjects_input_serializer_rejects_inactive_domain(self):
+        inactive_domain = Domain.objects.create(owner=self.owner, name="Inactive", description="", active=False)
+        s = GenerateFromSubjectsInputSerializer(
+            data={"title": "T", "domain_id": inactive_domain.id, "subject_ids": [1]}
+        )
+        self.assertFalse(s.is_valid())
+        self.assertIn("domain_id", s.errors)
 
     def test_bulk_create_from_template_input_serializer_valid(self):
         s = BulkCreateFromTemplateInputSerializer(data={"quiz_template_id": 12, "user_ids": [1, 2]})

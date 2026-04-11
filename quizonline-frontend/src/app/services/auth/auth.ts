@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Observable, switchMap, tap} from 'rxjs';
+import {finalize, Observable, shareReplay, switchMap, tap} from 'rxjs';
 
 import {CustomUserCreateRequestDto} from '../../api/generated/model/custom-user-create-request';
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
@@ -25,6 +25,7 @@ export class AuthService {
 
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
+  private refresh$: Observable<TokenRefreshDto> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -58,17 +59,36 @@ export class AuthService {
   }
 
   refreshTokens(): Observable<TokenRefreshDto> | null {
+    // De-duplicate concurrent refreshes. After a full page reload, multiple
+    // components fire API calls in parallel, each gets a 401, and each would
+    // independently POST /token/refresh/. With ROTATE_REFRESH_TOKENS=True and
+    // BLACKLIST_AFTER_ROTATION=True only the first POST wins; the rest hit a
+    // blacklisted token and 401, which would log the user out. Sharing a
+    // single in-flight refresh observable prevents that race.
+    if (this.refresh$) {
+      return this.refresh$;
+    }
+
     const refresh = this.getRefreshToken();
     if (!refresh) {
       return null;
     }
 
     const payload: TokenRefreshRequestDto = {refresh};
-    return this.http.post<TokenRefreshDto>(`${this.apiBaseUrl}/token/refresh/`, payload).pipe(
-      tap((dto) => {
-        this.setTokens(dto.access, refresh, this.rememberEnabled());
-      }),
-    );
+    this.refresh$ = this.http
+      .post<TokenRefreshDto>(`${this.apiBaseUrl}/token/refresh/`, payload)
+      .pipe(
+        tap((dto) => {
+          // Persist the rotated refresh from the response — the original one
+          // has just been blacklisted server-side.
+          this.setTokens(dto.access, dto.refresh ?? refresh, this.rememberEnabled());
+        }),
+        finalize(() => {
+          this.refresh$ = null;
+        }),
+        shareReplay(1),
+      );
+    return this.refresh$;
   }
 
   register(payload: CustomUserCreateRequestDto): Observable<CustomUserReadDto> {
@@ -78,6 +98,7 @@ export class AuthService {
   logout(): void {
     this.accessToken = null;
     this.refreshToken = null;
+    this.refresh$ = null;
     this.clearStoredAuth();
     this.userService.currentUser.set(null);
   }

@@ -9,6 +9,10 @@ $mediaPath = Join-Path $backendRoot 'media-fullstack'
 $env:SQLITE_NAME = 'db.fullstack.sqlite3'
 $env:MEDIA_ROOT_DIR = 'media-fullstack'
 $env:PYTHONUNBUFFERED = '1'
+# Tests legitimately exceed the 5/min token_obtain rate (each test logs in via
+# the SPA AND calls /api/token/ directly to get a bearer for API checks);
+# disable throttles for the test backend so we don't hit 429.
+$env:DISABLE_THROTTLES = '1'
 
 if (Test-Path $dbPath) {
   Remove-Item $dbPath -Force

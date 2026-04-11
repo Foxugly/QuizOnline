@@ -13,10 +13,10 @@ def user_matches_template_domain(user, quiz_template) -> bool:
 def user_manages_template_domain(user, quiz_template) -> bool:
     if not user or not getattr(user, "is_authenticated", False):
         return False
-    if quiz_template.domain_id is None:
-        return True
     if getattr(user, "is_superuser", False):
         return True
+    if quiz_template.domain_id is None:
+        return False
     return quiz_template.domain_id in manageable_domain_ids(user)
 
 
@@ -106,8 +106,6 @@ def user_can_delete_template(user, quiz_template) -> bool:
 
 
 def validate_target_user_domain(quiz_template, target_user) -> None:
-    if quiz_template.domain_id is None:
-        return
     if user_matches_template_domain(target_user, quiz_template):
         return
     raise PermissionDenied("L'utilisateur cible n'appartient pas au meme domaine que ce quiz.")

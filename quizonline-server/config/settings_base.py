@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -9,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, True),
     SECRET_KEY=(str, "django-insecure-dev-key-change-me"),
+    JWT_SIGNING_KEY=(str, ""),
     ALLOWED_HOSTS=(list, ["*"]),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:4200", "http://127.0.0.1:4200"]),
     DEFAULT_FROM_EMAIL=(str, "no-reply@monapp.com"),
@@ -40,6 +42,8 @@ ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))
 
 SECRET_KEY = env("SECRET_KEY")
+_jwt_signing_key = env("JWT_SIGNING_KEY")
+JWT_SIGNING_KEY = _jwt_signing_key if _jwt_signing_key else SECRET_KEY
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 NAME_APP = "QuizOnline"
@@ -152,6 +156,24 @@ REST_FRAMEWORK = {
         "email_confirm": "10/hour",
         "quiz_answer": "60/min",
     },
+}
+
+# Allow the Playwright fullstack runner (and other test harnesses) to disable
+# rate limiting via env var. Several e2e tests legitimately POST /api/token/
+# more than 5 times per minute from 127.0.0.1 and would otherwise hit 429.
+if env.bool("DISABLE_THROTTLES", default=False):
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+        scope: None for scope in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
+    }
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": JWT_SIGNING_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 SPECTACULAR_SETTINGS = {
