@@ -260,6 +260,7 @@ class JoinRequestApproveRejectTests(TestCase):
         self.assertIsNotNone(self.req.decided_at)
         self.assertTrue(self.domain.members.filter(pk=self.joiner.pk).exists())
         self.assertTrue(any(self.joiner.email in row.recipients for row in OutboundEmail.objects.all()))
+        self.assertEqual(res.data["decided_by"], self.owner.id)
 
     def test_manager_cannot_approve_under_owner_policy(self):
         self.client.force_authenticate(user=self.manager)
@@ -308,3 +309,17 @@ class JoinRequestApproveRejectTests(TestCase):
         self.client.force_authenticate(user=self.owner)
         res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
         self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+
+    def test_cannot_reject_a_non_pending_request(self):
+        self.req.status = DomainJoinRequest.STATUS_APPROVED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(
+            self.URL_REJECT.format(self.domain.id, self.req.id),
+            {"reason": "too late"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")  # unchanged
+        self.assertEqual(self.req.reject_reason, "")  # unchanged
