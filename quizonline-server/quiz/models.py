@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import get_language
 from django.utils import timezone
 from django.utils.text import slugify
@@ -198,15 +198,23 @@ class QuizTemplate(AuditMixin, models.Model):
                     payload["title"] = self.title
                 self.translations = translations
         if not self.slug:
-            base_slug = slugify(self.title) or "quiz"
-            qs_slugs = QuizTemplate.objects.exclude(pk=self.pk) if self.pk else QuizTemplate.objects.all()
-            slug = base_slug
-            counter = 1
-            while qs_slugs.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
-        super().save(*args, **kwargs)
+            with transaction.atomic():
+                base_slug = slugify(self.title) or "quiz"
+                qs_slugs = (
+                    QuizTemplate.objects.exclude(pk=self.pk).select_for_update()
+                    if self.pk
+                    else QuizTemplate.objects.select_for_update()
+                )
+                existing = set(qs_slugs.filter(slug__startswith=base_slug).values_list("slug", flat=True))
+                slug = base_slug
+                counter = 1
+                while slug in existing:
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+                self.slug = slug
+                super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
 
     @property
     def questions_count(self) -> int:

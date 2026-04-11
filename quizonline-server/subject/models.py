@@ -20,6 +20,9 @@ class Subject(TranslatableModel):
 
     class Meta:
         ordering = ["-pk"]
+        indexes = [
+            models.Index(fields=["domain", "active"], name="subject_domain_active_idx"),
+        ]
 
     def __str__(self) -> str:
         return self.safe_translation_getter("name", any_language=True) or f"Subject#{self.pk}"

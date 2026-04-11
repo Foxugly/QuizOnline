@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PanelModule} from 'primeng/panel';
 import {QuestionButton} from '../question-button/question-button';
@@ -20,6 +20,7 @@ export interface QuizNavItem {
   imports: [CommonModule, PanelModule, QuestionButton],
   templateUrl: './quiz-nav.html',
   styleUrl: './quiz-nav.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizNav {
   /** Liste des questions */
@@ -34,6 +35,10 @@ export class QuizNav {
 
   onClick(item: QuizNavItem): void {
     this.questionSelected.emit(item.index);
+  }
+
+  trackByIndex(_index: number, item: QuizNavItem): number {
+    return item.index;
   }
 
   /** Couleur de fond selon l'état de la question */

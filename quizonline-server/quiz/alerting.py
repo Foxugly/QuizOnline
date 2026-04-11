@@ -11,22 +11,26 @@ if TYPE_CHECKING:
     from .models import Quiz, QuizAlertMessage, QuizAlertThread, QuizQuestion
 
 
+_ASSIGNMENT_ALERT_COPY: dict[str, dict[str, str]] = {
+    "fr": {
+        "title": "Nouveau quiz assigne",
+        "body": "Un nouveau quiz vous a ete assigne.",
+    },
+    "nl": {
+        "title": "Nieuwe quiz toegewezen",
+        "body": "Er werd een nieuwe quiz aan u toegewezen.",
+    },
+}
+
+_ASSIGNMENT_ALERT_COPY_DEFAULT: dict[str, str] = {
+    "title": "New assigned quiz",
+    "body": "A new quiz has been assigned to you.",
+}
+
+
 def assignment_alert_copy(language: str | None) -> dict[str, str]:
     code = (language or "en").lower()
-    if code == "fr":
-        return {
-            "title": "Nouveau quiz assigne",
-            "body": "Un nouveau quiz vous a ete assigne.",
-        }
-    if code == "nl":
-        return {
-            "title": "Nieuwe quiz toegewezen",
-            "body": "Er werd een nieuwe quiz aan u toegewezen.",
-        }
-    return {
-        "title": "New assigned quiz",
-        "body": "A new quiz has been assigned to you.",
-    }
+    return _ASSIGNMENT_ALERT_COPY.get(code, _ASSIGNMENT_ALERT_COPY_DEFAULT)
 
 
 def assignment_alert_initial_status() -> str:

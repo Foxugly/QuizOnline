@@ -32,6 +32,9 @@ class Question(AuditMixin, TranslatableModel):
 
     class Meta:
         ordering = ["-pk"]
+        indexes = [
+            models.Index(fields=["domain", "active"], name="question_domain_active_idx"),
+        ]
 
     def __str__(self):
         title = self.safe_translation_getter("title", any_language=True)

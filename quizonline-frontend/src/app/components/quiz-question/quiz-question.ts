@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
@@ -41,6 +42,7 @@ export interface AnswerPayload {
   selector: 'app-quiz-question',
   templateUrl: './quiz-question.html',
   styleUrl: './quiz-question.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

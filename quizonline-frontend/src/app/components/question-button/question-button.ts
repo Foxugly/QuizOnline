@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
 
@@ -8,6 +8,7 @@ import {ButtonModule} from 'primeng/button';
   imports: [CommonModule, ButtonModule],
   templateUrl: './question-button.html',
   styleUrl: './question-button.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionButton {
   /** Texte du bouton */
