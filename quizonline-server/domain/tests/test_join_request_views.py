@@ -160,3 +160,62 @@ class JoinRequestCreateEndpointTests(TestCase):
             recipients.update(outbound.recipients)
         self.assertIn(self.owner.email, recipients)
         self.assertIn(self.manager.email, recipients)
+
+
+class JoinRequestListRetrieveTests(TestCase):
+    URL_LIST = "/api/domain/{}/join-request/"
+    URL_DETAIL = "/api/domain/{}/join-request/{}/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
+        self.stranger = User.objects.create_user(username="st", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.domain.managers.add(self.manager)
+        self.pending = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_owner_can_list(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        ids = [item["id"] for item in res.data]
+        self.assertIn(self.pending.id, ids)
+
+    def test_manager_cannot_list_when_policy_is_owner(self):
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_manager_can_list_when_policy_is_owner_managers(self):
+        self.domain.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain.save(update_fields=["join_policy"])
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_stranger_cannot_list(self):
+        self.client.force_authenticate(user=self.stranger)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_status_filter(self):
+        # Create one rejected request to test the filter
+        rejected = DomainJoinRequest.objects.create(domain=self.domain, user=self.stranger)
+        rejected.status = DomainJoinRequest.STATUS_REJECTED
+        rejected.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id) + "?status=pending")
+        ids = [item["id"] for item in res.data]
+        self.assertIn(self.pending.id, ids)
+        self.assertNotIn(rejected.id, ids)
+
+    def test_retrieve_owner_ok(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_DETAIL.format(self.domain.id, self.pending.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["id"], self.pending.id)

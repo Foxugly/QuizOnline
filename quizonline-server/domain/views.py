@@ -12,7 +12,7 @@ from config.tools import MyModelViewSet
 
 from core.mailers.domain_join import send_join_request_created_email
 from .models import Domain, DomainJoinRequest, JoinPolicy
-from .permissions import IsDomainOwnerOrManager
+from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
     DomainReadSerializer,
     DomainWriteSerializer,
@@ -431,6 +431,32 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             Domain.objects.filter(active=True),
             pk=self.kwargs["domain_id"],
         )
+
+    def _check_can_approve(self, domain):
+        perm = CanApproveJoinRequest()
+        if not perm.has_object_permission(self.request, self, domain):
+            raise PermissionDenied()
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return DomainJoinRequest.objects.none()
+        qs = DomainJoinRequest.objects.filter(domain_id=self.kwargs["domain_id"])
+        status_filter = self.request.query_params.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs.select_related("user", "decided_by", "domain").order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        qs = self.get_queryset()
+        return Response(DomainJoinRequestReadSerializer(qs, many=True).data)
+
+    def retrieve(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        obj = drf_get_object_or_404(self.get_queryset(), pk=self.kwargs["req_id"])
+        return Response(DomainJoinRequestReadSerializer(obj).data)
 
     def create(self, request, *args, **kwargs):
         domain = self._get_domain()
