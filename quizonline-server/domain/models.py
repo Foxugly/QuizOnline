@@ -13,6 +13,12 @@ def settings_language_codes() -> set[str]:
     return {code for code, _ in getattr(settings, "LANGUAGES", [])}
 
 
+class JoinPolicy(models.TextChoices):
+    AUTO = "auto", _("Automatic")
+    OWNER = "owner", _("Owner validation")
+    OWNER_MANAGERS = "owner_managers", _("Owner or managers validation")
+
+
 class Domain(AuditMixin, TranslatableModel):
     """
         Domain represents a logical grouping of subjects and questions,
@@ -29,6 +35,12 @@ class Domain(AuditMixin, TranslatableModel):
         blank=True,
     )
     active = models.BooleanField(default=True, db_index=True)
+
+    join_policy = models.CharField(
+        max_length=20,
+        choices=JoinPolicy.choices,
+        default=JoinPolicy.AUTO,
+    )
 
     owner = models.ForeignKey(
         User,
