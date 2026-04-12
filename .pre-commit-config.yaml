@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.10
+    hooks:
+      - id: ruff
+        args: [--fix, --exclude, migrations]
+        files: ^quizonline-server/
+
+  - repo: local
+    hooks:
+      - id: tsc-check
+        name: TypeScript typecheck
+        language: system
+        entry: bash -c 'cd quizonline-frontend && npx --no-install tsc --noEmit -p tsconfig.app.json'
+        pass_filenames: false
+        files: ^quizonline-frontend/src/.*\.ts$
