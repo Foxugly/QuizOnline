@@ -28,6 +28,8 @@ class DomainReadSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
     subjects_count = serializers.IntegerField(read_only=True)
     questions_count = serializers.IntegerField(read_only=True)
+    pending_join_requests_count = serializers.SerializerMethodField()
+    my_join_request_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Domain
@@ -39,6 +41,8 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "join_policy",
             "subjects_count",
             "questions_count",
+            "pending_join_requests_count",
+            "my_join_request_status",
             "owner",
             "managers",
             "members",
@@ -76,6 +80,33 @@ class DomainReadSerializer(serializers.ModelSerializer):
         for t in obj.translations.all():
             data[t.language_code] = {"name": t.name or "", "description": t.description or ""}
         return data
+
+    def get_pending_join_requests_count(self, obj: Domain) -> int | None:
+        from domain.permissions import CanApproveJoinRequest
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            return None
+        perm = CanApproveJoinRequest()
+        if not perm.has_object_permission(request, None, obj):
+            return None
+        return DomainJoinRequest.objects.filter(
+            domain=obj, status=DomainJoinRequest.STATUS_PENDING
+        ).count()
+
+    def get_my_join_request_status(self, obj: Domain) -> str | None:
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            return None
+        latest = (
+            DomainJoinRequest.objects
+            .filter(domain=obj, user=user)
+            .order_by("-created_at")
+            .values_list("status", flat=True)
+            .first()
+        )
+        return latest
 
     def validate(self, attrs):
         raise serializers.ValidationError("This serializer is read-only.")

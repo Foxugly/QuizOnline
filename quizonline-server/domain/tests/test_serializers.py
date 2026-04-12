@@ -65,6 +65,8 @@ class DomainSerializersTestCase(TestCase):
             "allowed_languages",
             "active",
             "join_policy",
+            "pending_join_requests_count",
+            "my_join_request_status",
             "owner",
             "managers",
             "members",
@@ -497,3 +499,43 @@ class DomainWriteSerializerJoinPolicyTests(TestCase):
             s.is_valid(raise_exception=True)
         self.domain.refresh_from_db()
         self.assertEqual(self.domain.join_policy, "auto")
+
+
+class DomainReadSerializerComputedFieldsTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow-cf", password="pwd")
+        self.stranger = User.objects.create_user(username="st-cf", password="pwd")
+        self.joiner = User.objects.create_user(username="jo-cf", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        from domain.models import JoinPolicy
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+
+        from domain.models import DomainJoinRequest
+        DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+
+        self.factory = APIRequestFactory()
+
+    def _ctx(self, user):
+        request = self.factory.get(f"/api/domain/{self.domain.id}/")
+        request.user = user
+        return {"request": request}
+
+    def test_pending_count_visible_to_owner(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.owner)).data
+        self.assertEqual(data["pending_join_requests_count"], 1)
+
+    def test_pending_count_null_for_stranger(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.stranger)).data
+        self.assertIsNone(data["pending_join_requests_count"])
+
+    def test_my_join_request_status_pending_for_joiner(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.joiner)).data
+        self.assertEqual(data["my_join_request_status"], "pending")
+
+    def test_my_join_request_status_null_for_stranger(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.stranger)).data
+        self.assertIsNone(data["my_join_request_status"])
