@@ -3,7 +3,8 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from domain.models import Domain
+from domain.models import Domain, DomainJoinRequest
+from domain.serializers import DomainJoinRequestReadSerializer
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -221,12 +222,9 @@ class CustomUserViewSet(
 
     @action(detail=False, methods=["get"], url_path="me/join-requests")
     def me_join_requests(self, request):
-        from domain.models import DomainJoinRequest
-        from domain.serializers import DomainJoinRequestReadSerializer
         qs = (
             DomainJoinRequest.objects
             .filter(user=request.user, status=DomainJoinRequest.STATUS_PENDING)
-            .select_related("domain")
             .order_by("-created_at")
         )
         return Response(DomainJoinRequestReadSerializer(qs, many=True).data)

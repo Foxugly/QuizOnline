@@ -534,22 +534,38 @@ class UserViewsTests(APITestCase):
         from django.utils import translation
         translation.activate("fr")
         other_user = User.objects.create_user(username="other", password="o", email="o@e.test")
-        domain1 = Domain.objects.create(owner=self.staff, active=True)
-        domain1.set_current_language("fr")
-        domain1.name = "V1"
-        domain1.join_policy = JoinPolicy.OWNER
-        domain1.save()
-        domain2 = Domain.objects.create(owner=self.staff, active=True)
-        domain2.set_current_language("fr")
-        domain2.name = "V2"
-        domain2.join_policy = JoinPolicy.OWNER
-        domain2.save()
 
-        DomainJoinRequest.objects.create(domain=domain1, user=self.u1)  # pending, mine
-        rejected = DomainJoinRequest.objects.create(domain=domain2, user=self.u1)  # rejected, mine
+        def _make_validation_domain(name: str):
+            d = Domain.objects.create(owner=self.staff, active=True)
+            d.set_current_language("fr")
+            d.name = name
+            d.join_policy = JoinPolicy.OWNER
+            d.save()
+            return d
+
+        domain1 = _make_validation_domain("V1")
+        domain2 = _make_validation_domain("V2")
+        domain3 = _make_validation_domain("V3")
+        domain4 = _make_validation_domain("V4")
+
+        # The one row that should be returned: pending + mine on domain1
+        DomainJoinRequest.objects.create(domain=domain1, user=self.u1)
+
+        # Negative cases (mine but not pending):
+        rejected = DomainJoinRequest.objects.create(domain=domain2, user=self.u1)
         rejected.status = DomainJoinRequest.STATUS_REJECTED
         rejected.save(update_fields=["status"])
-        DomainJoinRequest.objects.create(domain=domain1, user=other_user)  # not mine
+
+        approved = DomainJoinRequest.objects.create(domain=domain3, user=self.u1)
+        approved.status = DomainJoinRequest.STATUS_APPROVED
+        approved.save(update_fields=["status"])
+
+        cancelled = DomainJoinRequest.objects.create(domain=domain4, user=self.u1)
+        cancelled.status = DomainJoinRequest.STATUS_CANCELLED
+        cancelled.save(update_fields=["status"])
+
+        # Negative case (pending but not mine):
+        DomainJoinRequest.objects.create(domain=domain1, user=other_user)
 
         self.client.force_authenticate(user=self.u1)
         res = self.client.get("/api/user/me/join-requests/")
