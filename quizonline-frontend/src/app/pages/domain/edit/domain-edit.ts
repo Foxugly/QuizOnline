@@ -24,17 +24,17 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 import {
-  CustomUserRead,
-  DomainDetail,
-  DomainWriteRequest,
-  LanguageEnum,
-  LanguageRead,
-  UserSummary,
+  CustomUserReadDto,
+  DomainDetailDto,
+  DomainWriteRequestDto,
+  LanguageEnumDto,
+  LanguageReadDto,
+  UserSummaryDto,
 } from '../../../api/generated';
 
 type UserOption = { label: string; value: number };
-type DomainUserRef = UserSummary;
-type DomainWritePayload = DomainWriteRequest & {
+type DomainUserRef = UserSummaryDto;
+type DomainWritePayload = DomainWriteRequestDto & {
   owner?: number;
   translations: DomainTranslations;
 };
@@ -67,10 +67,10 @@ export class DomainEdit implements OnInit {
   submitError = signal<string | null>(null);
   translating = signal(false);
 
-  domain = signal<DomainDetail | null>(null);
+  domain = signal<DomainDetailDto | null>(null);
 
   // global languages (for selectButton options + code->id mapping)
-  languages = signal<LanguageRead[]>([]);
+  languages = signal<LanguageReadDto[]>([]);
 
   // users for owner/staff
   ownerOptions = signal<UserOption[]>([]);
@@ -145,19 +145,19 @@ export class DomainEdit implements OnInit {
       domain: this.domainService.detail(this.id).pipe(
         catchError((err) => {
           logApiError('domain.edit.load-domain', err);
-          return of(null as DomainDetail | null);
+          return of(null as DomainDetailDto | null);
         }),
       ),
       users: this.userService.list().pipe(
         catchError((err) => {
           logApiError('domain.edit.load-users', err);
-          return of([] as CustomUserRead[]);
+          return of([] as CustomUserReadDto[]);
         }),
       ),
       languages: this.languageService.list().pipe(
         catchError((err) => {
           logApiError('domain.edit.load-languages', err);
-          return of([] as LanguageRead[]);
+          return of([] as LanguageReadDto[]);
         }),
       ),
     })
@@ -350,7 +350,7 @@ export class DomainEdit implements OnInit {
     return this.form.get('translations') as FormGroup;
   }
 
-  private patchMetaFromDto(dto: DomainDetail): void {
+  private patchMetaFromDto(dto: DomainDetailDto): void {
     const ownerId = getUserId(dto.owner);
 
     const managerIds = (dto.managers ?? [])

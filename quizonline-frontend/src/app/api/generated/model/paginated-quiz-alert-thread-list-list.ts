@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuizAlertThreadList } from './quiz-alert-thread-list';
+import { QuizAlertThreadListDto } from './quiz-alert-thread-list';
 
 
-export interface PaginatedQuizAlertThreadListList { 
+export interface PaginatedQuizAlertThreadListListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<QuizAlertThreadList>;
+    results: Array<QuizAlertThreadListDto>;
 }
 

@@ -9,7 +9,7 @@ import {CardModule} from 'primeng/card';
 import {TextareaModule} from 'primeng/textarea';
 import {TagModule} from 'primeng/tag';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {LanguageEnum} from '../../../../api/generated';
+import {LanguageEnumDto} from '../../../../api/generated';
 import {ROUTES} from '../../../../app.routes-paths';
 import {QuizAlertService, QuizAlertThreadDetailDto} from '../../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../../services/user/user';
@@ -205,8 +205,8 @@ export class QuizAlertDetail implements OnInit {
     return `${sanitized} :`;
   }
 
-  private currentLang(): LanguageEnum {
-    return this.userService.currentLang ?? LanguageEnum.En;
+  private currentLang(): LanguageEnumDto {
+    return this.userService.currentLang ?? LanguageEnumDto.En;
   }
 
   private runThreadRequest<T>(

@@ -12,9 +12,10 @@
 /**
  * * `open` - Open * `closed` - Closed
  */
-export const StatusDa1Enum = {
-    Open: 'open',
-    Closed: 'closed'
-} as const;
-export type StatusDa1Enum = typeof StatusDa1Enum[keyof typeof StatusDa1Enum];
+export enum StatusDa1EnumDto {
+
+    Open = 'open',
+
+    Closed = 'closed'
+}
 

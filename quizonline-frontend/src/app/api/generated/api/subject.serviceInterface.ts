@@ -11,12 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ErrorDetail } from '../model/models';
-import { PaginatedSubjectReadList } from '../model/models';
-import { PatchedSubjectPartialRequest } from '../model/models';
-import { SubjectDetail } from '../model/models';
-import { SubjectRead } from '../model/models';
-import { SubjectWriteRequest } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { PaginatedSubjectReadListDto } from '../model/models';
+import { PatchedSubjectPartialRequestDto } from '../model/models';
+import { SubjectDetailDto } from '../model/models';
+import { SubjectReadDto } from '../model/models';
+import { SubjectWriteRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -33,7 +33,7 @@ export interface SubjectServiceInterface {
      * @endpoint post /api/subject/
      * @param subjectWriteRequest 
      */
-    subjectCreate(subjectWriteRequest: SubjectWriteRequest, extraHttpRequestParams?: any): Observable<SubjectRead>;
+    subjectCreate(subjectWriteRequest: SubjectWriteRequestDto, extraHttpRequestParams?: any): Observable<SubjectReadDto>;
 
     /**
      * Supprimer un sujet
@@ -49,7 +49,7 @@ export interface SubjectServiceInterface {
      * @endpoint get /api/subject/{subject_id}/details/
      * @param subjectId ID du sujet.
      */
-    subjectDetailsRetrieve(subjectId: number, extraHttpRequestParams?: any): Observable<SubjectDetail>;
+    subjectDetailsRetrieve(subjectId: number, extraHttpRequestParams?: any): Observable<SubjectDetailDto>;
 
     /**
      * Lister les sujets
@@ -60,7 +60,7 @@ export interface SubjectServiceInterface {
      * @param page A page number within the paginated result set.
      * @param search Recherche simple (name__icontains).
      */
-    subjectList(active?: boolean, domain?: number, page?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedSubjectReadList>;
+    subjectList(active?: boolean, domain?: number, page?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedSubjectReadListDto>;
 
     /**
      * Mettre à jour un sujet (PATCH)
@@ -69,7 +69,7 @@ export interface SubjectServiceInterface {
      * @param subjectId ID du sujet.
      * @param patchedSubjectPartialRequest 
      */
-    subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequest, extraHttpRequestParams?: any): Observable<SubjectRead>;
+    subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequestDto, extraHttpRequestParams?: any): Observable<SubjectReadDto>;
 
     /**
      * Récupérer un sujet
@@ -77,7 +77,7 @@ export interface SubjectServiceInterface {
      * @endpoint get /api/subject/{subject_id}/
      * @param subjectId ID du sujet.
      */
-    subjectRetrieve(subjectId: number, extraHttpRequestParams?: any): Observable<SubjectRead>;
+    subjectRetrieve(subjectId: number, extraHttpRequestParams?: any): Observable<SubjectReadDto>;
 
     /**
      * Mettre à jour un sujet (PUT)
@@ -86,6 +86,6 @@ export interface SubjectServiceInterface {
      * @param subjectId ID du sujet.
      * @param subjectWriteRequest 
      */
-    subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequest, extraHttpRequestParams?: any): Observable<SubjectRead>;
+    subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequestDto, extraHttpRequestParams?: any): Observable<SubjectReadDto>;
 
 }

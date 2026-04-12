@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizSimple { 
+export interface QuizSimpleDto { 
     readonly id: number;
     readonly title: string;
 }

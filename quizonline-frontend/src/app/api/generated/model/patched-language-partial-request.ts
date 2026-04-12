@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedLanguagePartialRequest { 
+export interface PatchedLanguagePartialRequestDto { 
     code?: string;
     name?: string;
     active?: boolean;

@@ -6,7 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {Menu} from 'primeng/menu';
 import {MenuItem} from 'primeng/api';
 
-import {CustomUserRead, DomainRead, LanguageEnum} from '../../api/generated';
+import {CustomUserReadDto, DomainReadDto, LanguageEnumDto} from '../../api/generated';
 import {UserService} from '../../services/user/user';
 import {LangSelectComponent} from '../lang-select/lang-select';
 import {UserMenuComponent} from '../user-menu/user-menu';
@@ -60,13 +60,13 @@ export class TopMenuComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
-  readonly visibleDomains = signal<DomainRead[]>([]);
+  readonly visibleDomains = signal<DomainReadDto[]>([]);
 
   get ui() {
     return getUiText(this.userService.currentLang);
   }
 
-  get currentUser(): CustomUserRead | null {
+  get currentUser(): CustomUserReadDto | null {
     return this.userService.currentUser();
   }
 
@@ -229,7 +229,7 @@ export class TopMenuComponent implements OnInit {
     return this.quizAlertService.unreadCount();
   }
 
-  private buildDomainSection(label: string, domains: DomainRead[]): MenuItem[] {
+  private buildDomainSection(label: string, domains: DomainReadDto[]): MenuItem[] {
     const items: MenuItem[] = [
       {
         label,
@@ -260,7 +260,7 @@ export class TopMenuComponent implements OnInit {
     });
   }
 
-  private getDomainLabel(domain: DomainRead): string {
+  private getDomainLabel(domain: DomainReadDto): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const lang = this.userService.currentLang;
     const current = translations?.[lang]?.name?.trim();
@@ -268,7 +268,7 @@ export class TopMenuComponent implements OnInit {
       return current;
     }
 
-    for (const fallback of [LanguageEnum.Fr, LanguageEnum.En, LanguageEnum.Nl, LanguageEnum.It, LanguageEnum.Es]) {
+    for (const fallback of [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl, LanguageEnumDto.It, LanguageEnumDto.Es]) {
       const value = translations?.[fallback]?.name?.trim();
       if (value) {
         return value;

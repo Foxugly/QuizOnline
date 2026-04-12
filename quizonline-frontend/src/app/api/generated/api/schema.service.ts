@@ -11,26 +11,28 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    SchemaServiceInterface
-} from './schema.serviceInterface';
 
+
+export interface SchemaRetrieveRequestParams {
+    format?: 'json' | 'yaml';
+    lang?: 'en' | 'es' | 'fr' | 'it' | 'nl';
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class SchemaService extends BaseService implements SchemaServiceInterface {
+export class SchemaApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -39,21 +41,37 @@ export class SchemaService extends BaseService implements SchemaServiceInterface
     /**
      * OpenApi3 schema for this API. Format can be selected via content negotiation.  - YAML: application/vnd.oai.openapi - JSON: application/vnd.oai.openapi+json
      * @endpoint get /api/schema/
-     * @param format 
-     * @param lang 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public schemaRetrieve(format?: 'json' | 'yaml', lang?: 'en' | 'es' | 'fr' | 'it' | 'nl', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<{ [key: string]: any; }>;
-    public schemaRetrieve(format?: 'json' | 'yaml', lang?: 'en' | 'es' | 'fr' | 'it' | 'nl', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<{ [key: string]: any; }>>;
-    public schemaRetrieve(format?: 'json' | 'yaml', lang?: 'en' | 'es' | 'fr' | 'it' | 'nl', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<{ [key: string]: any; }>>;
-    public schemaRetrieve(format?: 'json' | 'yaml', lang?: 'en' | 'es' | 'fr' | 'it' | 'nl', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public schemaRetrieve(requestParameters?: SchemaRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<{ [key: string]: any; }>;
+    public schemaRetrieve(requestParameters?: SchemaRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<{ [key: string]: any; }>>;
+    public schemaRetrieve(requestParameters?: SchemaRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<{ [key: string]: any; }>>;
+    public schemaRetrieve(requestParameters?: SchemaRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/vnd.oai.openapi' | 'application/yaml' | 'application/vnd.oai.openapi+json' | 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const format = requestParameters?.format;
+        const lang = requestParameters?.lang;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>format, 'format');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>lang, 'lang');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'format',
+            <any>format,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'lang',
+            <any>lang,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -91,7 +109,7 @@ export class SchemaService extends BaseService implements SchemaServiceInterface
         return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

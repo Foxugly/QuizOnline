@@ -7,16 +7,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionAnswerOptionWriteRequest } from './question-answer-option-write-request';
-import { LocalizedQuestionTranslationRequest } from './localized-question-translation-request';
+import { QuestionAnswerOptionWriteRequestDto } from './question-answer-option-write-request';
+import { LocalizedQuestionTranslationRequestDto } from './localized-question-translation-request';
 
 
-export interface QuestionWriteRequest { 
+export interface QuestionWriteRequestDto { 
     domain: number;
     /**
      * Object or JSON string (multipart). Dict keyed by language code.
      */
-    translations?: { [key: string]: LocalizedQuestionTranslationRequest; };
+    translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
     allow_multiple_correct?: boolean;
     active?: boolean;
     is_mode_practice?: boolean;
@@ -25,7 +25,7 @@ export interface QuestionWriteRequest {
     /**
      * List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
      */
-    answer_options?: Array<QuestionAnswerOptionWriteRequest>;
+    answer_options?: Array<QuestionAnswerOptionWriteRequestDto>;
     /**
      * IDs des MediaAsset uploadés au préalable. L\'ordre dans la liste définit l\'ordre d\'affichage des médias.
      */

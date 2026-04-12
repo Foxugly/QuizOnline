@@ -7,14 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedNameDescriptionTranslationRequest } from './localized-name-description-translation-request';
+import { LocalizedNameDescriptionTranslationRequestDto } from './localized-name-description-translation-request';
 
 
-export interface SubjectWriteRequest { 
+export interface SubjectWriteRequestDto { 
     /**
      * Ex: {\"fr\":{\"name\":\"Math\",\"description\":\"\"},\"nl\":{\"name\":\"Wiskunde\",\"description\":\"\"}}
      */
-    translations: { [key: string]: LocalizedNameDescriptionTranslationRequest; };
+    translations: { [key: string]: LocalizedNameDescriptionTranslationRequestDto; };
     domain: number;
     active?: boolean;
 }

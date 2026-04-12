@@ -11,38 +11,66 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { PaginatedQuizAlertThreadListList } from '../model/paginated-quiz-alert-thread-list-list';
+import { PaginatedQuizAlertThreadListListDto } from '../model/paginated-quiz-alert-thread-list-list';
 // @ts-ignore
-import { PatchedQuizAlertThreadPartialRequest } from '../model/patched-quiz-alert-thread-partial-request';
+import { PatchedQuizAlertThreadPartialRequestDto } from '../model/patched-quiz-alert-thread-partial-request';
 // @ts-ignore
-import { QuizAlertMessage } from '../model/quiz-alert-message';
+import { QuizAlertMessageCreateRequestDto } from '../model/quiz-alert-message-create-request';
 // @ts-ignore
-import { QuizAlertMessageCreateRequest } from '../model/quiz-alert-message-create-request';
+import { QuizAlertMessageDto } from '../model/quiz-alert-message';
 // @ts-ignore
-import { QuizAlertThreadCreateRequest } from '../model/quiz-alert-thread-create-request';
+import { QuizAlertThreadCreateRequestDto } from '../model/quiz-alert-thread-create-request';
 // @ts-ignore
-import { QuizAlertThreadDetail } from '../model/quiz-alert-thread-detail';
+import { QuizAlertThreadDetailDto } from '../model/quiz-alert-thread-detail';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    QuizAlertServiceInterface
-} from './quiz-alert.serviceInterface';
 
+
+export interface QuizAlertsCloseCreateRequestParams {
+    alertId: number;
+}
+
+export interface QuizAlertsCreateRequestParams {
+    quizAlertThreadCreateRequestDto: QuizAlertThreadCreateRequestDto;
+}
+
+export interface QuizAlertsListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface QuizAlertsMessageCreateRequestParams {
+    alertId: number;
+    quizAlertMessageCreateRequestDto: QuizAlertMessageCreateRequestDto;
+}
+
+export interface QuizAlertsPartialUpdateRequestParams {
+    alertId: number;
+    patchedQuizAlertThreadPartialRequestDto?: PatchedQuizAlertThreadPartialRequestDto;
+}
+
+export interface QuizAlertsReopenCreateRequestParams {
+    alertId: number;
+}
+
+export interface QuizAlertsRetrieveRequestParams {
+    alertId: number;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class QuizAlertService extends BaseService implements QuizAlertServiceInterface {
+export class QuizAlertApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -51,14 +79,16 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Clôturer une conversation d\&#39;alerte quiz
      * @endpoint post /api/quiz/alerts/{alert_id}/close/
-     * @param alertId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsCloseCreate(alertId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetail>;
-    public quizAlertsCloseCreate(alertId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetail>>;
-    public quizAlertsCloseCreate(alertId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetail>>;
-    public quizAlertsCloseCreate(alertId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsCloseCreate(requestParameters: QuizAlertsCloseCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetailDto>;
+    public quizAlertsCloseCreate(requestParameters: QuizAlertsCloseCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetailDto>>;
+    public quizAlertsCloseCreate(requestParameters: QuizAlertsCloseCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetailDto>>;
+    public quizAlertsCloseCreate(requestParameters: QuizAlertsCloseCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const alertId = requestParameters?.alertId;
         if (alertId === null || alertId === undefined) {
             throw new Error('Required parameter alertId was null or undefined when calling quizAlertsCloseCreate.');
         }
@@ -93,7 +123,7 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/close/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertThreadDetail>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -109,16 +139,18 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Créer une alerte sur une question de quiz
      * @endpoint post /api/quiz/alerts/
-     * @param quizAlertThreadCreateRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetail>;
-    public quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetail>>;
-    public quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetail>>;
-    public quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (quizAlertThreadCreateRequest === null || quizAlertThreadCreateRequest === undefined) {
-            throw new Error('Required parameter quizAlertThreadCreateRequest was null or undefined when calling quizAlertsCreate.');
+    public quizAlertsCreate(requestParameters: QuizAlertsCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetailDto>;
+    public quizAlertsCreate(requestParameters: QuizAlertsCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetailDto>>;
+    public quizAlertsCreate(requestParameters: QuizAlertsCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetailDto>>;
+    public quizAlertsCreate(requestParameters: QuizAlertsCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const quizAlertThreadCreateRequestDto = requestParameters?.quizAlertThreadCreateRequestDto;
+        if (quizAlertThreadCreateRequestDto === null || quizAlertThreadCreateRequestDto === undefined) {
+            throw new Error('Required parameter quizAlertThreadCreateRequestDto was null or undefined when calling quizAlertsCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -162,10 +194,10 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertThreadDetail>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizAlertThreadCreateRequest,
+                body: quizAlertThreadCreateRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -179,18 +211,27 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Lister les conversations d\&#39;alerte quiz
      * @endpoint get /api/quiz/alerts/
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsList(page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizAlertThreadListList>;
-    public quizAlertsList(page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizAlertThreadListList>>;
-    public quizAlertsList(page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizAlertThreadListList>>;
-    public quizAlertsList(page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizAlertThreadListListDto>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizAlertThreadListListDto>>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizAlertThreadListListDto>>;
+    public quizAlertsList(requestParameters?: QuizAlertsListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -222,10 +263,10 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizAlertThreadListList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizAlertThreadListListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -239,20 +280,22 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Répondre à une conversation d\&#39;alerte quiz
      * @endpoint post /api/quiz/alerts/{alert_id}/message/
-     * @param alertId 
-     * @param quizAlertMessageCreateRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertMessage>;
-    public quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertMessage>>;
-    public quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertMessage>>;
-    public quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsMessageCreate(requestParameters: QuizAlertsMessageCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertMessageDto>;
+    public quizAlertsMessageCreate(requestParameters: QuizAlertsMessageCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertMessageDto>>;
+    public quizAlertsMessageCreate(requestParameters: QuizAlertsMessageCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertMessageDto>>;
+    public quizAlertsMessageCreate(requestParameters: QuizAlertsMessageCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const alertId = requestParameters?.alertId;
         if (alertId === null || alertId === undefined) {
             throw new Error('Required parameter alertId was null or undefined when calling quizAlertsMessageCreate.');
         }
-        if (quizAlertMessageCreateRequest === null || quizAlertMessageCreateRequest === undefined) {
-            throw new Error('Required parameter quizAlertMessageCreateRequest was null or undefined when calling quizAlertsMessageCreate.');
+        const quizAlertMessageCreateRequestDto = requestParameters?.quizAlertMessageCreateRequestDto;
+        if (quizAlertMessageCreateRequestDto === null || quizAlertMessageCreateRequestDto === undefined) {
+            throw new Error('Required parameter quizAlertMessageCreateRequestDto was null or undefined when calling quizAlertsMessageCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -296,10 +339,10 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/message/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertMessage>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertMessageDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizAlertMessageCreateRequest,
+                body: quizAlertMessageCreateRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -313,18 +356,20 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Modifier les droits de réponse de l\&#39;utilisateur
      * @endpoint patch /api/quiz/alerts/{alert_id}/
-     * @param alertId 
-     * @param patchedQuizAlertThreadPartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetail>;
-    public quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetail>>;
-    public quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetail>>;
-    public quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsPartialUpdate(requestParameters: QuizAlertsPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetailDto>;
+    public quizAlertsPartialUpdate(requestParameters: QuizAlertsPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetailDto>>;
+    public quizAlertsPartialUpdate(requestParameters: QuizAlertsPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetailDto>>;
+    public quizAlertsPartialUpdate(requestParameters: QuizAlertsPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const alertId = requestParameters?.alertId;
         if (alertId === null || alertId === undefined) {
             throw new Error('Required parameter alertId was null or undefined when calling quizAlertsPartialUpdate.');
         }
+        const patchedQuizAlertThreadPartialRequestDto = requestParameters?.patchedQuizAlertThreadPartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -367,10 +412,10 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertThreadDetail>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertThreadDetailDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedQuizAlertThreadPartialRequest,
+                body: patchedQuizAlertThreadPartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -384,14 +429,16 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Rouvrir une conversation d\&#39;alerte quiz
      * @endpoint post /api/quiz/alerts/{alert_id}/reopen/
-     * @param alertId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsReopenCreate(alertId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetail>;
-    public quizAlertsReopenCreate(alertId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetail>>;
-    public quizAlertsReopenCreate(alertId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetail>>;
-    public quizAlertsReopenCreate(alertId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsReopenCreate(requestParameters: QuizAlertsReopenCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetailDto>;
+    public quizAlertsReopenCreate(requestParameters: QuizAlertsReopenCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetailDto>>;
+    public quizAlertsReopenCreate(requestParameters: QuizAlertsReopenCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetailDto>>;
+    public quizAlertsReopenCreate(requestParameters: QuizAlertsReopenCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const alertId = requestParameters?.alertId;
         if (alertId === null || alertId === undefined) {
             throw new Error('Required parameter alertId was null or undefined when calling quizAlertsReopenCreate.');
         }
@@ -426,7 +473,7 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reopen/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertThreadDetail>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -442,14 +489,16 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
     /**
      * Lire une conversation d\&#39;alerte quiz
      * @endpoint get /api/quiz/alerts/{alert_id}/
-     * @param alertId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizAlertsRetrieve(alertId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetail>;
-    public quizAlertsRetrieve(alertId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetail>>;
-    public quizAlertsRetrieve(alertId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetail>>;
-    public quizAlertsRetrieve(alertId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizAlertsRetrieve(requestParameters: QuizAlertsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizAlertThreadDetailDto>;
+    public quizAlertsRetrieve(requestParameters: QuizAlertsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizAlertThreadDetailDto>>;
+    public quizAlertsRetrieve(requestParameters: QuizAlertsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizAlertThreadDetailDto>>;
+    public quizAlertsRetrieve(requestParameters: QuizAlertsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const alertId = requestParameters?.alertId;
         if (alertId === null || alertId === undefined) {
             throw new Error('Required parameter alertId was null or undefined when calling quizAlertsRetrieve.');
         }
@@ -484,7 +533,7 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
 
         let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizAlertThreadDetail>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizAlertThreadDetailDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -502,6 +551,7 @@ export class QuizAlertService extends BaseService implements QuizAlertServiceInt
      * @endpoint get /api/quiz/alerts/unread-count/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
     public quizAlertsUnreadCountRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
     public quizAlertsUnreadCountRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;

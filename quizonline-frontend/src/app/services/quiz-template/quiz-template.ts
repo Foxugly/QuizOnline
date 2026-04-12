@@ -2,12 +2,12 @@ import {Injectable} from '@angular/core';
 import {map, Observable} from 'rxjs';
 
 import {
-  PatchedQuizTemplatePartialRequest,
-  QuizQuestionRead,
-  QuizQuestionWriteRequest,
-  QuizTemplateService as QuizTemplateApiService,
-  QuizTemplate,
-  QuizTemplateWriteRequest,
+  PatchedQuizTemplatePartialRequestDto,
+  QuizQuestionReadDto,
+  QuizQuestionWriteRequestDto,
+  QuizTemplateApi as QuizTemplateApiService,
+  QuizTemplateDto,
+  QuizTemplateWriteRequestDto,
 } from '../../api/generated';
 
 @Injectable({
@@ -16,58 +16,58 @@ import {
 export class QuizTemplateService {
   constructor(private api: QuizTemplateApiService) {}
 
-  list(): Observable<QuizTemplate[]> {
-    return this.api.quizTemplateList().pipe(map((response) => response.results ?? []));
+  list(): Observable<QuizTemplateDto[]> {
+    return this.api.quizTemplateList({}).pipe(map((response) => response.results ?? []));
   }
 
-  retrieve(quizTemplateId: number): Observable<QuizTemplate> {
-    return this.api.quizTemplateRetrieve(quizTemplateId);
+  retrieve(quizTemplateId: number): Observable<QuizTemplateDto> {
+    return this.api.quizTemplateRetrieve({qtId: quizTemplateId});
   }
 
-  create(payload: QuizTemplateWriteRequest): Observable<QuizTemplate> {
-    return this.api.quizTemplateCreate(payload);
+  create(payload: QuizTemplateWriteRequestDto): Observable<QuizTemplateDto> {
+    return this.api.quizTemplateCreate({quizTemplateWriteRequestDto: payload});
   }
 
   update(
     quizTemplateId: number,
-    payload: QuizTemplateWriteRequest,
-  ): Observable<QuizTemplate> {
-    return this.api.quizTemplateUpdate(quizTemplateId, payload);
+    payload: QuizTemplateWriteRequestDto,
+  ): Observable<QuizTemplateDto> {
+    return this.api.quizTemplateUpdate({qtId: quizTemplateId, quizTemplateWriteRequestDto: payload});
   }
 
   partialUpdate(
     quizTemplateId: number,
-    payload: PatchedQuizTemplatePartialRequest,
-  ): Observable<QuizTemplate> {
-    return this.api.quizTemplatePartialUpdate(quizTemplateId, payload);
+    payload: PatchedQuizTemplatePartialRequestDto,
+  ): Observable<QuizTemplateDto> {
+    return this.api.quizTemplatePartialUpdate({qtId: quizTemplateId, patchedQuizTemplatePartialRequestDto: payload});
   }
 
   destroy(quizTemplateId: number): Observable<void> {
-    return this.api.quizTemplateDestroy(quizTemplateId).pipe(map(() => void 0));
+    return this.api.quizTemplateDestroy({qtId: quizTemplateId}).pipe(map(() => void 0));
   }
 
-  listQuestions(quizTemplateId: number): Observable<QuizQuestionRead[]> {
-    return this.api.quizTemplateQuestionList(quizTemplateId).pipe(
+  listQuestions(quizTemplateId: number): Observable<QuizQuestionReadDto[]> {
+    return this.api.quizTemplateQuestionList({qtId: quizTemplateId}).pipe(
       map((response) => response.results ?? []),
     );
   }
 
   addQuestion(
     quizTemplateId: number,
-    payload: QuizQuestionWriteRequest,
-  ): Observable<QuizQuestionRead> {
-    return this.api.quizTemplateQuestionCreate(quizTemplateId, payload);
+    payload: QuizQuestionWriteRequestDto,
+  ): Observable<QuizQuestionReadDto> {
+    return this.api.quizTemplateQuestionCreate({qtId: quizTemplateId, quizQuestionWriteRequestDto: payload});
   }
 
   updateQuestion(
     quizTemplateId: number,
     quizQuestionId: number,
-    payload: QuizQuestionWriteRequest,
-  ): Observable<QuizQuestionRead> {
-    return this.api.quizTemplateQuestionUpdate(quizQuestionId, quizTemplateId, payload);
+    payload: QuizQuestionWriteRequestDto,
+  ): Observable<QuizQuestionReadDto> {
+    return this.api.quizTemplateQuestionUpdate({qqId: quizQuestionId, qtId: quizTemplateId, quizQuestionWriteRequestDto: payload});
   }
 
   removeQuestion(quizTemplateId: number, quizQuestionId: number): Observable<void> {
-    return this.api.quizTemplateQuestionDestroy(quizQuestionId, quizTemplateId).pipe(map(() => void 0));
+    return this.api.quizTemplateQuestionDestroy({qqId: quizQuestionId, qtId: quizTemplateId}).pipe(map(() => void 0));
   }
 }

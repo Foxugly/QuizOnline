@@ -11,10 +11,10 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { PaginatedQuizQuestionAnswerList } from '../model/models';
-import { PatchedQuizQuestionAnswerPartialRequest } from '../model/models';
-import { QuizQuestionAnswer } from '../model/models';
-import { QuizQuestionAnswerWriteRequest } from '../model/models';
+import { PaginatedQuizQuestionAnswerListDto } from '../model/models';
+import { PatchedQuizQuestionAnswerPartialRequestDto } from '../model/models';
+import { QuizQuestionAnswerDto } from '../model/models';
+import { QuizQuestionAnswerWriteRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -32,7 +32,7 @@ export interface QuizAnswerServiceInterface {
      * @param quizId 
      * @param quizQuestionAnswerWriteRequest 
      */
-    quizAnswerCreate(quizId: number, quizQuestionAnswerWriteRequest?: QuizQuestionAnswerWriteRequest, extraHttpRequestParams?: any): Observable<QuizQuestionAnswer>;
+    quizAnswerCreate(quizId: number, quizQuestionAnswerWriteRequest?: QuizQuestionAnswerWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionAnswerDto>;
 
     /**
      * Supprimer une réponse
@@ -50,7 +50,7 @@ export interface QuizAnswerServiceInterface {
      * @param quizId 
      * @param page A page number within the paginated result set.
      */
-    quizAnswerList(quizId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizQuestionAnswerList>;
+    quizAnswerList(quizId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizQuestionAnswerListDto>;
 
     /**
      * Mettre à jour partiellement une réponse
@@ -60,7 +60,7 @@ export interface QuizAnswerServiceInterface {
      * @param quizId 
      * @param patchedQuizQuestionAnswerPartialRequest 
      */
-    quizAnswerPartialUpdate(answerId: number, quizId: number, patchedQuizQuestionAnswerPartialRequest?: PatchedQuizQuestionAnswerPartialRequest, extraHttpRequestParams?: any): Observable<QuizQuestionAnswer>;
+    quizAnswerPartialUpdate(answerId: number, quizId: number, patchedQuizQuestionAnswerPartialRequest?: PatchedQuizQuestionAnswerPartialRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionAnswerDto>;
 
     /**
      * Détail d’une réponse
@@ -69,7 +69,7 @@ export interface QuizAnswerServiceInterface {
      * @param answerId 
      * @param quizId 
      */
-    quizAnswerRetrieve(answerId: number, quizId: number, extraHttpRequestParams?: any): Observable<QuizQuestionAnswer>;
+    quizAnswerRetrieve(answerId: number, quizId: number, extraHttpRequestParams?: any): Observable<QuizQuestionAnswerDto>;
 
     /**
      * Mettre à jour une réponse
@@ -79,6 +79,6 @@ export interface QuizAnswerServiceInterface {
      * @param quizId 
      * @param quizQuestionAnswerWriteRequest 
      */
-    quizAnswerUpdate(answerId: number, quizId: number, quizQuestionAnswerWriteRequest?: QuizQuestionAnswerWriteRequest, extraHttpRequestParams?: any): Observable<QuizQuestionAnswer>;
+    quizAnswerUpdate(answerId: number, quizId: number, quizQuestionAnswerWriteRequest?: QuizQuestionAnswerWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionAnswerDto>;
 
 }

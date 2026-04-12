@@ -2,7 +2,7 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
-import {QuizTemplate} from '../../../api/generated';
+import {QuizTemplateDto} from '../../../api/generated';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 
@@ -18,7 +18,7 @@ export class QuizTemplateDelete implements OnInit {
   private readonly quizService = inject(QuizService);
   private readonly quizTemplateService = inject(QuizTemplateService);
 
-  template = signal<QuizTemplate | null>(null);
+  template = signal<QuizTemplateDto | null>(null);
   error = signal<string | null>(null);
   templateId = 0;
 

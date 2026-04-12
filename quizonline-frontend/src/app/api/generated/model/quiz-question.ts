@@ -7,16 +7,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionInQuizQuestion } from './question-in-quiz-question';
+import { QuestionInQuizQuestionDto } from './question-in-quiz-question';
 
 
 /**
  * ReprÃ©sente une question incluse dans un template de quiz. On expose quelques infos de la Question en read-only.
  */
-export interface QuizQuestion { 
+export interface QuizQuestionDto { 
     readonly id: number;
     readonly quiz: number;
-    readonly question: QuestionInQuizQuestion;
+    readonly question: QuestionInQuizQuestionDto;
     sort_order?: number;
     /**
      * Poids de la question dans le score.

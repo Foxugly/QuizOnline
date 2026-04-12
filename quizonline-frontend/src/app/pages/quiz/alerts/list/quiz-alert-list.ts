@@ -9,7 +9,7 @@ import {CardModule} from 'primeng/card';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
-import {LanguageEnum} from '../../../../api/generated';
+import {LanguageEnumDto} from '../../../../api/generated';
 import {QuizAlertService, QuizAlertThreadListDto} from '../../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../../services/user/user';
 import {ROUTES} from '../../../../app.routes-paths';
@@ -147,8 +147,8 @@ export class QuizAlertList implements OnInit {
     }) ?? value;
   }
 
-  private currentLang(): LanguageEnum {
-    return this.userService.currentLang ?? LanguageEnum.En;
+  private currentLang(): LanguageEnumDto {
+    return this.userService.currentLang ?? LanguageEnumDto.En;
   }
 
   private normalize(value: string): string {

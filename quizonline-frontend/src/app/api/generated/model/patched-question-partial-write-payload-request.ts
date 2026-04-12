@@ -7,22 +7,22 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionAnswerOptionWritePayloadRequest } from './question-answer-option-write-payload-request';
-import { LocalizedQuestionTranslationRequest } from './localized-question-translation-request';
+import { QuestionAnswerOptionWritePayloadRequestDto } from './question-answer-option-write-payload-request';
+import { LocalizedQuestionTranslationRequestDto } from './localized-question-translation-request';
 
 
-export interface PatchedQuestionPartialWritePayloadRequest { 
+export interface PatchedQuestionPartialWritePayloadRequestDto { 
     domain?: number;
     /**
      * Object keyed by language code.
      */
-    translations?: { [key: string]: LocalizedQuestionTranslationRequest; };
+    translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
     allow_multiple_correct?: boolean;
     active?: boolean;
     is_mode_practice?: boolean;
     is_mode_exam?: boolean;
     subject_ids?: Array<number>;
-    answer_options?: Array<QuestionAnswerOptionWritePayloadRequest>;
+    answer_options?: Array<QuestionAnswerOptionWritePayloadRequestDto>;
     /**
      * Ordered MediaAsset IDs linked to the question.
      */

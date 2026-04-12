@@ -9,8 +9,8 @@ import {ButtonModule} from 'primeng/button';
 import {AnswerPayload, QuizQuestionComponent} from '../../../components/quiz-question/quiz-question';
 import {QuizNav, QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
 import {
-  Quiz,
-  QuizQuestionAnswerWriteRequest,
+  QuizDto,
+  QuizQuestionAnswerWriteRequestDto,
 } from '../../../api/generated';
 import {QuizService} from '../../../services/quiz/quiz';
 import {
@@ -40,7 +40,7 @@ export class QuizQuestionView implements OnInit {
   index = 1;
   loading = signal(false);
   error = signal<string | null>(null);
-  quizSession = signal<Quiz | null>(null);
+  quizSession = signal<QuizDto | null>(null);
   quizNavItem = signal<QuizNavItem | null>(null);
   quizNavItems = signal<QuizNavItem[]>([]);
   remainingSeconds = signal<number | null>(null);
@@ -203,7 +203,7 @@ export class QuizQuestionView implements OnInit {
       return;
     }
 
-    const answerPayload: QuizQuestionAnswerWriteRequest = {
+    const answerPayload: QuizQuestionAnswerWriteRequestDto = {
       question_id: payload.questionId,
       question_order: payload.index,
       selected_options: payload.selectedOptionIds,
@@ -291,7 +291,7 @@ export class QuizQuestionView implements OnInit {
       });
   }
 
-  private syncTimer(session: Quiz): void {
+  private syncTimer(session: QuizDto): void {
     this.clearTimer();
 
     if (!session.with_duration || !session.ended_at || !session.active) {

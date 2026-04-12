@@ -9,7 +9,7 @@
  */
 
 
-export interface LanguageWriteRequest { 
+export interface LanguageWriteRequestDto { 
     /**
      * Code ISO (ex: fr, nl, en, fr-BE)
      */

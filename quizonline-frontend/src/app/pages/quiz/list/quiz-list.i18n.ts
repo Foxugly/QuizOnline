@@ -1,4 +1,4 @@
-import { LanguageEnum } from '../../../api/generated';
+import { LanguageEnumDto } from '../../../api/generated';
 
 export type QuizListUiText = {
   page: {
@@ -357,14 +357,14 @@ const ES: QuizListUiText = {
   },
 };
 
-const UI_TEXT: Partial<Record<LanguageEnum, QuizListUiText>> = {
-  [LanguageEnum.Fr]: FR,
-  [LanguageEnum.En]: EN,
-  [LanguageEnum.Nl]: NL,
-  [LanguageEnum.It]: IT,
-  [LanguageEnum.Es]: ES,
+const UI_TEXT: Partial<Record<LanguageEnumDto, QuizListUiText>> = {
+  [LanguageEnumDto.Fr]: FR,
+  [LanguageEnumDto.En]: EN,
+  [LanguageEnumDto.Nl]: NL,
+  [LanguageEnumDto.It]: IT,
+  [LanguageEnumDto.Es]: ES,
 };
 
-export function getQuizListUiText(lang: LanguageEnum | string | null | undefined): QuizListUiText {
-  return UI_TEXT[lang as LanguageEnum] ?? EN;
+export function getQuizListUiText(lang: LanguageEnumDto | string | null | undefined): QuizListUiText {
+  return UI_TEXT[lang as LanguageEnumDto] ?? EN;
 }

@@ -6,14 +6,14 @@ import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths';
 import {
-  LanguageEnum,
-  MediaAsset,
-  MediaAssetUploadKindEnum,
-  PaginatedQuestionReadList,
-  QuestionService as QuestionApiService,
-  QuestionRead,
-  QuestionWritePayloadRequest,
-  PatchedQuestionPartialWritePayloadRequest,
+  LanguageEnumDto,
+  MediaAssetDto,
+  MediaAssetUploadKindEnumDto,
+  PaginatedQuestionReadListDto,
+  QuestionApi as QuestionApiService,
+  QuestionReadDto,
+  QuestionWritePayloadRequestDto,
+  PatchedQuestionPartialWritePayloadRequestDto,
 } from '../../api/generated';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {selectTranslation} from '../../shared/i18n/select-translation';
@@ -69,7 +69,7 @@ export type QuestionDuplicateDraft = {
   }>;
   media: Array<{
     id: number;
-    kind: MediaAsset['kind'];
+    kind: MediaAssetDto['kind'];
     sort_order: number;
     file: string | null;
     external_url: string | null;
@@ -145,7 +145,7 @@ export class QuestionService {
     active?: boolean;
     isModePractice?: boolean;
     isModeExam?: boolean;
-  }): Observable<QuestionRead[]> {
+  }): Observable<QuestionReadDto[]> {
     return this.listPage({
       ...params,
       page: 1,
@@ -162,7 +162,7 @@ export class QuestionService {
         });
       }),
       map((response) => response.results ?? []),
-      reduce((all, page) => [...all, ...page], [] as QuestionRead[]),
+      reduce((all, page) => [...all, ...page], [] as QuestionReadDto[]),
     );
   }
 
@@ -176,41 +176,41 @@ export class QuestionService {
     isModeExam?: boolean;
     page?: number;
     pageSize?: number;
-  }): Observable<PaginatedQuestionReadList> {
+  }): Observable<PaginatedQuestionReadListDto> {
     const subjectIds = params?.subjectIds?.length
       ? params.subjectIds
       : (params?.subjectId ? [params.subjectId] : undefined);
 
-    return this.api.questionList(
-      params?.active,
-      params?.domainId,
-      params?.isModeExam,
-      params?.isModePractice,
-      params?.page,
-      params?.pageSize,
-      params?.search,
+    return this.api.questionList({
+      active: params?.active,
+      domain: params?.domainId,
+      isModeExam: params?.isModeExam,
+      isModePractice: params?.isModePractice,
+      page: params?.page,
+      pageSize: params?.pageSize,
+      search: params?.search,
       subjectIds,
-    );
+    });
   }
 
-  retrieve(questionId: number): Observable<QuestionRead> {
-    return this.api.questionRetrieve(questionId);
+  retrieve(questionId: number): Observable<QuestionReadDto> {
+    return this.api.questionRetrieve({questionId});
   }
 
-  create(question: QuestionWritePayloadRequest): Observable<QuestionRead> {
-    return this.api.questionCreate(question);
+  create(question: QuestionWritePayloadRequestDto): Observable<QuestionReadDto> {
+    return this.api.questionCreate({questionWritePayloadRequestDto: question});
   }
 
-  update(questionId: number, payload: QuestionWritePayloadRequest): Observable<QuestionRead> {
-    return this.api.questionUpdate(questionId, payload);
+  update(questionId: number, payload: QuestionWritePayloadRequestDto): Observable<QuestionReadDto> {
+    return this.api.questionUpdate({questionId, questionWritePayloadRequestDto: payload});
   }
 
-  updatePartial(questionId: number, payload: PatchedQuestionPartialWritePayloadRequest): Observable<QuestionRead> {
-    return this.api.questionPartialUpdate(questionId, payload);
+  updatePartial(questionId: number, payload: PatchedQuestionPartialWritePayloadRequestDto): Observable<QuestionReadDto> {
+    return this.api.questionPartialUpdate({questionId, patchedQuestionPartialWritePayloadRequestDto: payload});
   }
 
   delete(questionId: number): Observable<void> {
-    return this.api.questionDestroy(questionId).pipe(map(() => void 0));
+    return this.api.questionDestroy({questionId}).pipe(map(() => void 0));
   }
 
   goList(): void {
@@ -227,7 +227,7 @@ export class QuestionService {
     this.router.navigate(ROUTES.question.import());
   }
 
-  duplicateToNew(question: QuestionRead): void {
+  duplicateToNew(question: QuestionReadDto): void {
     const draft: QuestionDuplicateDraft = {
       domainId: question.domain.id,
       subjectIds: question.subjects.map((subject) => subject.id),
@@ -298,7 +298,7 @@ export class QuestionService {
     this.router.navigate(ROUTES.subject.edit(subjectId));
   }
 
-  getQuestionTranslationForm(question: QuestionRead, lang: LanguageEnum): QuestionTranslationForm {
+  getQuestionTranslationForm(question: QuestionReadDto, lang: LanguageEnumDto): QuestionTranslationForm {
     const tr = question.translations as Record<string, QuestionTranslationForm> | undefined;
     return (
       selectTranslation<QuestionTranslationForm>(tr ?? {}, lang) ??
@@ -306,8 +306,8 @@ export class QuestionService {
     );
   }
 
-  questionMediaCreate(param: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnum}): Observable<MediaAsset> {
-    return this.api.questionMediaCreate(param.file, param.externalUrl, param.kind);
+  questionMediaCreate(param: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnumDto}): Observable<MediaAssetDto> {
+    return this.api.questionMediaCreate({file: param.file, externalUrl: param.externalUrl, kind: param.kind});
   }
 
   exportStructured(domainId: number, questionIds?: number[]): Observable<{blob: Blob; filename: string}> {

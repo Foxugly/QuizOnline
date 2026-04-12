@@ -11,15 +11,15 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { DomainDetail } from '../model/models';
-import { DomainJoinRequestRead } from '../model/models';
-import { DomainRead } from '../model/models';
-import { DomainWrite } from '../model/models';
-import { DomainWriteRequest } from '../model/models';
-import { ErrorDetail } from '../model/models';
-import { PaginatedDomainJoinRequestReadList } from '../model/models';
-import { PaginatedDomainReadList } from '../model/models';
-import { PatchedDomainPartialRequest } from '../model/models';
+import { DomainDetailDto } from '../model/models';
+import { DomainJoinRequestReadDto } from '../model/models';
+import { DomainReadDto } from '../model/models';
+import { DomainWriteDto } from '../model/models';
+import { DomainWriteRequestDto } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { PaginatedDomainJoinRequestReadListDto } from '../model/models';
+import { PaginatedDomainReadListDto } from '../model/models';
+import { PatchedDomainPartialRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -35,7 +35,7 @@ export interface DomainServiceInterface {
      * 
      * @endpoint get /api/domain/available-for-linking/
      */
-    domainAvailableForLinkingRetrieve(extraHttpRequestParams?: any): Observable<DomainWrite>;
+    domainAvailableForLinkingRetrieve(extraHttpRequestParams?: any): Observable<DomainWriteDto>;
 
     /**
      * Créer un domaine
@@ -43,7 +43,7 @@ export interface DomainServiceInterface {
      * @endpoint post /api/domain/
      * @param domainWriteRequest 
      */
-    domainCreate(domainWriteRequest: DomainWriteRequest, extraHttpRequestParams?: any): Observable<DomainRead>;
+    domainCreate(domainWriteRequest: DomainWriteRequestDto, extraHttpRequestParams?: any): Observable<DomainReadDto>;
 
     /**
      * Supprimer un domaine
@@ -59,7 +59,7 @@ export interface DomainServiceInterface {
      * @endpoint get /api/domain/{domain_id}/details/
      * @param domainId ID du domaine.
      */
-    domainDetailsRetrieve(domainId: number, extraHttpRequestParams?: any): Observable<DomainDetail>;
+    domainDetailsRetrieve(domainId: number, extraHttpRequestParams?: any): Observable<DomainDetailDto>;
 
     /**
      * 
@@ -68,7 +68,7 @@ export interface DomainServiceInterface {
      * @param domainId 
      * @param reqId 
      */
-    domainJoinRequestApproveCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestRead>;
+    domainJoinRequestApproveCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestReadDto>;
 
     /**
      * 
@@ -77,7 +77,7 @@ export interface DomainServiceInterface {
      * @param domainId 
      * @param reqId 
      */
-    domainJoinRequestCancelCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestRead>;
+    domainJoinRequestCancelCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestReadDto>;
 
     /**
      * 
@@ -85,7 +85,7 @@ export interface DomainServiceInterface {
      * @endpoint post /api/domain/{domain_id}/join-request/
      * @param domainId 
      */
-    domainJoinRequestCreate(domainId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestRead>;
+    domainJoinRequestCreate(domainId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestReadDto>;
 
     /**
      * 
@@ -94,7 +94,7 @@ export interface DomainServiceInterface {
      * @param domainId 
      * @param page A page number within the paginated result set.
      */
-    domainJoinRequestList(domainId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedDomainJoinRequestReadList>;
+    domainJoinRequestList(domainId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedDomainJoinRequestReadListDto>;
 
     /**
      * 
@@ -103,7 +103,7 @@ export interface DomainServiceInterface {
      * @param domainId 
      * @param reqId 
      */
-    domainJoinRequestRejectCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestRead>;
+    domainJoinRequestRejectCreate(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestReadDto>;
 
     /**
      * 
@@ -112,7 +112,7 @@ export interface DomainServiceInterface {
      * @param domainId 
      * @param reqId 
      */
-    domainJoinRequestRetrieve(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestRead>;
+    domainJoinRequestRetrieve(domainId: number, reqId: number, extraHttpRequestParams?: any): Observable<DomainJoinRequestReadDto>;
 
     /**
      * Lister les domaines accessibles
@@ -120,7 +120,7 @@ export interface DomainServiceInterface {
      * @endpoint get /api/domain/
      * @param page A page number within the paginated result set.
      */
-    domainList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedDomainReadList>;
+    domainList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedDomainReadListDto>;
 
     /**
      * 
@@ -129,7 +129,7 @@ export interface DomainServiceInterface {
      * @param domainId A unique integer value identifying this domain.
      * @param domainWriteRequest 
      */
-    domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequest, extraHttpRequestParams?: any): Observable<DomainWrite>;
+    domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequestDto, extraHttpRequestParams?: any): Observable<DomainWriteDto>;
 
     /**
      * Modifier partiellement un domaine
@@ -138,7 +138,7 @@ export interface DomainServiceInterface {
      * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
      * @param patchedDomainPartialRequest 
      */
-    domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequest, extraHttpRequestParams?: any): Observable<DomainRead>;
+    domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequestDto, extraHttpRequestParams?: any): Observable<DomainReadDto>;
 
     /**
      * Récupérer un domaine
@@ -146,7 +146,7 @@ export interface DomainServiceInterface {
      * @endpoint get /api/domain/{domain_id}/
      * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
      */
-    domainRetrieve(domainId: number, extraHttpRequestParams?: any): Observable<DomainRead>;
+    domainRetrieve(domainId: number, extraHttpRequestParams?: any): Observable<DomainReadDto>;
 
     /**
      * Mettre à jour un domaine
@@ -155,6 +155,6 @@ export interface DomainServiceInterface {
      * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
      * @param domainWriteRequest 
      */
-    domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequest, extraHttpRequestParams?: any): Observable<DomainRead>;
+    domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequestDto, extraHttpRequestParams?: any): Observable<DomainReadDto>;
 
 }

@@ -11,17 +11,17 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ErrorDetail } from '../model/models';
-import { LocalizedQuestionTranslationRequest } from '../model/models';
-import { MediaAsset } from '../model/models';
-import { MediaAssetUploadKindEnum } from '../model/models';
-import { PaginatedQuestionReadList } from '../model/models';
-import { PatchedQuestionPartialWritePayloadRequest } from '../model/models';
-import { QuestionAnswerOptionWriteRequest } from '../model/models';
-import { QuestionRead } from '../model/models';
-import { QuestionWrite } from '../model/models';
-import { QuestionWritePayloadRequest } from '../model/models';
-import { QuestionWriteRequest } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { LocalizedQuestionTranslationRequestDto } from '../model/models';
+import { MediaAssetDto } from '../model/models';
+import { MediaAssetUploadKindEnumDto } from '../model/models';
+import { PaginatedQuestionReadListDto } from '../model/models';
+import { PatchedQuestionPartialWritePayloadRequestDto } from '../model/models';
+import { QuestionAnswerOptionWriteRequestDto } from '../model/models';
+import { QuestionReadDto } from '../model/models';
+import { QuestionWriteDto } from '../model/models';
+import { QuestionWritePayloadRequestDto } from '../model/models';
+import { QuestionWriteRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -34,11 +34,11 @@ export interface QuestionServiceInterface {
 
     /**
      * Créer une question (multipart ou JSON)
-     * Crée une question.  ⚠️ Les médias NE sont PAS uploadés ici.  Workflow recommandé : 1. POST /api/question/media/ → upload fichier ou URL externe 2. Récupérer les &#x60;id&#x60; des MediaAsset retournés 3. POST /api/question/ avec &#x60;media_asset_ids: [1, 2, 3]&#x60;  Payload supporté : JSON ou multipart/form-data. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: JSON (liste) - &#x60;media_asset_ids&#x60;: liste d\&#39;IDs MediaAsset 
+     * Crée une question.  ⚠️ Les médias NE sont PAS uploadés ici.  Workflow recommandé : 1. POST /api/question/media/ → upload fichier ou URL externe 2. Récupérer les &#x60;id&#x60; des MediaAssetDto retournés 3. POST /api/question/ avec &#x60;media_asset_ids: [1, 2, 3]&#x60;  Payload supporté : JSON ou multipart/form-data. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: JSON (liste) - &#x60;media_asset_ids&#x60;: liste d\&#39;IDs MediaAssetDto 
      * @endpoint post /api/question/
      * @param questionWritePayloadRequest 
      */
-    questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequest, extraHttpRequestParams?: any): Observable<QuestionRead>;
+    questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequestDto, extraHttpRequestParams?: any): Observable<QuestionReadDto>;
 
     /**
      * Supprimer une question
@@ -53,7 +53,7 @@ export interface QuestionServiceInterface {
      * Export les questions (filtrées par domain&#x3D; et/ou ids&#x3D;) en JSON ou ZIP (si médias).
      * @endpoint get /api/question/export-structured/
      */
-    questionExportStructuredRetrieve(extraHttpRequestParams?: any): Observable<QuestionWrite>;
+    questionExportStructuredRetrieve(extraHttpRequestParams?: any): Observable<QuestionWriteDto>;
 
     /**
      * 
@@ -67,9 +67,9 @@ export interface QuestionServiceInterface {
      * @param isModeExam 
      * @param subjectIds 
      * @param answerOptions List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
-     * @param mediaAssetIds IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
+     * @param mediaAssetIds IDs des MediaAssetDto uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
      */
-    questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, extraHttpRequestParams?: any): Observable<QuestionWrite>;
+    questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>, mediaAssetIds?: Array<number>, extraHttpRequestParams?: any): Observable<QuestionWriteDto>;
 
     /**
      * Lister les questions
@@ -84,17 +84,17 @@ export interface QuestionServiceInterface {
      * @param search Recherche simple (title__icontains).
      * @param subjectIds Liste d\&#39;IDs de sujets pour filtrer les questions.
      */
-    questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, extraHttpRequestParams?: any): Observable<PaginatedQuestionReadList>;
+    questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, extraHttpRequestParams?: any): Observable<PaginatedQuestionReadListDto>;
 
     /**
      * Uploader un média (dédup sha256) ou enregistrer un média externe
-     * Upload un fichier (multipart) ou enregistre une URL externe. - multipart: envoyer &#x60;file&#x60; - json/form: envoyer &#x60;external_url&#x60;  Retourne un &#x60;MediaAsset&#x60; (id à réutiliser dans &#x60;media_asset_ids&#x60; lors de la création/màj d\&#39;une Question).
+     * Upload un fichier (multipart) ou enregistre une URL externe. - multipart: envoyer &#x60;file&#x60; - json/form: envoyer &#x60;external_url&#x60;  Retourne un &#x60;MediaAssetDto&#x60; (id à réutiliser dans &#x60;media_asset_ids&#x60; lors de la création/màj d\&#39;une Question).
      * @endpoint post /api/question/media/
      * @param file 
      * @param externalUrl 
      * @param kind 
      */
-    questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnum, extraHttpRequestParams?: any): Observable<MediaAsset>;
+    questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnumDto, extraHttpRequestParams?: any): Observable<MediaAssetDto>;
 
     /**
      * 
@@ -102,7 +102,7 @@ export interface QuestionServiceInterface {
      * @endpoint post /api/question/media/external/
      * @param questionWriteRequest 
      */
-    questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequest, extraHttpRequestParams?: any): Observable<QuestionWrite>;
+    questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequestDto, extraHttpRequestParams?: any): Observable<QuestionWriteDto>;
 
     /**
      * 
@@ -116,9 +116,9 @@ export interface QuestionServiceInterface {
      * @param isModeExam 
      * @param subjectIds 
      * @param answerOptions List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
-     * @param mediaAssetIds IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
+     * @param mediaAssetIds IDs des MediaAssetDto uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
      */
-    questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, extraHttpRequestParams?: any): Observable<QuestionWrite>;
+    questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>, mediaAssetIds?: Array<number>, extraHttpRequestParams?: any): Observable<QuestionWriteDto>;
 
     /**
      * Mettre à jour une question (PATCH)
@@ -127,7 +127,7 @@ export interface QuestionServiceInterface {
      * @param questionId ID de la question (question_id).
      * @param patchedQuestionPartialWritePayloadRequest 
      */
-    questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequest, extraHttpRequestParams?: any): Observable<QuestionRead>;
+    questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequestDto, extraHttpRequestParams?: any): Observable<QuestionReadDto>;
 
     /**
      * Récupérer une question
@@ -135,7 +135,7 @@ export interface QuestionServiceInterface {
      * @endpoint get /api/question/{question_id}/
      * @param questionId ID de la question (question_id).
      */
-    questionRetrieve(questionId: number, extraHttpRequestParams?: any): Observable<QuestionRead>;
+    questionRetrieve(questionId: number, extraHttpRequestParams?: any): Observable<QuestionReadDto>;
 
     /**
      * Mettre à jour une question (PUT)
@@ -144,6 +144,6 @@ export interface QuestionServiceInterface {
      * @param questionId ID de la question (question_id).
      * @param questionWritePayloadRequest 
      */
-    questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequest, extraHttpRequestParams?: any): Observable<QuestionRead>;
+    questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequestDto, extraHttpRequestParams?: any): Observable<QuestionReadDto>;
 
 }

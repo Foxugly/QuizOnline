@@ -1,4 +1,4 @@
-import {LanguageEnum} from '../../api/generated/model/language-enum';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 
 export type AboutTechCard = {
   title: string;
@@ -309,14 +309,14 @@ const ES: AboutUiText = {
   },
 };
 
-const UI_TEXT: Partial<Record<LanguageEnum, AboutUiText>> = {
-  [LanguageEnum.Fr]: FR,
-  [LanguageEnum.En]: EN,
-  [LanguageEnum.Nl]: NL,
-  [LanguageEnum.It]: IT,
-  [LanguageEnum.Es]: ES,
+const UI_TEXT: Partial<Record<LanguageEnumDto, AboutUiText>> = {
+  [LanguageEnumDto.Fr]: FR,
+  [LanguageEnumDto.En]: EN,
+  [LanguageEnumDto.Nl]: NL,
+  [LanguageEnumDto.It]: IT,
+  [LanguageEnumDto.Es]: ES,
 };
 
-export function getAboutUiText(lang: LanguageEnum | string | null | undefined): AboutUiText {
-  return UI_TEXT[lang as LanguageEnum] ?? EN;
+export function getAboutUiText(lang: LanguageEnumDto | string | null | undefined): AboutUiText {
+  return UI_TEXT[lang as LanguageEnumDto] ?? EN;
 }

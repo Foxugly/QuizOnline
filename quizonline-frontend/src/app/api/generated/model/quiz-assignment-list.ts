@@ -7,20 +7,20 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserSummary } from './user-summary';
+import { UserSummaryDto } from './user-summary';
 
 
 /**
  * RÃ©sumÃ© lÃ©ger d\'une session de quiz pour la liste.
  */
-export interface QuizAssignmentList { 
+export interface QuizAssignmentListDto { 
     readonly id: number;
     domain?: number | null;
     quiz_template: number;
     readonly quiz_template_title: string;
     readonly quiz_template_description: string;
     readonly user: number | null;
-    readonly user_summary: UserSummary | null;
+    readonly user_summary: UserSummaryDto | null;
     readonly mode: string;
     readonly created_at: string;
     started_at?: string | null;

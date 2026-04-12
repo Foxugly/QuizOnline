@@ -11,12 +11,12 @@ import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 
 import {
-  DomainRead,
-  LanguageEnum,
-  LanguageRead,
-  QuestionRead,
-  SubjectDetail,
-  SubjectWriteRequest,
+  DomainReadDto,
+  LanguageEnumDto,
+  LanguageReadDto,
+  QuestionReadDto,
+  SubjectDetailDto,
+  SubjectWriteRequestDto,
 } from '../../../api/generated';
 
 import {SubjectLangGroup, SubjectService, SubjectTranslationsWrite} from '../../../services/subject/subject';
@@ -66,11 +66,11 @@ export class SubjectEdit implements OnInit {
 
   // domain + languages
   domainId = signal<number>(0);
-  allowedLanguages = signal<LanguageRead[]>([]);
+  allowedLanguages = signal<LanguageReadDto[]>([]);
   activeLang = signal<LangCode | undefined>(undefined);
 
   // questions
-  questions = signal<QuestionRead[]>([]);
+  questions = signal<QuestionReadDto[]>([]);
   previewQuestionId = signal<number | null>(null);
 
   private fb = inject(FormBuilder);
@@ -84,7 +84,7 @@ export class SubjectEdit implements OnInit {
   private userService = inject(UserService);
   currentLang = computed<LangCode>(() => {
     const value = this.userService.currentLang;
-    return isLangCode(value) ? value : LanguageEnum.Fr;
+    return isLangCode(value) ? value : LanguageEnumDto.Fr;
   });
   private translator = inject(TranslationService);
   private questionService = inject(QuestionService);
@@ -239,7 +239,7 @@ export class SubjectEdit implements OnInit {
           return EMPTY;
         }),
       )
-      .subscribe((s: SubjectDetail) => {
+      .subscribe((s: SubjectDetailDto) => {
         this.domainId.set(s.domain);
         this.loadSubjectQuestions(s);
 
@@ -253,7 +253,7 @@ export class SubjectEdit implements OnInit {
       });
   }
 
-  private loadSubjectQuestions(subject: SubjectDetail): void {
+  private loadSubjectQuestions(subject: SubjectDetailDto): void {
     const questionIds = (subject.questions ?? []).map((question) => question.id);
     if (!questionIds.length) {
       this.questions.set([]);
@@ -273,12 +273,12 @@ export class SubjectEdit implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((questions) => {
         this.questions.set(
-          questions.filter((question): question is QuestionRead => question !== null),
+          questions.filter((question): question is QuestionReadDto => question !== null),
         );
       });
   }
 
-  private loadDomainLanguages(domainId: number, subject: SubjectDetail): void {
+  private loadDomainLanguages(domainId: number, subject: SubjectDetailDto): void {
     this.loading.set(true);
 
     this.domainService
@@ -292,7 +292,7 @@ export class SubjectEdit implements OnInit {
         }),
         finalize(() => this.loading.set(false)),
       )
-      .subscribe((d: DomainRead) => {
+      .subscribe((d: DomainReadDto) => {
         const activeLangs = (d.allowed_languages ?? []).filter((l) => l.active);
         this.allowedLanguages.set(activeLangs);
 
@@ -325,7 +325,7 @@ export class SubjectEdit implements OnInit {
     }
   }
 
-  private patchTranslationsFromDto(dto: SubjectDetail, codes: LangCode[]): void {
+  private patchTranslationsFromDto(dto: SubjectDetailDto, codes: LangCode[]): void {
     const tr = (dto.translations ?? {}) as SubjectTranslationsWrite;
     patchLocalizedTextRecord(this.translationsGroup(), codes, tr);
   }
@@ -340,7 +340,7 @@ export class SubjectEdit implements OnInit {
     this.activeLang.set(pick);
   }
 
-  private fallbackFromSubjectOnly(s: SubjectDetail): void {
+  private fallbackFromSubjectOnly(s: SubjectDetailDto): void {
     const tr = (s.translations ?? {}) as SubjectTranslationsWrite;
     const codes = Object.keys(tr).sort() as LangCode[];
 
@@ -361,7 +361,7 @@ export class SubjectEdit implements OnInit {
     this.loading.set(false);
   }
 
-  private buildPayload(): SubjectWriteRequest {
+  private buildPayload(): SubjectWriteRequestDto {
     const domainId = this.domainId();
     const codes = this.tabCodes();
 
@@ -371,17 +371,17 @@ export class SubjectEdit implements OnInit {
     return this.subjectService.buildWritePayload(domainId, translations);
   }
 
-  protected getQuestionTitle(q: QuestionRead): string {
+  protected getQuestionTitle(q: QuestionReadDto): string {
     const lang = String(this.activeLang()).toLowerCase();
     const titles = q.translations as Record<string, { title?: string }>;
     return titles?.[lang]?.title ?? `Question #${q.id}`;
   }
 
-  protected isQuestionActive(q: QuestionRead): boolean {
+  protected isQuestionActive(q: QuestionReadDto): boolean {
     return !!q.active;
   }
 
-  protected getQuestionModes(q: QuestionRead): string[] {
+  protected getQuestionModes(q: QuestionReadDto): string[] {
     const modes: string[] = [];
     if (q.is_mode_practice) {
       modes.push(this.ui().questionForm.practice);

@@ -9,7 +9,7 @@
  */
 
 
-export interface TokenRefresh { 
+export interface TokenRefreshDto { 
     readonly access: string;
     refresh: string;
 }

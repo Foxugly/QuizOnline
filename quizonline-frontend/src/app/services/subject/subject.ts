@@ -4,11 +4,11 @@ import {map, Observable} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths'
 import {
-  PatchedSubjectPartialRequest,
-  SubjectService as SubjectApiService,
-  SubjectDetail,
-  SubjectRead,
-  SubjectWriteRequest
+  PatchedSubjectPartialRequestDto,
+  SubjectApi as SubjectApiService,
+  SubjectDetailDto,
+  SubjectReadDto,
+  SubjectWriteRequestDto
 } from '../../api/generated';
 import {FormControl, FormGroup} from '@angular/forms';
 import {LangCode} from '../translation/translation';
@@ -29,37 +29,36 @@ export class SubjectService {
   constructor(private api: SubjectApiService, private router: Router) {
   }
 
-  list(params?: { search?: string; domainId?: number; active?: boolean }): Observable<SubjectRead[]> {
-    return this.api.subjectList(
-      params?.active,
-      params?.domainId,
-      undefined,
-      params?.search,
-    ).pipe(map((response) => response.results ?? []));
+  list(params?: { search?: string; domainId?: number; active?: boolean }): Observable<SubjectReadDto[]> {
+    return this.api.subjectList({
+      active: params?.active,
+      domain: params?.domainId,
+      search: params?.search,
+    }).pipe(map((response) => response.results ?? []));
   }
 
-  retrieve(subjectId: number): Observable<SubjectRead> {
-    return this.api.subjectRetrieve(subjectId);
+  retrieve(subjectId: number): Observable<SubjectReadDto> {
+    return this.api.subjectRetrieve({subjectId});
   }
 
-  detail(subjectId: number): Observable<SubjectDetail> {
-    return this.api.subjectDetailsRetrieve(subjectId);
+  detail(subjectId: number): Observable<SubjectDetailDto> {
+    return this.api.subjectDetailsRetrieve({subjectId});
   }
 
-  create(payload: SubjectWriteRequest): Observable<SubjectRead> {
-    return this.api.subjectCreate(payload);
+  create(payload: SubjectWriteRequestDto): Observable<SubjectReadDto> {
+    return this.api.subjectCreate({subjectWriteRequestDto: payload});
   }
 
-  update(subjectId: number, payload: SubjectWriteRequest): Observable<SubjectRead> {
-    return this.api.subjectUpdate(subjectId, payload);
+  update(subjectId: number, payload: SubjectWriteRequestDto): Observable<SubjectReadDto> {
+    return this.api.subjectUpdate({subjectId, subjectWriteRequestDto: payload});
   }
 
-  updatePartial(subjectId: number, payload: PatchedSubjectPartialRequest): Observable<SubjectRead> {
-    return this.api.subjectPartialUpdate(subjectId, payload);
+  updatePartial(subjectId: number, payload: PatchedSubjectPartialRequestDto): Observable<SubjectReadDto> {
+    return this.api.subjectPartialUpdate({subjectId, patchedSubjectPartialRequestDto: payload});
   }
 
   delete(subjectId: number): Observable<void> {
-    return this.api.subjectDestroy(subjectId).pipe(map(() => void 0));
+    return this.api.subjectDestroy({subjectId}).pipe(map(() => void 0));
   }
 
   goQuestionNew(): void {
@@ -86,7 +85,7 @@ export class SubjectService {
     this.router.navigate(ROUTES.subject.delete(subjectId));
   }
 
-  buildWritePayload(domainId: number, translations: SubjectTranslationsWrite): SubjectWriteRequest {
-    return {domain: domainId, translations} as SubjectWriteRequest;
+  buildWritePayload(domainId: number, translations: SubjectTranslationsWrite): SubjectWriteRequestDto {
+    return {domain: domainId, translations} as SubjectWriteRequestDto;
   }
 }

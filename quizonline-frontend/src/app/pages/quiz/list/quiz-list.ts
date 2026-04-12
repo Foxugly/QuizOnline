@@ -7,7 +7,7 @@ import {catchError, finalize, forkJoin, map, of} from 'rxjs';
 import {TabsModule} from 'primeng/tabs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
-import {LanguageEnum, QuizList} from '../../../api/generated';
+import {LanguageEnumDto, QuizListDto} from '../../../api/generated';
 import {QuizSessionTableComponent} from '../../../components/quiz-session-table/quiz-session-table';
 import {QuizTemplateTableComponent} from '../../../components/quiz-template-table/quiz-template-table';
 import {QuizTemplateAssignDialogComponent} from '../../../components/quiz-template-assign-dialog/quiz-template-assign-dialog';
@@ -16,12 +16,12 @@ import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {AssignableRecipient, QuizTemplateListItem, UserQuizListItem} from './quiz-list.models';
 import {DomainService} from '../../../services/domain/domain';
-import {DomainRead, UserSummary} from '../../../api/generated';
+import {DomainReadDto, UserSummaryDto} from '../../../api/generated';
 import {getQuizListUiText} from './quiz-list.i18n';
 import {ROUTES} from '../../../app.routes-paths';
 
-type DomainReadWithMembers = DomainRead & {
-  members?: UserSummary[];
+type DomainReadWithMembers = DomainReadDto & {
+  members?: UserSummaryDto[];
 };
 
 @Component({
@@ -41,7 +41,7 @@ type DomainReadWithMembers = DomainRead & {
 })
 export class QuizListPage implements OnInit {
   templates = signal<QuizTemplateListItem[]>([]);
-  domains = signal<DomainRead[]>([]);
+  domains = signal<DomainReadDto[]>([]);
   myQuizzes = signal<UserQuizListItem[]>([]);
   assignableUsers = signal<AssignableRecipient[]>([]);
   activeTab = signal<'templates' | 'sessions'>('templates');
@@ -64,7 +64,7 @@ export class QuizListPage implements OnInit {
 
   readonly canComposeTemplate = computed(() => this.domains().some((domain) => this.canManageDomain(domain)));
   readonly canCreateQuickTemplate = computed(() => this.domains().length > 0);
-  readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnum.Fr);
+  readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = computed(() => getQuizListUiText(this.currentLang()));
 
   readonly filteredTemplates = computed(() => {
@@ -232,7 +232,7 @@ export class QuizListPage implements OnInit {
     );
   }
 
-  private toUserQuizListItem(quiz: QuizList): UserQuizListItem {
+  private toUserQuizListItem(quiz: QuizListDto): UserQuizListItem {
     return {
       ...quiz,
       status: quiz.ended_at ? 'answered' : (quiz.started_at ? 'in_progress' : 'not_started'),
@@ -245,7 +245,7 @@ export class QuizListPage implements OnInit {
 
   private decorateTemplate(
     template: QuizTemplateListItem,
-    domains: DomainRead[],
+    domains: DomainReadDto[],
     me: { id: number; is_staff?: boolean; is_superuser?: boolean } | null,
   ): QuizTemplateListItem {
     const domain = domains.find((item) => item.id === template.domain);
@@ -271,7 +271,7 @@ export class QuizListPage implements OnInit {
 
     const currentUserId = this.currentUserId();
     const recipients = new Map<number, AssignableRecipient>();
-    const addRecipient = (user: UserSummary | null | undefined, role: AssignableRecipient['role']) => {
+    const addRecipient = (user: UserSummaryDto | null | undefined, role: AssignableRecipient['role']) => {
       if (!user || user.id === currentUserId) {
         return;
       }
@@ -296,7 +296,7 @@ export class QuizListPage implements OnInit {
     return [...recipients.values()].sort((left, right) => left.username.localeCompare(right.username));
   }
 
-  private canManageDomain(domain: DomainRead): boolean {
+  private canManageDomain(domain: DomainReadDto): boolean {
     const me = this.userService.currentUser();
     if (!me) {
       return false;

@@ -11,15 +11,15 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { CustomUserAdminUpdateRequest } from '../model/models';
-import { CustomUserCreateRequest } from '../model/models';
-import { CustomUserRead } from '../model/models';
-import { ErrorDetail } from '../model/models';
-import { PaginatedCustomUserReadList } from '../model/models';
-import { PaginatedQuizSimpleList } from '../model/models';
-import { PatchedCustomUserAdminUpdateRequest } from '../model/models';
-import { PatchedCustomUserProfileUpdateRequest } from '../model/models';
-import { SetCurrentDomainRequest } from '../model/models';
+import { CustomUserAdminUpdateRequestDto } from '../model/models';
+import { CustomUserCreateRequestDto } from '../model/models';
+import { CustomUserReadDto } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { PaginatedCustomUserReadListDto } from '../model/models';
+import { PaginatedQuizSimpleListDto } from '../model/models';
+import { PatchedCustomUserAdminUpdateRequestDto } from '../model/models';
+import { PatchedCustomUserProfileUpdateRequestDto } from '../model/models';
+import { SetCurrentDomainRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -36,7 +36,7 @@ export interface UserServiceInterface {
      * @endpoint post /api/user/
      * @param customUserCreateRequest 
      */
-    userCreate(customUserCreateRequest: CustomUserCreateRequest, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userCreate(customUserCreateRequest: CustomUserCreateRequestDto, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * 
@@ -52,7 +52,7 @@ export interface UserServiceInterface {
      * @endpoint get /api/user/
      * @param page A page number within the paginated result set.
      */
-    userList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedCustomUserReadList>;
+    userList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedCustomUserReadListDto>;
 
     /**
      * Définir mon domaine courant
@@ -60,14 +60,14 @@ export interface UserServiceInterface {
      * @endpoint post /api/user/me/current-domain/
      * @param setCurrentDomainRequest 
      */
-    userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequest, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequestDto, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * 
      * 
      * @endpoint get /api/user/me/join-requests/
      */
-    userMeJoinRequestsRetrieve(extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userMeJoinRequestsRetrieve(extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * Récupérer et mettre à jour mon profil
@@ -75,14 +75,14 @@ export interface UserServiceInterface {
      * @endpoint patch /api/user/me/
      * @param patchedCustomUserProfileUpdateRequest 
      */
-    userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequest, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequestDto, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * Récupérer et mettre à jour mon profil
      * Retourne le profil de l\&#39;utilisateur authentifié.
      * @endpoint get /api/user/me/
      */
-    userMeRetrieve(extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userMeRetrieve(extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * Mettre à jour un utilisateur (PATCH)
@@ -91,7 +91,7 @@ export interface UserServiceInterface {
      * @param userId 
      * @param patchedCustomUserAdminUpdateRequest 
      */
-    userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequest, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequestDto, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * Lister les quizzes d’un utilisateur
@@ -100,7 +100,7 @@ export interface UserServiceInterface {
      * @param userId ID utilisateur.
      * @param page A page number within the paginated result set.
      */
-    userQuizList(userId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizSimpleList>;
+    userQuizList(userId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizSimpleListDto>;
 
     /**
      * Récupérer un utilisateur
@@ -108,7 +108,7 @@ export interface UserServiceInterface {
      * @endpoint get /api/user/{user_id}/
      * @param userId 
      */
-    userRetrieve(userId: string, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userRetrieve(userId: string, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
     /**
      * Mettre à jour un utilisateur (PUT)
@@ -117,6 +117,6 @@ export interface UserServiceInterface {
      * @param userId 
      * @param customUserAdminUpdateRequest 
      */
-    userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequest, extraHttpRequestParams?: any): Observable<CustomUserRead>;
+    userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequestDto, extraHttpRequestParams?: any): Observable<CustomUserReadDto>;
 
 }

@@ -20,15 +20,15 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TabsModule} from 'primeng/tabs';
 
 import {
-  DomainRead,
-  LanguageEnum,
-  ModeEnum,
-  QuestionInQuizQuestion,
-  QuestionRead,
-  QuizTemplate,
-  QuizTemplateWriteRequest,
-  SubjectRead,
-  VisibilityEnum,
+  DomainReadDto,
+  LanguageEnumDto,
+  ModeEnumDto,
+  QuestionInQuizQuestionDto,
+  QuestionReadDto,
+  QuizTemplateDto,
+  QuizTemplateWriteRequestDto,
+  SubjectReadDto,
+  VisibilityEnumDto,
 } from '../../../api/generated';
 import {QuizQuestionLibraryComponent} from '../../../components/quiz-question-library/quiz-question-library';
 import {QuizTemplateCompositionComponent} from '../../../components/quiz-template-composition/quiz-template-composition';
@@ -63,8 +63,8 @@ type QuizTemplateTranslationValue = {
 };
 
 type QuizTemplateTranslations = Record<string, QuizTemplateTranslationValue>;
-type QuizTemplateLocalizedDto = QuizTemplate & {translations?: QuizTemplateTranslations};
-type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequest & {translations?: QuizTemplateTranslations};
+type QuizTemplateLocalizedDto = QuizTemplateDto & {translations?: QuizTemplateTranslations};
+type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {translations?: QuizTemplateTranslations};
 
 @Component({
   standalone: true,
@@ -110,14 +110,14 @@ export class QuizCreate implements OnInit {
   quizTemplateActiveLang = signal<LangCode | null>(null);
   quizTemplateTranslating = signal(false);
 
-  domains = signal<DomainRead[]>([]);
-  subjects = signal<SubjectRead[]>([]);
-  questions = signal<QuestionRead[]>([]);
+  domains = signal<DomainReadDto[]>([]);
+  subjects = signal<SubjectReadDto[]>([]);
+  questions = signal<QuestionReadDto[]>([]);
   selectedQuestions = signal<SelectedQuizQuestion[]>([]);
   search = signal('');
   selectedQuestionSubjectIds = signal<number[]>([]);
   activeEditorTab = signal<'settings' | 'questions'>('settings');
-  currentLang = signal<LanguageEnum>(LanguageEnum.Fr);
+  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
   selectedDomainId = signal(0);
   quizFormValid = signal(false);
   editingTemplateId = signal<number | null>(null);
@@ -131,7 +131,7 @@ export class QuizCreate implements OnInit {
     title: [''],
     description: [''],
     translations: inject(NonNullableFormBuilder).group({}),
-    mode: [ModeEnum.Practice as ModeEnum, Validators.required],
+    mode: [ModeEnumDto.Practice as ModeEnumDto, Validators.required],
     active: [true],
     is_public: [false],
     permanent: [true],
@@ -139,7 +139,7 @@ export class QuizCreate implements OnInit {
     ended_at: [null as Date | null],
     with_duration: [false],
     duration: [10, [Validators.required, Validators.min(1)]],
-    detail_visibility: [VisibilityEnum.Immediate as VisibilityEnum, Validators.required],
+    detail_visibility: [VisibilityEnumDto.Immediate as VisibilityEnumDto, Validators.required],
     detail_available_at: [null as Date | null],
   });
 
@@ -176,13 +176,13 @@ export class QuizCreate implements OnInit {
   readonly pageSubtitle = computed(() => this.isEditMode() ? this.uiText().editSubtitle : this.uiText().createSubtitle);
   readonly submitLabel = computed(() => this.isEditMode() ? this.uiText().saveTemplate : this.uiText().createTemplate);
   readonly modeOptions = computed(() => [
-    {label: this.uiText().practiceMode, value: ModeEnum.Practice},
-    {label: this.uiText().examMode, value: ModeEnum.Exam},
+    {label: this.uiText().practiceMode, value: ModeEnumDto.Practice},
+    {label: this.uiText().examMode, value: ModeEnumDto.Exam},
   ]);
   readonly visibilityOptions = computed(() => [
-    {label: this.uiText().visibilityImmediate, value: VisibilityEnum.Immediate},
-    {label: this.uiText().visibilityScheduled, value: VisibilityEnum.Scheduled},
-    {label: this.uiText().visibilityNever, value: VisibilityEnum.Never},
+    {label: this.uiText().visibilityImmediate, value: VisibilityEnumDto.Immediate},
+    {label: this.uiText().visibilityScheduled, value: VisibilityEnumDto.Scheduled},
+    {label: this.uiText().visibilityNever, value: VisibilityEnumDto.Never},
   ]);
 
   readonly domainOptions = computed(() => this.domains().map((domain) => ({
@@ -294,7 +294,7 @@ export class QuizCreate implements OnInit {
     this.userService.lang$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((lang) => {
-        const nextLang = lang as LanguageEnum;
+        const nextLang = lang as LanguageEnumDto;
         this.currentLang.set(nextLang);
         this.applyDatePickerLocale(nextLang);
 
@@ -327,7 +327,7 @@ export class QuizCreate implements OnInit {
     this.quizForm.controls.detail_visibility.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((visibility) => {
-        if (visibility === VisibilityEnum.Scheduled) {
+        if (visibility === VisibilityEnumDto.Scheduled) {
           this.quizForm.controls.detail_available_at.enable({emitEvent: false});
         } else {
           this.quizForm.controls.detail_available_at.disable({emitEvent: false});
@@ -434,7 +434,7 @@ export class QuizCreate implements OnInit {
     this.quizTemplateActiveLang.set(String(value) as LangCode);
   }
 
-  addExistingQuestion(question: QuestionRead): void {
+  addExistingQuestion(question: QuestionReadDto): void {
     this.selectedQuestions.update((items) => [
       ...items,
       {
@@ -805,7 +805,7 @@ export class QuizCreate implements OnInit {
       .join(', ');
   }
 
-  domainLabel(domain: DomainRead): string {
+  domainLabel(domain: DomainReadDto): string {
     return this.getDomainLabel(domain);
   }
 
@@ -823,7 +823,7 @@ export class QuizCreate implements OnInit {
     this.preserveSelectionOnNextDomainChange = false;
 
     if (!domainId) {
-      this.configureQuizTemplateTranslations([LanguageEnum.Fr as LangCode]);
+      this.configureQuizTemplateTranslations([LanguageEnumDto.Fr as LangCode]);
       this.questionDialogLangs.set([]);
       this.questionDialogActiveLang.set(null);
       return;
@@ -838,7 +838,7 @@ export class QuizCreate implements OnInit {
     this.questionService.list({
       domainId,
       active: true,
-      isModeExam: this.quizForm.controls.mode.value === ModeEnum.Exam ? true : undefined,
+      isModeExam: this.quizForm.controls.mode.value === ModeEnumDto.Exam ? true : undefined,
     })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -855,7 +855,7 @@ export class QuizCreate implements OnInit {
       });
   }
 
-  private buildQuizTemplatePayload(): QuizTemplateWriteRequest {
+  private buildQuizTemplatePayload(): QuizTemplateWriteRequestDto {
     const translations = this.collectQuizTemplateTranslations();
     const localized = this.selectQuizTemplateTranslation(translations);
 
@@ -878,7 +878,7 @@ export class QuizCreate implements OnInit {
         : 10,
       active: this.quizForm.controls.active.value,
       is_public: this.quizForm.controls.is_public.value,
-      result_visibility: VisibilityEnum.Immediate,
+      result_visibility: VisibilityEnumDto.Immediate,
       detail_visibility: this.quizForm.controls.detail_visibility.value,
       detail_available_at: this.toIsoDateTime(this.quizForm.controls.detail_available_at.value),
     } as QuizTemplateLocalizedWriteRequestDto;
@@ -923,7 +923,7 @@ export class QuizCreate implements OnInit {
     );
   }
 
-  private patchTemplate(template: QuizTemplate): void {
+  private patchTemplate(template: QuizTemplateDto): void {
     const localizedTemplate = template as QuizTemplateLocalizedDto;
     const selectedQuestions = (template.quiz_questions ?? []).map((quizQuestion) => ({
       quiz_question_id: quizQuestion.id,
@@ -934,7 +934,7 @@ export class QuizCreate implements OnInit {
     const domainId = Number(template.domain ?? 0);
     const isPermanent = template.permanent ?? true;
     const withDuration = template.with_duration ?? false;
-    const detailVisibility = template.detail_visibility ?? VisibilityEnum.Immediate;
+    const detailVisibility = template.detail_visibility ?? VisibilityEnumDto.Immediate;
     const translations = localizedTemplate.translations ?? this.buildFallbackTemplateTranslations(template);
 
     this.selectedQuestions.set(selectedQuestions);
@@ -944,7 +944,7 @@ export class QuizCreate implements OnInit {
       domain: domainId,
       title: template.title ?? '',
       description: template.description ?? '',
-      mode: template.mode ?? ModeEnum.Practice,
+      mode: template.mode ?? ModeEnumDto.Practice,
       active: template.active ?? true,
       is_public: template.is_public ?? false,
       permanent: isPermanent,
@@ -970,7 +970,7 @@ export class QuizCreate implements OnInit {
       this.quizForm.controls.duration.disable({emitEvent: false});
     }
 
-    if (detailVisibility === VisibilityEnum.Scheduled) {
+    if (detailVisibility === VisibilityEnumDto.Scheduled) {
       this.quizForm.controls.detail_available_at.enable({emitEvent: false});
     } else {
       this.quizForm.controls.detail_available_at.disable({emitEvent: false});
@@ -1002,7 +1002,7 @@ export class QuizCreate implements OnInit {
       .map((language) => language.code)
       .filter((code): code is LangCode => !!code);
 
-    const resolvedLangs = langs.length ? langs : [LanguageEnum.Fr as LangCode];
+    const resolvedLangs = langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
     this.questionDialogLangs.set(resolvedLangs);
     this.questionDialogActiveLang.set(resolvedLangs[0] ?? null);
 
@@ -1015,7 +1015,7 @@ export class QuizCreate implements OnInit {
     langs: LangCode[],
     seed: QuizTemplateTranslations = {},
   ): void {
-    const resolvedLangs = langs.length ? langs : [LanguageEnum.Fr as LangCode];
+    const resolvedLangs = langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
     const translationsGroup = this.quizTranslationsGroup();
     const existing = this.collectQuizTemplateTranslations();
 
@@ -1084,8 +1084,8 @@ export class QuizCreate implements OnInit {
     return Object.values(this.collectQuizTemplateTranslations()).some((value) => !!value.title.trim());
   }
 
-  private buildFallbackTemplateTranslations(template: QuizTemplate): QuizTemplateTranslations {
-    const lang = (this.currentLang() || LanguageEnum.Fr) as LangCode;
+  private buildFallbackTemplateTranslations(template: QuizTemplateDto): QuizTemplateTranslations {
+    const lang = (this.currentLang() || LanguageEnumDto.Fr) as LangCode;
     return {
       [lang]: {
         title: template.title ?? '',
@@ -1094,12 +1094,12 @@ export class QuizCreate implements OnInit {
     };
   }
 
-  private resolveDomainLanguages(domain: DomainRead | null): LangCode[] {
+  private resolveDomainLanguages(domain: DomainReadDto | null): LangCode[] {
     const langs = (domain?.allowed_languages ?? [])
       .filter((language) => !!language.active && !!language.code)
       .map((language) => language.code)
       .filter((code): code is LangCode => !!code);
-    return langs.length ? langs : [LanguageEnum.Fr as LangCode];
+    return langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
   }
   private formatApiError(error: unknown, fallback = 'Erreur inconnue.'): string {
     if (error instanceof Error && error.message) {
@@ -1158,7 +1158,7 @@ export class QuizCreate implements OnInit {
     return Number.isNaN(date.getTime()) ? null : date;
   }
 
-  private applyDatePickerLocale(lang: LanguageEnum): void {
+  private applyDatePickerLocale(lang: LanguageEnumDto): void {
     const text = this.getUiText(lang);
     const translation: Translation = {
       dayNames: text.dayNames,
@@ -1175,7 +1175,7 @@ export class QuizCreate implements OnInit {
     this.primeng.setTranslation(translation);
   }
 
-  private getUiText(lang: LanguageEnum) {
+  private getUiText(lang: LanguageEnumDto) {
     return getQuizCreateUiText(lang);
   }
 
@@ -1186,14 +1186,14 @@ export class QuizCreate implements OnInit {
     }));
   }
 
-  private getDomainLabel(domain: DomainRead): string {
+  private getDomainLabel(domain: DomainReadDto): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const current = translations?.[this.currentLang()]?.name?.trim();
     if (current) {
       return current;
     }
 
-    for (const fallback of [LanguageEnum.Fr, LanguageEnum.En, LanguageEnum.Nl]) {
+    for (const fallback of [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl]) {
       const value = translations?.[fallback]?.name?.trim();
       if (value) {
         return value;
@@ -1204,8 +1204,8 @@ export class QuizCreate implements OnInit {
   }
 
   private getSubjectLabel(
-    subject: SubjectRead | QuestionRead['subjects'][number],
-    lang: LanguageEnum,
+    subject: SubjectReadDto | QuestionReadDto['subjects'][number],
+    lang: LanguageEnumDto,
   ): string {
     const translation = selectTranslation<{name: string}>(
       subject.translations as Record<string, {name: string}>,

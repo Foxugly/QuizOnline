@@ -10,7 +10,7 @@ import {CardModule} from 'primeng/card';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
-import {CustomUserRead, DomainRead, LanguageEnum} from '../../../api/generated';
+import {CustomUserReadDto, DomainReadDto, LanguageEnumDto} from '../../../api/generated';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
@@ -42,9 +42,9 @@ export class Preferences implements OnInit {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
-  readonly availableDomains = signal<DomainRead[]>([]);
-  readonly visibleDomains = signal<DomainRead[]>([]);
-  readonly currentUser = signal<CustomUserRead | null>(null);
+  readonly availableDomains = signal<DomainReadDto[]>([]);
+  readonly visibleDomains = signal<DomainReadDto[]>([]);
+  readonly currentUser = signal<CustomUserReadDto | null>(null);
   readonly linkDialogVisible = signal(false);
   readonly selectedDomainIdsToLink = signal<number[]>([]);
 
@@ -53,7 +53,7 @@ export class Preferences implements OnInit {
     email: ['', [Validators.email]],
     first_name: [''],
     last_name: [''],
-    language: [LanguageEnum.En, [Validators.required]],
+    language: [LanguageEnumDto.En, [Validators.required]],
   });
 
   get ui() {
@@ -62,11 +62,11 @@ export class Preferences implements OnInit {
 
   get languageOptions() {
     return [
-      {label: 'Français', value: LanguageEnum.Fr},
-      {label: 'Nederlands', value: LanguageEnum.Nl},
-      {label: 'English', value: LanguageEnum.En},
-      {label: 'Italiano', value: LanguageEnum.It},
-      {label: 'Español', value: LanguageEnum.Es},
+      {label: 'Français', value: LanguageEnumDto.Fr},
+      {label: 'Nederlands', value: LanguageEnumDto.Nl},
+      {label: 'English', value: LanguageEnumDto.En},
+      {label: 'Italiano', value: LanguageEnumDto.It},
+      {label: 'Español', value: LanguageEnumDto.Es},
     ];
   }
 
@@ -123,7 +123,7 @@ export class Preferences implements OnInit {
     this.loading.set(true);
     forkJoin({
       me: this.userService.currentUser()
-        ? of(this.userService.currentUser() as CustomUserRead)
+        ? of(this.userService.currentUser() as CustomUserReadDto)
         : this.userService.getMe(),
       availableDomains: this.domainService.availableForLinking(),
       visibleDomains: this.domainService.list(),
@@ -143,7 +143,7 @@ export class Preferences implements OnInit {
             email: currentUser.email ?? '',
             first_name: currentUser.first_name ?? '',
             last_name: currentUser.last_name ?? '',
-            language: currentUser.language ?? LanguageEnum.En,
+            language: currentUser.language ?? LanguageEnumDto.En,
           });
         },
         error: () => {
@@ -194,7 +194,7 @@ export class Preferences implements OnInit {
             email: updatedUser.email ?? '',
             first_name: updatedUser.first_name ?? '',
             last_name: updatedUser.last_name ?? '',
-            language: updatedUser.language ?? LanguageEnum.En,
+            language: updatedUser.language ?? LanguageEnumDto.En,
           });
           this.success.set(this.ui.preferences.saveSuccess);
         },
@@ -329,7 +329,7 @@ export class Preferences implements OnInit {
       });
   }
 
-  private getDomainLabel(domain: DomainRead): string {
+  private getDomainLabel(domain: DomainReadDto): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const lang = this.userService.currentLang;
     const current = translations?.[lang]?.name?.trim();
@@ -337,7 +337,7 @@ export class Preferences implements OnInit {
       return current;
     }
 
-    for (const fallback of [LanguageEnum.Fr, LanguageEnum.En, LanguageEnum.Nl]) {
+    for (const fallback of [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl]) {
       const value = translations?.[fallback]?.name?.trim();
       if (value) {
         return value;

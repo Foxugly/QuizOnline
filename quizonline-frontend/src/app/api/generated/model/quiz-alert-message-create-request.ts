@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizAlertMessageCreateRequest { 
+export interface QuizAlertMessageCreateRequestDto { 
     body: string;
 }
 

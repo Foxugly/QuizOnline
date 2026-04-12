@@ -2,18 +2,18 @@ import {Component, inject, signal} from '@angular/core';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 
-import {LanguageEnum} from '../../../api/generated';
+import {LanguageEnumDto} from '../../../api/generated';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 const LANGUAGE_OPTIONS = [
-  {label: 'English', value: LanguageEnum.En},
-  {label: 'Francais', value: LanguageEnum.Fr},
-  {label: 'Nederlands', value: LanguageEnum.Nl},
-  {label: 'Italiano', value: LanguageEnum.It},
-  {label: 'Espanol', value: LanguageEnum.Es},
+  {label: 'English', value: LanguageEnumDto.En},
+  {label: 'Francais', value: LanguageEnumDto.Fr},
+  {label: 'Nederlands', value: LanguageEnumDto.Nl},
+  {label: 'Italiano', value: LanguageEnumDto.It},
+  {label: 'Espanol', value: LanguageEnumDto.Es},
 ];
 
 @Component({
@@ -34,7 +34,7 @@ export class UserCreatePage {
     email: this.fb.control(''),
     first_name: this.fb.control(''),
     last_name: this.fb.control(''),
-    language: this.fb.control(LanguageEnum.Fr),
+    language: this.fb.control(LanguageEnumDto.Fr),
     password: this.fb.control('', [Validators.required]),
     nb_domain_max: this.fb.control(0, [Validators.min(0)]),
     is_active: this.fb.control(true),

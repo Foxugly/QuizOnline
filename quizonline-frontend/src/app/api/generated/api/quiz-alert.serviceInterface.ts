@@ -11,12 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { PaginatedQuizAlertThreadListList } from '../model/models';
-import { PatchedQuizAlertThreadPartialRequest } from '../model/models';
-import { QuizAlertMessage } from '../model/models';
-import { QuizAlertMessageCreateRequest } from '../model/models';
-import { QuizAlertThreadCreateRequest } from '../model/models';
-import { QuizAlertThreadDetail } from '../model/models';
+import { PaginatedQuizAlertThreadListListDto } from '../model/models';
+import { PatchedQuizAlertThreadPartialRequestDto } from '../model/models';
+import { QuizAlertMessageDto } from '../model/models';
+import { QuizAlertMessageCreateRequestDto } from '../model/models';
+import { QuizAlertThreadCreateRequestDto } from '../model/models';
+import { QuizAlertThreadDetailDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -33,7 +33,7 @@ export interface QuizAlertServiceInterface {
      * @endpoint post /api/quiz/alerts/{alert_id}/close/
      * @param alertId 
      */
-    quizAlertsCloseCreate(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetail>;
+    quizAlertsCloseCreate(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetailDto>;
 
     /**
      * Créer une alerte sur une question de quiz
@@ -41,7 +41,7 @@ export interface QuizAlertServiceInterface {
      * @endpoint post /api/quiz/alerts/
      * @param quizAlertThreadCreateRequest 
      */
-    quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequest, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetail>;
+    quizAlertsCreate(quizAlertThreadCreateRequest: QuizAlertThreadCreateRequestDto, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetailDto>;
 
     /**
      * Lister les conversations d\&#39;alerte quiz
@@ -49,7 +49,7 @@ export interface QuizAlertServiceInterface {
      * @endpoint get /api/quiz/alerts/
      * @param page A page number within the paginated result set.
      */
-    quizAlertsList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizAlertThreadListList>;
+    quizAlertsList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizAlertThreadListListDto>;
 
     /**
      * Répondre à une conversation d\&#39;alerte quiz
@@ -58,7 +58,7 @@ export interface QuizAlertServiceInterface {
      * @param alertId 
      * @param quizAlertMessageCreateRequest 
      */
-    quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequest, extraHttpRequestParams?: any): Observable<QuizAlertMessage>;
+    quizAlertsMessageCreate(alertId: number, quizAlertMessageCreateRequest: QuizAlertMessageCreateRequestDto, extraHttpRequestParams?: any): Observable<QuizAlertMessageDto>;
 
     /**
      * Modifier les droits de réponse de l\&#39;utilisateur
@@ -67,7 +67,7 @@ export interface QuizAlertServiceInterface {
      * @param alertId 
      * @param patchedQuizAlertThreadPartialRequest 
      */
-    quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequest, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetail>;
+    quizAlertsPartialUpdate(alertId: number, patchedQuizAlertThreadPartialRequest?: PatchedQuizAlertThreadPartialRequestDto, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetailDto>;
 
     /**
      * Rouvrir une conversation d\&#39;alerte quiz
@@ -75,7 +75,7 @@ export interface QuizAlertServiceInterface {
      * @endpoint post /api/quiz/alerts/{alert_id}/reopen/
      * @param alertId 
      */
-    quizAlertsReopenCreate(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetail>;
+    quizAlertsReopenCreate(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetailDto>;
 
     /**
      * Lire une conversation d\&#39;alerte quiz
@@ -83,7 +83,7 @@ export interface QuizAlertServiceInterface {
      * @endpoint get /api/quiz/alerts/{alert_id}/
      * @param alertId 
      */
-    quizAlertsRetrieve(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetail>;
+    quizAlertsRetrieve(alertId: number, extraHttpRequestParams?: any): Observable<QuizAlertThreadDetailDto>;
 
     /**
      * Compter les alertes non lues de l\&#39;utilisateur courant

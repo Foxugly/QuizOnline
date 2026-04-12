@@ -9,7 +9,7 @@
  */
 
 
-export interface TokenRefreshRequest { 
+export interface TokenRefreshRequestDto { 
     refresh: string;
 }
 

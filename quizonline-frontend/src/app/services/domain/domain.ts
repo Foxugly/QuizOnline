@@ -4,11 +4,11 @@ import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
 import {
-  DomainService as DomainApiService,
-  DomainDetail,
-  DomainRead,
-  DomainWriteRequest,
-  PatchedDomainPartialRequest
+  DomainApi as DomainApiService,
+  DomainDetailDto,
+  DomainReadDto,
+  DomainWriteRequestDto,
+  PatchedDomainPartialRequestDto
 } from '../../api/generated';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
@@ -25,7 +25,7 @@ export class DomainService {
     constructor(private api: DomainApiService, private router: Router, private http: HttpClient) {
   }
 
-  list(params?: { name?: string; search?: string }): Observable<DomainRead[]> {
+  list(params?: { name?: string; search?: string }): Observable<DomainReadDto[]> {
     return this.api.domainList().pipe(
       map((response: any) => {
         const domains = response.results ?? [];
@@ -54,32 +54,32 @@ export class DomainService {
     );
   }
 
-  availableForLinking(): Observable<DomainRead[]> {
-    return this.http.get<DomainRead[]>(`${this.apiBaseUrl}/available-for-linking/`);
+  availableForLinking(): Observable<DomainReadDto[]> {
+    return this.http.get<DomainReadDto[]>(`${this.apiBaseUrl}/available-for-linking/`);
   }
 
-  retrieve(domainId: number): Observable<DomainRead> {
-    return this.api.domainRetrieve(domainId);
+  retrieve(domainId: number): Observable<DomainReadDto> {
+    return this.api.domainRetrieve({domainId});
   }
 
-  detail(domainId: number): Observable<DomainDetail> {
-    return this.api.domainDetailsRetrieve(domainId);
+  detail(domainId: number): Observable<DomainDetailDto> {
+    return this.api.domainDetailsRetrieve({domainId});
   }
 
-  create(payload: DomainWriteRequest): Observable<DomainRead> {
-    return this.api.domainCreate(payload);
+  create(payload: DomainWriteRequestDto): Observable<DomainReadDto> {
+    return this.api.domainCreate({domainWriteRequestDto: payload});
   }
 
-  update(domainId: number, payload: DomainWriteRequest): Observable<DomainRead> {
-    return this.api.domainUpdate(domainId, payload);
+  update(domainId: number, payload: DomainWriteRequestDto): Observable<DomainReadDto> {
+    return this.api.domainUpdate({domainId, domainWriteRequestDto: payload});
   }
 
-  updatePartial(domainId: number, payload:PatchedDomainPartialRequest): Observable<DomainRead> {
-    return this.api.domainPartialUpdate(domainId, payload);
+  updatePartial(domainId: number, payload:PatchedDomainPartialRequestDto): Observable<DomainReadDto> {
+    return this.api.domainPartialUpdate({domainId, patchedDomainPartialRequestDto: payload});
   }
 
   delete(domainId: number): Observable<void> {
-    return this.api.domainDestroy(domainId).pipe(map(() => void 0));
+    return this.api.domainDestroy({domainId}).pipe(map(() => void 0));
   }
 
   goNew(): void {

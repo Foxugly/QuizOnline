@@ -9,7 +9,7 @@
  */
 
 
-export interface PasswordChangeRequest { 
+export interface PasswordChangeRequestDto { 
     old_password: string;
     new_password: string;
 }

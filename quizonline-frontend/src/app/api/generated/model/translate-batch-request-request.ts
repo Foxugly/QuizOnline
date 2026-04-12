@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { TranslateItemRequest } from './translate-item-request';
+import { TranslateItemRequestDto } from './translate-item-request';
 
 
-export interface TranslateBatchRequestRequest { 
+export interface TranslateBatchRequestRequestDto { 
     source: string;
     target: string;
-    items: Array<TranslateItemRequest>;
+    items: Array<TranslateItemRequestDto>;
 }
 

@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuizQuestionRead } from './quiz-question-read';
+import { QuizQuestionReadDto } from './quiz-question-read';
 
 
-export interface PaginatedQuizQuestionReadList { 
+export interface PaginatedQuizQuestionReadListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<QuizQuestionRead>;
+    results: Array<QuizQuestionReadDto>;
 }
 

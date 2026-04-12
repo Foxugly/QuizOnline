@@ -9,7 +9,7 @@
  */
 
 
-export interface PasswordResetOK { 
+export interface PasswordResetOKDto { 
     detail: string;
 }
 

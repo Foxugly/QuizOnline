@@ -7,20 +7,20 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { VisibilityEnum } from './visibility-enum';
-import { LocalizedQuizTemplateTranslationRequest } from './localized-quiz-template-translation-request';
-import { ModeEnum } from './mode-enum';
+import { LocalizedQuizTemplateTranslationRequestDto } from './localized-quiz-template-translation-request';
+import { ModeEnumDto } from './mode-enum';
+import { VisibilityEnumDto } from './visibility-enum';
 
 
-export interface QuizTemplateWriteRequest { 
+export interface QuizTemplateWriteRequestDto { 
     domain: number;
     title: string;
-    mode?: ModeEnum;
+    mode?: ModeEnumDto;
     description?: string;
     /**
      * Ex: {\"fr\":{\"title\":\"Quiz FR\",\"description\":\"Consignes FR\"},\"en\":{\"title\":\"Quiz EN\",\"description\":\"Instructions EN\"}}
      */
-    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequest; };
+    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequestDto; };
     /**
      * Nombre de questions à poser parmi le pool lié.
      */
@@ -35,7 +35,7 @@ export interface QuizTemplateWriteRequest {
     /**
      * Quand le score global du quiz peut être affiché à l\'utilisateur.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    result_visibility?: VisibilityEnum;
+    result_visibility?: VisibilityEnumDto;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
@@ -43,13 +43,12 @@ export interface QuizTemplateWriteRequest {
     /**
      * Quand les réponses détaillées (réponses de l\'utilisateur et bonnes réponses) peuvent être affichées.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    detail_visibility?: VisibilityEnum;
+    detail_visibility?: VisibilityEnumDto;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
     detail_available_at?: string | null;
 }
-export namespace QuizTemplateWriteRequest {
-}
+
 
 

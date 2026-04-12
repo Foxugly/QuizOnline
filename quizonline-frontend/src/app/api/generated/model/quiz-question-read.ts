@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionRead } from './question-read';
+import { QuestionReadDto } from './question-read';
 
 
-export interface QuizQuestionRead { 
+export interface QuizQuestionReadDto { 
     readonly id: number;
-    readonly question: QuestionRead;
+    readonly question: QuestionReadDto;
     sort_order?: number;
     /**
      * Poids de la question dans le score.

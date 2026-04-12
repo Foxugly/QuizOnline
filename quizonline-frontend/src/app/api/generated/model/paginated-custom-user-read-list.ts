@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CustomUserRead } from './custom-user-read';
+import { CustomUserReadDto } from './custom-user-read';
 
 
-export interface PaginatedCustomUserReadList { 
+export interface PaginatedCustomUserReadListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<CustomUserRead>;
+    results: Array<CustomUserReadDto>;
 }
 

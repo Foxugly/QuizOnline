@@ -1,6 +1,6 @@
-import {QuestionInQuizQuestion, QuestionRead} from '../../../api/generated';
+import {QuestionInQuizQuestionDto, QuestionReadDto} from '../../../api/generated';
 
-export type SelectedQuestionRef = QuestionRead | QuestionInQuizQuestion;
+export type SelectedQuestionRef = QuestionReadDto | QuestionInQuizQuestionDto;
 
 export type SelectedQuizQuestion = {
   question: SelectedQuestionRef;
@@ -10,7 +10,7 @@ export type SelectedQuizQuestion = {
 };
 
 export type QuestionLibraryCard = {
-  question: QuestionRead;
+  question: QuestionReadDto;
   title: string;
   subjectsLabel: string;
 };

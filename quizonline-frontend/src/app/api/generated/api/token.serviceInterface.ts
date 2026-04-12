@@ -11,9 +11,9 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { EmailConfirmedTokenObtainPairRequest } from '../model/models';
-import { TokenRefresh } from '../model/models';
-import { TokenRefreshRequest } from '../model/models';
+import { EmailConfirmedTokenObtainPairRequestDto } from '../model/models';
+import { TokenRefreshDto } from '../model/models';
+import { TokenRefreshRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -30,7 +30,7 @@ export interface TokenServiceInterface {
      * @endpoint post /api/token/
      * @param emailConfirmedTokenObtainPairRequest 
      */
-    tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequest, extraHttpRequestParams?: any): Observable<{}>;
+    tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequestDto, extraHttpRequestParams?: any): Observable<{}>;
 
     /**
      * 
@@ -38,6 +38,6 @@ export interface TokenServiceInterface {
      * @endpoint post /api/token/refresh/
      * @param tokenRefreshRequest 
      */
-    tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequest, extraHttpRequestParams?: any): Observable<TokenRefresh>;
+    tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequestDto, extraHttpRequestParams?: any): Observable<TokenRefreshDto>;
 
 }

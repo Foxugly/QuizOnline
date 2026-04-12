@@ -12,11 +12,14 @@
 /**
  * * `pending` - Pending * `approved` - Approved * `rejected` - Rejected * `cancelled` - Cancelled
  */
-export const DomainJoinRequestReadStatusEnum = {
-    Pending: 'pending',
-    Approved: 'approved',
-    Rejected: 'rejected',
-    Cancelled: 'cancelled'
-} as const;
-export type DomainJoinRequestReadStatusEnum = typeof DomainJoinRequestReadStatusEnum[keyof typeof DomainJoinRequestReadStatusEnum];
+export enum DomainJoinRequestReadStatusEnumDto {
+
+    Pending = 'pending',
+
+    Approved = 'approved',
+
+    Rejected = 'rejected',
+
+    Cancelled = 'cancelled'
+}
 

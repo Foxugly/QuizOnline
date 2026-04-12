@@ -1,4 +1,4 @@
-import {CustomUserRead} from '../../api/generated/model/custom-user-read';
+import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
 
 type SessionRedirect =
   | {kind: 'login'; queryParams?: Record<string, string | number>}
@@ -6,12 +6,12 @@ type SessionRedirect =
   | null;
 
 export function requiredSessionRedirect(
-  user: CustomUserRead | null | undefined,
+  user: CustomUserReadDto | null | undefined,
   currentUrl: string,
   options: {
     authenticated: boolean;
-    requiresEmailConfirmation: (candidate: CustomUserRead | null | undefined) => boolean;
-    requiresPasswordChange: (candidate: CustomUserRead | null | undefined) => boolean;
+    requiresEmailConfirmation: (candidate: CustomUserReadDto | null | undefined) => boolean;
+    requiresPasswordChange: (candidate: CustomUserReadDto | null | undefined) => boolean;
   },
 ): SessionRedirect {
   if (!options.authenticated || !user) {

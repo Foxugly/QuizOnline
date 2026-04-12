@@ -11,46 +11,113 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { GenerateFromSubjectsInputRequest } from '../model/generate-from-subjects-input-request';
+import { GenerateFromSubjectsInputRequestDto } from '../model/generate-from-subjects-input-request';
 // @ts-ignore
-import { PaginatedQuizAssignmentListList } from '../model/paginated-quiz-assignment-list-list';
+import { PaginatedQuizAssignmentListListDto } from '../model/paginated-quiz-assignment-list-list';
 // @ts-ignore
-import { PaginatedQuizQuestionReadList } from '../model/paginated-quiz-question-read-list';
+import { PaginatedQuizQuestionReadListDto } from '../model/paginated-quiz-question-read-list';
 // @ts-ignore
-import { PaginatedQuizTemplateList } from '../model/paginated-quiz-template-list';
+import { PaginatedQuizTemplateListDto } from '../model/paginated-quiz-template-list';
 // @ts-ignore
-import { PatchedQuizQuestionPartialRequest } from '../model/patched-quiz-question-partial-request';
+import { PatchedQuizQuestionPartialRequestDto } from '../model/patched-quiz-question-partial-request';
 // @ts-ignore
-import { PatchedQuizTemplatePartialRequest } from '../model/patched-quiz-template-partial-request';
+import { PatchedQuizTemplatePartialRequestDto } from '../model/patched-quiz-template-partial-request';
 // @ts-ignore
-import { QuizQuestionRead } from '../model/quiz-question-read';
+import { QuizQuestionReadDto } from '../model/quiz-question-read';
 // @ts-ignore
-import { QuizQuestionWriteRequest } from '../model/quiz-question-write-request';
+import { QuizQuestionWriteRequestDto } from '../model/quiz-question-write-request';
 // @ts-ignore
-import { QuizTemplate } from '../model/quiz-template';
+import { QuizTemplateDto } from '../model/quiz-template';
 // @ts-ignore
-import { QuizTemplateWriteRequest } from '../model/quiz-template-write-request';
+import { QuizTemplateWriteRequestDto } from '../model/quiz-template-write-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    QuizTemplateServiceInterface
-} from './quiz-template.serviceInterface';
 
+
+export interface QuizTemplateCreateRequestParams {
+    quizTemplateWriteRequestDto: QuizTemplateWriteRequestDto;
+}
+
+export interface QuizTemplateDestroyRequestParams {
+    qtId: number;
+}
+
+export interface QuizTemplateGenerateFromSubjectsCreateRequestParams {
+    generateFromSubjectsInputRequestDto: GenerateFromSubjectsInputRequestDto;
+}
+
+export interface QuizTemplateListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface QuizTemplatePartialUpdateRequestParams {
+    qtId: number;
+    patchedQuizTemplatePartialRequestDto?: PatchedQuizTemplatePartialRequestDto;
+}
+
+export interface QuizTemplateQuestionCreateRequestParams {
+    qtId: number;
+    quizQuestionWriteRequestDto: QuizQuestionWriteRequestDto;
+}
+
+export interface QuizTemplateQuestionDestroyRequestParams {
+    qqId: number;
+    qtId: number;
+}
+
+export interface QuizTemplateQuestionListRequestParams {
+    qtId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface QuizTemplateQuestionPartialUpdateRequestParams {
+    qqId: number;
+    qtId: number;
+    patchedQuizQuestionPartialRequestDto?: PatchedQuizQuestionPartialRequestDto;
+}
+
+export interface QuizTemplateQuestionRetrieveRequestParams {
+    qqId: number;
+    qtId: number;
+}
+
+export interface QuizTemplateQuestionUpdateRequestParams {
+    qqId: number;
+    qtId: number;
+    quizQuestionWriteRequestDto: QuizQuestionWriteRequestDto;
+}
+
+export interface QuizTemplateRetrieveRequestParams {
+    qtId: number;
+}
+
+export interface QuizTemplateSessionsListRequestParams {
+    qtId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface QuizTemplateUpdateRequestParams {
+    qtId: number;
+    quizTemplateWriteRequestDto: QuizTemplateWriteRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class QuizTemplateService extends BaseService implements QuizTemplateServiceInterface {
+export class QuizTemplateApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -59,16 +126,18 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Créer un template de quiz
      * @endpoint post /api/quiz/template/
-     * @param quizTemplateWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplate>;
-    public quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplate>>;
-    public quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplate>>;
-    public quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (quizTemplateWriteRequest === null || quizTemplateWriteRequest === undefined) {
-            throw new Error('Required parameter quizTemplateWriteRequest was null or undefined when calling quizTemplateCreate.');
+    public quizTemplateCreate(requestParameters: QuizTemplateCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplateDto>;
+    public quizTemplateCreate(requestParameters: QuizTemplateCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplateDto>>;
+    public quizTemplateCreate(requestParameters: QuizTemplateCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplateDto>>;
+    public quizTemplateCreate(requestParameters: QuizTemplateCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const quizTemplateWriteRequestDto = requestParameters?.quizTemplateWriteRequestDto;
+        if (quizTemplateWriteRequestDto === null || quizTemplateWriteRequestDto === undefined) {
+            throw new Error('Required parameter quizTemplateWriteRequestDto was null or undefined when calling quizTemplateCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -112,10 +181,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizTemplate>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizTemplateDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizTemplateWriteRequest,
+                body: quizTemplateWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -129,14 +198,16 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Supprimer un template de quiz
      * @endpoint delete /api/quiz/template/{qt_id}/
-     * @param qtId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateDestroy(qtId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public quizTemplateDestroy(qtId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public quizTemplateDestroy(qtId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public quizTemplateDestroy(qtId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateDestroy(requestParameters: QuizTemplateDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public quizTemplateDestroy(requestParameters: QuizTemplateDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public quizTemplateDestroy(requestParameters: QuizTemplateDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public quizTemplateDestroy(requestParameters: QuizTemplateDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateDestroy.');
         }
@@ -186,16 +257,18 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Générer un template depuis des sujets
      * @endpoint post /api/quiz/template/generate-from-subjects/
-     * @param generateFromSubjectsInputRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplate>;
-    public quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplate>>;
-    public quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplate>>;
-    public quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (generateFromSubjectsInputRequest === null || generateFromSubjectsInputRequest === undefined) {
-            throw new Error('Required parameter generateFromSubjectsInputRequest was null or undefined when calling quizTemplateGenerateFromSubjectsCreate.');
+    public quizTemplateGenerateFromSubjectsCreate(requestParameters: QuizTemplateGenerateFromSubjectsCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplateDto>;
+    public quizTemplateGenerateFromSubjectsCreate(requestParameters: QuizTemplateGenerateFromSubjectsCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplateDto>>;
+    public quizTemplateGenerateFromSubjectsCreate(requestParameters: QuizTemplateGenerateFromSubjectsCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplateDto>>;
+    public quizTemplateGenerateFromSubjectsCreate(requestParameters: QuizTemplateGenerateFromSubjectsCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const generateFromSubjectsInputRequestDto = requestParameters?.generateFromSubjectsInputRequestDto;
+        if (generateFromSubjectsInputRequestDto === null || generateFromSubjectsInputRequestDto === undefined) {
+            throw new Error('Required parameter generateFromSubjectsInputRequestDto was null or undefined when calling quizTemplateGenerateFromSubjectsCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -239,10 +312,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/generate-from-subjects/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizTemplate>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizTemplateDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: generateFromSubjectsInputRequest,
+                body: generateFromSubjectsInputRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -256,18 +329,27 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Lister les templates de quiz
      * @endpoint get /api/quiz/template/
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateList(page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizTemplateList>;
-    public quizTemplateList(page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizTemplateList>>;
-    public quizTemplateList(page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizTemplateList>>;
-    public quizTemplateList(page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizTemplateListDto>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizTemplateListDto>>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizTemplateListDto>>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -299,10 +381,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizTemplateList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizTemplateListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -316,18 +398,20 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Mettre à jour partiellement un template de quiz
      * @endpoint patch /api/quiz/template/{qt_id}/
-     * @param qtId 
-     * @param patchedQuizTemplatePartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplate>;
-    public quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplate>>;
-    public quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplate>>;
-    public quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplatePartialUpdate(requestParameters: QuizTemplatePartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplateDto>;
+    public quizTemplatePartialUpdate(requestParameters: QuizTemplatePartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplateDto>>;
+    public quizTemplatePartialUpdate(requestParameters: QuizTemplatePartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplateDto>>;
+    public quizTemplatePartialUpdate(requestParameters: QuizTemplatePartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplatePartialUpdate.');
         }
+        const patchedQuizTemplatePartialRequestDto = requestParameters?.patchedQuizTemplatePartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -370,10 +454,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizTemplate>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizTemplateDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedQuizTemplatePartialRequest,
+                body: patchedQuizTemplatePartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -387,20 +471,22 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Créer une QuizQuestion dans un template (nested)
      * @endpoint post /api/quiz/template/{qt_id}/question/
-     * @param qtId 
-     * @param quizQuestionWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionRead>;
-    public quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionRead>>;
-    public quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionRead>>;
-    public quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionCreate(requestParameters: QuizTemplateQuestionCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionReadDto>;
+    public quizTemplateQuestionCreate(requestParameters: QuizTemplateQuestionCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionReadDto>>;
+    public quizTemplateQuestionCreate(requestParameters: QuizTemplateQuestionCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionReadDto>>;
+    public quizTemplateQuestionCreate(requestParameters: QuizTemplateQuestionCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionCreate.');
         }
-        if (quizQuestionWriteRequest === null || quizQuestionWriteRequest === undefined) {
-            throw new Error('Required parameter quizQuestionWriteRequest was null or undefined when calling quizTemplateQuestionCreate.');
+        const quizQuestionWriteRequestDto = requestParameters?.quizQuestionWriteRequestDto;
+        if (quizQuestionWriteRequestDto === null || quizQuestionWriteRequestDto === undefined) {
+            throw new Error('Required parameter quizQuestionWriteRequestDto was null or undefined when calling quizTemplateQuestionCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -444,10 +530,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizQuestionRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizQuestionReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizQuestionWriteRequest,
+                body: quizQuestionWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -461,18 +547,20 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Supprimer une QuizQuestion (nested)
      * @endpoint delete /api/quiz/template/{qt_id}/question/{qq_id}/
-     * @param qqId 
-     * @param qtId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionDestroy(qqId: number, qtId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public quizTemplateQuestionDestroy(qqId: number, qtId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public quizTemplateQuestionDestroy(qqId: number, qtId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public quizTemplateQuestionDestroy(qqId: number, qtId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionDestroy(requestParameters: QuizTemplateQuestionDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public quizTemplateQuestionDestroy(requestParameters: QuizTemplateQuestionDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public quizTemplateQuestionDestroy(requestParameters: QuizTemplateQuestionDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public quizTemplateQuestionDestroy(requestParameters: QuizTemplateQuestionDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qqId = requestParameters?.qqId;
         if (qqId === null || qqId === undefined) {
             throw new Error('Required parameter qqId was null or undefined when calling quizTemplateQuestionDestroy.');
         }
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionDestroy.');
         }
@@ -522,22 +610,31 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Lister les QuizQuestion d’un template (nested)
      * @endpoint get /api/quiz/template/{qt_id}/question/
-     * @param qtId 
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionList(qtId: number, page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizQuestionReadList>;
-    public quizTemplateQuestionList(qtId: number, page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizQuestionReadList>>;
-    public quizTemplateQuestionList(qtId: number, page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizQuestionReadList>>;
-    public quizTemplateQuestionList(qtId: number, page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionList(requestParameters: QuizTemplateQuestionListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizQuestionReadListDto>;
+    public quizTemplateQuestionList(requestParameters: QuizTemplateQuestionListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizQuestionReadListDto>>;
+    public quizTemplateQuestionList(requestParameters: QuizTemplateQuestionListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizQuestionReadListDto>>;
+    public quizTemplateQuestionList(requestParameters: QuizTemplateQuestionListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionList.');
         }
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -569,10 +666,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizQuestionReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -586,22 +683,24 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Mettre à jour partiellement une QuizQuestion (nested)
      * @endpoint patch /api/quiz/template/{qt_id}/question/{qq_id}/
-     * @param qqId 
-     * @param qtId 
-     * @param patchedQuizQuestionPartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionRead>;
-    public quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionRead>>;
-    public quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionRead>>;
-    public quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionPartialUpdate(requestParameters: QuizTemplateQuestionPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionReadDto>;
+    public quizTemplateQuestionPartialUpdate(requestParameters: QuizTemplateQuestionPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionReadDto>>;
+    public quizTemplateQuestionPartialUpdate(requestParameters: QuizTemplateQuestionPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionReadDto>>;
+    public quizTemplateQuestionPartialUpdate(requestParameters: QuizTemplateQuestionPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qqId = requestParameters?.qqId;
         if (qqId === null || qqId === undefined) {
             throw new Error('Required parameter qqId was null or undefined when calling quizTemplateQuestionPartialUpdate.');
         }
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionPartialUpdate.');
         }
+        const patchedQuizQuestionPartialRequestDto = requestParameters?.patchedQuizQuestionPartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -644,10 +743,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizQuestionRead>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizQuestionReadDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedQuizQuestionPartialRequest,
+                body: patchedQuizQuestionPartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -661,18 +760,20 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Détail d’une QuizQuestion d’un template (nested)
      * @endpoint get /api/quiz/template/{qt_id}/question/{qq_id}/
-     * @param qqId 
-     * @param qtId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionRetrieve(qqId: number, qtId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionRead>;
-    public quizTemplateQuestionRetrieve(qqId: number, qtId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionRead>>;
-    public quizTemplateQuestionRetrieve(qqId: number, qtId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionRead>>;
-    public quizTemplateQuestionRetrieve(qqId: number, qtId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionRetrieve(requestParameters: QuizTemplateQuestionRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionReadDto>;
+    public quizTemplateQuestionRetrieve(requestParameters: QuizTemplateQuestionRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionReadDto>>;
+    public quizTemplateQuestionRetrieve(requestParameters: QuizTemplateQuestionRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionReadDto>>;
+    public quizTemplateQuestionRetrieve(requestParameters: QuizTemplateQuestionRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qqId = requestParameters?.qqId;
         if (qqId === null || qqId === undefined) {
             throw new Error('Required parameter qqId was null or undefined when calling quizTemplateQuestionRetrieve.');
         }
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionRetrieve.');
         }
@@ -707,7 +808,7 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizQuestionRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizQuestionReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -723,24 +824,26 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Mettre à jour une QuizQuestion (nested)
      * @endpoint put /api/quiz/template/{qt_id}/question/{qq_id}/
-     * @param qqId 
-     * @param qtId 
-     * @param quizQuestionWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionRead>;
-    public quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionRead>>;
-    public quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionRead>>;
-    public quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateQuestionUpdate(requestParameters: QuizTemplateQuestionUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizQuestionReadDto>;
+    public quizTemplateQuestionUpdate(requestParameters: QuizTemplateQuestionUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizQuestionReadDto>>;
+    public quizTemplateQuestionUpdate(requestParameters: QuizTemplateQuestionUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizQuestionReadDto>>;
+    public quizTemplateQuestionUpdate(requestParameters: QuizTemplateQuestionUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qqId = requestParameters?.qqId;
         if (qqId === null || qqId === undefined) {
             throw new Error('Required parameter qqId was null or undefined when calling quizTemplateQuestionUpdate.');
         }
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateQuestionUpdate.');
         }
-        if (quizQuestionWriteRequest === null || quizQuestionWriteRequest === undefined) {
-            throw new Error('Required parameter quizQuestionWriteRequest was null or undefined when calling quizTemplateQuestionUpdate.');
+        const quizQuestionWriteRequestDto = requestParameters?.quizQuestionWriteRequestDto;
+        if (quizQuestionWriteRequestDto === null || quizQuestionWriteRequestDto === undefined) {
+            throw new Error('Required parameter quizQuestionWriteRequestDto was null or undefined when calling quizTemplateQuestionUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -784,10 +887,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizQuestionRead>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizQuestionReadDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizQuestionWriteRequest,
+                body: quizQuestionWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -801,14 +904,16 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Détail d’un template de quiz
      * @endpoint get /api/quiz/template/{qt_id}/
-     * @param qtId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateRetrieve(qtId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplate>;
-    public quizTemplateRetrieve(qtId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplate>>;
-    public quizTemplateRetrieve(qtId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplate>>;
-    public quizTemplateRetrieve(qtId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateRetrieve(requestParameters: QuizTemplateRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplateDto>;
+    public quizTemplateRetrieve(requestParameters: QuizTemplateRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplateDto>>;
+    public quizTemplateRetrieve(requestParameters: QuizTemplateRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplateDto>>;
+    public quizTemplateRetrieve(requestParameters: QuizTemplateRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateRetrieve.');
         }
@@ -843,7 +948,7 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizTemplate>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizTemplateDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -859,22 +964,31 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Lister les sessions envoyées pour un template
      * @endpoint get /api/quiz/template/{qt_id}/sessions/
-     * @param qtId 
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateSessionsList(qtId: number, page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizAssignmentListList>;
-    public quizTemplateSessionsList(qtId: number, page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizAssignmentListList>>;
-    public quizTemplateSessionsList(qtId: number, page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizAssignmentListList>>;
-    public quizTemplateSessionsList(qtId: number, page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateSessionsList(requestParameters: QuizTemplateSessionsListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizAssignmentListListDto>;
+    public quizTemplateSessionsList(requestParameters: QuizTemplateSessionsListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizAssignmentListListDto>>;
+    public quizTemplateSessionsList(requestParameters: QuizTemplateSessionsListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizAssignmentListListDto>>;
+    public quizTemplateSessionsList(requestParameters: QuizTemplateSessionsListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateSessionsList.');
         }
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -906,10 +1020,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/sessions/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizAssignmentListList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizAssignmentListListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -923,20 +1037,22 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
     /**
      * Mettre à jour un template de quiz
      * @endpoint put /api/quiz/template/{qt_id}/
-     * @param qtId 
-     * @param quizTemplateWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplate>;
-    public quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplate>>;
-    public quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplate>>;
-    public quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public quizTemplateUpdate(requestParameters: QuizTemplateUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuizTemplateDto>;
+    public quizTemplateUpdate(requestParameters: QuizTemplateUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuizTemplateDto>>;
+    public quizTemplateUpdate(requestParameters: QuizTemplateUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuizTemplateDto>>;
+    public quizTemplateUpdate(requestParameters: QuizTemplateUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const qtId = requestParameters?.qtId;
         if (qtId === null || qtId === undefined) {
             throw new Error('Required parameter qtId was null or undefined when calling quizTemplateUpdate.');
         }
-        if (quizTemplateWriteRequest === null || quizTemplateWriteRequest === undefined) {
-            throw new Error('Required parameter quizTemplateWriteRequest was null or undefined when calling quizTemplateUpdate.');
+        const quizTemplateWriteRequestDto = requestParameters?.quizTemplateWriteRequestDto;
+        if (quizTemplateWriteRequestDto === null || quizTemplateWriteRequestDto === undefined) {
+            throw new Error('Required parameter quizTemplateWriteRequestDto was null or undefined when calling quizTemplateUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -980,10 +1096,10 @@ export class QuizTemplateService extends BaseService implements QuizTemplateServ
 
         let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuizTemplate>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuizTemplateDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: quizTemplateWriteRequest,
+                body: quizTemplateWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

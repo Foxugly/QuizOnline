@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedQuizAlertThreadPartialRequest { 
+export interface PatchedQuizAlertThreadPartialRequestDto { 
     reporter_reply_allowed?: boolean;
 }
 

@@ -7,17 +7,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageEnum } from './language-enum';
+import { LanguageEnumDto } from './language-enum';
 
 
-export interface PatchedCustomUserProfileUpdateRequest { 
-    email?: string;
+export interface PatchedCustomUserProfileUpdateRequestDto { 
+    email?: string | null;
     first_name?: string;
     last_name?: string;
-    language?: LanguageEnum;
+    language?: LanguageEnumDto;
     managed_domain_ids?: Array<number>;
 }
-export namespace PatchedCustomUserProfileUpdateRequest {
-}
+
 
 

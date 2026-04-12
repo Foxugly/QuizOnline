@@ -6,14 +6,14 @@ import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
-import {LanguageEnum, SubjectDetail, SubjectRead} from '../../../api/generated';
+import {LanguageEnumDto, SubjectDetailDto, SubjectReadDto} from '../../../api/generated';
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
 
-type SubjectListRow = SubjectRead & {
+type SubjectListRow = SubjectReadDto & {
   name: string;
   description: string;
   domainName: string;
@@ -32,32 +32,32 @@ export class SubjectList implements OnInit {
   private userService: UserService = inject(UserService);
   private domainService: DomainService = inject(DomainService);
 
-  subjects = signal<SubjectRead[]>([]);
+  subjects = signal<SubjectReadDto[]>([]);
   questionCounts = signal<Record<number, number>>({});
   q = signal('');
-  currentLang = computed((): LanguageEnum => this.userService.currentLang);
+  currentLang = computed((): LanguageEnumDto => this.userService.currentLang);
   rowsData = computed<SubjectListRow[]>(() => this.subjects().map((subject) => this.toRow(subject)));
 
   rows = 10;
 
-  getSTDto(d: SubjectRead): SubjectTranslationDto {
+  getSTDto(d: SubjectReadDto): SubjectTranslationDto {
     return <SubjectTranslationDto>selectTranslation<SubjectTranslationDto>(
       d.translations as unknown as Record<string, SubjectTranslationDto>,
       this.currentLang(),
     );
   }
 
-  getName(d: SubjectRead): string {
+  getName(d: SubjectReadDto): string {
     const t = this.getSTDto(d);
     return t?.name ?? '';
   }
 
-  getDescription(d: SubjectRead): string {
+  getDescription(d: SubjectReadDto): string {
     const t = this.getSTDto(d);
     return t?.description ?? '';
   }
 
-  getDomain(d: SubjectRead): string {
+  getDomain(d: SubjectReadDto): string {
     const t = this.getSTDto(d);
     return t?.domain?.name ?? `Domain #${d.domain}`;
   }
@@ -125,14 +125,14 @@ export class SubjectList implements OnInit {
     return this.questionCounts()[subjectId] ?? 0;
   }
 
-  private buildSubjectQuestionCounts(details: SubjectDetail[]): Record<number, number> {
+  private buildSubjectQuestionCounts(details: SubjectDetailDto[]): Record<number, number> {
     return details.reduce<Record<number, number>>((counts, detail) => {
       counts[detail.id] = detail.questions?.length ?? 0;
       return counts;
     }, {});
   }
 
-  private toRow(subject: SubjectRead): SubjectListRow {
+  private toRow(subject: SubjectReadDto): SubjectListRow {
     return {
       ...subject,
       name: this.getName(subject),

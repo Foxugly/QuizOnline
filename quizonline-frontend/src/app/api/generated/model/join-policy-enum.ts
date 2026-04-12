@@ -12,10 +12,12 @@
 /**
  * * `auto` - Automatic * `owner` - Owner validation * `owner_managers` - Owner or managers validation
  */
-export const JoinPolicyEnum = {
-    Auto: 'auto',
-    Owner: 'owner',
-    OwnerManagers: 'owner_managers'
-} as const;
-export type JoinPolicyEnum = typeof JoinPolicyEnum[keyof typeof JoinPolicyEnum];
+export enum JoinPolicyEnumDto {
+
+    Auto = 'auto',
+
+    Owner = 'owner',
+
+    OwnerManagers = 'owner_managers'
+}
 

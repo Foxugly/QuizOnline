@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageRead } from './language-read';
+import { LanguageReadDto } from './language-read';
 
 
-export interface PaginatedLanguageReadList { 
+export interface PaginatedLanguageReadListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<LanguageRead>;
+    results: Array<LanguageReadDto>;
 }
 

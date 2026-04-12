@@ -12,12 +12,16 @@
 /**
  * * `en` - English * `fr` - French * `nl` - Dutch * `it` - Italy * `es` - Spain
  */
-export const LanguageEnum = {
-    En: 'en',
-    Fr: 'fr',
-    Nl: 'nl',
-    It: 'it',
-    Es: 'es'
-} as const;
-export type LanguageEnum = typeof LanguageEnum[keyof typeof LanguageEnum];
+export enum LanguageEnumDto {
+
+    En = 'en',
+
+    Fr = 'fr',
+
+    Nl = 'nl',
+
+    It = 'it',
+
+    Es = 'es'
+}
 

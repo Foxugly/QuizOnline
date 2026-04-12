@@ -9,7 +9,7 @@
  */
 
 
-export interface BulkCreateFromTemplateInputRequest { 
+export interface BulkCreateFromTemplateInputRequestDto { 
     quiz_template_id: number;
     user_ids: Array<number>;
 }

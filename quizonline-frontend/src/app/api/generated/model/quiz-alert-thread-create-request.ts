@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizAlertThreadCreateRequest { 
+export interface QuizAlertThreadCreateRequestDto { 
     quiz_id: number;
     question_id: number;
     body: string;

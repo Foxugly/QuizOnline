@@ -11,38 +11,51 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { EmailConfirmationRequest } from '../model/email-confirmation-request';
+import { EmailConfirmationRequestDto } from '../model/email-confirmation-request';
 // @ts-ignore
-import { ErrorDetail } from '../model/error-detail';
+import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
-import { PasswordChangeRequest } from '../model/password-change-request';
+import { PasswordChangeRequestDto } from '../model/password-change-request';
 // @ts-ignore
-import { PasswordResetConfirmRequest } from '../model/password-reset-confirm-request';
+import { PasswordResetConfirmRequestDto } from '../model/password-reset-confirm-request';
 // @ts-ignore
-import { PasswordResetOK } from '../model/password-reset-ok';
+import { PasswordResetOKDto } from '../model/password-reset-ok';
 // @ts-ignore
-import { PasswordResetRequestRequest } from '../model/password-reset-request-request';
+import { PasswordResetRequestRequestDto } from '../model/password-reset-request-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    AuthServiceInterface
-} from './auth.serviceInterface';
 
+
+export interface UserEmailConfirmCreateRequestParams {
+    emailConfirmationRequestDto: EmailConfirmationRequestDto;
+}
+
+export interface UserPasswordChangeCreateRequestParams {
+    passwordChangeRequestDto: PasswordChangeRequestDto;
+}
+
+export interface UserPasswordResetConfirmCreateRequestParams {
+    passwordResetConfirmRequestDto: PasswordResetConfirmRequestDto;
+}
+
+export interface UserPasswordResetCreateRequestParams {
+    passwordResetRequestRequestDto: PasswordResetRequestRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService extends BaseService implements AuthServiceInterface {
+export class AuthApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -51,16 +64,18 @@ export class AuthService extends BaseService implements AuthServiceInterface {
     /**
      * Confirmer une adresse email
      * @endpoint post /api/user/email/confirm/
-     * @param emailConfirmationRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOK>;
-    public userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOK>>;
-    public userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOK>>;
-    public userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (emailConfirmationRequest === null || emailConfirmationRequest === undefined) {
-            throw new Error('Required parameter emailConfirmationRequest was null or undefined when calling userEmailConfirmCreate.');
+    public userEmailConfirmCreate(requestParameters: UserEmailConfirmCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOKDto>;
+    public userEmailConfirmCreate(requestParameters: UserEmailConfirmCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOKDto>>;
+    public userEmailConfirmCreate(requestParameters: UserEmailConfirmCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOKDto>>;
+    public userEmailConfirmCreate(requestParameters: UserEmailConfirmCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const emailConfirmationRequestDto = requestParameters?.emailConfirmationRequestDto;
+        if (emailConfirmationRequestDto === null || emailConfirmationRequestDto === undefined) {
+            throw new Error('Required parameter emailConfirmationRequestDto was null or undefined when calling userEmailConfirmCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -104,10 +119,10 @@ export class AuthService extends BaseService implements AuthServiceInterface {
 
         let localVarPath = `/api/user/email/confirm/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PasswordResetOK>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: emailConfirmationRequest,
+                body: emailConfirmationRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -122,16 +137,18 @@ export class AuthService extends BaseService implements AuthServiceInterface {
      * Changer son mot de passe
      * Utilisateur authentifié uniquement.
      * @endpoint post /api/user/password/change/
-     * @param passwordChangeRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOK>;
-    public userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOK>>;
-    public userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOK>>;
-    public userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (passwordChangeRequest === null || passwordChangeRequest === undefined) {
-            throw new Error('Required parameter passwordChangeRequest was null or undefined when calling userPasswordChangeCreate.');
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOKDto>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOKDto>>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOKDto>>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const passwordChangeRequestDto = requestParameters?.passwordChangeRequestDto;
+        if (passwordChangeRequestDto === null || passwordChangeRequestDto === undefined) {
+            throw new Error('Required parameter passwordChangeRequestDto was null or undefined when calling userPasswordChangeCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -175,10 +192,10 @@ export class AuthService extends BaseService implements AuthServiceInterface {
 
         let localVarPath = `/api/user/password/change/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PasswordResetOK>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: passwordChangeRequest,
+                body: passwordChangeRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -192,16 +209,18 @@ export class AuthService extends BaseService implements AuthServiceInterface {
     /**
      * Confirmer un reset de mot de passe
      * @endpoint post /api/user/password/reset/confirm/
-     * @param passwordResetConfirmRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOK>;
-    public userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOK>>;
-    public userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOK>>;
-    public userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (passwordResetConfirmRequest === null || passwordResetConfirmRequest === undefined) {
-            throw new Error('Required parameter passwordResetConfirmRequest was null or undefined when calling userPasswordResetConfirmCreate.');
+    public userPasswordResetConfirmCreate(requestParameters: UserPasswordResetConfirmCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOKDto>;
+    public userPasswordResetConfirmCreate(requestParameters: UserPasswordResetConfirmCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOKDto>>;
+    public userPasswordResetConfirmCreate(requestParameters: UserPasswordResetConfirmCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOKDto>>;
+    public userPasswordResetConfirmCreate(requestParameters: UserPasswordResetConfirmCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const passwordResetConfirmRequestDto = requestParameters?.passwordResetConfirmRequestDto;
+        if (passwordResetConfirmRequestDto === null || passwordResetConfirmRequestDto === undefined) {
+            throw new Error('Required parameter passwordResetConfirmRequestDto was null or undefined when calling userPasswordResetConfirmCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -245,10 +264,10 @@ export class AuthService extends BaseService implements AuthServiceInterface {
 
         let localVarPath = `/api/user/password/reset/confirm/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PasswordResetOK>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: passwordResetConfirmRequest,
+                body: passwordResetConfirmRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -263,16 +282,18 @@ export class AuthService extends BaseService implements AuthServiceInterface {
      * Demander un reset de mot de passe
      * Envoie un email avec un lien de réinitialisation. Répond toujours 200 pour ne pas révéler si l\&#39;email existe.
      * @endpoint post /api/user/password/reset/
-     * @param passwordResetRequestRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOK>;
-    public userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOK>>;
-    public userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOK>>;
-    public userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (passwordResetRequestRequest === null || passwordResetRequestRequest === undefined) {
-            throw new Error('Required parameter passwordResetRequestRequest was null or undefined when calling userPasswordResetCreate.');
+    public userPasswordResetCreate(requestParameters: UserPasswordResetCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOKDto>;
+    public userPasswordResetCreate(requestParameters: UserPasswordResetCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOKDto>>;
+    public userPasswordResetCreate(requestParameters: UserPasswordResetCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOKDto>>;
+    public userPasswordResetCreate(requestParameters: UserPasswordResetCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const passwordResetRequestRequestDto = requestParameters?.passwordResetRequestRequestDto;
+        if (passwordResetRequestRequestDto === null || passwordResetRequestRequestDto === undefined) {
+            throw new Error('Required parameter passwordResetRequestRequestDto was null or undefined when calling userPasswordResetCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -313,10 +334,10 @@ export class AuthService extends BaseService implements AuthServiceInterface {
 
         let localVarPath = `/api/user/password/reset/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PasswordResetOK>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: passwordResetRequestRequest,
+                body: passwordResetRequestRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

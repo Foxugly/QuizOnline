@@ -11,30 +11,31 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { TranslateBatchRequestRequest } from '../model/translate-batch-request-request';
+import { TranslateBatchRequestRequestDto } from '../model/translate-batch-request-request';
 // @ts-ignore
-import { TranslateBatchResponse } from '../model/translate-batch-response';
+import { TranslateBatchResponseDto } from '../model/translate-batch-response';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    TranslationServiceInterface
-} from './translation.serviceInterface';
 
+
+export interface TranslateBatchCreateRequestParams {
+    translateBatchRequestRequestDto: TranslateBatchRequestRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class TranslationService extends BaseService implements TranslationServiceInterface {
+export class TranslationApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -44,16 +45,18 @@ export class TranslationService extends BaseService implements TranslationServic
      * Traduction batch (DeepL) - texte et HTML
      * Traduit une liste d\&#39;éléments en une seule requête. Chaque item peut être en &#x60;format&#x3D;text&#x60; ou &#x60;format&#x3D;html&#x60;. Les entrées vides sont ignorées (pas d\&#39;appel DeepL), donc elles peuvent ne pas apparaître dans la map &#x60;translations&#x60;.
      * @endpoint post /api/translate/batch/
-     * @param translateBatchRequestRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TranslateBatchResponse>;
-    public translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TranslateBatchResponse>>;
-    public translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TranslateBatchResponse>>;
-    public translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (translateBatchRequestRequest === null || translateBatchRequestRequest === undefined) {
-            throw new Error('Required parameter translateBatchRequestRequest was null or undefined when calling translateBatchCreate.');
+    public translateBatchCreate(requestParameters: TranslateBatchCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TranslateBatchResponseDto>;
+    public translateBatchCreate(requestParameters: TranslateBatchCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TranslateBatchResponseDto>>;
+    public translateBatchCreate(requestParameters: TranslateBatchCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TranslateBatchResponseDto>>;
+    public translateBatchCreate(requestParameters: TranslateBatchCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const translateBatchRequestRequestDto = requestParameters?.translateBatchRequestRequestDto;
+        if (translateBatchRequestRequestDto === null || translateBatchRequestRequestDto === undefined) {
+            throw new Error('Required parameter translateBatchRequestRequestDto was null or undefined when calling translateBatchCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -97,10 +100,10 @@ export class TranslationService extends BaseService implements TranslationServic
 
         let localVarPath = `/api/translate/batch/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TranslateBatchResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<TranslateBatchResponseDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: translateBatchRequestRequest,
+                body: translateBatchRequestRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

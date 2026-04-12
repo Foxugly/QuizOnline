@@ -11,44 +11,113 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { DomainDetail } from '../model/domain-detail';
+import { DomainDetailDto } from '../model/domain-detail';
 // @ts-ignore
-import { DomainJoinRequestRead } from '../model/domain-join-request-read';
+import { DomainJoinRequestReadDto } from '../model/domain-join-request-read';
 // @ts-ignore
-import { DomainRead } from '../model/domain-read';
+import { DomainReadDto } from '../model/domain-read';
 // @ts-ignore
-import { DomainWrite } from '../model/domain-write';
+import { DomainWriteDto } from '../model/domain-write';
 // @ts-ignore
-import { DomainWriteRequest } from '../model/domain-write-request';
+import { DomainWriteRequestDto } from '../model/domain-write-request';
 // @ts-ignore
-import { ErrorDetail } from '../model/error-detail';
+import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
-import { PaginatedDomainJoinRequestReadList } from '../model/paginated-domain-join-request-read-list';
+import { PaginatedDomainJoinRequestReadListDto } from '../model/paginated-domain-join-request-read-list';
 // @ts-ignore
-import { PaginatedDomainReadList } from '../model/paginated-domain-read-list';
+import { PaginatedDomainReadListDto } from '../model/paginated-domain-read-list';
 // @ts-ignore
-import { PatchedDomainPartialRequest } from '../model/patched-domain-partial-request';
+import { PatchedDomainPartialRequestDto } from '../model/patched-domain-partial-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    DomainServiceInterface
-} from './domain.serviceInterface';
 
+
+export interface DomainCreateRequestParams {
+    domainWriteRequestDto: DomainWriteRequestDto;
+}
+
+export interface DomainDestroyRequestParams {
+    /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
+    domainId: number;
+}
+
+export interface DomainDetailsRetrieveRequestParams {
+    /** ID du domaine. */
+    domainId: number;
+}
+
+export interface DomainJoinRequestApproveCreateRequestParams {
+    domainId: number;
+    reqId: number;
+}
+
+export interface DomainJoinRequestCancelCreateRequestParams {
+    domainId: number;
+    reqId: number;
+}
+
+export interface DomainJoinRequestCreateRequestParams {
+    domainId: number;
+}
+
+export interface DomainJoinRequestListRequestParams {
+    domainId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface DomainJoinRequestRejectCreateRequestParams {
+    domainId: number;
+    reqId: number;
+}
+
+export interface DomainJoinRequestRetrieveRequestParams {
+    domainId: number;
+    reqId: number;
+}
+
+export interface DomainListRequestParams {
+    /** A page number within the paginated result set. */
+    page?: number;
+}
+
+export interface DomainMemberRoleCreateRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+    domainWriteRequestDto: DomainWriteRequestDto;
+}
+
+export interface DomainPartialUpdateRequestParams {
+    /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
+    domainId: number;
+    patchedDomainPartialRequestDto?: PatchedDomainPartialRequestDto;
+}
+
+export interface DomainRetrieveRequestParams {
+    /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
+    domainId: number;
+}
+
+export interface DomainUpdateRequestParams {
+    /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
+    domainId: number;
+    domainWriteRequestDto: DomainWriteRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class DomainService extends BaseService implements DomainServiceInterface {
+export class DomainApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -58,10 +127,11 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * @endpoint get /api/domain/available-for-linking/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainAvailableForLinkingRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainWrite>;
-    public domainAvailableForLinkingRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainWrite>>;
-    public domainAvailableForLinkingRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainWrite>>;
+    public domainAvailableForLinkingRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainWriteDto>;
+    public domainAvailableForLinkingRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainWriteDto>>;
+    public domainAvailableForLinkingRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainWriteDto>>;
     public domainAvailableForLinkingRetrieve(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
@@ -94,7 +164,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/available-for-linking/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainWrite>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainWriteDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -111,16 +181,18 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Créer un domaine
      * Crée un nouveau domaine.  - &#x60;owner&#x60; est forcé au user courant (même si fourni dans le payload). - Le user courant est ajouté à &#x60;staff&#x60; automatiquement. - &#x60;allowed_languages&#x60; doit être un sous-ensemble de &#x60;settings.LANGUAGES&#x60;.
      * @endpoint post /api/domain/
-     * @param domainWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainCreate(domainWriteRequest: DomainWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainRead>;
-    public domainCreate(domainWriteRequest: DomainWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainRead>>;
-    public domainCreate(domainWriteRequest: DomainWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainRead>>;
-    public domainCreate(domainWriteRequest: DomainWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (domainWriteRequest === null || domainWriteRequest === undefined) {
-            throw new Error('Required parameter domainWriteRequest was null or undefined when calling domainCreate.');
+    public domainCreate(requestParameters: DomainCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainReadDto>;
+    public domainCreate(requestParameters: DomainCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainReadDto>>;
+    public domainCreate(requestParameters: DomainCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainReadDto>>;
+    public domainCreate(requestParameters: DomainCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainWriteRequestDto = requestParameters?.domainWriteRequestDto;
+        if (domainWriteRequestDto === null || domainWriteRequestDto === undefined) {
+            throw new Error('Required parameter domainWriteRequestDto was null or undefined when calling domainCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -164,10 +236,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: domainWriteRequest,
+                body: domainWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -182,14 +254,16 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Supprimer un domaine
      * Supprime un domaine.  - Réservé à : superuser / staff global / owner / staff du domaine. ⚠️ La suppression peut échouer si le domaine est référencé ailleurs (FK en PROTECT côté modèles liés).
      * @endpoint delete /api/domain/{domain_id}/
-     * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainDestroy(domainId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public domainDestroy(domainId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public domainDestroy(domainId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public domainDestroy(domainId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainDestroy(requestParameters: DomainDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public domainDestroy(requestParameters: DomainDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public domainDestroy(requestParameters: DomainDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public domainDestroy(requestParameters: DomainDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainDestroy.');
         }
@@ -239,14 +313,16 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Récupérer un domaine avec détails
      * @endpoint get /api/domain/{domain_id}/details/
-     * @param domainId ID du domaine.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainDetailsRetrieve(domainId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainDetail>;
-    public domainDetailsRetrieve(domainId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainDetail>>;
-    public domainDetailsRetrieve(domainId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainDetail>>;
-    public domainDetailsRetrieve(domainId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainDetailsRetrieve(requestParameters: DomainDetailsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainDetailDto>;
+    public domainDetailsRetrieve(requestParameters: DomainDetailsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainDetailDto>>;
+    public domainDetailsRetrieve(requestParameters: DomainDetailsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainDetailDto>>;
+    public domainDetailsRetrieve(requestParameters: DomainDetailsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainDetailsRetrieve.');
         }
@@ -281,7 +357,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainDetail>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainDetailDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -297,18 +373,20 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
      * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/approve/
-     * @param domainId 
-     * @param reqId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestApproveCreate(domainId: number, reqId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestRead>;
-    public domainJoinRequestApproveCreate(domainId: number, reqId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestRead>>;
-    public domainJoinRequestApproveCreate(domainId: number, reqId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestRead>>;
-    public domainJoinRequestApproveCreate(domainId: number, reqId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestApproveCreate(requestParameters: DomainJoinRequestApproveCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestReadDto>;
+    public domainJoinRequestApproveCreate(requestParameters: DomainJoinRequestApproveCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestReadDto>>;
+    public domainJoinRequestApproveCreate(requestParameters: DomainJoinRequestApproveCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestReadDto>>;
+    public domainJoinRequestApproveCreate(requestParameters: DomainJoinRequestApproveCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestApproveCreate.');
         }
+        const reqId = requestParameters?.reqId;
         if (reqId === null || reqId === undefined) {
             throw new Error('Required parameter reqId was null or undefined when calling domainJoinRequestApproveCreate.');
         }
@@ -343,7 +421,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainJoinRequestRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -359,18 +437,20 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Cancel a pending join request.  Two intentional design choices that should NOT be \&quot;fixed\&quot;:  1. No &#x60;transaction.atomic&#x60; / &#x60;select_for_update&#x60;. Cancellation is a    monotonic single-column write (pending → cancelled) with no side    effects. Two concurrent cancels collapse to the same terminal    state — idempotent at the row level. An approve-vs-cancel race    is last-write-wins by design (the HTTP client that lost the race    observes the final state on next fetch).  2. The approver gate (&#x60;_check_can_approve&#x60;) is intentionally NOT    reused here. Cancellation is a requester-only action: only the    user who created the request (or a superuser) can cancel it.    The domain owner can approve and reject, but cannot cancel    someone else\&#39;s request — that\&#39;s a different concept.
      * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/cancel/
-     * @param domainId 
-     * @param reqId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestCancelCreate(domainId: number, reqId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestRead>;
-    public domainJoinRequestCancelCreate(domainId: number, reqId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestRead>>;
-    public domainJoinRequestCancelCreate(domainId: number, reqId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestRead>>;
-    public domainJoinRequestCancelCreate(domainId: number, reqId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestCancelCreate(requestParameters: DomainJoinRequestCancelCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestReadDto>;
+    public domainJoinRequestCancelCreate(requestParameters: DomainJoinRequestCancelCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestReadDto>>;
+    public domainJoinRequestCancelCreate(requestParameters: DomainJoinRequestCancelCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestReadDto>>;
+    public domainJoinRequestCancelCreate(requestParameters: DomainJoinRequestCancelCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestCancelCreate.');
         }
+        const reqId = requestParameters?.reqId;
         if (reqId === null || reqId === undefined) {
             throw new Error('Required parameter reqId was null or undefined when calling domainJoinRequestCancelCreate.');
         }
@@ -405,7 +485,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainJoinRequestRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -421,14 +501,16 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
      * @endpoint post /api/domain/{domain_id}/join-request/
-     * @param domainId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestCreate(domainId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestRead>;
-    public domainJoinRequestCreate(domainId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestRead>>;
-    public domainJoinRequestCreate(domainId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestRead>>;
-    public domainJoinRequestCreate(domainId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestCreate(requestParameters: DomainJoinRequestCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestReadDto>;
+    public domainJoinRequestCreate(requestParameters: DomainJoinRequestCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestReadDto>>;
+    public domainJoinRequestCreate(requestParameters: DomainJoinRequestCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestReadDto>>;
+    public domainJoinRequestCreate(requestParameters: DomainJoinRequestCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestCreate.');
         }
@@ -463,7 +545,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainJoinRequestRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -479,22 +561,31 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
      * @endpoint get /api/domain/{domain_id}/join-request/
-     * @param domainId 
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestList(domainId: number, page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainJoinRequestReadList>;
-    public domainJoinRequestList(domainId: number, page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainJoinRequestReadList>>;
-    public domainJoinRequestList(domainId: number, page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainJoinRequestReadList>>;
-    public domainJoinRequestList(domainId: number, page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestList(requestParameters: DomainJoinRequestListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainJoinRequestReadListDto>;
+    public domainJoinRequestList(requestParameters: DomainJoinRequestListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainJoinRequestReadListDto>>;
+    public domainJoinRequestList(requestParameters: DomainJoinRequestListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainJoinRequestReadListDto>>;
+    public domainJoinRequestList(requestParameters: DomainJoinRequestListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestList.');
         }
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -526,10 +617,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedDomainJoinRequestReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedDomainJoinRequestReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -543,18 +634,20 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
      * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/reject/
-     * @param domainId 
-     * @param reqId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestRejectCreate(domainId: number, reqId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestRead>;
-    public domainJoinRequestRejectCreate(domainId: number, reqId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestRead>>;
-    public domainJoinRequestRejectCreate(domainId: number, reqId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestRead>>;
-    public domainJoinRequestRejectCreate(domainId: number, reqId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestRejectCreate(requestParameters: DomainJoinRequestRejectCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestReadDto>;
+    public domainJoinRequestRejectCreate(requestParameters: DomainJoinRequestRejectCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestReadDto>>;
+    public domainJoinRequestRejectCreate(requestParameters: DomainJoinRequestRejectCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestReadDto>>;
+    public domainJoinRequestRejectCreate(requestParameters: DomainJoinRequestRejectCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestRejectCreate.');
         }
+        const reqId = requestParameters?.reqId;
         if (reqId === null || reqId === undefined) {
             throw new Error('Required parameter reqId was null or undefined when calling domainJoinRequestRejectCreate.');
         }
@@ -589,7 +682,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainJoinRequestRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -605,18 +698,20 @@ export class DomainService extends BaseService implements DomainServiceInterface
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
      * @endpoint get /api/domain/{domain_id}/join-request/{req_id}/
-     * @param domainId 
-     * @param reqId 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainJoinRequestRetrieve(domainId: number, reqId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestRead>;
-    public domainJoinRequestRetrieve(domainId: number, reqId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestRead>>;
-    public domainJoinRequestRetrieve(domainId: number, reqId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestRead>>;
-    public domainJoinRequestRetrieve(domainId: number, reqId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainJoinRequestRetrieve(requestParameters: DomainJoinRequestRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestReadDto>;
+    public domainJoinRequestRetrieve(requestParameters: DomainJoinRequestRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestReadDto>>;
+    public domainJoinRequestRetrieve(requestParameters: DomainJoinRequestRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestReadDto>>;
+    public domainJoinRequestRetrieve(requestParameters: DomainJoinRequestRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestRetrieve.');
         }
+        const reqId = requestParameters?.reqId;
         if (reqId === null || reqId === undefined) {
             throw new Error('Required parameter reqId was null or undefined when calling domainJoinRequestRetrieve.');
         }
@@ -651,7 +746,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainJoinRequestRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainJoinRequestReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -668,18 +763,27 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Lister les domaines accessibles
      * Retourne la liste des domaines visibles par l\&#39;utilisateur courant.  - **Superuser / staff global** : voit tous les domaines - **Utilisateur normal** : voit uniquement les domaines dont il est &#x60;owner&#x60; ou membre de &#x60;staff&#x60;
      * @endpoint get /api/domain/
-     * @param page A page number within the paginated result set.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainList(page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainReadList>;
-    public domainList(page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainReadList>>;
-    public domainList(page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainReadList>>;
-    public domainList(page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainReadListDto>;
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainReadListDto>>;
+    public domainList(requestParameters?: DomainListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainReadListDto>>;
+    public domainList(requestParameters?: DomainListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const page = requestParameters?.page;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -711,10 +815,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedDomainReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedDomainReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -727,20 +831,22 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
     /**
      * @endpoint post /api/domain/{domain_id}/member-role/
-     * @param domainId A unique integer value identifying this domain.
-     * @param domainWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainWrite>;
-    public domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainWrite>>;
-    public domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainWrite>>;
-    public domainMemberRoleCreate(domainId: number, domainWriteRequest: DomainWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainWriteDto>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainWriteDto>>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainWriteDto>>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainMemberRoleCreate.');
         }
-        if (domainWriteRequest === null || domainWriteRequest === undefined) {
-            throw new Error('Required parameter domainWriteRequest was null or undefined when calling domainMemberRoleCreate.');
+        const domainWriteRequestDto = requestParameters?.domainWriteRequestDto;
+        if (domainWriteRequestDto === null || domainWriteRequestDto === undefined) {
+            throw new Error('Required parameter domainWriteRequestDto was null or undefined when calling domainMemberRoleCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -784,10 +890,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/member-role/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainWrite>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainWriteDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: domainWriteRequest,
+                body: domainWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -802,18 +908,20 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Modifier partiellement un domaine
      * Met à jour partiellement un domaine (PATCH).  - Réservé à : superuser / staff global / owner / staff du domaine. - &#x60;owner&#x60; est **read-only** (ne peut pas être modifié via l\&#39;API).
      * @endpoint patch /api/domain/{domain_id}/
-     * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
-     * @param patchedDomainPartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainRead>;
-    public domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainRead>>;
-    public domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainRead>>;
-    public domainPartialUpdate(domainId: number, patchedDomainPartialRequest?: PatchedDomainPartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainPartialUpdate(requestParameters: DomainPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainReadDto>;
+    public domainPartialUpdate(requestParameters: DomainPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainReadDto>>;
+    public domainPartialUpdate(requestParameters: DomainPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainReadDto>>;
+    public domainPartialUpdate(requestParameters: DomainPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainPartialUpdate.');
         }
+        const patchedDomainPartialRequestDto = requestParameters?.patchedDomainPartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -856,10 +964,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainRead>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainReadDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedDomainPartialRequest,
+                body: patchedDomainPartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -874,14 +982,16 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Récupérer un domaine
      * Retourne un domaine (par &#x60;domain_id&#x60;).  ⚠️ Si l\&#39;utilisateur n\&#39;a pas accès au domaine, l\&#39;API renvoie généralement **404** (car &#x60;get_queryset()&#x60; ne retourne pas l\&#39;objet).
      * @endpoint get /api/domain/{domain_id}/
-     * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainRetrieve(domainId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainRead>;
-    public domainRetrieve(domainId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainRead>>;
-    public domainRetrieve(domainId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainRead>>;
-    public domainRetrieve(domainId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainRetrieve(requestParameters: DomainRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainReadDto>;
+    public domainRetrieve(requestParameters: DomainRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainReadDto>>;
+    public domainRetrieve(requestParameters: DomainRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainReadDto>>;
+    public domainRetrieve(requestParameters: DomainRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainRetrieve.');
         }
@@ -916,7 +1026,7 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -933,20 +1043,22 @@ export class DomainService extends BaseService implements DomainServiceInterface
      * Mettre à jour un domaine
      * Met à jour un domaine (PUT).  - Réservé à : superuser / staff global / owner / staff du domaine. - &#x60;owner&#x60; est **read-only** (ne peut pas être modifié via l\&#39;API).
      * @endpoint put /api/domain/{domain_id}/
-     * @param domainId Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL).
-     * @param domainWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainRead>;
-    public domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainRead>>;
-    public domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainRead>>;
-    public domainUpdate(domainId: number, domainWriteRequest: DomainWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public domainUpdate(requestParameters: DomainUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainReadDto>;
+    public domainUpdate(requestParameters: DomainUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainReadDto>>;
+    public domainUpdate(requestParameters: DomainUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainReadDto>>;
+    public domainUpdate(requestParameters: DomainUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainUpdate.');
         }
-        if (domainWriteRequest === null || domainWriteRequest === undefined) {
-            throw new Error('Required parameter domainWriteRequest was null or undefined when calling domainUpdate.');
+        const domainWriteRequestDto = requestParameters?.domainWriteRequestDto;
+        if (domainWriteRequestDto === null || domainWriteRequestDto === undefined) {
+            throw new Error('Required parameter domainWriteRequestDto was null or undefined when calling domainUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -990,10 +1102,10 @@ export class DomainService extends BaseService implements DomainServiceInterface
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainRead>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<DomainReadDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: domainWriteRequest,
+                body: domainWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

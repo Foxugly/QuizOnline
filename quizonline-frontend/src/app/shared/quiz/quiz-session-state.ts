@@ -1,23 +1,23 @@
-import {QuestionRead, QuizQuestionAnswer, QuizQuestionRead} from '../../api/generated';
+import {QuestionReadDto, QuizQuestionAnswerDto, QuizQuestionReadDto} from '../../api/generated';
 import {QuizNavItem} from '../../components/quiz-nav/quiz-nav';
 
-export function buildQuizNavItems(questions: QuizQuestionRead[]): QuizNavItem[] {
+export function buildQuizNavItems(questions: QuizQuestionReadDto[]): QuizNavItem[] {
   return questions.map((quizQuestion, index) => ({
     index: quizQuestion.sort_order ?? index + 1,
     id: quizQuestion.question.id,
     answered: false,
     flagged: false,
-    question: quizQuestion.question as QuestionRead,
+    question: quizQuestion.question as QuestionReadDto,
     selectedOptionIds: [],
   }));
 }
 
 export function applyQuizAnswers(
   items: QuizNavItem[],
-  answers: QuizQuestionAnswer[],
+  answers: QuizQuestionAnswerDto[],
 ): QuizNavItem[] {
-  const answersByOrder = new Map<number, QuizQuestionAnswer>();
-  const answersByQuestionId = new Map<number, QuizQuestionAnswer>();
+  const answersByOrder = new Map<number, QuizQuestionAnswerDto>();
+  const answersByQuestionId = new Map<number, QuizQuestionAnswerDto>();
 
   for (const answer of answers) {
     answersByOrder.set(answer.question_order, answer);

@@ -11,13 +11,13 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { BulkCreateFromTemplateInputRequest } from '../model/models';
-import { CreateQuizInputRequest } from '../model/models';
-import { ErrorDetail } from '../model/models';
-import { PaginatedQuizListList } from '../model/models';
-import { PatchedQuizPartialUpdateRequest } from '../model/models';
-import { Quiz } from '../model/models';
-import { QuizUpdateRequest } from '../model/models';
+import { BulkCreateFromTemplateInputRequestDto } from '../model/models';
+import { CreateQuizInputRequestDto } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { PaginatedQuizListListDto } from '../model/models';
+import { PatchedQuizPartialUpdateRequestDto } from '../model/models';
+import { QuizDto } from '../model/models';
+import { QuizUpdateRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -35,7 +35,7 @@ export interface QuizServiceInterface {
      * @param bulkCreateFromTemplateInputRequest 
      * @param page A page number within the paginated result set.
      */
-    quizBulkCreateFromTemplateCreate(bulkCreateFromTemplateInputRequest: BulkCreateFromTemplateInputRequest, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizListList>;
+    quizBulkCreateFromTemplateCreate(bulkCreateFromTemplateInputRequest: BulkCreateFromTemplateInputRequestDto, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizListListDto>;
 
     /**
      * Clôturer un quiz (calcule les scores)
@@ -43,7 +43,7 @@ export interface QuizServiceInterface {
      * @endpoint post /api/quiz/{quiz_id}/close/
      * @param quizId 
      */
-    quizCloseCreate(quizId: number, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizCloseCreate(quizId: number, extraHttpRequestParams?: any): Observable<QuizDto>;
 
     /**
      * Créer un quiz à partir d\&#39;un template de quiz
@@ -51,7 +51,7 @@ export interface QuizServiceInterface {
      * @endpoint post /api/quiz/
      * @param createQuizInputRequest 
      */
-    quizCreate(createQuizInputRequest: CreateQuizInputRequest, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizCreate(createQuizInputRequest: CreateQuizInputRequestDto, extraHttpRequestParams?: any): Observable<QuizDto>;
 
     /**
      * Supprimer un quiz
@@ -69,7 +69,7 @@ export interface QuizServiceInterface {
      * @param page A page number within the paginated result set.
      * @param search Recherche simple (name__icontains).
      */
-    quizList(name?: string, page?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedQuizListList>;
+    quizList(name?: string, page?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedQuizListListDto>;
 
     /**
      * Mettre à jour partiellement un quiz
@@ -78,7 +78,7 @@ export interface QuizServiceInterface {
      * @param quizId 
      * @param patchedQuizPartialUpdateRequest 
      */
-    quizPartialUpdate(quizId: number, patchedQuizPartialUpdateRequest?: PatchedQuizPartialUpdateRequest, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizPartialUpdate(quizId: number, patchedQuizPartialUpdateRequest?: PatchedQuizPartialUpdateRequestDto, extraHttpRequestParams?: any): Observable<QuizDto>;
 
     /**
      * Détail d’un quiz (session)
@@ -86,7 +86,7 @@ export interface QuizServiceInterface {
      * @endpoint get /api/quiz/{quiz_id}/
      * @param quizId 
      */
-    quizRetrieve(quizId: number, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizRetrieve(quizId: number, extraHttpRequestParams?: any): Observable<QuizDto>;
 
     /**
      * Démarrer une session de quiz existante
@@ -94,7 +94,7 @@ export interface QuizServiceInterface {
      * @endpoint post /api/quiz/{quiz_id}/start/
      * @param quizId 
      */
-    quizStartCreate(quizId: number, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizStartCreate(quizId: number, extraHttpRequestParams?: any): Observable<QuizDto>;
 
     /**
      * Mettre à jour un quiz
@@ -103,6 +103,6 @@ export interface QuizServiceInterface {
      * @param quizId 
      * @param quizUpdateRequest 
      */
-    quizUpdate(quizId: number, quizUpdateRequest: QuizUpdateRequest, extraHttpRequestParams?: any): Observable<Quiz>;
+    quizUpdate(quizId: number, quizUpdateRequest: QuizUpdateRequestDto, extraHttpRequestParams?: any): Observable<QuizDto>;
 
 }

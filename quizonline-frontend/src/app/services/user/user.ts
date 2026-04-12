@@ -2,14 +2,14 @@ import {HttpClient} from '@angular/common/http';
 import {computed, Injectable, signal} from '@angular/core';
 import {BehaviorSubject, map, Observable, tap} from 'rxjs';
 
-import {UserService as UserApiService} from '../../api/generated';
-import {LanguageEnum} from '../../api/generated/model/language-enum';
-import {PatchedCustomUserProfileUpdateRequest} from '../../api/generated/model/patched-custom-user-profile-update-request';
-import {CustomUserRead} from '../../api/generated/model/custom-user-read';
+import {UserApi as UserApiService} from '../../api/generated';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {PatchedCustomUserProfileUpdateRequestDto} from '../../api/generated/model/patched-custom-user-profile-update-request';
+import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
 import {isSupportedLanguage, SupportedLanguage} from '../../../environments/language';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
-export type AdminUserDto = CustomUserRead & {
+export type AdminUserDto = CustomUserReadDto & {
   nb_domain_max?: number;
 };
 
@@ -19,7 +19,7 @@ export type AdminUserCreatePayload = {
   first_name?: string;
   last_name?: string;
   password: string;
-  language?: LanguageEnum;
+  language?: LanguageEnumDto;
   nb_domain_max?: number;
 };
 
@@ -27,7 +27,7 @@ export type AdminUserUpdatePayload = {
   email?: string;
   first_name?: string;
   last_name?: string;
-  language?: LanguageEnum;
+  language?: LanguageEnumDto;
   password?: string;
   is_active?: boolean;
   password_change_required?: boolean;
@@ -36,7 +36,7 @@ export type AdminUserUpdatePayload = {
 
 @Injectable({providedIn: 'root'})
 export class UserService {
-  currentUser = signal<CustomUserRead | null>(null);
+  currentUser = signal<CustomUserReadDto | null>(null);
   requiresPasswordChange = computed(() => this.shouldForcePasswordChange());
   isAdmin = computed(() => {
     const me = this.currentUser();
@@ -57,22 +57,22 @@ export class UserService {
     return this._lang$.value;
   }
 
-  shouldForcePasswordChange(user: CustomUserRead | null | undefined = this.currentUser()): boolean {
+  shouldForcePasswordChange(user: CustomUserReadDto | null | undefined = this.currentUser()): boolean {
     return !!user && user.password_change_required === true;
   }
 
-  shouldConfirmEmail(user: CustomUserRead | null | undefined = this.currentUser()): boolean {
+  shouldConfirmEmail(user: CustomUserReadDto | null | undefined = this.currentUser()): boolean {
     return !!user && user.email_confirmed === false;
   }
 
-  list(): Observable<CustomUserRead[]> {
-    return this.http.get<CustomUserRead[] | {results?: CustomUserRead[]}>(`${this.apiBaseUrl}/`).pipe(
+  list(): Observable<CustomUserReadDto[]> {
+    return this.http.get<CustomUserReadDto[] | {results?: CustomUserReadDto[]}>(`${this.apiBaseUrl}/`).pipe(
       map((response) => Array.isArray(response) ? response : (response.results ?? [])),
     );
   }
 
   listAdmin(): Observable<AdminUserDto[]> {
-    return this.userApi.userList().pipe(
+    return this.userApi.userList({}).pipe(
       map((response) => response.results ?? []),
     );
   }
@@ -99,22 +99,22 @@ export class UserService {
     this.applyLang(lang);
   }
 
-  setFromApi(lang: LanguageEnum | null | undefined): void {
+  setFromApi(lang: LanguageEnumDto | null | undefined): void {
     if (lang && isSupportedLanguage(lang)) {
       this.setLang(lang);
       return;
     }
-    this.setLang(LanguageEnum.En);
+    this.setLang(LanguageEnumDto.En);
   }
 
-  syncLanguageFromMe(me: CustomUserRead) {
+  syncLanguageFromMe(me: CustomUserReadDto) {
     if (me.language) {
       this.setLang(me.language);
     }
   }
 
-  getMe(): Observable<CustomUserRead> {
-    return this.http.get<CustomUserRead>(`${this.apiBaseUrl}/me/`).pipe(
+  getMe(): Observable<CustomUserReadDto> {
+    return this.http.get<CustomUserReadDto>(`${this.apiBaseUrl}/me/`).pipe(
       tap((me) => {
         this.currentUser.set(me);
         this.syncLanguageFromMe(me);
@@ -122,14 +122,14 @@ export class UserService {
     );
   }
 
-  updateMeLanguage(language: LanguageEnum): Observable<CustomUserRead> {
+  updateMeLanguage(language: LanguageEnumDto): Observable<CustomUserReadDto> {
     return this.updateMeProfile({language}).pipe(
       tap((me) => this.syncLanguageFromMe(me)),
     );
   }
 
-  updateMeProfile(payload: PatchedCustomUserProfileUpdateRequest): Observable<CustomUserRead> {
-    return this.http.patch<CustomUserRead>(`${this.apiBaseUrl}/me/`, payload).pipe(
+  updateMeProfile(payload: PatchedCustomUserProfileUpdateRequestDto): Observable<CustomUserReadDto> {
+    return this.http.patch<CustomUserReadDto>(`${this.apiBaseUrl}/me/`, payload).pipe(
       tap((me) => {
         this.currentUser.set(me);
         this.syncLanguageFromMe(me);
@@ -137,8 +137,8 @@ export class UserService {
     );
   }
 
-  setCurrentDomain(domainId: number | null): Observable<CustomUserRead> {
-    return this.http.post<CustomUserRead>(`${this.apiBaseUrl}/me/current-domain/`, {
+  setCurrentDomain(domainId: number | null): Observable<CustomUserReadDto> {
+    return this.http.post<CustomUserReadDto>(`${this.apiBaseUrl}/me/current-domain/`, {
       domain_id: domainId,
     }).pipe(
       tap((me) => {
@@ -153,10 +153,10 @@ export class UserService {
     if (stored && isSupportedLanguage(stored)) {
       return stored;
     }
-    return LanguageEnum.En;
+    return LanguageEnumDto.En;
   }
 
-  private applyLang(lang: LanguageEnum) {
+  private applyLang(lang: LanguageEnumDto) {
     document.documentElement.lang = String(lang);
   }
 }

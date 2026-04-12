@@ -11,11 +11,11 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { ErrorDetail } from '../model/models';
-import { LanguageRead } from '../model/models';
-import { LanguageWriteRequest } from '../model/models';
-import { PaginatedLanguageReadList } from '../model/models';
-import { PatchedLanguagePartialRequest } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { LanguageReadDto } from '../model/models';
+import { LanguageWriteRequestDto } from '../model/models';
+import { PaginatedLanguageReadListDto } from '../model/models';
+import { PatchedLanguagePartialRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -32,7 +32,7 @@ export interface LanguageServiceInterface {
      * @endpoint post /api/lang/
      * @param languageWriteRequest 
      */
-    langCreate(languageWriteRequest: LanguageWriteRequest, extraHttpRequestParams?: any): Observable<LanguageRead>;
+    langCreate(languageWriteRequest: LanguageWriteRequestDto, extraHttpRequestParams?: any): Observable<LanguageReadDto>;
 
     /**
      * Supprimer une langue
@@ -53,7 +53,7 @@ export interface LanguageServiceInterface {
      * @param pageSize Taille de page (si PageNumberPagination configurée).
      * @param search Recherche simple sur code/name.
      */
-    langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedLanguageReadList>;
+    langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, extraHttpRequestParams?: any): Observable<PaginatedLanguageReadListDto>;
 
     /**
      * Mettre à jour une langue (PATCH)
@@ -62,7 +62,7 @@ export interface LanguageServiceInterface {
      * @param langId ID de la langue.
      * @param patchedLanguagePartialRequest 
      */
-    langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequest, extraHttpRequestParams?: any): Observable<LanguageRead>;
+    langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequestDto, extraHttpRequestParams?: any): Observable<LanguageReadDto>;
 
     /**
      * Récupérer une langue
@@ -70,7 +70,7 @@ export interface LanguageServiceInterface {
      * @endpoint get /api/lang/{lang_id}/
      * @param langId ID de la langue.
      */
-    langRetrieve(langId: number, extraHttpRequestParams?: any): Observable<LanguageRead>;
+    langRetrieve(langId: number, extraHttpRequestParams?: any): Observable<LanguageReadDto>;
 
     /**
      * Mettre à jour une langue (PUT)
@@ -79,6 +79,6 @@ export interface LanguageServiceInterface {
      * @param langId ID de la langue.
      * @param languageWriteRequest 
      */
-    langUpdate(langId: number, languageWriteRequest: LanguageWriteRequest, extraHttpRequestParams?: any): Observable<LanguageRead>;
+    langUpdate(langId: number, languageWriteRequest: LanguageWriteRequestDto, extraHttpRequestParams?: any): Observable<LanguageReadDto>;
 
 }

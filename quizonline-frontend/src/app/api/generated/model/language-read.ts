@@ -9,7 +9,7 @@
  */
 
 
-export interface LanguageRead { 
+export interface LanguageReadDto { 
     readonly id: number;
     /**
      * Code ISO (ex: fr, nl, en, fr-BE)

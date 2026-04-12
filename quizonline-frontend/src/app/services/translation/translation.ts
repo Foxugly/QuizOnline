@@ -2,14 +2,14 @@ import {Injectable} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
 import {
-  FormatEnum,
-  LanguageEnum,
-  TranslateBatchRequestRequest,
-  TranslateItemRequest,
-  TranslationService as TranslationApiService,
+  FormatEnumDto,
+  LanguageEnumDto,
+  TranslateBatchRequestRequestDto,
+  TranslateItemRequestDto,
+  TranslationApi as TranslationApiService,
 } from '../../api/generated';
 
-export type LangCode = `${LanguageEnum}`;
+export type LangCode = `${LanguageEnumDto}`;
 export type TranslateFormat = 'text' | 'html';
 
 export type TranslateBatchItem = {
@@ -18,7 +18,7 @@ export type TranslateBatchItem = {
   format: TranslateFormat;
 };
 
-export const LANG_CODES = Object.values(LanguageEnum) as LangCode[];
+export const LANG_CODES = Object.values(LanguageEnumDto) as LangCode[];
 
 export function isLangCode(value: string): value is LangCode {
   return (LANG_CODES as readonly string[]).includes(value);
@@ -30,19 +30,19 @@ export class TranslationService {
   }
 
   async translateBatch(source: string, target: string, items: TranslateBatchItem[]): Promise<Record<string, string>> {
-    const requestItems: TranslateItemRequest[] = items.map((item) => ({
+    const requestItems: TranslateItemRequestDto[] = items.map((item) => ({
       key: item.key,
       text: item.text,
-      format: item.format === 'html' ? FormatEnum.Html : FormatEnum.Text,
+      format: item.format === 'html' ? FormatEnumDto.Html : FormatEnumDto.Text,
     }));
 
-    const payload: TranslateBatchRequestRequest = {
+    const payload: TranslateBatchRequestRequestDto = {
       source,
       target,
       items: requestItems,
     };
 
-    const res = await firstValueFrom(this.api.translateBatchCreate(payload));
+    const res = await firstValueFrom(this.api.translateBatchCreate({translateBatchRequestRequestDto: payload}));
     return res?.translations ?? {};
   }
 }

@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuizQuestionAnswer } from './quiz-question-answer';
+import { QuizQuestionAnswerDto } from './quiz-question-answer';
 
 
-export interface PaginatedQuizQuestionAnswerList { 
+export interface PaginatedQuizQuestionAnswerListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<QuizQuestionAnswer>;
+    results: Array<QuizQuestionAnswerDto>;
 }
 

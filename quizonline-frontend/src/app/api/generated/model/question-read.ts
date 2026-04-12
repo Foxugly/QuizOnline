@@ -7,24 +7,24 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionMediaRead } from './question-media-read';
-import { LocalizedQuestionTranslation } from './localized-question-translation';
-import { DomainRead } from './domain-read';
-import { SubjectRead } from './subject-read';
-import { QuestionAnswerOptionRead } from './question-answer-option-read';
+import { QuestionAnswerOptionReadDto } from './question-answer-option-read';
+import { QuestionMediaReadDto } from './question-media-read';
+import { SubjectReadDto } from './subject-read';
+import { LocalizedQuestionTranslationDto } from './localized-question-translation';
+import { DomainReadDto } from './domain-read';
 
 
-export interface QuestionRead { 
+export interface QuestionReadDto { 
     readonly id: number;
-    readonly domain: DomainRead;
-    readonly translations: { [key: string]: LocalizedQuestionTranslation; };
+    readonly domain: DomainReadDto;
+    readonly translations: { [key: string]: LocalizedQuestionTranslationDto; };
     readonly allow_multiple_correct: boolean;
     readonly active: boolean;
     readonly is_mode_practice: boolean;
     readonly is_mode_exam: boolean;
-    readonly subjects: Array<SubjectRead>;
-    readonly answer_options: Array<QuestionAnswerOptionRead>;
-    readonly media: Array<QuestionMediaRead>;
+    readonly subjects: Array<SubjectReadDto>;
+    readonly answer_options: Array<QuestionAnswerOptionReadDto>;
+    readonly media: Array<QuestionMediaReadDto>;
     readonly created_at: string;
 }
 

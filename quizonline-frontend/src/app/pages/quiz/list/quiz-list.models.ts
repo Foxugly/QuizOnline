@@ -1,11 +1,11 @@
-import {QuizList, QuizTemplate} from '../../../api/generated';
+import {QuizListDto, QuizTemplateDto} from '../../../api/generated';
 import {QuizTemplateAssignmentSessionDto} from '../../../services/quiz/quiz';
 
-export interface UserQuizListItem extends QuizList {
+export interface UserQuizListItem extends QuizListDto {
   status: 'not_started' | 'in_progress' | 'answered';
 }
 
-export type QuizTemplateListItem = QuizTemplate & {
+export type QuizTemplateListItem = QuizTemplateDto & {
   is_public?: boolean;
   created_by?: number | null;
   domain?: number | null;

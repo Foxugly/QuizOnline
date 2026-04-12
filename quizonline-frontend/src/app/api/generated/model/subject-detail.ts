@@ -7,15 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionInSubject } from './question-in-subject';
-import { LocalizedSubjectDetailTranslation } from './localized-subject-detail-translation';
+import { QuestionInSubjectDto } from './question-in-subject';
+import { LocalizedSubjectDetailTranslationDto } from './localized-subject-detail-translation';
 
 
-export interface SubjectDetail { 
+export interface SubjectDetailDto { 
     readonly id: number;
     active?: boolean;
     domain: number;
-    readonly translations: { [key: string]: LocalizedSubjectDetailTranslation; };
-    readonly questions: Array<QuestionInSubject>;
+    readonly translations: { [key: string]: LocalizedSubjectDetailTranslationDto; };
+    readonly questions: Array<QuestionInSubjectDto>;
 }
 

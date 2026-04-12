@@ -1,4 +1,4 @@
-import { LanguageEnum } from '../../../api/generated';
+import { LanguageEnumDto } from '../../../api/generated';
 
 export type QuestionListUiText = {
   title: string;
@@ -126,14 +126,14 @@ const ES: QuestionListUiText = {
   exam: 'Examen',
 };
 
-const UI_TEXT: Partial<Record<LanguageEnum, QuestionListUiText>> = {
-  [LanguageEnum.Fr]: FR,
-  [LanguageEnum.En]: EN,
-  [LanguageEnum.Nl]: NL,
-  [LanguageEnum.It]: IT,
-  [LanguageEnum.Es]: ES,
+const UI_TEXT: Partial<Record<LanguageEnumDto, QuestionListUiText>> = {
+  [LanguageEnumDto.Fr]: FR,
+  [LanguageEnumDto.En]: EN,
+  [LanguageEnumDto.Nl]: NL,
+  [LanguageEnumDto.It]: IT,
+  [LanguageEnumDto.Es]: ES,
 };
 
-export function getQuestionListUiText(lang: LanguageEnum | string | null | undefined): QuestionListUiText {
-  return UI_TEXT[lang as LanguageEnum] ?? EN;
+export function getQuestionListUiText(lang: LanguageEnumDto | string | null | undefined): QuestionListUiText {
+  return UI_TEXT[lang as LanguageEnumDto] ?? EN;
 }

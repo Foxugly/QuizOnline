@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuestionAnswerOptionRead } from './question-answer-option-read';
+import { QuestionAnswerOptionReadDto } from './question-answer-option-read';
 
 
-export interface QuestionInQuizQuestion { 
+export interface QuestionInQuizQuestionDto { 
     readonly id: number;
     readonly title: string;
-    readonly answer_options: Array<QuestionAnswerOptionRead>;
+    readonly answer_options: Array<QuestionAnswerOptionReadDto>;
 }
 

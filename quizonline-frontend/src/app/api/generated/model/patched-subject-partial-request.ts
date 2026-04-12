@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedSubjectPartialRequest { 
+export interface PatchedSubjectPartialRequestDto { 
     /**
      * Ex: {\"fr\":{\"name\":\"Math\",\"description\":\"\"},\"nl\":{\"name\":\"Wiskunde\",\"description\":\"\"}}
      */

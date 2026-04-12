@@ -9,7 +9,7 @@
  */
 
 
-export interface TranslateBatchResponse { 
+export interface TranslateBatchResponseDto { 
     translations: { [key: string]: string; };
 }
 

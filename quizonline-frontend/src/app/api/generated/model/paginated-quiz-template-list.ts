@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuizTemplate } from './quiz-template';
+import { QuizTemplateDto } from './quiz-template';
 
 
-export interface PaginatedQuizTemplateList { 
+export interface PaginatedQuizTemplateListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<QuizTemplate>;
+    results: Array<QuizTemplateDto>;
 }
 

@@ -4,15 +4,15 @@ import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
-import {DomainRead, LanguageEnum} from '../../../api/generated';
+import {DomainReadDto, LanguageEnumDto} from '../../../api/generated';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 
-type LangCode = `${LanguageEnum}`;
-type DomainListRow = DomainRead & {
+type LangCode = `${LanguageEnumDto}`;
+type DomainListRow = DomainReadDto & {
   name: string;
   description: string;
   subjectsCount: number;
@@ -29,26 +29,26 @@ export class DomainList implements OnInit {
   private domainService = inject(DomainService);
   private userService: UserService = inject(UserService);
 
-  domains = signal<DomainRead[]>([]);
+  domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);
   rowsData = computed<DomainListRow[]>(() => this.domains().map((domain) => this.toRow(domain)));
 
   rows = 10;
 
-  getDTDto(d: DomainRead): DomainTranslationDto {
+  getDTDto(d: DomainReadDto): DomainTranslationDto {
     return <DomainTranslationDto>selectTranslation<DomainTranslationDto>(
       d.translations as unknown as Record<string, DomainTranslationDto>,
       this.currentLang(),
     );
   }
 
-  getName(d: DomainRead): string {
+  getName(d: DomainReadDto): string {
     const t = this.getDTDto(d);
     return t?.name ?? '';
   }
 
-  getDescription(d: DomainRead): string {
+  getDescription(d: DomainReadDto): string {
     const t = this.getDTDto(d);
     return t?.description ?? '';
   }
@@ -86,8 +86,8 @@ export class DomainList implements OnInit {
     this.domainService.goDelete(id);
   }
 
-  private toRow(domain: DomainRead): DomainListRow {
-    const domainWithCounts = domain as DomainRead & { subjects_count?: number; questions_count?: number };
+  private toRow(domain: DomainReadDto): DomainListRow {
+    const domainWithCounts = domain as DomainReadDto & { subjects_count?: number; questions_count?: number };
     return {
       ...domain,
       name: this.getName(domain),

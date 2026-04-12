@@ -7,11 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedQuestionTitleTranslation } from './localized-question-title-translation';
+import { LocalizedQuestionTitleTranslationDto } from './localized-question-title-translation';
 
 
-export interface QuestionInSubject { 
+export interface QuestionInSubjectDto { 
     readonly id: number;
-    readonly title: { [key: string]: LocalizedQuestionTitleTranslation; };
+    readonly title: { [key: string]: LocalizedQuestionTitleTranslationDto; };
 }
 

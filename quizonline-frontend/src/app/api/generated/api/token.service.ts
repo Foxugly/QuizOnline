@@ -11,32 +11,37 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { EmailConfirmedTokenObtainPairRequest } from '../model/email-confirmed-token-obtain-pair-request';
+import { EmailConfirmedTokenObtainPairRequestDto } from '../model/email-confirmed-token-obtain-pair-request';
 // @ts-ignore
-import { TokenRefresh } from '../model/token-refresh';
+import { TokenRefreshDto } from '../model/token-refresh';
 // @ts-ignore
-import { TokenRefreshRequest } from '../model/token-refresh-request';
+import { TokenRefreshRequestDto } from '../model/token-refresh-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    TokenServiceInterface
-} from './token.serviceInterface';
 
+
+export interface TokenCreateRequestParams {
+    emailConfirmedTokenObtainPairRequestDto: EmailConfirmedTokenObtainPairRequestDto;
+}
+
+export interface TokenRefreshCreateRequestParams {
+    tokenRefreshRequestDto: TokenRefreshRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class TokenService extends BaseService implements TokenServiceInterface {
+export class TokenApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -45,16 +50,18 @@ export class TokenService extends BaseService implements TokenServiceInterface {
     /**
      * Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of those credentials.
      * @endpoint post /api/token/
-     * @param emailConfirmedTokenObtainPairRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public tokenCreate(emailConfirmedTokenObtainPairRequest: EmailConfirmedTokenObtainPairRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (emailConfirmedTokenObtainPairRequest === null || emailConfirmedTokenObtainPairRequest === undefined) {
-            throw new Error('Required parameter emailConfirmedTokenObtainPairRequest was null or undefined when calling tokenCreate.');
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const emailConfirmedTokenObtainPairRequestDto = requestParameters?.emailConfirmedTokenObtainPairRequestDto;
+        if (emailConfirmedTokenObtainPairRequestDto === null || emailConfirmedTokenObtainPairRequestDto === undefined) {
+            throw new Error('Required parameter emailConfirmedTokenObtainPairRequestDto was null or undefined when calling tokenCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -97,7 +104,7 @@ export class TokenService extends BaseService implements TokenServiceInterface {
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: emailConfirmedTokenObtainPairRequest,
+                body: emailConfirmedTokenObtainPairRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -111,16 +118,18 @@ export class TokenService extends BaseService implements TokenServiceInterface {
     /**
      * Takes a refresh type JSON web token and returns an access type JSON web token if the refresh token is valid.
      * @endpoint post /api/token/refresh/
-     * @param tokenRefreshRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TokenRefresh>;
-    public tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TokenRefresh>>;
-    public tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TokenRefresh>>;
-    public tokenRefreshCreate(tokenRefreshRequest: TokenRefreshRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (tokenRefreshRequest === null || tokenRefreshRequest === undefined) {
-            throw new Error('Required parameter tokenRefreshRequest was null or undefined when calling tokenRefreshCreate.');
+    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TokenRefreshDto>;
+    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TokenRefreshDto>>;
+    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TokenRefreshDto>>;
+    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const tokenRefreshRequestDto = requestParameters?.tokenRefreshRequestDto;
+        if (tokenRefreshRequestDto === null || tokenRefreshRequestDto === undefined) {
+            throw new Error('Required parameter tokenRefreshRequestDto was null or undefined when calling tokenRefreshCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -161,10 +170,10 @@ export class TokenService extends BaseService implements TokenServiceInterface {
 
         let localVarPath = `/api/token/refresh/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<TokenRefresh>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<TokenRefreshDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: tokenRefreshRequest,
+                body: tokenRefreshRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -9,7 +9,7 @@
  */
 
 
-export interface PasswordResetConfirmRequest { 
+export interface PasswordResetConfirmRequestDto { 
     uid: string;
     token: string;
     new_password1: string;

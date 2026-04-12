@@ -7,19 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageEnum } from './language-enum';
+import { LanguageEnumDto } from './language-enum';
 
 
-export interface CustomUserRead { 
+export interface CustomUserReadDto { 
     readonly id: number;
     /**
      * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
     readonly username: string;
-    email?: string;
+    email?: string | null;
     first_name?: string;
     last_name?: string;
-    language?: LanguageEnum;
+    language?: LanguageEnumDto;
     readonly email_confirmed: boolean;
     readonly password_change_required: boolean;
     /**
@@ -41,7 +41,6 @@ export interface CustomUserRead {
     readonly managed_domain_ids: Array<number>;
     readonly pending_join_requests: Array<any>;
 }
-export namespace CustomUserRead {
-}
+
 
 

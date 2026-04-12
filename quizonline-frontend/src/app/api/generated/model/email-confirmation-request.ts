@@ -9,7 +9,7 @@
  */
 
 
-export interface EmailConfirmationRequest { 
+export interface EmailConfirmationRequestDto { 
     uid: string;
     token: string;
 }

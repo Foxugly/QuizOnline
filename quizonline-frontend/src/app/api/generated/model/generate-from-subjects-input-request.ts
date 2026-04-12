@@ -9,7 +9,7 @@
  */
 
 
-export interface GenerateFromSubjectsInputRequest { 
+export interface GenerateFromSubjectsInputRequestDto { 
     title: string;
     domain_id: number;
     subject_ids: Array<number>;

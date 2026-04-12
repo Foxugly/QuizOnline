@@ -8,7 +8,7 @@ import {MessageModule} from 'primeng/message';
 
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth/auth';
-import {PasswordChangeRequest} from '../../../api/generated';
+import {PasswordChangeRequestDto} from '../../../api/generated';
 import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
@@ -102,7 +102,7 @@ export class ChangePasswordPage {
     }
 
     this.isSubmitting = true;
-    const payload: PasswordChangeRequest = this.form.getRawValue();
+    const payload: PasswordChangeRequestDto = this.form.getRawValue();
 
     this.authService.changePassword(payload).subscribe({
       next: () => {

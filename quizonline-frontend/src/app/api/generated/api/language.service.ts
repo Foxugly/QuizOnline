@@ -11,36 +11,72 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ErrorDetail } from '../model/error-detail';
+import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
-import { LanguageRead } from '../model/language-read';
+import { LanguageReadDto } from '../model/language-read';
 // @ts-ignore
-import { LanguageWriteRequest } from '../model/language-write-request';
+import { LanguageWriteRequestDto } from '../model/language-write-request';
 // @ts-ignore
-import { PaginatedLanguageReadList } from '../model/paginated-language-read-list';
+import { PaginatedLanguageReadListDto } from '../model/paginated-language-read-list';
 // @ts-ignore
-import { PatchedLanguagePartialRequest } from '../model/patched-language-partial-request';
+import { PatchedLanguagePartialRequestDto } from '../model/patched-language-partial-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    LanguageServiceInterface
-} from './language.serviceInterface';
 
+
+export interface LangCreateRequestParams {
+    languageWriteRequestDto: LanguageWriteRequestDto;
+}
+
+export interface LangDestroyRequestParams {
+    /** ID de la langue. */
+    langId: number;
+}
+
+export interface LangListRequestParams {
+    active?: boolean;
+    code?: string;
+    /** Tri (ex: \&quot;code\&quot;, \&quot;-name\&quot;, \&quot;id\&quot;). */
+    ordering?: string;
+    /** Numéro de page (si pagination activée). */
+    page?: number;
+    /** Taille de page (si PageNumberPagination configurée). */
+    pageSize?: number;
+    /** Recherche simple sur code/name. */
+    search?: string;
+}
+
+export interface LangPartialUpdateRequestParams {
+    /** ID de la langue. */
+    langId: number;
+    patchedLanguagePartialRequestDto?: PatchedLanguagePartialRequestDto;
+}
+
+export interface LangRetrieveRequestParams {
+    /** ID de la langue. */
+    langId: number;
+}
+
+export interface LangUpdateRequestParams {
+    /** ID de la langue. */
+    langId: number;
+    languageWriteRequestDto: LanguageWriteRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class LanguageService extends BaseService implements LanguageServiceInterface {
+export class LanguageApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -49,16 +85,18 @@ export class LanguageService extends BaseService implements LanguageServiceInter
     /**
      * Créer une langue
      * @endpoint post /api/lang/
-     * @param languageWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langCreate(languageWriteRequest: LanguageWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageRead>;
-    public langCreate(languageWriteRequest: LanguageWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageRead>>;
-    public langCreate(languageWriteRequest: LanguageWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageRead>>;
-    public langCreate(languageWriteRequest: LanguageWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (languageWriteRequest === null || languageWriteRequest === undefined) {
-            throw new Error('Required parameter languageWriteRequest was null or undefined when calling langCreate.');
+    public langCreate(requestParameters: LangCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageReadDto>;
+    public langCreate(requestParameters: LangCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageReadDto>>;
+    public langCreate(requestParameters: LangCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageReadDto>>;
+    public langCreate(requestParameters: LangCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const languageWriteRequestDto = requestParameters?.languageWriteRequestDto;
+        if (languageWriteRequestDto === null || languageWriteRequestDto === undefined) {
+            throw new Error('Required parameter languageWriteRequestDto was null or undefined when calling langCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -102,10 +140,10 @@ export class LanguageService extends BaseService implements LanguageServiceInter
 
         let localVarPath = `/api/lang/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LanguageRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LanguageReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: languageWriteRequest,
+                body: languageWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -119,14 +157,16 @@ export class LanguageService extends BaseService implements LanguageServiceInter
     /**
      * Supprimer une langue
      * @endpoint delete /api/lang/{lang_id}/
-     * @param langId ID de la langue.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langDestroy(langId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public langDestroy(langId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public langDestroy(langId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public langDestroy(langId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public langDestroy(requestParameters: LangDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public langDestroy(requestParameters: LangDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public langDestroy(requestParameters: LangDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public langDestroy(requestParameters: LangDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const langId = requestParameters?.langId;
         if (langId === null || langId === undefined) {
             throw new Error('Required parameter langId was null or undefined when calling langDestroy.');
         }
@@ -178,33 +218,77 @@ export class LanguageService extends BaseService implements LanguageServiceInter
      * Lister les langues
      * Liste paginée des langues.  Supporte : - &#x60;search&#x60; (DRF SearchFilter sur &#x60;code&#x60;, &#x60;name&#x60;) - &#x60;ordering&#x60; (DRF OrderingFilter sur &#x60;code&#x60;, &#x60;name&#x60;, &#x60;id&#x60;) 
      * @endpoint get /api/lang/
-     * @param active 
-     * @param code 
-     * @param ordering Tri (ex: \&quot;code\&quot;, \&quot;-name\&quot;, \&quot;id\&quot;).
-     * @param page Numéro de page (si pagination activée).
-     * @param pageSize Taille de page (si PageNumberPagination configurée).
-     * @param search Recherche simple sur code/name.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedLanguageReadList>;
-    public langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedLanguageReadList>>;
-    public langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedLanguageReadList>>;
-    public langList(active?: boolean, code?: string, ordering?: string, page?: number, pageSize?: number, search?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public langList(requestParameters?: LangListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedLanguageReadListDto>;
+    public langList(requestParameters?: LangListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedLanguageReadListDto>>;
+    public langList(requestParameters?: LangListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedLanguageReadListDto>>;
+    public langList(requestParameters?: LangListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const active = requestParameters?.active;
+        const code = requestParameters?.code;
+        const ordering = requestParameters?.ordering;
+        const page = requestParameters?.page;
+        const pageSize = requestParameters?.pageSize;
+        const search = requestParameters?.search;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>active, 'active');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>code, 'code');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>ordering, 'ordering');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>pageSize, 'page_size');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>search, 'search');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'active',
+            <any>active,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'code',
+            <any>code,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'ordering',
+            <any>ordering,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page_size',
+            <any>pageSize,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'search',
+            <any>search,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -236,10 +320,10 @@ export class LanguageService extends BaseService implements LanguageServiceInter
 
         let localVarPath = `/api/lang/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedLanguageReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedLanguageReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -253,18 +337,20 @@ export class LanguageService extends BaseService implements LanguageServiceInter
     /**
      * Mettre à jour une langue (PATCH)
      * @endpoint patch /api/lang/{lang_id}/
-     * @param langId ID de la langue.
-     * @param patchedLanguagePartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageRead>;
-    public langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageRead>>;
-    public langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageRead>>;
-    public langPartialUpdate(langId: number, patchedLanguagePartialRequest?: PatchedLanguagePartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public langPartialUpdate(requestParameters: LangPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageReadDto>;
+    public langPartialUpdate(requestParameters: LangPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageReadDto>>;
+    public langPartialUpdate(requestParameters: LangPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageReadDto>>;
+    public langPartialUpdate(requestParameters: LangPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const langId = requestParameters?.langId;
         if (langId === null || langId === undefined) {
             throw new Error('Required parameter langId was null or undefined when calling langPartialUpdate.');
         }
+        const patchedLanguagePartialRequestDto = requestParameters?.patchedLanguagePartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -307,10 +393,10 @@ export class LanguageService extends BaseService implements LanguageServiceInter
 
         let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LanguageRead>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LanguageReadDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedLanguagePartialRequest,
+                body: patchedLanguagePartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -324,14 +410,16 @@ export class LanguageService extends BaseService implements LanguageServiceInter
     /**
      * Récupérer une langue
      * @endpoint get /api/lang/{lang_id}/
-     * @param langId ID de la langue.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langRetrieve(langId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageRead>;
-    public langRetrieve(langId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageRead>>;
-    public langRetrieve(langId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageRead>>;
-    public langRetrieve(langId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public langRetrieve(requestParameters: LangRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageReadDto>;
+    public langRetrieve(requestParameters: LangRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageReadDto>>;
+    public langRetrieve(requestParameters: LangRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageReadDto>>;
+    public langRetrieve(requestParameters: LangRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const langId = requestParameters?.langId;
         if (langId === null || langId === undefined) {
             throw new Error('Required parameter langId was null or undefined when calling langRetrieve.');
         }
@@ -366,7 +454,7 @@ export class LanguageService extends BaseService implements LanguageServiceInter
 
         let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LanguageRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LanguageReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -382,20 +470,22 @@ export class LanguageService extends BaseService implements LanguageServiceInter
     /**
      * Mettre à jour une langue (PUT)
      * @endpoint put /api/lang/{lang_id}/
-     * @param langId ID de la langue.
-     * @param languageWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public langUpdate(langId: number, languageWriteRequest: LanguageWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageRead>;
-    public langUpdate(langId: number, languageWriteRequest: LanguageWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageRead>>;
-    public langUpdate(langId: number, languageWriteRequest: LanguageWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageRead>>;
-    public langUpdate(langId: number, languageWriteRequest: LanguageWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public langUpdate(requestParameters: LangUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LanguageReadDto>;
+    public langUpdate(requestParameters: LangUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LanguageReadDto>>;
+    public langUpdate(requestParameters: LangUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LanguageReadDto>>;
+    public langUpdate(requestParameters: LangUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const langId = requestParameters?.langId;
         if (langId === null || langId === undefined) {
             throw new Error('Required parameter langId was null or undefined when calling langUpdate.');
         }
-        if (languageWriteRequest === null || languageWriteRequest === undefined) {
-            throw new Error('Required parameter languageWriteRequest was null or undefined when calling langUpdate.');
+        const languageWriteRequestDto = requestParameters?.languageWriteRequestDto;
+        if (languageWriteRequestDto === null || languageWriteRequestDto === undefined) {
+            throw new Error('Required parameter languageWriteRequestDto was null or undefined when calling langUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -439,10 +529,10 @@ export class LanguageService extends BaseService implements LanguageServiceInter
 
         let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<LanguageRead>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<LanguageReadDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: languageWriteRequest,
+                body: languageWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

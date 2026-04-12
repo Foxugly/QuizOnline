@@ -7,14 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageEnum } from './language-enum';
+import { LanguageEnumDto } from './language-enum';
 
 
 export interface PatchedCustomUserReadRequestDto { 
     email?: string;
     first_name?: string;
     last_name?: string;
-    language?: LanguageEnum;
+    language?: LanguageEnumDto;
     current_domain?: number | null;
 }
 

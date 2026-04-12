@@ -7,17 +7,17 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { VisibilityEnum } from './visibility-enum';
-import { LocalizedQuizTemplateTranslationRequest } from './localized-quiz-template-translation-request';
-import { ModeEnum } from './mode-enum';
+import { LocalizedQuizTemplateTranslationRequestDto } from './localized-quiz-template-translation-request';
+import { ModeEnumDto } from './mode-enum';
+import { VisibilityEnumDto } from './visibility-enum';
 
 
-export interface PatchedQuizTemplatePartialRequest { 
+export interface PatchedQuizTemplatePartialRequestDto { 
     domain?: number | null;
     title?: string;
-    mode?: ModeEnum;
+    mode?: ModeEnumDto;
     description?: string;
-    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequest; };
+    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequestDto; };
     max_questions?: number;
     permanent?: boolean;
     started_at?: string | null;
@@ -26,12 +26,11 @@ export interface PatchedQuizTemplatePartialRequest {
     duration?: number;
     is_public?: boolean;
     active?: boolean;
-    result_visibility?: VisibilityEnum;
+    result_visibility?: VisibilityEnumDto;
     result_available_at?: string | null;
-    detail_visibility?: VisibilityEnum;
+    detail_visibility?: VisibilityEnumDto;
     detail_available_at?: string | null;
 }
-export namespace PatchedQuizTemplatePartialRequest {
-}
+
 
 

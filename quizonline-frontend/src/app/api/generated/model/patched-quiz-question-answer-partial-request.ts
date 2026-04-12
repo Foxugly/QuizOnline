@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedQuizQuestionAnswerPartialRequest { 
+export interface PatchedQuizQuestionAnswerPartialRequestDto { 
     /**
      * ID de la Question (optionnel)
      */

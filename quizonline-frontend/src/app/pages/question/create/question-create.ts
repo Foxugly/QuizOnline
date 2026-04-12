@@ -10,7 +10,7 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {MessageService} from 'primeng/api';
 
-import {DomainRead, LanguageEnum, SubjectRead} from '../../../api/generated';
+import {DomainReadDto, LanguageEnumDto, SubjectReadDto} from '../../../api/generated';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {
@@ -68,12 +68,12 @@ export class QuestionCreate implements OnInit {
     () => this.loading() || this.domainLoading() || this.saving() || this.translating(),
   );
 
-  domains = signal<DomainRead[]>([]);
-  subjects = signal<SubjectRead[]>([]);
+  domains = signal<DomainReadDto[]>([]);
+  subjects = signal<SubjectReadDto[]>([]);
   selectedDomainId = signal<number>(0);
   domainLangs = signal<LangCode[]>([]);
   activeLang = signal<LangCode | null>(null);
-  currentLang = signal<LanguageEnum>(LanguageEnum.En);
+  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
   translateOverwrite = signal(false);
 
   readonly domainOptions = computed<DomainOption[]>(() => {
@@ -147,7 +147,7 @@ export class QuestionCreate implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.Fr);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
 
     this.form.controls.domain.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -403,7 +403,7 @@ export class QuestionCreate implements OnInit {
             .map((language) => language.code)
             .filter((code): code is LangCode => !!code);
 
-          const langs = codes.length ? codes : [LanguageEnum.Fr as unknown as LangCode];
+          const langs = codes.length ? codes : [LanguageEnumDto.Fr as unknown as LangCode];
           this.domainLangs.set(langs);
 
           ensureQuestionTranslationControls(this.fb, this.form, langs);
@@ -447,14 +447,14 @@ export class QuestionCreate implements OnInit {
     return langs[0] ?? null;
   }
 
-  private getDomainLabel(domain: DomainRead, lang: LanguageEnum): string {
+  private getDomainLabel(domain: DomainReadDto, lang: LanguageEnumDto): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const current = translations?.[lang]?.name?.trim();
     if (current) {
       return current;
     }
 
-    const fallbacks: LanguageEnum[] = [LanguageEnum.Fr, LanguageEnum.En, LanguageEnum.Nl];
+    const fallbacks: LanguageEnumDto[] = [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl];
     for (const fallback of fallbacks) {
       const value = translations?.[fallback]?.name?.trim();
       if (value) {
@@ -480,35 +480,35 @@ export class QuestionCreate implements OnInit {
     saveFailed: string;
   } {
     switch (this.userService.currentLang) {
-      case LanguageEnum.Fr:
+      case LanguageEnumDto.Fr:
         return {
           summary: 'Erreur',
           missingFields: 'Merci de selectionner un domaine et de completer au minimum le titre dans chaque langue et toutes les reponses.',
           missingCorrectAnswer: 'Il faut cocher au moins une reponse correcte.',
           saveFailed: "Erreur lors de l'enregistrement de la question.",
         };
-      case LanguageEnum.Nl:
+      case LanguageEnumDto.Nl:
         return {
           summary: 'Fout',
           missingFields: 'Kies een domein en vul minstens de titel in elke taal en alle antwoorden in.',
           missingCorrectAnswer: 'Duid minstens een correct antwoord aan.',
           saveFailed: 'Er is een fout opgetreden bij het opslaan van de vraag.',
         };
-      case LanguageEnum.It:
+      case LanguageEnumDto.It:
         return {
           summary: 'Errore',
           missingFields: 'Seleziona un dominio e compila almeno il titolo in ogni lingua e tutte le risposte.',
           missingCorrectAnswer: 'Devi selezionare almeno una risposta corretta.',
           saveFailed: 'Si e verificato un errore durante il salvataggio della domanda.',
         };
-      case LanguageEnum.Es:
+      case LanguageEnumDto.Es:
         return {
           summary: 'Error',
           missingFields: 'Selecciona un dominio y completa al menos el titulo en cada idioma y todas las respuestas.',
           missingCorrectAnswer: 'Debes marcar al menos una respuesta correcta.',
           saveFailed: 'Se produjo un error al guardar la pregunta.',
         };
-      case LanguageEnum.En:
+      case LanguageEnumDto.En:
       default:
         return {
           summary: 'Error',

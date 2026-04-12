@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedQuizQuestionPartialRequest { 
+export interface PatchedQuizQuestionPartialRequestDto { 
     question_id?: number;
     sort_order?: number;
     weight?: number;

@@ -9,7 +9,7 @@
  */
 
 
-export interface LocalizedSubjectDetailTranslation { 
+export interface LocalizedSubjectDetailTranslationDto { 
     name: string;
     description: string;
     domain_name: string;

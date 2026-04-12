@@ -11,8 +11,8 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { TranslateBatchRequestRequest } from '../model/models';
-import { TranslateBatchResponse } from '../model/models';
+import { TranslateBatchRequestRequestDto } from '../model/models';
+import { TranslateBatchResponseDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -29,6 +29,6 @@ export interface TranslationServiceInterface {
      * @endpoint post /api/translate/batch/
      * @param translateBatchRequestRequest 
      */
-    translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequest, extraHttpRequestParams?: any): Observable<TranslateBatchResponse>;
+    translateBatchCreate(translateBatchRequestRequest: TranslateBatchRequestRequestDto, extraHttpRequestParams?: any): Observable<TranslateBatchResponseDto>;
 
 }

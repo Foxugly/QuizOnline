@@ -3,7 +3,7 @@ import {Component, input, output} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
-import {QuizTemplate} from '../../api/generated';
+import {QuizTemplateDto} from '../../api/generated';
 import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
 
 @Component({
@@ -14,7 +14,7 @@ import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
 })
 export class QuizTemplateResultsDialogComponent {
   visible = input(false);
-  template = input<QuizTemplate | null>(null);
+  template = input<QuizTemplateDto | null>(null);
   sessions = input<QuizTemplateAssignmentSessionDto[]>([]);
   loading = input(false);
 

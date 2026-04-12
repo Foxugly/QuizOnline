@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { DomainJoinRequestRead } from './domain-join-request-read';
+import { DomainJoinRequestReadDto } from './domain-join-request-read';
 
 
-export interface PaginatedDomainJoinRequestReadList { 
+export interface PaginatedDomainJoinRequestReadListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<DomainJoinRequestRead>;
+    results: Array<DomainJoinRequestReadDto>;
 }
 

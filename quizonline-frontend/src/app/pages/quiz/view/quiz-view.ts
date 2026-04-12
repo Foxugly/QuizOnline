@@ -2,7 +2,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize} from 'rxjs';
-import {Quiz} from '../../../api/generated';
+import {QuizDto} from '../../../api/generated';
 import {QuizSummaryFact, QuizSummaryHeroComponent} from '../../../components/quiz-summary-hero/quiz-summary-hero';
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
@@ -23,7 +23,7 @@ export class QuizView implements OnInit {
   id!: number;
   loading = signal(false);
   error = signal<string | null>(null);
-  quizSession = signal<Quiz | null>(null);
+  quizSession = signal<QuizDto | null>(null);
 
   private readonly route = inject(ActivatedRoute);
   private readonly quizService = inject(QuizService);
@@ -138,7 +138,7 @@ export class QuizView implements OnInit {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (quizSession: Quiz) => {
+        next: (quizSession: QuizDto) => {
           this.quizSession.set(quizSession);
         },
         error: (err: unknown) => {

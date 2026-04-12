@@ -11,48 +11,126 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ErrorDetail } from '../model/error-detail';
+import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
-import { LocalizedQuestionTranslationRequest } from '../model/localized-question-translation-request';
+import { LocalizedQuestionTranslationRequestDto } from '../model/localized-question-translation-request';
 // @ts-ignore
-import { MediaAsset } from '../model/media-asset';
+import { MediaAssetDto } from '../model/media-asset';
 // @ts-ignore
-import { MediaAssetUploadKindEnum } from '../model/media-asset-upload-kind-enum';
+import { MediaAssetUploadKindEnumDto } from '../model/media-asset-upload-kind-enum';
 // @ts-ignore
-import { PaginatedQuestionReadList } from '../model/paginated-question-read-list';
+import { PaginatedQuestionReadListDto } from '../model/paginated-question-read-list';
 // @ts-ignore
-import { PatchedQuestionPartialWritePayloadRequest } from '../model/patched-question-partial-write-payload-request';
+import { PatchedQuestionPartialWritePayloadRequestDto } from '../model/patched-question-partial-write-payload-request';
 // @ts-ignore
-import { QuestionAnswerOptionWriteRequest } from '../model/question-answer-option-write-request';
+import { QuestionAnswerOptionWriteRequestDto } from '../model/question-answer-option-write-request';
 // @ts-ignore
-import { QuestionRead } from '../model/question-read';
+import { QuestionReadDto } from '../model/question-read';
 // @ts-ignore
-import { QuestionWrite } from '../model/question-write';
+import { QuestionWriteDto } from '../model/question-write';
 // @ts-ignore
-import { QuestionWritePayloadRequest } from '../model/question-write-payload-request';
+import { QuestionWritePayloadRequestDto } from '../model/question-write-payload-request';
 // @ts-ignore
-import { QuestionWriteRequest } from '../model/question-write-request';
+import { QuestionWriteRequestDto } from '../model/question-write-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    QuestionServiceInterface
-} from './question.serviceInterface';
 
+
+export interface QuestionCreateRequestParams {
+    questionWritePayloadRequestDto: QuestionWritePayloadRequestDto;
+}
+
+export interface QuestionDestroyRequestParams {
+    /** ID de la question (question_id). */
+    questionId: number;
+}
+
+export interface QuestionImportStructuredCreateRequestParams {
+    domain: number;
+    /** Object or JSON string (multipart). Dict keyed by language code. */
+    translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    allowMultipleCorrect?: boolean;
+    active?: boolean;
+    isModePractice?: boolean;
+    isModeExam?: boolean;
+    subjectIds?: Array<number>;
+    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
+    answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
+    /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
+    mediaAssetIds?: Array<number>;
+}
+
+export interface QuestionListRequestParams {
+    active?: boolean;
+    domain?: number;
+    isModeExam?: boolean;
+    isModePractice?: boolean;
+    /** A page number within the paginated result set. */
+    page?: number;
+    /** Number of results to return per page. */
+    pageSize?: number;
+    /** Recherche simple (title__icontains). */
+    search?: string;
+    /** Liste d\&#39;IDs de sujets pour filtrer les questions. */
+    subjectIds?: Array<number>;
+}
+
+export interface QuestionMediaCreateRequestParams {
+    file?: Blob;
+    externalUrl?: string;
+    kind?: MediaAssetUploadKindEnumDto;
+}
+
+export interface QuestionMediaExternalCreateRequestParams {
+    questionWriteRequestDto: QuestionWriteRequestDto;
+}
+
+export interface QuestionMediaUploadCreateRequestParams {
+    domain: number;
+    /** Object or JSON string (multipart). Dict keyed by language code. */
+    translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    allowMultipleCorrect?: boolean;
+    active?: boolean;
+    isModePractice?: boolean;
+    isModeExam?: boolean;
+    subjectIds?: Array<number>;
+    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
+    answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
+    /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
+    mediaAssetIds?: Array<number>;
+}
+
+export interface QuestionPartialUpdateRequestParams {
+    /** ID de la question (question_id). */
+    questionId: number;
+    patchedQuestionPartialWritePayloadRequestDto?: PatchedQuestionPartialWritePayloadRequestDto;
+}
+
+export interface QuestionRetrieveRequestParams {
+    /** ID de la question (question_id). */
+    questionId: number;
+}
+
+export interface QuestionUpdateRequestParams {
+    /** ID de la question (question_id). */
+    questionId: number;
+    questionWritePayloadRequestDto: QuestionWritePayloadRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class QuestionService extends BaseService implements QuestionServiceInterface {
+export class QuestionApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -62,16 +140,18 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * Créer une question (multipart ou JSON)
      * Crée une question.  ⚠️ Les médias NE sont PAS uploadés ici.  Workflow recommandé : 1. POST /api/question/media/ → upload fichier ou URL externe 2. Récupérer les &#x60;id&#x60; des MediaAsset retournés 3. POST /api/question/ avec &#x60;media_asset_ids: [1, 2, 3]&#x60;  Payload supporté : JSON ou multipart/form-data. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: JSON (liste) - &#x60;media_asset_ids&#x60;: liste d\&#39;IDs MediaAsset 
      * @endpoint post /api/question/
-     * @param questionWritePayloadRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionRead>;
-    public questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionRead>>;
-    public questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionRead>>;
-    public questionCreate(questionWritePayloadRequest: QuestionWritePayloadRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (questionWritePayloadRequest === null || questionWritePayloadRequest === undefined) {
-            throw new Error('Required parameter questionWritePayloadRequest was null or undefined when calling questionCreate.');
+    public questionCreate(requestParameters: QuestionCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
+    public questionCreate(requestParameters: QuestionCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
+    public questionCreate(requestParameters: QuestionCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionReadDto>>;
+    public questionCreate(requestParameters: QuestionCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionWritePayloadRequestDto = requestParameters?.questionWritePayloadRequestDto;
+        if (questionWritePayloadRequestDto === null || questionWritePayloadRequestDto === undefined) {
+            throw new Error('Required parameter questionWritePayloadRequestDto was null or undefined when calling questionCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -113,10 +193,10 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: questionWritePayloadRequest,
+                body: questionWritePayloadRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -130,14 +210,16 @@ export class QuestionService extends BaseService implements QuestionServiceInter
     /**
      * Supprimer une question
      * @endpoint delete /api/question/{question_id}/
-     * @param questionId ID de la question (question_id).
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionDestroy(questionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public questionDestroy(questionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public questionDestroy(questionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public questionDestroy(questionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public questionDestroy(requestParameters: QuestionDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionId = requestParameters?.questionId;
         if (questionId === null || questionId === undefined) {
             throw new Error('Required parameter questionId was null or undefined when calling questionDestroy.');
         }
@@ -190,10 +272,11 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * @endpoint get /api/question/export-structured/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionExportStructuredRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWrite>;
-    public questionExportStructuredRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWrite>>;
-    public questionExportStructuredRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWrite>>;
+    public questionExportStructuredRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
+    public questionExportStructuredRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
+    public questionExportStructuredRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
     public questionExportStructuredRetrieve(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
@@ -226,7 +309,7 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/export-structured/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWrite>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionWriteDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -242,25 +325,27 @@ export class QuestionService extends BaseService implements QuestionServiceInter
     /**
      * Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias). Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
      * @endpoint post /api/question/import-structured/
-     * @param domain 
-     * @param translations Object or JSON string (multipart). Dict keyed by language code.
-     * @param allowMultipleCorrect 
-     * @param active 
-     * @param isModePractice 
-     * @param isModeExam 
-     * @param subjectIds 
-     * @param answerOptions List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
-     * @param mediaAssetIds IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWrite>;
-    public questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWrite>>;
-    public questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWrite>>;
-    public questionImportStructuredCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
+    public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
+    public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
+    public questionImportStructuredCreate(requestParameters: QuestionImportStructuredCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domain = requestParameters?.domain;
         if (domain === null || domain === undefined) {
             throw new Error('Required parameter domain was null or undefined when calling questionImportStructuredCreate.');
         }
+        const translations = requestParameters?.translations;
+        const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
+        const active = requestParameters?.active;
+        const isModePractice = requestParameters?.isModePractice;
+        const isModeExam = requestParameters?.isModeExam;
+        const subjectIds = requestParameters?.subjectIds;
+        const answerOptions = requestParameters?.answerOptions;
+        const mediaAssetIds = requestParameters?.mediaAssetIds;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -355,7 +440,7 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/import-structured/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWrite>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
@@ -373,41 +458,97 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * Lister les questions
      * Liste paginée des questions.  Supporte : - &#x60;search&#x60; (filtre title__icontains) 
      * @endpoint get /api/question/
-     * @param active 
-     * @param domain 
-     * @param isModeExam 
-     * @param isModePractice 
-     * @param page A page number within the paginated result set.
-     * @param pageSize Number of results to return per page.
-     * @param search Recherche simple (title__icontains).
-     * @param subjectIds Liste d\&#39;IDs de sujets pour filtrer les questions.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuestionReadList>;
-    public questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuestionReadList>>;
-    public questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuestionReadList>>;
-    public questionList(active?: boolean, domain?: number, isModeExam?: boolean, isModePractice?: boolean, page?: number, pageSize?: number, search?: string, subjectIds?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuestionReadListDto>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuestionReadListDto>>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuestionReadListDto>>;
+    public questionList(requestParameters?: QuestionListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const active = requestParameters?.active;
+        const domain = requestParameters?.domain;
+        const isModeExam = requestParameters?.isModeExam;
+        const isModePractice = requestParameters?.isModePractice;
+        const page = requestParameters?.page;
+        const pageSize = requestParameters?.pageSize;
+        const search = requestParameters?.search;
+        const subjectIds = requestParameters?.subjectIds;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>active, 'active');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>domain, 'domain');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>isModeExam, 'is_mode_exam');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>isModePractice, 'is_mode_practice');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>pageSize, 'page_size');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>search, 'search');
-        if (subjectIds) {
-            localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-                [...subjectIds].join(COLLECTION_FORMATS['csv']), 'subject_ids');
-        }
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'active',
+            <any>active,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'domain',
+            <any>domain,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'is_mode_exam',
+            <any>isModeExam,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'is_mode_practice',
+            <any>isModePractice,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page_size',
+            <any>pageSize,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'search',
+            <any>search,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'subject_ids',
+            <any>subjectIds,
+            QueryParamStyle.Form,
+            false,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -439,10 +580,10 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuestionReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -457,16 +598,18 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * Uploader un média (dédup sha256) ou enregistrer un média externe
      * Upload un fichier (multipart) ou enregistre une URL externe. - multipart: envoyer &#x60;file&#x60; - json/form: envoyer &#x60;external_url&#x60;  Retourne un &#x60;MediaAsset&#x60; (id à réutiliser dans &#x60;media_asset_ids&#x60; lors de la création/màj d\&#39;une Question).
      * @endpoint post /api/question/media/
-     * @param file 
-     * @param externalUrl 
-     * @param kind 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnum, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MediaAsset>;
-    public questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnum, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MediaAsset>>;
-    public questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnum, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MediaAsset>>;
-    public questionMediaCreate(file?: Blob, externalUrl?: string, kind?: MediaAssetUploadKindEnum, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MediaAssetDto>;
+    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MediaAssetDto>>;
+    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MediaAssetDto>>;
+    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const file = requestParameters?.file;
+        const externalUrl = requestParameters?.externalUrl;
+        const kind = requestParameters?.kind;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -528,7 +671,7 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/media/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<MediaAsset>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<MediaAssetDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
@@ -544,16 +687,18 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
     /**
      * @endpoint post /api/question/media/external/
-     * @param questionWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWrite>;
-    public questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWrite>>;
-    public questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWrite>>;
-    public questionMediaExternalCreate(questionWriteRequest: QuestionWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (questionWriteRequest === null || questionWriteRequest === undefined) {
-            throw new Error('Required parameter questionWriteRequest was null or undefined when calling questionMediaExternalCreate.');
+    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
+    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
+    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
+    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionWriteRequestDto = requestParameters?.questionWriteRequestDto;
+        if (questionWriteRequestDto === null || questionWriteRequestDto === undefined) {
+            throw new Error('Required parameter questionWriteRequestDto was null or undefined when calling questionMediaExternalCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -595,10 +740,10 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/media/external/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWrite>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: questionWriteRequest,
+                body: questionWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -611,25 +756,27 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
     /**
      * @endpoint post /api/question/media/upload/
-     * @param domain 
-     * @param translations Object or JSON string (multipart). Dict keyed by language code.
-     * @param allowMultipleCorrect 
-     * @param active 
-     * @param isModePractice 
-     * @param isModeExam 
-     * @param subjectIds 
-     * @param answerOptions List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
-     * @param mediaAssetIds IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWrite>;
-    public questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWrite>>;
-    public questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWrite>>;
-    public questionMediaUploadCreate(domain: number, translations?: { [key: string]: LocalizedQuestionTranslationRequest; }, allowMultipleCorrect?: boolean, active?: boolean, isModePractice?: boolean, isModeExam?: boolean, subjectIds?: Array<number>, answerOptions?: Array<QuestionAnswerOptionWriteRequest>, mediaAssetIds?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
+    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
+    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
+    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domain = requestParameters?.domain;
         if (domain === null || domain === undefined) {
             throw new Error('Required parameter domain was null or undefined when calling questionMediaUploadCreate.');
         }
+        const translations = requestParameters?.translations;
+        const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
+        const active = requestParameters?.active;
+        const isModePractice = requestParameters?.isModePractice;
+        const isModeExam = requestParameters?.isModeExam;
+        const subjectIds = requestParameters?.subjectIds;
+        const answerOptions = requestParameters?.answerOptions;
+        const mediaAssetIds = requestParameters?.mediaAssetIds;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -723,7 +870,7 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/media/upload/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWrite>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
@@ -741,18 +888,20 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * Mettre à jour une question (PATCH)
      * Met à jour une question.  Les médias sont gérés via &#x60;/api/question/media/&#x60;. Utiliser &#x60;media_asset_ids&#x60; pour lier/délier les médias. 
      * @endpoint patch /api/question/{question_id}/
-     * @param questionId ID de la question (question_id).
-     * @param patchedQuestionPartialWritePayloadRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionRead>;
-    public questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionRead>>;
-    public questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionRead>>;
-    public questionPartialUpdate(questionId: number, patchedQuestionPartialWritePayloadRequest?: PatchedQuestionPartialWritePayloadRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
+    public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
+    public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionReadDto>>;
+    public questionPartialUpdate(requestParameters: QuestionPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionId = requestParameters?.questionId;
         if (questionId === null || questionId === undefined) {
             throw new Error('Required parameter questionId was null or undefined when calling questionPartialUpdate.');
         }
+        const patchedQuestionPartialWritePayloadRequestDto = requestParameters?.patchedQuestionPartialWritePayloadRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -795,10 +944,10 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionRead>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionReadDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedQuestionPartialWritePayloadRequest,
+                body: patchedQuestionPartialWritePayloadRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -812,14 +961,16 @@ export class QuestionService extends BaseService implements QuestionServiceInter
     /**
      * Récupérer une question
      * @endpoint get /api/question/{question_id}/
-     * @param questionId ID de la question (question_id).
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionRetrieve(questionId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionRead>;
-    public questionRetrieve(questionId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionRead>>;
-    public questionRetrieve(questionId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionRead>>;
-    public questionRetrieve(questionId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
+    public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
+    public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionReadDto>>;
+    public questionRetrieve(requestParameters: QuestionRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionId = requestParameters?.questionId;
         if (questionId === null || questionId === undefined) {
             throw new Error('Required parameter questionId was null or undefined when calling questionRetrieve.');
         }
@@ -854,7 +1005,7 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -871,20 +1022,22 @@ export class QuestionService extends BaseService implements QuestionServiceInter
      * Mettre à jour une question (PUT)
      * Met à jour une question.  Les médias sont gérés via &#x60;/api/question/media/&#x60;. Utiliser &#x60;media_asset_ids&#x60; pour lier/délier les médias. 
      * @endpoint put /api/question/{question_id}/
-     * @param questionId ID de la question (question_id).
-     * @param questionWritePayloadRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionRead>;
-    public questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionRead>>;
-    public questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionRead>>;
-    public questionUpdate(questionId: number, questionWritePayloadRequest: QuestionWritePayloadRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionReadDto>;
+    public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionReadDto>>;
+    public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionReadDto>>;
+    public questionUpdate(requestParameters: QuestionUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const questionId = requestParameters?.questionId;
         if (questionId === null || questionId === undefined) {
             throw new Error('Required parameter questionId was null or undefined when calling questionUpdate.');
         }
-        if (questionWritePayloadRequest === null || questionWritePayloadRequest === undefined) {
-            throw new Error('Required parameter questionWritePayloadRequest was null or undefined when calling questionUpdate.');
+        const questionWritePayloadRequestDto = requestParameters?.questionWritePayloadRequestDto;
+        if (questionWritePayloadRequestDto === null || questionWritePayloadRequestDto === undefined) {
+            throw new Error('Required parameter questionWritePayloadRequestDto was null or undefined when calling questionUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -926,10 +1079,10 @@ export class QuestionService extends BaseService implements QuestionServiceInter
 
         let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionRead>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<QuestionReadDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: questionWritePayloadRequest,
+                body: questionWritePayloadRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

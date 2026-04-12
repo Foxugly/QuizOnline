@@ -11,16 +11,16 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { GenerateFromSubjectsInputRequest } from '../model/models';
-import { PaginatedQuizAssignmentListList } from '../model/models';
-import { PaginatedQuizQuestionReadList } from '../model/models';
-import { PaginatedQuizTemplateList } from '../model/models';
-import { PatchedQuizQuestionPartialRequest } from '../model/models';
-import { PatchedQuizTemplatePartialRequest } from '../model/models';
-import { QuizQuestionRead } from '../model/models';
-import { QuizQuestionWriteRequest } from '../model/models';
-import { QuizTemplate } from '../model/models';
-import { QuizTemplateWriteRequest } from '../model/models';
+import { GenerateFromSubjectsInputRequestDto } from '../model/models';
+import { PaginatedQuizAssignmentListListDto } from '../model/models';
+import { PaginatedQuizQuestionReadListDto } from '../model/models';
+import { PaginatedQuizTemplateListDto } from '../model/models';
+import { PatchedQuizQuestionPartialRequestDto } from '../model/models';
+import { PatchedQuizTemplatePartialRequestDto } from '../model/models';
+import { QuizQuestionReadDto } from '../model/models';
+import { QuizQuestionWriteRequestDto } from '../model/models';
+import { QuizTemplateDto } from '../model/models';
+import { QuizTemplateWriteRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -37,7 +37,7 @@ export interface QuizTemplateServiceInterface {
      * @endpoint post /api/quiz/template/
      * @param quizTemplateWriteRequest 
      */
-    quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequest, extraHttpRequestParams?: any): Observable<QuizTemplate>;
+    quizTemplateCreate(quizTemplateWriteRequest: QuizTemplateWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizTemplateDto>;
 
     /**
      * Supprimer un template de quiz
@@ -53,7 +53,7 @@ export interface QuizTemplateServiceInterface {
      * @endpoint post /api/quiz/template/generate-from-subjects/
      * @param generateFromSubjectsInputRequest 
      */
-    quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequest, extraHttpRequestParams?: any): Observable<QuizTemplate>;
+    quizTemplateGenerateFromSubjectsCreate(generateFromSubjectsInputRequest: GenerateFromSubjectsInputRequestDto, extraHttpRequestParams?: any): Observable<QuizTemplateDto>;
 
     /**
      * Lister les templates de quiz
@@ -61,7 +61,7 @@ export interface QuizTemplateServiceInterface {
      * @endpoint get /api/quiz/template/
      * @param page A page number within the paginated result set.
      */
-    quizTemplateList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizTemplateList>;
+    quizTemplateList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizTemplateListDto>;
 
     /**
      * Mettre à jour partiellement un template de quiz
@@ -70,7 +70,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param patchedQuizTemplatePartialRequest 
      */
-    quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequest, extraHttpRequestParams?: any): Observable<QuizTemplate>;
+    quizTemplatePartialUpdate(qtId: number, patchedQuizTemplatePartialRequest?: PatchedQuizTemplatePartialRequestDto, extraHttpRequestParams?: any): Observable<QuizTemplateDto>;
 
     /**
      * Créer une QuizQuestion dans un template (nested)
@@ -79,7 +79,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param quizQuestionWriteRequest 
      */
-    quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, extraHttpRequestParams?: any): Observable<QuizQuestionRead>;
+    quizTemplateQuestionCreate(qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionReadDto>;
 
     /**
      * Supprimer une QuizQuestion (nested)
@@ -97,7 +97,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param page A page number within the paginated result set.
      */
-    quizTemplateQuestionList(qtId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizQuestionReadList>;
+    quizTemplateQuestionList(qtId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizQuestionReadListDto>;
 
     /**
      * Mettre à jour partiellement une QuizQuestion (nested)
@@ -107,7 +107,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param patchedQuizQuestionPartialRequest 
      */
-    quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequest, extraHttpRequestParams?: any): Observable<QuizQuestionRead>;
+    quizTemplateQuestionPartialUpdate(qqId: number, qtId: number, patchedQuizQuestionPartialRequest?: PatchedQuizQuestionPartialRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionReadDto>;
 
     /**
      * Détail d’une QuizQuestion d’un template (nested)
@@ -116,7 +116,7 @@ export interface QuizTemplateServiceInterface {
      * @param qqId 
      * @param qtId 
      */
-    quizTemplateQuestionRetrieve(qqId: number, qtId: number, extraHttpRequestParams?: any): Observable<QuizQuestionRead>;
+    quizTemplateQuestionRetrieve(qqId: number, qtId: number, extraHttpRequestParams?: any): Observable<QuizQuestionReadDto>;
 
     /**
      * Mettre à jour une QuizQuestion (nested)
@@ -126,7 +126,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param quizQuestionWriteRequest 
      */
-    quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequest, extraHttpRequestParams?: any): Observable<QuizQuestionRead>;
+    quizTemplateQuestionUpdate(qqId: number, qtId: number, quizQuestionWriteRequest: QuizQuestionWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizQuestionReadDto>;
 
     /**
      * Détail d’un template de quiz
@@ -134,7 +134,7 @@ export interface QuizTemplateServiceInterface {
      * @endpoint get /api/quiz/template/{qt_id}/
      * @param qtId 
      */
-    quizTemplateRetrieve(qtId: number, extraHttpRequestParams?: any): Observable<QuizTemplate>;
+    quizTemplateRetrieve(qtId: number, extraHttpRequestParams?: any): Observable<QuizTemplateDto>;
 
     /**
      * Lister les sessions envoyées pour un template
@@ -143,7 +143,7 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param page A page number within the paginated result set.
      */
-    quizTemplateSessionsList(qtId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizAssignmentListList>;
+    quizTemplateSessionsList(qtId: number, page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizAssignmentListListDto>;
 
     /**
      * Mettre à jour un template de quiz
@@ -152,6 +152,6 @@ export interface QuizTemplateServiceInterface {
      * @param qtId 
      * @param quizTemplateWriteRequest 
      */
-    quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequest, extraHttpRequestParams?: any): Observable<QuizTemplate>;
+    quizTemplateUpdate(qtId: number, quizTemplateWriteRequest: QuizTemplateWriteRequestDto, extraHttpRequestParams?: any): Observable<QuizTemplateDto>;
 
 }

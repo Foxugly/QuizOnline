@@ -7,7 +7,7 @@ import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
-import {DomainRead, LanguageEnum, QuestionRead, SubjectRead} from '../../../api/generated';
+import {DomainReadDto, LanguageEnumDto, QuestionReadDto, SubjectReadDto} from '../../../api/generated';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {
   addQuestionAnswerOption,
@@ -56,11 +56,11 @@ export class QuestionEdit implements OnInit {
   submitError = signal<string | null>(null);
   success = signal<string | null>(null);
 
-  question = signal<QuestionRead | null>(null);
-  subjects = signal<SubjectRead[]>([]);
+  question = signal<QuestionReadDto | null>(null);
+  subjects = signal<SubjectReadDto[]>([]);
   domainLangs = signal<LangCode[]>([]);
   activeLang = signal<LangCode | null>(null);
-  currentLang = signal<LanguageEnum>(LanguageEnum.Fr);
+  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
   translating = signal(false);
   translateOverwrite = signal(false);
 
@@ -97,7 +97,7 @@ export class QuestionEdit implements OnInit {
   });
 
   ngOnInit(): void {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.Fr);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
 
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -332,7 +332,7 @@ export class QuestionEdit implements OnInit {
     }
   }
 
-  getDomainLabel(domain: DomainRead): string {
+  getDomainLabel(domain: DomainReadDto): string {
     const label = selectTranslation<{ name: string }>(
       domain.translations as Record<string, { name: string }>,
       this.currentLang(),

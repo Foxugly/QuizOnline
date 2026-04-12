@@ -11,38 +11,75 @@
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+         HttpResponse, HttpEvent, HttpContext 
         }       from '@angular/common/http';
-import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
+import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { ErrorDetail } from '../model/error-detail';
+import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
-import { PaginatedSubjectReadList } from '../model/paginated-subject-read-list';
+import { PaginatedSubjectReadListDto } from '../model/paginated-subject-read-list';
 // @ts-ignore
-import { PatchedSubjectPartialRequest } from '../model/patched-subject-partial-request';
+import { PatchedSubjectPartialRequestDto } from '../model/patched-subject-partial-request';
 // @ts-ignore
-import { SubjectDetail } from '../model/subject-detail';
+import { SubjectDetailDto } from '../model/subject-detail';
 // @ts-ignore
-import { SubjectRead } from '../model/subject-read';
+import { SubjectReadDto } from '../model/subject-read';
 // @ts-ignore
-import { SubjectWriteRequest } from '../model/subject-write-request';
+import { SubjectWriteRequestDto } from '../model/subject-write-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
-import {
-    SubjectServiceInterface
-} from './subject.serviceInterface';
 
+
+export interface SubjectCreateRequestParams {
+    subjectWriteRequestDto: SubjectWriteRequestDto;
+}
+
+export interface SubjectDestroyRequestParams {
+    /** ID du sujet. */
+    subjectId: number;
+}
+
+export interface SubjectDetailsRetrieveRequestParams {
+    /** ID du sujet. */
+    subjectId: number;
+}
+
+export interface SubjectListRequestParams {
+    active?: boolean;
+    domain?: number;
+    /** A page number within the paginated result set. */
+    page?: number;
+    /** Recherche simple (name__icontains). */
+    search?: string;
+}
+
+export interface SubjectPartialUpdateRequestParams {
+    /** ID du sujet. */
+    subjectId: number;
+    patchedSubjectPartialRequestDto?: PatchedSubjectPartialRequestDto;
+}
+
+export interface SubjectRetrieveRequestParams {
+    /** ID du sujet. */
+    subjectId: number;
+}
+
+export interface SubjectUpdateRequestParams {
+    /** ID du sujet. */
+    subjectId: number;
+    subjectWriteRequestDto: SubjectWriteRequestDto;
+}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class SubjectService extends BaseService implements SubjectServiceInterface {
+export class SubjectApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -51,16 +88,18 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Créer un sujet
      * @endpoint post /api/subject/
-     * @param subjectWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectCreate(subjectWriteRequest: SubjectWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectRead>;
-    public subjectCreate(subjectWriteRequest: SubjectWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectRead>>;
-    public subjectCreate(subjectWriteRequest: SubjectWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectRead>>;
-    public subjectCreate(subjectWriteRequest: SubjectWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (subjectWriteRequest === null || subjectWriteRequest === undefined) {
-            throw new Error('Required parameter subjectWriteRequest was null or undefined when calling subjectCreate.');
+    public subjectCreate(requestParameters: SubjectCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectReadDto>;
+    public subjectCreate(requestParameters: SubjectCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectReadDto>>;
+    public subjectCreate(requestParameters: SubjectCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectReadDto>>;
+    public subjectCreate(requestParameters: SubjectCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectWriteRequestDto = requestParameters?.subjectWriteRequestDto;
+        if (subjectWriteRequestDto === null || subjectWriteRequestDto === undefined) {
+            throw new Error('Required parameter subjectWriteRequestDto was null or undefined when calling subjectCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -104,10 +143,10 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubjectRead>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubjectReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: subjectWriteRequest,
+                body: subjectWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -121,14 +160,16 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Supprimer un sujet
      * @endpoint delete /api/subject/{subject_id}/
-     * @param subjectId ID du sujet.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectDestroy(subjectId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public subjectDestroy(subjectId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public subjectDestroy(subjectId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public subjectDestroy(subjectId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectDestroy(requestParameters: SubjectDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public subjectDestroy(requestParameters: SubjectDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public subjectDestroy(requestParameters: SubjectDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public subjectDestroy(requestParameters: SubjectDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectId = requestParameters?.subjectId;
         if (subjectId === null || subjectId === undefined) {
             throw new Error('Required parameter subjectId was null or undefined when calling subjectDestroy.');
         }
@@ -179,14 +220,16 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Récupérer un sujet avec détails
      * @endpoint get /api/subject/{subject_id}/details/
-     * @param subjectId ID du sujet.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectDetailsRetrieve(subjectId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectDetail>;
-    public subjectDetailsRetrieve(subjectId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectDetail>>;
-    public subjectDetailsRetrieve(subjectId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectDetail>>;
-    public subjectDetailsRetrieve(subjectId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectDetailsRetrieve(requestParameters: SubjectDetailsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectDetailDto>;
+    public subjectDetailsRetrieve(requestParameters: SubjectDetailsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectDetailDto>>;
+    public subjectDetailsRetrieve(requestParameters: SubjectDetailsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectDetailDto>>;
+    public subjectDetailsRetrieve(requestParameters: SubjectDetailsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectId = requestParameters?.subjectId;
         if (subjectId === null || subjectId === undefined) {
             throw new Error('Required parameter subjectId was null or undefined when calling subjectDetailsRetrieve.');
         }
@@ -221,7 +264,7 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubjectDetail>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubjectDetailDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -238,27 +281,57 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
      * Lister les sujets
      * Liste paginée des sujets.  Supporte : - &#x60;search&#x60; (filtre name__icontains) - &#x60;active&#x60;, &#x60;domain&#x60; via DjangoFilterBackend 
      * @endpoint get /api/subject/
-     * @param active 
-     * @param domain 
-     * @param page A page number within the paginated result set.
-     * @param search Recherche simple (name__icontains).
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectList(active?: boolean, domain?: number, page?: number, search?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedSubjectReadList>;
-    public subjectList(active?: boolean, domain?: number, page?: number, search?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedSubjectReadList>>;
-    public subjectList(active?: boolean, domain?: number, page?: number, search?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedSubjectReadList>>;
-    public subjectList(active?: boolean, domain?: number, page?: number, search?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedSubjectReadListDto>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedSubjectReadListDto>>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedSubjectReadListDto>>;
+    public subjectList(requestParameters?: SubjectListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const active = requestParameters?.active;
+        const domain = requestParameters?.domain;
+        const page = requestParameters?.page;
+        const search = requestParameters?.search;
 
-        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>active, 'active');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>domain, 'domain');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>page, 'page');
-        localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
-          <any>search, 'search');
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'active',
+            <any>active,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'domain',
+            <any>domain,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'search',
+            <any>search,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -290,10 +363,10 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedSubjectReadList>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedSubjectReadListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                params: localVarQueryParameters,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -307,18 +380,20 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Mettre à jour un sujet (PATCH)
      * @endpoint patch /api/subject/{subject_id}/
-     * @param subjectId ID du sujet.
-     * @param patchedSubjectPartialRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectRead>;
-    public subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectRead>>;
-    public subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectRead>>;
-    public subjectPartialUpdate(subjectId: number, patchedSubjectPartialRequest?: PatchedSubjectPartialRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectPartialUpdate(requestParameters: SubjectPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectReadDto>;
+    public subjectPartialUpdate(requestParameters: SubjectPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectReadDto>>;
+    public subjectPartialUpdate(requestParameters: SubjectPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectReadDto>>;
+    public subjectPartialUpdate(requestParameters: SubjectPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectId = requestParameters?.subjectId;
         if (subjectId === null || subjectId === undefined) {
             throw new Error('Required parameter subjectId was null or undefined when calling subjectPartialUpdate.');
         }
+        const patchedSubjectPartialRequestDto = requestParameters?.patchedSubjectPartialRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -361,10 +436,10 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubjectRead>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubjectReadDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedSubjectPartialRequest,
+                body: patchedSubjectPartialRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -378,14 +453,16 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Récupérer un sujet
      * @endpoint get /api/subject/{subject_id}/
-     * @param subjectId ID du sujet.
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectRetrieve(subjectId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectRead>;
-    public subjectRetrieve(subjectId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectRead>>;
-    public subjectRetrieve(subjectId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectRead>>;
-    public subjectRetrieve(subjectId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectRetrieve(requestParameters: SubjectRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectReadDto>;
+    public subjectRetrieve(requestParameters: SubjectRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectReadDto>>;
+    public subjectRetrieve(requestParameters: SubjectRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectReadDto>>;
+    public subjectRetrieve(requestParameters: SubjectRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectId = requestParameters?.subjectId;
         if (subjectId === null || subjectId === undefined) {
             throw new Error('Required parameter subjectId was null or undefined when calling subjectRetrieve.');
         }
@@ -420,7 +497,7 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubjectRead>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubjectReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -436,20 +513,22 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
     /**
      * Mettre à jour un sujet (PUT)
      * @endpoint put /api/subject/{subject_id}/
-     * @param subjectId ID du sujet.
-     * @param subjectWriteRequest 
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param options additional options
      */
-    public subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectRead>;
-    public subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectRead>>;
-    public subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectRead>>;
-    public subjectUpdate(subjectId: number, subjectWriteRequest: SubjectWriteRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public subjectUpdate(requestParameters: SubjectUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubjectReadDto>;
+    public subjectUpdate(requestParameters: SubjectUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubjectReadDto>>;
+    public subjectUpdate(requestParameters: SubjectUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubjectReadDto>>;
+    public subjectUpdate(requestParameters: SubjectUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const subjectId = requestParameters?.subjectId;
         if (subjectId === null || subjectId === undefined) {
             throw new Error('Required parameter subjectId was null or undefined when calling subjectUpdate.');
         }
-        if (subjectWriteRequest === null || subjectWriteRequest === undefined) {
-            throw new Error('Required parameter subjectWriteRequest was null or undefined when calling subjectUpdate.');
+        const subjectWriteRequestDto = requestParameters?.subjectWriteRequestDto;
+        if (subjectWriteRequestDto === null || subjectWriteRequestDto === undefined) {
+            throw new Error('Required parameter subjectWriteRequestDto was null or undefined when calling subjectUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -493,10 +572,10 @@ export class SubjectService extends BaseService implements SubjectServiceInterfa
 
         let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubjectRead>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubjectReadDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: subjectWriteRequest,
+                body: subjectWriteRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

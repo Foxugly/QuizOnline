@@ -12,10 +12,12 @@
 /**
  * * `image` - Image * `video` - Vidéo * `external` - Externe
  */
-export const MediaAssetKindEnum = {
-    Image: 'image',
-    Video: 'video',
-    External: 'external'
-} as const;
-export type MediaAssetKindEnum = typeof MediaAssetKindEnum[keyof typeof MediaAssetKindEnum];
+export enum MediaAssetKindEnumDto {
+
+    Image = 'image',
+
+    Video = 'video',
+
+    External = 'external'
+}
 

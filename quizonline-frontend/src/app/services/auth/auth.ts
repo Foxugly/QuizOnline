@@ -2,15 +2,15 @@ import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {finalize, Observable, shareReplay, switchMap, tap} from 'rxjs';
 
-import {CustomUserCreateRequest} from '../../api/generated/model/custom-user-create-request';
-import {CustomUserRead} from '../../api/generated/model/custom-user-read';
-import {PasswordChangeRequest} from '../../api/generated/model/password-change-request';
-import {PasswordResetConfirmRequest} from '../../api/generated/model/password-reset-confirm-request';
-import {PasswordResetRequestRequest} from '../../api/generated/model/password-reset-request-request';
+import {CustomUserCreateRequestDto} from '../../api/generated/model/custom-user-create-request';
+import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
+import {PasswordChangeRequestDto} from '../../api/generated/model/password-change-request';
+import {PasswordResetConfirmRequestDto} from '../../api/generated/model/password-reset-confirm-request';
+import {PasswordResetRequestRequestDto} from '../../api/generated/model/password-reset-request-request';
 import {TokenObtainPairDto} from '../../api/generated/model/token-obtain-pair';
 import {TokenObtainPairRequestDto} from '../../api/generated/model/token-obtain-pair-request';
-import {TokenRefresh} from '../../api/generated/model/token-refresh';
-import {TokenRefreshRequest} from '../../api/generated/model/token-refresh-request';
+import {TokenRefreshDto} from '../../api/generated/model/token-refresh';
+import {TokenRefreshRequestDto} from '../../api/generated/model/token-refresh-request';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {AccountAccessService} from '../account-access/account-access';
 import {UserService} from '../user/user';
@@ -25,7 +25,7 @@ export class AuthService {
 
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
-  private refresh$: Observable<TokenRefresh> | null = null;
+  private refresh$: Observable<TokenRefreshDto> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -47,7 +47,7 @@ export class AuthService {
     return this.http.post<TokenObtainPairDto>(`${this.apiBaseUrl}/token/`, payload);
   }
 
-  login(username: string, password: string, remember = false): Observable<CustomUserRead> {
+  login(username: string, password: string, remember = false): Observable<CustomUserReadDto> {
     const payload: TokenObtainPairRequestDto = {username, password};
     return this.getToken(payload).pipe(
       tap((dto) => {
@@ -58,7 +58,7 @@ export class AuthService {
     );
   }
 
-  refreshTokens(): Observable<TokenRefresh> | null {
+  refreshTokens(): Observable<TokenRefreshDto> | null {
     // De-duplicate concurrent refreshes. After a full page reload, multiple
     // components fire API calls in parallel, each gets a 401, and each would
     // independently POST /token/refresh/. With ROTATE_REFRESH_TOKENS=True and
@@ -74,9 +74,9 @@ export class AuthService {
       return null;
     }
 
-    const payload: TokenRefreshRequest = {refresh};
+    const payload: TokenRefreshRequestDto = {refresh};
     this.refresh$ = this.http
-      .post<TokenRefresh>(`${this.apiBaseUrl}/token/refresh/`, payload)
+      .post<TokenRefreshDto>(`${this.apiBaseUrl}/token/refresh/`, payload)
       .pipe(
         tap((dto) => {
           // Persist the rotated refresh from the response — the original one
@@ -91,8 +91,8 @@ export class AuthService {
     return this.refresh$;
   }
 
-  register(payload: CustomUserCreateRequest): Observable<CustomUserRead> {
-    return this.http.post<CustomUserRead>(`${this.apiBaseUrl}/user/`, payload);
+  register(payload: CustomUserCreateRequestDto): Observable<CustomUserReadDto> {
+    return this.http.post<CustomUserReadDto>(`${this.apiBaseUrl}/user/`, payload);
   }
 
   logout(): void {
@@ -125,19 +125,19 @@ export class AuthService {
     );
   }
 
-  requiresPasswordChange(user: CustomUserRead | null | undefined): boolean {
+  requiresPasswordChange(user: CustomUserReadDto | null | undefined): boolean {
     return this.userService.shouldForcePasswordChange(user);
   }
 
-  requiresEmailConfirmation(user: CustomUserRead | null | undefined): boolean {
+  requiresEmailConfirmation(user: CustomUserReadDto | null | undefined): boolean {
     return this.userService.shouldConfirmEmail(user);
   }
 
-  requestPasswordReset(payload: PasswordResetRequestRequest) {
+  requestPasswordReset(payload: PasswordResetRequestRequestDto) {
     return this.accountAccess.requestPasswordReset(payload);
   }
 
-  confirmPasswordReset(payload: PasswordResetConfirmRequest) {
+  confirmPasswordReset(payload: PasswordResetConfirmRequestDto) {
     return this.accountAccess.confirmPasswordReset(payload);
   }
 
@@ -145,7 +145,7 @@ export class AuthService {
     return this.accountAccess.confirmEmail(payload);
   }
 
-  changePassword(payload: PasswordChangeRequest) {
+  changePassword(payload: PasswordChangeRequestDto) {
     return this.accountAccess.changePassword(payload);
   }
 

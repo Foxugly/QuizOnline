@@ -3,7 +3,7 @@ import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
 import {ButtonModule} from 'primeng/button';
-import {DomainRead, SubjectRead} from '../../../api/generated';
+import {DomainReadDto, SubjectReadDto} from '../../../api/generated';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {DomainTranslationDto} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
@@ -20,11 +20,11 @@ export class SubjectDelete implements OnInit {
   private subjectService = inject(SubjectService);
   private userService: UserService = inject(UserService);
   id!: number;
-  subject = signal<SubjectRead | null>(null);
+  subject = signal<SubjectReadDto | null>(null);
   currentLang = computed(() => this.userService.currentLang);
 
 
-  getName(d: SubjectRead | null): string {
+  getName(d: SubjectReadDto | null): string {
     if (d) {
       const t = selectTranslation<SubjectTranslationDto>(
         d.translations as unknown as Record<string, SubjectTranslationDto>,

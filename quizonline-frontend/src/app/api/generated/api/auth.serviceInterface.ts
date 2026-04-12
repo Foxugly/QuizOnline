@@ -11,12 +11,12 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
-import { EmailConfirmationRequest } from '../model/models';
-import { ErrorDetail } from '../model/models';
-import { PasswordChangeRequest } from '../model/models';
-import { PasswordResetConfirmRequest } from '../model/models';
-import { PasswordResetOK } from '../model/models';
-import { PasswordResetRequestRequest } from '../model/models';
+import { EmailConfirmationRequestDto } from '../model/models';
+import { ErrorDetailDto } from '../model/models';
+import { PasswordChangeRequestDto } from '../model/models';
+import { PasswordResetConfirmRequestDto } from '../model/models';
+import { PasswordResetOKDto } from '../model/models';
+import { PasswordResetRequestRequestDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -33,7 +33,7 @@ export interface AuthServiceInterface {
      * @endpoint post /api/user/email/confirm/
      * @param emailConfirmationRequest 
      */
-    userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequest, extraHttpRequestParams?: any): Observable<PasswordResetOK>;
+    userEmailConfirmCreate(emailConfirmationRequest: EmailConfirmationRequestDto, extraHttpRequestParams?: any): Observable<PasswordResetOKDto>;
 
     /**
      * Changer son mot de passe
@@ -41,7 +41,7 @@ export interface AuthServiceInterface {
      * @endpoint post /api/user/password/change/
      * @param passwordChangeRequest 
      */
-    userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequest, extraHttpRequestParams?: any): Observable<PasswordResetOK>;
+    userPasswordChangeCreate(passwordChangeRequest: PasswordChangeRequestDto, extraHttpRequestParams?: any): Observable<PasswordResetOKDto>;
 
     /**
      * Confirmer un reset de mot de passe
@@ -49,7 +49,7 @@ export interface AuthServiceInterface {
      * @endpoint post /api/user/password/reset/confirm/
      * @param passwordResetConfirmRequest 
      */
-    userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequest, extraHttpRequestParams?: any): Observable<PasswordResetOK>;
+    userPasswordResetConfirmCreate(passwordResetConfirmRequest: PasswordResetConfirmRequestDto, extraHttpRequestParams?: any): Observable<PasswordResetOKDto>;
 
     /**
      * Demander un reset de mot de passe
@@ -57,6 +57,6 @@ export interface AuthServiceInterface {
      * @endpoint post /api/user/password/reset/
      * @param passwordResetRequestRequest 
      */
-    userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequest, extraHttpRequestParams?: any): Observable<PasswordResetOK>;
+    userPasswordResetCreate(passwordResetRequestRequest: PasswordResetRequestRequestDto, extraHttpRequestParams?: any): Observable<PasswordResetOKDto>;
 
 }

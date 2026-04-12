@@ -7,19 +7,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedNameDescriptionTranslationRequest } from './localized-name-description-translation-request';
-import { JoinPolicyEnum } from './join-policy-enum';
+import { JoinPolicyEnumDto } from './join-policy-enum';
+import { LocalizedNameDescriptionTranslationRequestDto } from './localized-name-description-translation-request';
 
 
-export interface DomainWriteRequest { 
-    translations: { [key: string]: LocalizedNameDescriptionTranslationRequest; };
+export interface DomainWriteRequestDto { 
+    translations: { [key: string]: LocalizedNameDescriptionTranslationRequestDto; };
     allowed_languages: Array<number>;
     active?: boolean;
-    join_policy?: JoinPolicyEnum;
+    join_policy?: JoinPolicyEnumDto;
     owner?: number;
     managers: Array<number>;
 }
-export namespace DomainWriteRequest {
-}
+
 
 
