@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserSummaryDto } from './user-summary';
+import { UserSummary } from './user-summary';
 
 
-export interface QuizAlertMessageDto { 
+export interface QuizAlertMessage { 
     readonly id: number;
     readonly author: number;
-    readonly author_summary: UserSummaryDto | null;
+    readonly author_summary: UserSummary | null;
     readonly body: string;
     readonly created_at: string;
     readonly is_mine: boolean;

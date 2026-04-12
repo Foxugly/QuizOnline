@@ -9,7 +9,7 @@
  */
 
 
-export interface EmailConfirmedTokenObtainPairRequestDto { 
+export interface EmailConfirmedTokenObtainPairRequest { 
     username: string;
     password: string;
 }

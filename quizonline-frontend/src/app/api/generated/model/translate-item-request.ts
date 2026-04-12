@@ -7,14 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { FormatEnumDto } from './format-enum';
+import { FormatEnum } from './format-enum';
 
 
-export interface TranslateItemRequestDto { 
+export interface TranslateItemRequest { 
     key: string;
     text: string;
-    format?: FormatEnumDto;
+    format?: FormatEnum;
 }
-
+export namespace TranslateItemRequest {
+}
 
 

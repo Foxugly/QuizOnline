@@ -12,10 +12,9 @@
 /**
  * * `text` - text * `html` - html
  */
-export enum FormatEnumDto {
-
-    Text = 'text',
-
-    Html = 'html'
-}
+export const FormatEnum = {
+    Text: 'text',
+    Html: 'html'
+} as const;
+export type FormatEnum = typeof FormatEnum[keyof typeof FormatEnum];
 

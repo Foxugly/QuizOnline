@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizQuestionAnswerWriteRequestDto { 
+export interface QuizQuestionAnswerWriteRequest { 
     /**
      * ID de la Question (optionnel)
      */

@@ -7,17 +7,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { MediaAssetKindEnumDto } from './media-asset-kind-enum';
+import { MediaAssetKindEnum } from './media-asset-kind-enum';
 
 
-export interface MediaAssetDto { 
+export interface MediaAsset { 
     readonly id: number;
-    readonly kind: MediaAssetKindEnumDto;
+    readonly kind: MediaAssetKindEnum;
     readonly file: string | null;
     readonly external_url: string | null;
     readonly sha256: string | null;
     readonly created_at: string;
 }
-
+export namespace MediaAsset {
+}
 
 

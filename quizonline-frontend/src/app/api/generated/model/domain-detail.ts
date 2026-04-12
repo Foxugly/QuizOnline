@@ -7,21 +7,21 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserSummaryDto } from './user-summary';
-import { SubjectReadDto } from './subject-read';
-import { LanguageReadDto } from './language-read';
-import { LocalizedNameDescriptionTranslationDto } from './localized-name-description-translation';
+import { LanguageRead } from './language-read';
+import { SubjectRead } from './subject-read';
+import { UserSummary } from './user-summary';
+import { LocalizedNameDescriptionTranslation } from './localized-name-description-translation';
 
 
-export interface DomainDetailDto { 
+export interface DomainDetail { 
     readonly id: number;
-    readonly translations: { [key: string]: LocalizedNameDescriptionTranslationDto; };
-    readonly allowed_languages: Array<LanguageReadDto>;
+    readonly translations: { [key: string]: LocalizedNameDescriptionTranslation; };
+    readonly allowed_languages: Array<LanguageRead>;
     readonly active: boolean;
-    readonly owner: UserSummaryDto;
-    readonly managers: Array<UserSummaryDto>;
+    readonly owner: UserSummary;
+    readonly managers: Array<UserSummary>;
     readonly created_at: string;
     readonly updated_at: string;
-    readonly subjects: Array<SubjectReadDto>;
+    readonly subjects: Array<SubjectRead>;
 }
 

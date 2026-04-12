@@ -7,14 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { MediaAssetUploadKindEnumDto } from './media-asset-upload-kind-enum';
+import { MediaAssetUploadKindEnum } from './media-asset-upload-kind-enum';
 
 
-export interface MediaAssetUploadRequestDto { 
+export interface MediaAssetUploadRequest { 
     file?: Blob;
     external_url?: string;
-    kind?: MediaAssetUploadKindEnumDto;
+    kind?: MediaAssetUploadKindEnum;
 }
-
+export namespace MediaAssetUploadRequest {
+}
 
 

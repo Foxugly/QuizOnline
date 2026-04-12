@@ -12,10 +12,9 @@
 /**
  * * `practice` - Practice * `exam` - Examen
  */
-export enum ModeEnumDto {
-
-    Practice = 'practice',
-
-    Exam = 'exam'
-}
+export const ModeEnum = {
+    Practice: 'practice',
+    Exam: 'exam'
+} as const;
+export type ModeEnum = typeof ModeEnum[keyof typeof ModeEnum];
 

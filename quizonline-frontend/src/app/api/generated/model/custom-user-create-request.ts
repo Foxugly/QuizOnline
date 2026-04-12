@@ -7,10 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageEnumDto } from './language-enum';
+import { LanguageEnum } from './language-enum';
 
 
-export interface CustomUserCreateRequestDto { 
+export interface CustomUserCreateRequest { 
     /**
      * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
@@ -19,10 +19,11 @@ export interface CustomUserCreateRequestDto {
     first_name?: string;
     last_name?: string;
     password: string;
-    language?: LanguageEnumDto;
+    language?: LanguageEnum;
     nb_domain_max?: number;
     managed_domain_ids?: Array<number>;
 }
-
+export namespace CustomUserCreateRequest {
+}
 
 

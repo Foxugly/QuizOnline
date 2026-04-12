@@ -7,12 +7,17 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { JoinPolicyEnum } from './join-policy-enum';
 
 
-export interface DomainWriteDto { 
+export interface DomainWrite { 
     allowed_languages: Array<number>;
     active?: boolean;
+    join_policy?: JoinPolicyEnum;
     owner?: number;
     managers: Array<number>;
 }
+export namespace DomainWrite {
+}
+
 

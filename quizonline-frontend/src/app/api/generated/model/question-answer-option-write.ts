@@ -9,7 +9,7 @@
  */
 
 
-export interface QuestionAnswerOptionWriteDto { 
+export interface QuestionAnswerOptionWrite { 
     id?: number;
     is_correct?: boolean;
     sort_order?: number;

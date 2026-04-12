@@ -9,7 +9,7 @@
  */
 
 
-export interface UserSummaryDto { 
+export interface UserSummary { 
     id: number;
     username: string;
 }

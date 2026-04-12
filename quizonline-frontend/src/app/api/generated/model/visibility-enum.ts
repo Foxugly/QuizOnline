@@ -12,12 +12,10 @@
 /**
  * * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
  */
-export enum VisibilityEnumDto {
-
-    Immediate = 'immediate',
-
-    Scheduled = 'scheduled',
-
-    Never = 'never'
-}
+export const VisibilityEnum = {
+    Immediate: 'immediate',
+    Scheduled: 'scheduled',
+    Never: 'never'
+} as const;
+export type VisibilityEnum = typeof VisibilityEnum[keyof typeof VisibilityEnum];
 

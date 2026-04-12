@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { DomainNameSummaryDto } from './domain-name-summary';
+import { DomainNameSummary } from './domain-name-summary';
 
 
-export interface LocalizedSubjectTranslationDto { 
+export interface LocalizedSubjectTranslation { 
     name: string;
     description: string;
-    domain: DomainNameSummaryDto;
+    domain: DomainNameSummary;
 }
 

@@ -9,7 +9,7 @@
  */
 
 
-export interface DomainNameSummaryDto { 
+export interface DomainNameSummary { 
     id: number;
     name: string;
 }

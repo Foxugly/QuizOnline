@@ -7,22 +7,29 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserSummaryDto } from './user-summary';
-import { LanguageReadDto } from './language-read';
-import { LocalizedNameDescriptionTranslationDto } from './localized-name-description-translation';
+import { LanguageRead } from './language-read';
+import { JoinPolicyEnum } from './join-policy-enum';
+import { UserSummary } from './user-summary';
+import { LocalizedNameDescriptionTranslation } from './localized-name-description-translation';
 
 
-export interface DomainReadDto { 
+export interface DomainRead { 
     readonly id: number;
-    readonly translations: { [key: string]: LocalizedNameDescriptionTranslationDto; };
-    readonly allowed_languages: Array<LanguageReadDto>;
+    readonly translations: { [key: string]: LocalizedNameDescriptionTranslation; };
+    readonly allowed_languages: Array<LanguageRead>;
     readonly active: boolean;
+    readonly join_policy: JoinPolicyEnum;
     readonly subjects_count: number;
     readonly questions_count: number;
-    readonly owner: UserSummaryDto;
-    readonly managers: Array<UserSummaryDto>;
-    readonly members: Array<UserSummaryDto>;
+    readonly pending_join_requests_count: number | null;
+    readonly my_join_request_status: string | null;
+    readonly owner: UserSummary;
+    readonly managers: Array<UserSummary>;
+    readonly members: Array<UserSummary>;
     readonly created_at: string;
     readonly updated_at: string;
 }
+export namespace DomainRead {
+}
+
 

@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { SubjectReadDto } from './subject-read';
+import { SubjectRead } from './subject-read';
 
 
-export interface PaginatedSubjectReadListDto { 
+export interface PaginatedSubjectReadList { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<SubjectReadDto>;
+    results: Array<SubjectRead>;
 }
 

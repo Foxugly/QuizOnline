@@ -17,77 +17,38 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
-import { CustomUserAdminUpdateRequestDto } from '../model/custom-user-admin-update-request';
+import { CustomUserAdminUpdateRequest } from '../model/custom-user-admin-update-request';
 // @ts-ignore
-import { CustomUserCreateRequestDto } from '../model/custom-user-create-request';
+import { CustomUserCreateRequest } from '../model/custom-user-create-request';
 // @ts-ignore
-import { CustomUserReadDto } from '../model/custom-user-read';
+import { CustomUserRead } from '../model/custom-user-read';
 // @ts-ignore
-import { ErrorDetailDto } from '../model/error-detail';
+import { ErrorDetail } from '../model/error-detail';
 // @ts-ignore
-import { PaginatedCustomUserReadListDto } from '../model/paginated-custom-user-read-list';
+import { PaginatedCustomUserReadList } from '../model/paginated-custom-user-read-list';
 // @ts-ignore
-import { PaginatedQuizSimpleListDto } from '../model/paginated-quiz-simple-list';
+import { PaginatedQuizSimpleList } from '../model/paginated-quiz-simple-list';
 // @ts-ignore
-import { PatchedCustomUserAdminUpdateRequestDto } from '../model/patched-custom-user-admin-update-request';
+import { PatchedCustomUserAdminUpdateRequest } from '../model/patched-custom-user-admin-update-request';
 // @ts-ignore
-import { PatchedCustomUserProfileUpdateRequestDto } from '../model/patched-custom-user-profile-update-request';
+import { PatchedCustomUserProfileUpdateRequest } from '../model/patched-custom-user-profile-update-request';
 // @ts-ignore
-import { SetCurrentDomainRequestDto } from '../model/set-current-domain-request';
+import { SetCurrentDomainRequest } from '../model/set-current-domain-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
+import {
+    UserServiceInterface
+} from './user.serviceInterface';
 
-
-export interface UserCreateRequestParams {
-    customUserCreateRequestDto: CustomUserCreateRequestDto;
-}
-
-export interface UserDestroyRequestParams {
-    userId: string;
-}
-
-export interface UserListRequestParams {
-    /** A page number within the paginated result set. */
-    page?: number;
-}
-
-export interface UserMeCurrentDomainCreateRequestParams {
-    setCurrentDomainRequestDto?: SetCurrentDomainRequestDto;
-}
-
-export interface UserMePartialUpdateRequestParams {
-    patchedCustomUserProfileUpdateRequestDto?: PatchedCustomUserProfileUpdateRequestDto;
-}
-
-export interface UserPartialUpdateRequestParams {
-    userId: string;
-    patchedCustomUserAdminUpdateRequestDto?: PatchedCustomUserAdminUpdateRequestDto;
-}
-
-export interface UserQuizListRequestParams {
-    /** ID utilisateur. */
-    userId: number;
-    /** A page number within the paginated result set. */
-    page?: number;
-}
-
-export interface UserRetrieveRequestParams {
-    userId: string;
-}
-
-export interface UserUpdateRequestParams {
-    userId: string;
-    customUserAdminUpdateRequestDto?: CustomUserAdminUpdateRequestDto;
-}
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserApi extends BaseService {
+export class UserService extends BaseService implements UserServiceInterface {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -97,17 +58,16 @@ export class UserApi extends BaseService {
      * Créer un utilisateur
      * Création ouverte (AllowAny).
      * @endpoint post /api/user/
-     * @param requestParameters
+     * @param customUserCreateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userCreate(requestParameters: UserCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userCreate(requestParameters: UserCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userCreate(requestParameters: UserCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userCreate(requestParameters: UserCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const customUserCreateRequestDto = requestParameters?.customUserCreateRequestDto;
-        if (customUserCreateRequestDto === null || customUserCreateRequestDto === undefined) {
-            throw new Error('Required parameter customUserCreateRequestDto was null or undefined when calling userCreate.');
+    public userCreate(customUserCreateRequest: CustomUserCreateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userCreate(customUserCreateRequest: CustomUserCreateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userCreate(customUserCreateRequest: CustomUserCreateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userCreate(customUserCreateRequest: CustomUserCreateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (customUserCreateRequest === null || customUserCreateRequest === undefined) {
+            throw new Error('Required parameter customUserCreateRequest was null or undefined when calling userCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -151,10 +111,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: customUserCreateRequestDto,
+                body: customUserCreateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -167,15 +127,14 @@ export class UserApi extends BaseService {
 
     /**
      * @endpoint delete /api/user/{user_id}/
-     * @param requestParameters
+     * @param userId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userDestroy(requestParameters: UserDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public userDestroy(requestParameters: UserDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public userDestroy(requestParameters: UserDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public userDestroy(requestParameters: UserDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const userId = requestParameters?.userId;
+    public userDestroy(userId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public userDestroy(userId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public userDestroy(userId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public userDestroy(userId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userDestroy.');
         }
@@ -226,15 +185,14 @@ export class UserApi extends BaseService {
      * Lister les utilisateurs
      * Admin/staff uniquement.
      * @endpoint get /api/user/
-     * @param requestParameters
+     * @param page A page number within the paginated result set.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userList(requestParameters?: UserListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedCustomUserReadListDto>;
-    public userList(requestParameters?: UserListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedCustomUserReadListDto>>;
-    public userList(requestParameters?: UserListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedCustomUserReadListDto>>;
-    public userList(requestParameters?: UserListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const page = requestParameters?.page;
+    public userList(page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedCustomUserReadList>;
+    public userList(page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedCustomUserReadList>>;
+    public userList(page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedCustomUserReadList>>;
+    public userList(page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -270,7 +228,7 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedCustomUserReadListDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedCustomUserReadList>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -288,15 +246,14 @@ export class UserApi extends BaseService {
      * Définir mon domaine courant
      * Met à jour &#x60;current_domain&#x60; sur l\&#39;utilisateur authentifié, puis renvoie le profil mis à jour.
      * @endpoint post /api/user/me/current-domain/
-     * @param requestParameters
+     * @param setCurrentDomainRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userMeCurrentDomainCreate(requestParameters?: UserMeCurrentDomainCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userMeCurrentDomainCreate(requestParameters?: UserMeCurrentDomainCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userMeCurrentDomainCreate(requestParameters?: UserMeCurrentDomainCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userMeCurrentDomainCreate(requestParameters?: UserMeCurrentDomainCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const setCurrentDomainRequestDto = requestParameters?.setCurrentDomainRequestDto;
+    public userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userMeCurrentDomainCreate(setCurrentDomainRequest?: SetCurrentDomainRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -339,10 +296,63 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/me/current-domain/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: setCurrentDomainRequestDto,
+                body: setCurrentDomainRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint get /api/user/me/join-requests/
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public userMeJoinRequestsRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userMeJoinRequestsRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userMeJoinRequestsRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userMeJoinRequestsRetrieve(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/user/me/join-requests/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CustomUserRead>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -357,15 +367,14 @@ export class UserApi extends BaseService {
      * Récupérer et mettre à jour mon profil
      * Retourne le profil de l\&#39;utilisateur authentifié.
      * @endpoint patch /api/user/me/
-     * @param requestParameters
+     * @param patchedCustomUserProfileUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userMePartialUpdate(requestParameters?: UserMePartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userMePartialUpdate(requestParameters?: UserMePartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userMePartialUpdate(requestParameters?: UserMePartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userMePartialUpdate(requestParameters?: UserMePartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const patchedCustomUserProfileUpdateRequestDto = requestParameters?.patchedCustomUserProfileUpdateRequestDto;
+    public userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userMePartialUpdate(patchedCustomUserProfileUpdateRequest?: PatchedCustomUserProfileUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -408,10 +417,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/me/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedCustomUserProfileUpdateRequestDto,
+                body: patchedCustomUserProfileUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -429,9 +438,9 @@ export class UserApi extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userMeRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userMeRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userMeRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
+    public userMeRetrieve(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userMeRetrieve(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userMeRetrieve(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
     public userMeRetrieve(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
@@ -464,7 +473,7 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/me/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -480,19 +489,18 @@ export class UserApi extends BaseService {
     /**
      * Mettre à jour un utilisateur (PATCH)
      * @endpoint patch /api/user/{user_id}/
-     * @param requestParameters
+     * @param userId 
+     * @param patchedCustomUserAdminUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userPartialUpdate(requestParameters: UserPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userPartialUpdate(requestParameters: UserPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userPartialUpdate(requestParameters: UserPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userPartialUpdate(requestParameters: UserPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const userId = requestParameters?.userId;
+    public userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userPartialUpdate(userId: string, patchedCustomUserAdminUpdateRequest?: PatchedCustomUserAdminUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userPartialUpdate.');
         }
-        const patchedCustomUserAdminUpdateRequestDto = requestParameters?.patchedCustomUserAdminUpdateRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -535,10 +543,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedCustomUserAdminUpdateRequestDto,
+                body: patchedCustomUserAdminUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -553,19 +561,18 @@ export class UserApi extends BaseService {
      * Lister les quizzes d’un utilisateur
      * Retourne la liste des quiz liés à un utilisateur. Accès: soi-même ou staff/superuser.
      * @endpoint get /api/user/{user_id}/quizzes/
-     * @param requestParameters
+     * @param userId ID utilisateur.
+     * @param page A page number within the paginated result set.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizSimpleListDto>;
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizSimpleListDto>>;
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizSimpleListDto>>;
-    public userQuizList(requestParameters: UserQuizListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const userId = requestParameters?.userId;
+    public userQuizList(userId: number, page?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizSimpleList>;
+    public userQuizList(userId: number, page?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizSimpleList>>;
+    public userQuizList(userId: number, page?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizSimpleList>>;
+    public userQuizList(userId: number, page?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userQuizList.');
         }
-        const page = requestParameters?.page;
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
@@ -601,7 +608,7 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/quizzes/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizSimpleListDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizSimpleList>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -618,15 +625,14 @@ export class UserApi extends BaseService {
     /**
      * Récupérer un utilisateur
      * @endpoint get /api/user/{user_id}/
-     * @param requestParameters
+     * @param userId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userRetrieve(requestParameters: UserRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userRetrieve(requestParameters: UserRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userRetrieve(requestParameters: UserRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userRetrieve(requestParameters: UserRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const userId = requestParameters?.userId;
+    public userRetrieve(userId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userRetrieve(userId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userRetrieve(userId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userRetrieve(userId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userRetrieve.');
         }
@@ -661,7 +667,7 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -677,19 +683,18 @@ export class UserApi extends BaseService {
     /**
      * Mettre à jour un utilisateur (PUT)
      * @endpoint put /api/user/{user_id}/
-     * @param requestParameters
+     * @param userId 
+     * @param customUserAdminUpdateRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public userUpdate(requestParameters: UserUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserReadDto>;
-    public userUpdate(requestParameters: UserUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserReadDto>>;
-    public userUpdate(requestParameters: UserUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserReadDto>>;
-    public userUpdate(requestParameters: UserUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const userId = requestParameters?.userId;
+    public userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CustomUserRead>;
+    public userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CustomUserRead>>;
+    public userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CustomUserRead>>;
+    public userUpdate(userId: string, customUserAdminUpdateRequest?: CustomUserAdminUpdateRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling userUpdate.');
         }
-        const customUserAdminUpdateRequestDto = requestParameters?.customUserAdminUpdateRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -732,10 +737,10 @@ export class UserApi extends BaseService {
 
         let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<CustomUserReadDto>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<CustomUserRead>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: customUserAdminUpdateRequestDto,
+                body: customUserAdminUpdateRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
