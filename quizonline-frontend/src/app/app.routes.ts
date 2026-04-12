@@ -136,7 +136,7 @@ export const routes: Routes = [
   {
     path: 'quiz/template/:templateId/delete',
     loadComponent: () => import('./pages/quiz/delete/quiz-template-delete').then((m) => m.QuizTemplateDelete),
-    canActivate: [authGuard],
+    canActivate: [authGuard, staffGuard],
   },
   {
     path: 'quiz/template/:templateId/results',
@@ -146,12 +146,12 @@ export const routes: Routes = [
   {
     path: 'quiz/:quizId/delete/:templateId',
     loadComponent: () => import('./pages/quiz/delete/quiz-session-delete').then((m) => m.QuizSessionDeletePage),
-    canActivate: [authGuard],
+    canActivate: [authGuard, staffGuard],
   },
   {
     path: 'quiz/:quizId/delete',
     loadComponent: () => import('./pages/quiz/delete/quiz-session-delete').then((m) => m.QuizSessionDeletePage),
-    canActivate: [authGuard],
+    canActivate: [authGuard, staffGuard],
   },
   {
     path: 'quiz/list',

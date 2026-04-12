@@ -2,7 +2,7 @@ import logging
 import random
 
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from drf_spectacular.utils import (
     extend_schema,
@@ -551,7 +551,13 @@ class QuizTemplateQuizQuestionViewSet(MyModelViewSet):
             return not_found_response()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        try:
+            instance = serializer.save()
+        except IntegrityError:
+            return Response(
+                {"detail": "Un conflit de sort_order ou de question existe déjà pour ce template."},
+                status=status.HTTP_409_CONFLICT,
+            )
         out = QuizQuestionReadSerializer(instance, context=self.get_serializer_context())
         return Response(out.data, status=status.HTTP_201_CREATED)
 
