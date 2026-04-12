@@ -400,3 +400,47 @@ class MemberRolePromotesPendingRequestTests(TestCase):
         self.assertEqual(self.req.status, "approved")
         self.assertEqual(self.req.decided_by_id, self.owner.id)
         self.assertIsNotNone(self.req.decided_at)
+
+
+class PolicyTransitionAutoApprovesPendingTests(TestCase):
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner1 = User.objects.create_user(username="j1", password="pwd", email="j1@e.test")
+        self.joiner2 = User.objects.create_user(username="j2", password="pwd", email="j2@e.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        # Domain needs at least one allowed_language for the write serializer
+        # validation to pass on partial updates (the validate_join_policy
+        # check doesn't gate on translations, but the parent validate may).
+        from language.models import Language
+        lang_fr, _ = Language.objects.get_or_create(code="fr", defaults={"name": "Francais", "active": True})
+        self.domain.allowed_languages.set([lang_fr])
+        self.req1 = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner1)
+        self.req2 = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner2)
+        self.client = APIClient()
+
+    def test_switch_to_auto_approves_all_pending_and_emails(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.patch(
+                f"/api/domain/{self.domain.id}/",
+                {"join_policy": "auto"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.req1.refresh_from_db()
+        self.req2.refresh_from_db()
+        self.assertEqual(self.req1.status, "approved")
+        self.assertEqual(self.req2.status, "approved")
+        self.assertEqual(self.req1.decided_by_id, self.owner.id)
+        self.assertTrue(self.domain.members.filter(pk=self.joiner1.pk).exists())
+        self.assertTrue(self.domain.members.filter(pk=self.joiner2.pk).exists())
+        # Two notification emails should be enqueued (one per former pending).
+        all_recipients = []
+        for row in OutboundEmail.objects.all():
+            all_recipients.extend(row.recipients)
+        self.assertIn(self.joiner1.email, all_recipients)
+        self.assertIn(self.joiner2.email, all_recipients)

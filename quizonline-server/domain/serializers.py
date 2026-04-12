@@ -216,6 +216,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
         return domain
 
     def update(self, instance, validated_data):
+        previous_policy = instance.join_policy
         translations = validated_data.pop("translations", None)
         langs = validated_data.pop("allowed_languages", None)
         new_owner = validated_data.pop("owner", None)
@@ -237,6 +238,21 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
             if translations is not None:
                 self._apply_translations(instance, translations)
+
+            # Detect (non-auto) → auto transition and auto-approve pending
+            # requests. Kept inside the atomic block so a downstream error
+            # rolls back the auto-approval too.
+            new_policy = instance.join_policy
+            if previous_policy != "auto" and new_policy == "auto":
+                from domain.services import auto_approve_pending_requests
+                from core.mailers.domain_join import send_join_request_approved_email
+                request = self.context.get("request")
+                actor = getattr(request, "user", None)
+                approved = auto_approve_pending_requests(instance, by=actor)
+                for jr in approved:
+                    transaction.on_commit(
+                        lambda jr=jr: send_join_request_approved_email(join_request=jr)
+                    )
 
         return instance
 
