@@ -1,4 +1,4 @@
-import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {LanguageEnum} from '../../api/generated/model/language-enum';
 
 export type UiText = {
   topmenu: {
@@ -686,14 +686,14 @@ const ES: UiText = {
   },
 };
 
-const UI_TEXT: Partial<Record<LanguageEnumDto, UiText>> = {
-  [LanguageEnumDto.Fr]: FR,
-  [LanguageEnumDto.En]: EN,
-  [LanguageEnumDto.Nl]: NL,
-  [LanguageEnumDto.It]: IT,
-  [LanguageEnumDto.Es]: ES,
+const UI_TEXT: Partial<Record<LanguageEnum, UiText>> = {
+  [LanguageEnum.Fr]: FR,
+  [LanguageEnum.En]: EN,
+  [LanguageEnum.Nl]: NL,
+  [LanguageEnum.It]: IT,
+  [LanguageEnum.Es]: ES,
 };
 
-export function getUiText(lang: LanguageEnumDto | string | null | undefined): UiText {
-  return UI_TEXT[(lang as LanguageEnumDto)] ?? EN;
+export function getUiText(lang: LanguageEnum | string | null | undefined): UiText {
+  return UI_TEXT[(lang as LanguageEnum)] ?? EN;
 }

@@ -3,20 +3,19 @@ import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {map, Observable, of, switchMap} from 'rxjs';
 import {
-  CreateQuizInputRequestDto,
-  GenerateFromSubjectsInputRequestDto,
-  PaginatedQuizAssignmentListListDto,
-  QuestionApi,
-  QuizAnswerApi,
-  QuizAssignmentListDto,
-  QuizApi,
-  QuizDto,
-  QuizListDto,
-  QuizQuestionAnswerDto,
-  QuizQuestionAnswerWriteRequestDto,
-  QuizTemplateApi,
-  QuizTemplateDto,
-  QuizTemplateGenerateFromSubjectsCreateRequestParams,
+  CreateQuizInputRequest,
+  GenerateFromSubjectsInputRequest,
+  PaginatedQuizAssignmentListList,
+  QuestionService as QuestionApiService,
+  QuizAnswerService,
+  QuizAssignmentList,
+  QuizService as QuizApiService,
+  Quiz,
+  QuizList,
+  QuizQuestionAnswer,
+  QuizQuestionAnswerWriteRequest,
+  QuizTemplateService as QuizTemplateApiService,
+  QuizTemplate,
 } from '../../api/generated';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
@@ -29,7 +28,7 @@ export interface QuizSubjectCreatePayload {
   duration: number | null;
 }
 
-export type QuizTemplateAssignmentSessionDto = QuizAssignmentListDto;
+export type QuizTemplateAssignmentSessionDto = QuizAssignmentList;
 
 @Injectable({
   providedIn: 'root',
@@ -38,10 +37,10 @@ export class QuizService {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
 
   constructor(
-    private quizApi: QuizApi,
-    private qtApi: QuizTemplateApi,
-    private questionApi: QuestionApi,
-    private answerApi: QuizAnswerApi,
+    private quizApi: QuizApiService,
+    private qtApi: QuizTemplateApiService,
+    private questionApi: QuestionApiService,
+    private answerApi: QuizAnswerService,
     private http: HttpClient,
     private router: Router,
   ) {}
@@ -50,23 +49,21 @@ export class QuizService {
     this.router.navigate(['/quiz', 'list']);
   }
 
-  startQuiz(id: number): Observable<QuizDto> {
-    return this.quizApi.quizStartCreate({quizId: id});
+  startQuiz(id: number): Observable<Quiz> {
+    return this.quizApi.quizStartCreate(id);
   }
 
-  createQuizFromTemplate(quizTemplateId: number): Observable<QuizDto> {
-    return this.quizApi.quizCreate({
-      createQuizInputRequestDto: {quiz_template_id: quizTemplateId},
-    });
+  createQuizFromTemplate(quizTemplateId: number): Observable<Quiz> {
+    return this.quizApi.quizCreate({quiz_template_id: quizTemplateId});
   }
 
-  closeQuiz(id: number): Observable<QuizDto> {
-    return this.quizApi.quizCloseCreate({quizId: id});
+  closeQuiz(id: number): Observable<Quiz> {
+    return this.quizApi.quizCloseCreate(id);
   }
 
   goStart(id: number, onError?: (err: unknown) => void): void {
     this.startQuiz(id).subscribe({
-      next: (session: QuizDto): void => {
+      next: (session: Quiz): void => {
         this.goQuestion(session.id);
       },
       error: (err: unknown): void => {
@@ -96,45 +93,46 @@ export class QuizService {
       return of({count: 0});
     }
 
-    return this.questionApi.questionList({
-      active: true,
-      isModePractice: true,
+    return this.questionApi.questionList(
+      true,        // active
+      undefined,   // domain
+      undefined,   // isModeExam
+      true,        // isModePractice
+      undefined,   // page
+      1,           // pageSize
+      undefined,   // search
       subjectIds,
-      pageSize: 1,
-    }).pipe(
+    ).pipe(
       map((response) => ({count: response.count})),
     );
   }
 
-  generateQuiz(payload: GenerateFromSubjectsInputRequestDto): Observable<QuizDto> {
-    const params: QuizTemplateGenerateFromSubjectsCreateRequestParams = {
-      generateFromSubjectsInputRequestDto: payload,
-    };
-    return this.qtApi.quizTemplateGenerateFromSubjectsCreate(params).pipe(
+  generateQuiz(payload: GenerateFromSubjectsInputRequest): Observable<Quiz> {
+    return this.qtApi.quizTemplateGenerateFromSubjectsCreate(payload).pipe(
       switchMap((quizTemplate) => this.createQuizFromTemplate(quizTemplate.id)),
     );
   }
 
-  listQuiz(params?: {name?: string; search?: string}): Observable<QuizListDto[]> {
-    return this.quizApi.quizList({name: params?.name, search: params?.search}).pipe(
+  listQuiz(params?: {name?: string; search?: string}): Observable<QuizList[]> {
+    return this.quizApi.quizList(params?.name, undefined, params?.search).pipe(
       map((response) => response.results ?? []),
     );
   }
 
-  listTemplates(): Observable<QuizTemplateDto[]> {
+  listTemplates(): Observable<QuizTemplate[]> {
     return this.qtApi.quizTemplateList().pipe(map((response) => response.results ?? []));
   }
 
-  assignTemplateToUsers(quizTemplateId: number, userIds: number[]): Observable<QuizListDto[]> {
-    return this.http.post<QuizListDto[]>(`${this.apiBaseUrl}/quiz/bulk-create-from-template/`, {
+  assignTemplateToUsers(quizTemplateId: number, userIds: number[]): Observable<QuizList[]> {
+    return this.http.post<QuizList[]>(`${this.apiBaseUrl}/quiz/bulk-create-from-template/`, {
       quiz_template_id: quizTemplateId,
       user_ids: userIds,
     });
   }
 
-  listTemplateSessions(quizTemplateId: number): Observable<QuizAssignmentListDto[]> {
-    return this.qtApi.quizTemplateSessionsList({qtId: quizTemplateId}).pipe(
-      map((response: QuizAssignmentListDto[] | PaginatedQuizAssignmentListListDto) => {
+  listTemplateSessions(quizTemplateId: number): Observable<QuizAssignmentList[]> {
+    return this.qtApi.quizTemplateSessionsList(quizTemplateId).pipe(
+      map((response: QuizAssignmentList[] | PaginatedQuizAssignmentListList) => {
         if (Array.isArray(response)) {
           return response;
         }
@@ -144,28 +142,28 @@ export class QuizService {
   }
 
   deleteQuiz(id: number): Observable<void> {
-    return this.quizApi.quizDestroy({quizId: id}).pipe(
+    return this.quizApi.quizDestroy(id).pipe(
       map(() => void 0),
     );
   }
 
-  retrieveQuiz(id: number): Observable<QuizDto> {
-    return this.quizApi.quizRetrieve({quizId: id});
+  retrieveQuiz(id: number): Observable<Quiz> {
+    return this.quizApi.quizRetrieve(id);
   }
 
   saveAnswer(
     quizId: number,
-    payload: QuizQuestionAnswerWriteRequestDto,
-  ): Observable<QuizQuestionAnswerDto> {
+    payload: QuizQuestionAnswerWriteRequest,
+  ): Observable<QuizQuestionAnswer> {
     if (payload.question_order == null) {
       throw new Error('question_order is required');
     }
 
-    return this.answerApi.quizAnswerCreate({quizId, quizQuestionAnswerWriteRequestDto: payload});
+    return this.answerApi.quizAnswerCreate(quizId, payload);
   }
 
-  listAnswers(quizId: number): Observable<QuizQuestionAnswerDto[]> {
-    return this.answerApi.quizAnswerList({quizId}).pipe(map((response) => response.results ?? []));
+  listAnswers(quizId: number): Observable<QuizQuestionAnswer[]> {
+    return this.answerApi.quizAnswerList(quizId).pipe(map((response) => response.results ?? []));
   }
 
   goSubject(): void {

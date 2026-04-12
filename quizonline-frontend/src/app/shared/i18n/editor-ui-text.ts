@@ -1,4 +1,4 @@
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnum} from '../../api/generated';
 
 export type EditorUiText = {
   common: {
@@ -286,14 +286,14 @@ const ES: EditorUiText = {
   },
 };
 
-const TEXTS: Partial<Record<LanguageEnumDto, EditorUiText>> = {
-  [LanguageEnumDto.Fr]: FR,
-  [LanguageEnumDto.En]: EN,
-  [LanguageEnumDto.Nl]: NL,
-  [LanguageEnumDto.It]: IT,
-  [LanguageEnumDto.Es]: ES,
+const TEXTS: Partial<Record<LanguageEnum, EditorUiText>> = {
+  [LanguageEnum.Fr]: FR,
+  [LanguageEnum.En]: EN,
+  [LanguageEnum.Nl]: NL,
+  [LanguageEnum.It]: IT,
+  [LanguageEnum.Es]: ES,
 };
 
-export function getEditorUiText(lang: LanguageEnumDto | string | null | undefined): EditorUiText {
-  return TEXTS[lang as LanguageEnumDto] ?? EN;
+export function getEditorUiText(lang: LanguageEnum | string | null | undefined): EditorUiText {
+  return TEXTS[lang as LanguageEnum] ?? EN;
 }

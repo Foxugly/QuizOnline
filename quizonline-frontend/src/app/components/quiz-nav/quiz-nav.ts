@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@
 import {CommonModule} from '@angular/common';
 import {PanelModule} from 'primeng/panel';
 import {QuestionButton} from '../question-button/question-button';
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionRead} from '../../api/generated';
 
 
 export interface QuizNavItem {
@@ -10,7 +10,7 @@ export interface QuizNavItem {
   id: number;
   answered: boolean;
   flagged: boolean;
-  question: QuestionReadDto;
+  question: QuestionRead;
   selectedOptionIds?: number[];
 }
 

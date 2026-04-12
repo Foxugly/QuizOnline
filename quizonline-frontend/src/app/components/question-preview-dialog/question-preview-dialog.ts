@@ -5,7 +5,7 @@ import {finalize} from 'rxjs/operators';
 
 import {DialogModule} from 'primeng/dialog';
 
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionRead} from '../../api/generated';
 import {QuizQuestionComponent} from '../quiz-question/quiz-question';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {QuestionService} from '../../services/question/question';
@@ -28,7 +28,7 @@ export class QuestionPreviewDialogComponent implements OnChanges {
 
   loading = false;
   error: string | null = null;
-  question: QuestionReadDto | null = null;
+  question: QuestionRead | null = null;
 
   private readonly questionService = inject(QuestionService);
   private readonly destroyRef = inject(DestroyRef);

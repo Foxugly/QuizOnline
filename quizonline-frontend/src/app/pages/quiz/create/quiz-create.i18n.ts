@@ -1,4 +1,4 @@
-import {LanguageEnumDto} from '../../../api/generated';
+import {LanguageEnum} from '../../../api/generated';
 
 export type QuizCreateUiText = {
   settingsTab: string;
@@ -58,8 +58,8 @@ export type QuizCreateUiText = {
   monthNamesShort: string[];
 };
 
-const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
-  [LanguageEnumDto.En]: {
+const QUIZ_CREATE_UI_TEXT: Record<LanguageEnum, QuizCreateUiText> = {
+  [LanguageEnum.En]: {
     settingsTab: 'Settings',
     questionsTab: 'Questions',
     settingsTitle: 'Quiz settings',
@@ -116,7 +116,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
-  [LanguageEnumDto.Nl]: {
+  [LanguageEnum.Nl]: {
     settingsTab: 'Instellingen',
     questionsTab: 'Vragen',
     settingsTitle: 'Quizinstellingen',
@@ -173,7 +173,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNames: ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'],
     monthNamesShort: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
   },
-  [LanguageEnumDto.It]: {
+  [LanguageEnum.It]: {
     settingsTab: 'Parametri',
     questionsTab: 'Domande',
     settingsTitle: 'Parametri del quiz',
@@ -230,7 +230,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNames: ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'],
     monthNamesShort: ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'],
   },
-  [LanguageEnumDto.Es]: {
+  [LanguageEnum.Es]: {
     settingsTab: 'Parámetros',
     questionsTab: 'Preguntas',
     settingsTitle: 'Parámetros del quiz',
@@ -287,7 +287,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
     monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
   },
-  [LanguageEnumDto.Fr]: {
+  [LanguageEnum.Fr]: {
     settingsTab: 'Paramètres',
     questionsTab: 'Questions',
     settingsTitle: 'Paramètres du quiz',
@@ -346,6 +346,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
   },
 };
 
-export function getQuizCreateUiText(lang: LanguageEnumDto): QuizCreateUiText {
-  return QUIZ_CREATE_UI_TEXT[lang] ?? QUIZ_CREATE_UI_TEXT[LanguageEnumDto.Fr];
+export function getQuizCreateUiText(lang: LanguageEnum): QuizCreateUiText {
+  return QUIZ_CREATE_UI_TEXT[lang] ?? QUIZ_CREATE_UI_TEXT[LanguageEnum.Fr];
 }

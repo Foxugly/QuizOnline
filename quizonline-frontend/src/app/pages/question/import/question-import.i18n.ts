@@ -1,4 +1,4 @@
-import { LanguageEnumDto } from '../../../api/generated';
+import { LanguageEnum } from '../../../api/generated';
 
 export type QuestionImportUiText = {
   title: string;
@@ -282,14 +282,14 @@ const ES: QuestionImportUiText = {
   importFailure: (item) => `La pregunta ${item} no pudo importarse.`,
 };
 
-const UI_TEXT: Partial<Record<LanguageEnumDto, QuestionImportUiText>> = {
-  [LanguageEnumDto.Fr]: FR,
-  [LanguageEnumDto.En]: EN,
-  [LanguageEnumDto.Nl]: NL,
-  [LanguageEnumDto.It]: IT,
-  [LanguageEnumDto.Es]: ES,
+const UI_TEXT: Partial<Record<LanguageEnum, QuestionImportUiText>> = {
+  [LanguageEnum.Fr]: FR,
+  [LanguageEnum.En]: EN,
+  [LanguageEnum.Nl]: NL,
+  [LanguageEnum.It]: IT,
+  [LanguageEnum.Es]: ES,
 };
 
-export function getQuestionImportUiText(lang: LanguageEnumDto | string | null | undefined): QuestionImportUiText {
-  return UI_TEXT[lang as LanguageEnumDto] ?? EN;
+export function getQuestionImportUiText(lang: LanguageEnum | string | null | undefined): QuestionImportUiText {
+  return UI_TEXT[lang as LanguageEnum] ?? EN;
 }

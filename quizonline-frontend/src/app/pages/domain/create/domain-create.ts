@@ -11,10 +11,10 @@ import {CardModule} from 'primeng/card';
 import {MessageService} from 'primeng/api';
 
 import {
-  CustomUserReadDto,
-  DomainWriteRequestDto,
-  LanguageEnumDto,
-  LanguageReadDto,
+  CustomUserRead,
+  DomainWriteRequest,
+  LanguageEnum,
+  LanguageRead,
 } from '../../../api/generated';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
@@ -32,7 +32,7 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type UserOption = { label: string; value: number };
-type DomainWritePayload = DomainWriteRequestDto & {
+type DomainWritePayload = DomainWriteRequest & {
   owner?: number;
   translations: DomainTranslations;
 };
@@ -56,7 +56,7 @@ export class DomainCreate implements OnInit {
   submitError = signal<string | null>(null);
   translating = signal(false);
 
-  languages = signal<LanguageReadDto[]>([]);
+  languages = signal<LanguageRead[]>([]);
   managersOptions = signal<UserOption[]>([]);
 
   availableStaff = signal<UserOption[]>([]);
@@ -123,8 +123,8 @@ export class DomainCreate implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
     forkJoin({
-      languages: this.languageService.list().pipe(catchError(() => of([] as LanguageReadDto[]))),
-      users: this.userService.list().pipe(catchError(() => of([] as CustomUserReadDto[]))),
+      languages: this.languageService.list().pipe(catchError(() => of([] as LanguageRead[]))),
+      users: this.userService.list().pipe(catchError(() => of([] as CustomUserRead[]))),
     })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -372,14 +372,14 @@ export class DomainCreate implements OnInit {
 
   private localizedSummary(): string {
     switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
+      case LanguageEnum.Nl:
         return 'Fout';
-      case LanguageEnumDto.It:
+      case LanguageEnum.It:
         return 'Errore';
-      case LanguageEnumDto.Es:
-      case LanguageEnumDto.En:
+      case LanguageEnum.Es:
+      case LanguageEnum.En:
         return 'Error';
-      case LanguageEnumDto.Fr:
+      case LanguageEnum.Fr:
       default:
         return 'Erreur';
     }
@@ -404,15 +404,15 @@ export class DomainCreate implements OnInit {
 
   private msg(en: string, fr: string, nl: string, it: string, es: string): string {
     switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
+      case LanguageEnum.Nl:
         return nl;
-      case LanguageEnumDto.It:
+      case LanguageEnum.It:
         return it;
-      case LanguageEnumDto.Es:
+      case LanguageEnum.Es:
         return es;
-      case LanguageEnumDto.En:
+      case LanguageEnum.En:
         return en;
-      case LanguageEnumDto.Fr:
+      case LanguageEnum.Fr:
       default:
         return fr;
     }

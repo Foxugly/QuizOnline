@@ -8,7 +8,7 @@ import {FileUploadModule} from 'primeng/fileupload';
 import {MessageService} from 'primeng/api';
 
 import {
-  LanguageEnumDto,
+  LanguageEnum,
 } from '../../../api/generated';
 import {
   QuestionService,
@@ -45,10 +45,10 @@ export class QuestionImport implements OnInit {
   private questionService = inject(QuestionService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
-  private currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
+  private currentLang = signal<LanguageEnum>(LanguageEnum.En);
 
   ngOnInit(): void {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.En);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.En);
   }
 
   goBack(): void {

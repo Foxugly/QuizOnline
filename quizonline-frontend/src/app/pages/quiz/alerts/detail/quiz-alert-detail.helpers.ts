@@ -1,12 +1,12 @@
-import {LanguageEnumDto} from '../../../../api/generated';
+import {LanguageEnum} from '../../../../api/generated';
 import {QuizAlertThreadDetailDto} from '../../../../services/quiz-alert/quiz-alert';
 import {formatLocalizedDateTime, languageLocale} from '../../../../shared/i18n/date-time';
 
-export function quizAlertDateLocale(lang: LanguageEnumDto): string {
+export function quizAlertDateLocale(lang: LanguageEnum): string {
   return languageLocale(lang);
 }
 
-export function formatQuizAlertMessageDate(value: string, lang: LanguageEnumDto): string {
+export function formatQuizAlertMessageDate(value: string, lang: LanguageEnum): string {
   return formatLocalizedDateTime(value, lang, {
     dateStyle: 'medium',
     timeStyle: 'short',

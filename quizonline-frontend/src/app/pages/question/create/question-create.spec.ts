@@ -3,7 +3,7 @@ import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {of} from 'rxjs';
 import {MessageService} from 'primeng/api';
 
-import {MediaAssetDto, MediaAssetKindEnumDto, MediaAssetUploadKindEnumDto} from '../../../api/generated';
+import {MediaAsset, MediaAssetKindEnum, MediaAssetUploadKindEnum} from '../../../api/generated';
 import {MediaSelectorValue} from '../../../components/media-selector/media-selector';
 import {DomainService} from '../../../services/domain/domain';
 import {QuestionService} from '../../../services/question/question';
@@ -85,10 +85,10 @@ describe('QuestionCreate media uploads', () => {
     );
   }
 
-  function mediaAsset(id: number): MediaAssetDto {
+  function mediaAsset(id: number): MediaAsset {
     return {
       id,
-      kind: MediaAssetKindEnumDto.External,
+      kind: MediaAssetKindEnum.External,
       file: null,
       external_url: null,
       sha256: null,
@@ -107,7 +107,7 @@ describe('QuestionCreate media uploads', () => {
     expect(ids).toEqual([11]);
     expect(questionService.questionMediaCreate).toHaveBeenCalledOnceWith({
       file,
-      kind: MediaAssetUploadKindEnumDto.Image,
+      kind: MediaAssetUploadKindEnum.Image,
     });
   });
 
@@ -122,7 +122,7 @@ describe('QuestionCreate media uploads', () => {
     expect(ids).toEqual([12]);
     expect(questionService.questionMediaCreate).toHaveBeenCalledOnceWith({
       file,
-      kind: MediaAssetUploadKindEnumDto.Video,
+      kind: MediaAssetUploadKindEnum.Video,
     });
   });
 
@@ -136,7 +136,7 @@ describe('QuestionCreate media uploads', () => {
 
     expect(ids).toEqual([13]);
     expect(questionService.questionMediaCreate).toHaveBeenCalledOnceWith({
-      kind: MediaAssetUploadKindEnumDto.External,
+      kind: MediaAssetUploadKindEnum.External,
       externalUrl: youtubeUrl,
     });
   });

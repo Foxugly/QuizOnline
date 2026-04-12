@@ -2,18 +2,18 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 
-import {LanguageEnumDto} from '../../../api/generated';
+import {LanguageEnum} from '../../../api/generated';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 const LANGUAGE_OPTIONS = [
-  {label: 'English', value: LanguageEnumDto.En},
-  {label: 'Francais', value: LanguageEnumDto.Fr},
-  {label: 'Nederlands', value: LanguageEnumDto.Nl},
-  {label: 'Italiano', value: LanguageEnumDto.It},
-  {label: 'Espanol', value: LanguageEnumDto.Es},
+  {label: 'English', value: LanguageEnum.En},
+  {label: 'Francais', value: LanguageEnum.Fr},
+  {label: 'Nederlands', value: LanguageEnum.Nl},
+  {label: 'Italiano', value: LanguageEnum.It},
+  {label: 'Espanol', value: LanguageEnum.Es},
 ];
 
 @Component({
@@ -36,7 +36,7 @@ export class UserEditPage implements OnInit {
     email: this.fb.control(''),
     first_name: this.fb.control(''),
     last_name: this.fb.control(''),
-    language: this.fb.control(LanguageEnumDto.Fr),
+    language: this.fb.control<LanguageEnum>(LanguageEnum.Fr),
     password: this.fb.control(''),
     nb_domain_max: this.fb.control(0, [Validators.min(0)]),
     is_active: this.fb.control(true),
@@ -58,7 +58,7 @@ export class UserEditPage implements OnInit {
           email: user.email ?? '',
           first_name: user.first_name ?? '',
           last_name: user.last_name ?? '',
-          language: user.language ?? LanguageEnumDto.Fr,
+          language: user.language ?? LanguageEnum.Fr,
           nb_domain_max: user.nb_domain_max ?? 0,
           is_active: user.is_active,
           password_change_required: user.password_change_required,

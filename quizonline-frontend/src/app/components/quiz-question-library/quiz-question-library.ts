@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {MultiSelectModule} from 'primeng/multiselect';
 
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionRead} from '../../api/generated';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';
 import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
 
@@ -33,6 +33,6 @@ export class QuizQuestionLibraryComponent {
   @Output() searchChanged = new EventEmitter<Event>();
   @Output() selectedSubjectIdsChange = new EventEmitter<number[]>();
   @Output() createQuestion = new EventEmitter<void>();
-  @Output() previewQuestion = new EventEmitter<QuestionReadDto>();
-  @Output() addQuestion = new EventEmitter<QuestionReadDto>();
+  @Output() previewQuestion = new EventEmitter<QuestionRead>();
+  @Output() addQuestion = new EventEmitter<QuestionRead>();
 }

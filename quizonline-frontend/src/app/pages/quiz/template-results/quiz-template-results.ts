@@ -7,7 +7,7 @@ import {catchError, finalize, forkJoin, map, of, switchMap} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
-import {QuizAssignmentListDto, QuizTemplateDto} from '../../../api/generated';
+import {QuizAssignmentList, QuizTemplate} from '../../../api/generated';
 import {ROUTES} from '../../../app.routes-paths';
 import {QuizService} from '../../../services/quiz/quiz';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
@@ -22,8 +22,8 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 export class QuizTemplateResultsPage implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly template = signal<QuizTemplateDto | null>(null);
-  readonly sessions = signal<QuizAssignmentListDto[]>([]);
+  readonly template = signal<QuizTemplate | null>(null);
+  readonly sessions = signal<QuizAssignmentList[]>([]);
   readonly search = signal('');
 
   private readonly route = inject(ActivatedRoute);
@@ -101,7 +101,7 @@ export class QuizTemplateResultsPage implements OnInit {
     void this.router.navigate(ROUTES.quiz.deleteSession(quizId, templateId));
   }
 
-  statusLabel(quiz: QuizAssignmentListDto): string {
+  statusLabel(quiz: QuizAssignmentList): string {
     if (quiz.ended_at) {
       return 'Repondu';
     }

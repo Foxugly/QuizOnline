@@ -3,7 +3,7 @@ import {of} from 'rxjs';
 
 import {QuizQuestionComponent} from './quiz-question';
 import {UserService} from '../../services/user/user';
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnum} from '../../api/generated';
 
 describe('QuizQuestion', () => {
   let component: QuizQuestionComponent;
@@ -16,8 +16,8 @@ describe('QuizQuestion', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: LanguageEnumDto.Fr,
-            lang$: of(LanguageEnumDto.Fr),
+            currentLang: LanguageEnum.Fr,
+            lang$: of(LanguageEnum.Fr),
           },
         },
       ],
@@ -45,9 +45,12 @@ describe('QuizQuestion', () => {
           members: [],
           created_at: '',
           updated_at: '',
+          join_policy: 'auto',
+          pending_join_requests_count: null,
+          my_join_request_status: null,
         },
         translations: {
-          [LanguageEnumDto.Fr]: {
+          [LanguageEnum.Fr]: {
             title: 'Question',
             description: '',
             explanation: '',

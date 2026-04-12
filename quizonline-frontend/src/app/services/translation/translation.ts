@@ -2,15 +2,14 @@ import {Injectable} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
 import {
-  FormatEnumDto,
-  LanguageEnumDto,
-  TranslateBatchCreateRequestParams,
-  TranslateBatchRequestRequestDto,
-  TranslateItemRequestDto,
-  TranslationApi,
+  FormatEnum,
+  LanguageEnum,
+  TranslateBatchRequestRequest,
+  TranslateItemRequest,
+  TranslationService as TranslationApiService,
 } from '../../api/generated';
 
-export type LangCode = `${LanguageEnumDto}`;
+export type LangCode = `${LanguageEnum}`;
 export type TranslateFormat = 'text' | 'html';
 
 export type TranslateBatchItem = {
@@ -19,7 +18,7 @@ export type TranslateBatchItem = {
   format: TranslateFormat;
 };
 
-export const LANG_CODES = Object.values(LanguageEnumDto) as LangCode[];
+export const LANG_CODES = Object.values(LanguageEnum) as LangCode[];
 
 export function isLangCode(value: string): value is LangCode {
   return (LANG_CODES as readonly string[]).includes(value);
@@ -27,27 +26,23 @@ export function isLangCode(value: string): value is LangCode {
 
 @Injectable({providedIn: 'root'})
 export class TranslationService {
-  constructor(private api: TranslationApi) {
+  constructor(private api: TranslationApiService) {
   }
 
   async translateBatch(source: string, target: string, items: TranslateBatchItem[]): Promise<Record<string, string>> {
-    const requestItems: TranslateItemRequestDto[] = items.map((item) => ({
+    const requestItems: TranslateItemRequest[] = items.map((item) => ({
       key: item.key,
       text: item.text,
-      format: item.format === 'html' ? FormatEnumDto.Html : FormatEnumDto.Text,
+      format: item.format === 'html' ? FormatEnum.Html : FormatEnum.Text,
     }));
 
-    const payload: TranslateBatchRequestRequestDto = {
+    const payload: TranslateBatchRequestRequest = {
       source,
       target,
       items: requestItems,
     };
 
-    const requestParams: TranslateBatchCreateRequestParams = {
-      translateBatchRequestRequestDto: payload,
-    };
-
-    const res = await firstValueFrom(this.api.translateBatchCreate(requestParams));
+    const res = await firstValueFrom(this.api.translateBatchCreate(payload));
     return res?.translations ?? {};
   }
 }

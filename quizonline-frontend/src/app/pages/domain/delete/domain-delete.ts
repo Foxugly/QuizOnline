@@ -2,7 +2,7 @@ import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {ActivatedRoute} from '@angular/router';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
-import {DomainReadDto, SubjectReadDto} from '../../../api/generated';
+import {DomainRead, SubjectRead} from '../../../api/generated';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 
@@ -19,10 +19,10 @@ export class DomainDelete implements OnInit {
   private domainService = inject(DomainService);
   private userService:UserService = inject(UserService);
   id!: number;
-  domain = signal<DomainReadDto | null>(null);
+  domain = signal<DomainRead | null>(null);
   currentLang = computed(() => this.userService.currentLang);
 
-  getName(d: DomainReadDto | null): string {
+  getName(d: DomainRead | null): string {
     if (d) {
       const t = selectTranslation<DomainTranslationDto>(
         d.translations as unknown as Record<string, DomainTranslationDto>,

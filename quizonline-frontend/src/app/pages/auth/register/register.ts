@@ -18,7 +18,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 
 import {AuthService} from '../../../services/auth/auth';
 import {LanguageService} from '../../../services/language/language';
-import {DomainReadDto, LanguageReadDto} from '../../../api/generated';
+import {DomainRead, LanguageRead} from '../../../api/generated';
 import {ROUTES} from '../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
@@ -40,8 +40,8 @@ export class Register implements OnInit {
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
-  languages: LanguageReadDto[] = [];
-  domains: DomainReadDto[] = [];
+  languages: LanguageRead[] = [];
+  domains: DomainRead[] = [];
   loadingLanguages = false;
   loadingDomains = false;
 
@@ -219,7 +219,7 @@ export class Register implements OnInit {
     this.router.navigate(ROUTES.auth.login());
   }
 
-  private getDomainLabel(domain: DomainReadDto): string {
+  private getDomainLabel(domain: DomainRead): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const lang = this.userService.currentLang;
     const current = translations?.[lang]?.name?.trim();

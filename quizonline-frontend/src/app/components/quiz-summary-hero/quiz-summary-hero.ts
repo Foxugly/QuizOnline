@@ -1,7 +1,7 @@
 import {Component, input, output} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
-import {QuizDto} from '../../api/generated';
+import {Quiz} from '../../api/generated';
 
 export interface QuizSummaryFact {
   label: string;
@@ -18,7 +18,7 @@ export interface QuizSummaryFact {
   styleUrl: './quiz-summary-hero.scss',
 })
 export class QuizSummaryHeroComponent {
-  readonly session = input.required<QuizDto>();
+  readonly session = input.required<Quiz>();
   readonly statusLabel = input.required<string>();
   readonly statusSeverity = input<'secondary' | 'success' | 'warn' | 'danger' | 'contrast' | 'info'>('secondary');
   readonly showScore = input(true);

@@ -15,7 +15,7 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {MessageService} from 'primeng/api';
 
-import {DomainDetailDto, DomainReadDto, LanguageEnumDto, SubjectWriteRequestDto} from '../../../api/generated';
+import {DomainDetail, DomainRead, LanguageEnum, SubjectWriteRequest} from '../../../api/generated';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {SubjectService, SubjectLangGroup} from '../../../services/subject/subject';
 import {isLangCode, LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
@@ -56,10 +56,10 @@ export class SubjectCreate implements OnInit {
 
   readonly isLocked = computed(() => this.loading() || this.translating());
 
-  private readonly domainMetaFallbacks: LanguageEnumDto[] = [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl];
+  private readonly domainMetaFallbacks: LanguageEnum[] = [LanguageEnum.Fr, LanguageEnum.En, LanguageEnum.Nl];
 
   // Domain list
-  domains = signal<DomainReadDto[]>([]);
+  domains = signal<DomainRead[]>([]);
   selectedDomainId = signal<number>(0);
 
   // Languages (from selected domain)
@@ -67,7 +67,7 @@ export class SubjectCreate implements OnInit {
   activeLang = signal<LangCode | undefined>(undefined);
 
   // current UI language (for labels)
-  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
+  currentLang = signal<LanguageEnum>(LanguageEnum.Fr);
   translateOverwrite = signal(false);
   domainOptions = computed<DomainOption[]>(() => {
     const lang = this.currentLang();
@@ -116,7 +116,7 @@ export class SubjectCreate implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.Fr);
 
     // load domains
     this.loading.set(true);
@@ -320,7 +320,7 @@ export class SubjectCreate implements OnInit {
     return langs.every((l) => (tg.get(l) as SubjectLangGroup | null)?.valid === true);
   }
 
-  private buildPayload(): SubjectWriteRequestDto {
+  private buildPayload(): SubjectWriteRequest {
     const domainId = this.form.controls.domain.value;
     const langs = this.domainLangs();
     const translations = buildLocalizedTextRecord(this.translationsGroup(), langs);
@@ -328,7 +328,7 @@ export class SubjectCreate implements OnInit {
     return this.subjectService.buildWritePayload(domainId, translations);
   }
 
-  private getDomainLabel(domain: Pick<DomainReadDto, 'id' | 'translations'>, lang: LanguageEnumDto): string {
+  private getDomainLabel(domain: Pick<DomainRead, 'id' | 'translations'>, lang: LanguageEnum): string {
     const tr = domain.translations as DomainTranslations | undefined;
 
     const inCurrent = tr?.[lang]?.name?.trim();
@@ -342,13 +342,13 @@ export class SubjectCreate implements OnInit {
     return `Domain #${domain.id}`;
   }
 
-  private extractLangCodes(domain: Pick<DomainDetailDto, 'allowed_languages'>): LangCode[] {
+  private extractLangCodes(domain: Pick<DomainDetail, 'allowed_languages'>): LangCode[] {
     const codes = (domain.allowed_languages ?? [])
       .filter((language) => language.active)
       .map((language) => language.code)
       .filter(isLangCode);
 
-    return codes.length ? codes : [LanguageEnumDto.Fr as LangCode];
+    return codes.length ? codes : [LanguageEnum.Fr as LangCode];
   }
 
   private resolvePreferredLang(codes: LangCode[]): LangCode | undefined {
@@ -358,14 +358,14 @@ export class SubjectCreate implements OnInit {
 
   private localizedSummary(): string {
     switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
+      case LanguageEnum.Nl:
         return 'Fout';
-      case LanguageEnumDto.It:
+      case LanguageEnum.It:
         return 'Errore';
-      case LanguageEnumDto.Es:
-      case LanguageEnumDto.En:
+      case LanguageEnum.Es:
+      case LanguageEnum.En:
         return 'Error';
-      case LanguageEnumDto.Fr:
+      case LanguageEnum.Fr:
       default:
         return 'Erreur';
     }
@@ -390,15 +390,15 @@ export class SubjectCreate implements OnInit {
 
   private msg(en: string, fr: string, nl: string, it: string, es: string): string {
     switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
+      case LanguageEnum.Nl:
         return nl;
-      case LanguageEnumDto.It:
+      case LanguageEnum.It:
         return it;
-      case LanguageEnumDto.Es:
+      case LanguageEnum.Es:
         return es;
-      case LanguageEnumDto.En:
+      case LanguageEnum.En:
         return en;
-      case LanguageEnumDto.Fr:
+      case LanguageEnum.Fr:
       default:
         return fr;
     }

@@ -1,16 +1,16 @@
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnum} from '../../api/generated';
 
-export function languageLocale(lang: LanguageEnumDto | null | undefined): string {
+export function languageLocale(lang: LanguageEnum | null | undefined): string {
   switch (lang) {
-    case LanguageEnumDto.Fr:
+    case LanguageEnum.Fr:
       return 'fr-BE';
-    case LanguageEnumDto.Nl:
+    case LanguageEnum.Nl:
       return 'nl-BE';
-    case LanguageEnumDto.It:
+    case LanguageEnum.It:
       return 'it-IT';
-    case LanguageEnumDto.Es:
+    case LanguageEnum.Es:
       return 'es-ES';
-    case LanguageEnumDto.En:
+    case LanguageEnum.En:
     default:
       return 'en-US';
   }
@@ -18,7 +18,7 @@ export function languageLocale(lang: LanguageEnumDto | null | undefined): string
 
 export function formatLocalizedDateTime(
   value: string | Date | null | undefined,
-  lang: LanguageEnumDto | null | undefined,
+  lang: LanguageEnum | null | undefined,
   options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: '2-digit',

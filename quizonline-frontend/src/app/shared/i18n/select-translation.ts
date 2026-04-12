@@ -1,6 +1,6 @@
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnum} from '../../api/generated';
 
-type LangCode = `${LanguageEnumDto}`;
+type LangCode = `${LanguageEnum}`;
 
 export function selectTranslation<T>(
   translations: Record<string, T> | null | undefined,

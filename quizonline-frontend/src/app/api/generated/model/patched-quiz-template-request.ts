@@ -7,8 +7,8 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ModeEnumDto } from './mode-enum';
-import { VisibilityEnumDto } from './visibility-enum';
+import { ModeEnum } from './mode-enum';
+import { VisibilityEnum } from './visibility-enum';
 
 
 /**
@@ -17,7 +17,7 @@ import { VisibilityEnumDto } from './visibility-enum';
 export interface PatchedQuizTemplateRequestDto { 
     domain?: number | null;
     title?: string;
-    mode?: ModeEnumDto;
+    mode?: ModeEnum;
     description?: string;
     /**
      * Nombre de questions à poser parmi le pool lié.
@@ -32,7 +32,7 @@ export interface PatchedQuizTemplateRequestDto {
     /**
      * Quand le score global du quiz peut être affiché à l\'utilisateur.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    result_visibility?: VisibilityEnumDto;
+    result_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
@@ -40,7 +40,7 @@ export interface PatchedQuizTemplateRequestDto {
     /**
      * Quand les réponses détaillées (réponses de l\'utilisateur et bonnes réponses) peuvent être affichées.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    detail_visibility?: VisibilityEnumDto;
+    detail_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */

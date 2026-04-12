@@ -1,4 +1,4 @@
-import {LanguageEnumDto, QuizQuestionAnswerDto, QuizQuestionReadDto} from '../../api/generated';
+import {JoinPolicyEnum, LanguageEnum, QuizQuestionAnswer, QuizQuestionRead} from '../../api/generated';
 import {
   applyQuizAnswers,
   buildQuizNavItems,
@@ -10,7 +10,7 @@ describe('quiz session state helpers', () => {
   const domain = {
     id: 1,
     translations: {
-      [LanguageEnumDto.Fr]: {
+      [LanguageEnum.Fr]: {
         name: 'Domaine',
         description: '',
       },
@@ -27,9 +27,12 @@ describe('quiz session state helpers', () => {
     members: [],
     created_at: '2026-03-30T12:00:00Z',
     updated_at: '2026-03-30T12:00:00Z',
+    join_policy: JoinPolicyEnum.Auto,
+    pending_join_requests_count: null,
+    my_join_request_status: null,
   };
 
-  const questions: QuizQuestionReadDto[] = [
+  const questions: QuizQuestionRead[] = [
     {
       id: 10,
       sort_order: 1,
@@ -43,7 +46,7 @@ describe('quiz session state helpers', () => {
         is_mode_exam: true,
         created_at: '2026-03-30T12:00:00Z',
         translations: {
-          [LanguageEnumDto.Fr]: {
+          [LanguageEnum.Fr]: {
             title: 'Q1',
             description: '',
             explanation: '',
@@ -67,7 +70,7 @@ describe('quiz session state helpers', () => {
         is_mode_exam: true,
         created_at: '2026-03-30T12:00:00Z',
         translations: {
-          [LanguageEnumDto.Fr]: {
+          [LanguageEnum.Fr]: {
             title: 'Q2',
             description: '',
             explanation: '',
@@ -92,7 +95,7 @@ describe('quiz session state helpers', () => {
 
   it('applies persisted answers by question order', () => {
     const items = buildQuizNavItems(questions);
-    const answers: QuizQuestionAnswerDto[] = [
+    const answers: QuizQuestionAnswer[] = [
       {
         id: 201,
         quiz: 700,
@@ -122,7 +125,7 @@ describe('quiz session state helpers', () => {
         index: 20,
       },
     ];
-    const answers: QuizQuestionAnswerDto[] = [
+    const answers: QuizQuestionAnswer[] = [
       {
         id: 202,
         quiz: 700,

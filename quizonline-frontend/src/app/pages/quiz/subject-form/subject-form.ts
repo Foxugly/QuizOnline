@@ -11,7 +11,7 @@ import {MessageModule} from 'primeng/message';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {SelectModule} from 'primeng/select';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {DomainReadDto, SubjectReadDto} from '../../../api/generated';
+import {DomainRead, SubjectRead} from '../../../api/generated';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {QuizSubjectCreatePayload} from '../../../services/quiz/quiz';
 import {SubjectService} from '../../../services/subject/subject';
@@ -49,8 +49,8 @@ type QuizSubjectFormModel = {
 export class QuizSubjectForm implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
-  domains = signal<DomainReadDto[]>([]);
-  subjects = signal<SubjectReadDto[]>([]);
+  domains = signal<DomainRead[]>([]);
+  subjects = signal<SubjectRead[]>([]);
 
   @Input() saving = false;
   @Input() success: string | null = null;
@@ -104,7 +104,7 @@ export class QuizSubjectForm implements OnInit {
 
     return this.subjects()
       .filter((subject) => subject.domain === domainId)
-      .map((subject: SubjectReadDto) => {
+      .map((subject: SubjectRead) => {
       const translation = selectTranslation<{name: string}>(
         subject.translations as Record<string, {name: string}>,
         lang,
@@ -238,7 +238,7 @@ export class QuizSubjectForm implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (domains: DomainReadDto[]) => {
+        next: (domains: DomainRead[]) => {
           this.domains.set(domains);
 
           const preferredDomain = this.userService.currentUser()?.current_domain;
@@ -265,7 +265,7 @@ export class QuizSubjectForm implements OnInit {
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: (subjects: SubjectReadDto[]) => {
+        next: (subjects: SubjectRead[]) => {
           this.subjects.set(subjects);
         },
         error: (err: unknown) => {
@@ -275,7 +275,7 @@ export class QuizSubjectForm implements OnInit {
       });
   }
 
-  private getDomainLabel(domain: DomainReadDto, lang: string): string {
+  private getDomainLabel(domain: DomainRead, lang: string): string {
     const translations = domain.translations as DomainTranslations | undefined;
     return translations?.[lang]?.name?.trim() || `Domain #${domain.id}`;
   }

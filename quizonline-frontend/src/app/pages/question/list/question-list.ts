@@ -7,7 +7,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {TableModule} from 'primeng/table';
 
-import {DomainReadDto, LanguageEnumDto, QuestionReadDto, SubjectReadDto} from '../../../api/generated';
+import {DomainRead, LanguageEnum, QuestionRead, SubjectRead} from '../../../api/generated';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {DomainService} from '../../../services/domain/domain';
 import {QuestionService} from '../../../services/question/question';
@@ -19,7 +19,7 @@ import {getQuestionListUiText, QuestionListUiText} from './question-list.i18n';
 
 type QuestionListRow = {
   id: number;
-  question: QuestionReadDto;
+  question: QuestionRead;
   title: string;
   active: boolean;
   modesText: string;
@@ -50,9 +50,9 @@ export class QuestionList implements OnInit {
   first = signal(0);
   selectingAll = signal(false);
 
-  questions = signal<QuestionReadDto[]>([]);
-  subjects = signal<SubjectReadDto[]>([]);
-  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
+  questions = signal<QuestionRead[]>([]);
+  subjects = signal<SubjectRead[]>([]);
+  currentLang = signal<LanguageEnum>(LanguageEnum.En);
   q = signal('');
   selectedSubjectIds = signal<number[]>([]);
   previewQuestionId = signal<number | null>(null);
@@ -79,7 +79,7 @@ export class QuestionList implements OnInit {
   readonly someFilteredSelected = computed(() => this.selectedRows().length > 0 && !this.allFilteredSelected());
 
   ngOnInit() {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.En);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.En);
     this.loadSubjects();
     this.loadQuestions(1);
   }
@@ -224,13 +224,13 @@ export class QuestionList implements OnInit {
     this.domainService.goEdit(domainId);
   }
 
-  getTitle(dto: QuestionReadDto): string {
+  getTitle(dto: QuestionRead): string {
     const tr = dto.translations as Record<string, { title?: string }>;
     const lang = String(this.currentLang()).toLowerCase();
     return tr?.[lang]?.title ?? `Question #${dto.id}`;
   }
 
-  getDomain(dto: DomainReadDto): string {
+  getDomain(dto: DomainRead): string {
     const t = selectTranslation<{ name: string }>(
       dto.translations as Record<string, { name: string }>,
       this.currentLang(),
@@ -238,7 +238,7 @@ export class QuestionList implements OnInit {
     return t?.name ?? `Domain #${dto.id}`;
   }
 
-  getModes(dto: QuestionReadDto): string[] {
+  getModes(dto: QuestionRead): string[] {
     const modes: string[] = [];
     if (dto.is_mode_practice) {
       modes.push(this.text().practice);
@@ -249,7 +249,7 @@ export class QuestionList implements OnInit {
     return modes;
   }
 
-  getSubjectTitle(dto: SubjectReadDto): string {
+  getSubjectTitle(dto: SubjectRead): string {
     const t = selectTranslation<{ name: string }>(
       dto.translations as Record<string, { name: string }>,
       this.currentLang(),
@@ -257,7 +257,7 @@ export class QuestionList implements OnInit {
     return t?.name ?? `Subject #${dto.id}`;
   }
 
-  private toRow(question: QuestionReadDto): QuestionListRow {
+  private toRow(question: QuestionRead): QuestionListRow {
     return {
       id: question.id,
       question,

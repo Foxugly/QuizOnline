@@ -6,20 +6,14 @@ import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths';
 import {
-  LanguageEnumDto,
-  MediaAssetDto,
-  PaginatedQuestionReadListDto,
-  QuestionApi,
-  QuestionCreateRequestParams,
-  QuestionDestroyRequestParams,
-  QuestionListRequestParams,
-  QuestionMediaCreateRequestParams,
-  QuestionPartialUpdateRequestParams,
-  QuestionReadDto,
-  QuestionRetrieveRequestParams,
-  QuestionUpdateRequestParams,
-  QuestionWritePayloadRequestDto,
-  PatchedQuestionPartialWritePayloadRequestDto,
+  LanguageEnum,
+  MediaAsset,
+  MediaAssetUploadKindEnum,
+  PaginatedQuestionReadList,
+  QuestionService as QuestionApiService,
+  QuestionRead,
+  QuestionWritePayloadRequest,
+  PatchedQuestionPartialWritePayloadRequest,
 } from '../../api/generated';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {selectTranslation} from '../../shared/i18n/select-translation';
@@ -75,7 +69,7 @@ export type QuestionDuplicateDraft = {
   }>;
   media: Array<{
     id: number;
-    kind: MediaAssetDto['kind'];
+    kind: MediaAsset['kind'];
     sort_order: number;
     file: string | null;
     external_url: string | null;
@@ -140,7 +134,7 @@ export class QuestionService {
   private duplicateDraft: QuestionDuplicateDraft | null = null;
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/question`;
 
-  constructor(private api: QuestionApi, private router: Router, private http: HttpClient) {
+  constructor(private api: QuestionApiService, private router: Router, private http: HttpClient) {
   }
 
   list(params?: {
@@ -151,7 +145,7 @@ export class QuestionService {
     active?: boolean;
     isModePractice?: boolean;
     isModeExam?: boolean;
-  }): Observable<QuestionReadDto[]> {
+  }): Observable<QuestionRead[]> {
     return this.listPage({
       ...params,
       page: 1,
@@ -168,7 +162,7 @@ export class QuestionService {
         });
       }),
       map((response) => response.results ?? []),
-      reduce((all, page) => [...all, ...page], [] as QuestionReadDto[]),
+      reduce((all, page) => [...all, ...page], [] as QuestionRead[]),
     );
   }
 
@@ -182,52 +176,41 @@ export class QuestionService {
     isModeExam?: boolean;
     page?: number;
     pageSize?: number;
-  }): Observable<PaginatedQuestionReadListDto> {
+  }): Observable<PaginatedQuestionReadList> {
     const subjectIds = params?.subjectIds?.length
       ? params.subjectIds
       : (params?.subjectId ? [params.subjectId] : undefined);
 
-    const requestParams: QuestionListRequestParams = {
-      active: params?.active,
-      search: params?.search,
-      domain: params?.domainId,
-      isModePractice: params?.isModePractice,
-      isModeExam: params?.isModeExam,
-      page: params?.page,
-      pageSize: params?.pageSize,
+    return this.api.questionList(
+      params?.active,
+      params?.domainId,
+      params?.isModeExam,
+      params?.isModePractice,
+      params?.page,
+      params?.pageSize,
+      params?.search,
       subjectIds,
-    };
-
-    return this.api.questionList(requestParams);
+    );
   }
 
-  retrieve(questionId: number): Observable<QuestionReadDto> {
-    const requestParams: QuestionRetrieveRequestParams = {questionId};
-    return this.api.questionRetrieve(requestParams);
+  retrieve(questionId: number): Observable<QuestionRead> {
+    return this.api.questionRetrieve(questionId);
   }
 
-  create(question: QuestionWritePayloadRequestDto): Observable<QuestionReadDto> {
-    const requestParams: QuestionCreateRequestParams = {
-      questionWritePayloadRequestDto: question,
-    };
-    return this.api.questionCreate(requestParams);
+  create(question: QuestionWritePayloadRequest): Observable<QuestionRead> {
+    return this.api.questionCreate(question);
   }
 
-  update(qurp: QuestionUpdateRequestParams): Observable<QuestionReadDto> {
-    return this.api.questionUpdate(qurp);
+  update(questionId: number, payload: QuestionWritePayloadRequest): Observable<QuestionRead> {
+    return this.api.questionUpdate(questionId, payload);
   }
 
-  updatePartial(questionId: number, payload: PatchedQuestionPartialWritePayloadRequestDto): Observable<QuestionReadDto> {
-    const requestParams: QuestionPartialUpdateRequestParams = {
-      questionId,
-      patchedQuestionPartialWritePayloadRequestDto: payload,
-    };
-    return this.api.questionPartialUpdate(requestParams);
+  updatePartial(questionId: number, payload: PatchedQuestionPartialWritePayloadRequest): Observable<QuestionRead> {
+    return this.api.questionPartialUpdate(questionId, payload);
   }
 
   delete(questionId: number): Observable<void> {
-    const requestParams: QuestionDestroyRequestParams = {questionId};
-    return this.api.questionDestroy(requestParams).pipe(map(() => void 0));
+    return this.api.questionDestroy(questionId).pipe(map(() => void 0));
   }
 
   goList(): void {
@@ -244,7 +227,7 @@ export class QuestionService {
     this.router.navigate(ROUTES.question.import());
   }
 
-  duplicateToNew(question: QuestionReadDto): void {
+  duplicateToNew(question: QuestionRead): void {
     const draft: QuestionDuplicateDraft = {
       domainId: question.domain.id,
       subjectIds: question.subjects.map((subject) => subject.id),
@@ -315,7 +298,7 @@ export class QuestionService {
     this.router.navigate(ROUTES.subject.edit(subjectId));
   }
 
-  getQuestionTranslationForm(question: QuestionReadDto, lang: LanguageEnumDto): QuestionTranslationForm {
+  getQuestionTranslationForm(question: QuestionRead, lang: LanguageEnum): QuestionTranslationForm {
     const tr = question.translations as Record<string, QuestionTranslationForm> | undefined;
     return (
       selectTranslation<QuestionTranslationForm>(tr ?? {}, lang) ??
@@ -323,8 +306,8 @@ export class QuestionService {
     );
   }
 
-  questionMediaCreate(param: QuestionMediaCreateRequestParams): Observable<MediaAssetDto> {
-    return this.api.questionMediaCreate(param);
+  questionMediaCreate(param: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnum}): Observable<MediaAsset> {
+    return this.api.questionMediaCreate(param.file, param.externalUrl, param.kind);
   }
 
   exportStructured(domainId: number, questionIds?: number[]): Observable<{blob: Blob; filename: string}> {

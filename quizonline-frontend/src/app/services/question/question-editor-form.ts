@@ -8,13 +8,12 @@ import {
 } from '@angular/forms';
 
 import {
-  LanguageEnumDto,
-  MediaAssetDto,
-  MediaAssetUploadKindEnumDto,
-  PatchedQuestionPartialWritePayloadRequestDto,
-  QuestionMediaCreateRequestParams,
-  QuestionReadDto,
-  QuestionWritePayloadRequestDto,
+  LanguageEnum,
+  MediaAsset,
+  MediaAssetUploadKindEnum,
+  PatchedQuestionPartialWritePayloadRequest,
+  QuestionRead,
+  QuestionWritePayloadRequest,
 } from '../../api/generated';
 import {MediaSelectorValue} from '../../components/media-selector/media-selector';
 import {LangCode} from '../translation/translation';
@@ -37,7 +36,7 @@ export type QuestionEditorForm = FormGroup<{
   answer_options: FormArray<FormGroup>;
 }>;
 
-type QuestionMediaUploader = (params: QuestionMediaCreateRequestParams) => Observable<MediaAssetDto>;
+type QuestionMediaUploader = (params: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnum}) => Observable<MediaAsset>;
 
 export function createQuestionEditorForm(
   fb: NonNullableFormBuilder,
@@ -221,7 +220,7 @@ export function removeQuestionAnswerOption(
   });
 }
 
-export function resolveQuestionDomainLanguages(question: QuestionReadDto): LangCode[] {
+export function resolveQuestionDomainLanguages(question: QuestionRead): LangCode[] {
   const allowed = (question.domain.allowed_languages ?? [])
     .filter((language) => !!language.active)
     .map((language) => language.code)
@@ -236,13 +235,13 @@ export function resolveQuestionDomainLanguages(question: QuestionReadDto): LangC
     return translationCodes;
   }
 
-  return [LanguageEnumDto.Fr as LangCode];
+  return [LanguageEnum.Fr as LangCode];
 }
 
 export function populateQuestionEditorForm(
   fb: NonNullableFormBuilder,
   form: QuestionEditorForm,
-  question: QuestionReadDto,
+  question: QuestionRead,
 ): LangCode[] {
   const langs = resolveQuestionDomainLanguages(question);
 
@@ -460,7 +459,7 @@ export function buildQuestionCreatePayload(
   form: QuestionEditorForm,
   langs: LangCode[],
   mediaAssetIds: number[],
-): QuestionWritePayloadRequestDto {
+): QuestionWritePayloadRequest {
   const correctCount = getQuestionCorrectCount(form);
 
   return {
@@ -480,7 +479,7 @@ export function buildQuestionPatchPayload(
   form: QuestionEditorForm,
   langs: LangCode[],
   mediaAssetIds: number[],
-): PatchedQuestionPartialWritePayloadRequestDto {
+): PatchedQuestionPartialWritePayloadRequest {
   const correctCount = getQuestionCorrectCount(form);
 
   return {
@@ -511,10 +510,10 @@ export async function uploadQuestionEditorMediaAssets(
       continue;
     }
 
-    if (item.kind === MediaAssetUploadKindEnumDto.External && item.external_url) {
+    if (item.kind === MediaAssetUploadKindEnum.External && item.external_url) {
       const asset = await firstValueFrom(
         uploadMedia({
-          kind: MediaAssetUploadKindEnumDto.External,
+          kind: MediaAssetUploadKindEnum.External,
           externalUrl: item.external_url,
         }),
       );
@@ -523,13 +522,13 @@ export async function uploadQuestionEditorMediaAssets(
     }
 
     if (
-      (item.kind === MediaAssetUploadKindEnumDto.Image || item.kind === MediaAssetUploadKindEnumDto.Video) &&
+      (item.kind === MediaAssetUploadKindEnum.Image || item.kind === MediaAssetUploadKindEnum.Video) &&
       item.file instanceof File
     ) {
       const uploadKind =
-        item.kind === MediaAssetUploadKindEnumDto.Image
-          ? MediaAssetUploadKindEnumDto.Image
-          : MediaAssetUploadKindEnumDto.Video;
+        item.kind === MediaAssetUploadKindEnum.Image
+          ? MediaAssetUploadKindEnum.Image
+          : MediaAssetUploadKindEnum.Video;
 
       const asset = await firstValueFrom(
         uploadMedia({

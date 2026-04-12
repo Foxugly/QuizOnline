@@ -23,10 +23,10 @@ import {FormsModule} from '@angular/forms';
 import {ToggleButtonModule} from 'primeng/togglebutton';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {
-  LanguageEnumDto,
-  QuestionAnswerOptionReadDto,
-  QuestionMediaReadDto,
-  QuestionReadDto
+  LanguageEnum,
+  QuestionAnswerOptionRead,
+  QuestionMediaRead,
+  QuestionRead
 } from '../../api/generated';
 import {UserService} from '../../services/user/user';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
@@ -74,7 +74,7 @@ export class QuizQuestionComponent implements OnChanges {
   @Output() goBack = new EventEmitter<void>();
   @Output() finish = new EventEmitter<AnswerPayload>();
 
-  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
+  currentLang = signal<LanguageEnum>(LanguageEnum.Fr);
   selectedOptionIds: number[] = [];
   selectedRadioId: number | null = null;
 
@@ -82,15 +82,15 @@ export class QuizQuestionComponent implements OnChanges {
   private destroyRef = inject(DestroyRef);
 
   constructor() {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
+    this.currentLang.set(this.userService.currentLang ?? LanguageEnum.Fr);
     this.userService.lang$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((lang) => {
-        this.currentLang.set(lang ?? LanguageEnumDto.Fr);
+        this.currentLang.set(lang ?? LanguageEnum.Fr);
       });
   }
 
-  get question(): QuestionReadDto {
+  get question(): QuestionRead {
     return this.quizNavItem.question;
   }
 
@@ -161,19 +161,19 @@ export class QuizQuestionComponent implements OnChanges {
     return source.includes(optionId);
   }
 
-  isCorrectOption(option: QuestionAnswerOptionReadDto): boolean {
+  isCorrectOption(option: QuestionAnswerOptionRead): boolean {
     return option.is_correct === true;
   }
 
-  hasCorrection(option: QuestionAnswerOptionReadDto): boolean {
+  hasCorrection(option: QuestionAnswerOptionRead): boolean {
     return option.is_correct === true || option.is_correct === false;
   }
 
-  isSelectedWrongOption(option: QuestionAnswerOptionReadDto): boolean {
+  isSelectedWrongOption(option: QuestionAnswerOptionRead): boolean {
     return this.hasCorrection(option) && this.isChecked(option.id) && !this.isCorrectOption(option);
   }
 
-  answerLineClass(option: QuestionAnswerOptionReadDto): string {
+  answerLineClass(option: QuestionAnswerOptionRead): string {
     if (this.canShowCorrectionState() && this.hasCorrection(option) && this.isCorrectOption(option)) {
       return 'answer-line answer-line--correct';
     }
@@ -199,11 +199,11 @@ export class QuizQuestionComponent implements OnChanges {
     this.selectedRadioId = ids.length ? ids[0] : null;
   }
 
-  mediaSrc(m: QuestionMediaReadDto): string {
+  mediaSrc(m: QuestionMediaRead): string {
     return (m.asset.file as string | null) || m.asset.external_url || '';
   }
 
-  externalSafeUrl(m: QuestionMediaReadDto): SafeResourceUrl | null {
+  externalSafeUrl(m: QuestionMediaRead): SafeResourceUrl | null {
     const raw = m.asset.external_url || '';
     const embed = toYoutubeEmbedUrl(raw);
 
@@ -214,11 +214,11 @@ export class QuizQuestionComponent implements OnChanges {
     return this.sanitizer.bypassSecurityTrustResourceUrl(embed);
   }
 
-  externalLinkUrl(m: QuestionMediaReadDto): string | null {
+  externalLinkUrl(m: QuestionMediaRead): string | null {
     return m.asset.external_url || null;
   }
 
-  isYoutubeMedia(m: QuestionMediaReadDto): boolean {
+  isYoutubeMedia(m: QuestionMediaRead): boolean {
     return isYoutubeUrl(m.asset.external_url || '');
   }
 
@@ -241,25 +241,25 @@ export class QuizQuestionComponent implements OnChanges {
       .replace(/\u00A0/g, ' ');
   }
 
-  protected getT(question: QuestionReadDto): any {
-    const lang: LanguageEnumDto = this.currentLang();
+  protected getT(question: QuestionRead): any {
+    const lang: LanguageEnum = this.currentLang();
     const translations: any = question.translations;
     return translations?.[lang] ?? Object.values(translations ?? {})[0] ?? null;
   }
 
-  protected getTitle(question: QuestionReadDto): string {
+  protected getTitle(question: QuestionRead): string {
     return this.getT(question)?.title?.trim() ?? '';
   }
 
-  protected getDescription(question: QuestionReadDto): string {
+  protected getDescription(question: QuestionRead): string {
     return this.getT(question)?.description?.trim() ?? '';
   }
 
-  protected getExplanation(question: QuestionReadDto): string {
+  protected getExplanation(question: QuestionRead): string {
     return this.getT(question)?.explanation?.trim() ?? '';
   }
 
-  protected getAnswerContent(option: QuestionAnswerOptionReadDto): string {
+  protected getAnswerContent(option: QuestionAnswerOptionRead): string {
     const lang = this.currentLang();
     const current = option.translations?.[lang]?.content?.trim();
 

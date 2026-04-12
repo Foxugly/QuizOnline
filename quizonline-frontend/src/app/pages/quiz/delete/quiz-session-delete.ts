@@ -1,7 +1,7 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
-import {QuizDto} from '../../../api/generated';
+import {Quiz} from '../../../api/generated';
 import {ROUTES} from '../../../app.routes-paths';
 import {QuizService} from '../../../services/quiz/quiz';
 
@@ -17,7 +17,7 @@ export class QuizSessionDeletePage implements OnInit {
   private readonly router = inject(Router);
   private readonly quizService = inject(QuizService);
 
-  readonly quiz = signal<QuizDto | null>(null);
+  readonly quiz = signal<Quiz | null>(null);
   readonly error = signal<string | null>(null);
   readonly loading = signal(false);
 

@@ -4,11 +4,11 @@ import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
 import {
-  DomainApi,
-  DomainDetailDto,
-  DomainReadDto,
-  DomainWriteRequestDto,
-  PatchedDomainPartialRequestDto
+  DomainService as DomainApiService,
+  DomainDetail,
+  DomainRead,
+  DomainWriteRequest,
+  PatchedDomainPartialRequest
 } from '../../api/generated';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
@@ -22,12 +22,12 @@ export type DomainTranslations = Record<string, DomainTranslationDto>;
 export class DomainService {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
-    constructor(private api: DomainApi, private router: Router, private http: HttpClient) {
+    constructor(private api: DomainApiService, private router: Router, private http: HttpClient) {
   }
 
-  list(params?: { name?: string; search?: string }): Observable<DomainReadDto[]> {
+  list(params?: { name?: string; search?: string }): Observable<DomainRead[]> {
     return this.api.domainList().pipe(
-      map((response) => {
+      map((response: any) => {
         const domains = response.results ?? [];
         const nameFilter = params?.name?.trim().toLowerCase();
         const searchFilter = params?.search?.trim().toLowerCase();
@@ -36,7 +36,7 @@ export class DomainService {
           return domains;
         }
 
-        return domains.filter((domain) => {
+        return domains.filter((domain: any) => {
           const translations = Object.values(domain.translations ?? {}) as DomainTranslationDto[];
           const haystack = translations
             .flatMap((translation) => [
@@ -54,32 +54,32 @@ export class DomainService {
     );
   }
 
-  availableForLinking(): Observable<DomainReadDto[]> {
-    return this.http.get<DomainReadDto[]>(`${this.apiBaseUrl}/available-for-linking/`);
+  availableForLinking(): Observable<DomainRead[]> {
+    return this.http.get<DomainRead[]>(`${this.apiBaseUrl}/available-for-linking/`);
   }
 
-  retrieve(domainId: number): Observable<DomainReadDto> {
-    return this.api.domainRetrieve({ domainId: domainId });
+  retrieve(domainId: number): Observable<DomainRead> {
+    return this.api.domainRetrieve(domainId);
   }
 
-  detail(domainId: number): Observable<DomainDetailDto> {
-    return this.api.domainDetailsRetrieve({ domainId: domainId });
+  detail(domainId: number): Observable<DomainDetail> {
+    return this.api.domainDetailsRetrieve(domainId);
   }
 
-  create(payload: DomainWriteRequestDto): Observable<DomainReadDto> {
-    return this.api.domainCreate({domainWriteRequestDto:payload});
+  create(payload: DomainWriteRequest): Observable<DomainRead> {
+    return this.api.domainCreate(payload);
   }
 
-  update(domainId: number, payload: DomainWriteRequestDto): Observable<DomainReadDto> {
-    return this.api.domainUpdate({domainId:domainId, domainWriteRequestDto:payload});
+  update(domainId: number, payload: DomainWriteRequest): Observable<DomainRead> {
+    return this.api.domainUpdate(domainId, payload);
   }
 
-  updatePartial(domainId: number, payload:PatchedDomainPartialRequestDto): Observable<DomainReadDto> {
-    return this.api.domainPartialUpdate({domainId:domainId, patchedDomainPartialRequestDto:payload});
+  updatePartial(domainId: number, payload:PatchedDomainPartialRequest): Observable<DomainRead> {
+    return this.api.domainPartialUpdate(domainId, payload);
   }
 
   delete(domainId: number): Observable<void> {
-    return this.api.domainDestroy({domainId:domainId}).pipe(map(() => void 0));
+    return this.api.domainDestroy(domainId).pipe(map(() => void 0));
   }
 
   goNew(): void {

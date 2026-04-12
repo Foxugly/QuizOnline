@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewCh
 import {ButtonModule} from 'primeng/button';
 import {Menu} from 'primeng/menu';
 import {MenuItem} from 'primeng/api';
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnum} from '../../api/generated';
 import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../environments/language';
 
 @Component({
@@ -17,7 +17,7 @@ export class LangSelectComponent implements OnChanges {
   @Output() langChange = new EventEmitter<SupportedLanguage>();
   @ViewChild('langMenu') private readonly langMenu?: Menu;
 
-  internalLang: SupportedLanguage = LanguageEnumDto.En;
+  internalLang: SupportedLanguage = LanguageEnum.En;
 
   readonly langOptions: Array<{label: string; value: SupportedLanguage}> = SUPPORTED_LANGUAGES.map((language) => ({
     label: this.languageLabel(language),
@@ -33,7 +33,7 @@ export class LangSelectComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['lang']) {
-      this.internalLang = this.lang ?? LanguageEnumDto.En;
+      this.internalLang = this.lang ?? LanguageEnum.En;
     }
   }
 
@@ -48,15 +48,15 @@ export class LangSelectComponent implements OnChanges {
 
   private languageLabel(language: SupportedLanguage): string {
     switch (language) {
-      case LanguageEnumDto.Fr:
+      case LanguageEnum.Fr:
         return 'FR';
-      case LanguageEnumDto.Nl:
+      case LanguageEnum.Nl:
         return 'NL';
-      case LanguageEnumDto.It:
+      case LanguageEnum.It:
         return 'IT';
-      case LanguageEnumDto.Es:
+      case LanguageEnum.Es:
         return 'ES';
-      case LanguageEnumDto.En:
+      case LanguageEnum.En:
       default:
         return 'EN';
     }

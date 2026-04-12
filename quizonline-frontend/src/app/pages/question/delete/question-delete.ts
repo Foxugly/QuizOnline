@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
-import { QuestionReadDto } from '../../../api/generated';
+import { QuestionRead } from '../../../api/generated';
 import { QuestionService, QuestionTranslationForm } from '../../../services/question/question';
 import { selectTranslation } from '../../../shared/i18n/select-translation';
 import { UserService } from '../../../services/user/user';
@@ -23,7 +23,7 @@ export class QuestionDelete implements OnInit {
   loading = signal(false);
   submitError = signal<string | null>(null);
 
-  question = signal<QuestionReadDto | null>(null);
+  question = signal<QuestionRead | null>(null);
 
   private route = inject(ActivatedRoute);
   private questionService = inject(QuestionService);
@@ -61,7 +61,7 @@ export class QuestionDelete implements OnInit {
       });
   }
 
-  getTitle(d: QuestionReadDto | null): string {
+  getTitle(d: QuestionRead | null): string {
     if (!d) return '';
     const t = selectTranslation<QuestionTranslationForm>(
       d.translations as Record<string, QuestionTranslationForm>,
