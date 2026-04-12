@@ -451,7 +451,6 @@ paths:
       - domain
       security:
       - jwtAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -3174,6 +3173,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
           title: Email address
           maxLength: 254
         first_name:
@@ -3211,6 +3211,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
           title: Email address
           maxLength: 254
         first_name:
@@ -3251,6 +3252,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
           title: Email address
           maxLength: 254
         first_name:
@@ -4270,6 +4272,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
           title: Email address
           maxLength: 254
         first_name:
@@ -4300,6 +4303,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
           title: Email address
           maxLength: 254
         first_name:
