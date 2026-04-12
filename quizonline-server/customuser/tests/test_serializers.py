@@ -54,6 +54,7 @@ class CustomUserReadSerializerTests(TestCase):
                 "current_domain_title",
                 "owned_domain_ids",
                 "managed_domain_ids",
+                "pending_join_requests",
             },
         )
         self.assertEqual(data["username"], "u1")
@@ -71,6 +72,24 @@ class CustomUserReadSerializerTests(TestCase):
         self.assertTrue(serializer.get_fields()["is_superuser"].read_only)
         self.assertTrue(serializer.get_fields()["is_active"].read_only)
         self.assertTrue(serializer.get_fields()["nb_domain_max"].read_only)
+
+    def test_read_serializer_exposes_pending_join_requests(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pjr", password="pwd")
+        owner = User.objects.create_user(username="o-pjr", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-pjr"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+        DomainJoinRequest.objects.create(domain=val_domain, user=user)
+
+        data = CustomUserReadSerializer(user).data
+        self.assertIn("pending_join_requests", data)
+        self.assertEqual(len(data["pending_join_requests"]), 1)
+        self.assertEqual(data["pending_join_requests"][0]["domain_id"], val_domain.id)
 
 
 class CustomUserCreateSerializerTests(TestCase):
