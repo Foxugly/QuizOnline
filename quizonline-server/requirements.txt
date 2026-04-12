@@ -10,6 +10,7 @@ django-parler==2.3
 django-schema-viewer==0.5.3
 djangorestframework==3.17.1
 djangorestframework-simplejwt==5.5.1
+drf-nested-routers==0.95.0
 drf-spectacular==0.29.0
 filetype==1.2.0
 PyYAML==6.0.3

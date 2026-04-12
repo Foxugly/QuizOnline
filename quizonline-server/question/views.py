@@ -569,7 +569,7 @@ class QuestionViewSet(MyModelViewSet):
                     try:
                         with asset.file.open("rb") as f:
                             zf.writestr(media_path, f.read())
-                    except Exception:
+                    except OSError:
                         logger.warning("export_structured: cannot read media file sha256=%s", sha256)
 
             buf.seek(0)

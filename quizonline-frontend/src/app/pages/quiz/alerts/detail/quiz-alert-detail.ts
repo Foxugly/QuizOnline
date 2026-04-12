@@ -72,7 +72,7 @@ export class QuizAlertDetail implements OnInit {
       .subscribe({
         next: (thread) => {
           this.thread.set(thread);
-          this.quizAlertService.refreshUnreadCount().subscribe({error: () => {}});
+          this.quizAlertService.refreshUnreadCount().subscribe({error: (err) => console.error('quiz-alert refresh failed', err)});
         },
         error: (err: unknown) => {
           logApiError('quiz.alerts.detail', err);

@@ -161,6 +161,21 @@ class DomainModelTestCase(TestCase):
         self.assertTrue(d.members.filter(pk=self.staff1.pk).exists())
 
     # ---------------------------------------------------------------------
+    # ensure_managers_are_members()
+    # ---------------------------------------------------------------------
+    def test_ensure_managers_are_members(self):
+        """Managers must always be members of the domain."""
+        d = self._mk_domain()
+        d.managers.add(self.staff1)
+        # The signal already added staff1 to members; remove them to
+        # simulate an inconsistent state.
+        d.members.remove(self.staff1)
+        self.assertFalse(d.members.filter(pk=self.staff1.pk).exists())
+
+        d.ensure_managers_are_members()
+        self.assertTrue(d.members.filter(pk=self.staff1.pk).exists())
+
+    # ---------------------------------------------------------------------
     # Meta ordering
     # ---------------------------------------------------------------------
     def test_ordering_is_by_id_ascending(self):

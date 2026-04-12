@@ -207,7 +207,7 @@ export class TopMenuComponent implements OnInit {
       return;
     }
 
-    this.userService.updateMeLanguage(lang).subscribe({
+    this.userService.updateMeLanguage(lang).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: reloadCurrentPage,
       error: reloadCurrentPage,
     });
@@ -255,7 +255,7 @@ export class TopMenuComponent implements OnInit {
   }
 
   private changeCurrentDomain(domainId: number): void {
-    this.userService.setCurrentDomain(domainId).subscribe({
+    this.userService.setCurrentDomain(domainId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => window.location.reload(),
     });
   }
@@ -286,7 +286,7 @@ export class TopMenuComponent implements OnInit {
       return;
     }
 
-    this.userService.getMe().subscribe({
+    this.userService.getMe().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.refreshUnreadCount();
         this.refreshVisibleDomains();
@@ -304,7 +304,7 @@ export class TopMenuComponent implements OnInit {
       return;
     }
 
-    this.domainService.list().subscribe({
+    this.domainService.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (domains) => this.visibleDomains.set(domains),
       error: () => this.visibleDomains.set([]),
     });
@@ -316,7 +316,7 @@ export class TopMenuComponent implements OnInit {
       return;
     }
 
-    this.quizAlertService.refreshUnreadCount().subscribe({
+    this.quizAlertService.refreshUnreadCount().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => this.quizAlertService.clearUnreadCount(),
     });
   }

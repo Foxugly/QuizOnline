@@ -1,4 +1,5 @@
-import {Component, computed, effect, inject, OnInit} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router, RouterOutlet} from '@angular/router';
 import {TopMenuComponent} from './components/topmenu/topmenu';
 import {BackendStatusService} from './services/status/status';
@@ -28,6 +29,7 @@ export class App implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   //protected readonly title = signal('quizonline-frontend');
 
   constructor() {
@@ -76,7 +78,7 @@ export class App implements OnInit {
       return;
     }
 
-    this.userService.getMe().subscribe({
+    this.userService.getMe().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: (error) => {
         logApiError('app.session-rehydrate', error);
         this.authService.logout();

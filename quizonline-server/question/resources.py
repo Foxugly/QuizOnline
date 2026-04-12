@@ -37,7 +37,7 @@ class DomainByNameWidget:
             raise ValueError(f"Le domaine « {value} » n'existe pas.")
         except Domain.MultipleObjectsReturned:
             # Plusieurs domaines ont ce nom dans des langues différentes : on prend le premier
-            return Domain.objects.filter(translations__name=value).first()
+            return Domain.objects.filter(translations__name=value).order_by("id").first()
 
 
 class SubjectsByNameWidget(ManyToManyWidget):
@@ -67,7 +67,7 @@ class SubjectsByNameWidget(ManyToManyWidget):
 
         # Résoudre le domaine à partir de la colonne "domain" de la ligne
         domain_name = (row or {}).get("domain", "").strip()
-        domain = Domain.objects.filter(translations__name=domain_name).first() if domain_name else None
+        domain = Domain.objects.filter(translations__name=domain_name).order_by("id").first() if domain_name else None
 
         lang = django_translation.get_language() or settings.LANGUAGE_CODE
         subject_pks = []
@@ -76,14 +76,14 @@ class SubjectsByNameWidget(ManyToManyWidget):
             if domain:
                 existing = Subject.objects.filter(
                     translations__name=name, domain=domain
-                ).first()
+                ).order_by("id").first()
                 if not existing:
                     existing = Subject.objects.create(domain=domain)
                     existing.set_current_language(lang)
                     existing.name = name
                     existing.save()
             else:
-                existing = Subject.objects.filter(translations__name=name).first()
+                existing = Subject.objects.filter(translations__name=name).order_by("id").first()
                 if not existing:
                     continue
             subject_pks.append(existing.pk)

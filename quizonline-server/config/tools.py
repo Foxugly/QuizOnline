@@ -41,7 +41,7 @@ class MyModelViewSet(viewsets.ModelViewSet):
 
         try:
             masked_payload = mask_sensitive_data(self.request.data)
-        except Exception:
+        except (TypeError, AttributeError, ValueError):
             logger.debug("_log_call: could not mask payload", exc_info=True)
             masked_payload = "<unreadable>"
 

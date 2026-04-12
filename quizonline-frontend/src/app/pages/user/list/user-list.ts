@@ -1,4 +1,5 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -25,6 +26,7 @@ type UserListRow = AdminUserDto & {
 export class UserListPage implements OnInit {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly users = signal<AdminUserDto[]>([]);
   readonly q = signal('');
@@ -55,7 +57,7 @@ export class UserListPage implements OnInit {
   }
 
   load(): void {
-    this.userService.listAdmin().subscribe({
+    this.userService.listAdmin().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (users) => this.users.set(users),
       error: (err) => {
         logApiError('user.list.load', err);
