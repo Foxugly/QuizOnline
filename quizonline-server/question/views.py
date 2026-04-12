@@ -4,6 +4,7 @@ import logging
 import os
 import zipfile
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, QueryDict
@@ -645,6 +646,11 @@ class QuestionViewSet(MyModelViewSet):
                 if name.endswith("/"):
                     continue
                 if name.startswith("media/"):
+                    info = zf.getinfo(name)
+                    if info.file_size > settings.MAX_UPLOAD_FILE_SIZE:
+                        raise ValueError(
+                            f"Le fichier '{name}' dépasse la taille maximale autorisée après décompression."
+                        )
                     media_files[name] = zf.read(name)
                 elif name.endswith(".json"):
                     try:

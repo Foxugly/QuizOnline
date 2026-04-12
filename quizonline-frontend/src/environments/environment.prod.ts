@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.example.com',
+  apiBaseUrl: '',  // Resolved at runtime from window.__WPREF_API_BASE_URL or same-origin
   appName: 'QuizOnline',
   author: 'Foxugly',
   year: '2025',

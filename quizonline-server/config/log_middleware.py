@@ -25,6 +25,11 @@ class LogContextMiddleware:
             "user_id": None,
         }
 
+        # Try to resolve user from session auth (non-JWT, already on request)
+        user = getattr(request, "user", None)
+        if user and getattr(user, "is_authenticated", False):
+            _log_context.ctx["user_id"] = user.pk
+
         response = self.get_response(request)
 
         user = getattr(request, "user", None)

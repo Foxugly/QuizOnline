@@ -8,3 +8,4 @@ htmlcov/
 .env.local_bak
 .env_empty
 /db.fullstack.sqlite3
+staticfiles/

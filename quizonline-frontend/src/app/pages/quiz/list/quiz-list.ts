@@ -49,6 +49,7 @@ export class QuizListPage implements OnInit {
   q = signal('');
   loading = signal(false);
   success = signal<string | null>(null);
+  error = signal<string | null>(null);
   creatingTemplateId = signal<number | null>(null);
   assignDialogVisible = signal(false);
   selectedTemplate = signal<QuizTemplateListItem | null>(null);
@@ -108,7 +109,7 @@ export class QuizListPage implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.list.load', err);
-          this.success.set(userFacingApiMessage(err, this.uiText().messages.loadError));
+          this.error.set(userFacingApiMessage(err, this.uiText().messages.loadError));
           this.currentUserId.set(null);
           this.domains.set([]);
           this.templates.set([]);
@@ -168,7 +169,7 @@ export class QuizListPage implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.list.assign-template', err);
-          this.success.set(userFacingApiMessage(err, this.uiText().messages.assignError));
+          this.error.set(userFacingApiMessage(err, this.uiText().messages.assignError));
         },
       });
   }
@@ -189,7 +190,7 @@ export class QuizListPage implements OnInit {
         next: (quiz) => this.quizService.goView(quiz.id),
         error: (err: unknown) => {
           logApiError('quiz.list.create-session', err);
-          this.success.set(userFacingApiMessage(err, this.uiText().messages.createError));
+          this.error.set(userFacingApiMessage(err, this.uiText().messages.createError));
         },
       });
   }

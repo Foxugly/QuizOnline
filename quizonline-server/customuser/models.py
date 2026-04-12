@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(_("email address"), unique=True, blank=True, null=True, default=None)
     language = models.CharField(_("language"), max_length=8, choices=settings.LANGUAGES,
                                 default=getattr(settings, "LANGUAGE_CODE", "en"))
     email_confirmed = models.BooleanField(default=False)
@@ -29,6 +30,12 @@ class CustomUser(AbstractUser):
     def _domain_model():
         # Évite les imports circulaires
         return apps.get_model("domain", "Domain")
+
+    def save(self, *args, **kwargs):
+        # Normalize blank email to None so the unique constraint allows multiple empty emails.
+        if not self.email:
+            self.email = None
+        super().save(*args, **kwargs)
 
     # -------------------------
     # Représentation

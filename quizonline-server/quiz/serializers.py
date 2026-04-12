@@ -787,7 +787,6 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
         qq = validated_data.pop("quizquestion")
 
         with transaction.atomic():
-            type(quiz).objects.select_for_update().filter(pk=quiz.pk).exists()
             try:
                 instance = (
                     QuizQuestionAnswer.objects.select_for_update()
