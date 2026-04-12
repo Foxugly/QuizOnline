@@ -264,6 +264,53 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
         self.assertEqual(list(user.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(user.current_domain_id, self.domain.id)
 
+    def test_profile_update_with_validation_domain_creates_pending_not_link(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pu1", password="pwd")
+        owner = User.objects.create_user(username="o-pu1", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-pu1"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        s = CustomUserProfileUpdateSerializer(
+            instance=user,
+            data={"managed_domain_ids": [val_domain.id]},
+            partial=True,
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+
+        self.assertFalse(user.linked_domains.filter(pk=val_domain.id).exists())
+        self.assertTrue(
+            DomainJoinRequest.objects.filter(domain=val_domain, user=user, status="pending").exists()
+        )
+
+    def test_profile_update_dropping_domain_id_removes_membership(self):
+        from domain.models import Domain
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pu2", password="pwd")
+        owner = User.objects.create_user(username="o-pu2", password="pwd")
+        auto_domain = Domain.objects.create(owner=owner, active=True)
+        auto_domain.set_current_language("fr")
+        auto_domain.name = "auto-pu2"
+        auto_domain.save()
+        user.linked_domains.add(auto_domain)
+
+        s = CustomUserProfileUpdateSerializer(
+            instance=user,
+            data={"managed_domain_ids": []},
+            partial=True,
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+
+        self.assertFalse(user.linked_domains.filter(pk=auto_domain.id).exists())
+
 
 class CustomUserAdminUpdateSerializerTests(TestCase):
     def setUp(self):

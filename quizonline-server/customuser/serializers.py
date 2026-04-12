@@ -171,7 +171,8 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
             instance.save(update_fields=update_fields)
 
         if managed_domain_ids is not None:
-            instance.linked_domains.set(Domain.objects.filter(id__in=managed_domain_ids, active=True))
+            from customuser.services import reconcile_user_domain_membership
+            reconcile_user_domain_membership(instance, managed_domain_ids)
             instance.ensure_current_domain_is_valid(auto_fix=True)
         return instance
 
