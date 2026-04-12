@@ -85,7 +85,8 @@ export class LoginPage implements OnInit {
           });
           return;
         }
-        void this.router.navigateByUrl(nextUrl || ROUTES.home()[0]);
+        const safeNext = nextUrl && nextUrl.startsWith('/') && !nextUrl.includes('://') ? nextUrl : null;
+        void this.router.navigateByUrl(safeNext || ROUTES.home()[0]);
       },
       error: (err) => {
         this.loading.set(false);

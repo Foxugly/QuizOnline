@@ -149,16 +149,12 @@ class DomainViewSetTests(TestCase):
         self.assertEqual(len(response.data["results"]), page_size)
         self.assertGreater(response.data["count"], len(response.data["results"]))
 
-    def test_available_for_linking_returns_active_domains_for_anyone(self):
+    def test_available_for_linking_rejects_anonymous(self):
         view = DomainViewSet.as_view({"get": "available_for_linking"})
         request = self.factory.get("/api/domain/available-for-linking/")
         response = view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        ids = {item["id"] for item in response.data}
-        self.assertIn(self.domain_active.id, ids)
-        self.assertIn(self.domain_other_active.id, ids)
-        self.assertNotIn(self.domain_inactive.id, ids)
+        self.assertIn(response.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_available_for_linking_returns_active_domains_for_authenticated_user(self):
         view = DomainViewSet.as_view({"get": "available_for_linking"})
