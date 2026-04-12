@@ -144,6 +144,44 @@ class CustomUserCreateSerializerTests(TestCase):
             self.assertTrue(serializer.is_valid(), serializer.errors)
             mock_validate.assert_called_once_with("SecretPass123!")
 
+    def test_create_with_mixed_auto_and_validation_domains(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        owner = User.objects.create_user(username="o-mix", password="pwd")
+        auto_domain = Domain.objects.create(owner=owner, active=True)
+        auto_domain.set_current_language("fr")
+        auto_domain.name = "auto-mix"
+        auto_domain.save()
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-mix"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        s = CustomUserCreateSerializer(
+            data={
+                "username": "newbie-mix",
+                "email": "newbie-mix@e.test",
+                "first_name": "N",
+                "last_name": "B",
+                "password": "S3cretPass!",
+                "managed_domain_ids": [auto_domain.id, val_domain.id],
+            }
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        user = s.save()
+
+        # auto domain -> linked instantly
+        self.assertTrue(user.linked_domains.filter(pk=auto_domain.id).exists())
+        # validation domain -> NOT linked, but a pending request exists
+        self.assertFalse(user.linked_domains.filter(pk=val_domain.id).exists())
+        self.assertTrue(
+            DomainJoinRequest.objects.filter(
+                domain=val_domain, user=user, status="pending"
+            ).exists()
+        )
+
 
 class CustomUserProfileUpdateSerializerTests(TestCase):
     def setUp(self):

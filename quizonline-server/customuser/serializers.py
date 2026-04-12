@@ -133,7 +133,8 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
         user.set_password(password)
         user.save()
         if managed_domain_ids:
-            user.linked_domains.set(Domain.objects.filter(id__in=managed_domain_ids, active=True))
+            from customuser.services import reconcile_user_domain_membership
+            reconcile_user_domain_membership(user, managed_domain_ids)
             user.ensure_current_domain_is_valid(auto_fix=True)
         return user
 
