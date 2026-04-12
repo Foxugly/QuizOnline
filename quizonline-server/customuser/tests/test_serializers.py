@@ -182,6 +182,41 @@ class CustomUserCreateSerializerTests(TestCase):
             ).exists()
         )
 
+    def test_create_with_validation_domain_schedules_notification_email(self):
+        """Verify the mailer is called once per newly created pending request."""
+        from unittest.mock import patch
+        from domain.models import Domain, JoinPolicy
+        from django.utils import translation
+
+        translation.activate("fr")
+        owner = User.objects.create_user(username="o-mail", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "mail-test"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        with patch("customuser.services.send_join_request_created_email") as mock_send:
+            with self.captureOnCommitCallbacks(execute=True):
+                s = CustomUserCreateSerializer(
+                    data={
+                        "username": "newbie-mail",
+                        "email": "newbie-mail@e.test",
+                        "first_name": "N",
+                        "last_name": "B",
+                        "password": "S3cretPass!",
+                        "managed_domain_ids": [val_domain.id],
+                    }
+                )
+                self.assertTrue(s.is_valid(), s.errors)
+                s.save()
+            # Exiting captureOnCommitCallbacks executes queued on_commit callbacks.
+        mock_send.assert_called_once()
+        call_kwargs = mock_send.call_args.kwargs
+        self.assertEqual(call_kwargs["join_request"].user.username, "newbie-mail")
+        self.assertEqual(call_kwargs["join_request"].domain_id, val_domain.id)
+        self.assertIn(owner, call_kwargs["recipients"])
+
 
 class CustomUserProfileUpdateSerializerTests(TestCase):
     def setUp(self):

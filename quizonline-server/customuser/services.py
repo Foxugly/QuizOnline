@@ -6,6 +6,7 @@ from django.db import transaction
 from core.mailers import send_password_reset_email, send_registration_confirmation_email
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
 from domain.services import users_who_can_approve
+from core.mailers.domain_join import send_join_request_created_email
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from .tokens import resolve_user_from_uid, token_is_valid
@@ -84,40 +85,43 @@ def reconcile_user_domain_membership(user, target_domain_ids):
 
     Notification emails for newly created pending requests are scheduled
     via `transaction.on_commit` so callers can run inside their own
-    transaction safely.
+    transaction safely. The helper wraps its own work in
+    `transaction.atomic()` defensively because the project does not enable
+    `ATOMIC_REQUESTS`, and `on_commit` outside a transaction fires
+    synchronously, which defeats the scheduling intent.
     """
-    existing_ids = set(user.linked_domains.values_list("id", flat=True))
-    target_ids = set(target_domain_ids or [])
+    with transaction.atomic():
+        existing_ids = set(user.linked_domains.values_list("id", flat=True))
+        target_ids = set(target_domain_ids or [])
 
-    to_remove = existing_ids - target_ids
-    to_add_ids = target_ids - existing_ids
+        to_remove = existing_ids - target_ids
+        to_add_ids = target_ids - existing_ids
 
-    if to_remove:
-        user.linked_domains.remove(*to_remove)
+        if to_remove:
+            user.linked_domains.remove(*to_remove)
 
-    if not to_add_ids:
-        return
+        if not to_add_ids:
+            return
 
-    domains_to_add = list(
-        Domain.objects.filter(id__in=to_add_ids, active=True)
-    )
-
-    auto_domains = [d for d in domains_to_add if d.join_policy == JoinPolicy.AUTO]
-    if auto_domains:
-        user.linked_domains.add(*[d.id for d in auto_domains])
-
-    validation_domains = [d for d in domains_to_add if d.join_policy != JoinPolicy.AUTO]
-    for domain in validation_domains:
-        join_request, created = DomainJoinRequest.objects.get_or_create(
-            domain=domain,
-            user=user,
-            status=DomainJoinRequest.STATUS_PENDING,
+        domains_to_add = list(
+            Domain.objects.filter(id__in=to_add_ids, active=True)
         )
-        if created:
-            from core.mailers.domain_join import send_join_request_created_email
-            approvers = users_who_can_approve(domain)
-            transaction.on_commit(
-                lambda jr=join_request, ap=approvers: send_join_request_created_email(
-                    join_request=jr, recipients=ap
-                )
+
+        auto_domains = [d for d in domains_to_add if d.join_policy == JoinPolicy.AUTO]
+        if auto_domains:
+            user.linked_domains.add(*auto_domains)
+
+        validation_domains = [d for d in domains_to_add if d.join_policy != JoinPolicy.AUTO]
+        for domain in validation_domains:
+            join_request, created = DomainJoinRequest.objects.get_or_create(
+                domain=domain,
+                user=user,
+                status=DomainJoinRequest.STATUS_PENDING,
             )
+            if created:
+                approvers = users_who_can_approve(domain)
+                transaction.on_commit(
+                    lambda jr=join_request, ap=approvers: send_join_request_created_email(
+                        join_request=jr, recipients=ap
+                    )
+                )
