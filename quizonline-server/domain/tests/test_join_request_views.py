@@ -368,3 +368,35 @@ class JoinRequestCancelTests(TestCase):
         self.client.force_authenticate(user=self.joiner)
         res = self.client.post(self.URL.format(self.domain.id, self.req.id))
         self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+
+
+class MemberRolePromotesPendingRequestTests(TestCase):
+    URL = "/api/domain/{}/member-role/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        # The user must already be a member of the domain for the existing
+        # member_role flow to accept is_domain_manager: true. We pre-add and
+        # also pre-create a pending request — the race we want to test is
+        # "user has a pending request AND just got pushed in by an admin".
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_admin_push_via_is_domain_manager_flips_pending_to_approved(self):
+        self.domain.members.add(self.joiner)
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(
+            self.URL.format(self.domain.id),
+            {"user_id": self.joiner.id, "is_domain_manager": True},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")
+        self.assertEqual(self.req.decided_by_id, self.owner.id)
+        self.assertIsNotNone(self.req.decided_at)

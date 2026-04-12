@@ -334,6 +334,11 @@ class DomainViewSet(MyModelViewSet):
                     if is_superuser and not target.is_staff:
                         target.is_staff = True
                         update_fields.append("is_staff")
+                    # Any pending join request gets flipped to approved with
+                    # the pushing manager as the decider. Idempotent: zero
+                    # affected rows when there is no pending request.
+                    from domain.services import flip_pending_to_approved
+                    flip_pending_to_approved(domain, target, by=requester)
                 else:
                     domain.managers.remove(target)
                     if (
