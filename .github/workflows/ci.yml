@@ -31,7 +31,7 @@ jobs:
 
       - name: Run auth and core tests
         env:
-          DJANGO_ENV: dev
+          DJANGO_ENV: test
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
@@ -57,7 +57,7 @@ jobs:
 
       - name: Run catalog tests
         env:
-          DJANGO_ENV: dev
+          DJANGO_ENV: test
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
@@ -83,7 +83,7 @@ jobs:
 
       - name: Run quiz tests
         env:
-          DJANGO_ENV: dev
+          DJANGO_ENV: test
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
