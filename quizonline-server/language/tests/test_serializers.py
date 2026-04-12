@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils import translation
 from language.models import Language
 from language.serializers import LanguageReadSerializer, LanguageWriteSerializer
 from rest_framework.exceptions import ValidationError
@@ -53,17 +54,19 @@ class LangSerializersTests(TestCase):
 
     def test_validate_code_rejects_too_long(self):
         payload = {"code": "x" * 11, "name": "Too long", "active": True}
-        s = LanguageWriteSerializer(data=payload)
-        self.assertFalse(s.is_valid())
-        self.assertIn("code", s.errors)
-        self.assertIn("no more than 10 characters", str(s.errors["code"][0]).lower())
+        with translation.override("en"):
+            s = LanguageWriteSerializer(data=payload)
+            self.assertFalse(s.is_valid())
+            self.assertIn("code", s.errors)
+            self.assertIn("no more than 10 characters", str(s.errors["code"][0]).lower())
 
     def test_validate_code_handles_null(self):
         payload = {"code": None, "name": "No code", "active": True}
-        s = LanguageWriteSerializer(data=payload)
-        self.assertFalse(s.is_valid())
-        self.assertIn("code", s.errors)
-        self.assertIn("may not be null", str(s.errors["code"][0]).lower())
+        with translation.override("en"):
+            s = LanguageWriteSerializer(data=payload)
+            self.assertFalse(s.is_valid())
+            self.assertIn("code", s.errors)
+            self.assertIn("may not be null", str(s.errors["code"][0]).lower())
 
     # -------------------------
     # read_only_fields id

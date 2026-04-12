@@ -1,23 +1,33 @@
 from django.db import transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.generics import get_object_or_404 as drf_get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from config.tools import MyModelViewSet
 
-from .models import Domain
-from .permissions import IsDomainOwnerOrManager
+from core.mailers.domain_join import (
+    send_join_request_created_email,
+    send_join_request_approved_email,
+    send_join_request_rejected_email,
+)
+from .models import Domain, DomainJoinRequest, JoinPolicy
+from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
     DomainReadSerializer,
     DomainWriteSerializer,
     DomainPartialSerializer,
     DomainDetailSerializer,
     DomainMemberRoleSerializer,
+    DomainJoinRequestReadSerializer,
+    DomainJoinRequestRejectSerializer,
 )
+from .services import users_who_can_approve
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -324,6 +334,11 @@ class DomainViewSet(MyModelViewSet):
                     if is_superuser and not target.is_staff:
                         target.is_staff = True
                         update_fields.append("is_staff")
+                    # Any pending join request gets flipped to approved with
+                    # the pushing manager as the decider. Idempotent: zero
+                    # affected rows when there is no pending request.
+                    from domain.services import flip_pending_to_approved
+                    flip_pending_to_approved(domain, target, by=requester)
                 else:
                     domain.managers.remove(target)
                     if (
@@ -411,3 +426,231 @@ class DomainViewSet(MyModelViewSet):
         if domain.managers.filter(pk=target.pk).exists():
             raise PermissionDenied("Un manager ne peut pas en retirer un autre.")
 
+
+class DomainJoinRequestViewSet(viewsets.GenericViewSet):
+    """
+    Nested under /api/domain/{domain_id}/join-request/.
+    """
+    serializer_class = DomainJoinRequestReadSerializer
+    queryset = DomainJoinRequest.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = "pk"
+    lookup_url_kwarg = "req_id"
+
+    def _get_domain(self):
+        return drf_get_object_or_404(
+            Domain.objects.filter(active=True),
+            pk=self.kwargs["domain_id"],
+        )
+
+    def _check_can_approve(self, domain):
+        perm = CanApproveJoinRequest()
+        if not perm.has_object_permission(self.request, self, domain):
+            raise PermissionDenied("cannot_approve_join_requests")
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return DomainJoinRequest.objects.none()
+        qs = DomainJoinRequest.objects.filter(domain_id=self.kwargs["domain_id"])
+        status_filter = self.request.query_params.get("status")
+        if status_filter:
+            valid_statuses = {code for code, _ in DomainJoinRequest.STATUS_CHOICES}
+            if status_filter not in valid_statuses:
+                raise ValidationError({"status": "invalid"})
+            qs = qs.filter(status=status_filter)
+        return qs.select_related("user", "decided_by", "domain").order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        qs = self.get_queryset()
+        return Response(self.get_serializer(qs, many=True).data)
+
+    def retrieve(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        obj = drf_get_object_or_404(self.get_queryset(), pk=self.kwargs["req_id"])
+        return Response(self.get_serializer(obj).data)
+
+    def create(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        user = request.user
+
+        if domain.owner_id == user.id:
+            return Response(
+                {"detail": "already_owner"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if domain.members.filter(pk=user.pk).exists():
+            return Response(
+                {"detail": "already_member"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if domain.join_policy == JoinPolicy.AUTO:
+            domain.members.add(user)
+            return Response(
+                {"status": "approved", "request": None},
+                status=status.HTTP_200_OK,
+            )
+
+        from django.db import IntegrityError
+
+        with transaction.atomic():
+            existing = (
+                DomainJoinRequest.objects
+                .select_for_update()
+                .filter(
+                    domain=domain,
+                    user=user,
+                    status=DomainJoinRequest.STATUS_PENDING,
+                )
+                .first()
+            )
+            if existing:
+                return Response(
+                    {
+                        "status": "pending",
+                        "request": DomainJoinRequestReadSerializer(existing).data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            # Resolve approvers eagerly (inside the transaction) so the email
+            # is sent to the people who could approve at the time of creation.
+            # Closure captures `approvers` by value, not `domain` by reference.
+            approvers = users_who_can_approve(domain)
+
+            try:
+                # Nested atomic so that an IntegrityError on this single insert
+                # rolls back only the create, not the parent transaction. This
+                # is the documented Django pattern for catching IntegrityError
+                # inside transaction.atomic.
+                with transaction.atomic():
+                    join_request = DomainJoinRequest.objects.create(
+                        domain=domain,
+                        user=user,
+                        status=DomainJoinRequest.STATUS_PENDING,
+                    )
+            except IntegrityError:
+                # Race: another POST inserted a pending row between our SELECT
+                # and our create. The partial unique constraint fired. Re-fetch
+                # the now-existing row and return it idempotently.
+                existing = DomainJoinRequest.objects.get(
+                    domain=domain,
+                    user=user,
+                    status=DomainJoinRequest.STATUS_PENDING,
+                )
+                return Response(
+                    {
+                        "status": "pending",
+                        "request": DomainJoinRequestReadSerializer(existing).data,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            transaction.on_commit(
+                lambda: send_join_request_created_email(
+                    join_request=join_request,
+                    recipients=approvers,
+                )
+            )
+
+        return Response(
+            {
+                "status": "pending",
+                "request": DomainJoinRequestReadSerializer(join_request).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=True, methods=["post"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        with transaction.atomic():
+            join_request = drf_get_object_or_404(
+                DomainJoinRequest.objects.select_for_update(),
+                pk=self.kwargs["req_id"],
+                domain=domain,
+            )
+            if join_request.status != DomainJoinRequest.STATUS_PENDING:
+                return Response(
+                    {"detail": "not_pending"},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            join_request.status = DomainJoinRequest.STATUS_APPROVED
+            join_request.decided_by = request.user
+            join_request.decided_at = timezone.now()
+            join_request.save(update_fields=["status", "decided_by", "decided_at", "updated_at"])
+            domain.members.add(join_request.user)
+            transaction.on_commit(
+                lambda jr=join_request: send_join_request_approved_email(join_request=jr)
+            )
+        return Response(self.get_serializer(join_request).data)
+
+    @action(detail=True, methods=["post"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        serializer = DomainJoinRequestRejectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reason = serializer.validated_data.get("reason", "")
+        with transaction.atomic():
+            join_request = drf_get_object_or_404(
+                DomainJoinRequest.objects.select_for_update(),
+                pk=self.kwargs["req_id"],
+                domain=domain,
+            )
+            if join_request.status != DomainJoinRequest.STATUS_PENDING:
+                return Response(
+                    {"detail": "not_pending"},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            join_request.status = DomainJoinRequest.STATUS_REJECTED
+            join_request.decided_by = request.user
+            join_request.decided_at = timezone.now()
+            join_request.reject_reason = reason
+            join_request.save(update_fields=["status", "decided_by", "decided_at", "reject_reason", "updated_at"])
+            transaction.on_commit(
+                lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
+            )
+        return Response(self.get_serializer(join_request).data)
+
+    @action(detail=True, methods=["post"], url_path="cancel")
+    def cancel(self, request, *args, **kwargs):
+        """
+        Cancel a pending join request.
+
+        Two intentional design choices that should NOT be "fixed":
+
+        1. No `transaction.atomic` / `select_for_update`. Cancellation is a
+           monotonic single-column write (pending → cancelled) with no side
+           effects. Two concurrent cancels collapse to the same terminal
+           state — idempotent at the row level. An approve-vs-cancel race
+           is last-write-wins by design (the HTTP client that lost the race
+           observes the final state on next fetch).
+
+        2. The approver gate (`_check_can_approve`) is intentionally NOT
+           reused here. Cancellation is a requester-only action: only the
+           user who created the request (or a superuser) can cancel it.
+           The domain owner can approve and reject, but cannot cancel
+           someone else's request — that's a different concept.
+        """
+        domain = self._get_domain()
+        join_request = drf_get_object_or_404(
+            DomainJoinRequest.objects.all(),
+            pk=self.kwargs["req_id"],
+            domain=domain,
+        )
+        is_superuser = bool(getattr(request.user, "is_superuser", False))
+        if join_request.user_id != request.user.id and not is_superuser:
+            raise PermissionDenied("only_requester_can_cancel")
+        if join_request.status != DomainJoinRequest.STATUS_PENDING:
+            return Response(
+                {"detail": "not_pending"},
+                status=status.HTTP_409_CONFLICT,
+            )
+        join_request.status = DomainJoinRequest.STATUS_CANCELLED
+        join_request.save(update_fields=["status", "updated_at"])
+        return Response(self.get_serializer(join_request).data)

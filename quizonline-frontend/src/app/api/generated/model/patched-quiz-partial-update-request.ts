@@ -9,7 +9,7 @@
  */
 
 
-export interface PatchedQuizPartialUpdateRequestDto { 
+export interface PatchedQuizPartialUpdateRequest { 
     domain?: number | null;
     quiz_template?: number;
     user?: number | null;

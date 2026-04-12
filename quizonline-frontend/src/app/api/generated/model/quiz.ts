@@ -7,23 +7,23 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { QuizQuestionAnswerDto } from './quiz-question-answer';
-import { AnswerCorrectnessStateEnumDto } from './answer-correctness-state-enum';
-import { UserSummaryDto } from './user-summary';
-import { QuizQuestionReadDto } from './quiz-question-read';
+import { QuizQuestionAnswer } from './quiz-question-answer';
+import { UserSummary } from './user-summary';
+import { AnswerCorrectnessStateEnum } from './answer-correctness-state-enum';
+import { QuizQuestionRead } from './quiz-question-read';
 
 
 /**
  * ReprÃ©sente une session de quiz (Quiz).
  */
-export interface QuizDto { 
+export interface Quiz { 
     readonly id: number;
     domain?: number | null;
     quiz_template: number;
     readonly quiz_template_title: string;
     readonly quiz_template_description: string;
     readonly user: number | null;
-    readonly user_summary: UserSummaryDto | null;
+    readonly user_summary: UserSummary | null;
     readonly mode: string;
     readonly created_at: string;
     started_at?: string | null;
@@ -35,12 +35,13 @@ export interface QuizDto {
     readonly duration: number;
     readonly earned_score: number | null;
     readonly max_score: number | null;
-    readonly questions: Array<QuizQuestionReadDto>;
-    readonly answers: Array<QuizQuestionAnswerDto>;
+    readonly questions: Array<QuizQuestionRead>;
+    readonly answers: Array<QuizQuestionAnswer>;
     readonly total_answers: number | null;
     readonly correct_answers: number | null;
-    readonly answer_correctness_state: AnswerCorrectnessStateEnumDto;
+    readonly answer_correctness_state: AnswerCorrectnessStateEnum;
 }
-
+export namespace Quiz {
+}
 
 

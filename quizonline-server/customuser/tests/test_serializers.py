@@ -54,6 +54,7 @@ class CustomUserReadSerializerTests(TestCase):
                 "current_domain_title",
                 "owned_domain_ids",
                 "managed_domain_ids",
+                "pending_join_requests",
             },
         )
         self.assertEqual(data["username"], "u1")
@@ -71,6 +72,24 @@ class CustomUserReadSerializerTests(TestCase):
         self.assertTrue(serializer.get_fields()["is_superuser"].read_only)
         self.assertTrue(serializer.get_fields()["is_active"].read_only)
         self.assertTrue(serializer.get_fields()["nb_domain_max"].read_only)
+
+    def test_read_serializer_exposes_pending_join_requests(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pjr", password="pwd")
+        owner = User.objects.create_user(username="o-pjr", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-pjr"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+        DomainJoinRequest.objects.create(domain=val_domain, user=user)
+
+        data = CustomUserReadSerializer(user).data
+        self.assertIn("pending_join_requests", data)
+        self.assertEqual(len(data["pending_join_requests"]), 1)
+        self.assertEqual(data["pending_join_requests"][0]["domain_id"], val_domain.id)
 
 
 class CustomUserCreateSerializerTests(TestCase):
@@ -144,6 +163,79 @@ class CustomUserCreateSerializerTests(TestCase):
             self.assertTrue(serializer.is_valid(), serializer.errors)
             mock_validate.assert_called_once_with("SecretPass123!")
 
+    def test_create_with_mixed_auto_and_validation_domains(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        owner = User.objects.create_user(username="o-mix", password="pwd")
+        auto_domain = Domain.objects.create(owner=owner, active=True)
+        auto_domain.set_current_language("fr")
+        auto_domain.name = "auto-mix"
+        auto_domain.save()
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-mix"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        s = CustomUserCreateSerializer(
+            data={
+                "username": "newbie-mix",
+                "email": "newbie-mix@e.test",
+                "first_name": "N",
+                "last_name": "B",
+                "password": "S3cretPass!",
+                "managed_domain_ids": [auto_domain.id, val_domain.id],
+            }
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        user = s.save()
+
+        # auto domain -> linked instantly
+        self.assertTrue(user.linked_domains.filter(pk=auto_domain.id).exists())
+        # validation domain -> NOT linked, but a pending request exists
+        self.assertFalse(user.linked_domains.filter(pk=val_domain.id).exists())
+        self.assertTrue(
+            DomainJoinRequest.objects.filter(
+                domain=val_domain, user=user, status="pending"
+            ).exists()
+        )
+
+    def test_create_with_validation_domain_schedules_notification_email(self):
+        """Verify the mailer is called once per newly created pending request."""
+        from unittest.mock import patch
+        from domain.models import Domain, JoinPolicy
+        from django.utils import translation
+
+        translation.activate("fr")
+        owner = User.objects.create_user(username="o-mail", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "mail-test"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        with patch("customuser.services.send_join_request_created_email") as mock_send:
+            with self.captureOnCommitCallbacks(execute=True):
+                s = CustomUserCreateSerializer(
+                    data={
+                        "username": "newbie-mail",
+                        "email": "newbie-mail@e.test",
+                        "first_name": "N",
+                        "last_name": "B",
+                        "password": "S3cretPass!",
+                        "managed_domain_ids": [val_domain.id],
+                    }
+                )
+                self.assertTrue(s.is_valid(), s.errors)
+                s.save()
+            # Exiting captureOnCommitCallbacks executes queued on_commit callbacks.
+        mock_send.assert_called_once()
+        call_kwargs = mock_send.call_args.kwargs
+        self.assertEqual(call_kwargs["join_request"].user.username, "newbie-mail")
+        self.assertEqual(call_kwargs["join_request"].domain_id, val_domain.id)
+        self.assertIn(owner, call_kwargs["recipients"])
+
 
 class CustomUserProfileUpdateSerializerTests(TestCase):
     def setUp(self):
@@ -190,6 +282,53 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
 
         self.assertEqual(list(user.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(user.current_domain_id, self.domain.id)
+
+    def test_profile_update_with_validation_domain_creates_pending_not_link(self):
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pu1", password="pwd")
+        owner = User.objects.create_user(username="o-pu1", password="pwd")
+        val_domain = Domain.objects.create(owner=owner, active=True)
+        val_domain.set_current_language("fr")
+        val_domain.name = "val-pu1"
+        val_domain.join_policy = JoinPolicy.OWNER
+        val_domain.save()
+
+        s = CustomUserProfileUpdateSerializer(
+            instance=user,
+            data={"managed_domain_ids": [val_domain.id]},
+            partial=True,
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+
+        self.assertFalse(user.linked_domains.filter(pk=val_domain.id).exists())
+        self.assertTrue(
+            DomainJoinRequest.objects.filter(domain=val_domain, user=user, status="pending").exists()
+        )
+
+    def test_profile_update_dropping_domain_id_removes_membership(self):
+        from domain.models import Domain
+        from django.utils import translation
+        translation.activate("fr")
+        user = User.objects.create_user(username="u-pu2", password="pwd")
+        owner = User.objects.create_user(username="o-pu2", password="pwd")
+        auto_domain = Domain.objects.create(owner=owner, active=True)
+        auto_domain.set_current_language("fr")
+        auto_domain.name = "auto-pu2"
+        auto_domain.save()
+        user.linked_domains.add(auto_domain)
+
+        s = CustomUserProfileUpdateSerializer(
+            instance=user,
+            data={"managed_domain_ids": []},
+            partial=True,
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+
+        self.assertFalse(user.linked_domains.filter(pk=auto_domain.id).exists())
 
 
 class CustomUserAdminUpdateSerializerTests(TestCase):

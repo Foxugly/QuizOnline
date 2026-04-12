@@ -2,7 +2,7 @@ from typing import List
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from domain.models import Domain
+from domain.models import Domain, DomainJoinRequest
 from quiz.models import Quiz
 from rest_framework import serializers
 
@@ -29,6 +29,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
     current_domain_title = serializers.SerializerMethodField()
     owned_domain_ids = serializers.SerializerMethodField()
     managed_domain_ids = serializers.SerializerMethodField()
+    pending_join_requests = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -49,6 +50,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             "current_domain_title",
             "owned_domain_ids",
             "managed_domain_ids",
+            "pending_join_requests",
         ]
         read_only_fields = [
             "id",
@@ -79,6 +81,19 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
 
     def get_managed_domain_ids(self, obj) -> List[int]:
         return self._related_ids(obj, "managed_domains")
+
+    def get_pending_join_requests(self, obj) -> list:
+        qs = (
+            DomainJoinRequest.objects.filter(
+                user=obj, status=DomainJoinRequest.STATUS_PENDING
+            )
+            .order_by("-created_at")
+            .values("id", "domain_id", "created_at")
+        )
+        return [
+            {"id": r["id"], "domain_id": r["domain_id"], "created_at": r["created_at"]}
+            for r in qs
+        ]
 
 
 class CustomUserCreateSerializer(StrictFieldsModelSerializer):
@@ -133,7 +148,8 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
         user.set_password(password)
         user.save()
         if managed_domain_ids:
-            user.linked_domains.set(Domain.objects.filter(id__in=managed_domain_ids, active=True))
+            from customuser.services import reconcile_user_domain_membership
+            reconcile_user_domain_membership(user, managed_domain_ids)
             user.ensure_current_domain_is_valid(auto_fix=True)
         return user
 
@@ -170,7 +186,8 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
             instance.save(update_fields=update_fields)
 
         if managed_domain_ids is not None:
-            instance.linked_domains.set(Domain.objects.filter(id__in=managed_domain_ids, active=True))
+            from customuser.services import reconcile_user_domain_membership
+            reconcile_user_domain_membership(instance, managed_domain_ids)
             instance.ensure_current_domain_is_valid(auto_fix=True)
         return instance
 

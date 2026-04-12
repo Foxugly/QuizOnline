@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizQuestionWriteRequestDto { 
+export interface QuizQuestionWriteRequest { 
     question_id: number;
     sort_order?: number;
     /**

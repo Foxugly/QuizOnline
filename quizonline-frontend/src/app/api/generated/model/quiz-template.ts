@@ -7,23 +7,23 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ModeEnumDto } from './mode-enum';
-import { LocalizedQuizTemplateTranslationDto } from './localized-quiz-template-translation';
-import { QuizQuestionDto } from './quiz-question';
-import { VisibilityEnumDto } from './visibility-enum';
+import { VisibilityEnum } from './visibility-enum';
+import { LocalizedQuizTemplateTranslation } from './localized-quiz-template-translation';
+import { ModeEnum } from './mode-enum';
+import { QuizQuestion } from './quiz-question';
 
 
 /**
  * Serializer principal pour QuizTemplate (usage admin). - lecture : inclut les QuizQuestion avec la Question associÃ©e - Ã©criture : tu peux rester simple et gÃ©rer les QuizQuestion via des endpoints dÃ©diÃ©s.
  */
-export interface QuizTemplateDto { 
+export interface QuizTemplate { 
     readonly id: number;
     domain: number;
     readonly title: string;
     readonly slug: string;
-    mode?: ModeEnumDto;
+    mode?: ModeEnum;
     readonly description: string;
-    readonly translations: { [key: string]: LocalizedQuizTemplateTranslationDto; };
+    readonly translations: { [key: string]: LocalizedQuizTemplateTranslation; };
     /**
      * Nombre de questions à poser parmi le pool lié.
      */
@@ -40,7 +40,7 @@ export interface QuizTemplateDto {
     /**
      * Quand le score global du quiz peut être affiché à l\'utilisateur.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    result_visibility?: VisibilityEnumDto;
+    result_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
@@ -48,7 +48,7 @@ export interface QuizTemplateDto {
     /**
      * Quand les réponses détaillées (réponses de l\'utilisateur et bonnes réponses) peuvent être affichées.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    detail_visibility?: VisibilityEnumDto;
+    detail_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
@@ -56,8 +56,9 @@ export interface QuizTemplateDto {
     is_public?: boolean;
     readonly created_by: number;
     readonly created_by_username: string;
-    readonly quiz_questions: Array<QuizQuestionDto>;
+    readonly quiz_questions: Array<QuizQuestion>;
 }
-
+export namespace QuizTemplate {
+}
 
 

@@ -12,7 +12,7 @@
 /**
  * RÃ©ponse Ã  une question dans un quiz donnÃ©. On travaille en nested sous /quiz/{quiz_id}/answer/
  */
-export interface QuizQuestionAnswerDto { 
+export interface QuizQuestionAnswer { 
     readonly id: number;
     readonly quiz: number;
     readonly quizquestion_id: number;

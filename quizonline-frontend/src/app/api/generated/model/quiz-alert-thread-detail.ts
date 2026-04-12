@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { StatusEnumDto } from './status-enum';
-import { UserSummaryDto } from './user-summary';
-import { QuizAlertMessageDto } from './quiz-alert-message';
+import { UserSummary } from './user-summary';
+import { StatusDa1Enum } from './status-da1-enum';
+import { QuizAlertMessage } from './quiz-alert-message';
 
 
-export interface QuizAlertThreadDetailDto { 
+export interface QuizAlertThreadDetail { 
     readonly id: number;
     readonly quiz: number;
     readonly kind: string;
@@ -21,7 +21,7 @@ export interface QuizAlertThreadDetailDto {
     readonly question_title: string;
     readonly quiz_template_title: string;
     readonly reported_language: string;
-    readonly status: StatusEnumDto;
+    readonly status: StatusDa1Enum;
     readonly reporter_reply_allowed: boolean;
     readonly last_message_at: string;
     readonly created_at: string;
@@ -30,15 +30,16 @@ export interface QuizAlertThreadDetailDto {
     readonly last_message_preview: string;
     readonly counterpart_username: string;
     readonly reporter: number;
-    readonly reporter_summary: UserSummaryDto | null;
+    readonly reporter_summary: UserSummary | null;
     readonly owner: number;
-    readonly owner_summary: UserSummaryDto | null;
+    readonly owner_summary: UserSummary | null;
     readonly closed_at: string | null;
     readonly closed_by: number | null;
-    readonly messages: Array<QuizAlertMessageDto>;
+    readonly messages: Array<QuizAlertMessage>;
     readonly can_reply: boolean;
     readonly can_manage: boolean;
 }
-
+export namespace QuizAlertThreadDetail {
+}
 
 

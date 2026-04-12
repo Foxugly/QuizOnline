@@ -9,7 +9,7 @@
  */
 
 
-export interface CreateQuizInputRequestDto { 
+export interface CreateQuizInputRequest { 
     quiz_template_id: number;
 }
 

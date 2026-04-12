@@ -9,7 +9,7 @@
  */
 
 
-export interface ErrorDetailDto { 
+export interface ErrorDetail { 
     detail?: string;
 }
 

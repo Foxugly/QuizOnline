@@ -528,3 +528,50 @@ class UserViewsTests(APITestCase):
             ids,
             {self.u1.id, self.u2.id, self.staff.id, self.superuser.id},
         )
+
+    def test_me_join_requests_returns_only_my_pending_requests(self):
+        from domain.models import DomainJoinRequest, JoinPolicy
+        from django.utils import translation
+        translation.activate("fr")
+        other_user = User.objects.create_user(username="other", password="o", email="o@e.test")
+
+        def _make_validation_domain(name: str):
+            d = Domain.objects.create(owner=self.staff, active=True)
+            d.set_current_language("fr")
+            d.name = name
+            d.join_policy = JoinPolicy.OWNER
+            d.save()
+            return d
+
+        domain1 = _make_validation_domain("V1")
+        domain2 = _make_validation_domain("V2")
+        domain3 = _make_validation_domain("V3")
+        domain4 = _make_validation_domain("V4")
+
+        # The one row that should be returned: pending + mine on domain1
+        DomainJoinRequest.objects.create(domain=domain1, user=self.u1)
+
+        # Negative cases (mine but not pending):
+        rejected = DomainJoinRequest.objects.create(domain=domain2, user=self.u1)
+        rejected.status = DomainJoinRequest.STATUS_REJECTED
+        rejected.save(update_fields=["status"])
+
+        approved = DomainJoinRequest.objects.create(domain=domain3, user=self.u1)
+        approved.status = DomainJoinRequest.STATUS_APPROVED
+        approved.save(update_fields=["status"])
+
+        cancelled = DomainJoinRequest.objects.create(domain=domain4, user=self.u1)
+        cancelled.status = DomainJoinRequest.STATUS_CANCELLED
+        cancelled.save(update_fields=["status"])
+
+        # Negative case (pending but not mine):
+        DomainJoinRequest.objects.create(domain=domain1, user=other_user)
+
+        self.client.force_authenticate(user=self.u1)
+        res = self.client.get("/api/user/me/join-requests/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        statuses = [r["status"] for r in res.data]
+        domain_ids = [r["domain"] for r in res.data]
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(statuses, ["pending"])
+        self.assertEqual(domain_ids, [domain1.id])

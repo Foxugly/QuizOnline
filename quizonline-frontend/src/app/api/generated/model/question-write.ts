@@ -9,7 +9,7 @@
  */
 
 
-export interface QuestionWriteDto { 
+export interface QuestionWrite { 
     readonly id: number;
     domain: number;
     allow_multiple_correct?: boolean;

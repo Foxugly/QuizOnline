@@ -9,7 +9,7 @@
  */
 
 
-export interface PasswordResetRequestRequestDto { 
+export interface PasswordResetRequestRequest { 
     email: string;
 }
 

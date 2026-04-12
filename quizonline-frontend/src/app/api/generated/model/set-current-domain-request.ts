@@ -9,7 +9,7 @@
  */
 
 
-export interface SetCurrentDomainRequestDto { 
+export interface SetCurrentDomainRequest { 
     domain_id?: number | null;
 }
 

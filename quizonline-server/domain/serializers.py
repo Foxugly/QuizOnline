@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from language.models import Language
 from language.serializers import LanguageReadSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from config.serializers import (
     LocalizedNameDescriptionTranslationSerializer,
     LocalizedTranslationsDictField,
@@ -12,7 +13,7 @@ from config.serializers import (
     localized_translations_map_schema,
 )
 
-from .models import Domain
+from .models import Domain, DomainJoinRequest
 from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
@@ -27,6 +28,8 @@ class DomainReadSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
     subjects_count = serializers.IntegerField(read_only=True)
     questions_count = serializers.IntegerField(read_only=True)
+    pending_join_requests_count = serializers.SerializerMethodField()
+    my_join_request_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Domain
@@ -35,8 +38,11 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "subjects_count",
             "questions_count",
+            "pending_join_requests_count",
+            "my_join_request_status",
             "owner",
             "managers",
             "members",
@@ -75,6 +81,33 @@ class DomainReadSerializer(serializers.ModelSerializer):
             data[t.language_code] = {"name": t.name or "", "description": t.description or ""}
         return data
 
+    def get_pending_join_requests_count(self, obj: Domain) -> int | None:
+        from domain.permissions import CanApproveJoinRequest
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            return None
+        perm = CanApproveJoinRequest()
+        if not perm.has_object_permission(request, None, obj):
+            return None
+        return DomainJoinRequest.objects.filter(
+            domain=obj, status=DomainJoinRequest.STATUS_PENDING
+        ).count()
+
+    def get_my_join_request_status(self, obj: Domain) -> str | None:
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            return None
+        latest = (
+            DomainJoinRequest.objects
+            .filter(domain=obj, user=user)
+            .order_by("-created_at")
+            .values_list("status", flat=True)
+            .first()
+        )
+        return latest
+
     def validate(self, attrs):
         raise serializers.ValidationError("This serializer is read-only.")
 
@@ -95,6 +128,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "owner",
             "managers",
         ]
@@ -136,6 +170,20 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
         return unique_languages
 
+    def validate_join_policy(self, value):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            raise DRFPermissionDenied("Authentication is required.")
+        if getattr(user, "is_superuser", False):
+            return value
+        if self.instance is None:
+            # Creation: anyone authorized to create a domain may set the policy.
+            return value
+        if self.instance.owner_id != user.id:
+            raise DRFPermissionDenied("Only the domain owner can change the join policy.")
+        return value
+
     def _validate_owner_change(self, attrs: dict) -> None:
         request = self.context.get("request")
         instance = getattr(self, "instance", None)
@@ -152,13 +200,16 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         translations = attrs.get("translations")
-        if not translations:
+        if not translations and not self.partial:
             raise serializers.ValidationError({"translations": "Au moins une traduction est requise."})
 
         allowed_langs = attrs.get("allowed_languages")
         if "allowed_languages" in attrs and allowed_langs == []:
             raise serializers.ValidationError({"allowed_languages": "Au moins une langue est requise."})
-        if allowed_langs is not None:
+        # Cross-consistency between allowed_languages and translations is only enforced
+        # when both are provided here. The PATCH path goes through DomainPartialSerializer.validate()
+        # which performs its own translations-aware checks; see line ~252.
+        if allowed_langs is not None and translations:
             allowed_codes = {language.code for language in allowed_langs}
             provided = set(translations.keys())
             invalid_codes = provided - LANG_CODES
@@ -196,6 +247,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
         return domain
 
     def update(self, instance, validated_data):
+        previous_policy = instance.join_policy
         translations = validated_data.pop("translations", None)
         langs = validated_data.pop("allowed_languages", None)
         new_owner = validated_data.pop("owner", None)
@@ -217,6 +269,21 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
             if translations is not None:
                 self._apply_translations(instance, translations)
+
+            # Detect (non-auto) → auto transition and auto-approve pending
+            # requests. Kept inside the atomic block so a downstream error
+            # rolls back the auto-approval too.
+            new_policy = instance.join_policy
+            if previous_policy != "auto" and new_policy == "auto":
+                from domain.services import auto_approve_pending_requests
+                from core.mailers.domain_join import send_join_request_approved_email
+                request = self.context.get("request")
+                actor = getattr(request, "user", None)
+                approved = auto_approve_pending_requests(instance, by=actor)
+                for jr in approved:
+                    transaction.on_commit(
+                        lambda jr=jr: send_join_request_approved_email(join_request=jr)
+                    )
 
         return instance
 
@@ -313,3 +380,24 @@ class DomainMemberRoleSerializer(serializers.Serializer):
                     {"remove_member": "Cannot be combined with is_active or is_domain_manager."}
                 )
         return attrs
+
+
+class DomainJoinRequestReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DomainJoinRequest
+        fields = (
+            "id",
+            "domain",
+            "user",
+            "status",
+            "decided_by",
+            "decided_at",
+            "reject_reason",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
+
+
+class DomainJoinRequestRejectSerializer(serializers.Serializer):
+    reason = serializers.CharField(required=False, allow_blank=True, max_length=500, default="")

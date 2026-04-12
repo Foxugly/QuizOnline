@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.test import TestCase
 from unittest.mock import patch
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.test import APIRequestFactory
 
 from django.contrib.auth import get_user_model
@@ -64,6 +64,9 @@ class DomainSerializersTestCase(TestCase):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
+            "pending_join_requests_count",
+            "my_join_request_status",
             "owner",
             "managers",
             "members",
@@ -422,3 +425,117 @@ class DomainSerializersTestCase(TestCase):
         s = DomainDetailSerializer(data={"active": False}, context={"request": self.factory.get("/")})
         self.assertFalse(s.is_valid())
         self.assertIn("non_field_errors", s.errors)
+
+
+class DomainReadSerializerJoinPolicyTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, active=True)
+
+    def test_join_policy_field_is_serialized(self):
+        data = DomainReadSerializer(self.domain).data
+        self.assertEqual(data["join_policy"], "auto")
+
+
+class DomainWriteSerializerJoinPolicyTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="pwd")
+        self.manager = User.objects.create_user(username="m", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, active=True)
+        self.domain.managers.add(self.manager)
+        self.factory = APIRequestFactory()
+
+    def _ctx(self, user):
+        request = self.factory.patch(f"/api/domain/{self.domain.id}/")
+        request.user = user
+        return {"request": request}
+
+    def test_owner_can_change_join_policy(self):
+        s = DomainWriteSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.owner),
+        )
+        self.assertTrue(s.is_valid(), s.errors)
+        s.save()
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "owner")
+
+    def test_manager_cannot_change_join_policy(self):
+        s = DomainWriteSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.manager),
+        )
+        with self.assertRaises(PermissionDenied):
+            s.is_valid(raise_exception=True)
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "auto")
+
+    def test_manager_cannot_change_join_policy_via_partial_serializer(self):
+        """
+        Regression guard: the production PATCH path uses DomainPartialSerializer,
+        which inherits validate_join_policy from DomainWriteSerializer. If a future
+        maintainer adds a sibling override on the subclass that weakens the gate,
+        this test will catch it.
+        """
+        from domain.serializers import DomainPartialSerializer
+
+        s = DomainPartialSerializer(
+            instance=self.domain,
+            data={"join_policy": "owner"},
+            partial=True,
+            context=self._ctx(self.manager),
+        )
+        with self.assertRaises(PermissionDenied):
+            s.is_valid(raise_exception=True)
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.join_policy, "auto")
+
+
+class DomainReadSerializerComputedFieldsTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow-cf", password="pwd")
+        self.stranger = User.objects.create_user(username="st-cf", password="pwd")
+        self.joiner = User.objects.create_user(username="jo-cf", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        from domain.models import JoinPolicy
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+
+        from domain.models import DomainJoinRequest
+        DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+
+        self.factory = APIRequestFactory()
+
+    def _ctx(self, user):
+        request = self.factory.get(f"/api/domain/{self.domain.id}/")
+        request.user = user
+        return {"request": request}
+
+    def test_pending_count_visible_to_owner(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.owner)).data
+        self.assertEqual(data["pending_join_requests_count"], 1)
+
+    def test_pending_count_null_for_stranger(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.stranger)).data
+        self.assertIsNone(data["pending_join_requests_count"])
+
+    def test_my_join_request_status_pending_for_joiner(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.joiner)).data
+        self.assertEqual(data["my_join_request_status"], "pending")
+
+    def test_my_join_request_status_null_for_stranger(self):
+        data = DomainReadSerializer(self.domain, context=self._ctx(self.stranger)).data
+        self.assertIsNone(data["my_join_request_status"])

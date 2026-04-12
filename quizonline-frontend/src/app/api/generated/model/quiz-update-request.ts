@@ -9,7 +9,7 @@
  */
 
 
-export interface QuizUpdateRequestDto { 
+export interface QuizUpdateRequest { 
     domain?: number | null;
     quiz_template: number;
     user?: number | null;

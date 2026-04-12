@@ -7,14 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedNameDescriptionTranslationRequestDto } from './localized-name-description-translation-request';
+import { LocalizedNameDescriptionTranslationRequest } from './localized-name-description-translation-request';
+import { JoinPolicyEnum } from './join-policy-enum';
 
 
-export interface PatchedDomainPartialRequestDto { 
-    translations?: { [key: string]: LocalizedNameDescriptionTranslationRequestDto; };
+export interface PatchedDomainPartialRequest { 
+    translations?: { [key: string]: LocalizedNameDescriptionTranslationRequest; };
     allowed_languages?: Array<number>;
     active?: boolean;
+    join_policy?: JoinPolicyEnum;
     owner?: number;
     managers?: Array<number>;
 }
+export namespace PatchedDomainPartialRequest {
+}
+
 

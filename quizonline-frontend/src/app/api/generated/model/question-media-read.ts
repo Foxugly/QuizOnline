@@ -7,12 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { MediaAssetDto } from './media-asset';
+import { MediaAsset } from './media-asset';
 
 
-export interface QuestionMediaReadDto { 
+export interface QuestionMediaRead { 
     readonly id: number;
     readonly sort_order: number;
-    readonly asset: MediaAssetDto;
+    readonly asset: MediaAsset;
 }
 

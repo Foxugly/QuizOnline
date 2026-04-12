@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { DomainReadDto } from './domain-read';
+import { DomainRead } from './domain-read';
 
 
-export interface PaginatedDomainReadListDto { 
+export interface PaginatedDomainReadList { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<DomainReadDto>;
+    results: Array<DomainRead>;
 }
 

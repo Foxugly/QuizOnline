@@ -1,0 +1,446 @@
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.utils import translation
+from rest_framework import status
+from rest_framework.test import APIClient, APIRequestFactory
+
+from core.models import OutboundEmail
+from domain.models import Domain, DomainJoinRequest, JoinPolicy
+from domain.permissions import CanApproveJoinRequest
+
+User = get_user_model()
+
+
+class CanApproveJoinRequestTests(TestCase):
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="owner", password="pwd")
+        self.manager = User.objects.create_user(username="mgr", password="pwd")
+        self.stranger = User.objects.create_user(username="stranger", password="pwd")
+        self.superuser = User.objects.create_user(
+            username="root", password="pwd", is_superuser=True, is_staff=True
+        )
+        self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
+        self.domain.managers.add(self.manager)
+        self.factory = APIRequestFactory()
+        self.perm = CanApproveJoinRequest()
+
+    def _req(self, user):
+        r = self.factory.get("/")
+        r.user = user
+        return r
+
+    def test_owner_always_allowed(self):
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.assertTrue(
+            self.perm.has_object_permission(self._req(self.owner), None, self.domain)
+        )
+
+    def test_manager_allowed_only_when_policy_is_owner_managers(self):
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.assertFalse(
+            self.perm.has_object_permission(self._req(self.manager), None, self.domain)
+        )
+
+        self.domain.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain.save(update_fields=["join_policy"])
+        self.assertTrue(
+            self.perm.has_object_permission(self._req(self.manager), None, self.domain)
+        )
+
+    def test_stranger_never_allowed(self):
+        for policy in (JoinPolicy.OWNER, JoinPolicy.OWNER_MANAGERS, JoinPolicy.AUTO):
+            self.domain.join_policy = policy
+            self.domain.save(update_fields=["join_policy"])
+            self.assertFalse(
+                self.perm.has_object_permission(
+                    self._req(self.stranger), None, self.domain
+                )
+            )
+
+    def test_superuser_always_allowed(self):
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.assertTrue(
+            self.perm.has_object_permission(
+                self._req(self.superuser), None, self.domain
+            )
+        )
+
+
+class JoinRequestCreateEndpointTests(TestCase):
+    URL = "/api/domain/{}/join-request/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
+        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.member = User.objects.create_user(username="me", password="pwd")
+        self.domain_auto = Domain.objects.create(owner=self.owner, name="A", active=True)
+        self.domain_validation = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain_validation.join_policy = JoinPolicy.OWNER
+        self.domain_validation.save(update_fields=["join_policy"])
+        self.domain_validation.members.add(self.member)
+        self.domain_inactive = Domain.objects.create(owner=self.owner, name="I", active=False)
+        self.client = APIClient()
+
+    def test_post_on_auto_domain_links_directly_no_record(self):
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain_auto.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["status"], "approved")
+        self.assertIsNone(res.data["request"])
+        self.assertTrue(self.domain_auto.members.filter(pk=self.joiner.pk).exists())
+        self.assertEqual(
+            DomainJoinRequest.objects.filter(domain=self.domain_auto, user=self.joiner).count(),
+            0,
+        )
+
+    def test_post_on_validation_domain_creates_pending(self):
+        self.client.force_authenticate(user=self.joiner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL.format(self.domain_validation.id))
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data["status"], "pending")
+        self.assertIsNotNone(res.data["request"])
+        req = DomainJoinRequest.objects.get(domain=self.domain_validation, user=self.joiner)
+        self.assertEqual(req.status, "pending")
+        # Email enqueued for the owner.
+        self.assertTrue(
+            any(self.owner.email in row.recipients for row in OutboundEmail.objects.all())
+        )
+
+    def test_post_validation_domain_idempotent_returns_existing_pending(self):
+        self.client.force_authenticate(user=self.joiner)
+        with self.captureOnCommitCallbacks(execute=True):
+            first = self.client.post(self.URL.format(self.domain_validation.id))
+        with self.captureOnCommitCallbacks(execute=True):
+            second = self.client.post(self.URL.format(self.domain_validation.id))
+        self.assertEqual(second.status_code, status.HTTP_200_OK)
+        self.assertEqual(second.data["request"]["id"], first.data["request"]["id"])
+        self.assertEqual(
+            DomainJoinRequest.objects.filter(domain=self.domain_validation, user=self.joiner).count(),
+            1,
+        )
+        # Only the first POST enqueues an email; the second is a pure no-op for
+        # the outbox. Lock that invariant.
+        emails_for_owner = sum(
+            1 for row in OutboundEmail.objects.all() if self.owner.email in row.recipients
+        )
+        self.assertEqual(emails_for_owner, 1)
+
+    def test_post_when_already_member_returns_409(self):
+        self.client.force_authenticate(user=self.member)
+        res = self.client.post(self.URL.format(self.domain_validation.id))
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+
+    def test_post_when_owner_returns_400(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(self.URL.format(self.domain_validation.id))
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_on_inactive_domain_returns_404(self):
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain_inactive.id))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_post_owner_managers_policy_emails_owner_and_managers(self):
+        self.domain_validation.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain_validation.save(update_fields=["join_policy"])
+        self.domain_validation.managers.add(self.manager)
+        self.client.force_authenticate(user=self.joiner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL.format(self.domain_validation.id))
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipients = set()
+        for outbound in OutboundEmail.objects.all():
+            recipients.update(outbound.recipients)
+        self.assertIn(self.owner.email, recipients)
+        self.assertIn(self.manager.email, recipients)
+
+
+class JoinRequestListRetrieveTests(TestCase):
+    URL_LIST = "/api/domain/{}/join-request/"
+    URL_DETAIL = "/api/domain/{}/join-request/{}/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
+        self.stranger = User.objects.create_user(username="st", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.domain.managers.add(self.manager)
+        self.pending = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_owner_can_list(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        ids = [item["id"] for item in res.data]
+        self.assertIn(self.pending.id, ids)
+
+    def test_manager_cannot_list_when_policy_is_owner(self):
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_manager_can_list_when_policy_is_owner_managers(self):
+        self.domain.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain.save(update_fields=["join_policy"])
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_stranger_cannot_list(self):
+        self.client.force_authenticate(user=self.stranger)
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_anonymous_cannot_list(self):
+        res = self.client.get(self.URL_LIST.format(self.domain.id))
+        self.assertIn(
+            res.status_code,
+            (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+        )
+
+    def test_status_filter(self):
+        # Create one rejected request to test the filter
+        rejected = DomainJoinRequest.objects.create(domain=self.domain, user=self.stranger)
+        rejected.status = DomainJoinRequest.STATUS_REJECTED
+        rejected.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id) + "?status=pending")
+        ids = [item["id"] for item in res.data]
+        self.assertIn(self.pending.id, ids)
+        self.assertNotIn(rejected.id, ids)
+
+    def test_status_filter_rejects_invalid_value(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_LIST.format(self.domain.id) + "?status=foo")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("status", res.data)
+
+    def test_retrieve_owner_ok(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.URL_DETAIL.format(self.domain.id, self.pending.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["id"], self.pending.id)
+
+
+class JoinRequestApproveRejectTests(TestCase):
+    URL_APPROVE = "/api/domain/{}/join-request/{}/approve/"
+    URL_REJECT = "/api/domain/{}/join-request/{}/reject/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
+        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_owner_approves_adds_member_and_emails(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")
+        self.assertEqual(self.req.decided_by_id, self.owner.id)
+        self.assertIsNotNone(self.req.decided_at)
+        self.assertTrue(self.domain.members.filter(pk=self.joiner.pk).exists())
+        self.assertTrue(any(self.joiner.email in row.recipients for row in OutboundEmail.objects.all()))
+        self.assertEqual(res.data["decided_by"], self.owner.id)
+
+    def test_manager_cannot_approve_under_owner_policy(self):
+        self.client.force_authenticate(user=self.manager)
+        res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "pending")
+
+    def test_manager_can_approve_under_owner_managers_policy(self):
+        self.domain.join_policy = JoinPolicy.OWNER_MANAGERS
+        self.domain.save(update_fields=["join_policy"])
+        self.domain.managers.add(self.manager)
+        self.client.force_authenticate(user=self.manager)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.decided_by_id, self.manager.id)
+
+    def test_owner_rejects_with_reason(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(
+                self.URL_REJECT.format(self.domain.id, self.req.id),
+                {"reason": "not in the org"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "rejected")
+        self.assertEqual(self.req.reject_reason, "not in the org")
+        self.assertFalse(self.domain.members.filter(pk=self.joiner.pk).exists())
+        self.assertTrue(any(self.joiner.email in row.recipients for row in OutboundEmail.objects.all()))
+
+    def test_reject_without_reason_is_allowed(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post(self.URL_REJECT.format(self.domain.id, self.req.id), {}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.reject_reason, "")
+
+    def test_cannot_approve_a_non_pending_request(self):
+        self.req.status = DomainJoinRequest.STATUS_REJECTED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(self.URL_APPROVE.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+
+    def test_cannot_reject_a_non_pending_request(self):
+        self.req.status = DomainJoinRequest.STATUS_APPROVED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(
+            self.URL_REJECT.format(self.domain.id, self.req.id),
+            {"reason": "too late"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")  # unchanged
+        self.assertEqual(self.req.reject_reason, "")  # unchanged
+
+
+class JoinRequestCancelTests(TestCase):
+    URL = "/api/domain/{}/join-request/{}/cancel/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd")
+        self.other = User.objects.create_user(username="ot", password="pwd")
+        self.superuser = User.objects.create_user(username="root", password="pwd", is_superuser=True, is_staff=True)
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_requester_can_cancel(self):
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "cancelled")
+
+    def test_non_requester_cannot_cancel(self):
+        self.client.force_authenticate(user=self.other)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_owner_cannot_cancel_someone_elses_request(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_superuser_can_cancel(self):
+        self.client.force_authenticate(user=self.superuser)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_cannot_cancel_non_pending(self):
+        self.req.status = DomainJoinRequest.STATUS_APPROVED
+        self.req.save(update_fields=["status"])
+        self.client.force_authenticate(user=self.joiner)
+        res = self.client.post(self.URL.format(self.domain.id, self.req.id))
+        self.assertEqual(res.status_code, status.HTTP_409_CONFLICT)
+
+
+class MemberRolePromotesPendingRequestTests(TestCase):
+    URL = "/api/domain/{}/member-role/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner = User.objects.create_user(username="jo", password="pwd")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        # The user must already be a member of the domain for the existing
+        # member_role flow to accept is_domain_manager: true. We pre-add and
+        # also pre-create a pending request — the race we want to test is
+        # "user has a pending request AND just got pushed in by an admin".
+        self.req = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner)
+        self.client = APIClient()
+
+    def test_admin_push_via_is_domain_manager_flips_pending_to_approved(self):
+        self.domain.members.add(self.joiner)
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.post(
+            self.URL.format(self.domain.id),
+            {"user_id": self.joiner.id, "is_domain_manager": True},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, "approved")
+        self.assertEqual(self.req.decided_by_id, self.owner.id)
+        self.assertIsNotNone(self.req.decided_at)
+
+
+class PolicyTransitionAutoApprovesPendingTests(TestCase):
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="ow", password="pwd")
+        self.joiner1 = User.objects.create_user(username="j1", password="pwd", email="j1@e.test")
+        self.joiner2 = User.objects.create_user(username="j2", password="pwd", email="j2@e.test")
+        self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
+        self.domain.join_policy = JoinPolicy.OWNER
+        self.domain.save(update_fields=["join_policy"])
+        # Domain needs at least one allowed_language for the write serializer
+        # validation to pass on partial updates (the validate_join_policy
+        # check doesn't gate on translations, but the parent validate may).
+        from language.models import Language
+        lang_fr, _ = Language.objects.get_or_create(code="fr", defaults={"name": "Francais", "active": True})
+        self.domain.allowed_languages.set([lang_fr])
+        self.req1 = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner1)
+        self.req2 = DomainJoinRequest.objects.create(domain=self.domain, user=self.joiner2)
+        self.client = APIClient()
+
+    def test_switch_to_auto_approves_all_pending_and_emails(self):
+        self.client.force_authenticate(user=self.owner)
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.patch(
+                f"/api/domain/{self.domain.id}/",
+                {"join_policy": "auto"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.req1.refresh_from_db()
+        self.req2.refresh_from_db()
+        self.assertEqual(self.req1.status, "approved")
+        self.assertEqual(self.req2.status, "approved")
+        self.assertEqual(self.req1.decided_by_id, self.owner.id)
+        self.assertTrue(self.domain.members.filter(pk=self.joiner1.pk).exists())
+        self.assertTrue(self.domain.members.filter(pk=self.joiner2.pk).exists())
+        # Two notification emails should be enqueued (one per former pending).
+        all_recipients = []
+        for row in OutboundEmail.objects.all():
+            all_recipients.extend(row.recipients)
+        self.assertIn(self.joiner1.email, all_recipients)
+        self.assertIn(self.joiner2.email, all_recipients)

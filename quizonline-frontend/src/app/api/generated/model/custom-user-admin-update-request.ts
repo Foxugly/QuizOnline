@@ -7,14 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LanguageEnumDto } from './language-enum';
+import { LanguageEnum } from './language-enum';
 
 
-export interface CustomUserAdminUpdateRequestDto { 
+export interface CustomUserAdminUpdateRequest { 
     email?: string;
     first_name?: string;
     last_name?: string;
-    language?: LanguageEnumDto;
+    language?: LanguageEnum;
     password?: string;
     /**
      * Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
@@ -23,6 +23,7 @@ export interface CustomUserAdminUpdateRequestDto {
     password_change_required?: boolean;
     nb_domain_max?: number;
 }
-
+export namespace CustomUserAdminUpdateRequest {
+}
 
 

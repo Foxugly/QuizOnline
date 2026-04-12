@@ -9,7 +9,7 @@
  */
 
 
-export interface LocalizedQuestionTranslationRequestDto { 
+export interface LocalizedQuestionTranslationRequest { 
     title: string;
     description: string;
     explanation: string;

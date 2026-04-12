@@ -7,20 +7,20 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedQuizTemplateTranslationRequestDto } from './localized-quiz-template-translation-request';
-import { ModeEnumDto } from './mode-enum';
-import { VisibilityEnumDto } from './visibility-enum';
+import { VisibilityEnum } from './visibility-enum';
+import { LocalizedQuizTemplateTranslationRequest } from './localized-quiz-template-translation-request';
+import { ModeEnum } from './mode-enum';
 
 
-export interface QuizTemplateWriteRequestDto { 
+export interface QuizTemplateWriteRequest { 
     domain: number;
     title: string;
-    mode?: ModeEnumDto;
+    mode?: ModeEnum;
     description?: string;
     /**
      * Ex: {\"fr\":{\"title\":\"Quiz FR\",\"description\":\"Consignes FR\"},\"en\":{\"title\":\"Quiz EN\",\"description\":\"Instructions EN\"}}
      */
-    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequestDto; };
+    translations?: { [key: string]: LocalizedQuizTemplateTranslationRequest; };
     /**
      * Nombre de questions à poser parmi le pool lié.
      */
@@ -35,7 +35,7 @@ export interface QuizTemplateWriteRequestDto {
     /**
      * Quand le score global du quiz peut être affiché à l\'utilisateur.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    result_visibility?: VisibilityEnumDto;
+    result_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
@@ -43,12 +43,13 @@ export interface QuizTemplateWriteRequestDto {
     /**
      * Quand les réponses détaillées (réponses de l\'utilisateur et bonnes réponses) peuvent être affichées.  * `immediate` - Immédiat * `scheduled` - À partir d\'une date * `never` - Jamais
      */
-    detail_visibility?: VisibilityEnumDto;
+    detail_visibility?: VisibilityEnum;
     /**
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
     detail_available_at?: string | null;
 }
-
+export namespace QuizTemplateWriteRequest {
+}
 
 

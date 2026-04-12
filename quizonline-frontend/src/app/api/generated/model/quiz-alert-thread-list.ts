@@ -7,10 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { StatusEnumDto } from './status-enum';
+import { StatusDa1Enum } from './status-da1-enum';
 
 
-export interface QuizAlertThreadListDto { 
+export interface QuizAlertThreadList { 
     readonly id: number;
     readonly quiz: number;
     readonly kind: string;
@@ -19,7 +19,7 @@ export interface QuizAlertThreadListDto {
     readonly question_title: string;
     readonly quiz_template_title: string;
     readonly reported_language: string;
-    readonly status: StatusEnumDto;
+    readonly status: StatusDa1Enum;
     readonly reporter_reply_allowed: boolean;
     readonly last_message_at: string;
     readonly created_at: string;
@@ -28,6 +28,7 @@ export interface QuizAlertThreadListDto {
     readonly last_message_preview: string;
     readonly counterpart_username: string;
 }
-
+export namespace QuizAlertThreadList {
+}
 
 

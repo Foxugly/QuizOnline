@@ -12,12 +12,10 @@
 /**
  * * `full` - full * `unknown` - unknown * `hidden` - hidden
  */
-export enum AnswerCorrectnessStateEnumDto {
-
-    Full = 'full',
-
-    Unknown = 'unknown',
-
-    Hidden = 'hidden'
-}
+export const AnswerCorrectnessStateEnum = {
+    Full: 'full',
+    Unknown: 'unknown',
+    Hidden: 'hidden'
+} as const;
+export type AnswerCorrectnessStateEnum = typeof AnswerCorrectnessStateEnum[keyof typeof AnswerCorrectnessStateEnum];
 

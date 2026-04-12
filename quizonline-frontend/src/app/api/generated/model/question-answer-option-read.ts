@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedAnswerOptionTranslationDto } from './localized-answer-option-translation';
+import { LocalizedAnswerOptionTranslation } from './localized-answer-option-translation';
 
 
-export interface QuestionAnswerOptionReadDto { 
+export interface QuestionAnswerOptionRead { 
     readonly id: number;
     readonly content: string;
-    readonly translations: { [key: string]: LocalizedAnswerOptionTranslationDto; };
+    readonly translations: { [key: string]: LocalizedAnswerOptionTranslation; };
     readonly is_correct: boolean | null;
     sort_order?: number;
 }

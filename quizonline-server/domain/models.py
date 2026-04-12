@@ -13,6 +13,12 @@ def settings_language_codes() -> set[str]:
     return {code for code, _ in getattr(settings, "LANGUAGES", [])}
 
 
+class JoinPolicy(models.TextChoices):
+    AUTO = "auto", _("Automatic")
+    OWNER = "owner", _("Owner validation")
+    OWNER_MANAGERS = "owner_managers", _("Owner or managers validation")
+
+
 class Domain(AuditMixin, TranslatableModel):
     """
         Domain represents a logical grouping of subjects and questions,
@@ -29,6 +35,12 @@ class Domain(AuditMixin, TranslatableModel):
         blank=True,
     )
     active = models.BooleanField(default=True, db_index=True)
+
+    join_policy = models.CharField(
+        max_length=20,
+        choices=JoinPolicy.choices,
+        default=JoinPolicy.AUTO,
+    )
 
     owner = models.ForeignKey(
         User,
@@ -81,3 +93,62 @@ class Domain(AuditMixin, TranslatableModel):
         """
         manager_ids = self.managers.values_list("id", flat=True)
         self.members.add(*manager_ids)
+
+
+class DomainJoinRequest(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CANCELLED = "cancelled"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, _("Pending")),
+        (STATUS_APPROVED, _("Approved")),
+        (STATUS_REJECTED, _("Rejected")),
+        (STATUS_CANCELLED, _("Cancelled")),
+    ]
+
+    domain = models.ForeignKey(
+        Domain,
+        on_delete=models.CASCADE,
+        related_name="join_requests",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="domain_join_requests",
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+    )
+
+    decided_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="decided_domain_join_requests",
+    )
+    decided_at = models.DateTimeField(null=True, blank=True)
+    reject_reason = models.TextField(blank=True, max_length=500)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["domain", "user"],
+                condition=models.Q(status="pending"),
+                name="uniq_pending_join_request_per_domain_user",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["domain", "status"], name="dom_join_req_dom_st_idx"),
+            models.Index(fields=["user", "status"], name="dom_join_req_user_st_idx"),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user} → {self.domain} ({self.status})"

@@ -244,6 +244,173 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
+  /api/domain/{domain_id}/join-request/:
+    get:
+      operationId: domain_join_request_list
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDomainJoinRequestReadList'
+          description: ''
+    post:
+      operationId: domain_join_request_create
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestRead'
+          description: ''
+  /api/domain/{domain_id}/join-request/{req_id}/:
+    get:
+      operationId: domain_join_request_retrieve
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: req_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestRead'
+          description: ''
+  /api/domain/{domain_id}/join-request/{req_id}/approve/:
+    post:
+      operationId: domain_join_request_approve_create
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: req_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestRead'
+          description: ''
+  /api/domain/{domain_id}/join-request/{req_id}/cancel/:
+    post:
+      operationId: domain_join_request_cancel_create
+      description: |-
+        Cancel a pending join request.
+
+        Two intentional design choices that should NOT be "fixed":
+
+        1. No `transaction.atomic` / `select_for_update`. Cancellation is a
+           monotonic single-column write (pending → cancelled) with no side
+           effects. Two concurrent cancels collapse to the same terminal
+           state — idempotent at the row level. An approve-vs-cancel race
+           is last-write-wins by design (the HTTP client that lost the race
+           observes the final state on next fetch).
+
+        2. The approver gate (`_check_can_approve`) is intentionally NOT
+           reused here. Cancellation is a requester-only action: only the
+           user who created the request (or a superuser) can cancel it.
+           The domain owner can approve and reject, but cannot cancel
+           someone else's request — that's a different concept.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: req_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestRead'
+          description: ''
+  /api/domain/{domain_id}/join-request/{req_id}/reject/:
+    post:
+      operationId: domain_join_request_reject_create
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: req_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestRead'
+          description: ''
   /api/domain/{domain_id}/member-role/:
     post:
       operationId: domain_member_role_create
@@ -2845,6 +3012,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden
+  /api/user/me/join-requests/:
+    get:
+      operationId: user_me_join_requests_retrieve
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomUserRead'
+          description: ''
   /api/user/password/change/:
     post:
       operationId: user_password_change_create
@@ -3122,6 +3303,10 @@ components:
           items:
             type: integer
           readOnly: true
+        pending_join_requests:
+          type: array
+          items: {}
+          readOnly: true
       required:
       - current_domain_title
       - email_confirmed
@@ -3133,6 +3318,7 @@ components:
       - nb_domain_max
       - owned_domain_ids
       - password_change_required
+      - pending_join_requests
       - username
     DomainDetail:
       type: object
@@ -3184,6 +3370,65 @@ components:
       - subjects
       - translations
       - updated_at
+    DomainJoinRequestRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        domain:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DomainJoinRequestReadStatusEnum'
+          readOnly: true
+          default: pending
+        decided_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        reject_reason:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - decided_at
+      - decided_by
+      - domain
+      - id
+      - reject_reason
+      - status
+      - updated_at
+      - user
+    DomainJoinRequestReadStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `approved` - Approved
+        * `rejected` - Rejected
+        * `cancelled` - Cancelled
     DomainNameSummary:
       type: object
       properties:
@@ -3212,11 +3457,23 @@ components:
         active:
           type: boolean
           readOnly: true
+        join_policy:
+          allOf:
+          - $ref: '#/components/schemas/JoinPolicyEnum'
+          readOnly: true
         subjects_count:
           type: integer
           readOnly: true
         questions_count:
           type: integer
+          readOnly: true
+        pending_join_requests_count:
+          type: integer
+          nullable: true
+          readOnly: true
+        my_join_request_status:
+          type: string
+          nullable: true
           readOnly: true
         owner:
           allOf:
@@ -3245,9 +3502,12 @@ components:
       - allowed_languages
       - created_at
       - id
+      - join_policy
       - managers
       - members
+      - my_join_request_status
       - owner
+      - pending_join_requests_count
       - questions_count
       - subjects_count
       - translations
@@ -3261,6 +3521,8 @@ components:
             type: integer
         active:
           type: boolean
+        join_policy:
+          $ref: '#/components/schemas/JoinPolicyEnum'
         owner:
           type: integer
         managers:
@@ -3284,6 +3546,8 @@ components:
             type: integer
         active:
           type: boolean
+        join_policy:
+          $ref: '#/components/schemas/JoinPolicyEnum'
         owner:
           type: integer
         managers:
@@ -3360,6 +3624,16 @@ components:
       - domain_id
       - subject_ids
       - title
+    JoinPolicyEnum:
+      enum:
+      - auto
+      - owner
+      - owner_managers
+      type: string
+      description: |-
+        * `auto` - Automatic
+        * `owner` - Owner validation
+        * `owner_managers` - Owner or managers validation
     LanguageEnum:
       enum:
       - en
@@ -3662,6 +3936,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CustomUserRead'
+    PaginatedDomainJoinRequestReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainJoinRequestRead'
     PaginatedDomainReadList:
       type: object
       required:
@@ -4032,6 +4329,8 @@ components:
             type: integer
         active:
           type: boolean
+        join_policy:
+          $ref: '#/components/schemas/JoinPolicyEnum'
         owner:
           type: integer
         managers:
@@ -4684,7 +4983,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/StatusDa1Enum'
           readOnly: true
         reporter_reply_allowed:
           type: boolean
@@ -4802,7 +5101,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/StatusDa1Enum'
           readOnly: true
         reporter_reply_allowed:
           type: boolean
@@ -5395,7 +5694,7 @@ components:
         domain_id:
           type: integer
           nullable: true
-    StatusEnum:
+    StatusDa1Enum:
       enum:
       - open
       - closed

@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedSubjectTranslationDto } from './localized-subject-translation';
+import { LocalizedSubjectTranslation } from './localized-subject-translation';
 
 
-export interface SubjectReadDto { 
+export interface SubjectRead { 
     readonly id: number;
     readonly domain: number;
     readonly active: boolean;
-    readonly translations: { [key: string]: LocalizedSubjectTranslationDto; };
+    readonly translations: { [key: string]: LocalizedSubjectTranslation; };
 }
 
