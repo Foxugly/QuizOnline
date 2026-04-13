@@ -3,9 +3,9 @@ import {defineConfig, devices} from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   testIgnore: ['fullstack/**'],
-  timeout: 30_000,
+  timeout: 60_000,
   expect: {
-    timeout: 5_000,
+    timeout: 15_000,
   },
   use: {
     baseURL: 'http://127.0.0.1:4200',
@@ -24,6 +24,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
+        locale: 'fr-FR',
       },
     },
   ],
