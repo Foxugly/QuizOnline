@@ -181,6 +181,51 @@ export type UiText = {
     saveSuccess: string;
     userMissing: string;
   };
+  admin: {
+    menuLabel: string;
+    stats: {
+      title: string;
+      activeUsers: string;
+      activeDomains: string;
+      activeQuestions: string;
+      completedSessions: string;
+      domain: string;
+      members: string;
+      managers: string;
+      questions: string;
+      templates: string;
+      sessions: string;
+      completion: string;
+    };
+    languages: {
+      title: string;
+      addLanguage: string;
+      code: string;
+      name: string;
+      active: string;
+      editLanguage: string;
+      deleteConfirm: string;
+      actions: string;
+    };
+    joinRequests: {
+      title: string;
+      user: string;
+      email: string;
+      requestedAt: string;
+      status: string;
+      actions: string;
+      approve: string;
+      reject: string;
+      rejectReason: string;
+      rejectReasonPlaceholder: string;
+      pending: string;
+      approved: string;
+      rejected: string;
+      cancelled: string;
+      all: string;
+      noRequests: string;
+    };
+  };
 };
 
 const FR: UiText = {
@@ -373,6 +418,51 @@ const FR: UiText = {
     saveSuccess: 'Préférences enregistrées.',
     userMissing: 'Utilisateur introuvable.',
   },
+  admin: {
+    menuLabel: 'Administration',
+    stats: {
+      title: 'Statistiques',
+      activeUsers: 'Utilisateurs actifs',
+      activeDomains: 'Domaines actifs',
+      activeQuestions: 'Questions actives',
+      completedSessions: 'Sessions terminées',
+      domain: 'Domaine',
+      members: 'Membres',
+      managers: 'Gestionnaires',
+      questions: 'Questions',
+      templates: 'Modèles',
+      sessions: 'Sessions',
+      completion: 'Complétion',
+    },
+    languages: {
+      title: 'Gestion des langues',
+      addLanguage: 'Ajouter une langue',
+      code: 'Code',
+      name: 'Nom',
+      active: 'Active',
+      editLanguage: 'Modifier la langue',
+      deleteConfirm: 'Voulez-vous vraiment supprimer cette langue ?',
+      actions: 'Actions',
+    },
+    joinRequests: {
+      title: "Demandes d'accès",
+      user: 'Utilisateur',
+      email: 'E-mail',
+      requestedAt: 'Demandé le',
+      status: 'Statut',
+      actions: 'Actions',
+      approve: 'Approuver',
+      reject: 'Rejeter',
+      rejectReason: 'Motif du refus',
+      rejectReasonPlaceholder: 'Indiquez le motif du refus…',
+      pending: 'En attente',
+      approved: 'Approuvée',
+      rejected: 'Rejetée',
+      cancelled: 'Annulée',
+      all: 'Toutes',
+      noRequests: 'Aucune demande.',
+    },
+  },
 };
 
 const EN: UiText = {
@@ -451,6 +541,51 @@ const EN: UiText = {
     roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'User', roleOwner: 'Owner', roleMember: 'Linked member', domainsTitle: 'Domains', domainsSubtitle: 'Manage your linked domains and choose the current one.', linkedDomainsList: 'Visible domains', currentBadge: 'Current', setCurrent: 'Set current', unlinkDomain: 'Unlink', addDomain: 'Link a domain', noMoreDomains: 'No additional domain available.', linkSelectedDomains: 'Link selection', cancel: 'Cancel', ownerLabel: 'Owner:', deleteDomain: 'Delete', deleteDomainSuccess: 'Domain deleted.', deleteDomainError: 'Unable to delete this domain.', loadError: 'Unable to load your preferences.',
     saveError: 'Unable to save preferences.', saveSuccess: 'Preferences saved.', userMissing: 'User not found.',
   },
+  admin: {
+    menuLabel: 'Administration',
+    stats: {
+      title: 'Statistics',
+      activeUsers: 'Active users',
+      activeDomains: 'Active domains',
+      activeQuestions: 'Active questions',
+      completedSessions: 'Completed sessions',
+      domain: 'Domain',
+      members: 'Members',
+      managers: 'Managers',
+      questions: 'Questions',
+      templates: 'Templates',
+      sessions: 'Sessions',
+      completion: 'Completion',
+    },
+    languages: {
+      title: 'Language management',
+      addLanguage: 'Add a language',
+      code: 'Code',
+      name: 'Name',
+      active: 'Active',
+      editLanguage: 'Edit language',
+      deleteConfirm: 'Are you sure you want to delete this language?',
+      actions: 'Actions',
+    },
+    joinRequests: {
+      title: 'Join requests',
+      user: 'User',
+      email: 'Email',
+      requestedAt: 'Requested at',
+      status: 'Status',
+      actions: 'Actions',
+      approve: 'Approve',
+      reject: 'Reject',
+      rejectReason: 'Rejection reason',
+      rejectReasonPlaceholder: 'Enter the reason for rejection…',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+      all: 'All',
+      noRequests: 'No requests.',
+    },
+  },
 };
 
 const NL: UiText = {
@@ -527,6 +662,51 @@ const NL: UiText = {
     role: 'Rol', user: 'Gebruiker', currentDomainLabel: 'Huidig domein', managedDomains: 'Beheerde domeinen', ownedDomains: 'Eigen domeinen',
     activeAccount: 'Actief account', yes: 'Ja', no: 'Nee', roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Gebruiker', roleOwner: 'Eigenaar', roleMember: 'Gekoppeld lid', domainsTitle: 'Domeinen', domainsSubtitle: 'Beheer uw gekoppelde domeinen en kies het huidige domein.', linkedDomainsList: 'Zichtbare domeinen', currentBadge: 'Huidig', setCurrent: 'Instellen als huidig', unlinkDomain: 'Ontkoppelen', addDomain: 'Domein koppelen', noMoreDomains: 'Geen extra domein beschikbaar.', linkSelectedDomains: 'Selectie koppelen', cancel: 'Annuleren', ownerLabel: 'Eigenaar:', deleteDomain: 'Verwijderen', deleteDomainSuccess: 'Domein verwijderd.', deleteDomainError: 'Kan dit domein niet verwijderen.',
     loadError: 'Kan uw voorkeuren niet laden.', saveError: 'Kan voorkeuren niet opslaan.', saveSuccess: 'Voorkeuren opgeslagen.', userMissing: 'Gebruiker niet gevonden.',
+  },
+  admin: {
+    menuLabel: 'Administratie',
+    stats: {
+      title: 'Statistieken',
+      activeUsers: 'Actieve gebruikers',
+      activeDomains: 'Actieve domeinen',
+      activeQuestions: 'Actieve vragen',
+      completedSessions: 'Voltooide sessies',
+      domain: 'Domein',
+      members: 'Leden',
+      managers: 'Beheerders',
+      questions: 'Vragen',
+      templates: 'Sjablonen',
+      sessions: 'Sessies',
+      completion: 'Voltooiing',
+    },
+    languages: {
+      title: 'Taalbeheer',
+      addLanguage: 'Taal toevoegen',
+      code: 'Code',
+      name: 'Naam',
+      active: 'Actief',
+      editLanguage: 'Taal bewerken',
+      deleteConfirm: 'Weet u zeker dat u deze taal wilt verwijderen?',
+      actions: 'Acties',
+    },
+    joinRequests: {
+      title: 'Toegangsaanvragen',
+      user: 'Gebruiker',
+      email: 'E-mail',
+      requestedAt: 'Aangevraagd op',
+      status: 'Status',
+      actions: 'Acties',
+      approve: 'Goedkeuren',
+      reject: 'Afwijzen',
+      rejectReason: 'Reden van afwijzing',
+      rejectReasonPlaceholder: 'Geef de reden van afwijzing op…',
+      pending: 'In afwachting',
+      approved: 'Goedgekeurd',
+      rejected: 'Afgewezen',
+      cancelled: 'Geannuleerd',
+      all: 'Alle',
+      noRequests: 'Geen aanvragen.',
+    },
   },
 };
 
@@ -606,6 +786,51 @@ const IT: UiText = {
     roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Utente', roleOwner: 'Proprietario', roleMember: 'Membro collegato', domainsTitle: 'Domini', domainsSubtitle: 'Gestisci i domini collegati e scegli quello corrente.', linkedDomainsList: 'Domini visibili', currentBadge: 'Corrente', setCurrent: 'Imposta corrente', unlinkDomain: 'Scollega', addDomain: 'Collega un dominio', noMoreDomains: 'Nessun altro dominio disponibile.', linkSelectedDomains: 'Collega selezione', cancel: 'Annulla', ownerLabel: 'Proprietario:', deleteDomain: 'Elimina', deleteDomainSuccess: 'Dominio eliminato.', deleteDomainError: 'Impossibile eliminare questo dominio.', loadError: 'Impossibile caricare le preferenze.',
     saveError: 'Impossibile salvare le preferenze.', saveSuccess: 'Preferenze salvate.', userMissing: 'Utente non trovato.',
   },
+  admin: {
+    menuLabel: 'Administration',
+    stats: {
+      title: 'Statistics',
+      activeUsers: 'Active users',
+      activeDomains: 'Active domains',
+      activeQuestions: 'Active questions',
+      completedSessions: 'Completed sessions',
+      domain: 'Domain',
+      members: 'Members',
+      managers: 'Managers',
+      questions: 'Questions',
+      templates: 'Templates',
+      sessions: 'Sessions',
+      completion: 'Completion',
+    },
+    languages: {
+      title: 'Language management',
+      addLanguage: 'Add a language',
+      code: 'Code',
+      name: 'Name',
+      active: 'Active',
+      editLanguage: 'Edit language',
+      deleteConfirm: 'Are you sure you want to delete this language?',
+      actions: 'Actions',
+    },
+    joinRequests: {
+      title: 'Join requests',
+      user: 'User',
+      email: 'Email',
+      requestedAt: 'Requested at',
+      status: 'Status',
+      actions: 'Actions',
+      approve: 'Approve',
+      reject: 'Reject',
+      rejectReason: 'Rejection reason',
+      rejectReasonPlaceholder: 'Enter the reason for rejection…',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+      all: 'All',
+      noRequests: 'No requests.',
+    },
+  },
 };
 
 const ES: UiText = {
@@ -683,6 +908,51 @@ const ES: UiText = {
     managedDomains: 'Dominios gestionados', ownedDomains: 'Dominios propios', activeAccount: 'Cuenta activa', yes: 'Si', no: 'No',
     roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Usuario', roleOwner: 'Propietario', roleMember: 'Miembro vinculado', domainsTitle: 'Dominios', domainsSubtitle: 'Gestiona tus dominios vinculados y elige el dominio actual.', linkedDomainsList: 'Dominios visibles', currentBadge: 'Actual', setCurrent: 'Definir actual', unlinkDomain: 'Desvincular', addDomain: 'Vincular un dominio', noMoreDomains: 'No hay más dominios disponibles.', linkSelectedDomains: 'Vincular selección', cancel: 'Cancelar', ownerLabel: 'Propietario:', deleteDomain: 'Eliminar', deleteDomainSuccess: 'Dominio eliminado.', deleteDomainError: 'No se puede eliminar este dominio.', loadError: 'No se pueden cargar tus preferencias.',
     saveError: 'No se pueden guardar las preferencias.', saveSuccess: 'Preferencias guardadas.', userMissing: 'Usuario no encontrado.',
+  },
+  admin: {
+    menuLabel: 'Administration',
+    stats: {
+      title: 'Statistics',
+      activeUsers: 'Active users',
+      activeDomains: 'Active domains',
+      activeQuestions: 'Active questions',
+      completedSessions: 'Completed sessions',
+      domain: 'Domain',
+      members: 'Members',
+      managers: 'Managers',
+      questions: 'Questions',
+      templates: 'Templates',
+      sessions: 'Sessions',
+      completion: 'Completion',
+    },
+    languages: {
+      title: 'Language management',
+      addLanguage: 'Add a language',
+      code: 'Code',
+      name: 'Name',
+      active: 'Active',
+      editLanguage: 'Edit language',
+      deleteConfirm: 'Are you sure you want to delete this language?',
+      actions: 'Actions',
+    },
+    joinRequests: {
+      title: 'Join requests',
+      user: 'User',
+      email: 'Email',
+      requestedAt: 'Requested at',
+      status: 'Status',
+      actions: 'Actions',
+      approve: 'Approve',
+      reject: 'Reject',
+      rejectReason: 'Rejection reason',
+      rejectReasonPlaceholder: 'Enter the reason for rejection…',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+      all: 'All',
+      noRequests: 'No requests.',
+    },
   },
 };
 
