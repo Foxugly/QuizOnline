@@ -2177,6 +2177,20 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/stats/dashboard/:
+    get:
+      operationId: stats_dashboard_retrieve
+      description: |-
+        GET /api/stats/dashboard/
+        Returns platform statistics scoped by the requesting user's domain access.
+        Superusers see everything; other staff see only domains they own or manage.
+      tags:
+      - stats
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/subject/:
     get:
       operationId: subject_list

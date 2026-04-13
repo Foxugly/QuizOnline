@@ -12,6 +12,7 @@ api/quiz-answer.service.ts
 api/quiz-template.service.ts
 api/quiz.service.ts
 api/schema.service.ts
+api/stats.service.ts
 api/subject.service.ts
 api/token.service.ts
 api/translation.service.ts
