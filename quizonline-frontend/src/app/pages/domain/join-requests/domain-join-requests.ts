@@ -106,10 +106,10 @@ export class DomainJoinRequestsPage implements OnInit {
     return this.userMap.get(userId) ?? `User #${userId}`;
   }
 
-  statusSeverity(status: DomainJoinRequestReadStatusEnumDto): 'success' | 'info' | 'warning' | 'danger' {
+  statusSeverity(status: DomainJoinRequestReadStatusEnumDto): 'success' | 'info' | 'warn' | 'danger' {
     switch (status) {
       case DomainJoinRequestReadStatusEnumDto.Pending:
-        return 'warning';
+        return 'warn';
       case DomainJoinRequestReadStatusEnumDto.Approved:
         return 'success';
       case DomainJoinRequestReadStatusEnumDto.Rejected:

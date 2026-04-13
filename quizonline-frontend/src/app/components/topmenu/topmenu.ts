@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ViewChild, computed} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
@@ -52,6 +52,7 @@ type NavItem = {
 })
 export class TopMenuComponent implements OnInit {
   @ViewChild('domainMenu') private readonly domainMenu?: Menu;
+  @ViewChild('adminMenu') private readonly adminMenuRef?: Menu;
 
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
@@ -223,6 +224,32 @@ export class TopMenuComponent implements OnInit {
 
   goAlerts(): void {
     void this.router.navigate(ROUTES.quiz.alerts());
+  }
+
+  get isAdmin(): boolean {
+    return this.userService.isAdmin();
+  }
+
+  get adminMenuModel(): MenuItem[] {
+    const items: MenuItem[] = [
+      {
+        label: this.ui.admin.stats.title,
+        icon: 'pi pi-chart-bar',
+        routerLink: '/admin/stats',
+      },
+    ];
+    if (this.userService.isSuperuser()) {
+      items.push({
+        label: this.ui.admin.languages.title,
+        icon: 'pi pi-language',
+        routerLink: '/admin/languages',
+      });
+    }
+    return items;
+  }
+
+  toggleAdminMenu(event: Event): void {
+    this.adminMenuRef?.toggle(event);
   }
 
   get unreadAlertCount(): number {

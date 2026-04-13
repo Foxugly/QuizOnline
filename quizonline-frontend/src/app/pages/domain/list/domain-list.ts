@@ -1,9 +1,11 @@
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
+import {BadgeModule} from 'primeng/badge';
 import {DomainReadDto, LanguageEnumDto} from '../../../api/generated';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
@@ -17,11 +19,12 @@ type DomainListRow = DomainReadDto & {
   description: string;
   subjectsCount: number;
   questionsCount: number;
+  pendingJoinRequests: number;
 };
 
 @Component({
   selector: 'app-domain-list',
-  imports: [FormsModule, ButtonModule, InputTextModule, PaginatorModule, TableModule, StripPPipe],
+  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PaginatorModule, TableModule, BadgeModule, StripPPipe],
   templateUrl: './domain-list.html',
   styleUrl: './domain-list.scss',
 })
@@ -94,6 +97,7 @@ export class DomainList implements OnInit {
       description: this.getDescription(domain),
       subjectsCount: domainWithCounts.subjects_count ?? 0,
       questionsCount: domainWithCounts.questions_count ?? 0,
+      pendingJoinRequests: domain.pending_join_requests_count ?? 0,
     };
   }
 }

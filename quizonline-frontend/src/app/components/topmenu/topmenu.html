@@ -20,6 +20,12 @@
           {{ item.label }}
         </a>
       }
+      @if (isAdmin) {
+        <a class="nav__link" (click)="toggleAdminMenu($event)" style="cursor:pointer">
+          <i class="pi pi-cog"></i> {{ ui.admin.menuLabel }}
+        </a>
+        <p-menu #adminMenu [model]="adminMenuModel" [popup]="true"></p-menu>
+      }
     </nav>
 
     <div class="topbar__actions">

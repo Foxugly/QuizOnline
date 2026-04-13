@@ -51,6 +51,7 @@
           <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
           <th pSortableColumn="subjectsCount">Sujets <p-sortIcon field="subjectsCount"></p-sortIcon></th>
           <th pSortableColumn="questionsCount">Questions <p-sortIcon field="questionsCount"></p-sortIcon></th>
+          <th pSortableColumn="pendingJoinRequests">Demandes <p-sortIcon field="pendingJoinRequests"></p-sortIcon></th>
           <th class="col-actions">Actions</th>
         </tr>
       </ng-template>
@@ -68,6 +69,16 @@
           <td class="center-cell">{{ d.subjectsCount }}</td>
 
           <td class="center-cell">{{ d.questionsCount }}</td>
+
+          <td class="center-cell">
+            @if (d.pendingJoinRequests > 0) {
+              <a [routerLink]="['/domain', d.id, 'join-requests']" class="p-badge p-badge-warning" style="cursor:pointer; text-decoration:none">
+                {{ d.pendingJoinRequests }}
+              </a>
+            } @else {
+              <span class="muted">&mdash;</span>
+            }
+          </td>
 
           <td class="col-actions">
             <div class="row-actions">

@@ -184,4 +184,19 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {path: 'quiz/test', loadComponent: () => import('./components/quiz-play/quiz-play').then((m) => m.QuizPlayComponent)},
+  {
+    path: 'admin/stats',
+    loadComponent: () => import('./pages/admin/stats/stats-dashboard').then((m) => m.StatsDashboardPage),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
+    path: 'admin/languages',
+    loadComponent: () => import('./pages/admin/languages/language-management').then((m) => m.LanguageManagementPage),
+    canActivate: [authGuard, superuserGuard],
+  },
+  {
+    path: 'domain/:domainId/join-requests',
+    loadComponent: () => import('./pages/domain/join-requests/domain-join-requests').then((m) => m.DomainJoinRequestsPage),
+    canActivate: [authGuard, staffGuard],
+  },
 ];
