@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from unittest.mock import patch
+import os
 
 from question.models import (
     Question,
@@ -199,6 +200,27 @@ class QuestionModelsTestCase(TestCase):
                 file=SimpleUploadedFile("b.png", b"b"),
                 sha256="c" * 64,
             )
+
+    def test_mediaasset_file_is_renamed_with_max_16_characters_and_unique(self):
+        first = MediaAsset.objects.create(
+            kind=MediaAsset.IMAGE,
+            file=SimpleUploadedFile("very-long-original-file-name.png", b"first"),
+            sha256="d" * 64,
+        )
+        second = MediaAsset.objects.create(
+            kind=MediaAsset.IMAGE,
+            file=SimpleUploadedFile("very-long-original-file-name.png", b"second"),
+            sha256="e" * 64,
+        )
+
+        first_name = os.path.basename(first.file.name)
+        second_name = os.path.basename(second.file.name)
+
+        self.assertLessEqual(len(first_name), 16)
+        self.assertLessEqual(len(second_name), 16)
+        self.assertTrue(first_name.endswith(".png"))
+        self.assertTrue(second_name.endswith(".png"))
+        self.assertNotEqual(first_name, second_name)
 
     def test_mediaasset_str_external(self):
         asset = MediaAsset.objects.create(

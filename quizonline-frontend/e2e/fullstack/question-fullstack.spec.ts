@@ -54,9 +54,12 @@ test('charge une question seedee avec ses medias reels', async ({page}) => {
   await expect(previewDialog.getByText('Bonne reponse')).toBeVisible();
   await expect(previewDialog.locator('p-image.quiz-question__media-image img')).toHaveAttribute(
     'src',
-    /fullstack-e2e-image\.png/,
+    /question_media\/[^/]{1,12}\.png/,
   );
-  await expect(previewDialog.locator('video.quiz-question__media-video')).toHaveAttribute('src', /fullstack-e2e-video\.mp4/);
+  await expect(previewDialog.locator('video.quiz-question__media-video')).toHaveAttribute(
+    'src',
+    /question_media\/[^/]{1,12}\.mp4/,
+  );
   await expect(previewDialog.locator('iframe')).toHaveAttribute(
     'src',
     /youtube(?:-nocookie)?\.com\/embed\/dQw4w9WgXcQ/,

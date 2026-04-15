@@ -1,4 +1,7 @@
 # question/models.py
+import os
+import uuid
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UniqueConstraint, Q
@@ -8,6 +11,19 @@ from config.models import AuditMixin
 from subject.models import Subject
 
 from .youtube import normalize_external_url
+
+
+MAX_MEDIA_FILENAME_LENGTH = 16
+
+
+def media_asset_upload_to(_instance, filename: str) -> str:
+    ext = os.path.splitext(filename or "")[1].lower()
+    if len(ext) >= MAX_MEDIA_FILENAME_LENGTH:
+        ext = ""
+
+    stem_length = max(1, MAX_MEDIA_FILENAME_LENGTH - len(ext))
+    unique_name = f"{uuid.uuid4().hex[:stem_length]}{ext}"
+    return f"question_media/{unique_name}"
 
 
 class Question(AuditMixin, TranslatableModel):
@@ -66,7 +82,7 @@ class MediaAsset(models.Model):
     KIND_CHOICES = [(IMAGE, "Image"), (VIDEO, "Vidéo"), (EXTERNAL, "Externe")]
 
     kind = models.CharField(max_length=10, choices=KIND_CHOICES)
-    file = models.FileField(upload_to="question_media/", blank=True, null=True)
+    file = models.FileField(upload_to=media_asset_upload_to, blank=True, null=True)
     external_url = models.URLField(blank=True, null=True)
 
     # dédup (sha256 hex 64)
