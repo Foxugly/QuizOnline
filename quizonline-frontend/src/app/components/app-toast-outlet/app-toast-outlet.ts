@@ -1,10 +1,10 @@
-import {Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
 @Component({
   selector: 'app-toast-outlet',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div aria-live="polite" class="toast-stack">
       @for (message of toast.messages(); track message.id) {

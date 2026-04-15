@@ -1,16 +1,17 @@
-import {Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, ElementRef, input, output, ViewChild} from '@angular/core';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../environments/language';
 
 @Component({
   selector: 'app-lang-select',
-  standalone: true,
   templateUrl: './lang-select.html',
   styleUrl: './lang-select.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {'(document:click)': 'closeMenu($event)'},
 })
-export class LangSelectComponent implements OnChanges {
-  @Input() lang!: SupportedLanguage;
-  @Output() langChange = new EventEmitter<SupportedLanguage>();
+export class LangSelectComponent {
+  readonly lang = input.required<SupportedLanguage>();
+  readonly langChange = output<SupportedLanguage>();
   @ViewChild('menuRoot') private readonly menuRoot?: ElementRef<HTMLElement>;
 
   internalLang: SupportedLanguage = LanguageEnumDto.En;
@@ -21,11 +22,9 @@ export class LangSelectComponent implements OnChanges {
     value: language,
   }));
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['lang']) {
-      this.internalLang = this.lang ?? LanguageEnumDto.En;
-    }
-  }
+  private readonly _syncLang = effect(() => {
+    this.internalLang = this.lang();
+  });
 
   toggleMenu(event: Event): void {
     event.stopPropagation();
@@ -38,7 +37,6 @@ export class LangSelectComponent implements OnChanges {
     this.langChange.emit(value);
   }
 
-  @HostListener('document:click', ['$event'])
   closeMenu(event: Event): void {
     const root = this.menuRoot?.nativeElement;
     if (!root || root.contains(event.target as Node)) {

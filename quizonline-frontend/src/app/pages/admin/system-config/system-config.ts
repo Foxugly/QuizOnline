@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
@@ -28,10 +28,10 @@ type SectionViewModel = {
 
 @Component({
   selector: 'app-system-config-page',
-  standalone: true,
   imports: [CommonModule, ButtonModule, CardModule],
   templateUrl: './system-config.html',
   styleUrl: './system-config.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemConfigPage implements OnInit {
   private readonly systemConfigService = inject(SystemConfigService);

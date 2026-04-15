@@ -1,11 +1,33 @@
 <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
-  <div class="card-head card-head--with-badge">
-    <h2 class="card-title">{{ ui().domainForm.translations }}</h2>
-    <span class="badge">{{ tabCodes().length }} {{ ui().domainForm.languagesCount }}</span>
-  </div>
+  <div class="meta-grid meta-grid--context">
+    <div class="meta-item">
+      <label class="meta-label" for="active">{{ ui().domainForm.active }}</label>
+      <div class="meta-value widget-center">
+        <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+      </div>
+    </div>
 
-  <div class="meta-grid">
-    <div class="meta-item meta-item--full meta-item--center">
+    <div class="meta-item">
+      <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
+      <div class="meta-value widget-center">
+        <p-select
+          [disabled]="ownerReadonly()"
+          [filter]="true"
+          [options]="ownerOptions()"
+          [showClear]="!ownerReadonly()"
+          formControlName="owner"
+          inputId="owner"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="ownerPlaceholder()">
+        </p-select>
+        @if (ownerReadonly()) {
+          <span class="badge badge--soft">{{ ui().domainForm.readonly }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="meta-item">
       <label class="meta-label">{{ ui().domainForm.allowedLanguages }}</label>
       <div class="meta-value meta-value--center">
         <p-selectButton
@@ -17,7 +39,6 @@
           optionValue="value">
         </p-selectButton>
       </div>
-
       @if (form().get('allowed_language_codes')?.touched && form().get('allowed_language_codes')?.invalid) {
         <div class="meta-hint meta-hint--error">
           {{ ui().domainForm.selectOneLanguage }}
@@ -32,24 +53,24 @@
         @for (code of tabCodes(); track code) {
           <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
         }
+        <div class="tablist-actions">
+          <p-button
+            (click)="onTranslateClick(activeTab() ?? tabCodes()[0])"
+            [disabled]="translating() || !activeTab()"
+            [loading]="translating()"
+            icon="pi pi-language"
+            [label]="ui().common.translateOthers"
+            severity="info"
+            size="small"
+            type="button">
+          </p-button>
+        </div>
       </p-tablist>
 
       <p-tabpanels>
         @for (code of tabCodes(); track code) {
           <p-tabpanel [value]="code">
             <div [formGroup]="langGroup(code)" class="lang-panel">
-              <div class="lang-toolbar">
-                <p-button
-                  (click)="onTranslateClick(code)"
-                  [disabled]="translating()"
-                  [loading]="translating()"
-                  icon="pi pi-language"
-                  [label]="ui().common.translateOthers"
-                  severity="info"
-                  type="button">
-                </p-button>
-              </div>
-
               <div class="meta-grid">
                 <div class="meta-item meta-item--full">
                   <label class="meta-label">{{ titleLabel() || ui().domainForm.titleLabel }} ({{ code.toUpperCase() }})</label>
@@ -81,38 +102,10 @@
   <div class="divider"></div>
 
   <div class="card-head">
-    <h2 class="card-title">{{ ui().domainForm.parameters }}</h2>
-    <span class="badge">{{ ui().domainForm.statusAccess }}</span>
+    <h2 class="card-title">{{ ui().domainForm.staff }}</h2>
   </div>
 
   <div class="meta-grid">
-    <div class="meta-item meta-item--full">
-      <label class="meta-label" for="active">{{ ui().domainForm.active }}</label>
-      <div class="meta-value widget-center">
-        <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
-      </div>
-    </div>
-
-    <div class="meta-item meta-item--full">
-      <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
-      <div class="meta-value widget-center">
-        <p-select
-          [disabled]="ownerReadonly()"
-          [filter]="true"
-          [options]="ownerOptions()"
-          [showClear]="!ownerReadonly()"
-          formControlName="owner"
-          inputId="owner"
-          optionLabel="label"
-          optionValue="value"
-          [placeholder]="ownerPlaceholder()">
-        </p-select>
-        @if (ownerReadonly()) {
-          <span class="badge badge--soft">{{ ui().domainForm.readonly }}</span>
-        }
-      </div>
-    </div>
-
     <div class="meta-item meta-item--full">
       <label class="meta-label" for="managers">{{ ui().domainForm.staff }}</label>
       <div class="meta-value widget-center">

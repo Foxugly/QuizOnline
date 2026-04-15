@@ -1,4 +1,4 @@
-import {Component, HostListener, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {AuthService} from '../../services/auth/auth';
@@ -7,9 +7,10 @@ import {getUiText} from '../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-user-menu',
-  standalone: true,
   templateUrl: './user-menu.html',
   styleUrl: './user-menu.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {'(document:click)': 'closeMenu()'},
 })
 export class UserMenuComponent {
   readonly auth = inject(AuthService);
@@ -46,7 +47,6 @@ export class UserMenuComponent {
     this.open.update((value) => !value);
   }
 
-  @HostListener('document:click')
   closeMenu() {
     this.open.set(false);
   }

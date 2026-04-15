@@ -18,6 +18,7 @@ export type AppToastItem = Required<Pick<AppToastMessage, 'severity' | 'summary'
 export class AppToastService {
   readonly messages = signal<AppToastItem[]>([]);
   private nextId = 1;
+  private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
 
   add(message: AppToastMessage): void {
     const item: AppToastItem = {
@@ -31,15 +32,23 @@ export class AppToastService {
     this.messages.update((items) => [...items, item]);
 
     if (item.life > 0) {
-      window.setTimeout(() => this.remove(item.id), item.life);
+      const timer = setTimeout(() => this.remove(item.id), item.life);
+      this.timers.set(item.id, timer);
     }
   }
 
   remove(id: number): void {
+    const timer = this.timers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this.timers.delete(id);
+    }
     this.messages.update((items) => items.filter((item) => item.id !== id));
   }
 
   clear(): void {
+    this.timers.forEach((timer) => clearTimeout(timer));
+    this.timers.clear();
     this.messages.set([]);
   }
 }

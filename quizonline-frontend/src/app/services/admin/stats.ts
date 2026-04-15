@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {adminApiBaseUrl} from './_common';
@@ -28,8 +28,7 @@ export interface DashboardStats {
 @Injectable({providedIn: 'root'})
 export class StatsService {
   private readonly apiBaseUrl = adminApiBaseUrl();
-
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getDashboard(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.apiBaseUrl}/stats/dashboard/`);

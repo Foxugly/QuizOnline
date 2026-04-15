@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 
+import {adminGuard} from './guards/admin.guard';
 import {authGuard} from './guards/auth.guard';
 import {staffGuard} from './guards/staff.guard';
 import {superuserGuard} from './guards/superuser.guard';
@@ -187,12 +188,12 @@ export const routes: Routes = [
   {
     path: 'admin/stats',
     loadComponent: () => import('./pages/admin/stats/stats-dashboard').then((m) => m.StatsDashboardPage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, superuserGuard],
   },
   {
     path: 'admin/system-config',
     loadComponent: () => import('./pages/admin/system-config/system-config').then((m) => m.SystemConfigPage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, superuserGuard],
   },
   {
     path: 'admin/languages',
@@ -202,7 +203,7 @@ export const routes: Routes = [
   {
     path: 'admin/mail-test',
     loadComponent: () => import('./pages/admin/mail-test/mail-test').then((m) => m.MailTestPage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, superuserGuard],
   },
   {
     path: 'domain/:domainId/join-requests',

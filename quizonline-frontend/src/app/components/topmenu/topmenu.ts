@@ -1,4 +1,4 @@
-import {Component, DestroyRef, ElementRef, HostListener, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
@@ -44,7 +44,6 @@ type AdminNavItem = {
 
 @Component({
   selector: 'app-topmenu',
-  standalone: true,
   imports: [
     RouterLink,
     RouterLinkActive,
@@ -53,6 +52,8 @@ type AdminNavItem = {
   ],
   templateUrl: './topmenu.html',
   styleUrl: './topmenu.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {'(document:click)': 'closeMenus($event)'},
 })
 export class TopMenuComponent implements OnInit {
   @ViewChild('domainMenuRoot') private readonly domainMenuRoot?: ElementRef<HTMLElement>;
@@ -207,7 +208,7 @@ export class TopMenuComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.userService.isAdmin();
+    return this.userService.isSuperuser();
   }
 
   get adminMenuItems(): AdminNavItem[] {
@@ -296,7 +297,6 @@ export class TopMenuComponent implements OnInit {
     void this.router.navigate(item.link);
   }
 
-  @HostListener('document:click', ['$event'])
   closeMenus(event: Event): void {
     const target = event.target as Node;
     if (!this.domainMenuRoot?.nativeElement.contains(target)) {

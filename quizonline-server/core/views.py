@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
-from rest_framework.permissions import IsAdminUser
+from config.permissions import IsSuperUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -29,7 +29,7 @@ from core.mailers._common import send_plaintext_email
     )
 )
 class TestEmailView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUser]
 
     def post(self, request):
         serializer = TestEmailRequestSerializer(data=request.data)
@@ -58,6 +58,12 @@ class TestEmailView(APIView):
             .order_by("-id")
             .first()
         )
+
+        if outbound is None:
+            return Response(
+                {"detail": "Email enfile mais enregistrement introuvable."},
+                status=500,
+            )
 
         response_data = {
             "detail": "Email de test enfile pour envoi.",

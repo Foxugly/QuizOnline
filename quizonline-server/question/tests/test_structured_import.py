@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from domain.models import Domain
 from language.models import Language
 from question.structured_import import StructuredImportError, import_questions
 
@@ -25,6 +26,7 @@ class StructuredImportDomainLanguagesTests(TestCase):
                 "id": 10,
                 "translations": {
                     "fr": {"name": "Domaine FR", "description": "Description FR"},
+                    "en": {"name": "Domain EN", "description": "Description EN"},
                 },
             },
             "subjects": [
@@ -75,24 +77,35 @@ class StructuredImportDomainLanguagesTests(TestCase):
             ],
         }
 
-    def test_import_created_domain_inherits_languages_declared_in_file(self):
+    def test_import_created_domain_uses_only_domain_translation_languages(self):
+        """allowed_languages = only langs from domain translations, not from the whole payload."""
         payload = self._base_payload()
 
         result = import_questions(payload, self.superuser)
 
         self.assertTrue(result["domain_created"])
-        domain = self.superuser.owned_domains.get(pk=result["domain_id"])
+        domain = Domain.objects.get(pk=result["domain_id"])
         self.assertEqual(
             sorted(domain.allowed_languages.values_list("code", flat=True)),
-            ["en", "fr", "nl"],
+            ["en", "fr"],
         )
 
-    def test_import_rejects_domain_creation_when_import_language_is_unknown(self):
+    def test_import_created_domain_adds_user_as_member(self):
+        """The importing user is added as a member of the newly created domain."""
         payload = self._base_payload()
-        payload["questions"][0]["translations"]["es"] = {
-            "title": "Pregunta ES",
+
+        result = import_questions(payload, self.superuser)
+
+        domain = Domain.objects.get(pk=result["domain_id"])
+        self.assertIn(self.superuser, domain.members.all())
+        self.assertEqual(domain.owner, self.superuser)
+
+    def test_import_rejects_domain_creation_when_domain_language_is_unknown(self):
+        """Error when a domain translation references a language not in the Language table."""
+        payload = self._base_payload()
+        payload["domain"]["translations"]["es"] = {
+            "name": "Dominio ES",
             "description": "",
-            "explanation": "",
         }
 
         with self.assertRaises(StructuredImportError) as ctx:

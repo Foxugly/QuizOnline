@@ -65,41 +65,12 @@ def _apply_translations(instance, translations: dict, fields: list[str]) -> None
         instance.save()
 
 
-def _collect_language_codes(data: dict) -> list[str]:
-    """
-    Collect all translation language codes declared anywhere in the import payload.
-    """
-    codes: set[str] = set()
-
-    def _merge_translation_keys(payload: dict | None) -> None:
-        if not isinstance(payload, dict):
-            return
-        for lang_code in payload.keys():
-            if isinstance(lang_code, str) and lang_code.strip():
-                codes.add(lang_code.strip())
-
-    _merge_translation_keys(data.get("domain", {}).get("translations"))
-
-    for subject_data in data.get("subjects", []):
-        if isinstance(subject_data, dict):
-            _merge_translation_keys(subject_data.get("translations"))
-
-    for question_data in data.get("questions", []):
-        if not isinstance(question_data, dict):
-            continue
-        _merge_translation_keys(question_data.get("translations"))
-        for answer_option in question_data.get("answer_options", []):
-            if isinstance(answer_option, dict):
-                _merge_translation_keys(answer_option.get("translations"))
-
-    return sorted(codes)
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Résolution Domain / Subject
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _resolve_domain(domain_data: dict, user, *, language_codes: list[str] | None = None) -> tuple[Domain, bool]:
+def _resolve_domain(domain_data: dict, user) -> tuple[Domain, bool]:
     """
     Retourne (domain, created).
     - Hash présent  → recherche par hash ; si trouvé remappe l'id, sinon crée.
@@ -121,10 +92,10 @@ def _resolve_domain(domain_data: dict, user, *, language_codes: list[str] | None
             "Aucun domaine correspondant au hash fourni n'a été trouvé."
         )
 
-    language_codes = language_codes or []
-    resolved_languages = list(Language.objects.filter(code__in=language_codes))
+    domain_lang_codes = sorted(translations.keys()) if translations else []
+    resolved_languages = list(Language.objects.filter(code__in=domain_lang_codes))
     found_codes = {language.code for language in resolved_languages}
-    missing_codes = sorted(set(language_codes) - found_codes)
+    missing_codes = sorted(set(domain_lang_codes) - found_codes)
     if missing_codes:
         raise StructuredImportError(
             "Langues introuvables pour le domaine importé : "
@@ -135,6 +106,7 @@ def _resolve_domain(domain_data: dict, user, *, language_codes: list[str] | None
     domain.save()
     if resolved_languages:
         domain.allowed_languages.set(resolved_languages)
+    domain.members.add(user)
     _apply_translations(domain, translations, ["name", "description"])
     return domain, True
 
@@ -245,6 +217,8 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
     update_pairs: list[tuple[AnswerOption, dict]] = []
 
     for opt_data in options_data:
+        if opt_data.get("DELETE", False):
+            continue
         opt_id = opt_data.get("id")
         is_correct = opt_data.get("is_correct", False)
         sort_order = opt_data.get("sort_order", 0)
@@ -309,14 +283,9 @@ def import_questions(data: dict, user, media_files: dict[str, bytes] | None = No
         raise StructuredImportError("Clé 'domain' manquante dans le fichier.")
 
     export_domain_id: int = domain_data["id"]
-    language_codes = _collect_language_codes(data)
 
     # ── Domaine ────────────────────────────────────────────────────────────────
-    resolved_domain, domain_created = _resolve_domain(
-        domain_data,
-        user,
-        language_codes=language_codes,
-    )
+    resolved_domain, domain_created = _resolve_domain(domain_data, user)
     domain_id_map: dict[int, int] = {export_domain_id: resolved_domain.pk}
 
     # ── Subjects ───────────────────────────────────────────────────────────────

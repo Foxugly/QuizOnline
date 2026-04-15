@@ -9,6 +9,8 @@
   $blue-soft: #eff6ff;
 
   display: block;
+  max-width: 100%;
+  overflow: hidden;
 
   // ---------- PrimeNG Tabs ----------
   .p-tabs {

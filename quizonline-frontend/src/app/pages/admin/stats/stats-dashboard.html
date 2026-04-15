@@ -1,52 +1,69 @@
-<h1>{{ ui().admin.stats.title }}</h1>
+<div class="stats-page">
+  <header class="stats-page__header">
+    <h1>{{ ui().admin.stats.title }}</h1>
+  </header>
 
-<div class="grid" *ngIf="kpiCards().length">
-  <div class="col-12 md:col-6 lg:col-3" *ngFor="let card of kpiCards()">
-    <p-card>
-      <div style="text-align: center;">
-        <i [class]="card.icon" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-        <div style="font-size: 2rem; font-weight: bold;">{{ card.value }}</div>
-        <div>{{ card.label }}</div>
+  @if (kpiCards().length) {
+    <section class="kpi-grid">
+      @for (card of kpiCards(); track card.label) {
+        <article class="kpi-card">
+          <i [class]="card.icon + ' kpi-card__icon'"></i>
+          <span class="kpi-card__value">{{ card.value }}</span>
+          <span class="kpi-card__label">{{ card.label }}</span>
+        </article>
+      }
+    </section>
+  }
+
+  @if (stats(); as s) {
+    <section class="card stats-table-card">
+      <div class="card-head">
+        <h2 class="card-title">{{ ui().admin.stats.domain }}</h2>
+        <span class="badge">{{ s.domains.length }}</span>
       </div>
-    </p-card>
-  </div>
-</div>
 
-<p-table
-  *ngIf="stats()"
-  [value]="stats()!.domains"
-  [paginator]="true"
-  [rows]="10"
-  [rowsPerPageOptions]="[10, 25, 50]"
-  styleClass="p-datatable-striped"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th pSortableColumn="name">{{ ui().admin.stats.domain }} <p-sortIcon field="name"></p-sortIcon></th>
-      <th pSortableColumn="members_count">{{ ui().admin.stats.members }} <p-sortIcon field="members_count"></p-sortIcon></th>
-      <th pSortableColumn="managers_count">{{ ui().admin.stats.managers }} <p-sortIcon field="managers_count"></p-sortIcon></th>
-      <th pSortableColumn="questions_count">{{ ui().admin.stats.questions }} <p-sortIcon field="questions_count"></p-sortIcon></th>
-      <th pSortableColumn="templates_count">{{ ui().admin.stats.templates }} <p-sortIcon field="templates_count"></p-sortIcon></th>
-      <th pSortableColumn="sessions_total">{{ ui().admin.stats.sessions }} <p-sortIcon field="sessions_total"></p-sortIcon></th>
-      <th>{{ ui().admin.stats.completion }}</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-domain>
-    <tr>
-      <td>{{ domainName(domain) }}</td>
-      <td>{{ domain.members_count }}</td>
-      <td>{{ domain.managers_count }}</td>
-      <td>{{ domain.questions_count }}</td>
-      <td>{{ domain.templates_count }}</td>
-      <td>{{ domain.sessions_total }}</td>
-      <td>
-        <p-progressBar [value]="completionRate(domain)" [showValue]="true"></p-progressBar>
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="7" style="text-align: center;">—</td>
-    </tr>
-  </ng-template>
-</p-table>
+      <p-table
+        [value]="s.domains"
+        [paginator]="s.domains.length > 10"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        styleClass="p-datatable-sm p-datatable-striped">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name">{{ ui().admin.stats.domain }}</th>
+            <th pSortableColumn="members_count" class="stats-col--num">{{ ui().admin.stats.members }}</th>
+            <th pSortableColumn="managers_count" class="stats-col--num">{{ ui().admin.stats.managers }}</th>
+            <th pSortableColumn="questions_count" class="stats-col--num">{{ ui().admin.stats.questions }}</th>
+            <th pSortableColumn="templates_count" class="stats-col--num">{{ ui().admin.stats.templates }}</th>
+            <th pSortableColumn="sessions_total" class="stats-col--num">{{ ui().admin.stats.sessions }}</th>
+            <th class="stats-col--completion">{{ ui().admin.stats.completion }}</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-domain>
+          <tr>
+            <td>{{ domainName(domain) }}</td>
+            <td class="stats-col--num">{{ domain.members_count }}</td>
+            <td class="stats-col--num">{{ domain.managers_count }}</td>
+            <td class="stats-col--num">{{ domain.questions_count }}</td>
+            <td class="stats-col--num">{{ domain.templates_count }}</td>
+            <td class="stats-col--num">{{ domain.sessions_total }}</td>
+            <td class="stats-col--completion">
+              <div class="completion-cell">
+                <p-progressBar [value]="completionRate(domain)" [showValue]="false"></p-progressBar>
+                <span class="completion-cell__pct">{{ completionRate(domain) }}%</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="stats-empty">—</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </section>
+  }
+</div>

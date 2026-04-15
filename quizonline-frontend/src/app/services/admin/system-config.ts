@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {adminApiBaseUrl} from './_common';
@@ -26,8 +26,7 @@ export interface SystemCheckResponse {
 @Injectable({providedIn: 'root'})
 export class SystemConfigService {
   private readonly apiBaseUrl = adminApiBaseUrl();
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   getConfig(): Observable<SystemConfigResponse> {
     return this.http.get<SystemConfigResponse>(`${this.apiBaseUrl}/admin/system-config/`);

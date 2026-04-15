@@ -1,5 +1,4 @@
-import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CardModule} from 'primeng/card';
 import {ProgressBarModule} from 'primeng/progressbar';
@@ -18,8 +17,10 @@ interface KpiCard {
 
 @Component({
   selector: 'app-stats-dashboard',
-  imports: [CommonModule, CardModule, TableModule, ProgressBarModule],
+  imports: [CardModule, TableModule, ProgressBarModule],
   templateUrl: './stats-dashboard.html',
+  styleUrl: './stats-dashboard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatsDashboardPage implements OnInit {
   private readonly statsService = inject(StatsService);

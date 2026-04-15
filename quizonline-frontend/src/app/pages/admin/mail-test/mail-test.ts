@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -15,7 +15,6 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
   selector: 'app-mail-test-page',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -26,6 +25,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
   ],
   templateUrl: './mail-test.html',
   styleUrl: './mail-test.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MailTestPage {
   private readonly fb = inject(FormBuilder);

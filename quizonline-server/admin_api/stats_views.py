@@ -3,7 +3,7 @@ from django.db.models import Count, Q
 from domain.models import Domain
 from question.models import Question
 from quiz.models import Quiz
-from rest_framework.permissions import IsAdminUser
+from config.permissions import IsSuperUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,7 +17,7 @@ class DashboardStatsView(APIView):
     Superusers see everything; other staff see only domains they own or manage.
     """
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUser]
 
     def get(self, request):
         user = request.user

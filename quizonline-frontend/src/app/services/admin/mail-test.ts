@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {adminApiBaseUrl} from './_common';
@@ -20,8 +20,7 @@ export interface TestEmailResponse {
 @Injectable({providedIn: 'root'})
 export class MailTestService {
   private readonly apiBaseUrl = adminApiBaseUrl();
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   sendTestEmail(payload: TestEmailPayload): Observable<TestEmailResponse> {
     return this.http.post<TestEmailResponse>(`${this.apiBaseUrl}/mail/test/`, payload);

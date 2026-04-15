@@ -10,7 +10,7 @@ from django.db import connection
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import serializers, status
-from rest_framework.permissions import IsAdminUser
+from config.permissions import IsSuperUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -99,10 +99,14 @@ def _run_db_check() -> dict:
 def _run_upload_check() -> dict:
     media_root = Path(settings.MEDIA_ROOT)
     media_root.mkdir(parents=True, exist_ok=True)
-    with NamedTemporaryFile(dir=media_root, prefix="system-check-", suffix=".tmp", delete=False) as tmp:
-        tmp.write(b"quizonline upload check")
-        tmp_path = Path(tmp.name)
-    tmp_path.unlink(missing_ok=True)
+    tmp_path = None
+    try:
+        with NamedTemporaryFile(dir=media_root, prefix="system-check-", suffix=".tmp", delete=False) as tmp:
+            tmp.write(b"quizonline upload check")
+            tmp_path = Path(tmp.name)
+    finally:
+        if tmp_path:
+            tmp_path.unlink(missing_ok=True)
     return {
         "target": "upload",
         "status": "ok",
@@ -112,9 +116,8 @@ def _run_upload_check() -> dict:
 
 
 def _run_email_check() -> dict:
-    backend_path = settings.EMAIL_BACKEND
     email_backend = get_connection(fail_silently=False)
-    if backend_path == "core.email_backends.microsoft_graph.EmailBackend":
+    if hasattr(email_backend, "_fetch_access_token"):
         email_backend._fetch_access_token()
         detail = "Microsoft Graph email authentication OK."
     else:
@@ -177,7 +180,7 @@ class SystemCheckResponseSerializer(serializers.Serializer):
     ),
 )
 class SystemConfigView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUser]
 
     def get(self, request):
         return Response({
@@ -204,7 +207,7 @@ class SystemConfigView(APIView):
     ),
 )
 class SystemCheckView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperUser]
 
     def post(self, request):
         serializer = SystemCheckRequestSerializer(data=request.data)
@@ -221,8 +224,6 @@ class SystemCheckView(APIView):
             else:
                 result = _run_deepl_check()
         except (DeepLError, OSError, Exception) as exc:
-            if isinstance(exc, KeyboardInterrupt):
-                raise
             result = {
                 "target": target,
                 "status": "error",

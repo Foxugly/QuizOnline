@@ -1,3 +1,57 @@
 :host {
   display: block;
 }
+
+.meta-grid--context {
+  grid-template-columns: minmax(100px, 0.5fr) minmax(200px, 1.5fr) minmax(200px, 2fr);
+  align-items: stretch;
+  margin-bottom: 0.75rem;
+}
+
+.meta-grid--context > .meta-item .meta-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.tablist-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+.badge--soft {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.editor-compact {
+  display: block;
+  width: 100%;
+
+  ::ng-deep .p-editor-toolbar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.25rem 0.35rem;
+  }
+
+  ::ng-deep .p-editor-container,
+  ::ng-deep .ql-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  ::ng-deep .ql-editor {
+    min-height: 6rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .meta-grid--context {
+    grid-template-columns: 1fr;
+  }
+}

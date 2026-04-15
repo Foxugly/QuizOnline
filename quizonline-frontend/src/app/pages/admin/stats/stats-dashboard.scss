@@ -1,0 +1,96 @@
+.stats-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.stats-page__header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 650;
+}
+
+/* ── KPI cards ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.25rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-card__icon {
+  font-size: 1.5rem;
+  color: #6b7280;
+}
+
+.kpi-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #111827;
+}
+
+.kpi-card__label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* ── Table card ── */
+.stats-table-card {
+  overflow: hidden;
+}
+
+.stats-col--num {
+  text-align: right;
+  width: 90px;
+}
+
+.stats-col--completion {
+  width: 160px;
+}
+
+.completion-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.completion-cell p-progressBar {
+  flex: 1;
+}
+
+.completion-cell__pct {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.stats-empty {
+  text-align: center;
+  color: #9ca3af;
+}
+
+@media (max-width: 900px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

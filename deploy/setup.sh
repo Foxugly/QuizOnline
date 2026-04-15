@@ -3,16 +3,16 @@
 # QuizOnline — EC2 deployment script (Ubuntu 22.04+)
 #
 # Usage: ssh into your EC2 instance, clone the repo, then run:
-#   bash deploy/setup.sh YOUR_DOMAIN.com
+#   bash deploy/setup.sh YOUR_DOMAIN
 #
 # Prerequisites:
 #   - EC2 instance with Ubuntu 22.04+ and at least 1 GB RAM
 #   - Security group allows inbound 80 and 443
-#   - A DNS A record pointing YOUR_DOMAIN.com to the EC2 public IP
+#   - A DNS A record pointing YOUR_DOMAIN to the EC2 public IP
 #
 set -euo pipefail
 
-DOMAIN="${1:?Usage: $0 YOUR_DOMAIN.com}"
+DOMAIN="${1:?Usage: $0 YOUR_DOMAIN}"
 APP_DIR="/opt/quizonline"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -21,7 +21,7 @@ echo "=== QuizOnline deployment for $DOMAIN ==="
 # --- System packages ---
 echo "[1/8] Installing system packages..."
 sudo apt-get update -qq
-sudo apt-get install -y -qq python3 python3-venv python3-pip nginx certbot python3-certbot-nginx nodejs npm git
+sudo apt-get install -y -qq python3 python3-venv python3-pip apache2 certbot python3-certbot-apache nodejs npm git
 
 # --- Node.js 22 (if not already installed) ---
 NODE_MAJOR=$(node -v 2>/dev/null | grep -oP '(?<=v)\d+' || echo 0)
@@ -49,7 +49,7 @@ python3 -m venv "$APP_DIR/venv"
 if [ ! -f "$APP_DIR/backend/.env" ]; then
     echo "[3b] Creating .env from template (EDIT THIS!)..."
     cp "$REPO_DIR/deploy/env.production.example" "$APP_DIR/backend/.env"
-    sed -i "s/YOUR_DOMAIN.com/$DOMAIN/g" "$APP_DIR/backend/.env"
+    sed -i "s/YOUR_DOMAIN/$DOMAIN/g" "$APP_DIR/backend/.env"
     # Generate secrets
     SECRET_KEY=$("$APP_DIR/venv/bin/python" -c "import secrets; print(secrets.token_hex(32))")
     JWT_KEY=$("$APP_DIR/venv/bin/python" -c "import secrets; print(secrets.token_hex(32))")
@@ -71,14 +71,15 @@ npm ci
 npx ng build --configuration=production
 rsync -a --delete dist/quizonline-frontend/browser/ "$APP_DIR/frontend/"
 
-# --- Nginx ---
-echo "[6/8] Configuring nginx..."
-sudo cp "$REPO_DIR/deploy/nginx.conf" "/etc/nginx/sites-available/quizonline"
-sudo sed -i "s/YOUR_DOMAIN.com/$DOMAIN/g" "/etc/nginx/sites-available/quizonline"
-sudo ln -sf "/etc/nginx/sites-available/quizonline" "/etc/nginx/sites-enabled/quizonline"
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
+# --- Apache ---
+echo "[6/8] Configuring Apache..."
+sudo a2enmod rewrite proxy proxy_http ssl headers
+sudo cp "$REPO_DIR/deploy/apache.conf" "/etc/apache2/sites-available/quizonline.conf"
+sudo sed -i "s/YOUR_DOMAIN/$DOMAIN/g" "/etc/apache2/sites-available/quizonline.conf"
+sudo a2dissite 000-default.conf 2>/dev/null || true
+sudo a2ensite quizonline.conf
+sudo apachectl configtest
+sudo systemctl reload apache2
 
 # --- Gunicorn systemd service ---
 echo "[7/8] Setting up gunicorn service..."
@@ -90,8 +91,8 @@ sudo systemctl restart quizonline
 # --- HTTPS (Let's Encrypt) ---
 echo "[8/8] Setting up HTTPS with Let's Encrypt..."
 echo "    Running certbot for $DOMAIN..."
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email "admin@$DOMAIN" || {
-    echo "    >>> Certbot failed. Run manually: sudo certbot --nginx -d $DOMAIN"
+sudo certbot --apache -d "$DOMAIN" --non-interactive --agree-tos --email "admin@$DOMAIN" || {
+    echo "    >>> Certbot failed. Run manually: sudo certbot --apache -d $DOMAIN"
 }
 
 echo ""
