@@ -35,6 +35,7 @@ describe('App', () => {
             getMe: () => of(null),
             currentLang: 'fr',
             isAdmin: () => false,
+            isSuperuser: () => false,
             setLang: jasmine.createSpy('setLang'),
             updateMeLanguage: () => of(null),
             shouldConfirmEmail: () => false,
