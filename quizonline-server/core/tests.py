@@ -259,11 +259,10 @@ class TestEmailEndpointTests(APITestCase):
     URL = "/api/mail/test/"
 
     def setUp(self):
-        self.admin = CustomUser.objects.create_user(
+        self.admin = CustomUser.objects.create_superuser(
             username="admin-mail",
             password="Pass1234!",
             email="admin-mail@example.com",
-            is_staff=True,
         )
         self.user = CustomUser.objects.create_user(
             username="basic-mail",

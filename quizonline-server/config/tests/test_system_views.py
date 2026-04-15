@@ -13,11 +13,10 @@ class SystemConfigViewTests(APITestCase):
     CHECK_URL = "/api/admin/system-check/"
 
     def setUp(self):
-        self.admin = User.objects.create_user(
+        self.admin = User.objects.create_superuser(
             username="staff-admin",
             password="Pass1234!",
             email="admin@example.com",
-            is_staff=True,
         )
         self.user = User.objects.create_user(
             username="basic-user",

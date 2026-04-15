@@ -104,20 +104,12 @@ class DashboardStatsTests(APITestCase):
         self.assertEqual(d1["sessions_completed"], 1)
 
     # ---------------------------------------------------------------
-    # 2. Staff sees only own domains
+    # 2. Staff (non-superuser) gets 403
     # ---------------------------------------------------------------
-    def test_staff_sees_only_own_domains(self):
+    def test_staff_non_superuser_forbidden(self):
         self.client.force_authenticate(self.staff_user)
         resp = self.client.get(DASHBOARD_URL)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.json()
-
-        domain_ids = {d["id"] for d in data["domains"]}
-        self.assertIn(self.domain1.pk, domain_ids)
-        self.assertNotIn(self.domain2.pk, domain_ids)
-
-        # totals should be scoped
-        self.assertEqual(data["totals"]["active_domains"], 1)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
     # ---------------------------------------------------------------
     # 3. Regular user gets 403
