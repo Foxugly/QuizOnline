@@ -3,6 +3,62 @@ info:
   title: QuizOnline API
   version: 1.0.0
 paths:
+  /api/admin/system-check/:
+    post:
+      operationId: admin_system_check_create
+      summary: Lancer un check systeme
+      tags:
+      - Admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemCheckRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SystemCheckRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SystemCheckRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemCheckResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Forbidden (admin only)
+  /api/admin/system-config/:
+    get:
+      operationId: admin_system_config_retrieve
+      summary: Lire la configuration systeme effective
+      tags:
+      - Admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: System configuration snapshot
   /api/domain/:
     get:
       operationId: domain_list
@@ -451,6 +507,7 @@ paths:
       - domain
       security:
       - jwtAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -688,6 +745,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Forbidden (admin only)
+  /api/mail/test/:
+    post:
+      operationId: mail_test_create
+      description: Enfile un email texte brut dans l'outbox applicative puis declenche
+        la livraison via le flux email standard.
+      summary: Envoyer un email de test
+      tags:
+      - Mail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestEmailRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TestEmailRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TestEmailRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestEmailResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Validation error
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Unauthorized
         '403':
           content:
             application/json:
@@ -3243,6 +3347,12 @@ components:
         nb_domain_max:
           type: integer
           minimum: 0
+        requested_domain_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          writeOnly: true
         managed_domain_ids:
           type: array
           items:
@@ -5781,6 +5891,84 @@ components:
       required:
       - domain
       - translations
+    SystemCheckRequestRequest:
+      type: object
+      properties:
+        target:
+          $ref: '#/components/schemas/TargetEnum'
+      required:
+      - target
+    SystemCheckResponse:
+      type: object
+      properties:
+        target:
+          type: string
+        status:
+          $ref: '#/components/schemas/SystemCheckResponseStatusEnum'
+        detail:
+          type: string
+        checked_at:
+          type: string
+      required:
+      - checked_at
+      - detail
+      - status
+      - target
+    SystemCheckResponseStatusEnum:
+      enum:
+      - ok
+      - error
+      - skipped
+      type: string
+      description: |-
+        * `ok` - ok
+        * `error` - error
+        * `skipped` - skipped
+    TargetEnum:
+      enum:
+      - db
+      - email
+      - upload
+      - deepl
+      type: string
+      description: |-
+        * `db` - db
+        * `email` - email
+        * `upload` - upload
+        * `deepl` - deepl
+    TestEmailRequestRequest:
+      type: object
+      properties:
+        to:
+          type: string
+          format: email
+          minLength: 1
+        subject:
+          type: string
+          maxLength: 255
+        body:
+          type: string
+      required:
+      - to
+    TestEmailResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        email_id:
+          type: integer
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+        subject:
+          type: string
+      required:
+      - detail
+      - email_id
+      - recipients
+      - subject
     TokenRefresh:
       type: object
       properties:

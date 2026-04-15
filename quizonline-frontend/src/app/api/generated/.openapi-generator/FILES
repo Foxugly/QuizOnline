@@ -2,10 +2,12 @@
 README.md
 api.base.service.ts
 api.module.ts
+api/admin.service.ts
 api/api.ts
 api/auth.service.ts
 api/domain.service.ts
 api/language.service.ts
+api/mail.service.ts
 api/question.service.ts
 api/quiz-alert.service.ts
 api/quiz-answer.service.ts
@@ -121,6 +123,12 @@ model/status-da1-enum.ts
 model/subject-detail.ts
 model/subject-read.ts
 model/subject-write-request.ts
+model/system-check-request-request.ts
+model/system-check-response-status-enum.ts
+model/system-check-response.ts
+model/target-enum.ts
+model/test-email-request-request.ts
+model/test-email-response.ts
 model/token-refresh-request.ts
 model/token-refresh.ts
 model/translate-batch-request-request.ts
