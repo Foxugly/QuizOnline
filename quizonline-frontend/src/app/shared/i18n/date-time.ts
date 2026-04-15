@@ -1,4 +1,4 @@
-import {LanguageEnumDto} from '../../api/generated';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 
 export function languageLocale(lang: LanguageEnumDto | null | undefined): string {
   switch (lang) {

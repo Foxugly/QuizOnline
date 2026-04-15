@@ -5,12 +5,16 @@ from kombu.exceptions import OperationalError
 
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.mail import EmailMessage, get_connection
 from django.db import OperationalError as DjangoOperationalError
 from django.test import TestCase
 from django.core import mail
+from django.test.utils import override_settings
 from django.utils import timezone
+from rest_framework.test import APITestCase
 
 from core.delivery import process_pending_outbound_emails
+from core.email_backends.microsoft_graph import GraphEmailBackendError
 from core.mailers import send_password_reset_email, send_quiz_assignment_email
 from core.models import OutboundEmail
 from customuser.models import CustomUser
@@ -177,3 +181,140 @@ class CoreMailerTests(TestCase):
         self.assertIsNone(outbound.sent_at)
         self.assertEqual(outbound.last_error, "smtp down")
         self.assertGreater(outbound.available_at, timezone.now())
+
+
+@override_settings(
+    EMAIL_BACKEND="core.email_backends.microsoft_graph.EmailBackend",
+    MS_GRAPH_TENANT_ID="tenant-id",
+    MS_GRAPH_CLIENT_ID="client-id",
+    MS_GRAPH_CLIENT_SECRET="client-secret",
+    MS_GRAPH_SENDER_USER_ID="sender@example.com",
+)
+class MicrosoftGraphEmailBackendTests(TestCase):
+    @patch("core.email_backends.microsoft_graph.requests.post")
+    def test_send_messages_fetches_token_and_sends_mail(self, post_mock: MagicMock):
+        token_response = MagicMock()
+        token_response.ok = True
+        token_response.json.return_value = {"access_token": "token-123"}
+
+        send_response = MagicMock()
+        send_response.ok = True
+
+        post_mock.side_effect = [token_response, send_response]
+
+        connection = get_connection()
+        sent = connection.send_messages([
+            EmailMessage(
+                subject="Graph subject",
+                body="Graph body",
+                from_email="no-reply@example.com",
+                to=["graph-user@example.com"],
+            )
+        ])
+
+        self.assertEqual(sent, 1)
+        self.assertEqual(post_mock.call_count, 2)
+        token_call = post_mock.call_args_list[0]
+        self.assertIn("/tenant-id/oauth2/v2.0/token", token_call.args[0])
+        self.assertEqual(token_call.kwargs["data"]["client_id"], "client-id")
+
+        send_call = post_mock.call_args_list[1]
+        self.assertIn("/users/sender@example.com/sendMail", send_call.args[0])
+        self.assertEqual(send_call.kwargs["headers"]["Authorization"], "Bearer token-123")
+        self.assertEqual(
+            send_call.kwargs["json"]["message"]["toRecipients"],
+            [{"emailAddress": {"address": "graph-user@example.com"}}],
+        )
+
+    @patch("core.email_backends.microsoft_graph.requests.post")
+    def test_send_messages_raises_graph_error_details(self, post_mock: MagicMock):
+        token_response = MagicMock()
+        token_response.ok = False
+        token_response.status_code = 401
+        token_response.json.return_value = {
+            "error": {
+                "code": "InvalidClient",
+                "message": "AADSTS7000215: Invalid client secret provided.",
+            }
+        }
+
+        post_mock.return_value = token_response
+
+        connection = get_connection()
+
+        with self.assertRaises(GraphEmailBackendError) as ctx:
+            connection.send_messages([
+                EmailMessage(
+                    subject="Graph subject",
+                    body="Graph body",
+                    from_email="no-reply@example.com",
+                    to=["graph-user@example.com"],
+                )
+            ])
+
+        self.assertIn("InvalidClient", str(ctx.exception))
+
+
+class TestEmailEndpointTests(APITestCase):
+    URL = "/api/mail/test/"
+
+    def setUp(self):
+        self.admin = CustomUser.objects.create_user(
+            username="admin-mail",
+            password="Pass1234!",
+            email="admin-mail@example.com",
+            is_staff=True,
+        )
+        self.user = CustomUser.objects.create_user(
+            username="basic-mail",
+            password="Pass1234!",
+            email="basic-mail@example.com",
+        )
+
+    def test_admin_can_enqueue_test_email(self):
+        self.client.force_authenticate(user=self.admin)
+
+        with self.captureOnCommitCallbacks(execute=False):
+            response = self.client.post(
+                self.URL,
+                {
+                    "to": "dest@example.com",
+                    "subject": "Test SMTP",
+                    "body": "Bonjour depuis le test.",
+                },
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, 201)
+        outbound = OutboundEmail.objects.get()
+        self.assertEqual(outbound.recipients, ["dest@example.com"])
+        self.assertEqual(outbound.subject, "Test SMTP")
+        self.assertEqual(outbound.body, "Bonjour depuis le test.")
+        self.assertEqual(response.data["email_id"], outbound.id)
+
+    def test_non_admin_cannot_enqueue_test_email(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.URL,
+            {"to": "dest@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_defaults_subject_and_body_when_omitted(self):
+        self.client.force_authenticate(user=self.admin)
+
+        with self.captureOnCommitCallbacks(execute=False):
+            response = self.client.post(
+                self.URL,
+                {"to": "dest@example.com"},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, 201)
+        outbound = OutboundEmail.objects.get()
+        self.assertEqual(outbound.subject, f"{settings.NAME_APP} - email de test")
+        self.assertIn("Ceci est un email de test envoye depuis", outbound.body)
+        self.assertIn(self.admin.username, outbound.body)

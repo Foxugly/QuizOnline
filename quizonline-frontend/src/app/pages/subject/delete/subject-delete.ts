@@ -3,9 +3,8 @@ import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
 import {ButtonModule} from 'primeng/button';
-import {DomainReadDto, SubjectReadDto} from '../../../api/generated';
+import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {DomainTranslationDto} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 
 @Component({

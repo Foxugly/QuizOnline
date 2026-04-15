@@ -184,7 +184,7 @@ class DomainViewSet(MyModelViewSet):
         if self.action in ["list", "retrieve", "details"]:
             return [AllowAny()]
         if self.action == "available_for_linking":
-            return [IsAuthenticated()]
+            return [AllowAny()]
         return [IsAuthenticated(), IsDomainOwnerOrManager()]
 
     def get_serializer_class(self):

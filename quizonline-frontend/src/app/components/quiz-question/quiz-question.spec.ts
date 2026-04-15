@@ -3,7 +3,8 @@ import {of} from 'rxjs';
 
 import {QuizQuestionComponent} from './quiz-question';
 import {UserService} from '../../services/user/user';
-import {JoinPolicyEnumDto, LanguageEnumDto} from '../../api/generated';
+import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 
 describe('QuizQuestionDto', () => {
   let component: QuizQuestionComponent;

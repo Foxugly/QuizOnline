@@ -12,13 +12,11 @@ import {TextareaModule} from 'primeng/textarea';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
-import {
-  DomainApi as DomainApiService,
-  DomainJoinRequestReadDto,
-  DomainJoinRequestReadStatusEnumDto,
-  DomainReadDto,
-  LanguageEnumDto,
-} from '../../../api/generated';
+import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
+import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
+import {DomainJoinRequestReadStatusEnumDto} from '../../../api/generated/model/domain-join-request-read-status-enum';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';

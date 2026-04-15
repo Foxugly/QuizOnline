@@ -1,7 +1,7 @@
 import {Component, input, output} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
-import {QuizDto} from '../../api/generated';
+import {QuizDto} from '../../api/generated/model/quiz';
 
 export interface QuizSummaryFact {
   label: string;

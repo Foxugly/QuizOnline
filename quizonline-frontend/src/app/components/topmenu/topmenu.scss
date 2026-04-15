@@ -95,6 +95,12 @@
     transform 160ms ease;
 }
 
+.nav__link--button {
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
 .nav__link:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.14);
@@ -148,36 +154,101 @@
   background: rgba(255, 255, 255, 0.14);
 }
 
-:host ::ng-deep .domain-trigger.p-button {
-  max-width: 16rem;
+.topbar-menu {
+  position: relative;
 }
 
-:host ::ng-deep .domain-trigger .p-button-label {
+.domain-trigger {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #f8fafc;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.55rem;
+  max-width: 16rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.domain-trigger:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.domain-trigger__label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-:host ::ng-deep .domain-menu.p-menu {
+.topbar-dropdown {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  color: #22304a;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.45rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+  z-index: 30;
+}
+
+.topbar-dropdown--admin {
+  min-width: 15rem;
+}
+
+.topbar-dropdown--domain {
   min-width: 18rem;
 }
 
-:host ::ng-deep .domain-menu__section .p-menu-item-link,
-:host ::ng-deep .domain-menu__empty .p-menu-item-link {
-  opacity: 1;
-}
-
-:host ::ng-deep .domain-menu__section .p-menu-item-link {
+.topbar-dropdown__section {
   color: #475569;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+  padding: 0.45rem 0.7rem 0.2rem;
   text-transform: uppercase;
 }
 
-:host ::ng-deep .domain-menu__empty .p-menu-item-link {
+.topbar-dropdown__empty {
   color: #94a3b8;
   font-style: italic;
+  padding: 0.35rem 0.7rem 0.55rem;
+}
+
+.topbar-dropdown__divider {
+  background: rgba(148, 163, 184, 0.2);
+  height: 1px;
+  margin: 0.2rem 0.3rem;
+}
+
+.topbar-dropdown__item {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0.8rem;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 0.65rem;
+  grid-template-columns: 1rem 1fr;
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  width: 100%;
+}
+
+.topbar-dropdown__item:hover {
+  background: rgba(34, 48, 74, 0.08);
+}
+
+.topbar-dropdown__spacer {
+  display: inline-block;
+  width: 1rem;
 }
 
 .alert-link__badge {

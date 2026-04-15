@@ -1,13 +1,15 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {of} from 'rxjs';
-import {MessageService} from 'primeng/api';
 
-import {MediaAssetDto, MediaAssetKindEnumDto, MediaAssetUploadKindEnumDto} from '../../../api/generated';
+import {MediaAssetDto} from '../../../api/generated/model/media-asset';
+import {MediaAssetKindEnumDto} from '../../../api/generated/model/media-asset-kind-enum';
+import {MediaAssetUploadKindEnumDto} from '../../../api/generated/model/media-asset-upload-kind-enum';
 import {MediaSelectorValue} from '../../../components/media-selector/media-selector';
 import {DomainService} from '../../../services/domain/domain';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {QuestionCreate} from './question-create';
@@ -70,7 +72,7 @@ describe('QuestionCreate media uploads', () => {
             },
           },
         },
-        MessageService,
+        AppToastService,
       ],
     }).compileComponents();
 

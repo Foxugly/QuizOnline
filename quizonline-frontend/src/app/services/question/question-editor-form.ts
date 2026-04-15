@@ -7,14 +7,12 @@ import {
   Validators,
 } from '@angular/forms';
 
-import {
-  LanguageEnumDto,
-  MediaAssetDto,
-  MediaAssetUploadKindEnumDto,
-  PatchedQuestionPartialWritePayloadRequestDto,
-  QuestionReadDto,
-  QuestionWritePayloadRequestDto,
-} from '../../api/generated';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {MediaAssetDto} from '../../api/generated/model/media-asset';
+import {MediaAssetUploadKindEnumDto} from '../../api/generated/model/media-asset-upload-kind-enum';
+import {PatchedQuestionPartialWritePayloadRequestDto} from '../../api/generated/model/patched-question-partial-write-payload-request';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
+import {QuestionWritePayloadRequestDto} from '../../api/generated/model/question-write-payload-request';
 import {MediaSelectorValue} from '../../components/media-selector/media-selector';
 import {LangCode} from '../translation/translation';
 import {

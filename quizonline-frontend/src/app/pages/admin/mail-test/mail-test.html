@@ -1,0 +1,96 @@
+<div class="mail-test-page">
+  <div class="mail-test-page__hero">
+    <p class="mail-test-page__eyebrow">{{ t().eyebrow }}</p>
+    <h1>{{ t().title }}</h1>
+    <p class="mail-test-page__intro">{{ t().subtitle }}</p>
+  </div>
+
+  <div class="mail-test-page__grid">
+    <p-card styleClass="mail-test-card">
+      <ng-template pTemplate="header">
+        <div class="mail-test-card__header">
+          <div>
+            <h2>{{ t().formTitle }}</h2>
+            <p>{{ t().formSubtitle }}</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="form" class="mail-test-form" (ngSubmit)="submit()">
+        <div class="mail-test-form__field">
+          <label for="mail-to">{{ t().to }}</label>
+          <input id="mail-to" pInputText formControlName="to" [placeholder]="t().toPlaceholder" type="email">
+          @if (toControl.touched && toControl.hasError('required')) {
+            <small class="mail-test-form__error">{{ t().toRequired }}</small>
+          }
+          @if (toControl.touched && toControl.hasError('email')) {
+            <small class="mail-test-form__error">{{ t().toInvalid }}</small>
+          }
+        </div>
+
+        <div class="mail-test-form__field">
+          <label for="mail-subject">{{ t().subject }}</label>
+          <input id="mail-subject" pInputText formControlName="subject" [placeholder]="t().subjectPlaceholder" type="text">
+          <small class="mail-test-form__hint">{{ t().subjectHint }}</small>
+        </div>
+
+        <div class="mail-test-form__field">
+          <label for="mail-body">{{ t().body }}</label>
+          <textarea
+            id="mail-body"
+            pTextarea
+            formControlName="body"
+            [placeholder]="t().bodyPlaceholder"
+            [autoResize]="true"
+            rows="8"
+          ></textarea>
+          <small class="mail-test-form__hint">{{ t().bodyHint }}</small>
+        </div>
+
+        <div class="mail-test-form__actions">
+          <p-button
+            [disabled]="submitting()"
+            [label]="submitting() ? t().sending : t().send"
+            icon="pi pi-send"
+            type="submit"
+          ></p-button>
+        </div>
+      </form>
+    </p-card>
+
+    <p-card styleClass="mail-test-sidecard">
+      <ng-template pTemplate="header">
+        <div class="mail-test-card__header">
+          <div>
+            <h2>{{ t().resultTitle }}</h2>
+            <p>{{ t().resultSubtitle }}</p>
+          </div>
+        </div>
+      </ng-template>
+
+      @if (lastResponse(); as result) {
+        <div class="mail-test-result">
+          <div class="mail-test-result__item">
+            <span>{{ t().emailId }}</span>
+            <strong>#{{ result.emailId }}</strong>
+          </div>
+          <div class="mail-test-result__item">
+            <span>{{ t().recipients }}</span>
+            <strong>{{ result.recipients.join(', ') }}</strong>
+          </div>
+          <div class="mail-test-result__item">
+            <span>{{ t().subject }}</span>
+            <strong>{{ result.subject }}</strong>
+          </div>
+        </div>
+      } @else {
+        <p class="mail-test-sidecard__empty">{{ t().resultEmpty }}</p>
+      }
+
+      <div class="mail-test-sidecard__note">
+        <i class="pi pi-info-circle"></i>
+        <span>{{ t().deliveryNote }}</span>
+      </div>
+    </p-card>
+  </div>
+</div>

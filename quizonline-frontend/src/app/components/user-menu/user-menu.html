@@ -1,32 +1,32 @@
 <div class="user-menu">
   @if (auth.isLoggedIn()) {
     <div class="user-menu__panel-wrap">
-      <p-button
-        icon="pi pi-user"
-        severity="secondary"
+      <button
+        type="button"
         class="user-trigger"
-        [label]="auth.getUsername()"
         (click)="toggleMenu($event)"
-      ></p-button>
+      >
+        <i class="pi pi-user"></i>
+        <span>{{ auth.getUsername() }}</span>
+      </button>
 
       @if (open()) {
         <div class="user-menu__panel" (click)="$event.stopPropagation()">
-          <button pButton type="button" class="user-menu__item" (click)="goPreferences()">
+          <button type="button" class="user-menu__item" (click)="goPreferences()">
             {{ ui.userMenu.preferences }}
           </button>
-          <button pButton type="button" class="user-menu__item" (click)="goChangePassword()">
+          <button type="button" class="user-menu__item" (click)="goChangePassword()">
             {{ ui.userMenu.changePassword }}
           </button>
-          <button pButton type="button" class="user-menu__item user-menu__item--danger" (click)="logout()">
+          <button type="button" class="user-menu__item user-menu__item--danger" (click)="logout()">
             {{ ui.userMenu.logout }}
           </button>
         </div>
       }
     </div>
   } @else {
-    <p-button
-      [label]="ui.userMenu.login"
-      (click)="goLogin()"
-    ></p-button>
+    <button class="user-trigger" type="button" (click)="goLogin()">
+      {{ ui.userMenu.login }}
+    </button>
   }
 </div>

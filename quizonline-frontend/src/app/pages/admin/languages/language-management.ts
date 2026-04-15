@@ -11,12 +11,10 @@ import {TableModule} from 'primeng/table';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ConfirmationService} from 'primeng/api';
 
-import {
-  LanguageApi as LanguageApiService,
-  LanguageReadDto,
-  LanguageWriteRequestDto,
-  PatchedLanguagePartialRequestDto,
-} from '../../../api/generated';
+import {LanguageApi as LanguageApiService} from '../../../api/generated/api/language.service';
+import {LanguageReadDto} from '../../../api/generated/model/language-read';
+import {LanguageWriteRequestDto} from '../../../api/generated/model/language-write-request';
+import {PatchedLanguagePartialRequestDto} from '../../../api/generated/model/patched-language-partial-request';
 import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
 import {logApiError} from '../../../shared/api/api-errors';

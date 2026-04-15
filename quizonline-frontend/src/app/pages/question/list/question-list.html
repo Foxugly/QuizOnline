@@ -66,9 +66,10 @@
 
     <p-table
       [dataKey]="'id'"
-      (onPage)="onPageChange($event)"
+      (onLazyLoad)="onLazyLoad($event)"
       [first]="first()"
       [lazy]="true"
+      [lazyLoadOnInit]="false"
       [paginator]="true"
       [rows]="rows()"
       [rowsPerPageOptions]="[10, 20, 50]"

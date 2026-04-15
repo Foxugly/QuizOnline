@@ -10,14 +10,12 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 
-import {
-  DomainReadDto,
-  LanguageEnumDto,
-  LanguageReadDto,
-  QuestionReadDto,
-  SubjectDetailDto,
-  SubjectWriteRequestDto,
-} from '../../../api/generated';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {LanguageReadDto} from '../../../api/generated/model/language-read';
+import {QuestionReadDto} from '../../../api/generated/model/question-read';
+import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
+import {SubjectWriteRequestDto} from '../../../api/generated/model/subject-write-request';
 
 import {SubjectLangGroup, SubjectService, SubjectTranslationsWrite} from '../../../services/subject/subject';
 import {DomainService} from '../../../services/domain/domain';

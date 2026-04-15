@@ -15,6 +15,10 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {AccountAccessService} from '../account-access/account-access';
 import {UserService} from '../user/user';
 
+export type RegisterPayload = Omit<CustomUserCreateRequestDto, 'managed_domain_ids'> & {
+  requested_domain_ids?: number[];
+};
+
 @Injectable({providedIn: 'root'})
 export class AuthService {
   private readonly ACCESS_KEY = 'access_token';
@@ -91,7 +95,7 @@ export class AuthService {
     return this.refresh$;
   }
 
-  register(payload: CustomUserCreateRequestDto): Observable<CustomUserReadDto> {
+  register(payload: RegisterPayload): Observable<CustomUserReadDto> {
     return this.http.post<CustomUserReadDto>(`${this.apiBaseUrl}/user/`, payload);
   }
 

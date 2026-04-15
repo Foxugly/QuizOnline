@@ -1,4 +1,4 @@
-import {LanguageEnumDto} from '../../../../api/generated';
+import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
 import {QuizAlertThreadDetailDto} from '../../../../services/quiz-alert/quiz-alert';
 import {formatLocalizedDateTime, languageLocale} from '../../../../shared/i18n/date-time';
 

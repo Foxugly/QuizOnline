@@ -8,14 +8,11 @@ import {catchError, finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
-import {MessageService} from 'primeng/api';
 
-import {
-  CustomUserReadDto,
-  DomainWriteRequestDto,
-  LanguageEnumDto,
-  LanguageReadDto,
-} from '../../../api/generated';
+import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
+import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {LanguageReadDto} from '../../../api/generated/model/language-read';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
@@ -30,6 +27,7 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 type UserOption = { label: string; value: number };
 type DomainWritePayload = DomainWriteRequestDto & {
@@ -101,7 +99,7 @@ export class DomainCreate implements OnInit {
   private userService = inject(UserService);
   private domainService = inject(DomainService);
   private translator = inject(TranslationService);
-  private messageService = inject(MessageService);
+  private toast = inject(AppToastService);
   private lastToastMessage: string | null = null;
 
   constructor() {
@@ -112,7 +110,7 @@ export class DomainCreate implements OnInit {
       }
 
       this.lastToastMessage = detail;
-      this.messageService.add({
+      this.toast.add({
         severity: 'error',
         summary: this.localizedSummary(),
         detail: this.localizeDetail(detail),
@@ -419,7 +417,7 @@ export class DomainCreate implements OnInit {
   }
 
   private showErrorToast(detail: string): void {
-    this.messageService.add({
+    this.toast.add({
       severity: 'error',
       summary: this.localizedSummary(),
       detail: this.localizeDetail(detail),

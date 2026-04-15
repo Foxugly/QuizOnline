@@ -2,7 +2,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize} from 'rxjs';
-import {QuizDto} from '../../../api/generated';
+import {QuizDto} from '../../../api/generated/model/quiz';
 import {QuizSummaryFact, QuizSummaryHeroComponent} from '../../../components/quiz-summary-hero/quiz-summary-hero';
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';

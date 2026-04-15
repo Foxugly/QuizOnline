@@ -2,7 +2,7 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 
-import {LanguageEnumDto} from '../../../api/generated';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';

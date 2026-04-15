@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@
 import {CommonModule} from '@angular/common';
 import {PanelModule} from 'primeng/panel';
 import {QuestionButton} from '../question-button/question-button';
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
 
 
 export interface QuizNavItem {

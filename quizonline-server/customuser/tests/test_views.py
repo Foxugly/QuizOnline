@@ -118,6 +118,23 @@ class UserViewsTests(APITestCase):
         self.assertEqual(list(created.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(created.current_domain_id, self.domain.id)
 
+    def test_user_create_can_link_requested_domains(self):
+        payload = {
+            "username": "requested-newbie",
+            "email": "requested-newbie@example.com",
+            "first_name": "New",
+            "last_name": "Bie",
+            "password": "SecretPass123!",
+            "requested_domain_ids": [self.domain.id],
+        }
+
+        res = self.client.post(self.USER_LIST_CREATE_URL, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        created = User.objects.get(username="requested-newbie")
+        self.assertEqual(list(created.linked_domains.values_list("id", flat=True)), [self.domain.id])
+        self.assertEqual(created.current_domain_id, self.domain.id)
+
     def test_user_retrieve_requires_self_or_staff(self):
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))

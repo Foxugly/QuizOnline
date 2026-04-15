@@ -1,4 +1,4 @@
-import { LanguageEnumDto } from '../../../api/generated';
+import { LanguageEnumDto } from '../../../api/generated/model/language-enum';
 
 export type QuestionListUiText = {
   title: string;

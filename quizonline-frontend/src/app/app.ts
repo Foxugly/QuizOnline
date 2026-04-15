@@ -9,11 +9,11 @@ import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
-import {ToastModule} from 'primeng/toast';
+import {AppToastOutletComponent} from './components/app-toast-outlet/app-toast-outlet';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TopMenuComponent, FooterComponent, ToastModule],
+  imports: [RouterOutlet, TopMenuComponent, FooterComponent, AppToastOutletComponent],
   templateUrl: './app.html',
   //template: `
   //  <app-topmenu></app-topmenu>

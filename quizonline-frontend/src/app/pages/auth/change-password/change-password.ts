@@ -8,7 +8,7 @@ import {MessageModule} from 'primeng/message';
 
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth/auth';
-import {PasswordChangeRequestDto} from '../../../api/generated';
+import {PasswordChangeRequestDto} from '../../../api/generated/model/password-change-request';
 import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';

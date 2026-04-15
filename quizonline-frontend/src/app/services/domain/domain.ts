@@ -3,13 +3,11 @@ import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
-import {
-  DomainApi as DomainApiService,
-  DomainDetailDto,
-  DomainReadDto,
-  DomainWriteRequestDto,
-  PatchedDomainPartialRequestDto
-} from '../../api/generated';
+import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
+import {DomainDetailDto} from '../../api/generated/model/domain-detail';
+import {DomainReadDto} from '../../api/generated/model/domain-read';
+import {DomainWriteRequestDto} from '../../api/generated/model/domain-write-request';
+import {PatchedDomainPartialRequestDto} from '../../api/generated/model/patched-domain-partial-request';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export type DomainTranslationDto = { name: string; description: string;};

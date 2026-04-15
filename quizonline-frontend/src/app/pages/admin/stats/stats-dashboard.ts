@@ -5,7 +5,7 @@ import {CardModule} from 'primeng/card';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {TableModule} from 'primeng/table';
 
-import {DashboardStats, DomainStats, StatsService} from '../../../services/stats/stats';
+import {DashboardStats, DomainStats, StatsService} from '../../../services/admin/stats';
 import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
 import {logApiError} from '../../../shared/api/api-errors';

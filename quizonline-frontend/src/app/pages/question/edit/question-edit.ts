@@ -7,7 +7,10 @@ import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
-import {DomainReadDto, LanguageEnumDto, QuestionReadDto, SubjectReadDto} from '../../../api/generated';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {QuestionReadDto} from '../../../api/generated/model/question-read';
+import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {
   addQuestionAnswerOption,

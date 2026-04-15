@@ -1,13 +1,11 @@
 import {Injectable} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
-import {
-  FormatEnumDto,
-  LanguageEnumDto,
-  TranslateBatchRequestRequestDto,
-  TranslateItemRequestDto,
-  TranslationApi as TranslationApiService,
-} from '../../api/generated';
+import {TranslationApi as TranslationApiService} from '../../api/generated/api/translation.service';
+import {FormatEnumDto} from '../../api/generated/model/format-enum';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {TranslateBatchRequestRequestDto} from '../../api/generated/model/translate-batch-request-request';
+import {TranslateItemRequestDto} from '../../api/generated/model/translate-item-request';
 
 export type LangCode = `${LanguageEnumDto}`;
 export type TranslateFormat = 'text' | 'html';

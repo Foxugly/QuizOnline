@@ -13,9 +13,11 @@ import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
-import {MessageService} from 'primeng/api';
 
-import {DomainDetailDto, DomainReadDto, LanguageEnumDto, SubjectWriteRequestDto} from '../../../api/generated';
+import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {SubjectWriteRequestDto} from '../../../api/generated/model/subject-write-request';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {SubjectService, SubjectLangGroup} from '../../../services/subject/subject';
 import {isLangCode, LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
@@ -28,6 +30,7 @@ import {
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 
 @Component({
@@ -88,7 +91,7 @@ export class SubjectCreate implements OnInit {
   private subjectService = inject(SubjectService);
   private translator = inject(TranslationService);
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toast = inject(AppToastService);
   private destroyRef = inject(DestroyRef);
   private selectedDomainId$ = toObservable(this.selectedDomainId);
   private lastToastMessage: string | null = null;
@@ -107,7 +110,7 @@ export class SubjectCreate implements OnInit {
       }
 
       this.lastToastMessage = detail;
-      this.messageService.add({
+      this.toast.add({
         severity: 'error',
         summary: this.localizedSummary(),
         detail: this.localizeDetail(detail),

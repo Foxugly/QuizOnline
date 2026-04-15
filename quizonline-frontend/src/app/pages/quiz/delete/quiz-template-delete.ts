@@ -2,7 +2,7 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
-import {QuizTemplateDto} from '../../../api/generated';
+import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 

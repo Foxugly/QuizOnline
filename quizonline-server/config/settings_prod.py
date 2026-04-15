@@ -45,6 +45,12 @@ if EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":  # noqa: F405
     EMAIL_HOST_USER = require_env_value("EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = require_env_value("EMAIL_HOST_PASSWORD")
 
+if EMAIL_BACKEND == "core.email_backends.microsoft_graph.EmailBackend":  # noqa: F405
+    MS_GRAPH_TENANT_ID = require_env_value("MS_GRAPH_TENANT_ID")
+    MS_GRAPH_CLIENT_ID = require_env_value("MS_GRAPH_CLIENT_ID")
+    MS_GRAPH_CLIENT_SECRET = require_env_value("MS_GRAPH_CLIENT_SECRET")
+    MS_GRAPH_SENDER_USER_ID = require_env_value("MS_GRAPH_SENDER_USER_ID")
+
 if CELERY_TASK_ALWAYS_EAGER:  # noqa: F405
     raise RuntimeError("Production Celery must not run with CELERY_TASK_ALWAYS_EAGER=True.")
 

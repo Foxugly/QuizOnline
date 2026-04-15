@@ -1,0 +1,50 @@
+<div class="system-config">
+  <section class="system-config__hero">
+    <p class="system-config__eyebrow">{{ t().eyebrow }}</p>
+    <h1>{{ t().title }}</h1>
+    <p>{{ t().subtitle }}</p>
+  </section>
+
+  @if (loading()) {
+    <p class="system-config__loading">{{ t().loading }}</p>
+  } @else {
+    <div class="system-config__grid">
+      @for (section of sectionCards(); track trackByLabel($index, section)) {
+        <p-card styleClass="system-config__card">
+          <ng-template pTemplate="header">
+            <div class="system-config__card-head">
+              <div>
+                <h2>{{ section.title }}</h2>
+                <p>{{ section.description }}</p>
+              </div>
+              <p-button
+                [disabled]="section.checking"
+                [label]="section.checking ? t().checking : section.checkLabel"
+                icon="pi pi-play"
+                size="small"
+                (onClick)="runCheck(section.label)"
+              ></p-button>
+            </div>
+          </ng-template>
+
+          <div class="system-config__kv">
+            @for (entry of section.entries; track entry.key) {
+              <div class="system-config__row">
+                <span>{{ entry.label }}</span>
+                <strong>{{ entry.value }}</strong>
+              </div>
+            }
+          </div>
+
+          @if (section.lastCheck; as check) {
+            <div class="system-config__check">
+              <span [class]="statusClass(check.status)">{{ check.status }}</span>
+              <p>{{ check.detail }}</p>
+              <small>{{ t().checkedAt }} {{ check.checked_at }}</small>
+            </div>
+          }
+        </p-card>
+      }
+    </div>
+  }
+</div>

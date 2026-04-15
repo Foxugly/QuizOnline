@@ -3,13 +3,11 @@ import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths'
-import {
-  PatchedSubjectPartialRequestDto,
-  SubjectApi as SubjectApiService,
-  SubjectDetailDto,
-  SubjectReadDto,
-  SubjectWriteRequestDto
-} from '../../api/generated';
+import {SubjectApi as SubjectApiService} from '../../api/generated/api/subject.service';
+import {PatchedSubjectPartialRequestDto} from '../../api/generated/model/patched-subject-partial-request';
+import {SubjectDetailDto} from '../../api/generated/model/subject-detail';
+import {SubjectReadDto} from '../../api/generated/model/subject-read';
+import {SubjectWriteRequestDto} from '../../api/generated/model/subject-write-request';
 import {FormControl, FormGroup} from '@angular/forms';
 import {LangCode} from '../translation/translation';
 

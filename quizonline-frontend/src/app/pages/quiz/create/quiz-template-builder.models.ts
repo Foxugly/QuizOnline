@@ -1,4 +1,5 @@
-import {QuestionInQuizQuestionDto, QuestionReadDto} from '../../../api/generated';
+import {QuestionInQuizQuestionDto} from '../../../api/generated/model/question-in-quiz-question';
+import {QuestionReadDto} from '../../../api/generated/model/question-read';
 
 export type SelectedQuestionRef = QuestionReadDto | QuestionInQuizQuestionDto;
 

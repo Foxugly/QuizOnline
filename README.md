@@ -1,22 +1,77 @@
 # QuizOnline
 
-Monorepo contenant :
+QuizOnline est un monorepo contenant une application de quiz multilingue avec :
 
-- [`quizonline-server/`](./quizonline-server) : backend Django REST
-- [`quizonline-frontend/`](./quizonline-frontend) : frontend Angular
+- backend Django REST dans [`quizonline-server/`](./quizonline-server)
+- frontend Angular dans [`quizonline-frontend/`](./quizonline-frontend)
+- contrat API partagé via OpenAPI
 
-## Demarrage rapide
+Fonctionnalités principales :
 
-Backend :
+- authentification JWT, confirmation email, reset et changement de mot de passe
+- gestion des domaines, membres, managers et demandes d accès
+- création de sujets, questions et templates de quiz
+- assignation de quiz avec alertes applicatives
+- outbox email backend avec livraison Celery
+- traduction via DeepL en option
+- pages d administration pour statistiques, diagnostic système et test email
+
+## Stack
+
+- backend : Django 6, Django REST Framework, Celery, Redis, django-parler
+- frontend : Angular 21, PrimeNG
+- base locale par défaut : SQLite
+- production recommandée : PostgreSQL + Redis
+
+## Structure
+
+- [`quizonline-server/`](./quizonline-server) : API, logique métier, admin Django, OpenAPI backend
+- [`quizonline-frontend/`](./quizonline-frontend) : SPA Angular, client API généré, e2e
+- [`docs/`](./docs) : déploiement, structure du dépôt, checklist
+- [`scripts/`](./scripts) : scripts utilitaires, dont synchronisation OpenAPI
+
+## Installation Linux
+
+Prérequis recommandés :
+
+- `python3.12+`
+- `nodejs 20+`
+- `npm`
+- `redis-server` si tu veux le flux email nominal avec Celery
+- `git`
+
+Exemple Debian/Ubuntu :
+
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip nodejs npm redis-server
+```
+
+## Démarrage local
+
+### 1. Cloner le dépôt
+
+```bash
+git clone <repo-url>
+cd QuizOnline
+```
+
+### 2. Backend Django
 
 ```bash
 cd quizonline-server
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+cp .env.example .env 2>/dev/null || true
 python manage.py migrate
 python manage.py runserver
 ```
 
-Frontend :
+Le backend tourne alors sur `http://127.0.0.1:8000`.
+
+### 3. Frontend Angular
 
 ```bash
 cd quizonline-frontend
@@ -24,15 +79,101 @@ npm ci
 npm start
 ```
 
-## Qualite
+Le frontend tourne alors sur `http://127.0.0.1:4200`.
+
+## Configuration backend
+
+La configuration est lue au démarrage depuis les variables d environnement et `quizonline-server/.env`. Le point d entrée principal est [`quizonline-server/config/settings_base.py`](./quizonline-server/config/settings_base.py).
+
+Variables importantes :
+
+- `DJANGO_ENV` : `dev` ou `prod`
+- `SECRET_KEY`
+- `JWT_SIGNING_KEY`
+- `DATABASE_URL`
+- `FRONTEND_BASE_URL`
+- `ALLOWED_HOSTS`
+- `CORS_ALLOWED_ORIGINS`
+- `EMAIL_BACKEND`
+- `EMAIL_HOST`
+- `EMAIL_PORT`
+- `EMAIL_HOST_USER`
+- `EMAIL_HOST_PASSWORD`
+- `EMAIL_USE_TLS`
+- `DEFAULT_FROM_EMAIL`
+- `CELERY_BROKER_URL`
+- `CELERY_RESULT_BACKEND`
+- `CELERY_TASK_ALWAYS_EAGER`
+- `USE_DEEPL`
+- `DEEPL_AUTH_KEY`
+- `DEEPL_IS_FREE`
+- `API_PAGE_SIZE`
+- `DATA_UPLOAD_MAX_MEMORY_SIZE`
+- `FILE_UPLOAD_MAX_MEMORY_SIZE`
+- `MAX_UPLOAD_FILE_SIZE`
+
+Exemple de référence : [`deploy/env.production.example`](./deploy/env.production.example)
+
+## Email, Celery et Redis
+
+Le flux nominal des emails applicatifs passe par une outbox base de données :
+
+- le code enfile un `OutboundEmail`
+- `transaction.on_commit(...)` déclenche la livraison
+- Celery traite l outbox
+- le backend email Django envoie via SMTP ou Microsoft Graph
+
+Pour lancer Redis et le worker Celery en local :
+
+```bash
+redis-server
+cd quizonline-server
+source .venv/bin/activate
+celery -A config worker -l info
+```
+
+Commande de rattrapage manuel :
+
+```bash
+cd quizonline-server
+source .venv/bin/activate
+python manage.py process_outbound_email --limit 100
+```
+
+## DeepL
+
+- `USE_DEEPL=True` active les appels DeepL
+- `USE_DEEPL=False` garde le backend sans dépendance DeepL
+- `DEEPL_IS_FREE=True` cible `api-free.deepl.com`
+- `DEEPL_AUTH_KEY` doit rester hors Git
+
+## Administration
+
+Administration disponible côté application :
+
+- statistiques : `/admin/stats`
+- configuration système : `/admin/system-config`
+- test email : `/admin/mail-test`
+
+Le backend expose aussi :
+
+- OpenAPI : `/api/schema/`
+- Swagger UI : `/api/docs/`
+- health check : `/health/`
+
+L admin Django est disponible sur `/admin/`.
+
+## Qualité et tests
 
 Backend :
 
 ```bash
 cd quizonline-server
+source .venv/bin/activate
 python manage.py test
 pytest
 python manage.py spectacular --file openapi.yaml
+python manage.py check --deploy
 ```
 
 Frontend :
@@ -45,125 +186,44 @@ npm run build
 npm run test:e2e
 ```
 
-Synchronisation du contrat API :
+## Contrat API
 
-```bash
+Le frontend et le backend restent découplés à l exécution. La frontière partagée est OpenAPI.
+
+Synchronisation du contrat :
+
+```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\sync-openapi.ps1
 ```
 
-## Configuration
+Fichiers concernés :
 
-Le backend selectionne son profil via `DJANGO_ENV` :
+- [`quizonline-server/openapi.yaml`](./quizonline-server/openapi.yaml)
+- [`quizonline-frontend/openapi.yaml`](./quizonline-frontend/openapi.yaml)
+- `quizonline-frontend/src/app/api/generated`
 
-- `dev` : configuration locale permissive
-- `prod` : configuration durcie
+## Déploiement
 
-En profil `prod`, les variables critiques (`SECRET_KEY`, `ALLOWED_HOSTS`, `DATABASE_URL`, `FRONTEND_BASE_URL`, `DEFAULT_FROM_EMAIL`) sont obligatoires.
+En production, prévoir au minimum :
 
-Variables backend notables :
+- reverse proxy HTTPS
+- PostgreSQL recommandé
+- Redis pour Celery
+- stockage média adapté si plusieurs instances
+- cohérence entre limites d upload Django et reverse proxy
 
-- `CELERY_BROKER_URL`
-- `CELERY_RESULT_BACKEND`
-- `CELERY_TASK_ALWAYS_EAGER`
-- `API_PAGE_SIZE`
-- `DATA_UPLOAD_MAX_MEMORY_SIZE`
-- `FILE_UPLOAD_MAX_MEMORY_SIZE`
-- `MAX_UPLOAD_FILE_SIZE`
-- `USE_DEEPL`
-- `DEEPL_AUTH_KEY`
-- `DEEPL_IS_FREE`
+Guide détaillé : [`docs/deployment.md`](./docs/deployment.md)
 
-Admin backend :
+## Documentation complémentaire
 
-- `django-import-export` est branché sur `Domain`, `Subject` et `Question`
-- l import/export admin inclut les colonnes de traduction par langue (`name_fr`, `title_en`, etc.)
-
-Variables d upload / pagination :
-
-- `API_PAGE_SIZE` definit la taille de page par defaut des endpoints pagines
-- `DATA_UPLOAD_MAX_MEMORY_SIZE` borne la taille totale d une requete uploadable en memoire
-- `FILE_UPLOAD_MAX_MEMORY_SIZE` borne la taille d un fichier garde en memoire avant bascule fichier temporaire
-- `MAX_UPLOAD_FILE_SIZE` borne la taille maximale acceptee pour `MediaAsset.file`
-
-Les emails applicatifs passent par une outbox base de donnees traitee par Celery + Redis :
-
-```bash
-redis-server
-cd quizonline-server
-celery -A config worker -l info
-```
-
-Le traitement manuel de rattrapage reste disponible si necessaire :
-
-```bash
-cd quizonline-server
-python manage.py process_outbound_email --limit 100
-```
-
-Tous les emails backend sont emis dans la langue du destinataire.
-Quand un quiz est assigne a un utilisateur, il recoit aussi une alerte applicative dans sa langue avec un lien direct vers le quiz.
-
-Architecture email :
-
-- le code applicatif enfile un `OutboundEmail` en base
-- `transaction.on_commit(...)` declenche une tache Celery
-- le worker Celery lit l outbox et envoie le mail via le backend SMTP Django
-- la commande `process_outbound_email` sert uniquement de rattrapage
-
-Alertes quiz :
-
-- le menu messages du frontend repose sur les `QuizAlertThread`
-- une assignation de quiz cree une alerte applicative non lue pour le destinataire
-- cette alerte contient un message localise et le lien frontend du quiz
-
-DeepL :
-
-- `USE_DEEPL=True` active DeepL pour les endpoints de traduction
-- `USE_DEEPL=False` garde le backend de traduction simulé
-- `DEEPL_IS_FREE=True` cible `api-free.deepl.com`
-- en cas de timeout, rate limit ou erreur 5xx, le backend renvoie une erreur applicative propre sans exposer la reponse brute DeepL
-
-Fichiers principaux :
-
-- [`quizonline-server/config/settings.py`](./quizonline-server/config/settings.py)
-- [`quizonline-server/config/settings_base.py`](./quizonline-server/config/settings_base.py)
-- [`quizonline-server/config/settings_dev.py`](./quizonline-server/config/settings_dev.py)
-- [`quizonline-server/config/settings_prod.py`](./quizonline-server/config/settings_prod.py)
-- [`quizonline-server/config/celery.py`](./quizonline-server/config/celery.py)
-
-## Documentation
-
-- structure du depot : [`docs/repository-structure.md`](./docs/repository-structure.md)
-- deploiement : [`docs/deployment.md`](./docs/deployment.md)
+- structure du dépôt : [`docs/repository-structure.md`](./docs/repository-structure.md)
+- déploiement : [`docs/deployment.md`](./docs/deployment.md)
 - checklist acceptance / production : [`docs/acceptance-checklist.md`](./docs/acceptance-checklist.md)
-- contrat API backend : [`quizonline-server/openapi.yaml`](./quizonline-server/openapi.yaml)
-- contrat API frontend : [`quizonline-frontend/openapi.yaml`](./quizonline-frontend/openapi.yaml)
 
-## CI
+## Principes du projet
 
-La CI GitHub valide notamment :
-
-- lint backend `ruff`
-- tests backend decoupes par domaines fonctionnels
-- `translation.tests`
-- `makemigrations --check --dry-run`
-- `check --deploy`
-- lint frontend
-- typecheck frontend
-- unit tests frontend
-- build frontend
-- e2e frontend
-- synchro OpenAPI / client genere
-
-Logging :
-
-- en `dev`, les logs applicatifs sont plus verbeux (`DEBUG`)
-- en `prod`, les logs applicatifs restent a `INFO`
-- les refus d acces `401/403` sont journalises en `WARNING`
-
-## Principes
-
-- le backend et le frontend restent decouples a l'execution
-- le contrat partage passe par OpenAPI
-- les artefacts locaux ne doivent pas etre commites
-- la CI doit rester verte avant merge
+- backend et frontend séparés mais versionnés ensemble
+- logique métier côté backend, interface côté frontend
+- contrat partagé explicite via OpenAPI
+- secrets non commités
+- CI verte avant merge

@@ -6,7 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {TagModule} from 'primeng/tag';
-import {QuizTemplateDto} from '../../api/generated';
+import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {AssignableRecipient} from '../../pages/quiz/list/quiz-list.models';
 import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
 

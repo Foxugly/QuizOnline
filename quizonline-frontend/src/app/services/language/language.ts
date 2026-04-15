@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {map, Observable} from 'rxjs';
-import {LanguageApi as LanguageApiService, LanguageReadDto} from '../../api/generated';
+import {LanguageApi as LanguageApiService} from '../../api/generated/api/language.service';
+import {LanguageReadDto} from '../../api/generated/model/language-read';
 import {Router} from '@angular/router';
 
 @Injectable({

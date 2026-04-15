@@ -22,12 +22,10 @@ import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {ToggleButtonModule} from 'primeng/togglebutton';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
-import {
-  LanguageEnumDto,
-  QuestionAnswerOptionReadDto,
-  QuestionMediaReadDto,
-  QuestionReadDto
-} from '../../api/generated';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-answer-option-read';
+import {QuestionMediaReadDto} from '../../api/generated/model/question-media-read';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UserService} from '../../services/user/user';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
 

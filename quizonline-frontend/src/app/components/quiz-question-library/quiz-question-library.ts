@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {MultiSelectModule} from 'primeng/multiselect';
 
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';
 import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
 

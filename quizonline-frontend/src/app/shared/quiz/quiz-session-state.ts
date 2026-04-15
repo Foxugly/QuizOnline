@@ -1,4 +1,6 @@
-import {QuestionReadDto, QuizQuestionAnswerDto, QuizQuestionReadDto} from '../../api/generated';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
+import {QuizQuestionAnswerDto} from '../../api/generated/model/quiz-question-answer';
+import {QuizQuestionReadDto} from '../../api/generated/model/quiz-question-read';
 import {QuizNavItem} from '../../components/quiz-nav/quiz-nav';
 
 export function buildQuizNavItems(questions: QuizQuestionReadDto[]): QuizNavItem[] {

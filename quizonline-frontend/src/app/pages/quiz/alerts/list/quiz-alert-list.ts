@@ -9,7 +9,7 @@ import {CardModule} from 'primeng/card';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
-import {LanguageEnumDto} from '../../../../api/generated';
+import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
 import {QuizAlertService, QuizAlertThreadListDto} from '../../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../../services/user/user';
 import {ROUTES} from '../../../../app.routes-paths';

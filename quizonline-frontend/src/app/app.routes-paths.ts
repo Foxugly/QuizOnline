@@ -42,6 +42,12 @@ export let ROUTES = {
     delete: (userId: number) => ['/user', userId, 'delete'] as const,
     list: () => ['/user/list'] as const,
   },
+  admin: {
+    stats: () => ['/admin/stats'] as const,
+    languages: () => ['/admin/languages'] as const,
+    systemConfig: () => ['/admin/system-config'] as const,
+    mailTest: () => ['/admin/mail-test'] as const,
+  },
   quiz: {
     add: () => ['/quiz/add'] as const,
     quick: () => ['/quiz/quick'] as const,

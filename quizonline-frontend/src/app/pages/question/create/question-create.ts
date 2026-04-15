@@ -8,9 +8,10 @@ import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
-import {MessageService} from 'primeng/api';
 
-import {DomainReadDto, LanguageEnumDto, SubjectReadDto} from '../../../api/generated';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {
@@ -37,6 +38,7 @@ import {LangCode, TranslateBatchItem, TranslationService} from '../../../service
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
   standalone: true,
@@ -120,7 +122,7 @@ export class QuestionCreate implements OnInit {
   private questionService = inject(QuestionService);
   private translator = inject(TranslationService);
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toast = inject(AppToastService);
   private pendingDuplicateDraft = this.questionService.consumeDuplicateDraft();
 
   constructor() {
@@ -466,7 +468,7 @@ export class QuestionCreate implements OnInit {
   }
 
   private showErrorToast(detail: string): void {
-    this.messageService.add({
+    this.toast.add({
       severity: 'error',
       summary: this.getCreateValidationErrorText().summary,
       detail,

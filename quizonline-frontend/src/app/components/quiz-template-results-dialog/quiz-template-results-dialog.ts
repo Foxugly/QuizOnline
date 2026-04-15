@@ -3,7 +3,7 @@ import {Component, input, output} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
-import {QuizTemplateDto} from '../../api/generated';
+import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
 
 @Component({

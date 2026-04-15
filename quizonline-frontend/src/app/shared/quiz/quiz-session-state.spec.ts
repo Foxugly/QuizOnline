@@ -1,4 +1,7 @@
-import {JoinPolicyEnumDto, LanguageEnumDto, QuizQuestionAnswerDto, QuizQuestionReadDto} from '../../api/generated';
+import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {QuizQuestionAnswerDto} from '../../api/generated/model/quiz-question-answer';
+import {QuizQuestionReadDto} from '../../api/generated/model/quiz-question-read';
 import {
   applyQuizAnswers,
   buildQuizNavItems,

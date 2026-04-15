@@ -190,9 +190,19 @@ export const routes: Routes = [
     canActivate: [authGuard, staffGuard],
   },
   {
+    path: 'admin/system-config',
+    loadComponent: () => import('./pages/admin/system-config/system-config').then((m) => m.SystemConfigPage),
+    canActivate: [authGuard, staffGuard],
+  },
+  {
     path: 'admin/languages',
     loadComponent: () => import('./pages/admin/languages/language-management').then((m) => m.LanguageManagementPage),
     canActivate: [authGuard, superuserGuard],
+  },
+  {
+    path: 'admin/mail-test',
+    loadComponent: () => import('./pages/admin/mail-test/mail-test').then((m) => m.MailTestPage),
+    canActivate: [authGuard, staffGuard],
   },
   {
     path: 'domain/:domainId/join-requests',

@@ -1,35 +1,25 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {Menu} from 'primeng/menu';
-import {MenuItem} from 'primeng/api';
-import {LanguageEnumDto} from '../../api/generated';
+import {Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../environments/language';
 
 @Component({
   selector: 'app-lang-select',
   standalone: true,
-  imports: [ButtonModule, Menu],
   templateUrl: './lang-select.html',
   styleUrl: './lang-select.scss',
 })
 export class LangSelectComponent implements OnChanges {
   @Input() lang!: SupportedLanguage;
   @Output() langChange = new EventEmitter<SupportedLanguage>();
-  @ViewChild('langMenu') private readonly langMenu?: Menu;
+  @ViewChild('menuRoot') private readonly menuRoot?: ElementRef<HTMLElement>;
 
   internalLang: SupportedLanguage = LanguageEnumDto.En;
+  menuOpen = false;
 
   readonly langOptions: Array<{label: string; value: SupportedLanguage}> = SUPPORTED_LANGUAGES.map((language) => ({
     label: this.languageLabel(language),
     value: language,
   }));
-
-  get menuItems(): MenuItem[] {
-    return this.langOptions.map((option) => ({
-      label: option.label,
-      command: () => this.onInternalChange(option.value),
-    }));
-  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['lang']) {
@@ -38,12 +28,24 @@ export class LangSelectComponent implements OnChanges {
   }
 
   toggleMenu(event: Event): void {
-    this.langMenu?.toggle(event);
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
   }
 
   onInternalChange(value: SupportedLanguage): void {
     this.internalLang = value;
+    this.menuOpen = false;
     this.langChange.emit(value);
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeMenu(event: Event): void {
+    const root = this.menuRoot?.nativeElement;
+    if (!root || root.contains(event.target as Node)) {
+      return;
+    }
+
+    this.menuOpen = false;
   }
 
   private languageLabel(language: SupportedLanguage): string {

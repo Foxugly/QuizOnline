@@ -139,6 +139,38 @@ class CustomUserCreateSerializerTests(TestCase):
         self.assertEqual(list(user.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(user.current_domain_id, self.domain.id)
 
+    def test_create_serializer_links_requested_domains_when_provided(self):
+        payload = {
+            "username": "requesteduser",
+            "email": "requested@example.com",
+            "first_name": "Requested",
+            "last_name": "User",
+            "password": "SecretPass123!",
+            "requested_domain_ids": [self.domain.id],
+        }
+
+        serializer = CustomUserCreateSerializer(data=payload)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        user = serializer.save()
+
+        self.assertEqual(list(user.linked_domains.values_list("id", flat=True)), [self.domain.id])
+        self.assertEqual(user.current_domain_id, self.domain.id)
+
+    def test_create_serializer_rejects_conflicting_requested_and_managed_domains(self):
+        serializer = CustomUserCreateSerializer(
+            data={
+                "username": "conflictuser",
+                "email": "conflict@example.com",
+                "first_name": "Conflict",
+                "last_name": "User",
+                "password": "SecretPass123!",
+                "requested_domain_ids": [self.domain.id],
+                "managed_domain_ids": [],
+            }
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("requested_domain_ids", serializer.errors)
+
     def test_create_serializer_password_is_write_only(self):
         user = User.objects.create_user(username="u2", password="SecretPass123!")
         data = CustomUserCreateSerializer(instance=user).data

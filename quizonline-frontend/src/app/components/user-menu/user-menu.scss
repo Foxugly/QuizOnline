@@ -7,22 +7,24 @@
   position: relative;
 }
 
-:host ::ng-deep .user-trigger.p-button {
-  background: transparent !important;
-  border: none !important;
-  color: var(--text-color, #333) !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
+.user-trigger {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #f8fafc;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
 }
 
-:host ::ng-deep .user-trigger.p-button:hover,
-:host ::ng-deep .user-trigger.p-button:focus,
-:host ::ng-deep .user-trigger.p-button:active {
-  background: transparent !important;
-  border: none !important;
-  color: inherit !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
+.user-trigger:hover,
+.user-trigger:focus,
+.user-trigger:active {
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
 }
 
 .user-menu__panel {
@@ -41,24 +43,25 @@
 }
 
 .user-menu__item {
+  background: transparent;
+  border: none;
+  border-radius: 0.7rem;
+  color: var(--text-color, #22304a);
+  cursor: pointer;
+  font: inherit;
   justify-content: flex-start;
+  padding: 0.7rem 0.8rem;
   width: 100%;
 }
 
-:host ::ng-deep .user-menu__item.p-button {
-  background: transparent;
-  border: none;
-  color: var(--text-color, #22304a);
-}
-
-:host ::ng-deep .user-menu__item.p-button:hover {
+.user-menu__item:hover {
   background: rgba(34, 48, 74, 0.08);
 }
 
-:host ::ng-deep .user-menu__item--danger.p-button {
+.user-menu__item--danger {
   color: #b42318;
 }
 
-:host ::ng-deep .user-menu__item--danger.p-button:hover {
+.user-menu__item--danger:hover {
   background: rgba(180, 35, 24, 0.08);
 }

@@ -2,21 +2,19 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {map, Observable, of, switchMap} from 'rxjs';
-import {
-  CreateQuizInputRequestDto,
-  GenerateFromSubjectsInputRequestDto,
-  PaginatedQuizAssignmentListListDto,
-  QuestionApi as QuestionApiService,
-  QuizAnswerApi as QuizAnswerApiService,
-  QuizAssignmentListDto,
-  QuizApi as QuizApiService,
-  QuizDto,
-  QuizListDto,
-  QuizQuestionAnswerDto,
-  QuizQuestionAnswerWriteRequestDto,
-  QuizTemplateApi as QuizTemplateApiService,
-  QuizTemplateDto,
-} from '../../api/generated';
+import {QuestionApi as QuestionApiService} from '../../api/generated/api/question.service';
+import {QuizAnswerApi as QuizAnswerApiService} from '../../api/generated/api/quiz-answer.service';
+import {QuizApi as QuizApiService} from '../../api/generated/api/quiz.service';
+import {QuizTemplateApi as QuizTemplateApiService} from '../../api/generated/api/quiz-template.service';
+import {CreateQuizInputRequestDto} from '../../api/generated/model/create-quiz-input-request';
+import {GenerateFromSubjectsInputRequestDto} from '../../api/generated/model/generate-from-subjects-input-request';
+import {PaginatedQuizAssignmentListListDto} from '../../api/generated/model/paginated-quiz-assignment-list-list';
+import {QuizAssignmentListDto} from '../../api/generated/model/quiz-assignment-list';
+import {QuizDto} from '../../api/generated/model/quiz';
+import {QuizListDto} from '../../api/generated/model/quiz-list';
+import {QuizQuestionAnswerDto} from '../../api/generated/model/quiz-question-answer';
+import {QuizQuestionAnswerWriteRequestDto} from '../../api/generated/model/quiz-question-answer-write-request';
+import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export interface QuizSubjectCreatePayload {

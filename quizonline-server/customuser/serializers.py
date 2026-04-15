@@ -99,6 +99,12 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
 class CustomUserCreateSerializer(StrictFieldsModelSerializer):
     password = serializers.CharField(write_only=True)
     nb_domain_max = serializers.IntegerField(min_value=0, required=False)
+    requested_domain_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        required=False,
+        allow_empty=True,
+        write_only=True,
+    )
     managed_domain_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1),
         required=False,
@@ -116,14 +122,11 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
             "password",
             "language",
             "nb_domain_max",
+            "requested_domain_ids",
             "managed_domain_ids",
         ]
 
-    def validate_password(self, value: str) -> str:
-        validate_password(value)
-        return value
-
-    def validate_managed_domain_ids(self, value: List[int]) -> List[int]:
+    def _validate_domain_id_list(self, value: List[int]) -> List[int]:
         domain_ids = sorted(set(value))
         domains = Domain.objects.filter(id__in=domain_ids, active=True)
         found_ids = set(domains.values_list("id", flat=True))
@@ -134,10 +137,32 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
             )
         return domain_ids
 
+    def validate_password(self, value: str) -> str:
+        validate_password(value)
+        return value
+
+    def validate_requested_domain_ids(self, value: List[int]) -> List[int]:
+        return self._validate_domain_id_list(value)
+
+    def validate_managed_domain_ids(self, value: List[int]) -> List[int]:
+        return self._validate_domain_id_list(value)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        requested = attrs.get("requested_domain_ids")
+        legacy = attrs.get("managed_domain_ids")
+        if requested is not None and legacy is not None and requested != legacy:
+            raise serializers.ValidationError(
+                {"requested_domain_ids": "Conflicts with managed_domain_ids."}
+            )
+        return attrs
+
     def create(self, validated_data):
         request = self.context.get("request")
         nb_domain_max = validated_data.pop("nb_domain_max", None)
-        managed_domain_ids = validated_data.pop("managed_domain_ids", [])
+        requested_domain_ids = validated_data.pop("requested_domain_ids", None)
+        managed_domain_ids = validated_data.pop("managed_domain_ids", None)
+        target_domain_ids = requested_domain_ids if requested_domain_ids is not None else (managed_domain_ids or [])
         password = validated_data.pop("password")
         user = User(**validated_data)
         user.email_confirmed = False
@@ -147,9 +172,9 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
             user.nb_domain_max = nb_domain_max
         user.set_password(password)
         user.save()
-        if managed_domain_ids:
+        if target_domain_ids:
             from customuser.services import reconcile_user_domain_membership
-            reconcile_user_domain_membership(user, managed_domain_ids)
+            reconcile_user_domain_membership(user, target_domain_ids)
             user.ensure_current_domain_is_valid(auto_fix=True)
         return user
 

@@ -1,6 +1,6 @@
 <header class="topbar">
   <div class="topbar__inner">
-    <button pButton (click)="goHome()" class="brand" type="button">
+    <button (click)="goHome()" class="brand" type="button">
       <span class="brand__mark">
         <img [alt]="app.name" [src]="app.logoSvg" class="brand__logo">
       </span>
@@ -21,17 +21,27 @@
         </a>
       }
       @if (isAdmin) {
-        <a class="nav__link" (click)="toggleAdminMenu($event)" style="cursor:pointer">
-          <i class="pi pi-cog"></i> {{ ui.admin.menuLabel }}
-        </a>
-        <p-menu #adminMenu [model]="adminMenuModel" [popup]="true"></p-menu>
+        <div #adminMenuRoot class="topbar-menu">
+          <button class="nav__link nav__link--button" (click)="toggleAdminMenu($event)" type="button">
+            <i class="pi pi-cog"></i> {{ ui.admin.menuLabel }}
+          </button>
+          @if (adminMenuOpen()) {
+            <div class="topbar-dropdown topbar-dropdown--admin">
+              @for (item of adminMenuItems; track item.label) {
+                <button class="topbar-dropdown__item" type="button" (click)="goAdmin(item)">
+                  <i [class]="item.icon"></i>
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
       }
     </nav>
 
     <div class="topbar__actions">
       @if (currentUser) {
         <button
-          pButton
           (click)="goAlerts()"
           [attr.aria-label]="ui.topmenu.alertsAria"
           class="alert-link"
@@ -42,19 +52,75 @@
             <span class="alert-link__badge">{{ unreadAlertCount }}</span>
           }
         </button>
-        <p-button
-          [label]="currentDomainLabel"
-          icon="pi pi-building"
-          severity="secondary"
-          styleClass="domain-trigger"
-          (click)="toggleDomainMenu($event)"
-        ></p-button>
-        <p-menu
-          #domainMenu
-          [model]="domainMenuItems"
-          [popup]="true"
-          styleClass="domain-menu"
-        ></p-menu>
+        <div #domainMenuRoot class="topbar-menu">
+          <button
+            class="domain-trigger"
+            type="button"
+            (click)="toggleDomainMenu($event)"
+          >
+            <i class="pi pi-building"></i>
+            <span class="domain-trigger__label">{{ currentDomainLabel }}</span>
+          </button>
+          @if (domainMenuOpen()) {
+            <div class="topbar-dropdown topbar-dropdown--domain">
+              <div class="topbar-dropdown__section">{{ ui.topmenu.ownedDomains }}</div>
+              @if (ownedDomains.length) {
+                @for (domain of ownedDomains; track domain.id) {
+                  <button class="topbar-dropdown__item" type="button" (click)="changeCurrentDomain(domain.id)">
+                    @if (currentUser.current_domain === domain.id) {
+                      <i class="pi pi-check"></i>
+                    } @else {
+                      <span class="topbar-dropdown__spacer"></span>
+                    }
+                    <span>{{ getDomainLabel(domain) }}</span>
+                  </button>
+                }
+              } @else {
+                <div class="topbar-dropdown__empty">{{ ui.topmenu.noDomains }}</div>
+              }
+
+              <div class="topbar-dropdown__divider"></div>
+              <div class="topbar-dropdown__section">{{ ui.topmenu.staffDomains }}</div>
+              @if (staffedDomains.length) {
+                @for (domain of staffedDomains; track domain.id) {
+                  <button class="topbar-dropdown__item" type="button" (click)="changeCurrentDomain(domain.id)">
+                    @if (currentUser.current_domain === domain.id) {
+                      <i class="pi pi-check"></i>
+                    } @else {
+                      <span class="topbar-dropdown__spacer"></span>
+                    }
+                    <span>{{ getDomainLabel(domain) }}</span>
+                  </button>
+                }
+              } @else {
+                <div class="topbar-dropdown__empty">{{ ui.topmenu.noDomains }}</div>
+              }
+
+              <div class="topbar-dropdown__divider"></div>
+              <div class="topbar-dropdown__section">{{ ui.topmenu.linkedDomains }}</div>
+              @if (linkedDomains.length) {
+                @for (domain of linkedDomains; track domain.id) {
+                  <button class="topbar-dropdown__item" type="button" (click)="changeCurrentDomain(domain.id)">
+                    @if (currentUser.current_domain === domain.id) {
+                      <i class="pi pi-check"></i>
+                    } @else {
+                      <span class="topbar-dropdown__spacer"></span>
+                    }
+                    <span>{{ getDomainLabel(domain) }}</span>
+                  </button>
+                }
+              } @else {
+                <div class="topbar-dropdown__empty">{{ ui.topmenu.noDomains }}</div>
+              }
+
+              <div class="topbar-dropdown__divider"></div>
+              <button class="topbar-dropdown__item" type="button" (click)="goPreferences()">
+                <i class="pi pi-cog"></i>
+                <span>{{ ui.topmenu.preferences }}</span>
+              </button>
+            </div>
+          }
+        </div>
       }
       <app-lang-select
         (langChange)="onLangChange($event)"

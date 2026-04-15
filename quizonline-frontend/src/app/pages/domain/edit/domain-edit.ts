@@ -23,14 +23,12 @@ import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
-import {
-  CustomUserReadDto,
-  DomainDetailDto,
-  DomainWriteRequestDto,
-  LanguageEnumDto,
-  LanguageReadDto,
-  UserSummaryDto,
-} from '../../../api/generated';
+import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
+import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {LanguageReadDto} from '../../../api/generated/model/language-read';
+import {UserSummaryDto} from '../../../api/generated/model/user-summary';
 
 type UserOption = { label: string; value: number };
 type DomainUserRef = UserSummaryDto;

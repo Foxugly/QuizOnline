@@ -18,7 +18,8 @@ import {MultiSelectModule} from 'primeng/multiselect';
 
 import {AuthService} from '../../../services/auth/auth';
 import {LanguageService} from '../../../services/language/language';
-import {DomainReadDto, LanguageReadDto} from '../../../api/generated';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {ROUTES} from '../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
@@ -60,7 +61,7 @@ export class Register implements OnInit {
         first_name: ['', [Validators.required]],
         last_name: ['', [Validators.required]],
         language: ['', [Validators.required]],
-        managed_domain_ids: [[] as number[]],
+        requested_domain_ids: [[] as number[]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirm_password: ['', [Validators.required]],
       },
@@ -125,10 +126,10 @@ export class Register implements OnInit {
     }
 
     this.isSubmitting = true;
-    const {username, email, first_name, last_name, language, managed_domain_ids, password} = this.form.getRawValue();
+    const {username, email, first_name, last_name, language, requested_domain_ids, password} = this.form.getRawValue();
 
     this.authService
-      .register({username, email, first_name, last_name, language, managed_domain_ids, password})
+      .register({username, email, first_name, last_name, language, requested_domain_ids, password})
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: () => {

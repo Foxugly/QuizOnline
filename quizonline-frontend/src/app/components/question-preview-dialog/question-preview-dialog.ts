@@ -5,7 +5,7 @@ import {finalize} from 'rxjs/operators';
 
 import {DialogModule} from 'primeng/dialog';
 
-import {QuestionReadDto} from '../../api/generated';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuizQuestionComponent} from '../quiz-question/quiz-question';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {QuestionService} from '../../services/question/question';

@@ -1,4 +1,5 @@
-import {QuizListDto, QuizTemplateDto} from '../../../api/generated';
+import {QuizListDto} from '../../../api/generated/model/quiz-list';
+import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {QuizTemplateAssignmentSessionDto} from '../../../services/quiz/quiz';
 
 export interface UserQuizListItem extends QuizListDto {

@@ -5,16 +5,14 @@ import {Router} from '@angular/router';
 import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths';
-import {
-  LanguageEnumDto,
-  MediaAssetDto,
-  MediaAssetUploadKindEnumDto,
-  PaginatedQuestionReadListDto,
-  QuestionApi as QuestionApiService,
-  QuestionReadDto,
-  QuestionWritePayloadRequestDto,
-  PatchedQuestionPartialWritePayloadRequestDto,
-} from '../../api/generated';
+import {QuestionApi as QuestionApiService} from '../../api/generated/api/question.service';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {MediaAssetDto} from '../../api/generated/model/media-asset';
+import {MediaAssetUploadKindEnumDto} from '../../api/generated/model/media-asset-upload-kind-enum';
+import {PaginatedQuestionReadListDto} from '../../api/generated/model/paginated-question-read-list';
+import {PatchedQuestionPartialWritePayloadRequestDto} from '../../api/generated/model/patched-question-partial-write-payload-request';
+import {QuestionReadDto} from '../../api/generated/model/question-read';
+import {QuestionWritePayloadRequestDto} from '../../api/generated/model/question-write-payload-request';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {selectTranslation} from '../../shared/i18n/select-translation';
 import {LangCode} from '../translation/translation';

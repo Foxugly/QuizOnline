@@ -1,6 +1,5 @@
 import {Component, HostListener, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
 
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
@@ -9,9 +8,6 @@ import {getUiText} from '../../shared/i18n/ui-text';
 @Component({
   selector: 'app-user-menu',
   standalone: true,
-  imports: [
-    ButtonModule,
-  ],
   templateUrl: './user-menu.html',
   styleUrl: './user-menu.scss',
 })

@@ -1,12 +1,11 @@
-import {Component, DestroyRef, inject, OnInit, signal, ViewChild, computed} from '@angular/core';
+import {Component, DestroyRef, ElementRef, HostListener, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {Menu} from 'primeng/menu';
-import {MenuItem} from 'primeng/api';
 
-import {CustomUserReadDto, DomainReadDto, LanguageEnumDto} from '../../api/generated';
+import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
+import {DomainReadDto} from '../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {UserService} from '../../services/user/user';
 import {LangSelectComponent} from '../lang-select/lang-select';
 import {UserMenuComponent} from '../user-menu/user-menu';
@@ -15,6 +14,7 @@ import {ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
 import {getUiText} from '../../shared/i18n/ui-text';
 import {DomainService, DomainTranslations} from '../../services/domain/domain';
+import {AuthService} from '../../services/auth/auth';
 
 declare global {
   interface Window {
@@ -36,12 +36,16 @@ type NavItem = {
   accent?: boolean;
 };
 
+type AdminNavItem = {
+  label: string;
+  icon: string;
+  link: readonly string[];
+};
+
 @Component({
   selector: 'app-topmenu',
   standalone: true,
   imports: [
-    ButtonModule,
-    Menu,
     RouterLink,
     RouterLinkActive,
     LangSelectComponent,
@@ -51,10 +55,11 @@ type NavItem = {
   styleUrl: './topmenu.scss',
 })
 export class TopMenuComponent implements OnInit {
-  @ViewChild('domainMenu') private readonly domainMenu?: Menu;
-  @ViewChild('adminMenu') private readonly adminMenuRef?: Menu;
+  @ViewChild('domainMenuRoot') private readonly domainMenuRoot?: ElementRef<HTMLElement>;
+  @ViewChild('adminMenuRoot') private readonly adminMenuRoot?: ElementRef<HTMLElement>;
 
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly domainService = inject(DomainService);
   private readonly quizAlertService = inject(QuizAlertService);
@@ -62,6 +67,8 @@ export class TopMenuComponent implements OnInit {
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
   readonly visibleDomains = signal<DomainReadDto[]>([]);
+  readonly domainMenuOpen = signal(false);
+  readonly adminMenuOpen = signal(false);
 
   get ui() {
     return getUiText(this.userService.currentLang);
@@ -160,35 +167,6 @@ export class TopMenuComponent implements OnInit {
     return items;
   }
 
-  get domainMenuItems(): MenuItem[] {
-    const me = this.currentUser;
-    if (!me) {
-      return [];
-    }
-
-    const owned = this.visibleDomains().filter((domain) => domain.owner?.id === me.id);
-    const staffed = this.visibleDomains().filter(
-      (domain) => domain.owner?.id !== me.id && (domain.managers ?? []).some((user) => user.id === me.id),
-    );
-    const linked = this.visibleDomains().filter(
-      (domain) => domain.owner?.id !== me.id && !(domain.managers ?? []).some((user) => user.id === me.id),
-    );
-
-    return [
-      ...this.buildDomainSection(this.ui.topmenu.ownedDomains, owned),
-      {separator: true},
-      ...this.buildDomainSection(this.ui.topmenu.staffDomains, staffed),
-      {separator: true},
-      ...this.buildDomainSection(this.ui.topmenu.linkedDomains, linked),
-      {separator: true},
-      {
-        label: this.ui.topmenu.preferences,
-        icon: 'pi pi-cog',
-        command: () => void this.router.navigate(['/preferences']),
-      },
-    ];
-  }
-
   ngOnInit(): void {
     this.refreshUserContext();
     this.router.events
@@ -215,7 +193,9 @@ export class TopMenuComponent implements OnInit {
   }
 
   toggleDomainMenu(event: Event): void {
-    this.domainMenu?.toggle(event);
+    event.stopPropagation();
+    this.adminMenuOpen.set(false);
+    this.domainMenuOpen.update((value) => !value);
   }
 
   goHome(): void {
@@ -230,64 +210,104 @@ export class TopMenuComponent implements OnInit {
     return this.userService.isAdmin();
   }
 
-  get adminMenuModel(): MenuItem[] {
-    const items: MenuItem[] = [
+  get adminMenuItems(): AdminNavItem[] {
+    const items: AdminNavItem[] = [
       {
         label: this.ui.admin.stats.title,
         icon: 'pi pi-chart-bar',
-        routerLink: '/admin/stats',
+        link: ROUTES.admin.stats(),
+      },
+      {
+        label: this.ui.admin.systemConfig.title,
+        icon: 'pi pi-server',
+        link: ROUTES.admin.systemConfig(),
+      },
+      {
+        label: this.ui.admin.mailTest.title,
+        icon: 'pi pi-send',
+        link: ROUTES.admin.mailTest(),
       },
     ];
     if (this.userService.isSuperuser()) {
       items.push({
         label: this.ui.admin.languages.title,
         icon: 'pi pi-language',
-        routerLink: '/admin/languages',
+        link: ROUTES.admin.languages(),
       });
     }
     return items;
   }
 
   toggleAdminMenu(event: Event): void {
-    this.adminMenuRef?.toggle(event);
+    event.stopPropagation();
+    this.domainMenuOpen.set(false);
+    this.adminMenuOpen.update((value) => !value);
   }
 
   get unreadAlertCount(): number {
     return this.quizAlertService.unreadCount();
   }
 
-  private buildDomainSection(label: string, domains: DomainReadDto[]): MenuItem[] {
-    const items: MenuItem[] = [
-      {
-        label,
-        disabled: true,
-        styleClass: 'domain-menu__section',
-      },
-    ];
-
-    if (!domains.length) {
-      items.push({
-        label: this.ui.topmenu.noDomains,
-        disabled: true,
-        styleClass: 'domain-menu__empty',
-      });
-      return items;
+  get ownedDomains(): DomainReadDto[] {
+    const me = this.currentUser;
+    if (!me) {
+      return [];
     }
 
-    return items.concat(domains.map((domain) => ({
-      label: this.getDomainLabel(domain),
-      icon: this.currentUser?.current_domain === domain.id ? 'pi pi-check' : undefined,
-      command: () => this.changeCurrentDomain(domain.id),
-    })));
+    return this.visibleDomains().filter((domain) => domain.owner?.id === me.id);
   }
 
-  private changeCurrentDomain(domainId: number): void {
+  get staffedDomains(): DomainReadDto[] {
+    const me = this.currentUser;
+    if (!me) {
+      return [];
+    }
+
+    return this.visibleDomains().filter(
+      (domain) => domain.owner?.id !== me.id && (domain.managers ?? []).some((user) => user.id === me.id),
+    );
+  }
+
+  get linkedDomains(): DomainReadDto[] {
+    const me = this.currentUser;
+    if (!me) {
+      return [];
+    }
+
+    return this.visibleDomains().filter(
+      (domain) => domain.owner?.id !== me.id && !(domain.managers ?? []).some((user) => user.id === me.id),
+    );
+  }
+
+  changeCurrentDomain(domainId: number): void {
+    this.domainMenuOpen.set(false);
     this.userService.setCurrentDomain(domainId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => window.location.reload(),
     });
   }
 
-  private getDomainLabel(domain: DomainReadDto): string {
+  goPreferences(): void {
+    this.domainMenuOpen.set(false);
+    void this.router.navigate(['/preferences']);
+  }
+
+  goAdmin(item: AdminNavItem): void {
+    this.adminMenuOpen.set(false);
+    void this.router.navigate(item.link);
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeMenus(event: Event): void {
+    const target = event.target as Node;
+    if (!this.domainMenuRoot?.nativeElement.contains(target)) {
+      this.domainMenuOpen.set(false);
+    }
+    if (!this.adminMenuRoot?.nativeElement.contains(target)) {
+      this.adminMenuOpen.set(false);
+    }
+  }
+
+  getDomainLabel(domain: DomainReadDto): string {
     const translations = domain.translations as DomainTranslations | undefined;
     const lang = this.userService.currentLang;
     const current = translations?.[lang]?.name?.trim();
@@ -310,6 +330,12 @@ export class TopMenuComponent implements OnInit {
     if (me) {
       this.refreshUnreadCount();
       this.refreshVisibleDomains();
+      return;
+    }
+
+    if (!this.authService.authenticated) {
+      this.quizAlertService.clearUnreadCount();
+      this.visibleDomains.set([]);
       return;
     }
 

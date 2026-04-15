@@ -2,7 +2,7 @@ import {HttpClient} from '@angular/common/http';
 import {computed, Injectable, signal} from '@angular/core';
 import {BehaviorSubject, map, Observable, tap} from 'rxjs';
 
-import {UserApi as UserApiService} from '../../api/generated';
+import {UserApi as UserApiService} from '../../api/generated/api/user.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {PatchedCustomUserProfileUpdateRequestDto} from '../../api/generated/model/patched-custom-user-profile-update-request';
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';

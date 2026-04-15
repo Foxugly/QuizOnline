@@ -5,16 +5,14 @@ import {firstValueFrom} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {FileUploadModule} from 'primeng/fileupload';
-import {MessageService} from 'primeng/api';
 
-import {
-  LanguageEnumDto,
-} from '../../../api/generated';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {
   QuestionService,
   StructuredQuestionImportFile,
   StructuredQuestionImportResult,
 } from '../../../services/question/question';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {UserService} from '../../../services/user/user';
 import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i18n';
 
@@ -44,7 +42,7 @@ export class QuestionImport implements OnInit {
 
   private questionService = inject(QuestionService);
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toast = inject(AppToastService);
   private currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
 
   ngOnInit(): void {
@@ -354,7 +352,7 @@ export class QuestionImport implements OnInit {
   }
 
   private showToast(severity: 'success' | 'error' | 'warn', summary: string, detail: string): void {
-    this.messageService.add({
+    this.toast.add({
       severity,
       summary,
       detail,

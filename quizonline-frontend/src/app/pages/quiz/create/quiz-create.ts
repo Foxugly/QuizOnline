@@ -21,15 +21,15 @@ import {TabsModule} from 'primeng/tabs';
 
 import {
   DomainReadDto,
-  LanguageEnumDto,
-  ModeEnumDto,
-  QuestionInQuizQuestionDto,
-  QuestionReadDto,
-  QuizTemplateDto,
-  QuizTemplateWriteRequestDto,
-  SubjectReadDto,
-  VisibilityEnumDto,
-} from '../../../api/generated';
+} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {ModeEnumDto} from '../../../api/generated/model/mode-enum';
+import {QuestionInQuizQuestionDto} from '../../../api/generated/model/question-in-quiz-question';
+import {QuestionReadDto} from '../../../api/generated/model/question-read';
+import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
+import {QuizTemplateWriteRequestDto} from '../../../api/generated/model/quiz-template-write-request';
+import {SubjectReadDto} from '../../../api/generated/model/subject-read';
+import {VisibilityEnumDto} from '../../../api/generated/model/visibility-enum';
 import {QuizQuestionLibraryComponent} from '../../../components/quiz-question-library/quiz-question-library';
 import {QuizTemplateCompositionComponent} from '../../../components/quiz-template-composition/quiz-template-composition';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';

@@ -1,7 +1,8 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+
+import {adminApiBaseUrl} from './_common';
 
 export interface DomainStats {
   id: number;
@@ -26,7 +27,7 @@ export interface DashboardStats {
 
 @Injectable({providedIn: 'root'})
 export class StatsService {
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = adminApiBaseUrl();
 
   constructor(private http: HttpClient) {}
 

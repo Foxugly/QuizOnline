@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {MessageService} from 'primeng/api';
 
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import { DomainCreate } from './domain-create';
 
 describe('DomainCreate', () => {
@@ -10,7 +10,7 @@ describe('DomainCreate', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DomainCreate],
-      providers: [MessageService],
+      providers: [AppToastService],
     })
     .compileComponents();
 

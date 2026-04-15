@@ -8,10 +8,8 @@ import {TextareaModule} from 'primeng/textarea';
 import {ButtonModule} from 'primeng/button';
 import {AnswerPayload, QuizQuestionComponent} from '../../../components/quiz-question/quiz-question';
 import {QuizNav, QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
-import {
-  QuizDto,
-  QuizQuestionAnswerWriteRequestDto,
-} from '../../../api/generated';
+import {QuizDto} from '../../../api/generated/model/quiz';
+import {QuizQuestionAnswerWriteRequestDto} from '../../../api/generated/model/quiz-question-answer-write-request';
 import {QuizService} from '../../../services/quiz/quiz';
 import {
   applyQuizAnswers,

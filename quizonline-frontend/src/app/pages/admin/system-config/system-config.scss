@@ -1,0 +1,141 @@
+.system-config {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.system-config__hero {
+  padding: 1.5rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at top right, rgba(196, 222, 255, 0.8), transparent 35%),
+    linear-gradient(135deg, #fffaf0 0%, #ffffff 58%, #edf6ff 100%);
+}
+
+.system-config__hero h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 2.6vw, 2.7rem);
+}
+
+.system-config__hero p:last-child {
+  margin: 0.6rem 0 0;
+  max-width: 65ch;
+  color: #475467;
+}
+
+.system-config__eyebrow {
+  margin: 0 0 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8a5a14;
+}
+
+.system-config__loading {
+  color: #667085;
+}
+
+.system-config__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.system-config__card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.system-config__card-head h2 {
+  margin: 0;
+}
+
+.system-config__card-head p {
+  margin: 0.35rem 0 0;
+  color: #667085;
+}
+
+.system-config__kv {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.system-config__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+  background: #f8fafc;
+}
+
+.system-config__row span {
+  color: #475467;
+}
+
+.system-config__row strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.system-config__check {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border-radius: 0.95rem;
+  background: #fcfcfd;
+  border: 1px solid #eaecf0;
+}
+
+.system-config__check p,
+.system-config__check small {
+  margin: 0.4rem 0 0;
+}
+
+.system-config__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  background: #eef2f6;
+  color: #344054;
+}
+
+.system-config__status--ok {
+  background: #dcfae6;
+  color: #166534;
+}
+
+.system-config__status--error {
+  background: #fee4e2;
+  color: #b42318;
+}
+
+.system-config__status--skipped {
+  background: #fff1cc;
+  color: #9a6700;
+}
+
+@media (max-width: 900px) {
+  .system-config__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .system-config__card-head,
+  .system-config__row {
+    flex-direction: column;
+  }
+
+  .system-config__row strong {
+    text-align: left;
+  }
+}

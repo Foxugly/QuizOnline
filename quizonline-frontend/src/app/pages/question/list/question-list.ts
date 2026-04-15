@@ -5,9 +5,12 @@ import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 
-import {DomainReadDto, LanguageEnumDto, QuestionReadDto, SubjectReadDto} from '../../../api/generated';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {QuestionReadDto} from '../../../api/generated/model/question-read';
+import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {DomainService} from '../../../services/domain/domain';
 import {QuestionService} from '../../../services/question/question';
@@ -194,10 +197,14 @@ export class QuestionList implements OnInit {
     });
   }
 
-  onPageChange(event: { first?: number; rows?: number; page?: number }): void {
-    this.first.set(event.first ?? 0);
-    this.rows.set(event.rows ?? this.rows());
-    this.loadQuestions((event.page ?? 0) + 1);
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    const nextFirst = event.first ?? 0;
+    const nextRows = event.rows ?? this.rows();
+    const nextPage = Math.floor(nextFirst / nextRows) + 1;
+
+    this.first.set(nextFirst);
+    this.rows.set(nextRows);
+    this.loadQuestions(nextPage);
   }
 
   goView(id: number): void {

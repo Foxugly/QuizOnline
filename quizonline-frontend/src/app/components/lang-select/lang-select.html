@@ -1,15 +1,26 @@
-<p-button
-  styleClass="lang-select__trigger"
-  [label]="internalLang.toUpperCase()"
-  icon="pi pi-globe"
-  severity="secondary"
-  type="button"
-  (click)="toggleMenu($event)"
-></p-button>
+<div #menuRoot class="lang-select">
+  <button
+    type="button"
+    class="lang-select__trigger"
+    (click)="toggleMenu($event)"
+    [attr.aria-expanded]="menuOpen"
+    aria-haspopup="menu"
+  >
+    <i class="pi pi-globe"></i>
+    <span>{{ internalLang.toUpperCase() }}</span>
+  </button>
 
-<p-menu
-  #langMenu
-  [model]="menuItems"
-  [popup]="true"
-  styleClass="lang-select__menu"
-></p-menu>
+  @if (menuOpen) {
+    <div class="lang-select__menu" role="menu">
+      @for (option of langOptions; track option.value) {
+        <button
+          type="button"
+          class="lang-select__item"
+          (click)="onInternalChange(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  }
+</div>

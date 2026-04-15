@@ -1,14 +1,12 @@
 import {Injectable} from '@angular/core';
 import {map, Observable} from 'rxjs';
 
-import {
-  PatchedQuizTemplatePartialRequestDto,
-  QuizQuestionReadDto,
-  QuizQuestionWriteRequestDto,
-  QuizTemplateApi as QuizTemplateApiService,
-  QuizTemplateDto,
-  QuizTemplateWriteRequestDto,
-} from '../../api/generated';
+import {QuizTemplateApi as QuizTemplateApiService} from '../../api/generated/api/quiz-template.service';
+import {PatchedQuizTemplatePartialRequestDto} from '../../api/generated/model/patched-quiz-template-partial-request';
+import {QuizQuestionReadDto} from '../../api/generated/model/quiz-question-read';
+import {QuizQuestionWriteRequestDto} from '../../api/generated/model/quiz-question-write-request';
+import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
+import {QuizTemplateWriteRequestDto} from '../../api/generated/model/quiz-template-write-request';
 
 @Injectable({
   providedIn: 'root',
