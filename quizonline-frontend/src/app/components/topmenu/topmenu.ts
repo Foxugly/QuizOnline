@@ -160,10 +160,17 @@ export class TopMenuComponent implements OnInit {
       });
     }
 
-    items.push({
-      label: this.ui.topmenu.about,
-      link: ['/about'],
-    });
+    items.push(
+      {
+        label: this.ui.topmenu.donate,
+        link: ['/donate'],
+        accent: true,
+      },
+      {
+        label: this.ui.topmenu.about,
+        link: ['/about'],
+      },
+    );
 
     return items;
   }

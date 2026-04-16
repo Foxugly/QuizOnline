@@ -6,6 +6,7 @@ export const FR: UiText = {
     domains: 'Domaines',
     subjects: 'Sujets',
     questions: 'Questions',
+    donate: 'Soutenir',
     about: 'À propos',
     alertsAria: 'Messages',
     currentDomain: 'Domaine courant',

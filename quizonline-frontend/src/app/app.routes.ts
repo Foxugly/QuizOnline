@@ -9,6 +9,7 @@ export const routes: Routes = [
   {path: '', redirectTo: 'home', pathMatch: 'full'},
   {path: 'login', loadComponent: () => import('./pages/auth/login/login').then((m) => m.LoginPage)},
   {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
+  {path: 'donate', loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
   {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},
   {
     path: 'preferences',

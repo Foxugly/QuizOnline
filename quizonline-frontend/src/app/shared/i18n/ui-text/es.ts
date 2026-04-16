@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const ES: UiText = {
-  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', staffDomains: 'Dominios donde soy staff', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
+  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', staffDomains: 'Dominios donde soy staff', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contrasena', logout: 'Cerrar sesion', login: 'Iniciar sesion'},
   footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
   home: {

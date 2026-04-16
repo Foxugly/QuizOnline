@@ -3,6 +3,7 @@ export type TopMenuUiText = {
   domains: string;
   subjects: string;
   questions: string;
+  donate: string;
   about: string;
   alertsAria: string;
   currentDomain: string;

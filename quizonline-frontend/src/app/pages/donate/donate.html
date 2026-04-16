@@ -1,0 +1,41 @@
+<section class="donate-page">
+  <header class="hero">
+    <p class="eyebrow">{{ ui().eyebrow }}</p>
+    <h1>{{ ui().title }}</h1>
+    <p class="lead">{{ ui().lead }}</p>
+  </header>
+
+  <section class="why-section">
+    <h2>{{ ui().whyTitle }}</h2>
+    <div class="reasons-grid">
+      @for (reason of ui().reasons; track reason.title) {
+        <article class="reason-card">
+          <i [class]="reason.icon + ' reason-card__icon'"></i>
+          <h3>{{ reason.title }}</h3>
+          <p>{{ reason.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-card">
+      <h2>{{ ui().ctaTitle }}</h2>
+      <p>{{ ui().ctaDescription }}</p>
+      <a
+        class="cta-button"
+        [href]="sponsorUrl"
+        rel="noreferrer"
+        target="_blank">
+        <i class="pi pi-heart"></i>
+        {{ ui().ctaButton }}
+      </a>
+      <p class="cta-note">{{ ui().ctaNote }}</p>
+    </div>
+  </section>
+
+  <section class="thanks-section">
+    <h2>{{ ui().thanksTitle }}</h2>
+    <p>{{ ui().thanksDescription }}</p>
+  </section>
+</section>
