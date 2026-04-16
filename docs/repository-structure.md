@@ -17,7 +17,7 @@ The backend and frontend are already separated at runtime. The main shared bound
 The recommended target is:
 
 ```text
-WpRef/
+QuizOnline/
 |-- README.md
 |-- .gitignore
 |-- docs/

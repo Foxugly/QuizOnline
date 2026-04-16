@@ -2,7 +2,7 @@ import {expect, test} from '@playwright/test';
 
 test.beforeEach(async ({page}) => {
   await page.addInitScript(() => {
-    (window as Window & {__WPREF_API_BASE_URL?: string}).__WPREF_API_BASE_URL = 'http://127.0.0.1:8001';
+    (window as Window & {__QUIZONLINE_API_BASE_URL?: string}).__QUIZONLINE_API_BASE_URL = 'http://127.0.0.1:8001';
   });
 });
 

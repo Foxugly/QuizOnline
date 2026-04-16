@@ -1,5 +1,5 @@
 /**
- * WpRef API
+ * QuizOnline API
  *
  * 
  *
@@ -9,8 +9,13 @@
  */
 
 
-export interface DomainDetailOwnerDto { 
-    id: number;
-    username: string;
+/**
+ * * `open` - Open * `closed` - Closed
+ */
+export enum AlertThreadStatusEnumDto {
+
+    Open = 'open',
+
+    Closed = 'closed'
 }
 

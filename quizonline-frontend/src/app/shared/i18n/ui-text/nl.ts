@@ -60,7 +60,7 @@ export const NL: UiText = {
     login: 'Naar aanmelden',
   },
   changePassword: {
-    title: 'WpRef', subtitle: 'Mijn wachtwoord resetten', oldPassword: 'Huidig wachtwoord', newPassword: 'Nieuw wachtwoord',
+    title: 'QuizOnline', subtitle: 'Mijn wachtwoord resetten', oldPassword: 'Huidig wachtwoord', newPassword: 'Nieuw wachtwoord',
     confirmNewPassword: 'Nieuw wachtwoord bevestigen', oldPasswordRequired: 'Huidig wachtwoord is verplicht.', newPasswordRequired: 'Nieuw wachtwoord is verplicht.',
     newPasswordMin: 'Het nieuwe wachtwoord moet minstens 8 tekens bevatten.', confirmRequired: 'Bevestiging is verplicht.', mismatch: 'Wachtwoorden komen niet overeen.',
     submit: 'Wachtwoord wijzigen', forceMessage: 'U moet eerst uw wachtwoord wijzigen.', success: 'Uw wachtwoord is gewijzigd.',

@@ -1,7 +1,7 @@
 import {environment} from '../../../environments/environment';
 
 type RuntimeApiWindow = typeof globalThis & {
-  __WPREF_API_BASE_URL?: string;
+  __QUIZONLINE_API_BASE_URL?: string;
 };
 
 function resolveLocalDevApiBaseUrl(): string | null {
@@ -20,7 +20,7 @@ function resolveLocalDevApiBaseUrl(): string | null {
 
 export function resolveApiBaseUrl(): string {
   return (
-    (globalThis as RuntimeApiWindow).__WPREF_API_BASE_URL
+    (globalThis as RuntimeApiWindow).__QUIZONLINE_API_BASE_URL
     ?? resolveLocalDevApiBaseUrl()
     ?? environment.apiBaseUrl
   );

@@ -12,7 +12,7 @@
 /**
  * * `pending` - Pending * `approved` - Approved * `rejected` - Rejected * `cancelled` - Cancelled
  */
-export enum DomainJoinRequestReadStatusEnumDto {
+export enum JoinRequestStatusEnumDto {
 
     Pending = 'pending',
 

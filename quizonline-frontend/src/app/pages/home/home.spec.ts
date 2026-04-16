@@ -11,7 +11,7 @@ describe('Home', () => {
 
   beforeEach(async () => {
     (window as Window & {__APP__?: unknown}).__APP__ = {
-      name: 'WpRef',
+      name: 'QuizOnline',
       version: 'test',
       logoSvg: 'assets/qna.svg',
       logoIco: 'assets/qna.ico',

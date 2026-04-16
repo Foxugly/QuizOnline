@@ -14,7 +14,6 @@ api/quiz-answer.service.ts
 api/quiz-template.service.ts
 api/quiz.service.ts
 api/schema.service.ts
-api/stats.service.ts
 api/subject.service.ts
 api/token.service.ts
 api/translation.service.ts
@@ -23,17 +22,19 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/alert-thread-status-enum.ts
 model/answer-correctness-state-enum.ts
 model/bulk-create-from-template-input-request.ts
 model/create-quiz-input-request.ts
 model/custom-user-admin-update-request.ts
 model/custom-user-create-request.ts
 model/custom-user-read.ts
+model/dashboard-stats-response.ts
 model/domain-detail.ts
-model/domain-join-request-read-status-enum.ts
 model/domain-join-request-read.ts
 model/domain-name-summary.ts
 model/domain-read.ts
+model/domain-stats.ts
 model/domain-write-request.ts
 model/domain-write.ts
 model/email-confirmation-request.ts
@@ -42,6 +43,7 @@ model/error-detail.ts
 model/format-enum.ts
 model/generate-from-subjects-input-request.ts
 model/join-policy-enum.ts
+model/join-request-status-enum.ts
 model/language-enum.ts
 model/language-read.ts
 model/language-write-request.ts
@@ -119,7 +121,6 @@ model/quiz-template.ts
 model/quiz-update-request.ts
 model/quiz.ts
 model/set-current-domain-request.ts
-model/status-da1-enum.ts
 model/subject-detail.ts
 model/subject-read.ts
 model/subject-write-request.ts
@@ -131,6 +132,7 @@ model/test-email-request-request.ts
 model/test-email-response.ts
 model/token-refresh-request.ts
 model/token-refresh.ts
+model/totals.ts
 model/translate-batch-request-request.ts
 model/translate-batch-response.ts
 model/translate-item-request.ts

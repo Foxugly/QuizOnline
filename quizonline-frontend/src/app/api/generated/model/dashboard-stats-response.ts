@@ -7,10 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TotalsDto } from './totals';
+import { DomainStatsDto } from './domain-stats';
 
 
-export interface TokenObtainPairRequestDto { 
-    username: string;
-    password: string;
+export interface DashboardStatsResponseDto { 
+    totals: TotalsDto;
+    domains: Array<DomainStatsDto>;
 }
 

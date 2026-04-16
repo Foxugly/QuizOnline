@@ -7,14 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { DomainJoinRequestReadStatusEnumDto } from './domain-join-request-read-status-enum';
+import { JoinRequestStatusEnumDto } from './join-request-status-enum';
 
 
 export interface DomainJoinRequestReadDto { 
     readonly id: number;
     readonly domain: number;
     readonly user: number;
-    readonly status: DomainJoinRequestReadStatusEnumDto;
+    readonly status: JoinRequestStatusEnumDto;
     readonly decided_by: number | null;
     readonly decided_at: string | null;
     readonly reject_reason: string;

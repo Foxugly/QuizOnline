@@ -7,7 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { StatusDa1EnumDto } from './status-da1-enum';
+import { AlertThreadStatusEnumDto } from './alert-thread-status-enum';
 import { UserSummaryDto } from './user-summary';
 import { QuizAlertMessageDto } from './quiz-alert-message';
 
@@ -21,7 +21,7 @@ export interface QuizAlertThreadDetailDto {
     readonly question_title: string;
     readonly quiz_template_title: string;
     readonly reported_language: string;
-    readonly status: StatusDa1EnumDto;
+    readonly status: AlertThreadStatusEnumDto;
     readonly reporter_reply_allowed: boolean;
     readonly last_message_at: string;
     readonly created_at: string;

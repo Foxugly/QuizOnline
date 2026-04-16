@@ -130,7 +130,7 @@ jobs:
           ALLOWED_HOSTS: ci.local
           DATABASE_URL: sqlite:///ci.sqlite3
           FRONTEND_BASE_URL: https://ci.local
-          DEFAULT_FROM_EMAIL: ci.local@wpref.test
+          DEFAULT_FROM_EMAIL: ci@quizonline.test
           EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
           CSRF_TRUSTED_ORIGINS: https://ci.local
           CELERY_BROKER_URL: redis://localhost:6379/0

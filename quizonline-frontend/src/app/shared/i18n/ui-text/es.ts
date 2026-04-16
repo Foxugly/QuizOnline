@@ -60,7 +60,7 @@ export const ES: UiText = {
     login: 'Ir al inicio de sesion',
   },
   changePassword: {
-    title: 'WpRef', subtitle: 'Restablecer mi contrasena', oldPassword: 'Contrasena actual', newPassword: 'Nueva contrasena',
+    title: 'QuizOnline', subtitle: 'Restablecer mi contrasena', oldPassword: 'Contrasena actual', newPassword: 'Nueva contrasena',
     confirmNewPassword: 'Confirmar nueva contrasena', oldPasswordRequired: 'La contrasena actual es obligatoria.', newPasswordRequired: 'La nueva contrasena es obligatoria.',
     newPasswordMin: 'La nueva contrasena debe tener al menos 8 caracteres.', confirmRequired: 'La confirmacion es obligatoria.', mismatch: 'Las contrasenas no coinciden.',
     submit: 'Cambiar contrasena', forceMessage: 'Debes cambiar tu contrasena antes de continuar.', success: 'Tu contrasena ha sido modificada.',

@@ -60,7 +60,7 @@ export const IT: UiText = {
     login: 'Vai al login',
   },
   changePassword: {
-    title: 'WpRef', subtitle: 'Reimposta la mia password', oldPassword: 'Password attuale', newPassword: 'Nuova password',
+    title: 'QuizOnline', subtitle: 'Reimposta la mia password', oldPassword: 'Password attuale', newPassword: 'Nuova password',
     confirmNewPassword: 'Conferma nuova password', oldPasswordRequired: 'La password attuale e obbligatoria.', newPasswordRequired: 'La nuova password e obbligatoria.',
     newPasswordMin: 'La nuova password deve contenere almeno 8 caratteri.', confirmRequired: 'La conferma e obbligatoria.', mismatch: 'Le password non corrispondono.',
     submit: 'Cambia password', forceMessage: 'Devi cambiare la password prima di continuare.', success: 'La tua password e stata modificata.',

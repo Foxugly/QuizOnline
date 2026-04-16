@@ -1,5 +1,5 @@
 /**
- * WpRef API
+ * QuizOnline API
  *
  * 
  *
@@ -9,8 +9,10 @@
  */
 
 
-export interface SubjectReadTranslationsValueDomainDto { 
-    id: number;
-    name: string;
+export interface TotalsDto { 
+    active_users: number;
+    active_domains: number;
+    active_questions: number;
+    completed_sessions: number;
 }
 

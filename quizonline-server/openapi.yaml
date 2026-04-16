@@ -2288,13 +2288,30 @@ paths:
         GET /api/stats/dashboard/
         Returns platform statistics scoped by the requesting user's domain access.
         Superusers see everything; other staff see only domains they own or manage.
+      summary: Statistiques du tableau de bord
       tags:
-      - stats
+      - Admin
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStatsResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: Forbidden (superuser only)
   /api/subject/:
     get:
       operationId: subject_list
@@ -3256,6 +3273,14 @@ paths:
           description: Lien invalide / token invalide
 components:
   schemas:
+    AlertThreadStatusEnum:
+      enum:
+      - open
+      - closed
+      type: string
+      description: |-
+        * `open` - Open
+        * `closed` - Closed
     AnswerCorrectnessStateEnum:
       enum:
       - full
@@ -3446,6 +3471,18 @@ components:
       - password_change_required
       - pending_join_requests
       - username
+    DashboardStatsResponse:
+      type: object
+      properties:
+        totals:
+          $ref: '#/components/schemas/_Totals'
+        domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/_DomainStats'
+      required:
+      - domains
+      - totals
     DomainDetail:
       type: object
       properties:
@@ -3510,7 +3547,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/DomainJoinRequestReadStatusEnum'
+          - $ref: '#/components/schemas/JoinRequestStatusEnum'
           readOnly: true
           default: pending
         decided_by:
@@ -3543,18 +3580,6 @@ components:
       - status
       - updated_at
       - user
-    DomainJoinRequestReadStatusEnum:
-      enum:
-      - pending
-      - approved
-      - rejected
-      - cancelled
-      type: string
-      description: |-
-        * `pending` - Pending
-        * `approved` - Approved
-        * `rejected` - Rejected
-        * `cancelled` - Cancelled
     DomainNameSummary:
       type: object
       properties:
@@ -3760,6 +3785,18 @@ components:
         * `auto` - Automatic
         * `owner` - Owner validation
         * `owner_managers` - Owner or managers validation
+    JoinRequestStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `approved` - Approved
+        * `rejected` - Rejected
+        * `cancelled` - Cancelled
     LanguageEnum:
       enum:
       - en
@@ -5111,7 +5148,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusDa1Enum'
+          - $ref: '#/components/schemas/AlertThreadStatusEnum'
           readOnly: true
         reporter_reply_allowed:
           type: boolean
@@ -5229,7 +5266,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusDa1Enum'
+          - $ref: '#/components/schemas/AlertThreadStatusEnum'
           readOnly: true
         reporter_reply_allowed:
           type: boolean
@@ -5822,14 +5859,6 @@ components:
         domain_id:
           type: integer
           nullable: true
-    StatusDa1Enum:
-      enum:
-      - open
-      - closed
-      type: string
-      description: |-
-        * `open` - Open
-        * `closed` - Closed
     SubjectDetail:
       type: object
       properties:
@@ -6051,6 +6080,49 @@ components:
         * `immediate` - Immédiat
         * `scheduled` - À partir d'une date
         * `never` - Jamais
+    _DomainStats:
+      type: object
+      properties:
+        id:
+          type: integer
+        translations: {}
+        members_count:
+          type: integer
+        managers_count:
+          type: integer
+        questions_count:
+          type: integer
+        templates_count:
+          type: integer
+        sessions_total:
+          type: integer
+        sessions_completed:
+          type: integer
+      required:
+      - id
+      - managers_count
+      - members_count
+      - questions_count
+      - sessions_completed
+      - sessions_total
+      - templates_count
+      - translations
+    _Totals:
+      type: object
+      properties:
+        active_users:
+          type: integer
+        active_domains:
+          type: integer
+        active_questions:
+          type: integer
+        completed_sessions:
+          type: integer
+      required:
+      - active_domains
+      - active_questions
+      - active_users
+      - completed_sessions
   securitySchemes:
     jwtAuth:
       type: http

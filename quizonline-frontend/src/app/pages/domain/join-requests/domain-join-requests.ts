@@ -14,7 +14,7 @@ import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
 import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
-import {DomainJoinRequestReadStatusEnumDto} from '../../../api/generated/model/domain-join-request-read-status-enum';
+import {JoinRequestStatusEnumDto} from '../../../api/generated/model/join-request-status-enum';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserService} from '../../../services/user/user';
@@ -105,31 +105,31 @@ export class DomainJoinRequestsPage implements OnInit {
     return this.userMap.get(userId) ?? `User #${userId}`;
   }
 
-  statusSeverity(status: DomainJoinRequestReadStatusEnumDto): 'success' | 'info' | 'warn' | 'danger' {
+  statusSeverity(status: JoinRequestStatusEnumDto): 'success' | 'info' | 'warn' | 'danger' {
     switch (status) {
-      case DomainJoinRequestReadStatusEnumDto.Pending:
+      case JoinRequestStatusEnumDto.Pending:
         return 'warn';
-      case DomainJoinRequestReadStatusEnumDto.Approved:
+      case JoinRequestStatusEnumDto.Approved:
         return 'success';
-      case DomainJoinRequestReadStatusEnumDto.Rejected:
+      case JoinRequestStatusEnumDto.Rejected:
         return 'danger';
-      case DomainJoinRequestReadStatusEnumDto.Cancelled:
+      case JoinRequestStatusEnumDto.Cancelled:
         return 'info';
       default:
         return 'info';
     }
   }
 
-  statusLabel(status: DomainJoinRequestReadStatusEnumDto): string {
+  statusLabel(status: JoinRequestStatusEnumDto): string {
     const labels = this.t();
     switch (status) {
-      case DomainJoinRequestReadStatusEnumDto.Pending:
+      case JoinRequestStatusEnumDto.Pending:
         return labels.pending;
-      case DomainJoinRequestReadStatusEnumDto.Approved:
+      case JoinRequestStatusEnumDto.Approved:
         return labels.approved;
-      case DomainJoinRequestReadStatusEnumDto.Rejected:
+      case JoinRequestStatusEnumDto.Rejected:
         return labels.rejected;
-      case DomainJoinRequestReadStatusEnumDto.Cancelled:
+      case JoinRequestStatusEnumDto.Cancelled:
         return labels.cancelled;
       default:
         return status;
@@ -137,7 +137,7 @@ export class DomainJoinRequestsPage implements OnInit {
   }
 
   isPending(request: DomainJoinRequestReadDto): boolean {
-    return request.status === DomainJoinRequestReadStatusEnumDto.Pending;
+    return request.status === JoinRequestStatusEnumDto.Pending;
   }
 
   approve(request: DomainJoinRequestReadDto): void {

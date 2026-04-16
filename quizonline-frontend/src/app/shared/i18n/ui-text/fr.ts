@@ -123,7 +123,7 @@ export const FR: UiText = {
     login: 'Aller a la connexion',
   },
   changePassword: {
-    title: 'WpRef',
+    title: 'QuizOnline',
     subtitle: 'Reinitialiser mon mot de passe',
     oldPassword: 'Mot de passe actuel',
     newPassword: 'Nouveau mot de passe',
