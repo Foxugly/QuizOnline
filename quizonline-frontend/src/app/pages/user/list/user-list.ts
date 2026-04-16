@@ -11,6 +11,7 @@ import {TableModule} from 'primeng/table';
 import {ROUTES} from '../../../app.routes-paths';
 import {AdminUserDto, UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type UserListRow = AdminUserDto & {
   fullName: string;
@@ -28,6 +29,7 @@ export class UserListPage implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
   readonly users = signal<AdminUserDto[]>([]);
   readonly q = signal('');
   readonly rows = 10;
