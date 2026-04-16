@@ -18,79 +18,10 @@
   padding: 1.25rem;
 }
 
-.builder-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(110px, auto) minmax(220px, 1.6fr);
-}
-
 .builder-columns {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-}
-
-.builder-grid--secondary {
-  grid-template-columns:
-    minmax(90px, auto)
-    minmax(110px, auto)
-    minmax(0, 1.2fr)
-    minmax(0, 1.2fr)
-    minmax(0, 1.1fr)
-    minmax(0, 1.2fr);
-  margin-top: 1rem;
-}
-
-.field {
-  display: grid;
-  gap: 0.4rem;
-}
-
-.field--checkbox {
-  align-content: center;
-  justify-items: center;
-}
-
-.field--full {
-  grid-column: 1 / -1;
-}
-
-.field__label {
-  color: #4a5565;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.field__control {
-  background: #fff;
-  border: 1px solid #d5dbe3;
-  border-radius: 12px;
-  font: inherit;
-  min-height: 44px;
-  padding: 0.7rem 0.9rem;
-  width: 100%;
-}
-
-.field--checkbox :is(.p-toggleswitch, .p-checkbox) {
-  margin-top: 0.35rem;
-}
-
-:host ::ng-deep .field__number {
-  max-width: 12rem;
-  width: 100%;
-}
-
-:host ::ng-deep .field__number .p-inputnumber-input {
-  width: 100%;
-}
-
-:host ::ng-deep .field__number .p-inputnumber-button {
-  flex: 0 0 auto;
-}
-
-.field__control--textarea {
-  min-height: 120px;
-  resize: vertical;
 }
 
 .translations-card {
@@ -101,10 +32,6 @@
 
 .translations-hint {
   margin: 0;
-}
-
-.builder-grid--translations {
-  grid-template-columns: 1fr;
 }
 
 .inline-status {
@@ -123,13 +50,15 @@
   padding: 1.2rem;
 }
 
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-multiselect,
+:host ::ng-deep .p-inputnumber,
+:host ::ng-deep .p-datepicker {
+  width: 100%;
+}
+
 @media (max-width: 1024px) {
-  .builder-grid,
   .builder-columns {
     grid-template-columns: 1fr;
-  }
-
-  .field--full {
-    grid-column: auto;
   }
 }

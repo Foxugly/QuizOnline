@@ -56,6 +56,7 @@ import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type QuizTemplateTranslationValue = {
   title: string;
@@ -171,6 +172,7 @@ export class QuizCreate implements OnInit {
   });
 
   readonly uiText = computed(() => this.getUiText(this.currentLang()));
+  readonly editorUi = computed(() => getEditorUiText(this.currentLang()));
   readonly datePickerFormat = computed(() => this.uiText().dateFormat);
   readonly pageTitle = computed(() => this.isEditMode() ? this.uiText().editTitle : this.uiText().createTitle);
   readonly pageSubtitle = computed(() => this.isEditMode() ? this.uiText().editSubtitle : this.uiText().createSubtitle);

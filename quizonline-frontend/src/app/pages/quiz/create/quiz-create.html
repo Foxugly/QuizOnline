@@ -11,7 +11,7 @@
       <p-button
         (onClick)="goBack()"
         icon="pi pi-arrow-left"
-        label="Retour"
+        [label]="editorUi().common.back"
         severity="secondary"
         type="button">
       </p-button>
@@ -20,7 +20,7 @@
 
   @if (loading()) {
     <div class="card">
-      <p class="muted">Chargement...</p>
+      <p class="muted">{{ editorUi().common.loading }}</p>
     </div>
   } @else if (!canManageAnyDomain()) {
     <div class="card">
@@ -47,129 +47,132 @@
                 <h2 class="card-title">{{ uiText().settingsTitle }}</h2>
               </div>
 
-              <div class="builder-grid">
-                <label class="field">
-                  <span class="field__label">{{ uiText().domain }}</span>
-                  <p-select
-                    appendTo="body"
-                    class="field__control"
-                    formControlName="domain"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Choisir un domaine"
-                    [options]="domainOptions()">
-                  </p-select>
-                </label>
+              <div class="meta-grid" style="grid-template-columns: 1fr 1fr auto 1fr;">
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().domain }}</label>
+                  <div class="meta-value">
+                    <p-select
+                      appendTo="body"
+                      formControlName="domain"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Choisir un domaine"
+                      [options]="domainOptions()">
+                    </p-select>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().mode }}</span>
-                  <p-select
-                    appendTo="body"
-                    class="field__control"
-                    formControlName="mode"
-                    optionLabel="label"
-                    optionValue="value"
-                    [options]="modeOptions()">
-                  </p-select>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().mode }}</label>
+                  <div class="meta-value">
+                    <p-select
+                      appendTo="body"
+                      formControlName="mode"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="modeOptions()">
+                    </p-select>
+                  </div>
+                </div>
 
-                <label class="field field--checkbox">
-                  <span class="field__label">{{ uiText().timer }}</span>
-                  <p-toggleswitch formControlName="with_duration" inputId="with_duration"></p-toggleswitch>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().timer }}</label>
+                  <div class="meta-value widget-center">
+                    <p-toggleswitch formControlName="with_duration" inputId="with_duration"></p-toggleswitch>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().duration }}</span>
-                  <p-inputnumber
-                    styleClass="field__number"
-                    buttonLayout="horizontal"
-                    formControlName="duration"
-                    inputId="duration"
-                    mode="decimal"
-                    placeholder="Minutes"
-                    spinnerMode="horizontal"
-                    [showButtons]="true"
-                    [min]="1"
-                    [max]="9999"
-                    [step]="1"
-                    [minFractionDigits]="0"
-                    [maxFractionDigits]="0">
-                    <ng-template #incrementbuttonicon>
-                      <span class="pi pi-plus"></span>
-                    </ng-template>
-                    <ng-template #decrementbuttonicon>
-                      <span class="pi pi-minus"></span>
-                    </ng-template>
-                  </p-inputnumber>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().duration }}</label>
+                  <div class="meta-value">
+                    <p-inputnumber
+                      formControlName="duration"
+                      inputId="duration"
+                      [showButtons]="true"
+                      [min]="1"
+                      [max]="9999"
+                      suffix=" min">
+                    </p-inputnumber>
+                  </div>
+                </div>
               </div>
 
-              <div class="builder-grid builder-grid--secondary">
-                <label class="field field--checkbox">
-                  <span class="field__label">{{ uiText().active }}</span>
-                  <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
-                </label>
+              <div class="meta-grid" style="grid-template-columns: auto auto auto 1fr 1fr 1fr 1fr;">
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().active }}</label>
+                  <div class="meta-value widget-center">
+                    <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+                  </div>
+                </div>
 
-                <label class="field field--checkbox">
-                  <span class="field__label">{{ uiText().public }}</span>
-                  <p-toggleswitch formControlName="is_public" inputId="is_public"></p-toggleswitch>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().public }}</label>
+                  <div class="meta-value widget-center">
+                    <p-toggleswitch formControlName="is_public" inputId="is_public"></p-toggleswitch>
+                  </div>
+                </div>
 
-                <label class="field field--checkbox">
-                  <span class="field__label">{{ uiText().permanent }}</span>
-                  <p-toggleswitch formControlName="permanent" inputId="permanent"></p-toggleswitch>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().permanent }}</label>
+                  <div class="meta-value widget-center">
+                    <p-toggleswitch formControlName="permanent" inputId="permanent"></p-toggleswitch>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().startedAt }}</span>
-                  <p-datepicker
-                    appendTo="body"
-                    class="field__control"
-                    [dateFormat]="datePickerFormat()"
-                    formControlName="started_at"
-                    inputId="started_at"
-                    [showTime]="true"
-                    hourFormat="24">
-                  </p-datepicker>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().startedAt }}</label>
+                  <div class="meta-value">
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="started_at"
+                      inputId="started_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().endedAt }}</span>
-                  <p-datepicker
-                    appendTo="body"
-                    class="field__control"
-                    [dateFormat]="datePickerFormat()"
-                    formControlName="ended_at"
-                    inputId="ended_at"
-                    [showTime]="true"
-                    hourFormat="24">
-                  </p-datepicker>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().endedAt }}</label>
+                  <div class="meta-value">
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="ended_at"
+                      inputId="ended_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().detailVisibility }}</span>
-                  <p-select
-                    appendTo="body"
-                    class="field__control"
-                    formControlName="detail_visibility"
-                    optionLabel="label"
-                    optionValue="value"
-                    [options]="visibilityOptions()">
-                  </p-select>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().detailVisibility }}</label>
+                  <div class="meta-value">
+                    <p-select
+                      appendTo="body"
+                      formControlName="detail_visibility"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="visibilityOptions()">
+                    </p-select>
+                  </div>
+                </div>
 
-                <label class="field">
-                  <span class="field__label">{{ uiText().detailAvailableAt }}</span>
-                  <p-datepicker
-                    appendTo="body"
-                    class="field__control"
-                    [dateFormat]="datePickerFormat()"
-                    formControlName="detail_available_at"
-                    inputId="detail_available_at"
-                    [showTime]="true"
-                    hourFormat="24">
-                  </p-datepicker>
-                </label>
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().detailAvailableAt }}</label>
+                  <div class="meta-value">
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="detail_available_at"
+                      inputId="detail_available_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
               </div>
 
               <div class="translations-card" formGroupName="translations">
@@ -206,20 +209,26 @@
                     <p-tabpanels>
                       @for (lang of quizTemplateLangs(); track lang) {
                         <p-tabpanel [value]="lang">
-                          <div class="builder-grid builder-grid--translations" [formGroupName]="lang">
-                            <label class="field field--full">
-                              <span class="field__label">{{ uiText().quizTitle }} ({{ lang.toUpperCase() }})</span>
-                              <input formControlName="title" pInputText placeholder="Ex: Examen blanc chimie" type="text" />
-                            </label>
+                          <div class="meta-grid" style="grid-template-columns: 1fr;" [formGroupName]="lang">
+                            <div class="meta-item meta-item--full">
+                              <label class="meta-label">{{ uiText().quizTitle }} ({{ lang.toUpperCase() }})</label>
+                              <div class="meta-value">
+                                <input formControlName="title" pInputText placeholder="Ex: Examen blanc chimie" type="text" />
+                              </div>
+                            </div>
 
-                            <label class="field field--full">
-                              <span class="field__label">{{ uiText().quizDescription }} ({{ lang.toUpperCase() }})</span>
-                              <textarea
-                                class="field__control field__control--textarea"
-                                formControlName="description"
-                                placeholder="Contexte ou consignes du quiz">
-                              </textarea>
-                            </label>
+                            <div class="meta-item meta-item--full">
+                              <label class="meta-label">{{ uiText().quizDescription }} ({{ lang.toUpperCase() }})</label>
+                              <div class="meta-value">
+                                <textarea
+                                  formControlName="description"
+                                  pInputText
+                                  rows="4"
+                                  style="min-height: 100px; resize: vertical;"
+                                  placeholder="Contexte ou consignes du quiz">
+                                </textarea>
+                              </div>
+                            </div>
                           </div>
 
                           @if (quizTemplateTranslating()) {
@@ -272,21 +281,22 @@
         <div class="error">{{ submitError() }}</div>
       }
 
-      <div class="actions">
+      <div class="footer-actions">
+        <p-button
+          (onClick)="goBack()"
+          icon="pi pi-times"
+          [label]="editorUi().common.cancel"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+
         <p-button
           [disabled]="!canSave()"
           [loading]="saving()"
           icon="pi pi-save"
           [label]="submitLabel()"
           type="submit">
-        </p-button>
-
-        <p-button
-          (onClick)="goBack()"
-          icon="pi pi-times"
-          label="Annuler"
-          severity="secondary"
-          type="button">
         </p-button>
       </div>
     </form>
