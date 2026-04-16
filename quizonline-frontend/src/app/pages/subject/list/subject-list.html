@@ -56,7 +56,7 @@
 
       <ng-template #body let-s>
         <tr>
-          <td class="center-cell">{{ s.id }}</td>
+          <td style="text-align: center;">{{ s.id }}</td>
 
           <td>{{ s.name }}</td>
 
@@ -64,7 +64,7 @@
             <div class="desc" [innerHTML]="s.description | stripP"></div>
           </td>
 
-          <td class="center-cell">
+          <td style="text-align: center;">
             <p-button
               (onClick)="goDomain(s.domain)"
               [label]="s.domainName"
@@ -75,7 +75,7 @@
             </p-button>
           </td>
 
-          <td class="center-cell">{{ s.questionsCount }}</td>
+          <td style="text-align: center;">{{ s.questionsCount }}</td>
 
           <td class="col-actions">
             <div class="row-actions">

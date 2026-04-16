@@ -58,19 +58,19 @@
 
       <ng-template #body let-user>
         <tr>
-          <td class="center-cell">{{ user.id }}</td>
+          <td style="text-align: center;">{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullName || '-' }}</td>
           <td>{{ user.email || '-' }}</td>
-          <td class="center-cell">{{ user.nb_domain_max ?? 0 }}</td>
-          <td class="center-cell">
+          <td style="text-align: center;">{{ user.nb_domain_max ?? 0 }}</td>
+          <td style="text-align: center;">
             @if (user.is_active) {
               <i class="pi pi-check-circle" style="color: #16a34a;"></i>
             } @else {
               <i class="pi pi-times-circle" style="color: #dc2626;"></i>
             }
           </td>
-          <td class="center-cell">
+          <td style="text-align: center;">
             @if (user.email_confirmed) {
               <i class="pi pi-check-circle" style="color: #16a34a;"></i>
             } @else {

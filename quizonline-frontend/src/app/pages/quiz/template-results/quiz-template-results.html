@@ -61,12 +61,12 @@
       <ng-template #body let-quiz>
         <tr>
           <td>{{ quiz.user_summary?.username || '-' }}</td>
-          <td class="center-cell">{{ statusLabel(quiz) }}</td>
+          <td style="text-align: center;">{{ statusLabel(quiz) }}</td>
           <td>{{ formatDateTime(quiz.created_at) }}</td>
           <td>{{ formatDateTime(quiz.started_at) }}</td>
           <td>{{ formatDateTime(quiz.ended_at) }}</td>
-          <td class="center-cell">{{ quiz.total_answers ?? 0 }} / {{ quiz.max_questions }}</td>
-          <td class="center-cell">
+          <td style="text-align: center;">{{ quiz.total_answers ?? 0 }} / {{ quiz.max_questions }}</td>
+          <td style="text-align: center;">
             @if (quiz.earned_score !== null && quiz.max_score !== null) {
               {{ quiz.earned_score }} / {{ quiz.max_score }}
             } @else {

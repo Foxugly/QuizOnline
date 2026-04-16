@@ -58,7 +58,7 @@
 
       <ng-template #body let-d>
         <tr>
-          <td class="center-cell">{{ d.id }}</td>
+          <td style="text-align: center;">{{ d.id }}</td>
 
           <td class="truncate">{{ d.name }}</td>
 
@@ -66,11 +66,11 @@
             <div class="desc" [innerHTML]="d.description | stripP"></div>
           </td>
 
-          <td class="center-cell">{{ d.subjectsCount }}</td>
+          <td style="text-align: center;">{{ d.subjectsCount }}</td>
 
-          <td class="center-cell">{{ d.questionsCount }}</td>
+          <td style="text-align: center;">{{ d.questionsCount }}</td>
 
-          <td class="center-cell">
+          <td style="text-align: center;">
             @if (d.pendingJoinRequests > 0) {
               <a [routerLink]="['/domain', d.id, 'join-requests']" class="p-badge p-badge-warning" style="cursor:pointer; text-decoration:none">
                 {{ d.pendingJoinRequests }}

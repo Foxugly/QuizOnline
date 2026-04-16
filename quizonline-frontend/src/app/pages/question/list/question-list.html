@@ -114,14 +114,14 @@
 
           <td>{{ row.title }}</td>
 
-          <td class="center-cell col-active">
+          <td class="col-active" style="text-align: center;">
             <i
               [ngClass]="row.active ? 'pi-check-circle active-icon' : 'pi-times-circle inactive-icon'"
               class="pi">
             </i>
           </td>
 
-          <td class="subjects-cell center-cell">
+          <td class="subjects-cell" style="text-align: center;">
             @if (getModes(row.question).length) {
               <div class="quiz-question__subjects">
                 @for (mode of getModes(row.question); track mode) {
@@ -137,7 +137,7 @@
             }
           </td>
 
-          <td class="subjects-cell center-cell">
+          <td class="subjects-cell" style="text-align: center;">
             <p-button
               (onClick)="goDomain(row.question.domain.id)"
               [label]="row.domainName"
@@ -148,7 +148,7 @@
             </p-button>
           </td>
 
-          <td class="subjects-cell center-cell">
+          <td class="subjects-cell" style="text-align: center;">
             @if (row.question.subjects?.length) {
               <div class="quiz-question__subjects">
                 @for (s of row.question.subjects; track s.id) {
