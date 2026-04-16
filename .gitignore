@@ -1,26 +1,40 @@
+# ── IDE ───────────────────────────────────────────────────────────────────────
 .idea/
-.venv/
+.vscode/
+*.swp
+*.swo
+*~
 
-**/__pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-
-wpref/.env
-wpref/db.sqlite3
-wpref/db.fullstack.sqlite3
-wpref/.coverage
-wpref/htmlcov/
-wpref/media/question_media/*
-!wpref/media/question_media/dummy.txt
-
-wpref-frontend/node_modules/
-wpref-frontend/dist/
-wpref-frontend/.angular/
-wpref-frontend/coverage/
-wpref-frontend/test-results/
-wpref-frontend/playwright-report/
-
+# ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-/db.sqlite3
+
+# ── Python / Django ───────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+quizonline-server/.env
+quizonline-server/.env.*
+!quizonline-server/.env.example
+quizonline-server/db.sqlite3
+quizonline-server/db.*.sqlite3
+quizonline-server/staticfiles/
+quizonline-server/media/question_media/*
+!quizonline-server/media/question_media/dummy.txt
+
+# ── Node / Angular ────────────────────────────────────────────────────────────
+node_modules/
+quizonline-frontend/dist/
+quizonline-frontend/.angular/
+quizonline-frontend/coverage/
+quizonline-frontend/test-results/
+quizonline-frontend/playwright-report/
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/scheduled_tasks.lock
