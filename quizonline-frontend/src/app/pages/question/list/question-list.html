@@ -97,11 +97,11 @@
               (ngModelChange)="toggleSelectAllFiltered($event)"
             ></p-checkbox>
           </th>
-          <th pSortableColumn="title">{{ text().titleCol }} <p-sortIcon field="title"></p-sortIcon></th>
-          <th class="col-active" pSortableColumn="active">{{ text().activeCol }} <p-sortIcon field="active"></p-sortIcon></th>
-          <th pSortableColumn="modesText">{{ text().modesCol }} <p-sortIcon field="modesText"></p-sortIcon></th>
-          <th pSortableColumn="domainName">{{ text().domainsCol }} <p-sortIcon field="domainName"></p-sortIcon></th>
-          <th pSortableColumn="subjectsText">{{ text().subjectsCol }} <p-sortIcon field="subjectsText"></p-sortIcon></th>
+          <th pSortableColumn="title" style="text-align: center;">{{ text().titleCol }} <p-sortIcon field="title"></p-sortIcon></th>
+          <th class="col-active" pSortableColumn="active" style="text-align: center;">{{ text().activeCol }} <p-sortIcon field="active"></p-sortIcon></th>
+          <th pSortableColumn="modesText" style="text-align: center;">{{ text().modesCol }} <p-sortIcon field="modesText"></p-sortIcon></th>
+          <th pSortableColumn="domainName" style="text-align: center;">{{ text().domainsCol }} <p-sortIcon field="domainName"></p-sortIcon></th>
+          <th pSortableColumn="subjectsText" style="text-align: center;">{{ text().subjectsCol }} <p-sortIcon field="subjectsText"></p-sortIcon></th>
           <th class="col-actions">{{ text().actionsCol }}</th>
         </tr>
       </ng-template>
@@ -121,7 +121,7 @@
             </i>
           </td>
 
-          <td class="subjects-cell">
+          <td class="subjects-cell center-cell">
             @if (getModes(row.question).length) {
               <div class="quiz-question__subjects">
                 @for (mode of getModes(row.question); track mode) {
@@ -137,7 +137,7 @@
             }
           </td>
 
-          <td class="subjects-cell">
+          <td class="subjects-cell center-cell">
             <p-button
               (onClick)="goDomain(row.question.domain.id)"
               [label]="row.domainName"
@@ -148,7 +148,7 @@
             </p-button>
           </td>
 
-          <td class="subjects-cell">
+          <td class="subjects-cell center-cell">
             @if (row.question.subjects?.length) {
               <div class="quiz-question__subjects">
                 @for (s of row.question.subjects; track s.id) {
