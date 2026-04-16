@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {map, Observable, of, switchMap} from 'rxjs';
@@ -34,14 +34,12 @@ export type QuizTemplateAssignmentSessionDto = QuizAssignmentListDto;
 export class QuizService {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
 
-  constructor(
-    private quizApi: QuizApiService,
-    private qtApi: QuizTemplateApiService,
-    private questionApi: QuestionApiService,
-    private answerApi: QuizAnswerApiService,
-    private http: HttpClient,
-    private router: Router,
-  ) {}
+    private readonly quizApi = inject(QuizApiService);
+  private readonly qtApi = inject(QuizTemplateApiService);
+  private readonly questionApi = inject(QuestionApiService);
+  private readonly answerApi = inject(QuizAnswerApiService);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   goList(): void {
     this.router.navigate(['/quiz', 'list']);

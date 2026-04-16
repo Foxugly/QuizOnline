@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {Router} from '@angular/router';
 import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
@@ -132,8 +132,9 @@ export class QuestionService {
   private duplicateDraft: QuestionDuplicateDraft | null = null;
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/question`;
 
-  constructor(private api: QuestionApiService, private router: Router, private http: HttpClient) {
-  }
+    private readonly api = inject(QuestionApiService);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   list(params?: {
     search?: string;

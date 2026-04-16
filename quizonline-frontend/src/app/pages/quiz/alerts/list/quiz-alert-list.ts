@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
@@ -21,10 +21,10 @@ type AlertReadFilter = 'all' | 'unread' | 'read';
 
 @Component({
   selector: 'app-quiz-alert-list',
-  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule],
   templateUrl: './quiz-alert-list.html',
   styleUrl: './quiz-alert-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertList implements OnInit {
   readonly loading = signal(true);

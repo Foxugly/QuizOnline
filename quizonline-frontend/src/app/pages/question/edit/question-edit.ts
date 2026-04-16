@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -36,7 +36,6 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
-  standalone: true,
   selector: 'app-question-edit',
   templateUrl: './question-edit.html',
   styleUrl: './question-edit.scss',
@@ -46,6 +45,7 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
     ButtonModule,
     QuestionEditorFormComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionEdit implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

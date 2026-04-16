@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -13,7 +13,6 @@ import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
-  standalone: true,
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
@@ -27,6 +26,7 @@ import {getUiText} from '../../../shared/i18n/ui-text';
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage implements OnInit {
   app = window.__APP__!;

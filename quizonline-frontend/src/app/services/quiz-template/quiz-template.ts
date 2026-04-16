@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {map, Observable} from 'rxjs';
 
 import {QuizTemplateApi as QuizTemplateApiService} from '../../api/generated/api/quiz-template.service';
@@ -12,7 +12,7 @@ import {QuizTemplateWriteRequestDto} from '../../api/generated/model/quiz-templa
   providedIn: 'root',
 })
 export class QuizTemplateService {
-  constructor(private api: QuizTemplateApiService) {}
+    private readonly api = inject(QuizTemplateApiService);
 
   list(): Observable<QuizTemplateDto[]> {
     return this.api.quizTemplateList({}).pipe(map((response) => response.results ?? []));

@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router, RouterOutlet} from '@angular/router';
 import {TopMenuComponent} from './components/topmenu/topmenu';
@@ -21,7 +21,8 @@ import {AppToastOutletComponent} from './components/app-toast-outlet/app-toast-o
   //    <router-outlet></router-outlet>
   //  </main>
   //    `,
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
   status = inject(BackendStatusService);

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -15,10 +15,10 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 
 @Component({
   selector: 'app-quiz-template-results-page',
-  standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule],
   templateUrl: './quiz-template-results.html',
   styleUrl: './quiz-template-results.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateResultsPage implements OnInit {
   readonly loading = signal(true);

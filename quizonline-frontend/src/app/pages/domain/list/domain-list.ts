@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
@@ -28,6 +28,7 @@ type DomainListRow = DomainReadDto & {
   imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PaginatorModule, TableModule, BadgeModule, StripPPipe],
   templateUrl: './domain-list.html',
   styleUrl: './domain-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainList implements OnInit {
   private domainService = inject(DomainService);

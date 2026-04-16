@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
@@ -11,6 +11,7 @@ import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
   imports: [CommonModule, ButtonModule, DialogModule, TableModule],
   templateUrl: './quiz-template-results-dialog.html',
   styleUrl: './quiz-template-results-dialog.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateResultsDialogComponent {
   visible = input(false);

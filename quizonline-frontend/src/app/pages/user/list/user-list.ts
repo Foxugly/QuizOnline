@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -18,10 +18,10 @@ type UserListRow = AdminUserDto & {
 
 @Component({
   selector: 'app-user-list-page',
-  standalone: true,
   imports: [FormsModule, ButtonModule, InputTextModule, PaginatorModule, TableModule],
   templateUrl: './user-list.html',
   styleUrl: './user-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserListPage implements OnInit {
   private readonly userService = inject(UserService);

@@ -122,14 +122,6 @@
   margin-top: 0.25rem;
 }
 
-.tablist-actions {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-left: 0.75rem;
-}
-
 .answers-block {
   margin-top: 1rem;
   display: flex;
@@ -165,28 +157,6 @@
 
 .answer__delete {
   padding-top: 1.1rem;
-}
-
-.editor-compact {
-  display: block;
-  width: 100%;
-
-  ::ng-deep .p-editor-toolbar {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    padding: 0.25rem 0.35rem;
-  }
-
-  ::ng-deep .p-editor-container,
-  ::ng-deep .ql-container {
-    width: 100%;
-    min-width: 0;
-  }
-
-  ::ng-deep .ql-editor {
-    min-height: 6rem;
-    padding: 0.5rem;
-  }
 }
 
 .inline-status {

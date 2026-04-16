@@ -73,7 +73,7 @@ class UserViewsTests(APITestCase):
             return data["results"]
         return data
 
-    def test_user_list_requires_admin(self):
+    def test_user_list_requires_superuser(self):
         res = self.client.get(self.USER_LIST_CREATE_URL)
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
@@ -82,6 +82,10 @@ class UserViewsTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.force_authenticate(user=self.staff)
+        res = self.client.get(self.USER_LIST_CREATE_URL)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=self.superuser)
         res = self.client.get(self.USER_LIST_CREATE_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIsInstance(self._as_list(res.data), list)
@@ -519,16 +523,11 @@ class UserViewsTests(APITestCase):
     # Scoped get_queryset (non-superuser staff sees only users in their
     # owned/managed domains, plus themselves).
     # ------------------------------------------------------------------
-    def test_user_list_for_staff_excludes_users_outside_their_domains(self):
-        # u1 is in self.domain (added in setUp) — staff manages this domain.
-        # u2 is in no domain at all → staff must NOT see u2.
+    def test_user_list_for_staff_non_superuser_forbidden(self):
+        # staff (is_staff=True but not superuser) must be rejected
         self.client.force_authenticate(user=self.staff)
         res = self.client.get(self.USER_LIST_CREATE_URL)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        ids = {u["id"] for u in self._as_list(res.data)}
-        self.assertIn(self.u1.id, ids)
-        self.assertIn(self.staff.id, ids)
-        self.assertNotIn(self.u2.id, ids)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_user_retrieve_for_staff_outside_scope_returns_404(self):
         # u2 is not linked to any domain managed by staff.

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 
@@ -18,9 +18,9 @@ const LANGUAGE_OPTIONS = [
 
 @Component({
   selector: 'app-user-edit-page',
-  standalone: true,
   imports: [ReactiveFormsModule, UserAdminFormComponent],
   templateUrl: './user-edit.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserEditPage implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);

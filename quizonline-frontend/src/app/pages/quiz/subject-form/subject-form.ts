@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnInit, Output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {finalize} from 'rxjs';
@@ -30,7 +30,6 @@ type QuizSubjectFormModel = {
 };
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-subject-form',
   templateUrl: './subject-form.html',
   styleUrl: './subject-form.scss',
@@ -46,6 +45,7 @@ type QuizSubjectFormModel = {
     CardModule,
     MessageModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSubjectForm implements OnInit {
   loading = signal(false);

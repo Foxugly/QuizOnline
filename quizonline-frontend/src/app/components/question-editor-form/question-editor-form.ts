@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, input, output} from '@angular/core';
+import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -33,7 +33,6 @@ type SubjectOption = { code: number; name: string };
 
 @Component({
   selector: 'app-question-editor-form',
-  standalone: true,
   templateUrl: './question-editor-form.html',
   styleUrl: './question-editor-form.scss',
   imports: [
@@ -53,6 +52,7 @@ type SubjectOption = { code: number; name: string };
     MediaSelectorComponent,
     DividerModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionEditorFormComponent {
   private readonly userService = inject(UserService);

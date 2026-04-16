@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, signal} from '@angular/core';
+import {Component, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
@@ -11,10 +11,10 @@ import {ROUTES} from '../../../app.routes-paths';
 
 @Component({
   selector: 'app-confirm-email',
-  standalone: true,
   imports: [MessageModule, ButtonModule],
   templateUrl: './confirm-email.html',
   styleUrl: './confirm-email.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmEmailPage {
   private readonly authService = inject(AuthService);

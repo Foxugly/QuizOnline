@@ -1,6 +1,6 @@
 import {CommonModule, DatePipe} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -38,6 +38,7 @@ type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
     DatePipe,
   ],
   templateUrl: './domain-join-requests.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainJoinRequestsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);

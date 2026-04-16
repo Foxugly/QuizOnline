@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, DestroyRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
@@ -12,7 +12,6 @@ import {QuestionService} from '../../services/question/question';
 
 @Component({
   selector: 'app-question-preview-dialog',
-  standalone: true,
   imports: [
     CommonModule,
     DialogModule,
@@ -20,6 +19,7 @@ import {QuestionService} from '../../services/question/question';
   ],
   templateUrl: './question-preview-dialog.html',
   styleUrl: './question-preview-dialog.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionPreviewDialogComponent implements OnChanges {
   @Input() questionId: number | null = null;

@@ -1,5 +1,5 @@
 // src/app/components/media-selector/media-selector.ts
-import {Component, forwardRef, Input, OnDestroy, signal} from '@angular/core';
+import {Component, forwardRef, Input, OnDestroy, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR,} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
@@ -29,7 +29,6 @@ export interface MediaSelectorValue {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-media-selector',
   templateUrl: './media-selector.html',
   styleUrls: ['./media-selector.scss'],

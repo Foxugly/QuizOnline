@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -40,6 +40,7 @@ type DomainReadWithMembers = DomainReadDto & {
   ],
   templateUrl: './quiz-list.html',
   styleUrl: './quiz-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizListPage implements OnInit {
   templates = signal<QuizTemplateListItem[]>([]);

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
 import {ButtonModule} from 'primeng/button';
@@ -17,7 +17,6 @@ import {UserService} from '../../../services/user/user';
 import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i18n';
 
 @Component({
-  standalone: true,
   selector: 'app-question-import',
   templateUrl: './question-import.html',
   styleUrl: './question-import.scss',
@@ -27,6 +26,7 @@ import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i
     CardModule,
     FileUploadModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionImport implements OnInit {
   readonly text = computed<QuestionImportUiText>(() => getQuestionImportUiText(this.currentLang()));

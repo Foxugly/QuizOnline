@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -41,7 +41,6 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
-  standalone: true,
   selector: 'app-question-create',
   templateUrl: './question-create.html',
   styleUrl: './question-create.scss',
@@ -52,6 +51,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     CardModule,
     QuestionEditorFormComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionCreate implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {UserService} from '../../services/user/user';
 import {getUiText} from '../../shared/i18n/ui-text';
 
@@ -21,6 +21,7 @@ declare global {
   imports: [],
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent {
   app = window.__APP__!;

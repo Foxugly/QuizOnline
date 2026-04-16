@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, forkJoin} from 'rxjs';
@@ -32,6 +32,7 @@ import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
   ],
   templateUrl: './question-view.html',
   styleUrl: './question-view.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionView implements OnInit {
   quiz_id!: number;

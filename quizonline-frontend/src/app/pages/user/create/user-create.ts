@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -18,9 +18,9 @@ const LANGUAGE_OPTIONS = [
 
 @Component({
   selector: 'app-user-create-page',
-  standalone: true,
   imports: [ReactiveFormsModule, UserAdminFormComponent],
   templateUrl: './user-create.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCreatePage {
   private readonly fb = inject(NonNullableFormBuilder);

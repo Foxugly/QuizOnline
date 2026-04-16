@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {Observable} from 'rxjs';
 
 import {PasswordChangeRequestDto} from '../../api/generated/model/password-change-request';
@@ -12,7 +12,7 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 export class AccountAccessService {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/user`;
 
-  constructor(private http: HttpClient) {}
+    private readonly http = inject(HttpClient);
 
   requestPasswordReset(payload: PasswordResetRequestRequestDto): Observable<PasswordResetOKDto> {
     return this.http.post<PasswordResetOKDto>(`${this.apiBaseUrl}/password/reset/`, payload);

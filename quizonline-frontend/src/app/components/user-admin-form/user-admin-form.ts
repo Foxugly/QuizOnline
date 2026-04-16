@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -14,7 +14,6 @@ type Option<T> = { label: string; value: T };
 
 @Component({
   selector: 'app-user-admin-form',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -28,6 +27,7 @@ type Option<T> = { label: string; value: T };
   ],
   templateUrl: './user-admin-form.html',
   styleUrl: './user-admin-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdminFormComponent {
   readonly form = input.required<FormGroup>();

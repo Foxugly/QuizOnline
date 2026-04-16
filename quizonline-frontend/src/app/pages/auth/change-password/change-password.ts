@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
@@ -25,10 +25,10 @@ import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-change-password',
-  standalone: true,
   imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
   templateUrl: './change-password.html',
   styleUrl: './change-password.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangePasswordPage {
   app = window.__APP__!;

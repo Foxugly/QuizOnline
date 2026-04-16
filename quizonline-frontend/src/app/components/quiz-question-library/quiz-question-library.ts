@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -11,7 +11,6 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
 
 @Component({
   selector: 'app-quiz-question-library',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -20,6 +19,7 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
   ],
   templateUrl: './quiz-question-library.html',
   styleUrl: './quiz-question-library.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionLibraryComponent {
   @Input({required: true}) texts!: QuizCreateUiText;

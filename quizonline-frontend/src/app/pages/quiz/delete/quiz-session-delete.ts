@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {QuizDto} from '../../../api/generated/model/quiz';
@@ -6,11 +6,11 @@ import {ROUTES} from '../../../app.routes-paths';
 import {QuizService} from '../../../services/quiz/quiz';
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-session-delete',
   imports: [ButtonModule],
   templateUrl: './quiz-session-delete.html',
   styleUrl: './quiz-session-delete.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSessionDeletePage implements OnInit {
   private readonly route = inject(ActivatedRoute);

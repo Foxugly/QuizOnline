@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
@@ -23,11 +23,11 @@ type SubjectListRow = SubjectReadDto & {
 };
 
 @Component({
-  standalone: true,
   selector: 'app-subject-list',
   imports: [FormsModule, ButtonModule, InputTextModule, PaginatorModule, TableModule, StripPPipe],
   templateUrl: './subject-list.html',
-  styleUrl: './subject-list.scss'
+  styleUrl: './subject-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectList implements OnInit {
   private subjectService: SubjectService = inject(SubjectService);

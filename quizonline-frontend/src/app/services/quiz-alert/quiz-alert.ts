@@ -1,4 +1,4 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, signal, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map, Observable, tap} from 'rxjs';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
@@ -60,7 +60,7 @@ export class QuizAlertService {
   readonly unreadCount = signal(0);
   private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/quiz/alerts`;
 
-  constructor(private readonly http: HttpClient) {}
+    private readonly http = inject(HttpClient);
 
   list(): Observable<QuizAlertThreadListDto[]> {
     return this.http

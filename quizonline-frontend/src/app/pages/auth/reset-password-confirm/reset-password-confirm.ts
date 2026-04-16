@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, signal} from '@angular/core';
+import {Component, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -13,10 +13,10 @@ import {ROUTES} from '../../../app.routes-paths';
 
 @Component({
   selector: 'app-reset-password-confirm',
-  standalone: true,
   imports: [ReactiveFormsModule, RouterLink, PasswordModule, MessageModule, ButtonModule],
   templateUrl: './reset-password-confirm.html',
   styleUrl: './reset-password-confirm.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordConfirmPage {
   private readonly fb = inject(NonNullableFormBuilder);

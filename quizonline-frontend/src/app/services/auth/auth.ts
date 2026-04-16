@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {finalize, Observable, shareReplay, switchMap, tap} from 'rxjs';
 
 import {CustomUserCreateRequestDto} from '../../api/generated/model/custom-user-create-request';
@@ -31,11 +31,11 @@ export class AuthService {
   private refreshToken: string | null = null;
   private refresh$: Observable<TokenRefreshDto> | null = null;
 
-  constructor(
-    private http: HttpClient,
-    private userService: UserService,
-    private accountAccess: AccountAccessService,
-  ) {
+    private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
+  private readonly accountAccess = inject(AccountAccessService);
+
+  constructor() {
     // Access token is never persisted to storage (XSS risk).
     // Refresh token is kept in storage for session continuity across page reloads.
     this.refreshToken =

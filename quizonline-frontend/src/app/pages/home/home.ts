@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
@@ -15,6 +15,7 @@ type QuickLinkKey = 'catalog' | 'preferences' | 'about';
   imports: [CommonModule, RouterLink, ButtonModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
   readonly app = window.__APP__!;

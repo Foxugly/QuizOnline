@@ -16,7 +16,6 @@ export interface QuizNavItem {
 
 @Component({
   selector: 'app-quiz-nav',
-  standalone: true,
   imports: [CommonModule, PanelModule, QuestionButton],
   templateUrl: './quiz-nav.html',
   styleUrl: './quiz-nav.scss',

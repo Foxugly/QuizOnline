@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -11,7 +11,6 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
 
 @Component({
   selector: 'app-quiz-template-composition',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -21,6 +20,7 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
   ],
   templateUrl: './quiz-template-composition.html',
   styleUrl: './quiz-template-composition.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateCompositionComponent {
   @Input() items: SelectedQuestionCard[] = [];

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -32,7 +32,6 @@ type QuestionListRow = {
 };
 
 @Component({
-  standalone: true,
   selector: 'app-question-list',
   imports: [
     CommonModule,
@@ -44,7 +43,8 @@ type QuestionListRow = {
     QuestionPreviewDialogComponent,
   ],
   templateUrl: './question-list.html',
-  styleUrl: './question-list.scss'
+  styleUrl: './question-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionList implements OnInit {
   readonly text = computed<QuestionListUiText>(() => getQuestionListUiText(this.userService.currentLang));

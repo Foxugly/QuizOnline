@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, input, output} from '@angular/core';
+import {Component, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {UserQuizListItem} from '../../pages/quiz/list/quiz-list.models';
@@ -11,6 +11,7 @@ import {formatLocalizedDateTime} from '../../shared/i18n/date-time';
   imports: [CommonModule, ButtonModule, TableModule],
   templateUrl: './quiz-session-table.html',
   styleUrl: './quiz-session-table.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSessionTableComponent {
   readonly quizzes = input<UserQuizListItem[]>([]);

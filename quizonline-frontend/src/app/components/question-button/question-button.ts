@@ -4,7 +4,6 @@ import {ButtonModule} from 'primeng/button';
 
 @Component({
   selector: 'app-question-button',
-  standalone: true,
   imports: [CommonModule, ButtonModule],
   templateUrl: './question-button.html',
   styleUrl: './question-button.scss',

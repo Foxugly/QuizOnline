@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -19,7 +19,6 @@ import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-preferences',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -32,6 +31,7 @@ import {getUiText} from '../../../shared/i18n/ui-text';
   ],
   templateUrl: './preferences.html',
   styleUrls: ['./preferences.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Preferences implements OnInit {
   private readonly fb = inject(FormBuilder);

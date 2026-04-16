@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -34,6 +34,7 @@ import {logApiError} from '../../../shared/api/api-errors';
   ],
   providers: [ConfirmationService],
   templateUrl: './language-management.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageManagementPage implements OnInit {
   private readonly api = inject(LanguageApiService);

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
 import {TranslationApi as TranslationApiService} from '../../api/generated/api/translation.service';
@@ -24,8 +24,7 @@ export function isLangCode(value: string): value is LangCode {
 
 @Injectable({providedIn: 'root'})
 export class TranslationService {
-  constructor(private api: TranslationApiService) {
-  }
+    private readonly api = inject(TranslationApiService);
 
   async translateBatch(source: string, target: string, items: TranslateBatchItem[]): Promise<Record<string, string>> {
     const requestItems: TranslateItemRequestDto[] = items.map((item) => ({

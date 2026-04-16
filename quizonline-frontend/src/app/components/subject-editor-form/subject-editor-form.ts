@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, input, output} from '@angular/core';
+import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -16,7 +16,6 @@ type DomainOption = { id: number; name: string };
 
 @Component({
   selector: 'app-subject-editor-form',
-  standalone: true,
   templateUrl: './subject-editor-form.html',
   styleUrl: './subject-editor-form.scss',
   imports: [
@@ -30,6 +29,7 @@ type DomainOption = { id: number; name: string };
     InputTextModule,
     CardModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectEditorFormComponent {
   private readonly userService = inject(UserService);

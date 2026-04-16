@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {QuizTemplateListItem} from '../../pages/quiz/list/quiz-list.models';
@@ -11,6 +11,7 @@ import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
   imports: [CommonModule, ButtonModule, TableModule, TooltipModule],
   templateUrl: './quiz-template-table.html',
   styleUrl: './quiz-template-table.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateTableComponent {
   readonly templates = input<QuizTemplateListItem[]>([]);

@@ -1,4 +1,4 @@
-import {Component, input, output} from '@angular/core';
+import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
@@ -16,6 +16,7 @@ export interface QuizSummaryFact {
   ],
   templateUrl: './quiz-summary-hero.html',
   styleUrl: './quiz-summary-hero.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSummaryHeroComponent {
   readonly session = input.required<QuizDto>();

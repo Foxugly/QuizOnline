@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -47,7 +47,6 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-domain-edit',
   imports: [
     ReactiveFormsModule,
@@ -56,6 +55,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainEdit implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

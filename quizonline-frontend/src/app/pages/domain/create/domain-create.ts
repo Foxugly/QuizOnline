@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -37,7 +37,6 @@ type DomainWritePayload = DomainWriteRequestDto & {
 
 @Component({
   selector: 'app-domain-create',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -47,6 +46,7 @@ type DomainWritePayload = DomainWriteRequestDto & {
   ],
   templateUrl: './domain-create.html',
   styleUrl: './domain-create.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainCreate implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

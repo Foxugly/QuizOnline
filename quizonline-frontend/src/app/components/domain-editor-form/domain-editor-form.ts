@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, input, output} from '@angular/core';
+import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -21,7 +21,6 @@ type LangOption = { label: string; value: string };
 
 @Component({
   selector: 'app-domain-editor-form',
-  standalone: true,
   templateUrl: './domain-editor-form.html',
   styleUrl: './domain-editor-form.scss',
   imports: [
@@ -38,6 +37,7 @@ type LangOption = { label: string; value: string };
     MessageModule,
     CardModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainEditorFormComponent {
   private readonly userService = inject(UserService);

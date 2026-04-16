@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
@@ -11,11 +11,11 @@ import { UserService } from '../../../services/user/user';
 import {LangCode} from '../../../services/translation/translation';
 
 @Component({
-  standalone: true,
   selector: 'question-delete',
   imports: [ButtonModule],
   templateUrl: './question-delete.html',
   styleUrl: './question-delete.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionDelete implements OnInit {
   id!: number;

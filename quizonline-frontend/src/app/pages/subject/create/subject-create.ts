@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -35,7 +35,6 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
   selector: 'app-subject-create',
-  standalone: true,
   templateUrl: './subject-create.html',
   styleUrls: ['./subject-create.scss'],
   imports: [
@@ -45,6 +44,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     CardModule,
     SubjectEditorFormComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectCreate implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

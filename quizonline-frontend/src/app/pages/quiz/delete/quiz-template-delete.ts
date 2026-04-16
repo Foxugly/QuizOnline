@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
@@ -7,11 +7,11 @@ import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-template-delete',
   imports: [ButtonModule],
   templateUrl: './quiz-template-delete.html',
   styleUrl: './quiz-template-delete.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateDelete implements OnInit {
   private readonly route = inject(ActivatedRoute);

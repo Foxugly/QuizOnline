@@ -70,6 +70,38 @@
   }
 }
 
+/* Tablist actions (translate button next to tabs) */
+.tablist-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+/* Editor compact (PrimeNG editor in forms) */
+.editor-compact {
+  display: block;
+  width: 100%;
+
+  ::ng-deep .p-editor-toolbar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.25rem 0.35rem;
+  }
+
+  ::ng-deep .p-editor-container,
+  ::ng-deep .ql-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  ::ng-deep .ql-editor {
+    min-height: 6rem;
+    padding: 0.5rem;
+  }
+}
+
 /* Centering helpers */
 .widget-center {
   width: 100%;

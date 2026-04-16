@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
 
@@ -36,7 +36,6 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 
 @Component({
-  standalone: true,
   selector: 'app-subject-edit',
   imports: [
     CommonModule,
@@ -49,6 +48,7 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
   ],
   templateUrl: './subject-edit.html',
   styleUrl: './subject-edit.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectEdit implements OnInit {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

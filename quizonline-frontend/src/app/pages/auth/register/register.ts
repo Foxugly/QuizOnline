@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -28,10 +28,10 @@ import {DomainService, DomainTranslations} from '../../../services/domain/domain
 
 @Component({
   selector: 'app-register',
-  standalone: true,
   imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, SelectModule, MultiSelectModule],
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Register implements OnInit {
   app = window.__APP__!;

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 
@@ -24,8 +24,8 @@ export type SubjectLangGroup = FormGroup<{
 })
 export class SubjectService {
 
-  constructor(private api: SubjectApiService, private router: Router) {
-  }
+    private readonly api = inject(SubjectApiService);
+  private readonly router = inject(Router);
 
   list(params?: { search?: string; domainId?: number; active?: boolean }): Observable<SubjectReadDto[]> {
     return this.api.subjectList({

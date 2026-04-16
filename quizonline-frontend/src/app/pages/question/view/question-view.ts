@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {QuestionService,} from '../../../services/question/question';
@@ -10,11 +10,11 @@ import {UserService} from '../../../services/user/user';
 import {QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
 
 @Component({
-  standalone: true,
   selector: 'app-question-view',
   templateUrl: './question-view.html',
   styleUrl: './question-view.scss',
   imports: [CommonModule, QuizQuestionComponent, ButtonModule, ToggleButtonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionView implements OnInit {
   id!: number;

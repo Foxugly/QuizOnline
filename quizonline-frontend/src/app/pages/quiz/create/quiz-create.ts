@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormGroup, Validators, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -67,7 +67,6 @@ type QuizTemplateLocalizedDto = QuizTemplateDto & {translations?: QuizTemplateTr
 type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {translations?: QuizTemplateTranslations};
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-create',
   imports: [
     CommonModule,
@@ -89,6 +88,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
   ],
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizCreate implements OnInit {
   readonly questionEmptyLanguagesMessage = "Ce domaine n'a pas de langues actives configurées.";

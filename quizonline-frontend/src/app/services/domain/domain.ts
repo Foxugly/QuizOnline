@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {Router} from '@angular/router';
 import {map, Observable} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
@@ -20,8 +20,9 @@ export type DomainTranslations = Record<string, DomainTranslationDto>;
 export class DomainService {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
-    constructor(private api: DomainApiService, private router: Router, private http: HttpClient) {
-  }
+      private readonly api = inject(DomainApiService);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   list(params?: { name?: string; search?: string }): Observable<DomainReadDto[]> {
     return this.api.domainList().pipe(

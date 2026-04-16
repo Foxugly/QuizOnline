@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize} from 'rxjs';
@@ -16,6 +16,7 @@ import {formatLocalizedDateTime} from '../../../shared/i18n/date-time';
   ],
   templateUrl: './quiz-view.html',
   styleUrl: './quiz-view.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizView implements OnInit {
   private static readonly FALLBACK_LABEL = '-';

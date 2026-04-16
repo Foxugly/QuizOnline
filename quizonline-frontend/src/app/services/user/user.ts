@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, Injectable, signal, inject} from '@angular/core';
 import {BehaviorSubject, map, Observable, tap} from 'rxjs';
 
 import {UserApi as UserApiService} from '../../api/generated/api/user.service';
@@ -49,7 +49,10 @@ export class UserService {
   private readonly _lang$ = new BehaviorSubject<SupportedLanguage>(this.loadInitialLang());
   readonly lang$ = this._lang$.asObservable();
 
-  constructor(private http: HttpClient, private userApi: UserApiService) {
+    private readonly http = inject(HttpClient);
+  private readonly userApi = inject(UserApiService);
+
+  constructor() {
     this.applyLang(this._lang$.value);
   }
 

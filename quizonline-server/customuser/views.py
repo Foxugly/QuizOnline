@@ -16,7 +16,7 @@ from quiz.models import Quiz
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from config.tools import ErrorDetailSerializer
 
@@ -170,7 +170,7 @@ class CustomUserViewSet(
         if self.action == "create":
             return [AllowAny()]
         if self.action == "list":
-            return [IsAdminUser()]
+            return [IsSuperuserOnly()]
         if self.action == "destroy":
             return [IsAuthenticated(), IsSuperuserOnly()]
         if self.action in ("me", "set_current_domain", "me_join_requests"):

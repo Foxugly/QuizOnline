@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 
 import {ActivatedRoute} from '@angular/router';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
@@ -8,11 +8,11 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 
 @Component({
-  standalone: true,
   selector: 'app-subject-delete',
   imports: [ButtonModule],
   templateUrl: './subject-delete.html',
-  styleUrl: './subject-delete.scss'
+  styleUrl: './subject-delete.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectDelete implements OnInit {
   private route = inject(ActivatedRoute);

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, signal, ViewChild} from '@angular/core';
+import {Component, computed, DestroyRef, inject, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject, switchMap} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
@@ -10,11 +10,11 @@ import {UserService} from '../../../services/user/user';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-quick-page',
   imports: [CommonModule, ButtonModule, QuizSubjectForm],
   templateUrl: './quiz-quick.html',
   styleUrl: './quiz-quick.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuickPage {
   readonly ui = computed(() => getEditorUiText(this.userService.currentLang));

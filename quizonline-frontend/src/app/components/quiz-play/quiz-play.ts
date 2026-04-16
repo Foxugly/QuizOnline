@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
 
 @Component({
   selector: 'app-quiz-play',
-  standalone: true,
   imports: [QuizNav, ButtonModule],
   templateUrl: './quiz-play.html',
   styleUrl: './quiz-play.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizPlayComponent {
   questionNavItems: QuizNavItem[] = [];

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -23,7 +23,6 @@ import {
 
 @Component({
   selector: 'app-quiz-alert-detail',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -36,6 +35,7 @@ import {
   ],
   templateUrl: './quiz-alert-detail.html',
   styleUrl: './quiz-alert-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertDetail implements OnInit {
   readonly loading = signal(true);

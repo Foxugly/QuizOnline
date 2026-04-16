@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, input, output, signal} from '@angular/core';
+import {Component, computed, input, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CheckboxModule} from 'primeng/checkbox';
 import {ButtonModule} from 'primeng/button';
@@ -15,6 +15,7 @@ import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
   imports: [CommonModule, FormsModule, CheckboxModule, ButtonModule, DialogModule, InputTextModule, TagModule],
   templateUrl: './quiz-template-assign-dialog.html',
   styleUrl: './quiz-template-assign-dialog.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateAssignDialogComponent {
   visible = input(false);

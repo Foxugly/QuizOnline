@@ -36,7 +36,6 @@ export interface AnswerPayload {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-quiz-question',
   templateUrl: './quiz-question.html',
   styleUrl: './quiz-question.scss',

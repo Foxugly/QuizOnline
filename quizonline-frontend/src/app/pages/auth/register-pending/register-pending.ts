@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {ButtonModule} from 'primeng/button';
@@ -9,10 +9,10 @@ import {getUiText} from '../../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-register-pending',
-  standalone: true,
   imports: [ButtonModule],
   templateUrl: './register-pending.html',
   styleUrl: './register-pending.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterPendingPage {
   private readonly router = inject(Router);

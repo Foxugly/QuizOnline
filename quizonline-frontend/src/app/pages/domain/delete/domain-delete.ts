@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {ActivatedRoute} from '@angular/router';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
@@ -13,6 +13,7 @@ import {UserService} from '../../../services/user/user';
   ],
   templateUrl: './domain-delete.html',
   styleUrl: './domain-delete.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainDelete implements OnInit {
   private route = inject(ActivatedRoute);

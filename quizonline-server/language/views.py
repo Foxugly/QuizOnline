@@ -8,7 +8,9 @@ from drf_spectacular.utils import (
 )
 from rest_framework import filters
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import AllowAny
+
+from config.permissions import IsSuperUser
 from config.tools import ErrorDetailSerializer, MyModelViewSet
 
 from .models import Language
@@ -159,7 +161,7 @@ class LanguageViewSet(MyModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsSuperUser()]
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:

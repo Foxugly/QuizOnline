@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {ButtonModule} from 'primeng/button';
@@ -11,9 +11,9 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 
 @Component({
   selector: 'app-user-delete-page',
-  standalone: true,
   imports: [ButtonModule, CardModule, MessageModule],
   templateUrl: './user-delete.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserDeletePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
