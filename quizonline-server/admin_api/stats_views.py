@@ -1,15 +1,53 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from rest_framework import serializers
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from config.permissions import IsSuperUser
+from config.tools import ErrorDetailSerializer
 from domain.models import Domain
 from question.models import Question
 from quiz.models import Quiz
-from config.permissions import IsSuperUser
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 User = get_user_model()
 
 
+class _DomainStatsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    translations = serializers.JSONField()
+    members_count = serializers.IntegerField()
+    managers_count = serializers.IntegerField()
+    questions_count = serializers.IntegerField()
+    templates_count = serializers.IntegerField()
+    sessions_total = serializers.IntegerField()
+    sessions_completed = serializers.IntegerField()
+
+
+class _TotalsSerializer(serializers.Serializer):
+    active_users = serializers.IntegerField()
+    active_domains = serializers.IntegerField()
+    active_questions = serializers.IntegerField()
+    completed_sessions = serializers.IntegerField()
+
+
+class DashboardStatsResponseSerializer(serializers.Serializer):
+    totals = _TotalsSerializer()
+    domains = _DomainStatsSerializer(many=True)
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Admin"],
+        summary="Statistiques du tableau de bord",
+        responses={
+            200: DashboardStatsResponseSerializer,
+            401: OpenApiResponse(response=ErrorDetailSerializer, description="Unauthorized"),
+            403: OpenApiResponse(response=ErrorDetailSerializer, description="Forbidden (superuser only)"),
+        },
+    ),
+)
 class DashboardStatsView(APIView):
     """
     GET /api/stats/dashboard/

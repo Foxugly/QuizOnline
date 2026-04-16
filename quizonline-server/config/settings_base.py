@@ -187,6 +187,9 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_SETTINGS": {"persistAuthorization": True},
     "ENUM_NAME_OVERRIDES": {
         "VisibilityEnum": "quiz.constants.VISIBILITY_CHOICES",
+        "AlertThreadStatusEnum": "quiz.models.QuizAlertThread.STATUS_CHOICES",
+        "JoinRequestStatusEnum": "domain.models.DomainJoinRequest.STATUS_CHOICES",
+        "SystemCheckResponseStatusEnum": [("ok", "ok"), ("error", "error"), ("skipped", "skipped")],
     },
     "COMPONENT_SPLIT_REQUEST": True,
 }
