@@ -18,6 +18,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TabsModule} from 'primeng/tabs';
+import {TextareaModule} from 'primeng/textarea';
 
 import {
   DomainReadDto,
@@ -85,6 +86,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
     QuestionEditorFormComponent,
     SelectModule,
     TabsModule,
+    TextareaModule,
     ToggleSwitchModule,
   ],
   templateUrl: './quiz-create.html',

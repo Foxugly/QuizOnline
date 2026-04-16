@@ -221,9 +221,9 @@
                               <div class="meta-value">
                                 <textarea
                                   formControlName="description"
-                                  pInputText
-                                  rows="4"
-                                  style="min-height: 100px; resize: vertical;"
+                                  pTextarea
+                                  [rows]="4"
+                                  [autoResize]="true"
                                   placeholder="Contexte ou consignes du quiz">
                                 </textarea>
                               </div>
