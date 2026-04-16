@@ -8,42 +8,84 @@
     </a>
   </header>
 
-  <section class="about-layout">
-    <article class="card feature-card">
-      <h2>{{ ui().featuresTitle }}</h2>
-      <p>{{ ui().featuresIntro }}</p>
-      <ul>
-        @for (item of ui().features; track item) {
-          <li>{{ item }}</li>
-        }
-      </ul>
-    </article>
+  <p-tabs [(value)]="activeTab">
+    <p-tablist>
+      <p-tab value="features">
+        <span class="pi pi-star tab-icon"></span>
+        <span>{{ ui().tabs.features }}</span>
+      </p-tab>
+      <p-tab value="legal">
+        <span class="pi pi-shield tab-icon"></span>
+        <span>{{ ui().tabs.legal }}</span>
+      </p-tab>
+      <p-tab value="technical">
+        <span class="pi pi-code tab-icon"></span>
+        <span>{{ ui().tabs.technical }}</span>
+      </p-tab>
+    </p-tablist>
 
-    <aside class="tech-column" [attr.aria-label]="ui().technicalTitle">
-      <div class="tech-column__intro">
-        <h2>{{ ui().technicalTitle }}</h2>
-        <p>{{ ui().technicalIntro }}</p>
-      </div>
-
-      @for (key of technicalCardKeys; track key) {
-        <article class="card tech-card">
-          <h3>{{ ui().cards[key].title }}</h3>
-          <p>{{ ui().cards[key].description }}</p>
-          @if (key === 'repository') {
-            <div class="meta-block">
-              <span class="meta-label">{{ ui().repositoryUrlLabel }}</span>
-              <a class="mono mono-link" [href]="repositoryUrl" rel="noreferrer" target="_blank">
-                {{ repositoryUrl }}
-              </a>
-            </div>
-          }
-          <ul>
-            @for (item of ui().cards[key].items; track item) {
+    <p-tabpanels>
+      <!-- ── Features ── -->
+      <p-tabpanel value="features">
+        <article class="tab-content">
+          <h2>{{ ui().featuresTitle }}</h2>
+          <p class="tab-intro">{{ ui().featuresIntro }}</p>
+          <ul class="feature-list">
+            @for (item of ui().features; track item) {
               <li>{{ item }}</li>
             }
           </ul>
         </article>
-      }
-    </aside>
-  </section>
+      </p-tabpanel>
+
+      <!-- ── Legal ── -->
+      <p-tabpanel value="legal">
+        <article class="tab-content">
+          <h2>{{ ui().legalTitle }}</h2>
+          <p class="tab-intro">{{ ui().legalIntro }}</p>
+          <div class="legal-sections">
+            @for (section of ui().legalSections; track section.title) {
+              <div class="legal-block">
+                <h3>{{ section.title }}</h3>
+                <ul>
+                  @for (line of section.content; track line) {
+                    <li>{{ line }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </article>
+      </p-tabpanel>
+
+      <!-- ── Technical ── -->
+      <p-tabpanel value="technical">
+        <article class="tab-content">
+          <h2>{{ ui().technicalTitle }}</h2>
+          <p class="tab-intro">{{ ui().technicalIntro }}</p>
+          <div class="tech-grid">
+            @for (key of technicalCardKeys; track key) {
+              <div class="tech-card">
+                <h3>{{ ui().cards[key].title }}</h3>
+                <p>{{ ui().cards[key].description }}</p>
+                @if (key === 'repository') {
+                  <div class="meta-block">
+                    <span class="meta-label">{{ ui().repositoryUrlLabel }}</span>
+                    <a class="mono mono-link" [href]="repositoryUrl" rel="noreferrer" target="_blank">
+                      {{ repositoryUrl }}
+                    </a>
+                  </div>
+                }
+                <ul>
+                  @for (item of ui().cards[key].items; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </article>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </section>

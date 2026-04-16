@@ -1,9 +1,10 @@
 .about-page {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
   padding: 1rem 0 2rem;
 }
 
+/* ── Hero ── */
 .hero {
   padding: 2rem;
   border: 1px solid #d7dfeb;
@@ -49,83 +50,109 @@
   font-weight: 600;
 }
 
-.about-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.95fr);
-  gap: 1.5rem;
+/* ── Tabs ── */
+.tab-icon {
+  margin-right: 0.35rem;
+  font-size: 0.95rem;
 }
 
-.card {
+/* ── Tab content (shared) ── */
+.tab-content {
   padding: 1.5rem;
   border: 1px solid #dde5ef;
-  border-radius: 20px;
+  border-radius: 16px;
   background: #fff;
-  box-shadow: 0 12px 30px rgba(30, 44, 56, 0.06);
+  box-shadow: 0 8px 24px rgba(30, 44, 56, 0.05);
 }
 
-.card h2,
-.card h3 {
-  margin: 0 0 1rem;
-  font-size: 1.15rem;
-  color: #1e2c38;
-}
-
-.card p {
-  margin: 0 0 0.75rem;
-  color: #4f6170;
-  line-height: 1.65;
-}
-
-.card ul {
-  margin: 0;
-  padding-left: 1.2rem;
-  color: #334250;
-}
-
-.card li + li {
-  margin-top: 0.65rem;
-}
-
-.mono {
-  font-family: "Consolas", "Courier New", monospace;
-  word-break: break-all;
-  color: #1e2c38;
-}
-
-.feature-card {
-  align-self: start;
-}
-
-.tech-column {
-  display: grid;
-  align-content: start;
-  gap: 1rem;
-}
-
-.tech-column__intro {
-  padding: 0 0.25rem;
-}
-
-.tech-column__intro h2 {
+.tab-content h2 {
   margin: 0 0 0.75rem;
   font-size: 1.3rem;
   color: #1e2c38;
 }
 
-.tech-column__intro p {
-  margin: 0;
+.tab-content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: #1e2c38;
+}
+
+.tab-intro {
+  margin: 0 0 1.25rem;
   color: #4f6170;
   line-height: 1.65;
 }
 
-.tech-card {
-  display: grid;
-  gap: 0.9rem;
+/* ── Features tab ── */
+.feature-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #334250;
 }
 
-.tech-card p,
-.meta-block {
+.feature-list li + li {
+  margin-top: 0.65rem;
+}
+
+/* ── Legal tab ── */
+.legal-sections {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.legal-block {
+  padding: 1rem 1.25rem;
+  border: 1px solid #e8ecf1;
+  border-radius: 12px;
+  background: #fafbfc;
+}
+
+.legal-block h3 {
+  font-weight: 650;
+  color: #1e2c38;
+}
+
+.legal-block ul {
   margin: 0;
+  padding-left: 1.2rem;
+  color: #334250;
+}
+
+.legal-block li + li {
+  margin-top: 0.4rem;
+}
+
+/* ── Technical tab ── */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.tech-card {
+  padding: 1.25rem;
+  border: 1px solid #dde5ef;
+  border-radius: 14px;
+  background: #fafbfc;
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.tech-card p {
+  margin: 0;
+  color: #4f6170;
+  line-height: 1.55;
+}
+
+.tech-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #334250;
+}
+
+.tech-card li + li {
+  margin-top: 0.35rem;
 }
 
 .meta-block {
@@ -141,6 +168,12 @@
   color: #8a4b20;
 }
 
+.mono {
+  font-family: "Consolas", "Courier New", monospace;
+  word-break: break-all;
+  color: #1e2c38;
+}
+
 .mono-link {
   text-decoration: none;
 }
@@ -150,7 +183,7 @@
 }
 
 @media (max-width: 900px) {
-  .about-layout {
+  .tech-grid {
     grid-template-columns: 1fr;
   }
 
