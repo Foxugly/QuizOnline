@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnInit, Output, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, input, OnInit, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {finalize} from 'rxjs';
@@ -53,10 +53,10 @@ export class QuizSubjectForm implements OnInit {
   domains = signal<DomainReadDto[]>([]);
   subjects = signal<SubjectReadDto[]>([]);
 
-  @Input() saving = false;
-  @Input() success: string | null = null;
-  @Output() generate = new EventEmitter<QuizSubjectCreatePayload>();
-  @Output() subjectsChange = new EventEmitter<number[]>();
+  readonly saving = input(false);
+  readonly success = input<string | null>(null);
+  readonly generate = output<QuizSubjectCreatePayload>();
+  readonly subjectsChange = output<number[]>();
 
   private readonly domainService = inject(DomainService);
   private readonly subjectService = inject(SubjectService);
@@ -79,16 +79,11 @@ export class QuizSubjectForm implements OnInit {
     duration: this.fb.control(10),
   });
 
-  private _maxQuestions: number | null = null;
+  readonly maxQuestions = input<number | null>(null);
 
-  get maxQuestions(): number | null {
-    return this._maxQuestions;
-  }
-
-  @Input() set maxQuestions(value: number | null) {
-    this._maxQuestions = value;
-    this.applyMaxQuestions(value);
-  }
+  private readonly maxQuestionsEffect = effect(() => {
+    this.applyMaxQuestions(this.maxQuestions());
+  }, {allowSignalWrites: true});
 
   get domainOptions(): {name: string; code: number}[] {
     const lang = this.currentLang();

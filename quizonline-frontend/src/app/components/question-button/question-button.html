@@ -1,8 +1,8 @@
 <p-button
-  [label]="label"
+  [label]="label()"
   [style]="styleObject"
   class="question-button"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   (onClick)="onClick($event)"
   size="small"
 >

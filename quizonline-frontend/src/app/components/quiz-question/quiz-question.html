@@ -5,11 +5,11 @@
         <div class="header-left"></div>
 
         <div class="header-center">
-          Question : {{ getTitle(question) || quizNavItem.index }}
+          Question : {{ getTitle(question) || quizNavItem().index }}
         </div>
 
         <div class="header-right">
-          @if (!readonlyMode) {
+          @if (!readonlyMode()) {
             <p-button
               (onClick)="reportRequested.emit()"
               icon="pi pi-envelope"
@@ -19,7 +19,7 @@
             ></p-button>
             <p-togglebutton
               (onChange)="flagToggled.emit($event.checked)"
-              [ngModel]="quizNavItem.flagged"
+              [ngModel]="quizNavItem().flagged"
               class="w-36"
               offIcon="pi pi-bookmark"
               onIcon="pi pi-bookmark-fill"></p-togglebutton>
@@ -84,7 +84,7 @@
       <div class="quiz-question__answers">
       @for (opt of question.answer_options; track opt.id; let i = $index) {
         <div [class]="answerLineClass(opt)">
-          @if (readonlyMode) {
+          @if (readonlyMode()) {
             <span
               class="answer-indicator"
               [class.answer-indicator--selected]="isChecked(opt.id)"
@@ -129,13 +129,13 @@
       }
     </div>
 
-    @if (showFooter) {
+    @if (showFooter()) {
       <ng-template pTemplate="footer">
         <div class="card-footer">
           <div class="card-footer__group card-footer__group--left">
             <p-button
               (onClick)="onPreviousClick()"
-              [disabled]="!hasPrevious"
+              [disabled]="!hasPrevious()"
               icon="pi pi-chevron-left"
               label="Précédent"
               severity="secondary"
@@ -158,7 +158,7 @@
               (onClick)="onNextClick()"
               icon="pi pi-chevron-right"
               iconPos="right"
-              [label]="hasNext ? 'Suivant' : (readonlyMode ? 'Terminer la relecture' : 'Terminer')"
+              [label]="hasNext() ? 'Suivant' : (readonlyMode() ? 'Terminer la relecture' : 'Terminer')"
               severity="secondary"
               variant="outlined"
             ></p-button>

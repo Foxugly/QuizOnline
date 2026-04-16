@@ -1,5 +1,5 @@
 // src/app/components/media-selector/media-selector.ts
-import {Component, forwardRef, Input, OnDestroy, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, forwardRef, input, OnDestroy, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR,} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
@@ -31,6 +31,7 @@ export interface MediaSelectorValue {
 @Component({
   selector: 'app-media-selector',
   templateUrl: './media-selector.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./media-selector.scss'],
   imports: [CommonModule, ButtonModule, FileUploadModule, TabsModule, InputTextModule, FormsModule, DividerModule,
     TagModule, TooltipModule,],
@@ -47,8 +48,8 @@ export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
   youtubeUrl = signal<string>('');
   youtubeError = signal<string | null>(null);
   selectedTab: 'media' | 'youtube' = 'media';
-  @Input() multiple = true;
-  @Input() placeholderYoutube = 'https://www.youtube.com/watch?v=...';
+  readonly multiple = input(true);
+  readonly placeholderYoutube = input('https://www.youtube.com/watch?v=...');
   disabled = false;
   private objectUrlCache = new Map<File, string>();
   /** Valeur interne = liste de médias */

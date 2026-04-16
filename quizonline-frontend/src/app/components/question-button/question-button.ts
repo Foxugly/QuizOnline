@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
 
@@ -11,28 +11,28 @@ import {ButtonModule} from 'primeng/button';
 })
 export class QuestionButton {
   /** Texte du bouton */
-  @Input() label = '';
+  readonly label = input('');
 
   /** Couleur de fond */
-  @Input() backgroundColor?: string;
+  readonly backgroundColor = input<string | undefined>(undefined);
 
   /** Couleur de bordure */
-  @Input() borderColor?: string;
+  readonly borderColor = input<string | undefined>(undefined);
 
   /** Largeur de bordure (ex: '1px', '3px') */
-  @Input() borderWidth?: string;
+  readonly borderWidth = input<string | undefined>(undefined);
 
   /** Rayon des coins (optionnel) */
-  @Input() borderRadius?: string;
+  readonly borderRadius = input<string | undefined>(undefined);
 
   /** Couleur du texte (optionnel) */
-  @Input() textColor?: string;
+  readonly textColor = input<string | undefined>(undefined);
 
   /** Bouton désactivé */
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
   /** Événement clic */
-  @Output() clicked = new EventEmitter<MouseEvent>();
+  readonly clicked = output<MouseEvent>();
 
   onClick(event: MouseEvent) {
     this.clicked.emit(event);
@@ -41,26 +41,26 @@ export class QuestionButton {
   get styleObject(): Record<string, string> {
     const style: Record<string, string> = {};
 
-    if (this.backgroundColor) {
-      style['background'] = this.backgroundColor;
+    if (this.backgroundColor()) {
+      style['background'] = this.backgroundColor()!;
     }
 
-    if (this.borderColor) {
-      style['border-color'] = this.borderColor;
+    if (this.borderColor()) {
+      style['border-color'] = this.borderColor()!;
       style['border-style'] = 'solid';
     }
 
-    if (this.borderWidth) {
-      style['border-width'] = this.borderWidth;
+    if (this.borderWidth()) {
+      style['border-width'] = this.borderWidth()!;
       style['border-style'] = 'solid';
     }
 
-    if (this.borderRadius) {
-      style['border-radius'] = this.borderRadius;
+    if (this.borderRadius()) {
+      style['border-radius'] = this.borderRadius()!;
     }
 
-    if (this.textColor) {
-      style['color'] = this.textColor;
+    if (this.textColor()) {
+      style['color'] = this.textColor()!;
     }
 
     return style;

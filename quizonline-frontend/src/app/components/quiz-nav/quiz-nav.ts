@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PanelModule} from 'primeng/panel';
 import {QuestionButton} from '../question-button/question-button';
@@ -23,14 +23,14 @@ export interface QuizNavItem {
 })
 export class QuizNav {
   /** Liste des questions */
-  @Input() items: QuizNavItem[] = [];
+  readonly items = input<QuizNavItem[]>([]);
 
   /** Nombre de colonnes (boutons par ligne) */
-  @Input() columns = 5;
-  @Input() reviewMode = false;
+  readonly columns = input(5);
+  readonly reviewMode = input(false);
 
   /** Événement émis au clic sur un bouton */
-  @Output() questionSelected = new EventEmitter<number>();
+  readonly questionSelected = output<number>();
 
   onClick(item: QuizNavItem): void {
     this.questionSelected.emit(item.index);
@@ -99,7 +99,7 @@ export class QuizNav {
   }
 
   private getReviewState(item: QuizNavItem): 'correct' | 'wrong' | 'neutral' {
-    if (!this.reviewMode || !item.answered) {
+    if (!this.reviewMode() || !item.answered) {
       return 'neutral';
     }
 
