@@ -219,13 +219,7 @@
                             <div class="meta-item meta-item--full">
                               <label class="meta-label">{{ uiText().quizDescription }} ({{ lang.toUpperCase() }})</label>
                               <div class="meta-value">
-                                <textarea
-                                  formControlName="description"
-                                  pTextarea
-                                  [rows]="4"
-                                  [autoResize]="true"
-                                  placeholder="Contexte ou consignes du quiz">
-                                </textarea>
+                                <p-editor class="editor-compact" formControlName="description"></p-editor>
                               </div>
                             </div>
                           </div>

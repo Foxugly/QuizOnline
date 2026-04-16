@@ -13,6 +13,7 @@ import {CheckboxModule} from 'primeng/checkbox';
 import {PrimeNG} from 'primeng/config';
 import {DatePickerModule} from 'primeng/datepicker';
 import {DialogModule} from 'primeng/dialog';
+import {EditorModule} from 'primeng/editor';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
@@ -78,6 +79,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
     CheckboxModule,
     DatePickerModule,
     DialogModule,
+    EditorModule,
     InputNumberModule,
     InputTextModule,
     QuizQuestionLibraryComponent,
