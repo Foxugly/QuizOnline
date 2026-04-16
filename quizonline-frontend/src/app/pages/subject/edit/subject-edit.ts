@@ -73,6 +73,7 @@ export class SubjectEdit implements OnInit {
 
   private fb = inject(FormBuilder);
   form = this.fb.group({
+    active: new FormControl<boolean>(true, {nonNullable: true}),
     translations: this.fb.group({}),
   });
   private route = inject(ActivatedRoute);
@@ -239,6 +240,7 @@ export class SubjectEdit implements OnInit {
       )
       .subscribe((s: SubjectDetailDto) => {
         this.domainId.set(s.domain);
+        this.form.controls.active.setValue(s.active ?? true);
         this.loadSubjectQuestions(s);
 
         const domainId = s.domain ?? null;
@@ -366,7 +368,10 @@ export class SubjectEdit implements OnInit {
     // Ne renvoyer que les langues du domain (onglets)
     const translations = buildLocalizedTextRecord(this.translationsGroup(), codes);
 
-    return this.subjectService.buildWritePayload(domainId, translations);
+    return {
+      ...this.subjectService.buildWritePayload(domainId, translations),
+      active: this.form.controls.active.value,
+    };
   }
 
   protected getQuestionTitle(q: QuestionReadDto): string {

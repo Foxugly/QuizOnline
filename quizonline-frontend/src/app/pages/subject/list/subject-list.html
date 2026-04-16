@@ -47,7 +47,7 @@
         <tr>
           <th pSortableColumn="id" style="text-align: center;">ID <p-sortIcon field="id"></p-sortIcon></th>
           <th pSortableColumn="name" style="text-align: center;">Nom <p-sortIcon field="name"></p-sortIcon></th>
-          <th pSortableColumn="description" style="text-align: center;">Description <p-sortIcon field="description"></p-sortIcon></th>
+          <th pSortableColumn="active" style="text-align: center;">Actif <p-sortIcon field="active"></p-sortIcon></th>
           <th pSortableColumn="domainName" style="text-align: center;">Domaine <p-sortIcon field="domainName"></p-sortIcon></th>
           <th pSortableColumn="questionsCount" style="text-align: center;">Questions <p-sortIcon field="questionsCount"></p-sortIcon></th>
           <th class="col-actions">Actions</th>
@@ -60,8 +60,12 @@
 
           <td>{{ s.name }}</td>
 
-          <td class="muted desc-cell">
-            <div class="desc" [innerHTML]="s.description | stripP"></div>
+          <td style="text-align: center;">
+            @if (s.active) {
+              <i class="pi pi-check-circle" style="color: #16a34a;"></i>
+            } @else {
+              <i class="pi pi-times-circle" style="color: #dc2626;"></i>
+            }
           </td>
 
           <td style="text-align: center;">

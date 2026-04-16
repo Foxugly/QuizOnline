@@ -8,6 +8,7 @@ import {EditorModule} from 'primeng/editor';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
 import {UserService} from '../../services/user/user';
 import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
@@ -28,6 +29,7 @@ type DomainOption = { id: number; name: string };
     ButtonModule,
     InputTextModule,
     CardModule,
+    ToggleSwitchModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

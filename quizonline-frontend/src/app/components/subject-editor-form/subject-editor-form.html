@@ -28,10 +28,27 @@
 
 @if (showTranslations() && tabCodes().length > 0) {
   <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
-    <div class="card-head card-head--with-badge">
-      <h2 class="card-title">{{ ui().subjectForm.translations }}</h2>
-      <span class="badge">{{ tabCodes().length }} {{ ui().subjectForm.languagesCount }}</span>
-    </div>
+    @if (form().contains('active')) {
+      <div class="meta-grid" style="grid-template-columns: auto 1fr;">
+        <div class="meta-item">
+          <label class="meta-label">Actif</label>
+          <div class="meta-value widget-center">
+            <p-toggleswitch formControlName="active" inputId="subject-active"></p-toggleswitch>
+          </div>
+        </div>
+        <div class="meta-item" style="display: flex; align-items: center;">
+          <div class="card-head card-head--with-badge" style="margin-bottom: 0; width: 100%;">
+            <h2 class="card-title">{{ ui().subjectForm.translations }}</h2>
+            <span class="badge">{{ tabCodes().length }} {{ ui().subjectForm.languagesCount }}</span>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="card-head card-head--with-badge">
+        <h2 class="card-title">{{ ui().subjectForm.translations }}</h2>
+        <span class="badge">{{ tabCodes().length }} {{ ui().subjectForm.languagesCount }}</span>
+      </div>
+    }
 
     <p-tabs
       (valueChange)="onTabChange($event)"
