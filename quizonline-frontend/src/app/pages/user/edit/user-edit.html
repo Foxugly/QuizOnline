@@ -1,9 +1,31 @@
 <div class="page">
+  <div class="header-line">
+    <div class="header-line__left">
+      <p-button
+        (onClick)="cancel()"
+        icon="pi pi-arrow-left"
+        [label]="ui().common.back"
+        class="page-back-button"
+        severity="secondary"
+        type="button"
+        variant="outlined">
+      </p-button>
+    </div>
+
+    <div class="header-center">
+      <h1 class="title">{{ ui().pages.userEdit.title }}</h1>
+      <p class="subtitle muted">{{ ui().pages.userEdit.subtitle }}</p>
+    </div>
+
+    <div class="header-line__right"></div>
+  </div>
+
   <app-user-admin-form
     [form]="form"
     [languageOptions]="languageOptions"
     [submitError]="submitError()"
-    submitLabel="Save"
+    [submitLabel]="ui().common.save"
+    [cancelLabel]="ui().common.cancel"
     title="Edit user"
     (cancel)="cancel()"
     (submitForm)="save()">

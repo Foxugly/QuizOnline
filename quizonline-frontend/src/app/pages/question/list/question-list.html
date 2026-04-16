@@ -89,13 +89,13 @@
       <ng-template #header>
         <tr>
           <th style="width: 3rem">
-            <input
-              type="checkbox"
-              [checked]="allFilteredSelected()"
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="allFilteredSelected()"
               [indeterminate]="someFilteredSelected()"
               [disabled]="selectingAll() || totalRecords() === 0"
-              (change)="toggleSelectAllFiltered($any($event.target).checked)"
-            />
+              (ngModelChange)="toggleSelectAllFiltered($event)"
+            ></p-checkbox>
           </th>
           <th pSortableColumn="title">{{ text().titleCol }} <p-sortIcon field="title"></p-sortIcon></th>
           <th class="col-active" pSortableColumn="active">{{ text().activeCol }} <p-sortIcon field="active"></p-sortIcon></th>

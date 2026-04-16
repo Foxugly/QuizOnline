@@ -1,12 +1,15 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
+
+import {ButtonModule} from 'primeng/button';
 
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 const LANGUAGE_OPTIONS = [
   {label: 'English', value: LanguageEnumDto.En},
@@ -18,7 +21,7 @@ const LANGUAGE_OPTIONS = [
 
 @Component({
   selector: 'app-user-edit-page',
-  imports: [ReactiveFormsModule, UserAdminFormComponent],
+  imports: [ReactiveFormsModule, ButtonModule, UserAdminFormComponent],
   templateUrl: './user-edit.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -30,6 +33,7 @@ export class UserEditPage implements OnInit {
 
   private userId = 0;
   readonly submitError = signal<string | null>(null);
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
   readonly languageOptions = LANGUAGE_OPTIONS;
   readonly form = this.fb.group({
     username: this.fb.control({value: '', disabled: true}, [Validators.required]),

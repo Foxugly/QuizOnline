@@ -4,27 +4,74 @@
     <span class="badge">Superuser</span>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-item">
-      <label class="meta-label" for="username">Username</label>
-      <div class="meta-value">
-        <input formControlName="username" id="username" pInputText />
+  <!-- Username (visible when not disabled) -->
+  @if (form().contains('username')) {
+    <div class="meta-grid" style="grid-template-columns: 1fr;">
+      <div class="meta-item">
+        <label class="meta-label" for="username">Username</label>
+        <div class="meta-value">
+          <input formControlName="username" id="username" pInputText />
+        </div>
       </div>
     </div>
+  }
 
-    <div class="meta-item">
-      <label class="meta-label" for="language">Language</label>
-      <div class="meta-value">
-        <p-select
-          [options]="languageOptions()"
-          formControlName="language"
-          id="language"
-          optionLabel="label"
-          optionValue="value">
-        </p-select>
+  <!-- Row 1: Active, Language, Nb domain max -->
+  @if (showFlags()) {
+    <div class="meta-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="meta-item">
+        <label class="meta-label" for="is_active">Active</label>
+        <div class="meta-value widget-center">
+          <p-toggleswitch formControlName="is_active" inputId="is_active"></p-toggleswitch>
+        </div>
+      </div>
+
+      <div class="meta-item">
+        <label class="meta-label" for="language">Language</label>
+        <div class="meta-value">
+          <p-select
+            [options]="languageOptions()"
+            formControlName="language"
+            id="language"
+            optionLabel="label"
+            optionValue="value">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="meta-item">
+        <label class="meta-label" for="nb_domain_max">Nb domain max</label>
+        <div class="meta-value">
+          <p-inputnumber [min]="0" formControlName="nb_domain_max" inputId="nb_domain_max"></p-inputnumber>
+        </div>
       </div>
     </div>
+  } @else {
+    <div class="meta-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="meta-item">
+        <label class="meta-label" for="language">Language</label>
+        <div class="meta-value">
+          <p-select
+            [options]="languageOptions()"
+            formControlName="language"
+            id="language"
+            optionLabel="label"
+            optionValue="value">
+          </p-select>
+        </div>
+      </div>
 
+      <div class="meta-item">
+        <label class="meta-label" for="nb_domain_max">Nb domain max</label>
+        <div class="meta-value">
+          <p-inputnumber [min]="0" formControlName="nb_domain_max" inputId="nb_domain_max"></p-inputnumber>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Row 2: Email, Email confirmed, First name, Last name -->
+  <div class="meta-grid" [style.grid-template-columns]="showFlags() && form().contains('email_confirmed') ? '1fr auto 1fr 1fr' : '1fr 1fr 1fr'">
     <div class="meta-item">
       <label class="meta-label" for="email">Email</label>
       <div class="meta-value">
@@ -32,12 +79,14 @@
       </div>
     </div>
 
-    <div class="meta-item">
-      <label class="meta-label" for="nb_domain_max">Nb domain max</label>
-      <div class="meta-value">
-        <p-inputnumber [min]="0" formControlName="nb_domain_max" inputId="nb_domain_max"></p-inputnumber>
+    @if (showFlags() && form().contains('email_confirmed')) {
+      <div class="meta-item">
+        <label class="meta-label" for="email_confirmed">Email confirmed</label>
+        <div class="meta-value widget-center">
+          <p-toggleswitch formControlName="email_confirmed" inputId="email_confirmed"></p-toggleswitch>
+        </div>
       </div>
-    </div>
+    }
 
     <div class="meta-item">
       <label class="meta-label" for="first_name">First name</label>
@@ -52,41 +101,28 @@
         <input formControlName="last_name" id="last_name" pInputText />
       </div>
     </div>
+  </div>
 
-    @if (showPassword()) {
-      <div class="meta-item meta-item--full">
+  <!-- Row 3: Password, Password change required -->
+  @if (showPassword()) {
+    <div class="meta-grid" [style.grid-template-columns]="showFlags() ? '1fr auto' : '1fr'">
+      <div class="meta-item">
         <label class="meta-label" for="password">Password</label>
         <div class="meta-value">
           <p-password [feedback]="false" formControlName="password" inputId="password" styleClass="w-full"></p-password>
         </div>
       </div>
-    }
 
-    @if (showFlags()) {
-      <div class="meta-item">
-        <label class="meta-label" for="is_active">Active</label>
-        <div class="meta-value widget-center">
-          <p-toggleswitch formControlName="is_active" inputId="is_active"></p-toggleswitch>
-        </div>
-      </div>
-
-      @if (form().contains('email_confirmed')) {
+      @if (showFlags()) {
         <div class="meta-item">
-          <label class="meta-label" for="email_confirmed">Email confirmed</label>
+          <label class="meta-label" for="password_change_required">Password change required</label>
           <div class="meta-value widget-center">
-            <p-toggleswitch formControlName="email_confirmed" inputId="email_confirmed"></p-toggleswitch>
+            <p-toggleswitch formControlName="password_change_required" inputId="password_change_required"></p-toggleswitch>
           </div>
         </div>
       }
-
-      <div class="meta-item">
-        <label class="meta-label" for="password_change_required">Password change required</label>
-        <div class="meta-value widget-center">
-          <p-toggleswitch formControlName="password_change_required" inputId="password_change_required"></p-toggleswitch>
-        </div>
-      </div>
-    }
-  </div>
+    </div>
+  }
 
   @if (submitError()) {
     <p-message [text]="submitError()!" severity="error"></p-message>
@@ -96,7 +132,7 @@
     <p-button
       (onClick)="onCancel()"
       icon="pi pi-times"
-      label="Cancel"
+      [label]="cancelLabel()"
       severity="secondary"
       variant="outlined"
       type="button">

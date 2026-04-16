@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {CheckboxModule} from 'primeng/checkbox';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
@@ -37,6 +38,7 @@ type QuestionListRow = {
     CommonModule,
     FormsModule,
     ButtonModule,
+    CheckboxModule,
     InputTextModule,
     MultiSelectModule,
     TableModule,

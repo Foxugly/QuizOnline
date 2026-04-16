@@ -20,16 +20,16 @@
   gap: 1rem;
 }
 
-.quick-quiz-form__grid {
+.quick-quiz-row1 {
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 1.8fr) minmax(240px, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
-.quick-quiz-config {
+.quick-quiz-row2 {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 3fr 1fr;
 }
 
 .field {
@@ -101,8 +101,8 @@
 }
 
 @media (max-width: 760px) {
-  .quick-quiz-form__grid,
-  .quick-quiz-config {
+  .quick-quiz-row1,
+  .quick-quiz-row2 {
     grid-template-columns: 1fr;
   }
 

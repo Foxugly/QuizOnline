@@ -34,6 +34,7 @@ export class UserAdminFormComponent {
   readonly languageOptions = input.required<Array<Option<string>>>();
   readonly title = input('User');
   readonly submitLabel = input('Save');
+  readonly cancelLabel = input('Cancel');
   readonly submitError = input<string | null>(null);
   readonly showPassword = input(true);
   readonly showFlags = input(true);

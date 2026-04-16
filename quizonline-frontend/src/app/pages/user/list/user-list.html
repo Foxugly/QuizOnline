@@ -51,6 +51,7 @@
           <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
           <th pSortableColumn="nb_domain_max">Nb domain max <p-sortIcon field="nb_domain_max"></p-sortIcon></th>
           <th pSortableColumn="is_active">Active <p-sortIcon field="is_active"></p-sortIcon></th>
+          <th pSortableColumn="email_confirmed">Email confirmed <p-sortIcon field="email_confirmed"></p-sortIcon></th>
           <th class="col-actions">Actions</th>
         </tr>
       </ng-template>
@@ -62,7 +63,20 @@
           <td>{{ user.fullName || '-' }}</td>
           <td>{{ user.email || '-' }}</td>
           <td class="center-cell">{{ user.nb_domain_max ?? 0 }}</td>
-          <td class="center-cell">{{ user.is_active ? 'Yes' : 'No' }}</td>
+          <td class="center-cell">
+            @if (user.is_active) {
+              <i class="pi pi-check-circle" style="color: #16a34a;"></i>
+            } @else {
+              <i class="pi pi-times-circle" style="color: #dc2626;"></i>
+            }
+          </td>
+          <td class="center-cell">
+            @if (user.email_confirmed) {
+              <i class="pi pi-check-circle" style="color: #16a34a;"></i>
+            } @else {
+              <i class="pi pi-times-circle" style="color: #dc2626;"></i>
+            }
+          </td>
           <td class="col-actions">
             <div class="row-actions">
               <p-button

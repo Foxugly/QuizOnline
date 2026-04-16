@@ -8,8 +8,8 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="quick-quiz-form">
-    <div class="quick-quiz-form__grid">
-      <div class="field field--wide">
+    <div class="quick-quiz-row1">
+      <div class="field">
         <label for="title">Titre</label>
         <input formControlName="title" id="title" pInputText type="text" />
         <small>Titre propose automatiquement, modifiable avant generation.</small>
@@ -24,46 +24,9 @@
           optionValue="code"
           appendTo="body"
           id="domain"
+          [disabled]="true"
           placeholder="Choisir un domaine">
         </p-select>
-      </div>
-
-      <div class="field field--full">
-        <label for="subjects">Sujets</label>
-        <p-multiSelect
-          formControlName="subject_ids"
-          [options]="subjectOptions"
-          [showClear]="true"
-          class="w-full"
-          id="subjects"
-          optionLabel="name"
-          optionValue="code"
-          (onPanelHide)="onSubjectsPanelHide()"
-          [panelStyle]="{ 'max-height': '250px', 'overflow-y': 'auto' }"
-          placeholder="Choisir un ou plusieurs sujets">
-        </p-multiSelect>
-      </div>
-    </div>
-
-    <div class="quick-quiz-config">
-      <div class="field field--stat">
-        <label for="nbQuestions">
-          @if (availableQuestionCount() > 0) {
-            Nombre de questions (max : {{ availableQuestionCount() }})
-          } @else {
-            Nombre de questions
-          }
-        </label>
-        <p-inputNumber
-          formControlName="max_questions"
-          [disabled]="!hasAvailableQuestions()"
-          [max]="availableQuestionCount()"
-          [min]="questionCountMin()"
-          [showButtons]="true"
-          [useGrouping]="false"
-          inputId="nbQuestions"
-        >
-        </p-inputNumber>
       </div>
 
       <div class="field field--switch">
@@ -84,6 +47,44 @@
           [useGrouping]="false"
           inputId="timer"
           suffix=" min"
+        >
+        </p-inputNumber>
+      </div>
+    </div>
+
+    <div class="quick-quiz-row2">
+      <div class="field">
+        <label for="subjects">Sujets</label>
+        <p-multiSelect
+          formControlName="subject_ids"
+          [options]="subjectOptions"
+          [showClear]="true"
+          class="w-full"
+          id="subjects"
+          optionLabel="name"
+          optionValue="code"
+          (onPanelHide)="onSubjectsPanelHide()"
+          [panelStyle]="{ 'max-height': '250px', 'overflow-y': 'auto' }"
+          placeholder="Choisir un ou plusieurs sujets">
+        </p-multiSelect>
+      </div>
+
+      <div class="field field--stat">
+        <label for="nbQuestions">
+          @if (availableQuestionCount() > 0) {
+            Nombre de questions (max : {{ availableQuestionCount() }})
+          } @else {
+            Nombre de questions
+          }
+        </label>
+        <p-inputNumber
+          formControlName="max_questions"
+          [disabled]="!hasAvailableQuestions()"
+          [max]="availableQuestionCount()"
+          [min]="questionCountMin()"
+          [showButtons]="true"
+          [useGrouping]="false"
+          inputId="nbQuestions"
         >
         </p-inputNumber>
       </div>

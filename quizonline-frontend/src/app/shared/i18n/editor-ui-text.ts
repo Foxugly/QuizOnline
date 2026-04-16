@@ -22,6 +22,7 @@ export type EditorUiText = {
     questionEdit: {title: string; subtitle: string;};
     quizQuick: {title: string; subtitle: string; submit: string;};
     quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
+    userEdit: {title: string; subtitle: string;};
   };
   domainForm: {
     translations: string;
@@ -101,6 +102,7 @@ const FR: EditorUiText = {
     questionEdit: {title: 'Modifier une question', subtitle: 'Contexte, traductions et réponses'},
     quizQuick: {title: 'Quiz rapide', subtitle: 'Génère une session de quiz à partir d un domaine et de sujets cibles.', submit: 'Générer le quiz'},
     quizCreate: {back: 'Retour', cancel: 'Annuler', loading: 'Chargement...', createQuestionForTemplate: 'Créer une question pour ce template', createQuestionForQuiz: 'Créer une question pour ce quiz', createQuestion: 'Créer la question'},
+    userEdit: {title: 'Éditer l\'utilisateur', subtitle: 'Paramètres du compte'},
   },
   domainForm: {
     translations: 'Traductions',
@@ -180,6 +182,7 @@ const EN: EditorUiText = {
     questionEdit: {title: 'Edit question', subtitle: 'Context, translations and answers'},
     quizQuick: {title: 'Quick quiz', subtitle: 'Generate a quiz session from a domain and target subjects.', submit: 'Generate quiz'},
     quizCreate: {back: 'Back', cancel: 'Cancel', loading: 'Loading...', createQuestionForTemplate: 'Create a question for this template', createQuestionForQuiz: 'Create a question for this quiz', createQuestion: 'Create question'},
+    userEdit: {title: 'Edit user', subtitle: 'Account settings'},
   },
   domainForm: {
     translations: 'Translations',
@@ -251,6 +254,7 @@ const NL: EditorUiText = {
     questionEdit: {title: 'Vraag bewerken', subtitle: 'Context, vertalingen en antwoorden'},
     quizQuick: {title: 'Snelle quiz', subtitle: 'Genereer een quizsessie vanuit een domein en doelonderwerpen.', submit: 'Quiz genereren'},
     quizCreate: {back: 'Terug', cancel: 'Annuleren', loading: 'Laden...', createQuestionForTemplate: 'Een vraag maken voor dit template', createQuestionForQuiz: 'Een vraag maken voor deze quiz', createQuestion: 'Vraag maken'},
+    userEdit: {title: 'Gebruiker bewerken', subtitle: 'Accountinstellingen'},
   },
 };
 
@@ -267,6 +271,7 @@ const IT: EditorUiText = {
     questionEdit: {title: 'Modifica domanda', subtitle: 'Contesto, traduzioni e risposte'},
     quizQuick: {title: 'Quiz rapido', subtitle: 'Genera una sessione quiz da un dominio e da argomenti mirati.', submit: 'Genera quiz'},
     quizCreate: {back: 'Indietro', cancel: 'Annulla', loading: 'Caricamento...', createQuestionForTemplate: 'Crea una domanda per questo template', createQuestionForQuiz: 'Crea una domanda per questo quiz', createQuestion: 'Crea domanda'},
+    userEdit: {title: 'Modifica utente', subtitle: 'Impostazioni account'},
   },
 };
 
@@ -283,6 +288,7 @@ const ES: EditorUiText = {
     questionEdit: {title: 'Editar pregunta', subtitle: 'Contexto, traducciones y respuestas'},
     quizQuick: {title: 'Quiz rapido', subtitle: 'Genera una sesion de quiz a partir de un dominio y temas objetivo.', submit: 'Generar quiz'},
     quizCreate: {back: 'Volver', cancel: 'Cancelar', loading: 'Cargando...', createQuestionForTemplate: 'Crear una pregunta para esta plantilla', createQuestionForQuiz: 'Crear una pregunta para este quiz', createQuestion: 'Crear pregunta'},
+    userEdit: {title: 'Editar usuario', subtitle: 'Configuracion de la cuenta'},
   },
 };
 

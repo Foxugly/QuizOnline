@@ -32,19 +32,19 @@
 
     <div class="quick-page__actions">
       <p-button
+        (onClick)="goBack()"
+        [label]="ui().common.cancel"
+        severity="secondary"
+        type="button"
+        variant="outlined">
+      </p-button>
+      <p-button
         (onClick)="submit()"
         [disabled]="saving()"
         [loading]="saving()"
         icon="pi pi-sync"
         [label]="ui().pages.quizQuick.submit"
         type="button">
-      </p-button>
-      <p-button
-        (onClick)="goBack()"
-        [label]="ui().common.cancel"
-        severity="secondary"
-        type="button"
-        variant="outlined">
       </p-button>
     </div>
   </div>

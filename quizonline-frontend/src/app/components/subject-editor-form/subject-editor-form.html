@@ -93,33 +93,31 @@
         }
       </p-tabpanels>
     </p-tabs>
+
+    @if (submitError()) {
+      <div class="alert alert--error">{{ submitError() }}</div>
+    }
+
+    <div class="footer-actions">
+      <p-button
+        (onClick)="onCancel()"
+        icon="pi pi-times"
+        [label]="ui().common.cancel"
+        severity="secondary"
+        variant="outlined"
+        type="button">
+      </p-button>
+
+      <p-button
+        (onClick)="submit()"
+        icon="pi pi-save"
+        [label]="submitLabel()"
+        type="button">
+      </p-button>
+    </div>
   </form>
 } @else if (showTranslations()) {
   <div class="card">
     <div class="alert alert--info">{{ emptyLanguagesMessage() || ui().subjectForm.emptyLanguages }}</div>
   </div>
 }
-
-@if (submitError()) {
-  <div class="card">
-    <div class="alert alert--error">{{ submitError() }}</div>
-  </div>
-}
-
-<div class="footer-actions">
-  <p-button
-    (onClick)="onCancel()"
-    icon="pi pi-times"
-    [label]="ui().common.cancel"
-    severity="secondary"
-    variant="outlined"
-    type="button">
-  </p-button>
-
-  <p-button
-    (onClick)="submit()"
-    icon="pi pi-save"
-    [label]="submitLabel()"
-    type="button">
-  </p-button>
-</div>
