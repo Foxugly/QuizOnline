@@ -14,7 +14,7 @@
     <aside class="hero__panel">
       <div class="hero-stat">
         <span class="hero-stat__label">{{ ui().home.mode }}</span>
-        <strong>{{ isAdmin() ? ui().home.modeStaff : isAuthenticated() ? ui().home.modeUser : ui().home.modeVisitor }}</strong>
+        <strong>{{ isAdmin() ? ui().home.modeManager : isAuthenticated() ? ui().home.modeUser : ui().home.modeVisitor }}</strong>
       </div>
       <div class="hero-stat">
         <span class="hero-stat__label">{{ ui().home.languages }}</span>

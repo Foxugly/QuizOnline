@@ -102,26 +102,26 @@
   <div class="divider"></div>
 
   <div class="card-head">
-    <h2 class="card-title">{{ ui().domainForm.staff }}</h2>
+    <h2 class="card-title">{{ ui().domainForm.managers }}</h2>
   </div>
 
   <div class="meta-grid">
     <div class="meta-item meta-item--full">
-      <label class="meta-label" for="managers">{{ ui().domainForm.staff }}</label>
+      <label class="meta-label" for="managers">{{ ui().domainForm.managers }}</label>
       <div class="meta-value widget-center">
         <p-picklist
-          (onMoveAllToSource)="onStaffChange()"
-          (onMoveAllToTarget)="onStaffChange()"
-          (onMoveToSource)="onStaffChange()"
-          (onMoveToTarget)="onStaffChange()"
+          (onMoveAllToSource)="onManagersChange()"
+          (onMoveAllToTarget)="onManagersChange()"
+          (onMoveToSource)="onManagersChange()"
+          (onMoveToTarget)="onManagersChange()"
           [dragdrop]="true"
           [filterBy]="'label'"
           [showSourceControls]="false"
           [showTargetControls]="false"
           [sourceStyle]="{ height: '240px' }"
-          [source]="availableStaff()"
+          [source]="availableManagers()"
           [targetStyle]="{ height: '240px' }"
-          [target]="selectedStaff()"
+          [target]="selectedManagers()"
           [sourceHeader]="ui().domainForm.available"
           [targetHeader]="ui().domainForm.selected">
           <ng-template let-item pTemplate="item">

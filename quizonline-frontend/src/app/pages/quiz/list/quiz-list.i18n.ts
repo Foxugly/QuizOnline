@@ -50,7 +50,7 @@ export type QuizListUiText = {
     submit: string;
     cancel: string;
     roleOwner: string;
-    roleStaff: string;
+    roleManager: string;
     roleMember: string;
   };
   messages: {
@@ -109,7 +109,7 @@ const FR: QuizListUiText = {
     submit: 'Envoyer',
     cancel: 'Annuler',
     roleOwner: 'Propriétaire',
-    roleStaff: 'Staff',
+    roleManager: 'Gestionnaire',
     roleMember: 'Membre lié',
   },
   messages: {
@@ -168,7 +168,7 @@ const EN: QuizListUiText = {
     submit: 'Send',
     cancel: 'Cancel',
     roleOwner: 'Owner',
-    roleStaff: 'Staff',
+    roleManager: 'Manager',
     roleMember: 'Linked member',
   },
   messages: {
@@ -227,7 +227,7 @@ const NL: QuizListUiText = {
     submit: 'Verzenden',
     cancel: 'Annuleren',
     roleOwner: 'Eigenaar',
-    roleStaff: 'Staff',
+    roleManager: 'Beheerder',
     roleMember: 'Gekoppeld lid',
   },
   messages: {
@@ -286,7 +286,7 @@ const IT: QuizListUiText = {
     submit: 'Invia',
     cancel: 'Annulla',
     roleOwner: 'Proprietario',
-    roleStaff: 'Staff',
+    roleManager: 'Gestore',
     roleMember: 'Membro collegato',
   },
   messages: {
@@ -345,7 +345,7 @@ const ES: QuizListUiText = {
     submit: 'Enviar',
     cancel: 'Cancelar',
     roleOwner: 'Propietario',
-    roleStaff: 'Staff',
+    roleManager: 'Gestor',
     roleMember: 'Miembro vinculado',
   },
   messages: {

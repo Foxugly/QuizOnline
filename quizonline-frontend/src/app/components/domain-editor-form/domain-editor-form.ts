@@ -46,8 +46,8 @@ export class DomainEditorFormComponent {
   readonly activeTab = input<string | undefined>(undefined);
   readonly langCodeOptions = input<LangOption[]>([]);
   readonly ownerOptions = input<UserOption[]>([]);
-  readonly availableStaff = input<UserOption[]>([]);
-  readonly selectedStaff = input<UserOption[]>([]);
+  readonly availableManagers = input<UserOption[]>([]);
+  readonly selectedManagers = input<UserOption[]>([]);
   readonly translating = input(false);
   readonly submitError = input<string | null>(null);
   readonly ownerReadonly = input(false);
@@ -78,7 +78,7 @@ export class DomainEditorFormComponent {
     this.translateClick.emit(code);
   }
 
-  onStaffChange(): void {
+  onManagersChange(): void {
     this.managersPickListChange.emit();
   }
 

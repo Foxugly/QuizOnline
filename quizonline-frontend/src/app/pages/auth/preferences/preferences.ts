@@ -81,7 +81,7 @@ export class Preferences implements OnInit {
       return this.ui.preferences.roleSuperuser;
     }
     if (me.is_staff) {
-      return this.ui.preferences.roleStaff;
+      return this.ui.preferences.roleManager;
     }
     return this.ui.preferences.roleUser;
   }
@@ -101,7 +101,7 @@ export class Preferences implements OnInit {
         name: this.getDomainLabel(domain),
         role: isOwner
           ? this.ui.preferences.roleOwner
-          : (isDomainManager ? this.ui.preferences.roleStaff : this.ui.preferences.roleMember),
+          : (isDomainManager ? this.ui.preferences.roleManager : this.ui.preferences.roleMember),
         ownerName: domain.owner?.username || '-',
         isCurrent: me.current_domain === domain.id,
         canSetCurrent: me.current_domain !== domain.id,

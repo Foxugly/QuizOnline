@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const EN: UiText = {
-  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', staffDomains: 'Domains where I am staff', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences'},
+  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences'},
   userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login'},
   footer: {baseline: 'Quiz and domain content management platform.', version: 'Version'},
   home: {
@@ -12,7 +12,7 @@ export const EN: UiText = {
     secondaryAdmin: 'Create a template',
     secondaryLoggedOut: 'Create an account',
     mode: 'Mode',
-    modeStaff: 'Staff',
+    modeManager: 'Manager',
     modeUser: 'Signed-in user',
     modeVisitor: 'Visitor',
     languages: 'Languages',
@@ -20,7 +20,7 @@ export const EN: UiText = {
     featuresValue: 'Quizzes, messages, assignments, review',
     highlights: [
       {title: 'Smooth delivery', description: 'Practice and exam flows with timer, resume support and localized review.'},
-      {title: 'Staff editing', description: 'Multimedia questions, subjects, domains and templates in one workspace.'},
+      {title: 'Content management', description: 'Multimedia questions, subjects, domains and templates in one workspace.'},
       {title: 'Live follow-up', description: 'Assignments, results, messages and review rules in the same product.'},
     ],
     capabilitiesTitle: 'What you can do',
@@ -73,7 +73,7 @@ export const EN: UiText = {
     firstName: 'First name', lastName: 'Last name', language: 'Language', domains: 'Linked domains', chooseDomains: 'Choose linked domains', currentDomain: 'Current domain', chooseLanguage: 'Choose a language',
     noDomain: 'No domain', save: 'Save', changePassword: 'Change password', role: 'Role', user: 'User', currentDomainLabel: 'Current domain',
     managedDomains: 'Managed domains', ownedDomains: 'Owned domains', activeAccount: 'Active account', yes: 'Yes', no: 'No',
-    roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'User', roleOwner: 'Owner', roleMember: 'Linked member', domainsTitle: 'Domains', domainsSubtitle: 'Manage your linked domains and choose the current one.', linkedDomainsList: 'Visible domains', currentBadge: 'Current', setCurrent: 'Set current', unlinkDomain: 'Unlink', addDomain: 'Link a domain', noMoreDomains: 'No additional domain available.', linkSelectedDomains: 'Link selection', cancel: 'Cancel', ownerLabel: 'Owner:', deleteDomain: 'Delete', deleteDomainSuccess: 'Domain deleted.', deleteDomainError: 'Unable to delete this domain.', loadError: 'Unable to load your preferences.',
+    roleSuperuser: 'Superuser', roleManager: 'Manager', roleUser: 'User', roleOwner: 'Owner', roleMember: 'Linked member', domainsTitle: 'Domains', domainsSubtitle: 'Manage your linked domains and choose the current one.', linkedDomainsList: 'Visible domains', currentBadge: 'Current', setCurrent: 'Set current', unlinkDomain: 'Unlink', addDomain: 'Link a domain', noMoreDomains: 'No additional domain available.', linkSelectedDomains: 'Link selection', cancel: 'Cancel', ownerLabel: 'Owner:', deleteDomain: 'Delete', deleteDomainSuccess: 'Domain deleted.', deleteDomainError: 'Unable to delete this domain.', loadError: 'Unable to load your preferences.',
     saveError: 'Unable to save preferences.', saveSuccess: 'Preferences saved.', userMissing: 'User not found.',
   },
   admin: {

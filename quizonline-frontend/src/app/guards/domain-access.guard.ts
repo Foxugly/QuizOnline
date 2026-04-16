@@ -11,7 +11,7 @@ function redirectToLogin(router: Router, url: string): UrlTree {
   });
 }
 
-export const staffGuard: CanActivateFn = (_route, state) => {
+export const domainAccessGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthService);
   const domainService = inject(DomainService);
   const router = inject(Router);

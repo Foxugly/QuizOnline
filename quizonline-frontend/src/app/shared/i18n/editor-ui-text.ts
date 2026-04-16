@@ -35,7 +35,7 @@ export type EditorUiText = {
     statusAccess: string;
     active: string;
     owner: string;
-    staff: string;
+    managers: string;
     available: string;
     selected: string;
     readonly: string;
@@ -114,7 +114,7 @@ const FR: EditorUiText = {
     statusAccess: 'active + accès',
     active: 'Actif',
     owner: 'Owner',
-    staff: 'Staff',
+    managers: 'Managers',
     available: 'Disponibles',
     selected: 'Sélectionnés',
     readonly: 'readonly',
@@ -193,7 +193,7 @@ const EN: EditorUiText = {
     statusAccess: 'active + access',
     active: 'Active',
     owner: 'Owner',
-    staff: 'Staff',
+    managers: 'Managers',
     available: 'Available',
     selected: 'Selected',
     readonly: 'readonly',

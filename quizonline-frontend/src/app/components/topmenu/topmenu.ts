@@ -265,7 +265,7 @@ export class TopMenuComponent implements OnInit {
     return this.visibleDomains().filter((domain) => domain.owner?.id === me.id);
   }
 
-  get staffedDomains(): DomainReadDto[] {
+  get managedDomainsList(): DomainReadDto[] {
     const me = this.currentUser;
     if (!me) {
       return [];

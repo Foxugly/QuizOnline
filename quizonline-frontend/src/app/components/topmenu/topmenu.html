@@ -80,9 +80,9 @@
               }
 
               <div class="topbar-dropdown__divider"></div>
-              <div class="topbar-dropdown__section">{{ ui.topmenu.staffDomains }}</div>
-              @if (staffedDomains.length) {
-                @for (domain of staffedDomains; track domain.id) {
+              <div class="topbar-dropdown__section">{{ ui.topmenu.managedDomains }}</div>
+              @if (managedDomainsList.length) {
+                @for (domain of managedDomainsList; track domain.id) {
                   <button class="topbar-dropdown__item" type="button" (click)="changeCurrentDomain(domain.id)">
                     @if (currentUser.current_domain === domain.id) {
                       <i class="pi pi-check"></i>

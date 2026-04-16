@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const IT: UiText = {
-  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', staffDomains: 'Domini dove sono staff', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
+  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
   userMenu: {preferences: 'Preferenze', changePassword: 'Cambia password', logout: 'Disconnetti', login: 'Accedi'},
   footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione'},
   home: {
@@ -12,7 +12,7 @@ export const IT: UiText = {
     secondaryAdmin: 'Crea un template',
     secondaryLoggedOut: 'Crea un account',
     mode: 'Modalita',
-    modeStaff: 'Staff',
+    modeManager: 'Gestore',
     modeUser: 'Utente autenticato',
     modeVisitor: 'Visitatore',
     languages: 'Lingue',
@@ -20,7 +20,7 @@ export const IT: UiText = {
     featuresValue: 'Quiz, messaggi, assegnazioni, revisione',
     highlights: [
       {title: 'Esecuzione fluida', description: 'Quiz di pratica o esame con timer, ripresa e revisione localizzata.'},
-      {title: 'Editing staff', description: 'Domande multimediali, argomenti, domini e template in un’unica interfaccia.'},
+      {title: 'Gestione contenuti', description: 'Domande multimediali, argomenti, domini e template in un’unica interfaccia.'},
       {title: 'Monitoraggio live', description: 'Assegnazioni, risultati, messaggi e regole di revisione nello stesso prodotto.'},
     ],
     capabilitiesTitle: 'Cosa puoi fare',
@@ -73,7 +73,7 @@ export const IT: UiText = {
     firstName: 'Nome', lastName: 'Cognome', language: 'Lingua', domains: 'Domini collegati', chooseDomains: 'Scegli i domini collegati', currentDomain: 'Dominio corrente', chooseLanguage: 'Scegli una lingua',
     noDomain: 'Nessun dominio', save: 'Salva', changePassword: 'Cambia password', role: 'Ruolo', user: 'Utente', currentDomainLabel: 'Dominio attuale',
     managedDomains: 'Domini gestiti', ownedDomains: 'Domini posseduti', activeAccount: 'Account attivo', yes: 'Si', no: 'No',
-    roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Utente', roleOwner: 'Proprietario', roleMember: 'Membro collegato', domainsTitle: 'Domini', domainsSubtitle: 'Gestisci i domini collegati e scegli quello corrente.', linkedDomainsList: 'Domini visibili', currentBadge: 'Corrente', setCurrent: 'Imposta corrente', unlinkDomain: 'Scollega', addDomain: 'Collega un dominio', noMoreDomains: 'Nessun altro dominio disponibile.', linkSelectedDomains: 'Collega selezione', cancel: 'Annulla', ownerLabel: 'Proprietario:', deleteDomain: 'Elimina', deleteDomainSuccess: 'Dominio eliminato.', deleteDomainError: 'Impossibile eliminare questo dominio.', loadError: 'Impossibile caricare le preferenze.',
+    roleSuperuser: 'Superuser', roleManager: 'Gestore', roleUser: 'Utente', roleOwner: 'Proprietario', roleMember: 'Membro collegato', domainsTitle: 'Domini', domainsSubtitle: 'Gestisci i domini collegati e scegli quello corrente.', linkedDomainsList: 'Domini visibili', currentBadge: 'Corrente', setCurrent: 'Imposta corrente', unlinkDomain: 'Scollega', addDomain: 'Collega un dominio', noMoreDomains: 'Nessun altro dominio disponibile.', linkSelectedDomains: 'Collega selezione', cancel: 'Annulla', ownerLabel: 'Proprietario:', deleteDomain: 'Elimina', deleteDomainSuccess: 'Dominio eliminato.', deleteDomainError: 'Impossibile eliminare questo dominio.', loadError: 'Impossibile caricare le preferenze.',
     saveError: 'Impossibile salvare le preferenze.', saveSuccess: 'Preferenze salvate.', userMissing: 'Utente non trovato.',
   },
   admin: {

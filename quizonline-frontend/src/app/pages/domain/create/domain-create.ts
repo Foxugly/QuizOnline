@@ -57,8 +57,8 @@ export class DomainCreate implements OnInit {
   languages = signal<LanguageReadDto[]>([]);
   managersOptions = signal<UserOption[]>([]);
 
-  availableStaff = signal<UserOption[]>([]);
-  selectedStaff = signal<UserOption[]>([]);
+  availableManagers = signal<UserOption[]>([]);
+  selectedManagers = signal<UserOption[]>([]);
 
   tabCodes = signal<LangCode[]>([]);
   activeTab = signal<LangCode | undefined>(undefined);
@@ -198,7 +198,7 @@ export class DomainCreate implements OnInit {
         this.prevCodes = new Set(next);
       });
 
-    // Staff -> recompute picklist
+    // Managers -> recompute picklist
     this.form.controls.managers.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recomputePickList());
@@ -213,10 +213,10 @@ export class DomainCreate implements OnInit {
     return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
-  onStaffPickListChange(): void {
+  onManagersPickListChange(): void {
     const meId = this.userService.currentUser()?.id;
 
-    const ids = this.selectedStaff().map(o => o.value);
+    const ids = this.selectedManagers().map(o => o.value);
     const fixedIds =
       typeof meId === 'number' && !ids.includes(meId) ? [...ids, meId] : ids;
 
@@ -337,7 +337,7 @@ export class DomainCreate implements OnInit {
   }
 
   private recomputePickList(): void {
-    // sécurité : ensure current user in staff
+    // sécurité : ensure current user in managers
     const meId = this.userService.currentUser()?.id;
     if (typeof meId === 'number') {
       const current = this.form.controls.managers.value ?? [];
@@ -349,8 +349,8 @@ export class DomainCreate implements OnInit {
     const all = this.managersOptions();
     const selectedIds = new Set(this.form.controls.managers.value ?? []);
 
-    this.selectedStaff.set(all.filter(o => selectedIds.has(o.value)));
-    this.availableStaff.set(all.filter(o => !selectedIds.has(o.value)));
+    this.selectedManagers.set(all.filter(o => selectedIds.has(o.value)));
+    this.availableManagers.set(all.filter(o => !selectedIds.has(o.value)));
   }
 
 

@@ -8,7 +8,7 @@ export type TopMenuUiText = {
   alertsAria: string;
   currentDomain: string;
   ownedDomains: string;
-  staffDomains: string;
+  managedDomains: string;
   linkedDomains: string;
   noDomains: string;
   preferences: string;
@@ -34,7 +34,7 @@ export type HomeUiText = {
   secondaryAdmin: string;
   secondaryLoggedOut: string;
   mode: string;
-  modeStaff: string;
+  modeManager: string;
   modeUser: string;
   modeVisitor: string;
   languages: string;
@@ -81,7 +81,7 @@ export type PreferencesUiText = {
   yes: string;
   no: string;
   roleSuperuser: string;
-  roleStaff: string;
+  roleManager: string;
   roleUser: string;
   roleOwner: string;
   roleMember: string;

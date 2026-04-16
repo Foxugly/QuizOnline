@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const ES: UiText = {
-  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', staffDomains: 'Dominios donde soy staff', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
+  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contrasena', logout: 'Cerrar sesion', login: 'Iniciar sesion'},
   footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
   home: {
@@ -12,7 +12,7 @@ export const ES: UiText = {
     secondaryAdmin: 'Crear una plantilla',
     secondaryLoggedOut: 'Crear una cuenta',
     mode: 'Modo',
-    modeStaff: 'Staff',
+    modeManager: 'Gestor',
     modeUser: 'Usuario autenticado',
     modeVisitor: 'Visitante',
     languages: 'Idiomas',
@@ -20,7 +20,7 @@ export const ES: UiText = {
     featuresValue: 'Cuestionarios, mensajes, asignaciones, revision',
     highlights: [
       {title: 'Uso fluido', description: 'Cuestionarios de practica o examen con temporizador, reanudacion y revision localizada.'},
-      {title: 'Edicion staff', description: 'Preguntas multimedia, temas, dominios y plantillas en una sola interfaz.'},
+      {title: 'Gestion de contenido', description: 'Preguntas multimedia, temas, dominios y plantillas en una sola interfaz.'},
       {title: 'Seguimiento en vivo', description: 'Asignaciones, resultados, mensajes y reglas de revision en el mismo producto.'},
     ],
     capabilitiesTitle: 'Lo que puedes hacer',
@@ -73,7 +73,7 @@ export const ES: UiText = {
     firstName: 'Nombre', lastName: 'Apellido', language: 'Idioma', domains: 'Dominios vinculados', chooseDomains: 'Elegir dominios vinculados', currentDomain: 'Dominio actual', chooseLanguage: 'Elegir un idioma',
     noDomain: 'Ningun dominio', save: 'Guardar', changePassword: 'Cambiar contrasena', role: 'Rol', user: 'Usuario', currentDomainLabel: 'Dominio actual',
     managedDomains: 'Dominios gestionados', ownedDomains: 'Dominios propios', activeAccount: 'Cuenta activa', yes: 'Si', no: 'No',
-    roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Usuario', roleOwner: 'Propietario', roleMember: 'Miembro vinculado', domainsTitle: 'Dominios', domainsSubtitle: 'Gestiona tus dominios vinculados y elige el dominio actual.', linkedDomainsList: 'Dominios visibles', currentBadge: 'Actual', setCurrent: 'Definir actual', unlinkDomain: 'Desvincular', addDomain: 'Vincular un dominio', noMoreDomains: 'No hay más dominios disponibles.', linkSelectedDomains: 'Vincular selección', cancel: 'Cancelar', ownerLabel: 'Propietario:', deleteDomain: 'Eliminar', deleteDomainSuccess: 'Dominio eliminado.', deleteDomainError: 'No se puede eliminar este dominio.', loadError: 'No se pueden cargar tus preferencias.',
+    roleSuperuser: 'Superuser', roleManager: 'Gestor', roleUser: 'Usuario', roleOwner: 'Propietario', roleMember: 'Miembro vinculado', domainsTitle: 'Dominios', domainsSubtitle: 'Gestiona tus dominios vinculados y elige el dominio actual.', linkedDomainsList: 'Dominios visibles', currentBadge: 'Actual', setCurrent: 'Definir actual', unlinkDomain: 'Desvincular', addDomain: 'Vincular un dominio', noMoreDomains: 'No hay más dominios disponibles.', linkSelectedDomains: 'Vincular selección', cancel: 'Cancelar', ownerLabel: 'Propietario:', deleteDomain: 'Eliminar', deleteDomainSuccess: 'Dominio eliminado.', deleteDomainError: 'No se puede eliminar este dominio.', loadError: 'No se pueden cargar tus preferencias.',
     saveError: 'No se pueden guardar las preferencias.', saveSuccess: 'Preferencias guardadas.', userMissing: 'Usuario no encontrado.',
   },
   admin: {

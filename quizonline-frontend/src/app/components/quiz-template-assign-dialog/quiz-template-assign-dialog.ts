@@ -78,7 +78,7 @@ export class QuizTemplateAssignDialogComponent {
       return labels.roleOwner;
     }
     if (role === 'manager') {
-      return labels.roleStaff;
+      return labels.roleManager;
     }
     return labels.roleMember;
   }

@@ -2,7 +2,7 @@ import {Routes} from '@angular/router';
 
 import {adminGuard} from './guards/admin.guard';
 import {authGuard} from './guards/auth.guard';
-import {staffGuard} from './guards/staff.guard';
+import {domainAccessGuard} from './guards/domain-access.guard';
 import {superuserGuard} from './guards/superuser.guard';
 
 export const routes: Routes = [
@@ -38,22 +38,22 @@ export const routes: Routes = [
   {
     path: 'domain/list',
     loadComponent: () => import('./pages/domain/list/domain-list').then((m) => m.DomainList),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'domain/add',
     loadComponent: () => import('./pages/domain/create/domain-create').then((m) => m.DomainCreate),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'domain/:id/edit',
     loadComponent: () => import('./pages/domain/edit/domain-edit').then((m) => m.DomainEdit),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'domain/:id/delete',
     loadComponent: () => import('./pages/domain/delete/domain-delete').then((m) => m.DomainDelete),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'user/list',
@@ -78,67 +78,67 @@ export const routes: Routes = [
   {
     path: 'subject/list',
     loadComponent: () => import('./pages/subject/list/subject-list').then((m) => m.SubjectList),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'subject/add',
     loadComponent: () => import('./pages/subject/create/subject-create').then((m) => m.SubjectCreate),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'subject/:id/edit',
     loadComponent: () => import('./pages/subject/edit/subject-edit').then((m) => m.SubjectEdit),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'subject/:id/delete',
     loadComponent: () => import('./pages/subject/delete/subject-delete').then((m) => m.SubjectDelete),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/list',
     loadComponent: () => import('./pages/question/list/question-list').then((m) => m.QuestionList),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/add',
     loadComponent: () => import('./pages/question/create/question-create').then((m) => m.QuestionCreate),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/import',
     loadComponent: () => import('./pages/question/import/question-import').then((m) => m.QuestionImport),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/:questionId/edit',
     loadComponent: () => import('./pages/question/edit/question-edit').then((m) => m.QuestionEdit),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/:questionId/delete',
     loadComponent: () => import('./pages/question/delete/question-delete').then((m) => m.QuestionDelete),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'question/:questionId/view',
     loadComponent: () => import('./pages/question/view/question-view').then((m) => m.QuestionView),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/add',
     loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/template/:templateId/edit',
     loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/template/:templateId/delete',
     loadComponent: () => import('./pages/quiz/delete/quiz-template-delete').then((m) => m.QuizTemplateDelete),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/template/:templateId/results',
@@ -148,12 +148,12 @@ export const routes: Routes = [
   {
     path: 'quiz/:quizId/delete/:templateId',
     loadComponent: () => import('./pages/quiz/delete/quiz-session-delete').then((m) => m.QuizSessionDeletePage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/:quizId/delete',
     loadComponent: () => import('./pages/quiz/delete/quiz-session-delete').then((m) => m.QuizSessionDeletePage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
   {
     path: 'quiz/list',
@@ -209,6 +209,6 @@ export const routes: Routes = [
   {
     path: 'domain/:domainId/join-requests',
     loadComponent: () => import('./pages/domain/join-requests/domain-join-requests').then((m) => m.DomainJoinRequestsPage),
-    canActivate: [authGuard, staffGuard],
+    canActivate: [authGuard, domainAccessGuard],
   },
 ];

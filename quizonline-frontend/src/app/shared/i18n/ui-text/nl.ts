@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const NL: UiText = {
-  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', staffDomains: 'Domeinen waar ik staff ben', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
+  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden'},
   footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie'},
   home: {
@@ -12,7 +12,7 @@ export const NL: UiText = {
     secondaryAdmin: 'Template maken',
     secondaryLoggedOut: 'Account maken',
     mode: 'Modus',
-    modeStaff: 'Staff',
+    modeManager: 'Beheerder',
     modeUser: 'Aangemelde gebruiker',
     modeVisitor: 'Bezoeker',
     languages: 'Talen',
@@ -20,7 +20,7 @@ export const NL: UiText = {
     featuresValue: 'Quizzen, meldingen, toewijzingen, correctie',
     highlights: [
       {title: 'Vlotte afname', description: 'Oefen- en examenflows met timer, hervatten en gelokaliseerde correctie.'},
-      {title: 'Staff editing', description: 'Multimediavragen, onderwerpen, domeinen en templates in een werkruimte.'},
+      {title: 'Contentbeheer', description: 'Multimediavragen, onderwerpen, domeinen en templates in een werkruimte.'},
       {title: 'Live opvolging', description: 'Toewijzingen, resultaten, meldingen en correctieregels in hetzelfde product.'},
     ],
     capabilitiesTitle: 'Wat u kunt doen',
@@ -72,7 +72,7 @@ export const NL: UiText = {
     loading: 'Laden...', username: 'Gebruikersnaam', email: 'E-mail', firstName: 'Voornaam', lastName: 'Achternaam', language: 'Taal',
     domains: 'Gekoppelde domeinen', chooseDomains: 'Kies gekoppelde domeinen', currentDomain: 'Huidig domein', chooseLanguage: 'Kies een taal', noDomain: 'Geen domein', save: 'Opslaan', changePassword: 'Wachtwoord wijzigen',
     role: 'Rol', user: 'Gebruiker', currentDomainLabel: 'Huidig domein', managedDomains: 'Beheerde domeinen', ownedDomains: 'Eigen domeinen',
-    activeAccount: 'Actief account', yes: 'Ja', no: 'Nee', roleSuperuser: 'Superuser', roleStaff: 'Staff', roleUser: 'Gebruiker', roleOwner: 'Eigenaar', roleMember: 'Gekoppeld lid', domainsTitle: 'Domeinen', domainsSubtitle: 'Beheer uw gekoppelde domeinen en kies het huidige domein.', linkedDomainsList: 'Zichtbare domeinen', currentBadge: 'Huidig', setCurrent: 'Instellen als huidig', unlinkDomain: 'Ontkoppelen', addDomain: 'Domein koppelen', noMoreDomains: 'Geen extra domein beschikbaar.', linkSelectedDomains: 'Selectie koppelen', cancel: 'Annuleren', ownerLabel: 'Eigenaar:', deleteDomain: 'Verwijderen', deleteDomainSuccess: 'Domein verwijderd.', deleteDomainError: 'Kan dit domein niet verwijderen.',
+    activeAccount: 'Actief account', yes: 'Ja', no: 'Nee', roleSuperuser: 'Superuser', roleManager: 'Beheerder', roleUser: 'Gebruiker', roleOwner: 'Eigenaar', roleMember: 'Gekoppeld lid', domainsTitle: 'Domeinen', domainsSubtitle: 'Beheer uw gekoppelde domeinen en kies het huidige domein.', linkedDomainsList: 'Zichtbare domeinen', currentBadge: 'Huidig', setCurrent: 'Instellen als huidig', unlinkDomain: 'Ontkoppelen', addDomain: 'Domein koppelen', noMoreDomains: 'Geen extra domein beschikbaar.', linkSelectedDomains: 'Selectie koppelen', cancel: 'Annuleren', ownerLabel: 'Eigenaar:', deleteDomain: 'Verwijderen', deleteDomainSuccess: 'Domein verwijderd.', deleteDomainError: 'Kan dit domein niet verwijderen.',
     loadError: 'Kan uw voorkeuren niet laden.', saveError: 'Kan voorkeuren niet opslaan.', saveSuccess: 'Voorkeuren opgeslagen.', userMissing: 'Gebruiker niet gevonden.',
   },
   admin: {

@@ -723,7 +723,7 @@ export class QuizCreate implements OnInit {
     this.error.set(null);
 
     if (!this.canManageSelectedDomain()) {
-      this.submitError.set('La composition de quiz est reservee au owner ou au staff du domaine.');
+      this.submitError.set('La composition de quiz est reservee au owner ou aux gestionnaires du domaine.');
       return;
     }
 

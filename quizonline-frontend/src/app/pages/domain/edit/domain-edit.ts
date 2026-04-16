@@ -70,11 +70,11 @@ export class DomainEdit implements OnInit {
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
 
-  // users for owner/staff
+  // users for owner/managers
   ownerOptions = signal<UserOption[]>([]);
   managersOptions = signal<UserOption[]>([]);
-  availableStaff = signal<UserOption[]>([]);
-  selectedStaff = signal<UserOption[]>([]);
+  availableManagers = signal<UserOption[]>([]);
+  selectedManagers = signal<UserOption[]>([]);
   canEditOwner = signal(false);
 
   // tabs (code-based)
@@ -236,7 +236,7 @@ export class DomainEdit implements OnInit {
         this.prevCodes = new Set(next);
       });
 
-    // Staff -> sync picklist if form.staff changes
+    // Managers -> sync picklist if form.managers changes
     this.form.controls.managers.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recomputePickList());
@@ -250,10 +250,10 @@ export class DomainEdit implements OnInit {
     return getLocalizedTextGroup(this.translationsGroup(), code);
   }
 
-  onStaffPickListChange(): void {
+  onManagersPickListChange(): void {
     const meId = this.userService.currentUser()?.id;
 
-    const ids = this.selectedStaff().map(o => o.value);
+    const ids = this.selectedManagers().map(o => o.value);
     const fixedIds =
       typeof meId === 'number' && !ids.includes(meId) ? [...ids, meId] : ids;
 
@@ -394,7 +394,7 @@ export class DomainEdit implements OnInit {
     };
   }
 
-  private ensureMeInStaff(emitEvent: boolean): number | null {
+  private ensureMeInManagers(emitEvent: boolean): number | null {
     const meId = this.userService.currentUser()?.id;
     if (typeof meId !== 'number') return null;
 
@@ -406,12 +406,12 @@ export class DomainEdit implements OnInit {
   }
 
   private recomputePickList(): void {
-    this.ensureMeInStaff(false);
+    this.ensureMeInManagers(false);
 
     const all = this.managersOptions();
     const selectedIds = new Set(this.form.controls.managers.value ?? []);
 
-    this.selectedStaff.set(all.filter(o => selectedIds.has(o.value)));
-    this.availableStaff.set(all.filter(o => !selectedIds.has(o.value)));
+    this.selectedManagers.set(all.filter(o => selectedIds.has(o.value)));
+    this.availableManagers.set(all.filter(o => !selectedIds.has(o.value)));
   }
 }
