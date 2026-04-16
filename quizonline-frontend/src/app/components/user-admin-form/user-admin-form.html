@@ -70,6 +70,15 @@
         </div>
       </div>
 
+      @if (form().contains('email_confirmed')) {
+        <div class="meta-item">
+          <label class="meta-label" for="email_confirmed">Email confirmed</label>
+          <div class="meta-value widget-center">
+            <p-toggleswitch formControlName="email_confirmed" inputId="email_confirmed"></p-toggleswitch>
+          </div>
+        </div>
+      }
+
       <div class="meta-item">
         <label class="meta-label" for="password_change_required">Password change required</label>
         <div class="meta-value widget-center">

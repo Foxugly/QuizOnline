@@ -221,6 +221,7 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     password_change_required = serializers.BooleanField(required=False, source="must_change_password")
     nb_domain_max = serializers.IntegerField(min_value=0, required=False)
+    email_confirmed = serializers.BooleanField(required=False)
 
     class Meta:
         model = User
@@ -231,6 +232,7 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
             "language",
             "password",
             "is_active",
+            "email_confirmed",
             "password_change_required",
             "nb_domain_max",
         ]

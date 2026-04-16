@@ -30,6 +30,7 @@ export type AdminUserUpdatePayload = {
   language?: LanguageEnumDto;
   password?: string;
   is_active?: boolean;
+  email_confirmed?: boolean;
   password_change_required?: boolean;
   nb_domain_max?: number;
 };

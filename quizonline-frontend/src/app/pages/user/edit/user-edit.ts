@@ -40,6 +40,7 @@ export class UserEditPage implements OnInit {
     password: this.fb.control(''),
     nb_domain_max: this.fb.control(0, [Validators.min(0)]),
     is_active: this.fb.control(true),
+    email_confirmed: this.fb.control(false),
     password_change_required: this.fb.control(false),
   });
 
@@ -61,6 +62,7 @@ export class UserEditPage implements OnInit {
           language: user.language ?? LanguageEnumDto.Fr,
           nb_domain_max: user.nb_domain_max ?? 0,
           is_active: user.is_active,
+          email_confirmed: user.email_confirmed,
           password_change_required: user.password_change_required,
         });
       },
@@ -87,6 +89,7 @@ export class UserEditPage implements OnInit {
       language: value.language,
       password: value.password || undefined,
       is_active: value.is_active,
+      email_confirmed: value.email_confirmed,
       password_change_required: value.password_change_required,
       nb_domain_max: value.nb_domain_max,
     }).subscribe({
