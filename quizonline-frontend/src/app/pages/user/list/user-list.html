@@ -3,8 +3,8 @@
     <div class="header-spacer"></div>
 
     <div class="header-center">
-      <h1 class="title">Users</h1>
-      <p class="subtitle muted">Superuser CRUD</p>
+      <h1 class="title">{{ ui().pages.userList.title }}</h1>
+      <p class="subtitle muted">{{ ui().pages.userList.subtitle }}</p>
     </div>
 
     <div class="header-actions"></div>
@@ -25,7 +25,7 @@
         <p-button
           (onClick)="goNew()"
           icon="pi pi-plus"
-          [label]="ui().common.create"
+          [label]="ui().common.add"
           severity="primary"
           type="button">
         </p-button>
@@ -45,14 +45,14 @@
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-          <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
-          <th pSortableColumn="fullName">Name <p-sortIcon field="fullName"></p-sortIcon></th>
-          <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-          <th pSortableColumn="nb_domain_max">Nb domain max <p-sortIcon field="nb_domain_max"></p-sortIcon></th>
-          <th pSortableColumn="is_active">Active <p-sortIcon field="is_active"></p-sortIcon></th>
-          <th pSortableColumn="email_confirmed">Email confirmed <p-sortIcon field="email_confirmed"></p-sortIcon></th>
-          <th class="col-actions">Actions</th>
+          <th pSortableColumn="id">{{ ui().pages.userList.id }} <p-sortIcon field="id"></p-sortIcon></th>
+          <th pSortableColumn="username">{{ ui().pages.userList.username }} <p-sortIcon field="username"></p-sortIcon></th>
+          <th pSortableColumn="fullName">{{ ui().pages.userList.name }} <p-sortIcon field="fullName"></p-sortIcon></th>
+          <th pSortableColumn="email">{{ ui().pages.userList.email }} <p-sortIcon field="email"></p-sortIcon></th>
+          <th pSortableColumn="nb_domain_max">{{ ui().pages.userList.nbDomainMax }} <p-sortIcon field="nb_domain_max"></p-sortIcon></th>
+          <th pSortableColumn="is_active">{{ ui().pages.userList.active }} <p-sortIcon field="is_active"></p-sortIcon></th>
+          <th pSortableColumn="email_confirmed">{{ ui().pages.userList.emailConfirmed }} <p-sortIcon field="email_confirmed"></p-sortIcon></th>
+          <th class="col-actions">{{ ui().pages.userList.actions }}</th>
         </tr>
       </ng-template>
 

@@ -13,6 +13,7 @@ import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type LangCode = `${LanguageEnumDto}`;
 type DomainListRow = DomainReadDto & {
@@ -34,6 +35,7 @@ export class DomainList implements OnInit {
   private domainService = inject(DomainService);
   private userService: UserService = inject(UserService);
 
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);

@@ -6,6 +6,7 @@ export type EditorUiText = {
     cancel: string;
     clean: string;
     save: string;
+    add: string;
     create: string;
     duplicate: string;
     loading: string;
@@ -23,6 +24,7 @@ export type EditorUiText = {
     quizQuick: {title: string; subtitle: string; submit: string;};
     quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
     userEdit: {title: string; subtitle: string;};
+    userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};
   };
   domainForm: {
     translations: string;
@@ -87,6 +89,7 @@ const FR: EditorUiText = {
     cancel: 'Annuler',
     clean: 'Nettoyer',
     save: 'Enregistrer',
+    add: 'Ajouter',
     create: 'Créer',
     duplicate: 'Dupliquer',
     loading: 'Chargement...',
@@ -103,6 +106,7 @@ const FR: EditorUiText = {
     quizQuick: {title: 'Quiz rapide', subtitle: 'Génère une session de quiz à partir d un domaine et de sujets cibles.', submit: 'Générer le quiz'},
     quizCreate: {back: 'Retour', cancel: 'Annuler', loading: 'Chargement...', createQuestionForTemplate: 'Créer une question pour ce template', createQuestionForQuiz: 'Créer une question pour ce quiz', createQuestion: 'Créer la question'},
     userEdit: {title: 'Éditer l\'utilisateur', subtitle: 'Paramètres du compte'},
+    userList: {title: 'Utilisateurs', subtitle: 'Gestion des utilisateurs', id: 'ID', username: 'Identifiant', name: 'Nom', email: 'Email', nbDomainMax: 'Domaines max', active: 'Actif', emailConfirmed: 'Email confirmé', actions: 'Actions'},
   },
   domainForm: {
     translations: 'Traductions',
@@ -167,6 +171,7 @@ const EN: EditorUiText = {
     cancel: 'Cancel',
     clean: 'Clear',
     save: 'Save',
+    add: 'Add',
     create: 'Create',
     duplicate: 'Duplicate',
     loading: 'Loading...',
@@ -183,6 +188,7 @@ const EN: EditorUiText = {
     quizQuick: {title: 'Quick quiz', subtitle: 'Generate a quiz session from a domain and target subjects.', submit: 'Generate quiz'},
     quizCreate: {back: 'Back', cancel: 'Cancel', loading: 'Loading...', createQuestionForTemplate: 'Create a question for this template', createQuestionForQuiz: 'Create a question for this quiz', createQuestion: 'Create question'},
     userEdit: {title: 'Edit user', subtitle: 'Account settings'},
+    userList: {title: 'Users', subtitle: 'User management', id: 'ID', username: 'Username', name: 'Name', email: 'Email', nbDomainMax: 'Max domains', active: 'Active', emailConfirmed: 'Email confirmed', actions: 'Actions'},
   },
   domainForm: {
     translations: 'Translations',
@@ -243,7 +249,7 @@ const EN: EditorUiText = {
 
 const NL: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', clean: 'Wissen', save: 'Opslaan', create: 'Maken', duplicate: 'Dupliceren', loading: 'Laden...'},
+  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', clean: 'Wissen', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', duplicate: 'Dupliceren', loading: 'Laden...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Domein maken', subtitle: 'Vertalingen, status en toegang'},
@@ -255,12 +261,13 @@ const NL: EditorUiText = {
     quizQuick: {title: 'Snelle quiz', subtitle: 'Genereer een quizsessie vanuit een domein en doelonderwerpen.', submit: 'Quiz genereren'},
     quizCreate: {back: 'Terug', cancel: 'Annuleren', loading: 'Laden...', createQuestionForTemplate: 'Een vraag maken voor dit template', createQuestionForQuiz: 'Een vraag maken voor deze quiz', createQuestion: 'Vraag maken'},
     userEdit: {title: 'Gebruiker bewerken', subtitle: 'Accountinstellingen'},
+    userList: {title: 'Gebruikers', subtitle: 'Gebruikersbeheer', id: 'ID', username: 'Gebruikersnaam', name: 'Naam', email: 'E-mail', nbDomainMax: 'Max domeinen', active: 'Actief', emailConfirmed: 'E-mail bevestigd', actions: 'Acties'},
   },
 };
 
 const IT: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Indietro', cancel: 'Annulla', clean: 'Pulisci', save: 'Salva', create: 'Crea', duplicate: 'Duplica', loading: 'Caricamento...'},
+  common: {...EN.common, back: 'Indietro', cancel: 'Annulla', clean: 'Pulisci', save: 'Salva', add: 'Aggiungi', create: 'Crea', duplicate: 'Duplica', loading: 'Caricamento...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Crea dominio', subtitle: 'Traduzioni, stato e accesso'},
@@ -272,12 +279,13 @@ const IT: EditorUiText = {
     quizQuick: {title: 'Quiz rapido', subtitle: 'Genera una sessione quiz da un dominio e da argomenti mirati.', submit: 'Genera quiz'},
     quizCreate: {back: 'Indietro', cancel: 'Annulla', loading: 'Caricamento...', createQuestionForTemplate: 'Crea una domanda per questo template', createQuestionForQuiz: 'Crea una domanda per questo quiz', createQuestion: 'Crea domanda'},
     userEdit: {title: 'Modifica utente', subtitle: 'Impostazioni account'},
+    userList: {title: 'Utenti', subtitle: 'Gestione utenti', id: 'ID', username: 'Nome utente', name: 'Nome', email: 'Email', nbDomainMax: 'Max domini', active: 'Attivo', emailConfirmed: 'Email confermata', actions: 'Azioni'},
   },
 };
 
 const ES: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', create: 'Crear', duplicate: 'Duplicar', loading: 'Cargando...'},
+  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', duplicate: 'Duplicar', loading: 'Cargando...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Crear dominio', subtitle: 'Traducciones, estado y acceso'},
@@ -289,6 +297,7 @@ const ES: EditorUiText = {
     quizQuick: {title: 'Quiz rapido', subtitle: 'Genera una sesion de quiz a partir de un dominio y temas objetivo.', submit: 'Generar quiz'},
     quizCreate: {back: 'Volver', cancel: 'Cancelar', loading: 'Cargando...', createQuestionForTemplate: 'Crear una pregunta para esta plantilla', createQuestionForQuiz: 'Crear una pregunta para este quiz', createQuestion: 'Crear pregunta'},
     userEdit: {title: 'Editar usuario', subtitle: 'Configuracion de la cuenta'},
+    userList: {title: 'Usuarios', subtitle: 'Gestion de usuarios', id: 'ID', username: 'Usuario', name: 'Nombre', email: 'Correo', nbDomainMax: 'Dominios max', active: 'Activo', emailConfirmed: 'Email confirmado', actions: 'Acciones'},
   },
 };
 

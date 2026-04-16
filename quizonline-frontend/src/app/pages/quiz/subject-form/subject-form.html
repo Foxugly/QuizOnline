@@ -12,7 +12,6 @@
       <div class="field">
         <label for="title">Titre</label>
         <input formControlName="title" id="title" pInputText type="text" />
-        <small>Titre propose automatiquement, modifiable avant generation.</small>
       </div>
 
       <div class="field">
@@ -89,5 +88,28 @@
         </p-inputNumber>
       </div>
     </div>
+
+    @if (cancelLabel() || submitLabel()) {
+      <div class="footer-actions">
+        @if (cancelLabel()) {
+          <p-button
+            (onClick)="cancel.emit()"
+            [label]="cancelLabel()"
+            severity="secondary"
+            type="button"
+            variant="outlined">
+          </p-button>
+        }
+        @if (submitLabel()) {
+          <p-button
+            [disabled]="saving()"
+            [loading]="saving()"
+            icon="pi pi-sync"
+            [label]="submitLabel()"
+            type="submit">
+          </p-button>
+        }
+      </div>
+    }
   </form>
 </p-card>

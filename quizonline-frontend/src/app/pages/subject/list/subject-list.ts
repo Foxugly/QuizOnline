@@ -14,6 +14,7 @@ import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type SubjectListRow = SubjectReadDto & {
   name: string;
@@ -34,6 +35,7 @@ export class SubjectList implements OnInit {
   private userService: UserService = inject(UserService);
   private domainService: DomainService = inject(DomainService);
 
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   subjects = signal<SubjectReadDto[]>([]);
   questionCounts = signal<Record<number, number>>({});
   q = signal('');

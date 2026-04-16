@@ -55,8 +55,11 @@ export class QuizSubjectForm implements OnInit {
 
   readonly saving = input(false);
   readonly success = input<string | null>(null);
+  readonly cancelLabel = input('');
+  readonly submitLabel = input('');
   readonly generate = output<QuizSubjectCreatePayload>();
   readonly subjectsChange = output<number[]>();
+  readonly cancel = output<void>();
 
   private readonly domainService = inject(DomainService);
   private readonly subjectService = inject(SubjectService);

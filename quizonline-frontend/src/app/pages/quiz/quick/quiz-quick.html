@@ -25,27 +25,12 @@
       #subjectForm
       (generate)="onGenerate($event)"
       (subjectsChange)="onSubjectsChange($event)"
+      (cancel)="goBack()"
+      [cancelLabel]="ui().common.cancel"
+      [submitLabel]="ui().pages.quizQuick.submit"
       [maxQuestions]="maxQuestions()"
       [saving]="saving()"
       [success]="success()">
     </app-quiz-subject-form>
-
-    <div class="quick-page__actions">
-      <p-button
-        (onClick)="goBack()"
-        [label]="ui().common.cancel"
-        severity="secondary"
-        type="button"
-        variant="outlined">
-      </p-button>
-      <p-button
-        (onClick)="submit()"
-        [disabled]="saving()"
-        [loading]="saving()"
-        icon="pi pi-sync"
-        [label]="ui().pages.quizQuick.submit"
-        type="button">
-      </p-button>
-    </div>
   </div>
 </div>
