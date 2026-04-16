@@ -20,6 +20,7 @@ export interface PatchedCustomUserAdminUpdateRequestDto {
      * Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
      */
     is_active?: boolean;
+    email_confirmed?: boolean;
     password_change_required?: boolean;
     nb_domain_max?: number;
 }

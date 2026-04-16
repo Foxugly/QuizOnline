@@ -3336,6 +3336,8 @@ components:
           title: Active
           description: Designates whether this user should be treated as active. Unselect
             this instead of deleting accounts.
+        email_confirmed:
+          type: boolean
         password_change_required:
           type: boolean
         nb_domain_max:
@@ -4453,6 +4455,8 @@ components:
           title: Active
           description: Designates whether this user should be treated as active. Unselect
             this instead of deleting accounts.
+        email_confirmed:
+          type: boolean
         password_change_required:
           type: boolean
         nb_domain_max:
