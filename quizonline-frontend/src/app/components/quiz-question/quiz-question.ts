@@ -2,13 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  EventEmitter,
+  effect,
   inject,
-  Input,
-  OnChanges,
-  Output,
+  input,
+  output,
   signal,
-  SimpleChanges,
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
@@ -52,24 +50,24 @@ export interface AnswerPayload {
     ToggleButtonModule,
   ],
 })
-export class QuizQuestionComponent implements OnChanges {
+export class QuizQuestionComponent {
   userService: UserService = inject(UserService);
 
-  @Input({required: true}) quizNavItem!: QuizNavItem;
-  @Input() showCorrectAnswers = false;
-  @Input() readonlyMode = false;
-  @Input() displayMode: 'preview' | 'exam' = 'preview';
-  @Input() hasPrevious = false;
-  @Input() hasNext = false;
-  @Input() showFooter = true;
+  readonly quizNavItem = input.required<QuizNavItem>();
+  readonly showCorrectAnswers = input(false);
+  readonly readonlyMode = input(false);
+  readonly displayMode = input<'preview' | 'exam'>('preview');
+  readonly hasPrevious = input(false);
+  readonly hasNext = input(false);
+  readonly showFooter = input(true);
 
-  @Output() answeredToggled = new EventEmitter<void>();
-  @Output() flagToggled = new EventEmitter<boolean>();
-  @Output() reportRequested = new EventEmitter<void>();
-  @Output() goNext = new EventEmitter<AnswerPayload>();
-  @Output() goPrevious = new EventEmitter<AnswerPayload>();
-  @Output() goBack = new EventEmitter<void>();
-  @Output() finish = new EventEmitter<AnswerPayload>();
+  readonly answeredToggled = output<void>();
+  readonly flagToggled = output<boolean>();
+  readonly reportRequested = output<void>();
+  readonly goNext = output<AnswerPayload>();
+  readonly goPrevious = output<AnswerPayload>();
+  readonly goBack = output<void>();
+  readonly finish = output<AnswerPayload>();
 
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
   selectedOptionIds: number[] = [];
@@ -85,18 +83,25 @@ export class QuizQuestionComponent implements OnChanges {
       .subscribe((lang) => {
         this.currentLang.set(lang ?? LanguageEnumDto.Fr);
       });
+
+    effect(() => {
+      const item = this.quizNavItem();
+      const ids = item.selectedOptionIds ?? [];
+      this.selectedOptionIds = [...ids];
+      this.selectedRadioId = ids.length ? ids[0] : null;
+    });
   }
 
   get question(): QuestionReadDto {
-    return this.quizNavItem.question;
+    return this.quizNavItem().question;
   }
 
   get allowMultiple(): boolean {
-    return !!this.quizNavItem.question.allow_multiple_correct;
+    return !!this.quizNavItem().question.allow_multiple_correct;
   }
 
   onSelectRadio(optionId: number | null): void {
-    if (this.readonlyMode) {
+    if (this.readonlyMode()) {
       return;
     }
     this.selectedRadioId = optionId;
@@ -104,8 +109,8 @@ export class QuizQuestionComponent implements OnChanges {
   }
 
   onNextClick(): void {
-    if (this.readonlyMode) {
-      if (this.hasNext) {
+    if (this.readonlyMode()) {
+      if (this.hasNext()) {
         this.goNext.emit(this.buildPayload());
         return;
       }
@@ -113,7 +118,7 @@ export class QuizQuestionComponent implements OnChanges {
       return;
     }
     const payload = this.buildPayload();
-    if (this.hasNext) {
+    if (this.hasNext()) {
       this.goNext.emit(payload);
       return;
     }
@@ -129,7 +134,7 @@ export class QuizQuestionComponent implements OnChanges {
   }
 
   onToggleCheckbox(optionId: number | undefined, checked: boolean): void {
-    if (this.readonlyMode) {
+    if (this.readonlyMode()) {
       return;
     }
     if (optionId == null) {
@@ -151,8 +156,8 @@ export class QuizQuestionComponent implements OnChanges {
       return false;
     }
 
-    const source = this.readonlyMode
-      ? (this.quizNavItem?.selectedOptionIds ?? this.selectedOptionIds)
+    const source = this.readonlyMode()
+      ? (this.quizNavItem()?.selectedOptionIds ?? this.selectedOptionIds)
       : this.selectedOptionIds;
 
     return source.includes(optionId);
@@ -179,21 +184,11 @@ export class QuizQuestionComponent implements OnChanges {
       return 'answer-line answer-line--wrong';
     }
 
-    if (this.readonlyMode) {
+    if (this.readonlyMode()) {
       return 'answer-line answer-line--readonly';
     }
 
     return 'answer-line';
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!changes['quizNavItem'] || !this.quizNavItem) {
-      return;
-    }
-
-    const ids = this.quizNavItem.selectedOptionIds ?? [];
-    this.selectedOptionIds = [...ids];
-    this.selectedRadioId = ids.length ? ids[0] : null;
   }
 
   mediaSrc(m: QuestionMediaReadDto): string {
@@ -272,13 +267,13 @@ export class QuizQuestionComponent implements OnChanges {
   }
 
   protected canShowCorrectionState(): boolean {
-    return this.readonlyMode || (this.displayMode === 'preview' && this.showCorrectAnswers);
+    return this.readonlyMode() || (this.displayMode() === 'preview' && this.showCorrectAnswers());
   }
 
   private buildPayload(): AnswerPayload {
     return {
       questionId: this.question.id,
-      index: this.quizNavItem.index,
+      index: this.quizNavItem().index,
       selectedOptionIds: this.selectedOptionIds,
     };
   }

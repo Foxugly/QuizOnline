@@ -3,8 +3,8 @@
     <p-message severity="error" [text]="error() ?? ''"></p-message>
   }
 
-  @if (success) {
-    <p-message severity="success" [text]="success"></p-message>
+  @if (success()) {
+    <p-message severity="success" [text]="success() ?? ''"></p-message>
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="quick-quiz-form">

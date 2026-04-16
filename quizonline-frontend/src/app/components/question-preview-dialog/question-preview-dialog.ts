@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, DestroyRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
@@ -21,10 +21,10 @@ import {QuestionService} from '../../services/question/question';
   styleUrl: './question-preview-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuestionPreviewDialogComponent implements OnChanges {
-  @Input() questionId: number | null = null;
-  @Input() visible = false;
-  @Output() visibleChange = new EventEmitter<boolean>();
+export class QuestionPreviewDialogComponent {
+  readonly questionId = input<number | null>(null);
+  readonly visible = input(false);
+  readonly visibleChange = output<boolean>();
 
   loading = false;
   error: string | null = null;
@@ -32,6 +32,20 @@ export class QuestionPreviewDialogComponent implements OnChanges {
 
   private readonly questionService = inject(QuestionService);
   private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    effect(() => {
+      const visible = this.visible();
+      const questionId = this.questionId();
+
+      if (!visible) {
+        this.resetState();
+        return;
+      }
+
+      this.loadQuestion(questionId);
+    });
+  }
 
   get previewItem(): QuizNavItem | null {
     if (!this.question) {
@@ -48,17 +62,6 @@ export class QuestionPreviewDialogComponent implements OnChanges {
     };
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.visible) {
-      this.resetState();
-      return;
-    }
-
-    if (changes['questionId'] || changes['visible']) {
-      this.loadQuestion();
-    }
-  }
-
   onVisibleChange(visible: boolean): void {
     if (!visible) {
       this.resetState();
@@ -66,8 +69,8 @@ export class QuestionPreviewDialogComponent implements OnChanges {
     this.visibleChange.emit(visible);
   }
 
-  private loadQuestion(): void {
-    if (!this.questionId) {
+  private loadQuestion(questionId: number | null): void {
+    if (!questionId) {
       this.error = "Question introuvable.";
       this.question = null;
       this.loading = false;
@@ -78,7 +81,7 @@ export class QuestionPreviewDialogComponent implements OnChanges {
     this.error = null;
     this.question = null;
 
-    this.questionService.retrieve(this.questionId)
+    this.questionService.retrieve(questionId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {

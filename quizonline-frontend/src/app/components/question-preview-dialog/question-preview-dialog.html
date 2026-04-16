@@ -1,7 +1,7 @@
 <p-dialog
   [modal]="true"
   [style]="{ width: '92vw', maxWidth: '1080px' }"
-  [visible]="visible"
+  [visible]="visible()"
   header="Aperçu de la question"
   (visibleChange)="onVisibleChange($event)">
   @if (loading) {

@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -23,12 +23,12 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateCompositionComponent {
-  @Input() items: SelectedQuestionCard[] = [];
-  @Input({required: true}) texts!: QuizCreateUiText;
+  readonly items = input<SelectedQuestionCard[]>([]);
+  readonly texts = input.required<QuizCreateUiText>();
 
-  @Output() previewQuestion = new EventEmitter<number>();
-  @Output() moveQuestion = new EventEmitter<{index: number; direction: -1 | 1}>();
-  @Output() removeQuestion = new EventEmitter<number>();
-  @Output() weightChanged = new EventEmitter<{index: number; event: Event}>();
-  @Output() weightSet = new EventEmitter<{index: number; value: number}>();
+  readonly previewQuestion = output<number>();
+  readonly moveQuestion = output<{index: number; direction: -1 | 1}>();
+  readonly removeQuestion = output<number>();
+  readonly weightChanged = output<{index: number; event: Event}>();
+  readonly weightSet = output<{index: number; value: number}>();
 }

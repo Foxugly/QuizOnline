@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, Input, Output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -22,17 +22,17 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionLibraryComponent {
-  @Input({required: true}) texts!: QuizCreateUiText;
-  @Input() selectedDomainId = 0;
-  @Input() loading = false;
-  @Input() search = '';
-  @Input() items: QuestionLibraryCard[] = [];
-  @Input() subjectOptions: Array<{name: string; code: number}> = [];
-  @Input() selectedSubjectIds: number[] = [];
+  readonly texts = input.required<QuizCreateUiText>();
+  readonly selectedDomainId = input(0);
+  readonly loading = input(false);
+  readonly search = input('');
+  readonly items = input<QuestionLibraryCard[]>([]);
+  readonly subjectOptions = input<Array<{name: string; code: number}>>([]);
+  readonly selectedSubjectIds = input<number[]>([]);
 
-  @Output() searchChanged = new EventEmitter<Event>();
-  @Output() selectedSubjectIdsChange = new EventEmitter<number[]>();
-  @Output() createQuestion = new EventEmitter<void>();
-  @Output() previewQuestion = new EventEmitter<QuestionReadDto>();
-  @Output() addQuestion = new EventEmitter<QuestionReadDto>();
+  readonly searchChanged = output<Event>();
+  readonly selectedSubjectIdsChange = output<number[]>();
+  readonly createQuestion = output<void>();
+  readonly previewQuestion = output<QuestionReadDto>();
+  readonly addQuestion = output<QuestionReadDto>();
 }

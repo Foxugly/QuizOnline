@@ -25,7 +25,7 @@
             <input
               (change)="onFilesSelected($event)"
               [disabled]="disabled"
-              [multiple]="multiple"
+              [multiple]="multiple()"
               accept="image/*,video/*"
               type="file"
             />
@@ -48,7 +48,7 @@
             [disabled]="disabled"
             [ngModelOptions]="{ standalone: true }"
             [ngModel]="youtubeUrl()"
-            [placeholder]="placeholderYoutube"
+            [placeholder]="placeholderYoutube()"
             id="youtube-url"
             pInputText
             type="url"

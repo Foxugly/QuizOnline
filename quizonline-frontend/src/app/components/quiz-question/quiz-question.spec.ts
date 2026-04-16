@@ -27,7 +27,7 @@ describe('QuizQuestionDto', () => {
 
     fixture = TestBed.createComponent(QuizQuestionComponent);
     component = fixture.componentInstance;
-    component.quizNavItem = {
+    fixture.componentRef.setInput('quizNavItem', {
       index: 1,
       id: 1,
       answered: false,
@@ -66,7 +66,7 @@ describe('QuizQuestionDto', () => {
         media: [],
         created_at: '',
       },
-    };
+    });
     fixture.detectChanges();
   });
 

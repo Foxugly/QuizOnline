@@ -1,12 +1,12 @@
 <div class="card builder-card">
   <div class="card-head card-head--split">
     <div class="card-head__topline">
-      <h2 class="card-title">{{ texts.questionPoolTitle }}</h2>
+      <h2 class="card-title">{{ texts().questionPoolTitle }}</h2>
       <p-button
         (onClick)="createQuestion.emit()"
-        [disabled]="!selectedDomainId"
+        [disabled]="!selectedDomainId()"
         icon="pi pi-plus"
-        [label]="texts.createQuestion"
+        [label]="texts().createQuestion"
         size="small"
         type="button">
       </p-button>
@@ -15,9 +15,9 @@
     <div class="card-head__actions">
       <input
         class="field__control field__control--search"
-        [value]="search"
+        [value]="search()"
         (input)="searchChanged.emit($event)"
-        [placeholder]="texts.questionSearchPlaceholder"
+        [placeholder]="texts().questionSearchPlaceholder"
         type="search" />
 
       <p-multiselect
@@ -26,23 +26,23 @@
         display="chip"
         optionLabel="name"
         optionValue="code"
-        [options]="subjectOptions"
-        [placeholder]="texts.questionSubjectFilterPlaceholder"
-        [ngModel]="selectedSubjectIds"
+        [options]="subjectOptions()"
+        [placeholder]="texts().questionSubjectFilterPlaceholder"
+        [ngModel]="selectedSubjectIds()"
         (ngModelChange)="selectedSubjectIdsChange.emit($event ?? [])">
       </p-multiselect>
     </div>
   </div>
 
-  @if (!selectedDomainId) {
-    <div class="empty-state">{{ texts.selectDomainToLoadQuestions }}</div>
-  } @else if (loading) {
-    <div class="empty-state">{{ texts.loadingQuestions }}</div>
-  } @else if (items.length === 0) {
-    <div class="empty-state">{{ texts.noAvailableQuestions }}</div>
+  @if (!selectedDomainId()) {
+    <div class="empty-state">{{ texts().selectDomainToLoadQuestions }}</div>
+  } @else if (loading()) {
+    <div class="empty-state">{{ texts().loadingQuestions }}</div>
+  } @else if (items().length === 0) {
+    <div class="empty-state">{{ texts().noAvailableQuestions }}</div>
   } @else {
     <div class="question-list">
-      @for (entry of items; track entry.question.id) {
+      @for (entry of items(); track entry.question.id) {
         <article class="question-card">
           <div class="question-card__body">
             <h3>{{ entry.title }}</h3>

@@ -1,11 +1,11 @@
 <div class="card builder-card">
   <div class="card-head">
     <div class="card-head__title-row">
-      <h2 class="card-title">{{ texts.compositionTitle }}</h2>
+      <h2 class="card-title">{{ texts().compositionTitle }}</h2>
       <button
         class="info-button"
         type="button"
-        [pTooltip]="texts.compositionHelp"
+        [pTooltip]="texts().compositionHelp"
         tooltipPosition="top"
       >
         <i class="pi pi-info-circle"></i>
@@ -13,11 +13,11 @@
     </div>
   </div>
 
-  @if (items.length === 0) {
-    <div class="empty-state">{{ texts.compositionEmpty }}</div>
+  @if (items().length === 0) {
+    <div class="empty-state">{{ texts().compositionEmpty }}</div>
   } @else {
     <div class="selected-list">
-      @for (entry of items; track entry.questionId; let i = $index) {
+      @for (entry of items(); track entry.questionId; let i = $index) {
         <article class="selected-card">
           <div class="selected-card__header">
             <div class="selected-card__meta-row">
@@ -25,7 +25,7 @@
             </div>
 
             <div class="weight-input-wrap">
-              <span class="weight-stepper__label">{{ texts.weight }}</span>
+              <span class="weight-stepper__label">{{ texts().weight }}</span>
               <p-inputnumber
                 buttonLayout="horizontal"
                 inputStyleClass="weight-input"
@@ -67,7 +67,7 @@
               </p-button>
               <p-button
                 (onClick)="moveQuestion.emit({index: i, direction: 1})"
-                [disabled]="i === items.length - 1"
+                [disabled]="i === items().length - 1"
                 icon="pi pi-arrow-down"
                 severity="secondary"
                 size="small"
