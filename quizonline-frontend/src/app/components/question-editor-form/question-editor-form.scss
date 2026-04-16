@@ -25,7 +25,7 @@
 }
 
 .meta-grid--context {
-  grid-template-columns: minmax(220px, 1.4fr) minmax(280px, 2fr) minmax(140px, 0.7fr) minmax(260px, 1.2fr);
+  grid-template-columns: minmax(80px, auto) minmax(220px, 1.4fr) minmax(280px, 2fr) minmax(260px, 1.2fr);
   align-items: stretch;
 }
 

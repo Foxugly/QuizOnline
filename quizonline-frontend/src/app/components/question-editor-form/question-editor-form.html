@@ -6,6 +6,13 @@
 
     <div class="meta-grid meta-grid--context">
       <div class="meta-item">
+        <label class="meta-label">{{ ui().questionForm.active }}</label>
+        <div class="meta-value widget-center">
+          <p-checkbox [binary]="true" formControlName="active"></p-checkbox>
+        </div>
+      </div>
+
+      <div class="meta-item">
         <label class="meta-label">{{ ui().questionForm.domain }}</label>
         <div class="meta-value">
           @if (showDomainSelect()) {
@@ -37,12 +44,6 @@
             optionValue="code"
             [placeholder]="ui().questionForm.chooseSubjects">
           </p-multiSelect>
-        </div>
-      </div>
-      <div class="meta-item">
-        <label class="meta-label">{{ ui().questionForm.active }}</label>
-        <div class="meta-value widget-center">
-          <p-checkbox [binary]="true" formControlName="active"></p-checkbox>
         </div>
       </div>
 
