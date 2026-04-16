@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from ._common import build_user_token_link, frontend_url, send_user_plaintext_email
+from ._common import build_user_token_link, frontend_url, render_html_email, send_user_email
 
 
 def _registration_copy(language_code: str) -> dict[str, str]:
@@ -39,7 +39,7 @@ def _registration_copy(language_code: str) -> dict[str, str]:
     }
 
 
-def build_registration_confirmation_body(user) -> str:
+def _build_registration_body(user) -> str:
     copy = _registration_copy(getattr(user, "language", None))
     confirmation_link = build_user_token_link("/user/confirm-email", user)
     return (
@@ -50,15 +50,30 @@ def build_registration_confirmation_body(user) -> str:
     )
 
 
-def send_registration_confirmation_email(user) -> None:
-    send_user_plaintext_email(
-        user=user,
-        subject_builder=lambda current_user: _registration_copy(getattr(current_user, "language", None))["registration_subject"],
-        body_builder=build_registration_confirmation_body,
+def _build_registration_html(user) -> str:
+    copy = _registration_copy(getattr(user, "language", None))
+    confirmation_link = build_user_token_link("/user/confirm-email", user)
+    login_link = frontend_url("/login")
+    return render_html_email(
+        heading=f"{copy['greeting']} {user.get_display_name()},",
+        blocks=[
+            {"type": "text", "content": copy["registration_intro"]},
+            {"type": "button", "content": confirmation_link, "label": copy["registration_action"]},
+            {"type": "link", "content": login_link, "label": copy["login_label"]},
+        ],
     )
 
 
-def build_password_reset_body(user) -> str:
+def send_registration_confirmation_email(user) -> None:
+    send_user_email(
+        user=user,
+        subject_builder=lambda u: _registration_copy(getattr(u, "language", None))["registration_subject"],
+        body_builder=_build_registration_body,
+        html_builder=_build_registration_html,
+    )
+
+
+def _build_password_reset_body(user) -> str:
     copy = _registration_copy(getattr(user, "language", None))
     reset_link = build_user_token_link("/user/reset-password", user)
     return (
@@ -69,9 +84,24 @@ def build_password_reset_body(user) -> str:
     )
 
 
+def _build_password_reset_html(user) -> str:
+    copy = _registration_copy(getattr(user, "language", None))
+    reset_link = build_user_token_link("/user/reset-password", user)
+    login_link = frontend_url("/login")
+    return render_html_email(
+        heading=f"{copy['greeting']} {user.get_display_name()},",
+        blocks=[
+            {"type": "text", "content": copy["password_intro"]},
+            {"type": "button", "content": reset_link, "label": copy["password_action"]},
+            {"type": "link", "content": login_link, "label": copy["login_label"]},
+        ],
+    )
+
+
 def send_password_reset_email(user) -> None:
-    send_user_plaintext_email(
+    send_user_email(
         user=user,
-        subject_builder=lambda current_user: _registration_copy(getattr(current_user, "language", None))["password_subject"],
-        body_builder=build_password_reset_body,
+        subject_builder=lambda u: _registration_copy(getattr(u, "language", None))["password_subject"],
+        body_builder=_build_password_reset_body,
+        html_builder=_build_password_reset_html,
     )

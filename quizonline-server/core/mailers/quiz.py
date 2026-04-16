@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from ._common import format_datetime, frontend_url, send_user_plaintext_email
+from ._common import format_datetime, frontend_url, render_html_email, send_user_email
 
 
 def _quiz_copy(language_code: str) -> dict[str, str]:
@@ -36,7 +36,7 @@ def _quiz_copy(language_code: str) -> dict[str, str]:
     }
 
 
-def build_quiz_assignment_body(quiz) -> str:
+def _build_quiz_assignment_body(quiz) -> str:
     user = quiz.user
     template = quiz.quiz_template
     copy = _quiz_copy(getattr(user, "language", None))
@@ -50,19 +50,38 @@ def build_quiz_assignment_body(quiz) -> str:
     )
 
 
+def _build_quiz_assignment_html(quiz) -> str:
+    user = quiz.user
+    template = quiz.quiz_template
+    copy = _quiz_copy(getattr(user, "language", None))
+    deadline = template.ended_at or quiz.ended_at
+    quiz_link = frontend_url(f"/quiz/{quiz.id}")
+    blocks = [
+        {"type": "text", "content": f"{copy['assignment_intro']}: <strong>{template.title}</strong>"},
+    ]
+    if deadline:
+        blocks.append({"type": "text", "content": f"{copy['deadline']}: {format_datetime(deadline, getattr(user, 'language', None))}"})
+    blocks.append({"type": "button", "content": quiz_link, "label": copy["link"]})
+    return render_html_email(
+        heading=f"{copy['greeting']} {user.get_display_name()},",
+        blocks=blocks,
+    )
+
+
 def send_quiz_assignment_email(quiz) -> None:
     user = getattr(quiz, "user", None)
     template = getattr(quiz, "quiz_template", None)
     if not user or not template:
         return
-    send_user_plaintext_email(
+    send_user_email(
         user=user,
-        subject_builder=lambda current_user: _quiz_copy(getattr(current_user, "language", None))["assignment_subject"],
-        body_builder=lambda _current_user: build_quiz_assignment_body(quiz),
+        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["assignment_subject"],
+        body_builder=lambda _u: _build_quiz_assignment_body(quiz),
+        html_builder=lambda _u: _build_quiz_assignment_html(quiz),
     )
 
 
-def build_quiz_completed_body(quiz) -> str:
+def _build_quiz_completed_body(quiz) -> str:
     template = quiz.quiz_template
     creator = template.created_by
     user = quiz.user
@@ -74,14 +93,30 @@ def build_quiz_completed_body(quiz) -> str:
     )
 
 
+def _build_quiz_completed_html(quiz) -> str:
+    template = quiz.quiz_template
+    creator = template.created_by
+    user = quiz.user
+    copy = _quiz_copy(getattr(creator, "language", None))
+    quiz_link = frontend_url(f"/quiz/{quiz.id}")
+    return render_html_email(
+        heading=f"{copy['greeting']} {creator.get_display_name()},",
+        blocks=[
+            {"type": "text", "content": f"{user.get_display_name()} {copy['completed_intro']} <strong>\"{template.title}\"</strong>."},
+            {"type": "button", "content": quiz_link, "label": copy["link"]},
+        ],
+    )
+
+
 def send_quiz_completed_email(quiz) -> None:
     template = getattr(quiz, "quiz_template", None)
     creator = getattr(template, "created_by", None) if template else None
     user = getattr(quiz, "user", None)
     if not creator or not user or creator.id == user.id:
         return
-    send_user_plaintext_email(
+    send_user_email(
         user=creator,
-        subject_builder=lambda current_user: _quiz_copy(getattr(current_user, "language", None))["completed_subject"],
-        body_builder=lambda _current_user: build_quiz_completed_body(quiz),
+        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["completed_subject"],
+        body_builder=lambda _u: _build_quiz_completed_body(quiz),
+        html_builder=lambda _u: _build_quiz_completed_html(quiz),
     )

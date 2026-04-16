@@ -164,8 +164,10 @@ class CoreMailerTests(TestCase):
         self.assertIsNone(outbound.sent_at)
         self.assertEqual(len(mail.outbox), 0)
 
-    @patch("core.delivery.send_mail", side_effect=RuntimeError("smtp down"))
-    def test_process_pending_outbound_emails_defers_failed_email_instead_of_retry_looping(self, send_mail_mock):
+    @patch("core.delivery.EmailMultiAlternatives")
+    def test_process_pending_outbound_emails_defers_failed_email_instead_of_retry_looping(self, mock_cls):
+        mock_cls.return_value.send.side_effect = RuntimeError("smtp down")
+        send_mail_mock = mock_cls.return_value.send
         outbound = OutboundEmail.objects.create(
             subject="Hello",
             body="Body",

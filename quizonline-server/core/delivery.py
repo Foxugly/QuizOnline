@@ -6,7 +6,7 @@ from datetime import timedelta
 from celery.exceptions import Retry as CeleryRetry
 from kombu.exceptions import KombuError
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import OperationalError as DjangoOperationalError
 from django.db import close_old_connections, transaction
 from django.utils import timezone
@@ -34,13 +34,15 @@ def process_pending_outbound_emails(*, limit: int = 100) -> int:
 
                 email.mark_attempt()
                 try:
-                    send_mail(
-                        email.subject,
-                        email.body,
-                        settings.DEFAULT_FROM_EMAIL,
-                        email.recipients,
-                        fail_silently=False,
+                    msg = EmailMultiAlternatives(
+                        subject=email.subject,
+                        body=email.body,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        to=email.recipients,
                     )
+                    if email.html_body:
+                        msg.attach_alternative(email.html_body, "text/html")
+                    msg.send(fail_silently=False)
                 except Exception as exc:  # pragma: no cover
                     email.last_error = str(exc)
                     email.available_at = timezone.now() + timedelta(minutes=1)
