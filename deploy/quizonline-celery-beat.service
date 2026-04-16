@@ -1,0 +1,25 @@
+[Unit]
+Description=Celery Beat QuizOnline
+After=network.target
+
+[Service]
+User=django
+Group=www-data
+WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
+
+EnvironmentFile=/var/www/django_websites/QuizOnline/quizonline-server/.env
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/celery \
+    -A config beat \
+    --pidfile=/var/www/django_websites/QuizOnline/quizonline-server/run/celerybeat.pid
+    --schedule=/var/www/django_websites/QuizOnline/quizonline-server/celerybeat-schedule \
+    --loglevel=info
+
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

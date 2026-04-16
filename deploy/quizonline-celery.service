@@ -1,0 +1,26 @@
+[Unit]
+Description=Celery Worker QuizOnline
+After=network.target
+
+[Service]
+Type=simple
+User=django
+Group=www-data
+WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
+
+EnvironmentFile=/var/www/django_websites/QuizOnline/quizonline-server/.env
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/celery \
+    -A config worker \
+    -n quizonline@%H \
+    -Q quizonline \
+    --loglevel=info \
+    --concurrency=2
+
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

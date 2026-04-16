@@ -1,0 +1,26 @@
+[Unit]
+Description=QuizOnline Django (gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=django
+Group=www-data
+WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
+
+EnvironmentFile=/var/www/django_websites/QuizOnline/quizonline-server/.env
+Environment="PYTHONUNBUFFERED=1"
+
+ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/gunicorn \
+    --workers 2 \
+    --timeout 120 \
+    --bind 127.0.0.1:8000 \
+    --access-logfile /var/log/quizonline/gunicorn-access.log \
+    --error-logfile /var/log/quizonline/gunicorn-error.log \
+    config.wsgi:application
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
