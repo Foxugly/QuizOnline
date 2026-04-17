@@ -104,6 +104,7 @@ Variables importantes :
 - `CELERY_BROKER_URL`
 - `CELERY_RESULT_BACKEND`
 - `CELERY_TASK_ALWAYS_EAGER`
+- `CELERY_TASK_DEFAULT_QUEUE`
 - `USE_DEEPL`
 - `DEEPL_AUTH_KEY`
 - `DEEPL_IS_FREE`
@@ -163,6 +164,14 @@ Le backend expose aussi :
 
 L admin Django est disponible sur `/admin/`.
 
+## Nouvelles fonctionnalites
+
+- Dashboard analytics avec graphiques Chart.js (`/admin/stats`)
+- Export PDF des resultats de quiz
+- Page "A propos" avec onglets (features, legal GDPR, technique)
+- Page "Soutenir" (donate) avec lien GitHub Sponsors
+- Emails HTML rich text avec fallback plaintext
+
 ## Qualité et tests
 
 Backend :
@@ -213,6 +222,16 @@ En production, prévoir au minimum :
 - cohérence entre limites d upload Django et reverse proxy
 
 Guide détaillé : [`docs/deployment.md`](./docs/deployment.md)
+
+## Deploy automatise
+
+Le deploiement est automatise via GitHub Actions :
+
+- CI : `.github/workflows/ci.yml` (tests backend + frontend)
+- Deploy : `.github/workflows/deploy.yml` (build frontend, SCP vers EC2, SSH deploy)
+- Script serveur : `deploy/redeploy.sh` — pull, update backend, sync services, restart, health checks
+- Secrets GitHub requis : `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`
+- Le frontend est builde en CI (pas sur l EC2) car la memoire de l instance est limitee
 
 ## Documentation complémentaire
 

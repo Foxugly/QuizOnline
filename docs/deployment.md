@@ -92,3 +92,54 @@ Avant une release :
 powershell -ExecutionPolicy Bypass -File .\scripts\sync-openapi.ps1
 git diff -- quizonline-server/openapi.yaml quizonline-frontend/openapi.yaml quizonline-frontend/src/app/api/generated
 ```
+
+## Apache
+
+Fichier de configuration : `deploy/apache.conf`
+
+Modules requis :
+
+- `rewrite`
+- `proxy`
+- `proxy_http`
+- `ssl`
+- `headers`
+
+Activation des modules :
+
+```bash
+sudo a2enmod rewrite proxy proxy_http ssl headers
+sudo systemctl restart apache2
+```
+
+Certificat HTTPS via Let's Encrypt :
+
+```bash
+sudo certbot --apache
+```
+
+Fichiers de service systemd :
+
+- `deploy/quizonline-gunicorn.service` : serveur WSGI Django
+- `deploy/quizonline-celery.service` : worker Celery pour l outbox email
+- `deploy/quizonline-celery-beat.service` : scheduler Celery Beat
+
+## Deploy automatise (CI/CD)
+
+Le deploiement est gere par deux workflows GitHub Actions :
+
+- `.github/workflows/ci.yml` : lance les tests backend et frontend a chaque push / PR
+- `.github/workflows/deploy.yml` : build le frontend en CI, envoie le bundle via SCP sur l instance EC2, puis execute `deploy/redeploy.sh` en SSH
+
+Le script `deploy/redeploy.sh` effectue :
+
+1. `git pull` du code backend
+2. mise a jour des dependances Python
+3. `migrate` et `collectstatic`
+4. synchronisation des fichiers de service systemd
+5. restart des services (gunicorn, celery, celery-beat)
+6. health checks (`/health/`)
+
+Secrets GitHub requis : `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`.
+
+Le frontend est builde en CI et non sur l EC2 car la memoire de l instance est limitee.

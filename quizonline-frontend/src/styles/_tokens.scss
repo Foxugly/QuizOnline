@@ -7,11 +7,27 @@ $surface: #ffffff;
 $radius: 12px;
 $shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 
+$radius-sm: 8px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+$radius-pill: 999px;
+
+$text-primary: #111827;
+$text-secondary: #455564;
+$accent: #1e2c38;
+
 /* Optionnel : CSS vars pour usage dans des composants sans @use */
 :root {
   --border: #{$border};
   --muted: #{$muted};
   --surface: #{$surface};
   --radius: #{$radius};
+  --radius-sm: #{$radius-sm};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-pill: #{$radius-pill};
   --shadow: #{$shadow};
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --accent: #{$accent};
 }
