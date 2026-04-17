@@ -69,7 +69,7 @@ def _get_translation(obj, field: str, language: str) -> str:
 def _fmt_datetime(dt) -> str:
     if dt is None:
         return "-"
-    return dt.strftime("%Y-%m-%d %H:%M")
+    return timezone.localtime(dt).strftime("%Y-%m-%d %H:%M")
 
 
 # ---------------------------------------------------------------------------
