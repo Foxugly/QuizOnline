@@ -16,6 +16,43 @@
   }
 
   @if (stats(); as s) {
+    <section class="charts-row">
+      @if (domainComparisonChart(); as chart) {
+        <div class="card chart-card">
+          <div class="card-head">
+            <h2 class="card-title">{{ ui().admin.stats.domain }}</h2>
+          </div>
+          <div class="chart-container">
+            <p-chart type="bar" [data]="chart.data" [options]="chart.options"></p-chart>
+          </div>
+        </div>
+      }
+
+      <div class="charts-col">
+        @if (sessionsDonut(); as donut) {
+          <div class="card chart-card">
+            <div class="card-head">
+              <h2 class="card-title">{{ ui().admin.stats.sessions }}</h2>
+            </div>
+            <div class="chart-container chart-container--small">
+              <p-chart type="doughnut" [data]="donut.data" [options]="donut.options"></p-chart>
+            </div>
+          </div>
+        }
+
+        @if (completionChart(); as completion) {
+          <div class="card chart-card">
+            <div class="card-head">
+              <h2 class="card-title">{{ ui().admin.stats.completion }}</h2>
+            </div>
+            <div class="chart-container">
+              <p-chart type="bar" [data]="completion.data" [options]="completion.options"></p-chart>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
     <section class="card stats-table-card">
       <div class="card-head">
         <h2 class="card-title">{{ ui().admin.stats.domain }}</h2>
@@ -31,24 +68,24 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="name">{{ ui().admin.stats.domain }}</th>
-            <th pSortableColumn="members_count" class="stats-col--num">{{ ui().admin.stats.members }}</th>
-            <th pSortableColumn="managers_count" class="stats-col--num">{{ ui().admin.stats.managers }}</th>
-            <th pSortableColumn="questions_count" class="stats-col--num">{{ ui().admin.stats.questions }}</th>
-            <th pSortableColumn="templates_count" class="stats-col--num">{{ ui().admin.stats.templates }}</th>
-            <th pSortableColumn="sessions_total" class="stats-col--num">{{ ui().admin.stats.sessions }}</th>
-            <th class="stats-col--completion">{{ ui().admin.stats.completion }}</th>
+            <th pSortableColumn="name" style="text-align: center;">{{ ui().admin.stats.domain }}</th>
+            <th pSortableColumn="members_count" class="stats-col--num" style="text-align: center;">{{ ui().admin.stats.members }}</th>
+            <th pSortableColumn="managers_count" class="stats-col--num" style="text-align: center;">{{ ui().admin.stats.managers }}</th>
+            <th pSortableColumn="questions_count" class="stats-col--num" style="text-align: center;">{{ ui().admin.stats.questions }}</th>
+            <th pSortableColumn="templates_count" class="stats-col--num" style="text-align: center;">{{ ui().admin.stats.templates }}</th>
+            <th pSortableColumn="sessions_total" class="stats-col--num" style="text-align: center;">{{ ui().admin.stats.sessions }}</th>
+            <th class="stats-col--completion" style="text-align: center;">{{ ui().admin.stats.completion }}</th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-domain>
           <tr>
             <td>{{ domainName(domain) }}</td>
-            <td class="stats-col--num">{{ domain.members_count }}</td>
-            <td class="stats-col--num">{{ domain.managers_count }}</td>
-            <td class="stats-col--num">{{ domain.questions_count }}</td>
-            <td class="stats-col--num">{{ domain.templates_count }}</td>
-            <td class="stats-col--num">{{ domain.sessions_total }}</td>
+            <td style="text-align: center;">{{ domain.members_count }}</td>
+            <td style="text-align: center;">{{ domain.managers_count }}</td>
+            <td style="text-align: center;">{{ domain.questions_count }}</td>
+            <td style="text-align: center;">{{ domain.templates_count }}</td>
+            <td style="text-align: center;">{{ domain.sessions_total }}</td>
             <td class="stats-col--completion">
               <div class="completion-cell">
                 <p-progressBar [value]="completionRate(domain)" [showValue]="false"></p-progressBar>
