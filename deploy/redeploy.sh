@@ -7,6 +7,13 @@
 #
 set -euo pipefail
 
+SKIP_FRONTEND=false
+for arg in "$@"; do
+  case "$arg" in
+    --skip-frontend) SKIP_FRONTEND=true ;;
+  esac
+done
+
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$REPO_DIR/quizonline-server"
 FRONTEND_DIR="$REPO_DIR/quizonline-frontend"
@@ -49,11 +56,15 @@ cd "$BACKEND_DIR"
 "$PYTHON" manage.py collectstatic --noinput
 
 # ── 3. Frontend ──────────────────────────────────────────────────────────────
-echo "[3/7] Rebuilding frontend..."
-cd "$FRONTEND_DIR"
-npm ci --silent
-export NODE_OPTIONS="--max-old-space-size=1024"
-npx ng build --configuration=production
+if [ "$SKIP_FRONTEND" = true ]; then
+  echo "[3/7] Skipping frontend build (--skip-frontend)"
+else
+  echo "[3/7] Rebuilding frontend..."
+  cd "$FRONTEND_DIR"
+  npm ci --silent
+  export NODE_OPTIONS="--max-old-space-size=1024"
+  npx ng build --configuration=production
+fi
 
 # ── 4. Sync service files ────────────────────────────────────────────────────
 echo "[4/7] Syncing systemd service files..."

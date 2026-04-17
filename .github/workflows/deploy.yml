@@ -19,12 +19,43 @@ jobs:
     environment: production
 
     steps:
-      - name: Deploy to EC2
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: quizonline-frontend/package-lock.json
+
+      - name: Build frontend
+        run: |
+          cd quizonline-frontend
+          npm ci
+          npx ng build --configuration=production
+
+      - name: Package frontend build
+        run: tar -czf frontend-build.tar.gz -C quizonline-frontend/dist/quizonline-frontend/browser .
+
+      - name: Upload build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend-build.tar.gz"
+          target: "/tmp"
+
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
+          command_timeout: 10m
           script: |
-            sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && bash deploy/redeploy.sh'
+            sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && bash deploy/redeploy.sh --skip-frontend'
+            FRONTEND_DIR="/var/www/django_websites/QuizOnline/quizonline-frontend/dist/quizonline-frontend/browser"
+            sudo -u django mkdir -p "$FRONTEND_DIR"
+            sudo -u django tar -xzf /tmp/frontend-build.tar.gz -C "$FRONTEND_DIR"
+            rm -f /tmp/frontend-build.tar.gz
+            sudo systemctl reload apache2
