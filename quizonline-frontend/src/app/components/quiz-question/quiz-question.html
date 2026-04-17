@@ -13,7 +13,7 @@
             <p-button
               (onClick)="reportRequested.emit()"
               icon="pi pi-envelope"
-              label="Alerter"
+              [label]="editorUi().quiz.alert"
               severity="secondary"
               variant="text"
             ></p-button>
@@ -137,7 +137,7 @@
               (onClick)="onPreviousClick()"
               [disabled]="!hasPrevious()"
               icon="pi pi-chevron-left"
-              label="Précédent"
+              [label]="editorUi().common.previous"
               severity="secondary"
               variant="outlined"
             ></p-button>
@@ -147,7 +147,7 @@
             <p-button
               (onClick)="onBackClick()"
               icon="pi pi-arrow-left"
-              label="Retour au quiz"
+              [label]="editorUi().quiz.backToQuiz"
               severity="secondary"
               variant="outlined"
             ></p-button>
@@ -158,7 +158,7 @@
               (onClick)="onNextClick()"
               icon="pi pi-chevron-right"
               iconPos="right"
-              [label]="hasNext() ? 'Suivant' : (readonlyMode() ? 'Terminer la relecture' : 'Terminer')"
+              [label]="hasNext() ? editorUi().common.next : (readonlyMode() ? editorUi().quiz.finishReview : editorUi().common.finish)"
               severity="secondary"
               variant="outlined"
             ></p-button>

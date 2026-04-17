@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy, signal} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, inject, signal} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -36,7 +36,26 @@ import {DomainService, DomainTranslations} from '../../../services/domain/domain
 export class Register implements OnInit {
   app = window.__APP__!;
 
-  form: FormGroup;
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly languageService = inject(LanguageService);
+  private readonly domainService = inject(DomainService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+
+  form: FormGroup = this.fb.nonNullable.group(
+    {
+      username: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      first_name: ['', [Validators.required]],
+      last_name: ['', [Validators.required]],
+      language: ['', [Validators.required]],
+      requested_domain_ids: [[] as number[]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirm_password: ['', [Validators.required]],
+    },
+    {validators: [Register.passwordsMatchValidator]},
+  );
   submitted = signal(false);
   isSubmitting = signal(false);
   successMessage = signal('');
@@ -45,29 +64,6 @@ export class Register implements OnInit {
   domains = signal<DomainReadDto[]>([]);
   loadingLanguages = signal(false);
   loadingDomains = signal(false);
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private languageService: LanguageService,
-    private domainService: DomainService,
-    private router: Router,
-    private userService: UserService,
-  ) {
-    this.form = this.fb.nonNullable.group(
-      {
-        username: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.email]],
-        first_name: ['', [Validators.required]],
-        last_name: ['', [Validators.required]],
-        language: ['', [Validators.required]],
-        requested_domain_ids: [[] as number[]],
-        password: ['', [Validators.required, Validators.minLength(8)]],
-        confirm_password: ['', [Validators.required]],
-      },
-      {validators: [Register.passwordsMatchValidator]},
-    );
-  }
 
   get f() {
     return this.form.controls;

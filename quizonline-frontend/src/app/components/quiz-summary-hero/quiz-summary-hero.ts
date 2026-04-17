@@ -1,7 +1,9 @@
-import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
+import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
+import {UserService} from '../../services/user/user';
 
 export interface QuizSummaryFact {
   label: string;
@@ -19,6 +21,8 @@ export interface QuizSummaryFact {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSummaryHeroComponent {
+  private readonly userService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   readonly session = input.required<QuizDto>();
   readonly statusLabel = input.required<string>();
   readonly statusSeverity = input<'secondary' | 'success' | 'warn' | 'danger' | 'contrast' | 'info'>('secondary');

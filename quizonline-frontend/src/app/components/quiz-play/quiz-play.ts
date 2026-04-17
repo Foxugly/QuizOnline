@@ -1,6 +1,8 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
+import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
+import {UserService} from '../../services/user/user';
 
 @Component({
   selector: 'app-quiz-play',
@@ -10,6 +12,8 @@ import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizPlayComponent {
+  private readonly userService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   questionNavItems: QuizNavItem[] = [];
   currentQuestionIndex = 1;
 

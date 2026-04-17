@@ -43,7 +43,7 @@
           <p-button
             (onClick)="openQuiz(quiz.id)"
             icon="pi pi-eye"
-            label="Voir"
+            [label]="editorUi().common.view"
             severity="secondary"
             size="small"
           ></p-button>

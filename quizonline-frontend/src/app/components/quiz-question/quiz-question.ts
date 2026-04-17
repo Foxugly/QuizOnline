@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
@@ -26,6 +27,7 @@ import {QuestionMediaReadDto} from '../../api/generated/model/question-media-rea
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UserService} from '../../services/user/user';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
+import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
 export interface AnswerPayload {
   questionId: number;
@@ -52,6 +54,7 @@ export interface AnswerPayload {
 })
 export class QuizQuestionComponent {
   userService: UserService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
 
   readonly quizNavItem = input.required<QuizNavItem>();
   readonly showCorrectAnswers = input(false);

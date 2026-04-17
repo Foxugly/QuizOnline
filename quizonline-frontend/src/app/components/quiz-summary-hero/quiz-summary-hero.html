@@ -2,7 +2,7 @@
   <p-button
     (onClick)="onBack()"
     icon="pi pi-arrow-left"
-    label="Retour a la liste"
+    [label]="editorUi().quiz.backToList"
     severity="secondary"
     text
   ></p-button>
@@ -44,13 +44,13 @@
 
   <div class="summary-hero__aside">
     @if (!session().started_at) {
-      <p-button (onClick)="onStart()" icon="pi pi-play" label="Demarrer le quiz" severity="primary"></p-button>
+      <p-button (onClick)="onStart()" icon="pi pi-play" [label]="editorUi().quiz.startQuiz" severity="primary"></p-button>
     } @else if (session().can_answer) {
-      <p-button (onClick)="onOpenQuestion()" icon="pi pi-arrow-right" label="Continuer le quiz" severity="primary"></p-button>
+      <p-button (onClick)="onOpenQuestion()" icon="pi pi-arrow-right" [label]="editorUi().quiz.continueQuiz" severity="primary"></p-button>
     } @else if (canReview()) {
-      <p-button (onClick)="onOpenQuestion()" icon="pi pi-eye" label="Voir la correction" severity="primary"></p-button>
+      <p-button (onClick)="onOpenQuestion()" icon="pi pi-eye" [label]="editorUi().quiz.viewCorrection" severity="primary"></p-button>
     } @else {
-      <p-button [disabled]="true" icon="pi pi-check" label="Quiz termine" severity="secondary"></p-button>
+      <p-button [disabled]="true" icon="pi pi-check" [label]="editorUi().quiz.quizFinished" severity="secondary"></p-button>
     }
   </div>
 </section>

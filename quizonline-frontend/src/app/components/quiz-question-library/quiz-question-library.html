@@ -60,7 +60,7 @@
             <p-button
               (onClick)="addQuestion.emit(entry.question)"
               icon="pi pi-arrow-right"
-              label="Ajouter"
+              [label]="editorUi().common.add"
               size="small"
               type="button">
             </p-button>

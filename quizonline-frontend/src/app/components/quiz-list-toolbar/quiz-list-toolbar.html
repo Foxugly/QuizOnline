@@ -16,7 +16,7 @@
         (onClick)="compose.emit()"
         icon="pi pi-plus"
         id="btn_compose_quiz"
-        label="Nouveau template"
+        [label]="editorUi().quiz.newTemplate"
         severity="primary"
       ></p-button>
     }
@@ -25,7 +25,7 @@
         (onClick)="quickCreate.emit()"
         icon="pi pi-plus"
         id="btn_add_subject"
-        label="Rapide"
+        [label]="editorUi().common.quick"
         severity="secondary"
       ></p-button>
     }

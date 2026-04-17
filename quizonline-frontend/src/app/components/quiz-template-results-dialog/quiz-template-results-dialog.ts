@@ -1,10 +1,12 @@
 import {CommonModule} from '@angular/common';
-import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
 import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
+import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
+import {UserService} from '../../services/user/user';
 
 @Component({
   selector: 'app-quiz-template-results-dialog',
@@ -14,6 +16,8 @@ import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizTemplateResultsDialogComponent {
+  private readonly userService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   visible = input(false);
   template = input<QuizTemplateDto | null>(null);
   sessions = input<QuizTemplateAssignmentSessionDto[]>([]);

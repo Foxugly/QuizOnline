@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
+import {Component, ChangeDetectionStrategy, computed, inject, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -8,6 +8,8 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';
 import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
+import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
+import {UserService} from '../../services/user/user';
 
 @Component({
   selector: 'app-quiz-question-library',
@@ -22,6 +24,8 @@ import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionLibraryComponent {
+  private readonly userService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   readonly texts = input.required<QuizCreateUiText>();
   readonly selectedDomainId = input(0);
   readonly loading = input(false);

@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {Component, ChangeDetectionStrategy, inject} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
@@ -32,35 +32,30 @@ import {getUiText} from '../../../shared/i18n/ui-text';
 })
 export class ChangePasswordPage {
   app = window.__APP__!;
-  form: FormGroup;
+
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  form: FormGroup = this.fb.nonNullable.group(
+    {
+      old_password: ['', [Validators.required]],
+      new_password: ['', [Validators.required, Validators.minLength(8)]],
+      confirm_new_password: ['', [Validators.required]],
+    },
+    {
+      validators: [this.passwordsMatchValidator],
+    },
+  );
   submitted = false;
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
-  infoMessage = '';
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private userService: UserService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {
-    this.form = this.fb.nonNullable.group(
-      {
-        old_password: ['', [Validators.required]],
-        new_password: ['', [Validators.required, Validators.minLength(8)]],
-        confirm_new_password: ['', [Validators.required]],
-      },
-      {
-        validators: [this.passwordsMatchValidator],
-      },
-    );
-
-    this.infoMessage = this.userService.requiresPasswordChange()
-      ? this.ui.changePassword.forceMessage
-      : '';
-  }
+  infoMessage = this.userService.requiresPasswordChange()
+    ? this.ui.changePassword.forceMessage
+    : '';
 
   get ui() {
     return getUiText(this.userService.currentLang);
