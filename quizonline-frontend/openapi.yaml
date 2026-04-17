@@ -1594,6 +1594,28 @@ paths:
           description: Quiz introuvable
         '409':
           description: Quiz jamais démarré ou déjà clôturé
+  /api/quiz/{quiz_id}/export-pdf/:
+    get:
+      operationId: quiz_export_pdf_retrieve
+      description: |-
+        GET /api/quiz/{quiz_id}/export-pdf/
+
+        Returns a PDF report of the quiz results.
+        The caller must be the quiz owner or a superuser.
+        The quiz template's result visibility rules are respected.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - quiz
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/quiz/{quiz_id}/start/:
     post:
       operationId: quiz_start_create
