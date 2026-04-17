@@ -34,7 +34,7 @@ describe('QuestionDelete', () => {
                 allowed_languages: [],
                 active: true,
                 owner: {id: 1, username: 'owner'},
-                staff: [],
+                managers: [],
                 members: [],
                 created_at: '',
                 updated_at: '',

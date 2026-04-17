@@ -4,7 +4,7 @@ import type {EditorUiText} from './types';
 export const IT: EditorUiText = {
   ...EN,
   common: {...EN.common, back: 'Indietro', cancel: 'Annulla', clean: 'Pulisci', save: 'Salva', add: 'Aggiungi', create: 'Crea', delete: 'Elimina', confirm: 'Conferma', duplicate: 'Duplica', edit: 'Modifica', send: 'Invia', sending: 'Invio...', refresh: 'Aggiorna', close: 'Chiudi', reopen: 'Riapri', login: 'Accedi', loading: 'Caricamento...', view: 'Visualizza', previous: 'Precedente', next: 'Successivo', finish: 'Termina', quick: 'Rapido'},
-  quiz: {newTemplate: 'Nuovo template', markAnswered: 'Segna come risposta', toggleFlag: 'Attiva/disattiva flag', alert: 'Segnala', backToQuiz: 'Torna al quiz', finishReview: 'Termina la revisione', startQuiz: 'Inizia il quiz', continueQuiz: 'Continua il quiz', viewCorrection: 'Vedi la correzione', quizFinished: 'Quiz terminato', backToList: 'Torna alla lista'},
+  quiz: {newTemplate: 'Nuovo template', markAnswered: 'Segna come risposta', toggleFlag: 'Attiva/disattiva flag', alert: 'Segnala', backToQuiz: 'Torna al quiz', finishReview: 'Termina la revisione', startQuiz: 'Inizia il quiz', continueQuiz: 'Continua il quiz', viewCorrection: 'Vedi la correzione', quizFinished: 'Quiz terminato', backToList: 'Torna alla lista', questionLabel: 'Domanda'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Crea dominio', subtitle: 'Traduzioni, stato e accesso'},

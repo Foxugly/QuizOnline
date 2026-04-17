@@ -39,6 +39,7 @@ export const FR: EditorUiText = {
     viewCorrection: 'Voir la correction',
     quizFinished: 'Quiz terminé',
     backToList: 'Retour à la liste',
+    questionLabel: 'Question',
   },
   pages: {
     domainCreate: {title: 'Créer le domaine', subtitle: 'Traductions, statut et accès'},

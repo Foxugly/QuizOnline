@@ -37,6 +37,7 @@ export type EditorUiText = {
     viewCorrection: string;
     quizFinished: string;
     backToList: string;
+    questionLabel: string;
   };
   pages: {
     domainCreate: {title: string; subtitle: string;};

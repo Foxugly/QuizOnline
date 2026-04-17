@@ -4,7 +4,7 @@ import type {EditorUiText} from './types';
 export const NL: EditorUiText = {
   ...EN,
   common: {...EN.common, back: 'Terug', cancel: 'Annuleren', clean: 'Wissen', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', delete: 'Verwijderen', confirm: 'Bevestigen', duplicate: 'Dupliceren', edit: 'Bewerken', send: 'Verzenden', sending: 'Verzenden...', refresh: 'Vernieuwen', close: 'Afsluiten', reopen: 'Heropenen', login: 'Aanmelden', loading: 'Laden...', view: 'Bekijken', previous: 'Vorige', next: 'Volgende', finish: 'Voltooien', quick: 'Snel'},
-  quiz: {newTemplate: 'Nieuw template', markAnswered: 'Markeer als beantwoord', toggleFlag: 'Markering omschakelen', alert: 'Melden', backToQuiz: 'Terug naar quiz', finishReview: 'Nakijken voltooien', startQuiz: 'Quiz starten', continueQuiz: 'Quiz voortzetten', viewCorrection: 'Correctie bekijken', quizFinished: 'Quiz voltooid', backToList: 'Terug naar lijst'},
+  quiz: {newTemplate: 'Nieuw template', markAnswered: 'Markeer als beantwoord', toggleFlag: 'Markering omschakelen', alert: 'Melden', backToQuiz: 'Terug naar quiz', finishReview: 'Nakijken voltooien', startQuiz: 'Quiz starten', continueQuiz: 'Quiz voortzetten', viewCorrection: 'Correctie bekijken', quizFinished: 'Quiz voltooid', backToList: 'Terug naar lijst', questionLabel: 'Vraag'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Domein maken', subtitle: 'Vertalingen, status en toegang'},

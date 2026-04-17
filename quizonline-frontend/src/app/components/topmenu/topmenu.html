@@ -9,7 +9,7 @@
       </span>
     </button>
 
-    <nav class="nav" aria-label="Navigation principale">
+    <nav class="nav" [attr.aria-label]="ui.topmenu.quiz">
       @for (item of navItems; track item.label) {
         <a
           [routerLink]="item.link"
