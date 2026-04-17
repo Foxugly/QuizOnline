@@ -52,6 +52,7 @@ cd "$BACKEND_DIR"
 echo "[3/7] Rebuilding frontend..."
 cd "$FRONTEND_DIR"
 npm ci --silent
+export NODE_OPTIONS="--max-old-space-size=1024"
 npx ng build --configuration=production
 
 # ── 4. Sync service files ────────────────────────────────────────────────────
