@@ -52,9 +52,8 @@ npx ng build --configuration=production
 
 # --- Restart services ---
 echo "[4/6] Restarting services..."
-sudo systemctl restart quizonline 2>/dev/null || true
-sudo systemctl restart quizonline-celery 2>/dev/null || true
-sudo systemctl restart quizonline-celery-beat 2>/dev/null || true
+sudo systemctl daemon-reload
+sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
 sudo systemctl reload apache2 2>/dev/null || sudo systemctl reload nginx 2>/dev/null || true
 
 # --- Verify ---
