@@ -12,6 +12,7 @@ from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_
 from rest_framework import serializers, status
 from config.permissions import IsSuperUser
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from config.tools import ErrorDetailSerializer
@@ -181,6 +182,8 @@ class SystemCheckResponseSerializer(serializers.Serializer):
 )
 class SystemConfigView(APIView):
     permission_classes = [IsSuperUser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "admin"
 
     def get(self, request):
         return Response({
@@ -208,6 +211,8 @@ class SystemConfigView(APIView):
 )
 class SystemCheckView(APIView):
     permission_classes = [IsSuperUser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "admin"
 
     def post(self, request):
         serializer = SystemCheckRequestSerializer(data=request.data)

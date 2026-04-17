@@ -271,6 +271,13 @@ class DomainViewSet(MyModelViewSet):
             .prefetch_related("managers", "members", "allowed_languages", "translations")
             .order_by("id")
         )
+        # Support pagination when ?page= is provided; otherwise return flat list
+        # for backwards compatibility with register/preferences dropdowns.
+        if "page" in request.query_params:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = DomainReadSerializer(page, many=True, context=self.get_serializer_context())
+                return self.get_paginated_response(serializer.data)
         serializer = DomainReadSerializer(queryset, many=True, context=self.get_serializer_context())
         return Response(serializer.data, status=status.HTTP_200_OK)
 

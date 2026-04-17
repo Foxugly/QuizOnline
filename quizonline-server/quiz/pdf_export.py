@@ -12,8 +12,9 @@ from html.parser import HTMLParser
 
 from django.http import HttpResponse
 from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import ScopedRateThrottle
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -251,6 +252,7 @@ def generate_quiz_pdf(quiz: Quiz, language: str = "en") -> bytes:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([ScopedRateThrottle])
 def export_quiz_pdf(request, quiz_id: int):
     """
     GET /api/quiz/{quiz_id}/export-pdf/

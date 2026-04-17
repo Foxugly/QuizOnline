@@ -3,6 +3,7 @@ from django.db.models import Count, Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 from rest_framework import serializers
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from config.permissions import IsSuperUser
@@ -56,6 +57,8 @@ class DashboardStatsView(APIView):
     """
 
     permission_classes = [IsSuperUser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "admin"
 
     def get(self, request):
         user = request.user

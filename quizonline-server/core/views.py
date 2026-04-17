@@ -3,6 +3,7 @@ from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from config.permissions import IsSuperUser
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from config.tools import ErrorDetailSerializer
@@ -30,6 +31,8 @@ from core.mailers._common import send_plaintext_email
 )
 class TestEmailView(APIView):
     permission_classes = [IsSuperUser]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "admin_email_test"
 
     def post(self, request):
         serializer = TestEmailRequestSerializer(data=request.data)

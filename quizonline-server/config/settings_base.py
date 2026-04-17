@@ -160,6 +160,9 @@ REST_FRAMEWORK = {
         "password_reset_confirm": "10/hour",
         "email_confirm": "10/hour",
         "quiz_answer": "60/min",
+        "admin": "30/min",
+        "admin_email_test": "5/min",
+        "quiz_export": "20/min",
     },
 }
 

@@ -1,15 +1,15 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {signal} from '@angular/core';
 
-import {About} from './about';
+import {Donate} from './donate';
 import {UserService} from '../../services/user/user';
 
-describe('About', () => {
-  let fixture: ComponentFixture<About>;
+describe('Donate', () => {
+  let fixture: ComponentFixture<Donate>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [About],
+      imports: [Donate],
       providers: [
         {
           provide: UserService,
@@ -18,7 +18,7 @@ describe('About', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(About);
+    fixture = TestBed.createComponent(Donate);
     fixture.detectChanges();
   });
 
@@ -26,7 +26,7 @@ describe('About', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should default to features tab', () => {
-    expect(fixture.componentInstance['activeTab']()).toBe('features');
+  it('should have sponsor URL', () => {
+    expect(fixture.componentInstance['sponsorUrl']).toContain('github.com/sponsors');
   });
 });
