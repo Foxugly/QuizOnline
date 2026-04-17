@@ -24,7 +24,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script_stop: true
+          command_timeout: 15m
           script: |
-            cd /var/www/django_websites/QuizOnline
-            bash deploy/redeploy.sh
+            cd /var/www/django_websites/QuizOnline && bash deploy/redeploy.sh
