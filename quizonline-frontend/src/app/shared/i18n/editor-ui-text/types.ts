@@ -24,6 +24,7 @@ export type EditorUiText = {
     next: string;
     finish: string;
     quick: string;
+    downloadPdf: string;
   };
   quiz: {
     newTemplate: string;

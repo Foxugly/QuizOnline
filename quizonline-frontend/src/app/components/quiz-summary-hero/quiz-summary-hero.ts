@@ -35,6 +35,7 @@ export class QuizSummaryHeroComponent {
   readonly back = output();
   readonly start = output();
   readonly openQuestion = output();
+  readonly downloadPdf = output();
 
   onBack(): void {
     this.back.emit();
@@ -46,5 +47,9 @@ export class QuizSummaryHeroComponent {
 
   onOpenQuestion(): void {
     this.openQuestion.emit();
+  }
+
+  onDownloadPdf(): void {
+    this.downloadPdf.emit();
   }
 }

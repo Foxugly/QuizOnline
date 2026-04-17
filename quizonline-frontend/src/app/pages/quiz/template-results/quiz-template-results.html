@@ -54,7 +54,7 @@
           <th pSortableColumn="ended_at">Termine le <p-sortIcon field="ended_at"></p-sortIcon></th>
           <th pSortableColumn="total_answers">Reponses <p-sortIcon field="total_answers"></p-sortIcon></th>
           <th pSortableColumn="earned_score">Score <p-sortIcon field="earned_score"></p-sortIcon></th>
-          <th style="width: 160px;">Actions</th>
+          <th style="width: 200px;">Actions</th>
         </tr>
       </ng-template>
 
@@ -77,6 +77,14 @@
             <p-button
               (onClick)="goView(quiz.id)"
               icon="pi pi-eye"
+              severity="secondary"
+              size="small"
+              text
+            ></p-button>
+            <p-button
+              (onClick)="downloadPdf(quiz.id)"
+              icon="pi pi-file-pdf"
+              [pTooltip]="editorUi().common.downloadPdf"
               severity="secondary"
               size="small"
               text

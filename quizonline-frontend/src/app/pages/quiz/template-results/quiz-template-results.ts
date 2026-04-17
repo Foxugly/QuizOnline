@@ -9,6 +9,7 @@ import {catchError, finalize, forkJoin, map, of, switchMap} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import {QuizAssignmentListDto} from '../../../api/generated/model/quiz-assignment-list';
 import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {ROUTES} from '../../../app.routes-paths';
@@ -17,7 +18,7 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 
 @Component({
   selector: 'app-quiz-template-results-page',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TableModule, TooltipModule],
   templateUrl: './quiz-template-results.html',
   styleUrl: './quiz-template-results.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -104,6 +105,20 @@ export class QuizTemplateResultsPage implements OnInit {
   goDelete(quizId: number): void {
     const templateId = this.template()?.id ?? null;
     void this.router.navigate(ROUTES.quiz.deleteSession(quizId, templateId));
+  }
+
+  downloadPdf(quizId: number): void {
+    this.quizService.exportPdf(quizId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `quiz-${quizId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err) => logApiError('quiz.export-pdf', err),
+    });
   }
 
   statusLabel(quiz: QuizAssignmentListDto): string {
