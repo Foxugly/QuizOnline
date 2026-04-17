@@ -6,6 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-subject-delete',
@@ -21,6 +22,7 @@ export class SubjectDelete implements OnInit {
   id!: number;
   subject = signal<SubjectReadDto | null>(null);
   currentLang = computed(() => this.userService.currentLang);
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
 
 
   getName(d: SubjectReadDto | null): string {

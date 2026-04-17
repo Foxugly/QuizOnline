@@ -96,7 +96,7 @@
                     (onClick)="closeThread()"
                     [disabled]="saving()"
                     icon="pi pi-lock"
-                    label="Clôturer"
+                    [label]="editorUi().common.close"
                     severity="danger"
                     variant="outlined"
                   ></p-button>
@@ -105,7 +105,7 @@
                     (onClick)="reopenThread()"
                     [disabled]="saving()"
                     icon="pi pi-refresh"
-                    label="Rouvrir"
+                    [label]="editorUi().common.reopen"
                     severity="contrast"
                     variant="outlined"
                   ></p-button>
@@ -119,7 +119,7 @@
                 [disabled]="saving() || !replyBody().trim()"
                 [loading]="saving()"
                 icon="pi pi-send"
-                label="Envoyer"
+                [label]="editorUi().common.send"
               ></p-button>
             }
           </div>

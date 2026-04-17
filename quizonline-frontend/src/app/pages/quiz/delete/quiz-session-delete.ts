@@ -1,9 +1,11 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {QuizDto} from '../../../api/generated/model/quiz';
 import {ROUTES} from '../../../app.routes-paths';
 import {QuizService} from '../../../services/quiz/quiz';
+import {UserService} from '../../../services/user/user';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-quiz-session-delete',
@@ -16,7 +18,9 @@ export class QuizSessionDeletePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly quizService = inject(QuizService);
+  private readonly userService = inject(UserService);
 
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
   readonly quiz = signal<QuizDto | null>(null);
   readonly error = signal<string | null>(null);
   readonly loading = signal(false);

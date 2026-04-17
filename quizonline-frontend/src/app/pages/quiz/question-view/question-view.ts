@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, forkJoin} from 'rxjs';
@@ -18,7 +18,9 @@ import {
   updateQuizNavItem,
 } from '../../../shared/quiz/quiz-session-state';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
+import {UserService} from '../../../services/user/user';
 
 @Component({
   selector: 'app-quiz-question-view',
@@ -35,6 +37,8 @@ import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuestionView implements OnInit {
+  private readonly userService = inject(UserService);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   quiz_id!: number;
   index = 1;
   loading = signal(false);

@@ -17,7 +17,7 @@
   <div class="actions">
     <p-button
       icon="pi pi-arrow-left"
-      label="Retour"
+      [label]="ui().common.back"
       severity="secondary"
       styleClass="w-full"
       (onClick)="goBack()"
@@ -25,7 +25,7 @@
     <p-button
       id="btn_delete"
       icon="pi pi-trash"
-      label="Supprimer"
+      [label]="ui().common.delete"
       severity="danger"
       styleClass="w-full"
       [loading]="loading()"

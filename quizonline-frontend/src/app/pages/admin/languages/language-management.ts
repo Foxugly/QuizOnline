@@ -17,6 +17,7 @@ import {LanguageWriteRequestDto} from '../../../api/generated/model/language-wri
 import {PatchedLanguagePartialRequestDto} from '../../../api/generated/model/patched-language-partial-request';
 import {UserService} from '../../../services/user/user';
 import {getUiText} from '../../../shared/i18n/ui-text';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {logApiError} from '../../../shared/api/api-errors';
 
 @Component({
@@ -43,6 +44,7 @@ export class LanguageManagementPage implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
 
   readonly ui = computed(() => getUiText(this.userService.currentLang));
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   readonly t = computed(() => this.ui().admin.languages);
 
   readonly languages = signal<LanguageReadDto[]>([]);

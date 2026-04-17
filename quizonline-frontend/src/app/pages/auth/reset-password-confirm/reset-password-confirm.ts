@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -10,6 +10,8 @@ import {PasswordModule} from 'primeng/password';
 
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
+import {UserService} from '../../../services/user/user';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-reset-password-confirm',
@@ -24,6 +26,9 @@ export class ResetPasswordConfirmPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly userService = inject(UserService);
+
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
 
   readonly submitted = signal(false);
   readonly isSubmitting = signal(false);

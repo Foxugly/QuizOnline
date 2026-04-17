@@ -4,8 +4,8 @@
     @if (question()) {
       <p>Es-tu sûr de vouloir supprimer <b>{{ getTitle(question()) }}</b> ?</p>
       <div class="actions">
-        <p-button id="btn_delete" icon="pi pi-trash" label="Supprimer" severity="danger" styleClass="w-full" (onClick)="confirm()"/>
-        <p-button id="btn_back" icon="pi pi-times" label="Annuler" (onClick)="goBack()" severity="secondary"/>
+        <p-button id="btn_delete" icon="pi pi-trash" [label]="ui().common.delete" severity="danger" styleClass="w-full" (onClick)="confirm()"/>
+        <p-button id="btn_back" icon="pi pi-times" [label]="ui().common.cancel" (onClick)="goBack()" severity="secondary"/>
       </div>
     } @else {
       <p class="muted">Chargement…</p>

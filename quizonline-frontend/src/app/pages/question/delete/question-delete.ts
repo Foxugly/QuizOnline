@@ -8,6 +8,7 @@ import {QuestionReadDto} from '../../../api/generated/model/question-read';
 import { QuestionService, QuestionTranslationForm } from '../../../services/question/question';
 import { selectTranslation } from '../../../shared/i18n/select-translation';
 import { UserService } from '../../../services/user/user';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {LangCode} from '../../../services/translation/translation';
 
 @Component({
@@ -34,6 +35,7 @@ export class QuestionDelete implements OnInit {
     const v: any = this.userService.currentLang;
     return typeof v === 'string' ? v : String(v ?? 'fr');
   });
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
 
   ngOnInit(): void {
     this.id = Number(

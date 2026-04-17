@@ -15,7 +15,7 @@
       <p-button
         (onClick)="cancel()"
         icon="pi pi-times"
-        label="Cancel"
+        [label]="ui().common.cancel"
         severity="secondary"
         variant="outlined"
         type="button">
@@ -23,7 +23,7 @@
       <p-button
         (onClick)="confirmDelete()"
         icon="pi pi-trash"
-        label="Delete"
+        [label]="ui().common.delete"
         severity="danger"
         type="button">
       </p-button>

@@ -4,7 +4,7 @@
       <p-button
         (onClick)="goBack()"
         icon="pi pi-arrow-left"
-        label="Retour à la liste"
+        [label]="editorUi().common.back"
         severity="secondary"
         text
       ></p-button>
@@ -16,7 +16,7 @@
       <p-button
         (onClick)="goEdit(id)"
         icon="pi pi-pencil"
-        label="Modifier"
+        [label]="editorUi().common.edit"
         severity="secondary"
       ></p-button>
     </div>

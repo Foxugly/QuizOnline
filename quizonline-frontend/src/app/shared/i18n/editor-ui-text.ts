@@ -8,7 +8,16 @@ export type EditorUiText = {
     save: string;
     add: string;
     create: string;
+    delete: string;
+    confirm: string;
     duplicate: string;
+    edit: string;
+    send: string;
+    sending: string;
+    refresh: string;
+    close: string;
+    reopen: string;
+    login: string;
     loading: string;
     translateOthers: string;
     translating: string;
@@ -91,7 +100,16 @@ const FR: EditorUiText = {
     save: 'Enregistrer',
     add: 'Ajouter',
     create: 'Créer',
+    delete: 'Supprimer',
+    confirm: 'Confirmer',
     duplicate: 'Dupliquer',
+    edit: 'Modifier',
+    send: 'Envoyer',
+    sending: 'Envoi en cours...',
+    refresh: 'Actualiser',
+    close: 'Clôturer',
+    reopen: 'Rouvrir',
+    login: 'Se connecter',
     loading: 'Chargement...',
     translateOthers: 'Traduire vers les autres langues',
     translating: 'Traduction en cours...',
@@ -173,7 +191,16 @@ const EN: EditorUiText = {
     save: 'Save',
     add: 'Add',
     create: 'Create',
+    delete: 'Delete',
+    confirm: 'Confirm',
     duplicate: 'Duplicate',
+    edit: 'Edit',
+    send: 'Send',
+    sending: 'Sending...',
+    refresh: 'Refresh',
+    close: 'Close',
+    reopen: 'Reopen',
+    login: 'Sign in',
     loading: 'Loading...',
     translateOthers: 'Translate to other languages',
     translating: 'Translating...',
@@ -249,7 +276,7 @@ const EN: EditorUiText = {
 
 const NL: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', clean: 'Wissen', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', duplicate: 'Dupliceren', loading: 'Laden...'},
+  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', clean: 'Wissen', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', delete: 'Verwijderen', confirm: 'Bevestigen', duplicate: 'Dupliceren', edit: 'Bewerken', send: 'Verzenden', sending: 'Verzenden...', refresh: 'Vernieuwen', close: 'Afsluiten', reopen: 'Heropenen', login: 'Aanmelden', loading: 'Laden...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Domein maken', subtitle: 'Vertalingen, status en toegang'},
@@ -267,7 +294,7 @@ const NL: EditorUiText = {
 
 const IT: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Indietro', cancel: 'Annulla', clean: 'Pulisci', save: 'Salva', add: 'Aggiungi', create: 'Crea', duplicate: 'Duplica', loading: 'Caricamento...'},
+  common: {...EN.common, back: 'Indietro', cancel: 'Annulla', clean: 'Pulisci', save: 'Salva', add: 'Aggiungi', create: 'Crea', delete: 'Elimina', confirm: 'Conferma', duplicate: 'Duplica', edit: 'Modifica', send: 'Invia', sending: 'Invio...', refresh: 'Aggiorna', close: 'Chiudi', reopen: 'Riapri', login: 'Accedi', loading: 'Caricamento...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Crea dominio', subtitle: 'Traduzioni, stato e accesso'},
@@ -285,7 +312,7 @@ const IT: EditorUiText = {
 
 const ES: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', duplicate: 'Duplicar', loading: 'Cargando...'},
+  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', delete: 'Eliminar', confirm: 'Confirmar', duplicate: 'Duplicar', edit: 'Editar', send: 'Enviar', sending: 'Enviando...', refresh: 'Actualizar', close: 'Cerrar', reopen: 'Reabrir', login: 'Iniciar sesion', loading: 'Cargando...'},
   pages: {
     ...EN.pages,
     domainCreate: {title: 'Crear dominio', subtitle: 'Traducciones, estado y acceso'},

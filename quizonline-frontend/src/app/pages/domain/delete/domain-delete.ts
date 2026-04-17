@@ -5,6 +5,7 @@ import {DomainService, DomainTranslationDto} from '../../../services/domain/doma
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-domain-delete',
@@ -22,6 +23,7 @@ export class DomainDelete implements OnInit {
   id!: number;
   domain = signal<DomainReadDto | null>(null);
   currentLang = computed(() => this.userService.currentLang);
+  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
 
   getName(d: DomainReadDto | null): string {
     if (d) {

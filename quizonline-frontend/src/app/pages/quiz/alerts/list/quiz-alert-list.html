@@ -27,7 +27,7 @@
         optionLabel="label"
         optionValue="value"
       ></p-select>
-      <p-button (onClick)="load()" icon="pi pi-refresh" label="Actualiser" severity="secondary"></p-button>
+      <p-button (onClick)="load()" icon="pi pi-refresh" [label]="editorUi().common.refresh" severity="secondary"></p-button>
     </div>
   </div>
 

@@ -15,6 +15,7 @@ import {UserService} from '../../../../services/user/user';
 import {ROUTES} from '../../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
 import {formatLocalizedDateTime} from '../../../../shared/i18n/date-time';
+import {getEditorUiText} from '../../../../shared/i18n/editor-ui-text';
 
 type AlertStatusFilter = 'all' | 'open' | 'closed';
 type AlertReadFilter = 'all' | 'unread' | 'read';
@@ -27,6 +28,7 @@ type AlertReadFilter = 'all' | 'unread' | 'read';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertList implements OnInit {
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly threads = signal<QuizAlertThreadListDto[]>([]);

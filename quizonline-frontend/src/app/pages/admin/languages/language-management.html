@@ -109,13 +109,13 @@
   <ng-template #footer>
     <p-button
       (onClick)="dialogVisible.set(false)"
-      label="Cancel"
+      [label]="editorUi().common.cancel"
       severity="secondary"
       type="button">
     </p-button>
     <p-button
       (onClick)="save()"
-      label="OK"
+      [label]="editorUi().common.confirm"
       severity="primary"
       type="button"
       [disabled]="!formCode || !formName">

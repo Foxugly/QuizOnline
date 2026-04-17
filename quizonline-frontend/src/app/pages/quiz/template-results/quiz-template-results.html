@@ -4,7 +4,7 @@
       <p-button
         (onClick)="goBack()"
         icon="pi pi-arrow-left"
-        label="Retour"
+        [label]="editorUi().common.back"
         severity="secondary"
         text
       ></p-button>
@@ -25,7 +25,7 @@
         pInputText
         placeholder="Rechercher dans les quiz envoyes..."
       >
-      <p-button (onClick)="load()" icon="pi pi-refresh" label="Actualiser" severity="secondary"></p-button>
+      <p-button (onClick)="load()" icon="pi pi-refresh" [label]="editorUi().common.refresh" severity="secondary"></p-button>
     </div>
   </div>
 

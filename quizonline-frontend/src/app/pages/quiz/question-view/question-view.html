@@ -77,12 +77,12 @@
       [disabled]="!reportMessage().trim()"
       [loading]="reportSaving()"
       icon="pi pi-send"
-      label="Envoyer"
+      [label]="editorUi().common.send"
     ></p-button>
     <p-button
       (onClick)="closeReportDialog()"
       [disabled]="reportSaving()"
-      label="Annuler"
+      [label]="editorUi().common.cancel"
       severity="secondary"
       variant="text"
     ></p-button>

@@ -1,5 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {UserService} from '../../../services/user/user';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -30,7 +32,9 @@ export class QuizTemplateResultsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly quizService = inject(QuizService);
+  private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
 
   readonly filteredSessions = computed(() => {
     const term = this.normalize(this.search());
