@@ -7,11 +7,11 @@
     </div>
     <div class="header-actions">
       <p-button (onClick)="goLogin()" icon="pi pi-arrow-left" [label]="ui.register.back" severity="secondary" type="button"></p-button>
-      <p-button (onClick)="onSubmit()" [disabled]="isSubmitting || form.invalid" [loading]="isSubmitting" icon="pi pi-user-plus" [label]="ui.register.create" type="button"></p-button>
+      <p-button (onClick)="onSubmit()" [disabled]="isSubmitting() || form.invalid" [loading]="isSubmitting()" icon="pi pi-user-plus" [label]="ui.register.create" type="button"></p-button>
     </div>
   </div>
 
-  @if (loadingLanguages || loadingDomains) {
+  @if (loadingLanguages() || loadingDomains()) {
     <div class="card">
       <p class="muted">{{ ui.register.loading }}</p>
     </div>
@@ -28,7 +28,7 @@
           <div class="meta-value">
             <input id="username" pInputText type="text" formControlName="username" autocomplete="username" autofocus [placeholder]="ui.register.username">
           </div>
-          @if (submitted && f['username'].invalid) {
+          @if (submitted() && f['username'].invalid) {
             <div class="meta-hint meta-hint--error">{{ ui.register.usernameRequired }}</div>
           }
         </div>
@@ -38,7 +38,7 @@
           <div class="meta-value">
             <input id="email" pInputText type="email" formControlName="email" autocomplete="email" placeholder="you@example.com">
           </div>
-          @if (submitted && f['email'].invalid) {
+          @if (submitted() && f['email'].invalid) {
             <div class="meta-hint meta-hint--error">
               @if (f['email'].errors?.['required']) {
                 <span>{{ ui.register.emailRequired }}</span>
@@ -55,7 +55,7 @@
           <div class="meta-value">
             <input id="first_name" pInputText type="text" formControlName="first_name" autocomplete="given-name" [placeholder]="ui.register.firstName">
           </div>
-          @if (submitted && f['first_name'].invalid) {
+          @if (submitted() && f['first_name'].invalid) {
             <div class="meta-hint meta-hint--error">{{ ui.register.firstNameRequired }}</div>
           }
         </div>
@@ -65,7 +65,7 @@
           <div class="meta-value">
             <input id="last_name" pInputText type="text" formControlName="last_name" autocomplete="family-name" [placeholder]="ui.register.lastName">
           </div>
-          @if (submitted && f['last_name'].invalid) {
+          @if (submitted() && f['last_name'].invalid) {
             <div class="meta-hint meta-hint--error">{{ ui.register.lastNameRequired }}</div>
           }
         </div>
@@ -73,9 +73,9 @@
         <div class="meta-item meta-item--full">
           <label class="meta-label" for="language">{{ ui.register.language }}</label>
           <div class="meta-value widget-center">
-            <p-select inputId="language" formControlName="language" [options]="languages" optionLabel="name" optionValue="code" [placeholder]="ui.register.chooseLanguage" [showClear]="true" [filter]="true"></p-select>
+            <p-select inputId="language" formControlName="language" [options]="languages()" optionLabel="name" optionValue="code" [placeholder]="ui.register.chooseLanguage" [showClear]="true" [filter]="true"></p-select>
           </div>
-          @if (submitted && f['language'].invalid) {
+          @if (submitted() && f['language'].invalid) {
             <div class="meta-hint meta-hint--error">{{ ui.register.languageRequired }}</div>
           }
         </div>
@@ -112,7 +112,7 @@
           <div class="meta-value">
             <p-password inputId="password" formControlName="password" [toggleMask]="true" [feedback]="false" autocomplete="new-password" placeholder="********" class="w-full"></p-password>
           </div>
-          @if (submitted && f['password'].invalid) {
+          @if (submitted() && f['password'].invalid) {
             <div class="meta-hint meta-hint--error">
               @if (f['password'].errors?.['required']) {
                 <span>{{ ui.register.passwordRequired }}</span>
@@ -129,7 +129,7 @@
           <div class="meta-value">
             <p-password inputId="confirm_password" formControlName="confirm_password" [toggleMask]="true" [feedback]="false" autocomplete="new-password" class="w-full" placeholder="********"></p-password>
           </div>
-          @if (submitted && f['confirm_password'].invalid) {
+          @if (submitted() && f['confirm_password'].invalid) {
             <div class="meta-hint meta-hint--error">
               @if (f['confirm_password'].errors?.['required']) {
                 <span>{{ ui.register.confirmRequired }}</span>
@@ -142,16 +142,16 @@
         </div>
       </div>
 
-      @if (successMessage) {
-        <div class="meta-hint meta-hint--success">{{ successMessage }}</div>
+      @if (successMessage()) {
+        <div class="meta-hint meta-hint--success">{{ successMessage() }}</div>
       }
-      @if (errorMessage) {
-        <div class="meta-hint meta-hint--error">{{ errorMessage }}</div>
+      @if (errorMessage()) {
+        <div class="meta-hint meta-hint--error">{{ errorMessage() }}</div>
       }
 
       <div class="footer-actions">
-        <p-button icon="pi pi-user-plus" [label]="ui.register.createAccount" type="submit" [loading]="isSubmitting" [disabled]="isSubmitting || form.invalid"></p-button>
         <p-button (onClick)="goLogin()" icon="pi pi-times" [label]="ui.register.cancel" severity="secondary" type="button"></p-button>
+        <p-button icon="pi pi-user-plus" [label]="ui.register.createAccount" type="submit" [loading]="isSubmitting()" [disabled]="isSubmitting() || form.invalid"></p-button>
       </div>
     </form>
   }

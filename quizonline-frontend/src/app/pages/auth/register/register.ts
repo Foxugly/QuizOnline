@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, signal} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -37,14 +37,14 @@ export class Register implements OnInit {
   app = window.__APP__!;
 
   form: FormGroup;
-  submitted = false;
-  isSubmitting = false;
-  successMessage = '';
-  errorMessage = '';
-  languages: LanguageReadDto[] = [];
-  domains: DomainReadDto[] = [];
-  loadingLanguages = false;
-  loadingDomains = false;
+  submitted = signal(false);
+  isSubmitting = signal(false);
+  successMessage = signal('');
+  errorMessage = signal('');
+  languages = signal<LanguageReadDto[]>([]);
+  domains = signal<DomainReadDto[]>([]);
+  loadingLanguages = signal(false);
+  loadingDomains = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -78,7 +78,7 @@ export class Register implements OnInit {
   }
 
   get domainOptions() {
-    return this.domains.map((domain) => ({
+    return this.domains().map((domain) => ({
       label: this.getDomainLabel(domain),
       value: domain.id,
     }));
@@ -115,9 +115,9 @@ export class Register implements OnInit {
   }
 
   onSubmit(): void {
-    this.submitted = true;
-    this.successMessage = '';
-    this.errorMessage = '';
+    this.submitted.set(true);
+    this.successMessage.set('');
+    this.errorMessage.set('');
     this.form.updateValueAndValidity();
 
     if (this.form.invalid) {
@@ -125,33 +125,33 @@ export class Register implements OnInit {
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
     const {username, email, first_name, last_name, language, requested_domain_ids, password} = this.form.getRawValue();
 
     this.authService
       .register({username, email, first_name, last_name, language, requested_domain_ids, password})
-      .pipe(finalize(() => (this.isSubmitting = false)))
+      .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: () => {
           void this.router.navigate(ROUTES.auth.registerPending());
         },
         error: (err) => {
           logApiError('auth.register.submit', err);
-          this.errorMessage = this.formatRegisterError(err);
+          this.errorMessage.set(this.formatRegisterError(err));
         },
       });
   }
 
   private loadLanguages(): void {
-    this.loadingLanguages = true;
+    this.loadingLanguages.set(true);
 
     this.languageService
       .list()
-      .pipe(finalize(() => (this.loadingLanguages = false)))
+      .pipe(finalize(() => this.loadingLanguages.set(false)))
       .subscribe({
         next: (langs) => {
           const active = (langs ?? []).filter((lang: any) => lang?.active !== false);
-          this.languages = active;
+          this.languages.set(active);
 
           if (!this.form.get('language')?.value) {
             const defaultLang = active[0]?.code ?? 'en';
@@ -160,8 +160,8 @@ export class Register implements OnInit {
         },
         error: (err) => {
           logApiError('auth.register.load-languages', err);
-          this.languages = [];
-          this.errorMessage = userFacingApiMessage(err, this.ui.register.loadLanguagesError);
+          this.languages.set([]);
+          this.errorMessage.set(userFacingApiMessage(err, this.ui.register.loadLanguagesError));
           if (!this.form.get('language')?.value) {
             this.form.get('language')?.setValue('en');
           }
@@ -170,20 +170,20 @@ export class Register implements OnInit {
   }
 
   private loadDomains(): void {
-    this.loadingDomains = true;
+    this.loadingDomains.set(true);
 
     this.domainService
       .availableForLinking()
-      .pipe(finalize(() => (this.loadingDomains = false)))
+      .pipe(finalize(() => this.loadingDomains.set(false)))
       .subscribe({
         next: (domains) => {
-          this.domains = domains ?? [];
+          this.domains.set(domains ?? []);
         },
         error: (err) => {
           logApiError('auth.register.load-domains', err);
-          this.domains = [];
-          if (!this.errorMessage) {
-            this.errorMessage = userFacingApiMessage(err, this.ui.register.loadDomainsError);
+          this.domains.set([]);
+          if (!this.errorMessage()) {
+            this.errorMessage.set(userFacingApiMessage(err, this.ui.register.loadDomainsError));
           }
         },
       });
