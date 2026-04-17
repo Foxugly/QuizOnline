@@ -7,6 +7,7 @@ from .views import (
     QuizTemplateQuizQuestionViewSet,
     QuizAlertThreadViewSet,
 )
+from .pdf_export import export_quiz_pdf
 
 app_name = "quiz-api"
 #
@@ -79,6 +80,7 @@ urlpatterns = [
     path("bulk-create-from-template/", quiz_bulk, name="quiz-bulk-create-from-template"),
     path("<int:quiz_id>/start/", quiz_start, name="quiz-start"),
     path("<int:quiz_id>/close/", quiz_close, name="quiz-close"),
+    path("<int:quiz_id>/export-pdf/", export_quiz_pdf, name="quiz-export-pdf"),
     #
     #     # Quiz alerts
     path("alerts/", quiz_alert_list, name="quiz-alert-list"),

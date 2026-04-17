@@ -52,5 +52,8 @@
     } @else {
       <p-button [disabled]="true" icon="pi pi-check" [label]="editorUi().quiz.quizFinished" severity="secondary"></p-button>
     }
+    @if (!session().can_answer && session().started_at) {
+      <p-button (onClick)="onDownloadPdf()" icon="pi pi-file-pdf" [label]="editorUi().common.downloadPdf" severity="secondary"></p-button>
+    }
   </div>
 </section>

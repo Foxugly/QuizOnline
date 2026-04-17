@@ -158,6 +158,10 @@ export class QuizService {
     return this.answerApi.quizAnswerList({quizId}).pipe(map((response) => response.results ?? []));
   }
 
+  exportPdf(quizId: number): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/quiz/${quizId}/export-pdf/`, {responseType: 'blob'});
+  }
+
   goSubject(): void {
     this.router.navigate(['/quiz/quick']);
   }

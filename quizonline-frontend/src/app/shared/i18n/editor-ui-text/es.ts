@@ -3,7 +3,7 @@ import type {EditorUiText} from './types';
 
 export const ES: EditorUiText = {
   ...EN,
-  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', delete: 'Eliminar', confirm: 'Confirmar', duplicate: 'Duplicar', edit: 'Editar', send: 'Enviar', sending: 'Enviando...', refresh: 'Actualizar', close: 'Cerrar', reopen: 'Reabrir', login: 'Iniciar sesion', loading: 'Cargando...', view: 'Ver', previous: 'Anterior', next: 'Siguiente', finish: 'Finalizar', quick: 'Rapido'},
+  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', delete: 'Eliminar', confirm: 'Confirmar', duplicate: 'Duplicar', edit: 'Editar', send: 'Enviar', sending: 'Enviando...', refresh: 'Actualizar', close: 'Cerrar', reopen: 'Reabrir', login: 'Iniciar sesion', loading: 'Cargando...', view: 'Ver', previous: 'Anterior', next: 'Siguiente', finish: 'Finalizar', quick: 'Rapido', downloadPdf: 'Descargar PDF'},
   quiz: {newTemplate: 'Nueva plantilla', markAnswered: 'Marcar como respondida', toggleFlag: 'Alternar marcador', alert: 'Reportar', backToQuiz: 'Volver al quiz', finishReview: 'Terminar revision', startQuiz: 'Iniciar el quiz', continueQuiz: 'Continuar el quiz', viewCorrection: 'Ver la correccion', quizFinished: 'Quiz finalizado', backToList: 'Volver a la lista', questionLabel: 'Pregunta'},
   pages: {
     ...EN.pages,

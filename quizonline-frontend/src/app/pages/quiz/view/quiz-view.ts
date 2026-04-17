@@ -124,6 +124,20 @@ export class QuizView implements OnInit {
     this.quizService.goQuestion(this.id);
   }
 
+  downloadPdf(): void {
+    this.quizService.exportPdf(this.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `quiz-${this.id}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err) => logApiError('quiz.export-pdf', err),
+    });
+  }
+
   protected formatDateTime(value: string | null | undefined): string {
     return formatLocalizedDateTime(value, this.userService.currentLang) ?? QuizView.FALLBACK_LABEL;
   }

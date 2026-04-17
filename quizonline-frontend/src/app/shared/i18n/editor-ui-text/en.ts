@@ -26,6 +26,7 @@ export const EN: EditorUiText = {
     next: 'Next',
     finish: 'Finish',
     quick: 'Quick',
+    downloadPdf: 'Download PDF',
   },
   quiz: {
     newTemplate: 'New template',
