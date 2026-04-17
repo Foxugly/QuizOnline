@@ -27,4 +27,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 15m
           script: |
-            cd /var/www/django_websites/QuizOnline && bash deploy/redeploy.sh
+            sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && bash deploy/redeploy.sh'
