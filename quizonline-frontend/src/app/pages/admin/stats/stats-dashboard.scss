@@ -46,6 +46,33 @@
   color: #6b7280;
 }
 
+/* ── Charts ── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1rem;
+}
+
+.charts-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  height: 280px;
+  position: relative;
+}
+
+.chart-container--small {
+  height: 200px;
+}
+
 /* ── Table card ── */
 .stats-table-card {
   overflow: hidden;
@@ -81,6 +108,12 @@
 .stats-empty {
   text-align: center;
   color: #9ca3af;
+}
+
+@media (max-width: 1024px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {
