@@ -115,3 +115,46 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   flex-wrap: wrap;
   gap: 0.35rem;
 }
+
+// ---- Bulk actions row ----
+.bulk-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.bulk-actions__select {
+  min-width: 14rem;
+}
+
+.bulk-option {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.bulk-option--danger {
+  color: #b91c1c;
+}
+
+.bulk-option--danger i {
+  color: #b91c1c;
+}
+
+.bulk-actions__count {
+  color: $color-muted;
+  font-size: 0.85rem;
+}
+
+// ---- Center checkbox column ----
+.col-checkbox {
+  text-align: center;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .col-checkbox .p-checkbox,
+:host ::ng-deep .col-checkbox .p-tablecheckbox {
+  display: inline-flex;
+  justify-content: center;
+}

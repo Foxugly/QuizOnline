@@ -1,19 +1,22 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {forkJoin} from 'rxjs';
 
 import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {SelectModule} from 'primeng/select';
 import {CheckboxModule} from 'primeng/checkbox';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {ConfirmationService} from 'primeng/api';
 
-import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {PatchedQuestionPartialWritePayloadRequestDto} from '../../../api/generated/model/patched-question-partial-write-payload-request';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
-import {DomainService} from '../../../services/domain/domain';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
@@ -21,13 +24,22 @@ import {logApiError} from '../../../shared/api/api-errors';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {getQuestionListUiText, QuestionListUiText} from './question-list.i18n';
 
+type BulkAction =
+  | 'export'
+  | 'activate'
+  | 'deactivate'
+  | 'addPractice'
+  | 'removePractice'
+  | 'addExam'
+  | 'removeExam'
+  | 'delete';
+
 type QuestionListRow = {
   id: number;
   question: QuestionReadDto;
   title: string;
   active: boolean;
   modesText: string;
-  domainName: string;
   subjectsText: string;
   subjectIds: number[];
 };
@@ -39,11 +51,14 @@ type QuestionListRow = {
     FormsModule,
     ButtonModule,
     CheckboxModule,
+    ConfirmDialogModule,
     InputTextModule,
     MultiSelectModule,
+    SelectModule,
     TableModule,
     QuestionPreviewDialogComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './question-list.html',
   styleUrl: './question-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,11 +77,13 @@ export class QuestionList implements OnInit {
   selectedSubjectIds = signal<number[]>([]);
   previewQuestionId = signal<number | null>(null);
   selectedRows = signal<QuestionListRow[]>([]);
+  selectedBulkAction = signal<BulkAction | null>(null);
+  applyingBulk = signal(false);
 
   private questionService = inject(QuestionService);
   private subjectService = inject(SubjectService);
   private userService: UserService = inject(UserService);
-  private domainService: DomainService = inject(DomainService);
+  private confirmationService = inject(ConfirmationService);
 
   readonly subjectOptions = computed<Array<{ label: string; value: number }>>(() => {
     return this.subjects().map((subject) => ({
@@ -82,6 +99,26 @@ export class QuestionList implements OnInit {
   readonly selectedCount = computed(() => this.selectedRows().length);
   readonly allFilteredSelected = computed(() => this.totalRecords() > 0 && this.selectedRows().length === this.totalRecords());
   readonly someFilteredSelected = computed(() => this.selectedRows().length > 0 && !this.allFilteredSelected());
+
+  readonly bulkActionOptions = computed<{label: string; value: BulkAction; icon?: string; danger?: boolean}[]>(() => {
+    const t = this.text();
+    return [
+      {label: t.bulkExport, value: 'export', icon: 'pi pi-upload'},
+      {label: t.bulkActivate, value: 'activate', icon: 'pi pi-check-circle'},
+      {label: t.bulkDeactivate, value: 'deactivate', icon: 'pi pi-times-circle'},
+      {label: t.bulkAddPractice, value: 'addPractice', icon: 'pi pi-plus-circle'},
+      {label: t.bulkRemovePractice, value: 'removePractice', icon: 'pi pi-minus-circle'},
+      {label: t.bulkAddExam, value: 'addExam', icon: 'pi pi-plus-circle'},
+      {label: t.bulkRemoveExam, value: 'removeExam', icon: 'pi pi-minus-circle'},
+      {label: t.bulkDelete, value: 'delete', icon: 'pi pi-trash', danger: true},
+    ];
+  });
+
+  readonly canApplyBulk = computed(() =>
+    this.selectedBulkAction() !== null
+    && this.selectedCount() > 0
+    && !this.applyingBulk(),
+  );
 
   ngOnInit() {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.En);
@@ -199,6 +236,102 @@ export class QuestionList implements OnInit {
     });
   }
 
+  applyBulkAction(): void {
+    const action = this.selectedBulkAction();
+    if (!action || this.selectedCount() === 0 || this.applyingBulk()) {
+      return;
+    }
+
+    switch (action) {
+      case 'export':
+        this.exportRows();
+        return;
+      case 'activate':
+        this.bulkPatch({active: true});
+        return;
+      case 'deactivate':
+        this.bulkPatch({active: false});
+        return;
+      case 'addPractice':
+        this.bulkPatch({is_mode_practice: true});
+        return;
+      case 'removePractice':
+        this.bulkPatch({is_mode_practice: false});
+        return;
+      case 'addExam':
+        this.bulkPatch({is_mode_exam: true});
+        return;
+      case 'removeExam':
+        this.bulkPatch({is_mode_exam: false});
+        return;
+      case 'delete':
+        this.bulkDelete();
+        return;
+    }
+  }
+
+  private bulkPatch(payload: PatchedQuestionPartialWritePayloadRequestDto): void {
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      return;
+    }
+
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.questionService.updatePartial(id, payload))).subscribe({
+      next: () => {
+        this.selectedRows.set([]);
+        this.selectedBulkAction.set(null);
+        this.loadQuestions(this.currentPage());
+      },
+      error: (err: unknown) => {
+        logApiError('question.list.bulk-patch', err);
+      },
+      complete: () => this.applyingBulk.set(false),
+    });
+  }
+
+  private bulkDelete(): void {
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      return;
+    }
+
+    const t = this.text();
+    this.confirmationService.confirm({
+      message: t.bulkDeleteConfirm(ids.length),
+      header: t.bulkDelete,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: t.bulkDelete,
+      rejectLabel: t.bulkConfirmCancel,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.runBulkDelete(ids),
+    });
+  }
+
+  private runBulkDelete(ids: number[]): void {
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.questionService.delete(id))).subscribe({
+      next: () => {
+        this.selectedRows.set([]);
+        this.selectedBulkAction.set(null);
+        this.first.set(0);
+        this.loadQuestions(1);
+      },
+      error: (err: unknown) => {
+        logApiError('question.list.bulk-delete', err);
+      },
+      complete: () => this.applyingBulk.set(false),
+    });
+  }
+
+  private currentPage(): number {
+    const rows = this.rows();
+    if (!rows) {
+      return 1;
+    }
+    return Math.floor(this.first() / rows) + 1;
+  }
+
   onLazyLoad(event: TableLazyLoadEvent): void {
     const nextFirst = event.first ?? 0;
     const nextRows = event.rows ?? this.rows();
@@ -229,22 +362,10 @@ export class QuestionList implements OnInit {
     this.questionService.goSubjectEdit(id);
   }
 
-  goDomain(domainId: number): void {
-    this.domainService.goEdit(domainId);
-  }
-
   getTitle(dto: QuestionReadDto): string {
     const tr = dto.translations as Record<string, { title?: string }>;
     const lang = String(this.currentLang()).toLowerCase();
     return tr?.[lang]?.title ?? `Question #${dto.id}`;
-  }
-
-  getDomain(dto: DomainReadDto): string {
-    const t = selectTranslation<{ name: string }>(
-      dto.translations as Record<string, { name: string }>,
-      this.currentLang(),
-    );
-    return t?.name ?? `Domain #${dto.id}`;
   }
 
   getModes(dto: QuestionReadDto): string[] {
@@ -273,7 +394,6 @@ export class QuestionList implements OnInit {
       title: this.getTitle(question),
       active: !!question.active,
       modesText: this.getModes(question).join(', '),
-      domainName: this.getDomain(question.domain),
       subjectsText: (question.subjects ?? []).map((subject) => this.getSubjectTitle(subject)).join(', '),
       subjectIds: (question.subjects ?? []).map((subject) => subject.id),
     };
