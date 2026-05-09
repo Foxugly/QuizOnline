@@ -6,9 +6,8 @@ import {ButtonModule} from 'primeng/button';
 import {ROUTES} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
+import {openContactEmail} from '../../shared/contact';
 import {getUiText} from '../../shared/i18n/ui-text';
-
-type QuickLinkKey = 'catalog' | 'preferences' | 'about';
 
 @Component({
   selector: 'app-home',
@@ -38,9 +37,7 @@ export class Home {
     this.isAdmin() ? this.ui().home.secondaryAdmin : this.ui().home.secondaryLoggedOut,
   );
 
-  readonly quickLinks = [
-    {key: 'catalog' as QuickLinkKey, link: ROUTES.quiz.list()},
-    {key: 'preferences' as QuickLinkKey, link: ['/preferences'] as const},
-    {key: 'about' as QuickLinkKey, link: ['/about'] as const},
-  ];
+  contactClick(): void {
+    openContactEmail('[TrainingManager]');
+  }
 }

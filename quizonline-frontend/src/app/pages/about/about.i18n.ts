@@ -12,20 +12,24 @@ export type AboutLegalSection = {
 };
 
 export type AboutUiText = {
-  eyebrow: string;
-  title: string;
-  lead: string;
-  viewRepository: string;
-
   tabs: {
-    features: string;
+    company: string;
     legal: string;
     technical: string;
   };
 
-  featuresTitle: string;
-  featuresIntro: string;
-  features: string[];
+  companyTitle: string;
+  companyIntro: string;
+  company: {
+    contactLabel: string;
+    companyLabel: string;
+    vatLabel: string;
+    addressLabel: string;
+    emailLabel: string;
+    emailButton: string;
+    phoneLabel: string;
+    websiteLabel: string;
+  };
 
   legalTitle: string;
   legalIntro: string;
@@ -42,112 +46,103 @@ export type AboutUiText = {
 };
 
 const FR: AboutUiText = {
-  eyebrow: 'A propos du projet',
-  title: 'QuizOnline',
-  lead: 'Plateforme de creation, d\'attribution et de passage de quiz multilingues avec administration des contenus, des domaines et des sessions.',
-  viewRepository: 'Voir le repository',
-
   tabs: {
-    features: 'Fonctionnalites',
-    legal: 'Mentions legales',
+    company: 'Société',
+    legal: 'Mentions légales',
     technical: 'Technique',
   },
 
-  featuresTitle: 'Fonctionnalites',
-  featuresIntro: 'Tout ce qu\'il faut pour concevoir, diffuser et suivre vos quiz, dans une seule plateforme.',
-  features: [
-    'Authentification complete : inscription, confirmation d\'email, connexion securisee et recuperation de mot de passe en quelques clics.',
-    'Interface multilingue : chaque utilisateur travaille dans sa langue, la plateforme s\'adapte instantanement.',
-    'Organisation par domaines : structurez vos contenus avec proprietaires, gestionnaires et membres, chacun avec les bons droits.',
-    'Sujets sur mesure : creez et organisez librement les thematiques de chaque domaine.',
-    'Banque de questions riche : redigez vos questions, reponses et explications dans autant de langues que necessaire.',
-    'Deux modes de quiz : entrainement libre ou examen chronometre, activables domaine par domaine.',
-    'Medias integres : illustrez vos questions avec des videos YouTube en un copier-coller.',
-    'Templates de quiz flexibles : combinez mode, duree, calendrier de disponibilite et regles de correction en toute liberte.',
-    'Creation express : lancez un quiz en quelques secondes et offrez un parcours de reponse fluide et guide.',
-    'Attribution ciblee : assignez un quiz aux bonnes personnes directement depuis le tableau de bord.',
-    'Suivi en temps reel : visualisez les sessions, les scores et les corrections selon vos propres regles de visibilite.',
-    'Messagerie integree : restez informe de chaque evenement lie a vos quiz sans quitter la plateforme.',
-  ],
+  companyTitle: 'Société',
+  companyIntro: 'Informations légales et coordonnées de la société qui édite et exploite QuizOnline.',
+  company: {
+    contactLabel: 'Contact',
+    companyLabel: 'Société',
+    vatLabel: 'TVA / BCE',
+    addressLabel: 'Adresse',
+    emailLabel: 'Email',
+    emailButton: 'M\'envoyer un email',
+    phoneLabel: 'Téléphone',
+    websiteLabel: 'Site web',
+  },
 
-  legalTitle: 'Mentions legales & protection des donnees',
-  legalIntro: 'QuizOnline respecte la reglementation europeenne en matiere de protection des donnees personnelles.',
+  legalTitle: 'Mentions légales & protection des données',
+  legalIntro: 'QuizOnline respecte la réglementation européenne en matière de protection des données personnelles.',
   legalSections: [
     {
       title: 'Responsable du traitement',
       content: [
-        'Le responsable du traitement des donnees est l\'administrateur de l\'instance QuizOnline deployee.',
-        'Pour toute question relative a vos donnees personnelles, contactez l\'administrateur de votre instance.',
+        'Le responsable du traitement des données est l\'administrateur de l\'instance QuizOnline déployée.',
+        'Pour toute question relative à vos données personnelles, contactez l\'administrateur de votre instance.',
       ],
     },
     {
-      title: 'Donnees collectees',
+      title: 'Données collectées',
       content: [
-        'Donnees d\'identification : nom d\'utilisateur, adresse email, prenom, nom.',
-        'Donnees d\'activite : reponses aux quiz, scores, sessions, preferences de langue.',
-        'Donnees techniques : journaux de connexion strictement necessaires a la securite.',
+        'Données d\'identification : nom d\'utilisateur, adresse email, prénom, nom.',
+        'Données d\'activité : réponses aux quiz, scores, sessions, préférences de langue.',
+        'Données techniques : journaux de connexion strictement nécessaires à la sécurité.',
       ],
     },
     {
-      title: 'Base legale et finalites (RGPD Art. 6)',
+      title: 'Base légale et finalités (RGPD Art. 6)',
       content: [
-        'Execution d\'un contrat : gestion de votre compte, passage des quiz et suivi de vos resultats.',
-        'Interet legitime : securite de la plateforme, prevention des abus, amelioration du service.',
-        'Consentement : envoi de notifications optionnelles (revocable a tout moment).',
+        'Exécution d\'un contrat : gestion de votre compte, passage des quiz et suivi de vos résultats.',
+        'Intérêt légitime : sécurité de la plateforme, prévention des abus, amélioration du service.',
+        'Consentement : envoi de notifications optionnelles (révocable à tout moment).',
       ],
     },
     {
       title: 'Vos droits (RGPD Art. 15-22)',
       content: [
-        'Droit d\'acces : obtenir une copie de vos donnees personnelles.',
-        'Droit de rectification : corriger des donnees inexactes ou incompletes.',
-        'Droit a l\'effacement : demander la suppression de vos donnees.',
-        'Droit a la portabilite : recevoir vos donnees dans un format structure et lisible.',
+        'Droit d\'accès : obtenir une copie de vos données personnelles.',
+        'Droit de rectification : corriger des données inexactes ou incomplètes.',
+        'Droit à l\'effacement : demander la suppression de vos données.',
+        'Droit à la portabilité : recevoir vos données dans un format structuré et lisible.',
         'Droit d\'opposition : vous opposer au traitement dans certains cas.',
-        'Droit de reclamation : introduire une reclamation aupres de votre autorite de controle nationale.',
+        'Droit de réclamation : introduire une réclamation auprès de votre autorité de contrôle nationale.',
       ],
     },
     {
-      title: 'Conservation des donnees',
+      title: 'Conservation des données',
       content: [
-        'Les donnees de compte sont conservees pendant la duree de votre inscription.',
-        'Les donnees de session et de resultats sont conservees tant que le domaine est actif.',
-        'A la suppression de votre compte, vos donnees personnelles sont supprimees ou anonymisees dans un delai de 30 jours.',
+        'Les données de compte sont conservées pendant la durée de votre inscription.',
+        'Les données de session et de résultats sont conservées tant que le domaine est actif.',
+        'À la suppression de votre compte, vos données personnelles sont supprimées ou anonymisées dans un délai de 30 jours.',
       ],
     },
     {
-      title: 'Securite',
+      title: 'Sécurité',
       content: [
-        'Les communications sont chiffrees via HTTPS/TLS.',
-        'Les mots de passe sont haches avec un algorithme irreversible (PBKDF2).',
-        'L\'authentification repose sur des jetons JWT a duree de vie limitee.',
+        'Les communications sont chiffrées via HTTPS/TLS.',
+        'Les mots de passe sont hachés avec un algorithme irréversible (PBKDF2).',
+        'L\'authentification repose sur des jetons JWT à durée de vie limitée.',
       ],
     },
     {
       title: 'Cookies',
       content: [
-        'QuizOnline n\'utilise pas de cookies de tracage ni de cookies publicitaires.',
-        'Seuls des cookies techniques strictement necessaires au fonctionnement (session, preference de langue) sont utilises.',
+        'QuizOnline n\'utilise pas de cookies de traçage ni de cookies publicitaires.',
+        'Seuls des cookies techniques strictement nécessaires au fonctionnement (session, préférence de langue) sont utilisés.',
       ],
     },
   ],
 
   technicalTitle: 'Informations techniques',
-  technicalIntro: 'Le projet est organise comme un monorepo avec un frontend Angular, un backend Django REST et un contrat OpenAPI partage.',
-  repositoryUrlLabel: 'URL du depot',
+  technicalIntro: 'Le projet est organisé comme un monorepo avec un frontend Angular, un backend Django REST et un contrat OpenAPI partagé.',
+  repositoryUrlLabel: 'URL du dépôt',
   cards: {
     repository: {
       title: 'Repository',
-      description: 'Code source, CI et artefacts de contrat dans le meme depot.',
+      description: 'Code source, CI et artefacts de contrat dans le même dépôt.',
       items: [
         'Monorepo GitHub pour le frontend, le backend et les scripts de synchronisation.',
-        'Generation et verification des artefacts OpenAPI en CI.',
-        'Workflows GitHub Actions pour les controles automatises.',
+        'Génération et vérification des artefacts OpenAPI en CI.',
+        'Workflows GitHub Actions pour les contrôles automatisés.',
       ],
     },
     backend: {
       title: 'Backend',
-      description: 'API REST, logique metier et securite applicative.',
+      description: 'API REST, logique métier et sécurité applicative.',
       items: [
         'Django et Django REST Framework',
         'drf-spectacular pour le contrat OpenAPI',
@@ -161,7 +156,7 @@ const FR: AboutUiText = {
       items: [
         'Angular 21, TypeScript et RxJS',
         'PrimeNG 21, PrimeFlex et PrimeIcons',
-        'Client API genere depuis OpenAPI',
+        'Client API généré depuis OpenAPI',
         'Karma, Jasmine et Playwright',
       ],
     },
@@ -169,33 +164,24 @@ const FR: AboutUiText = {
 };
 
 const EN: AboutUiText = {
-  eyebrow: 'About the project',
-  title: 'QuizOnline',
-  lead: 'Platform for authoring, assigning and completing multilingual quizzes with content, domain and session administration.',
-  viewRepository: 'View repository',
-
   tabs: {
-    features: 'Features',
+    company: 'Company',
     legal: 'Legal notice',
     technical: 'Technical',
   },
 
-  featuresTitle: 'Features',
-  featuresIntro: 'Everything you need to create, deliver and track quizzes, all in one platform.',
-  features: [
-    'Seamless onboarding: sign up, confirm your email and log in securely, with password recovery just a click away.',
-    'Truly multilingual: every user works in their own language, and the interface adapts instantly.',
-    'Domain-based organization: structure your content with owners, managers and members, each with the right permissions.',
-    'Custom topics: freely create and organize the subjects that matter to each domain.',
-    'Rich question bank: author questions, answers and explanations in as many languages as you need.',
-    'Two quiz modes: free practice or timed exam, activatable domain by domain.',
-    'Embedded media: illustrate your questions with YouTube videos in a single paste.',
-    'Flexible quiz templates: mix mode, duration, availability schedule and review rules any way you like.',
-    'Express creation: launch a quiz in seconds and deliver a smooth, guided answering experience.',
-    'Targeted assignment: send a quiz to the right people straight from the management dashboard.',
-    'Real-time tracking: view sessions, scores and reviews according to your own visibility rules.',
-    'Built-in messaging: stay informed of every quiz-related event without leaving the platform.',
-  ],
+  companyTitle: 'Company',
+  companyIntro: 'Legal information and contact details of the company that operates QuizOnline.',
+  company: {
+    contactLabel: 'Contact',
+    companyLabel: 'Company',
+    vatLabel: 'VAT / BCE',
+    addressLabel: 'Address',
+    emailLabel: 'Email',
+    emailButton: 'Send me an email',
+    phoneLabel: 'Phone',
+    websiteLabel: 'Website',
+  },
 
   legalTitle: 'Legal notice & data protection',
   legalIntro: 'QuizOnline complies with European regulations on personal data protection.',
@@ -296,33 +282,24 @@ const EN: AboutUiText = {
 };
 
 const NL: AboutUiText = {
-  eyebrow: 'Over het project',
-  title: 'QuizOnline',
-  lead: 'Platform voor het opstellen, toewijzen en afleggen van meertalige quizzen met beheer van content, domeinen en sessies.',
-  viewRepository: 'Repository bekijken',
-
   tabs: {
-    features: 'Functies',
+    company: 'Bedrijf',
     legal: 'Juridisch',
     technical: 'Technisch',
   },
 
-  featuresTitle: 'Functies',
-  featuresIntro: 'Alles wat u nodig hebt om quizzen te maken, af te nemen en op te volgen, in een enkel platform.',
-  features: [
-    'Vlotte start: registreer, bevestig uw e-mail en log veilig in, met wachtwoordherstel op een klik afstand.',
-    'Echt meertalig: elke gebruiker werkt in zijn eigen taal, de interface past zich direct aan.',
-    'Domeingerichte structuur: organiseer uw inhoud met eigenaars, beheerders en leden, elk met de juiste rechten.',
-    'Onderwerpen op maat: maak en organiseer vrij de thema\'s van elk domein.',
-    'Rijke vragenbank: stel vragen, antwoorden en uitleg op in zoveel talen als nodig.',
-    'Twee quizmodi: vrij oefenen of getimed examen, activeerbaar per domein.',
-    'Embedded media: illustreer uw vragen met YouTube-video\'s door simpelweg te plakken.',
-    'Flexibele quiztemplates: combineer modus, duur, beschikbaarheid en correctieregels geheel naar wens.',
-    'Snel aanmaken: start een quiz in enkele seconden en bied een vlot, begeleid antwoordtraject.',
-    'Gerichte toewijzing: stuur een quiz naar de juiste personen rechtstreeks vanuit het beheerdersdashboard.',
-    'Realtime opvolging: bekijk sessies, scores en correcties volgens uw eigen zichtbaarheidsregels.',
-    'Ingebouwde berichten: blijf op de hoogte van elk quizgerelateerd evenement zonder het platform te verlaten.',
-  ],
+  companyTitle: 'Bedrijf',
+  companyIntro: 'Juridische informatie en contactgegevens van het bedrijf dat QuizOnline uitbaat.',
+  company: {
+    contactLabel: 'Contact',
+    companyLabel: 'Bedrijf',
+    vatLabel: 'BTW / KBO',
+    addressLabel: 'Adres',
+    emailLabel: 'E-mail',
+    emailButton: 'Stuur mij een e-mail',
+    phoneLabel: 'Telefoon',
+    websiteLabel: 'Website',
+  },
 
   legalTitle: 'Juridische informatie & gegevensbescherming',
   legalIntro: 'QuizOnline voldoet aan de Europese regelgeving inzake de bescherming van persoonsgegevens.',
@@ -423,33 +400,24 @@ const NL: AboutUiText = {
 };
 
 const IT: AboutUiText = {
-  eyebrow: 'Informazioni sul progetto',
-  title: 'QuizOnline',
-  lead: 'Piattaforma per creare, assegnare e completare quiz multilingue con amministrazione di contenuti, domini e sessioni.',
-  viewRepository: 'Vedi repository',
-
   tabs: {
-    features: 'Funzionalita',
+    company: 'Società',
     legal: 'Note legali',
     technical: 'Tecnico',
   },
 
-  featuresTitle: 'Funzionalita',
-  featuresIntro: 'Tutto il necessario per creare, distribuire e monitorare i quiz in un\'unica piattaforma.',
-  features: [
-    'Onboarding immediato: registrati, conferma la tua email e accedi in sicurezza, con recupero password a portata di clic.',
-    'Veramente multilingue: ogni utente lavora nella propria lingua, l\'interfaccia si adatta all\'istante.',
-    'Organizzazione per dominio: struttura i contenuti con proprietari, gestori e membri, ciascuno con i permessi giusti.',
-    'Argomenti personalizzati: crea e organizza liberamente le tematiche di ogni dominio.',
-    'Banca domande completa: redigi domande, risposte e spiegazioni in tutte le lingue necessarie.',
-    'Due modalita di quiz: pratica libera o esame cronometrato, attivabili dominio per dominio.',
-    'Media integrati: arricchisci le domande con video YouTube con un semplice copia-incolla.',
-    'Template flessibili: combina modalita, durata, calendario di disponibilita e regole di revisione in totale liberta.',
-    'Creazione express: lancia un quiz in pochi secondi e offri un percorso di risposta fluido e guidato.',
-    'Assegnazione mirata: invia un quiz alle persone giuste direttamente dalla dashboard di gestione.',
-    'Monitoraggio in tempo reale: visualizza sessioni, punteggi e revisioni secondo le tue regole di visibilita.',
-    'Messaggistica integrata: resta informato su ogni evento legato ai quiz senza uscire dalla piattaforma.',
-  ],
+  companyTitle: 'Società',
+  companyIntro: 'Informazioni legali e contatti della società che gestisce QuizOnline.',
+  company: {
+    contactLabel: 'Contatto',
+    companyLabel: 'Società',
+    vatLabel: 'P.IVA / BCE',
+    addressLabel: 'Indirizzo',
+    emailLabel: 'Email',
+    emailButton: 'Inviami una email',
+    phoneLabel: 'Telefono',
+    websiteLabel: 'Sito web',
+  },
 
   legalTitle: 'Note legali e protezione dei dati',
   legalIntro: 'QuizOnline rispetta la normativa europea sulla protezione dei dati personali.',
@@ -550,33 +518,24 @@ const IT: AboutUiText = {
 };
 
 const ES: AboutUiText = {
-  eyebrow: 'Acerca del proyecto',
-  title: 'QuizOnline',
-  lead: 'Plataforma para crear, asignar y completar cuestionarios multilingues con administracion de contenidos, dominios y sesiones.',
-  viewRepository: 'Ver repositorio',
-
   tabs: {
-    features: 'Funciones',
+    company: 'Empresa',
     legal: 'Aviso legal',
     technical: 'Tecnico',
   },
 
-  featuresTitle: 'Funciones',
-  featuresIntro: 'Todo lo que necesitas para crear, distribuir y supervisar tus cuestionarios en una sola plataforma.',
-  features: [
-    'Incorporacion fluida: registrate, confirma tu email e inicia sesion de forma segura, con recuperacion de contrasena a un clic.',
-    'Realmente multilingue: cada usuario trabaja en su idioma, la interfaz se adapta al instante.',
-    'Organizacion por dominios: estructura tu contenido con propietarios, gestores y miembros, cada uno con los permisos adecuados.',
-    'Temas a medida: crea y organiza libremente las tematicas de cada dominio.',
-    'Banco de preguntas completo: redacta preguntas, respuestas y explicaciones en tantos idiomas como necesites.',
-    'Dos modos de cuestionario: practica libre o examen cronometrado, activables dominio por dominio.',
-    'Medios integrados: ilustra tus preguntas con videos de YouTube con un simple copiar y pegar.',
-    'Plantillas flexibles: combina modo, duracion, calendario de disponibilidad y reglas de correccion con total libertad.',
-    'Creacion express: lanza un cuestionario en segundos y ofrece una experiencia de respuesta fluida y guiada.',
-    'Asignacion dirigida: envia un cuestionario a las personas adecuadas directamente desde el panel de gestion.',
-    'Seguimiento en tiempo real: visualiza sesiones, puntuaciones y correcciones segun tus propias reglas de visibilidad.',
-    'Mensajeria integrada: mantente al dia de cada evento relacionado con tus cuestionarios sin salir de la plataforma.',
-  ],
+  companyTitle: 'Empresa',
+  companyIntro: 'Información legal y datos de contacto de la empresa que opera QuizOnline.',
+  company: {
+    contactLabel: 'Contacto',
+    companyLabel: 'Empresa',
+    vatLabel: 'IVA / BCE',
+    addressLabel: 'Dirección',
+    emailLabel: 'Correo',
+    emailButton: 'Enviarme un correo',
+    phoneLabel: 'Teléfono',
+    websiteLabel: 'Sitio web',
+  },
 
   legalTitle: 'Aviso legal y proteccion de datos',
   legalIntro: 'QuizOnline cumple con la normativa europea sobre proteccion de datos personales.',

@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@ang
 import {TabsModule} from 'primeng/tabs';
 
 import {UserService} from '../../services/user/user';
+import {CONTACT_INFO, emailDisplay, openContactEmail, phoneDisplay} from '../../shared/contact';
 import {getAboutUiText} from './about.i18n';
 
 @Component({
@@ -17,5 +18,12 @@ export class About {
   protected readonly repositoryUrl = 'https://github.com/Foxugly/QuizOnline';
   protected readonly ui = computed(() => getAboutUiText(this.userService.currentLang));
   protected readonly technicalCardKeys = ['repository', 'backend', 'frontend'] as const;
-  protected readonly activeTab = signal('features');
+  protected readonly activeTab = signal('company');
+  protected readonly contact = CONTACT_INFO;
+  protected readonly emailDisplay = emailDisplay();
+  protected readonly phoneDisplay = phoneDisplay();
+
+  protected emailClick(): void {
+    openContactEmail('[TrainingManager]');
+  }
 }

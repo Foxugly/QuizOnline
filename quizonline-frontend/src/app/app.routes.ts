@@ -11,6 +11,7 @@ export const routes: Routes = [
   {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
   {path: 'donate', loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
   {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},
+  {path: 'features', loadComponent: () => import('./pages/features/features').then((m) => m.Features)},
   {
     path: 'preferences',
     loadComponent: () => import('./pages/auth/preferences/preferences').then((m) => m.Preferences),

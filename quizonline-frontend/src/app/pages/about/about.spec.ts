@@ -26,7 +26,7 @@ describe('About', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should default to features tab', () => {
-    expect(fixture.componentInstance['activeTab']()).toBe('features');
+  it('should default to company tab', () => {
+    expect(fixture.componentInstance['activeTab']()).toBe('company');
   });
 });

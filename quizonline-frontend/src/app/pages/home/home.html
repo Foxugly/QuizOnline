@@ -8,6 +8,10 @@
       <div class="hero__actions">
         <p-button [routerLink]="primaryCta()" [label]="primaryCtaLabel()"></p-button>
         <p-button [routerLink]="secondaryCta()" [label]="secondaryCtaLabel()" variant="outlined"></p-button>
+        <button (click)="contactClick()" class="hero__contact" type="button">
+          <i class="pi pi-envelope"></i>
+          <span>{{ ui().home.contactCta }}</span>
+        </button>
       </div>
     </div>
 
@@ -27,32 +31,4 @@
     </aside>
   </header>
 
-  <section class="highlights">
-    @for (item of ui().home.highlights; track item.title) {
-      <article class="highlight-card">
-        <h2>{{ item.title }}</h2>
-        <p>{{ item.description }}</p>
-      </article>
-    }
-  </section>
-
-  <section class="home-grid">
-    <article class="info-card">
-      <h2>{{ ui().home.capabilitiesTitle }}</h2>
-      <ul>
-        @for (item of ui().home.capabilities; track item) {
-          <li>{{ item }}</li>
-        }
-      </ul>
-    </article>
-
-    <article class="info-card">
-      <h2>{{ ui().home.quickLinksTitle }}</h2>
-      <div class="quick-links">
-        @for (item of quickLinks; track item.key) {
-          <a [routerLink]="item.link" class="quick-link">{{ ui().home.quickLinks[item.key] }}</a>
-        }
-      </div>
-    </article>
-  </section>
 </section>

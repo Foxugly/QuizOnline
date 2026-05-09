@@ -1,0 +1,145 @@
+.features-page {
+  display: block;
+  margin: -1.5rem;
+}
+
+.features-section {
+  padding: 4rem 1.5rem;
+}
+
+.features-section:nth-of-type(odd) {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.features-section__container {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.features-section__header {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0 0 2.5rem;
+  max-width: 56rem;
+}
+
+.features-section__badge {
+  align-items: center;
+  background: var(--badge-bg);
+  border-radius: 999px;
+  color: var(--badge-color);
+  display: inline-flex;
+  font-size: 0.85rem;
+  font-weight: 700;
+  gap: 0.55rem;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1rem;
+  width: fit-content;
+}
+
+.features-section__badge .pi {
+  font-size: 0.95rem;
+}
+
+.features-section__title {
+  color: #0f172a;
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.features-section__intro {
+  color: #475569;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 52rem;
+}
+
+.features-section[data-slug='domains'] {
+  --badge-bg: rgba(14, 165, 233, 0.12);
+  --badge-color: #0369a1;
+}
+
+.features-section[data-slug='subjects'] {
+  --badge-bg: rgba(168, 85, 247, 0.12);
+  --badge-color: #6b21a8;
+}
+
+.features-section[data-slug='questions'] {
+  --badge-bg: rgba(16, 185, 129, 0.14);
+  --badge-color: #047857;
+}
+
+.features-section[data-slug='quizzes'] {
+  --badge-bg: rgba(245, 158, 11, 0.16);
+  --badge-color: #b45309;
+}
+
+.features-section[data-slug='platform'] {
+  --badge-bg: rgba(100, 116, 139, 0.14);
+  --badge-color: #334155;
+}
+
+.features-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+}
+
+.feature-card {
+  align-content: start;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.4rem 1.3rem;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+.feature-card:hover {
+  border-color: var(--badge-color);
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.08);
+  transform: translateY(-3px);
+}
+
+.feature-card__icon {
+  align-items: center;
+  background: var(--badge-bg);
+  border-radius: 14px;
+  color: var(--badge-color);
+  display: inline-flex;
+  font-size: 1.2rem;
+  height: 2.65rem;
+  justify-content: center;
+  width: 2.65rem;
+}
+
+.feature-card h3 {
+  color: #0f172a;
+  font-size: 1.05rem;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+.feature-card p {
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .features-section {
+    padding: 2.75rem 1.25rem;
+  }
+
+  .features-section__header {
+    margin-bottom: 2rem;
+  }
+}

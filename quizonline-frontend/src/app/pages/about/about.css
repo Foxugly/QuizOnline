@@ -83,6 +83,69 @@
   line-height: 1.65;
 }
 
+/* ── Company tab ── */
+.company-list {
+  display: grid;
+  gap: 0.85rem 1.25rem;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  margin: 0;
+}
+
+.company-list dt {
+  color: #4f6170;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-transform: uppercase;
+  align-self: start;
+  padding-top: 0.15rem;
+}
+
+.company-list dd {
+  color: #1e2c38;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.contact-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contact-btn {
+  align-items: center;
+  background: #1e2c38;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  transition: background-color 160ms ease;
+}
+
+.contact-btn:hover {
+  background: #0f172a;
+}
+
+@media (max-width: 640px) {
+  .company-list {
+    grid-template-columns: 1fr;
+    gap: 0.4rem 0;
+  }
+
+  .company-list dd {
+    margin-bottom: 0.6rem;
+  }
+}
+
 /* ── Features tab ── */
 .feature-list {
   margin: 0;

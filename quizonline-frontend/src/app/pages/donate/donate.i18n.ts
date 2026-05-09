@@ -1,9 +1,6 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 
 export type DonateUiText = {
-  eyebrow: string;
-  title: string;
-  lead: string;
   whyTitle: string;
   reasons: Array<{icon: string; title: string; description: string}>;
   ctaTitle: string;
@@ -15,44 +12,38 @@ export type DonateUiText = {
 };
 
 const FR: DonateUiText = {
-  eyebrow: 'Soutenir le projet',
-  title: 'Aidez QuizOnline a grandir',
-  lead: 'QuizOnline est un projet open-source gratuit. Votre soutien permet de maintenir la plateforme, corriger les bugs et developper de nouvelles fonctionnalites.',
   whyTitle: 'Pourquoi soutenir QuizOnline ?',
   reasons: [
     {
       icon: 'pi pi-code',
       title: 'Open-source et gratuit',
-      description: 'Pas d\'abonnement, pas de publicite. Le code est libre et le restera.',
+      description: 'Pas d\'abonnement, pas de publicité. Le code est libre et le restera.',
     },
     {
       icon: 'pi pi-server',
-      title: 'Hebergement et infrastructure',
-      description: 'Les serveurs, les certificats SSL et la livraison des emails ont un cout reel.',
+      title: 'Hébergement et infrastructure',
+      description: 'Les serveurs, les certificats SSL et la livraison des emails ont un coût réel.',
     },
     {
       icon: 'pi pi-wrench',
       title: 'Maintenance continue',
-      description: 'Mises a jour de securite, corrections de bugs et compatibilite avec les nouvelles versions.',
+      description: 'Mises à jour de sécurité, corrections de bugs et compatibilité avec les nouvelles versions.',
     },
     {
       icon: 'pi pi-sparkles',
-      title: 'Nouvelles fonctionnalites',
-      description: 'Chaque contribution accelere le developpement de fonctionnalites demandees par la communaute.',
+      title: 'Nouvelles fonctionnalités',
+      description: 'Chaque contribution accélère le développement de fonctionnalités demandées par la communauté.',
     },
   ],
   ctaTitle: 'Faire un don',
-  ctaDescription: 'Les dons sont geres via GitHub Sponsors. Vous pouvez faire un don ponctuel ou mettre en place un soutien recurrent.',
+  ctaDescription: 'Les dons sont gérés via GitHub Sponsors. Vous pouvez faire un don ponctuel ou mettre en place un soutien récurrent.',
   ctaButton: 'Soutenir sur GitHub Sponsors',
-  ctaNote: 'Vous serez redirige vers GitHub Sponsors dans un nouvel onglet.',
+  ctaNote: 'Vous serez redirigé vers GitHub Sponsors dans un nouvel onglet.',
   thanksTitle: 'Merci !',
-  thanksDescription: 'Chaque contribution, meme modeste, fait la difference. Merci de croire en ce projet.',
+  thanksDescription: 'Chaque contribution, même modeste, fait la différence. Merci de croire en ce projet.',
 };
 
 const EN: DonateUiText = {
-  eyebrow: 'Support the project',
-  title: 'Help QuizOnline grow',
-  lead: 'QuizOnline is a free open-source project. Your support helps maintain the platform, fix bugs and develop new features.',
   whyTitle: 'Why support QuizOnline?',
   reasons: [
     {
@@ -85,9 +76,6 @@ const EN: DonateUiText = {
 };
 
 const NL: DonateUiText = {
-  eyebrow: 'Steun het project',
-  title: 'Help QuizOnline groeien',
-  lead: 'QuizOnline is een gratis open-source project. Uw steun helpt het platform te onderhouden, bugs te verhelpen en nieuwe functies te ontwikkelen.',
   whyTitle: 'Waarom QuizOnline steunen?',
   reasons: [
     {
@@ -120,9 +108,6 @@ const NL: DonateUiText = {
 };
 
 const IT: DonateUiText = {
-  eyebrow: 'Sostieni il progetto',
-  title: 'Aiuta QuizOnline a crescere',
-  lead: 'QuizOnline e un progetto open-source gratuito. Il tuo supporto aiuta a mantenere la piattaforma, correggere bug e sviluppare nuove funzionalita.',
   whyTitle: 'Perche sostenere QuizOnline?',
   reasons: [
     {
@@ -155,9 +140,6 @@ const IT: DonateUiText = {
 };
 
 const ES: DonateUiText = {
-  eyebrow: 'Apoya el proyecto',
-  title: 'Ayuda a QuizOnline a crecer',
-  lead: 'QuizOnline es un proyecto open-source gratuito. Tu apoyo ayuda a mantener la plataforma, corregir errores y desarrollar nuevas funcionalidades.',
   whyTitle: 'Por que apoyar QuizOnline?',
   reasons: [
     {

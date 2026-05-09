@@ -1,0 +1,26 @@
+<article class="features-page">
+  @for (section of ui().sections; track section.slug) {
+    <section class="features-section" [attr.data-slug]="section.slug">
+      <div class="features-section__container">
+        <header class="features-section__header">
+          <span class="features-section__badge">
+            <i class="pi {{ section.icon }}"></i>
+            {{ section.badge }}
+          </span>
+          <h2 class="features-section__title">{{ section.title }}</h2>
+          <p class="features-section__intro">{{ section.intro }}</p>
+        </header>
+
+        <div class="features-grid">
+          @for (item of section.features; track item.title) {
+            <article class="feature-card">
+              <span class="feature-card__icon"><i class="pi {{ item.icon }}"></i></span>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.description }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</article>

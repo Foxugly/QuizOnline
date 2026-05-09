@@ -1,18 +1,9 @@
 <section class="about-page">
-  <header class="hero">
-    <p class="eyebrow">{{ ui().eyebrow }}</p>
-    <h1>{{ ui().title }}</h1>
-    <p class="lead">{{ ui().lead }}</p>
-    <a class="repo-link" [href]="repositoryUrl" rel="noreferrer" target="_blank">
-      {{ ui().viewRepository }}
-    </a>
-  </header>
-
   <p-tabs [(value)]="activeTab">
     <p-tablist>
-      <p-tab value="features">
-        <span class="pi pi-star tab-icon"></span>
-        <span>{{ ui().tabs.features }}</span>
+      <p-tab value="company">
+        <span class="pi pi-building tab-icon"></span>
+        <span>{{ ui().tabs.company }}</span>
       </p-tab>
       <p-tab value="legal">
         <span class="pi pi-shield tab-icon"></span>
@@ -25,16 +16,47 @@
     </p-tablist>
 
     <p-tabpanels>
-      <!-- ── Features ── -->
-      <p-tabpanel value="features">
+      <!-- ── Société ── -->
+      <p-tabpanel value="company">
         <article class="tab-content">
-          <h2>{{ ui().featuresTitle }}</h2>
-          <p class="tab-intro">{{ ui().featuresIntro }}</p>
-          <ul class="feature-list">
-            @for (item of ui().features; track item) {
-              <li>{{ item }}</li>
-            }
-          </ul>
+          <h2>{{ ui().companyTitle }}</h2>
+          <p class="tab-intro">{{ ui().companyIntro }}</p>
+          <dl class="company-list">
+            <dt>{{ ui().company.contactLabel }}</dt>
+            <dd>{{ contact.name }}</dd>
+
+            <dt>{{ ui().company.companyLabel }}</dt>
+            <dd>{{ contact.company }}</dd>
+
+            <dt>{{ ui().company.vatLabel }}</dt>
+            <dd class="mono">{{ contact.vat }}</dd>
+
+            <dt>{{ ui().company.addressLabel }}</dt>
+            <dd>
+              @for (line of contact.addressLines; track line; let last = $last) {
+                <span>{{ line }}</span>@if (!last) {<br>}
+              }
+            </dd>
+
+            <dt>{{ ui().company.emailLabel }}</dt>
+            <dd class="contact-row">
+              <span class="mono">{{ emailDisplay }}</span>
+              <button (click)="emailClick()" class="contact-btn" type="button">
+                <i class="pi pi-envelope"></i>
+                <span>{{ ui().company.emailButton }}</span>
+              </button>
+            </dd>
+
+            <dt>{{ ui().company.phoneLabel }}</dt>
+            <dd class="mono">{{ phoneDisplay }}</dd>
+
+            <dt>{{ ui().company.websiteLabel }}</dt>
+            <dd>
+              <a [href]="contact.websiteUrl" class="mono mono-link" rel="noreferrer noopener" target="_blank">
+                {{ contact.websiteLabel }}
+              </a>
+            </dd>
+          </dl>
         </article>
       </p-tabpanel>
 
