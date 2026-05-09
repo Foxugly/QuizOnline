@@ -1,5 +1,5 @@
-<header class="topbar">
-  <div class="topbar__inner">
+<header class="topbar" #mobileMenuRoot>
+  <div class="topbar__inner" [class.topbar__inner--menu-open]="mobileMenuOpen()">
     <button (click)="goHome()" class="brand" type="button">
       <span class="brand__mark">
         <img [alt]="app.name" [src]="app.logoSvg" class="brand__logo">
@@ -7,6 +7,16 @@
       <span class="brand__text">
         <span class="brand__name">{{ app.name }}</span>
       </span>
+    </button>
+
+    <button
+      class="topbar__toggle"
+      type="button"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
+      (click)="toggleMobileMenu($event)"
+    >
+      <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
     </button>
 
     <nav class="nav" [attr.aria-label]="ui.topmenu.quiz">

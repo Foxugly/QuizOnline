@@ -35,6 +35,9 @@ quizonline-frontend/.angular/
 quizonline-frontend/coverage/
 quizonline-frontend/test-results/
 quizonline-frontend/playwright-report/
+.playwright-mcp/
+topbar-*.png
+topbar-*.jpeg
 
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock

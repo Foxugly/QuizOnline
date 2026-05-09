@@ -3,6 +3,7 @@ export type TopMenuUiText = {
   domains: string;
   subjects: string;
   questions: string;
+  features: string;
   donate: string;
   about: string;
   alertsAria: string;
@@ -40,15 +41,7 @@ export type HomeUiText = {
   languages: string;
   features: string;
   featuresValue: string;
-  highlights: Array<{title: string; description: string;}>;
-  capabilitiesTitle: string;
-  capabilities: string[];
-  quickLinksTitle: string;
-  quickLinks: {
-    catalog: string;
-    preferences: string;
-    about: string;
-  };
+  contactCta: string;
 };
 
 export type PreferencesUiText = {

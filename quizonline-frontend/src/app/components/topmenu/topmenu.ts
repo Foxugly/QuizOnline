@@ -58,6 +58,7 @@ type AdminNavItem = {
 export class TopMenuComponent implements OnInit {
   @ViewChild('domainMenuRoot') private readonly domainMenuRoot?: ElementRef<HTMLElement>;
   @ViewChild('adminMenuRoot') private readonly adminMenuRoot?: ElementRef<HTMLElement>;
+  @ViewChild('mobileMenuRoot') private readonly mobileMenuRoot?: ElementRef<HTMLElement>;
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -70,6 +71,7 @@ export class TopMenuComponent implements OnInit {
   readonly visibleDomains = signal<DomainReadDto[]>([]);
   readonly domainMenuOpen = signal(false);
   readonly adminMenuOpen = signal(false);
+  readonly mobileMenuOpen = signal(false);
 
   get ui() {
     return getUiText(this.userService.currentLang);
@@ -160,6 +162,11 @@ export class TopMenuComponent implements OnInit {
       });
     }
 
+    items.unshift({
+      label: this.ui.topmenu.features,
+      link: ['/features'],
+    });
+
     items.push(
       {
         label: this.ui.topmenu.donate,
@@ -180,7 +187,15 @@ export class TopMenuComponent implements OnInit {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshUserContext());
+      .subscribe(() => {
+        this.refreshUserContext();
+        this.mobileMenuOpen.set(false);
+      });
+  }
+
+  toggleMobileMenu(event: Event): void {
+    event.stopPropagation();
+    this.mobileMenuOpen.update((value) => !value);
   }
 
   onLangChange(lang: SupportedLanguage): void {
@@ -311,6 +326,9 @@ export class TopMenuComponent implements OnInit {
     }
     if (!this.adminMenuRoot?.nativeElement.contains(target)) {
       this.adminMenuOpen.set(false);
+    }
+    if (this.mobileMenuOpen() && !this.mobileMenuRoot?.nativeElement.contains(target)) {
+      this.mobileMenuOpen.set(false);
     }
   }
 

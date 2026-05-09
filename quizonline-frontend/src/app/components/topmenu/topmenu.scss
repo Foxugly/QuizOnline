@@ -1,5 +1,8 @@
 :host {
   display: block;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .topbar {
@@ -14,13 +17,14 @@
 .topbar__inner {
   align-items: center;
   box-sizing: border-box;
+  column-gap: 1.25rem;
   display: grid;
-  gap: 1.5rem;
   grid-template-columns: auto 1fr auto;
   margin: 0 auto;
   max-width: 1440px;
-  min-height: 84px;
-  padding: 1rem 1.5rem;
+  min-height: 60px;
+  padding: 0.45rem 1.1rem;
+  row-gap: 0;
   width: 100%;
 }
 
@@ -41,17 +45,18 @@
   align-items: center;
   background: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
   display: inline-flex;
-  height: 52px;
+  flex-shrink: 0;
+  height: 42px;
   justify-content: center;
-  width: 52px;
+  width: 42px;
 }
 
 .brand__logo {
   display: block;
-  height: 30px;
+  height: 24px;
   width: auto;
 }
 
@@ -59,12 +64,16 @@
   display: flex;
   flex-direction: column;
   gap: 0.12rem;
+  min-width: 0;
 }
 
 .brand__name {
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand__meta {
@@ -72,11 +81,34 @@
   font-size: 0.78rem;
 }
 
+.topbar__toggle {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #f8fafc;
+  cursor: pointer;
+  display: none;
+  height: 2.5rem;
+  justify-content: center;
+  transition: background-color 160ms ease, border-color 160ms ease;
+  width: 2.5rem;
+}
+
+.topbar__toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.topbar__toggle .pi {
+  font-size: 1.1rem;
+}
+
 .nav {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
+  gap: 0.1rem;
   justify-content: center;
 }
 
@@ -84,9 +116,9 @@
   border: 1px solid transparent;
   border-radius: 999px;
   color: rgba(226, 232, 240, 0.88);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.62rem 0.95rem;
+  padding: 0.45rem 0.7rem;
   text-decoration: none;
   transition:
     background-color 160ms ease,
@@ -270,42 +302,117 @@
   z-index: 1;
 }
 
-@media (max-width: 1080px) {
-  .topbar__inner {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-  }
-
+@media (max-width: 1180px) {
   .nav {
-    justify-content: flex-start;
-  }
-
-  .topbar__actions {
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 720px) {
-  .topbar__inner {
-    gap: 1rem;
-    min-height: auto;
-    padding: 0.9rem 1rem;
-  }
-
-  .brand__meta {
-    display: none;
-  }
-
-  .nav {
-    gap: 0.45rem;
+    gap: 0;
   }
 
   .nav__link {
-    padding: 0.54rem 0.8rem;
+    font-size: 0.85rem;
+    padding: 0.42rem 0.55rem;
   }
 
   .topbar__actions {
+    gap: 0.5rem;
+  }
+
+  .domain-trigger {
+    max-width: 11rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .topbar__inner {
+    column-gap: 0.85rem;
+    grid-template-columns: 1fr auto;
+    min-height: 56px;
+    padding: 0.4rem 0.85rem;
+    row-gap: 0;
+  }
+
+  .topbar__toggle {
+    display: inline-flex;
+  }
+
+  .nav,
+  .topbar__actions {
+    display: none;
+    grid-column: 1 / -1;
+  }
+
+  .topbar__inner--menu-open {
+    row-gap: 0.85rem;
+  }
+
+  .topbar__inner--menu-open .nav,
+  .topbar__inner--menu-open .topbar__actions {
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    display: flex;
+    padding: 0.75rem;
+  }
+
+  .topbar__inner--menu-open .nav {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.25rem;
+    justify-content: flex-start;
+  }
+
+  .nav__link {
+    border-radius: 0.8rem;
+    padding: 0.7rem 0.95rem;
+    text-align: left;
+  }
+
+  .topbar__inner--menu-open .topbar-menu {
+    width: 100%;
+  }
+
+  .topbar__inner--menu-open .nav__link--button {
+    text-align: left;
+    width: 100%;
+  }
+
+  .topbar__inner--menu-open .topbar__actions {
     flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 0.55rem;
+    justify-content: flex-start;
+  }
+
+  .topbar__inner--menu-open .topbar-dropdown {
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.35rem);
+  }
+
+  .domain-trigger {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar__inner {
+    padding: 0.35rem 0.7rem;
+  }
+
+  .brand {
+    gap: 0.55rem;
+  }
+
+  .brand__mark {
+    border-radius: 12px;
+    height: 36px;
+    width: 36px;
+  }
+
+  .brand__logo {
+    height: 20px;
+  }
+
+  .brand__name {
+    font-size: 0.95rem;
   }
 }

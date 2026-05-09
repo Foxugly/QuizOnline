@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const NL: UiText = {
-  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
+  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden'},
   footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie'},
   home: {
@@ -18,20 +18,7 @@ export const NL: UiText = {
     languages: 'Talen',
     features: 'Functies',
     featuresValue: 'Quizzen, meldingen, toewijzingen, correctie',
-    highlights: [
-      {title: 'Vlotte afname', description: 'Oefen- en examenflows met timer, hervatten en gelokaliseerde correctie.'},
-      {title: 'Contentbeheer', description: 'Multimediavragen, onderwerpen, domeinen en templates in een werkruimte.'},
-      {title: 'Live opvolging', description: 'Toewijzingen, resultaten, meldingen en correctieregels in hetzelfde product.'},
-    ],
-    capabilitiesTitle: 'Wat u kunt doen',
-    capabilities: [
-      'Vraagbanken per domein en onderwerp opbouwen en beheren.',
-      'Oefen- of examenquizzen maken met zichtbaarheidsregels.',
-      'Een quiz toewijzen aan gebruikers en hun resultaten volgen.',
-      'Een sessie herbekijken met juiste antwoorden en uitleg.',
-    ],
-    quickLinksTitle: 'Snelle links',
-    quickLinks: {catalog: 'Quizcatalogus', preferences: 'Voorkeuren', about: 'Over'},
+    contactCta: 'Contact opnemen',
   },
   login: {
     eyebrow: 'Aanmelden', title: 'Toegang tot uw ruimte', subtitle: 'Meld u aan om verder te gaan.',

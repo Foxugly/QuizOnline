@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const IT: UiText = {
-  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
+  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
   userMenu: {preferences: 'Preferenze', changePassword: 'Cambia password', logout: 'Disconnetti', login: 'Accedi'},
   footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione'},
   home: {
@@ -18,20 +18,7 @@ export const IT: UiText = {
     languages: 'Lingue',
     features: 'Funzionalita',
     featuresValue: 'Quiz, messaggi, assegnazioni, revisione',
-    highlights: [
-      {title: 'Esecuzione fluida', description: 'Quiz di pratica o esame con timer, ripresa e revisione localizzata.'},
-      {title: 'Gestione contenuti', description: 'Domande multimediali, argomenti, domini e template in un’unica interfaccia.'},
-      {title: 'Monitoraggio live', description: 'Assegnazioni, risultati, messaggi e regole di revisione nello stesso prodotto.'},
-    ],
-    capabilitiesTitle: 'Cosa puoi fare',
-    capabilities: [
-      'Creare e organizzare banche di domande per dominio e argomento.',
-      'Comporre quiz di pratica o esame con regole di visibilita.',
-      'Assegnare un quiz agli utenti e seguirne i risultati.',
-      'Rivedere una sessione con risposte corrette e spiegazioni.',
-    ],
-    quickLinksTitle: 'Accessi rapidi',
-    quickLinks: {catalog: 'Catalogo quiz', preferences: 'Preferenze', about: 'Informazioni'},
+    contactCta: 'Contattami',
   },
   login: {
     eyebrow: 'Accesso', title: 'Accedi al tuo spazio', subtitle: 'Autenticati per continuare.',

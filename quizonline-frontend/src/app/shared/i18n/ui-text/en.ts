@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const EN: UiText = {
-  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences'},
+  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences'},
   userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login'},
   footer: {baseline: 'Quiz and domain content management platform.', version: 'Version'},
   home: {
@@ -18,20 +18,7 @@ export const EN: UiText = {
     languages: 'Languages',
     features: 'Features',
     featuresValue: 'Quizzes, messages, assignments, review',
-    highlights: [
-      {title: 'Smooth delivery', description: 'Practice and exam flows with timer, resume support and localized review.'},
-      {title: 'Content management', description: 'Multimedia questions, subjects, domains and templates in one workspace.'},
-      {title: 'Live follow-up', description: 'Assignments, results, messages and review rules in the same product.'},
-    ],
-    capabilitiesTitle: 'What you can do',
-    capabilities: [
-      'Build and organize question banks by domain and subject.',
-      'Create practice or exam quizzes with visibility rules.',
-      'Assign a quiz to users and monitor their results.',
-      'Review a session with correct answers and explanations.',
-    ],
-    quickLinksTitle: 'Quick links',
-    quickLinks: {catalog: 'Quiz catalog', preferences: 'Preferences', about: 'About'},
+    contactCta: 'Contact me',
   },
   login: {
     eyebrow: 'Login', title: 'Access your workspace', subtitle: 'Sign in to continue.',

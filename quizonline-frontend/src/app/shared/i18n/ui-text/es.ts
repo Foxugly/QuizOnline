@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const ES: UiText = {
-  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
+  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contrasena', logout: 'Cerrar sesion', login: 'Iniciar sesion'},
   footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
   home: {
@@ -18,20 +18,7 @@ export const ES: UiText = {
     languages: 'Idiomas',
     features: 'Funciones',
     featuresValue: 'Cuestionarios, mensajes, asignaciones, revision',
-    highlights: [
-      {title: 'Uso fluido', description: 'Cuestionarios de practica o examen con temporizador, reanudacion y revision localizada.'},
-      {title: 'Gestion de contenido', description: 'Preguntas multimedia, temas, dominios y plantillas en una sola interfaz.'},
-      {title: 'Seguimiento en vivo', description: 'Asignaciones, resultados, mensajes y reglas de revision en el mismo producto.'},
-    ],
-    capabilitiesTitle: 'Lo que puedes hacer',
-    capabilities: [
-      'Crear y organizar bancos de preguntas por dominio y tema.',
-      'Componer cuestionarios de practica o examen con reglas de visibilidad.',
-      'Asignar un cuestionario a usuarios y seguir sus resultados.',
-      'Revisar una sesion con respuestas correctas y explicaciones.',
-    ],
-    quickLinksTitle: 'Accesos rapidos',
-    quickLinks: {catalog: 'Catalogo de cuestionarios', preferences: 'Preferencias', about: 'Acerca de'},
+    contactCta: 'Contáctame',
   },
   login: {
     eyebrow: 'Acceso', title: 'Accede a tu espacio', subtitle: 'Inicia sesion para continuar.',
