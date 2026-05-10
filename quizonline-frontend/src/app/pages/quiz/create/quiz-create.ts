@@ -350,13 +350,13 @@ export class QuizCreate implements OnInit {
         if (!value) {
           return;
         }
-        const detailControl = this.quizForm.controls.detail_available_at;
-        if (!detailControl.value) {
-          detailControl.setValue(value, {emitEvent: false});
-          if (this.quizForm.controls.detail_visibility.value !== VisibilityEnumDto.Scheduled) {
-            this.quizForm.controls.detail_visibility.setValue(VisibilityEnumDto.Scheduled);
-          }
+        // Detail visibility datetime always mirrors the one chosen for the
+        // result. The detail visibility itself is bumped to "scheduled" if
+        // it isn't already, so the date actually takes effect.
+        if (this.quizForm.controls.detail_visibility.value !== VisibilityEnumDto.Scheduled) {
+          this.quizForm.controls.detail_visibility.setValue(VisibilityEnumDto.Scheduled);
         }
+        this.quizForm.controls.detail_available_at.setValue(value, {emitEvent: false});
       });
 
     this.quizForm.controls.detail_visibility.valueChanges

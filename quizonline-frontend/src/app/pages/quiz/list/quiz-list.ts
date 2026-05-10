@@ -3,7 +3,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetection
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
-import {catchError, finalize, forkJoin, map, of} from 'rxjs';
+import {catchError, finalize, forkJoin, of} from 'rxjs';
 import {TabsModule} from 'primeng/tabs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
@@ -17,6 +17,7 @@ import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {AssignableRecipient, QuizTemplateListItem, UserQuizListItem} from './quiz-list.models';
 import {DomainService} from '../../../services/domain/domain';
+import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
 import {getQuizListUiText} from './quiz-list.i18n';
@@ -98,23 +99,55 @@ export class QuizListPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.loadQuizListData()
+
+    // 1) Fetch the small bits first (domains + current user) so the action
+    //    buttons (compose / quick) can render as soon as we know the user's
+    //    permissions, without waiting for the templates / sessions list.
+    forkJoin({
+      domains: this.domainService.list(),
+      me: this.getCurrentUser(),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({domains, me}) => {
+          this.domains.set(domains);
+          this.currentUserId.set(me?.id ?? null);
+          this.loadTemplatesAndSessions(domains, me);
+        },
+        error: (err: unknown) => {
+          logApiError('quiz.list.load.context', err);
+          this.error.set(userFacingApiMessage(err, this.uiText().messages.loadError));
+          this.domains.set([]);
+          this.currentUserId.set(null);
+          this.templates.set([]);
+          this.myQuizzes.set([]);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  private loadTemplatesAndSessions(domains: DomainReadDto[], me: CustomUserReadDto | null): void {
+    forkJoin({
+      templates: this.quizService.listTemplates(),
+      quizzes: this.quizService.listQuiz(),
+    })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
       )
       .subscribe({
-        next: ({currentUserId, templates, myQuizzes, domains}) => {
-          this.currentUserId.set(currentUserId);
-          this.domains.set(domains);
-          this.templates.set(templates);
-          this.myQuizzes.set(myQuizzes);
+        next: ({templates, quizzes}) => {
+          const normalizedTemplates = (templates as QuizTemplateListItem[])
+            .map((template) => this.decorateTemplate(template, domains, me))
+            .sort((left, right) => left.title.localeCompare(right.title));
+          const myQuizSessions = me ? quizzes.filter((quiz) => quiz.user === me.id) : [];
+
+          this.templates.set(normalizedTemplates);
+          this.myQuizzes.set(myQuizSessions.map((quiz) => this.toUserQuizListItem(quiz)));
         },
         error: (err: unknown) => {
-          logApiError('quiz.list.load', err);
+          logApiError('quiz.list.load.lists', err);
           this.error.set(userFacingApiMessage(err, this.uiText().messages.loadError));
-          this.currentUserId.set(null);
-          this.domains.set([]);
           this.templates.set([]);
           this.myQuizzes.set([]);
         },
@@ -209,30 +242,6 @@ export class QuizListPage implements OnInit {
     }
 
     return this.userService.getMe().pipe(catchError(() => of(null)));
-  }
-
-  private loadQuizListData() {
-    return forkJoin({
-      templates: this.quizService.listTemplates(),
-      quizzes: this.quizService.listQuiz(),
-      domains: this.domainService.list(),
-      me: this.getCurrentUser(),
-    }).pipe(
-      map(({templates, quizzes, domains, me}) => {
-        const currentUserId = me?.id ?? null;
-        const normalizedTemplates = (templates as QuizTemplateListItem[])
-          .map((template) => this.decorateTemplate(template, domains, me))
-          .sort((left, right) => left.title.localeCompare(right.title));
-        const myQuizSessions = me ? quizzes.filter((quiz) => quiz.user === me.id) : [];
-
-        return {
-          currentUserId,
-          domains,
-          templates: normalizedTemplates,
-          myQuizzes: myQuizSessions.map((quiz) => this.toUserQuizListItem(quiz)),
-        };
-      }),
-    );
   }
 
   private toUserQuizListItem(quiz: QuizListDto): UserQuizListItem {
