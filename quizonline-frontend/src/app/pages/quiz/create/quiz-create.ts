@@ -144,6 +144,8 @@ export class QuizCreate implements OnInit {
     ended_at: [null as Date | null],
     with_duration: [false],
     duration: [10, [Validators.required, Validators.min(1)]],
+    result_visibility: [VisibilityEnumDto.Immediate as VisibilityEnumDto, Validators.required],
+    result_available_at: [null as Date | null],
     detail_visibility: [VisibilityEnumDto.Immediate as VisibilityEnumDto, Validators.required],
     detail_available_at: [null as Date | null],
   });
@@ -330,6 +332,17 @@ export class QuizCreate implements OnInit {
         }
       });
 
+    this.quizForm.controls.result_visibility.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((visibility) => {
+        if (visibility === VisibilityEnumDto.Scheduled) {
+          this.quizForm.controls.result_available_at.enable({emitEvent: false});
+        } else {
+          this.quizForm.controls.result_available_at.disable({emitEvent: false});
+          this.quizForm.controls.result_available_at.setValue(null, {emitEvent: false});
+        }
+      });
+
     this.quizForm.controls.detail_visibility.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((visibility) => {
@@ -353,6 +366,7 @@ export class QuizCreate implements OnInit {
       });
     this.quizForm.controls.started_at.disable({emitEvent: false});
     this.quizForm.controls.ended_at.disable({emitEvent: false});
+    this.quizForm.controls.result_available_at.disable({emitEvent: false});
     this.quizForm.controls.detail_available_at.disable({emitEvent: false});
     this.quizForm.controls.duration.disable({emitEvent: false});
 
@@ -884,7 +898,8 @@ export class QuizCreate implements OnInit {
         : 10,
       active: this.quizForm.controls.active.value,
       is_public: this.quizForm.controls.is_public.value,
-      result_visibility: VisibilityEnumDto.Immediate,
+      result_visibility: this.quizForm.controls.result_visibility.value,
+      result_available_at: this.toIsoDateTime(this.quizForm.controls.result_available_at.value),
       detail_visibility: this.quizForm.controls.detail_visibility.value,
       detail_available_at: this.toIsoDateTime(this.quizForm.controls.detail_available_at.value),
     } as QuizTemplateLocalizedWriteRequestDto;
@@ -940,6 +955,7 @@ export class QuizCreate implements OnInit {
     const domainId = Number(template.domain ?? 0);
     const isPermanent = template.permanent ?? true;
     const withDuration = template.with_duration ?? false;
+    const resultVisibility = template.result_visibility ?? VisibilityEnumDto.Immediate;
     const detailVisibility = template.detail_visibility ?? VisibilityEnumDto.Immediate;
     const translations = localizedTemplate.translations ?? this.buildFallbackTemplateTranslations(template);
 
@@ -958,6 +974,8 @@ export class QuizCreate implements OnInit {
       ended_at: this.fromIsoDateTime(template.ended_at),
       with_duration: withDuration,
       duration: template.duration ?? 10,
+      result_visibility: resultVisibility,
+      result_available_at: this.fromIsoDateTime(template.result_available_at),
       detail_visibility: detailVisibility,
       detail_available_at: this.fromIsoDateTime(template.detail_available_at),
     }, {emitEvent: false});
@@ -974,6 +992,12 @@ export class QuizCreate implements OnInit {
       this.quizForm.controls.duration.enable({emitEvent: false});
     } else {
       this.quizForm.controls.duration.disable({emitEvent: false});
+    }
+
+    if (resultVisibility === VisibilityEnumDto.Scheduled) {
+      this.quizForm.controls.result_available_at.enable({emitEvent: false});
+    } else {
+      this.quizForm.controls.result_available_at.disable({emitEvent: false});
     }
 
     if (detailVisibility === VisibilityEnumDto.Scheduled) {

@@ -32,6 +32,8 @@ export type QuizCreateUiText = {
   permanent: string;
   startedAt: string;
   endedAt: string;
+  resultVisibility: string;
+  resultAvailableAt: string;
   detailVisibility: string;
   detailAvailableAt: string;
   quizTitle: string;
@@ -91,6 +93,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     permanent: 'Permanent',
     startedAt: 'Start date',
     endedAt: 'End date',
+    resultVisibility: 'Result visibility',
+    resultAvailableAt: 'Result available at',
     detailVisibility: 'Detail visibility',
     detailAvailableAt: 'Detail available at',
     quizTitle: 'Title',
@@ -148,6 +152,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     permanent: 'Permanent',
     startedAt: 'Startdatum',
     endedAt: 'Einddatum',
+    resultVisibility: 'Resultaatzichtbaarheid',
+    resultAvailableAt: 'Resultaat beschikbaar vanaf',
     detailVisibility: 'Detailzichtbaarheid',
     detailAvailableAt: 'Details beschikbaar vanaf',
     quizTitle: 'Titel',
@@ -205,6 +211,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     permanent: 'Permanente',
     startedAt: 'Data inizio',
     endedAt: 'Data fine',
+    resultVisibility: 'Visibilità risultato',
+    resultAvailableAt: 'Risultato disponibile dal',
     detailVisibility: 'Visibilità dettagli',
     detailAvailableAt: 'Dettagli disponibili dal',
     quizTitle: 'Titolo',
@@ -262,6 +270,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     permanent: 'Permanente',
     startedAt: 'Fecha de inicio',
     endedAt: 'Fecha de fin',
+    resultVisibility: 'Visibilidad del resultado',
+    resultAvailableAt: 'Resultado disponible desde',
     detailVisibility: 'Visibilidad del detalle',
     detailAvailableAt: 'Detalle disponible desde',
     quizTitle: 'Título',
@@ -319,6 +329,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     permanent: 'Permanent',
     startedAt: 'Date de début',
     endedAt: 'Date de fin',
+    resultVisibility: 'Visibilité du résultat',
+    resultAvailableAt: 'Résultat disponible à partir de',
     detailVisibility: 'Visibilité du détail',
     detailAvailableAt: 'Détail disponible à partir de',
     quizTitle: 'Titre',

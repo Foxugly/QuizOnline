@@ -149,6 +149,33 @@
                 </div>
 
                 <div class="meta-item">
+                  <label class="meta-label">{{ uiText().resultVisibility }}</label>
+                  <div class="meta-value">
+                    <p-select
+                      appendTo="body"
+                      formControlName="result_visibility"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="visibilityOptions()">
+                    </p-select>
+                  </div>
+                </div>
+
+                <div class="meta-item">
+                  <label class="meta-label">{{ uiText().resultAvailableAt }}</label>
+                  <div class="meta-value">
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="result_available_at"
+                      inputId="result_available_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
+
+                <div class="meta-item">
                   <label class="meta-label">{{ uiText().detailVisibility }}</label>
                   <div class="meta-value">
                     <p-select
