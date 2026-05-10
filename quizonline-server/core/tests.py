@@ -94,7 +94,7 @@ class CoreMailerTests(TestCase):
         send_quiz_assignment_email(quiz)
 
         outbound = OutboundEmail.objects.order_by("-id").first()
-        self.assertEqual(outbound.subject, f"{settings.NAME_APP} - nouveau quiz a completer")
+        self.assertEqual(outbound.subject, f"{settings.NAME_APP} - nouveau quiz à compléter")
         self.assertIn("Bonjour", outbound.body)
         self.assertIn("Lien", outbound.body)
 
