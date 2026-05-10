@@ -136,17 +136,17 @@ if [ -z "$WEB_SERVER" ]; then
 elif systemctl is-active --quiet "$WEB_SERVER"; then
   ok "$WEB_SERVER is running"
 
-  # Config syntax test
+  # Config syntax test (use absolute paths so sudoers matches)
   case "$WEB_SERVER" in
     nginx)
-      if sudo nginx -t 2>&1 | grep -q "syntax is ok"; then
+      if sudo /usr/sbin/nginx -t 2>&1 | grep -q "syntax is ok"; then
         ok "nginx config: syntax OK"
       else
         warn "nginx config: syntax error"
       fi
       ;;
     apache2)
-      if sudo apachectl configtest 2>&1 | grep -q "Syntax OK"; then
+      if sudo /usr/sbin/apachectl configtest 2>&1 | grep -q "Syntax OK"; then
         ok "apache2 config: Syntax OK"
       else
         warn "apache2 config: syntax error"
@@ -165,31 +165,23 @@ else
   warn "Backend API not responding on :8000"
 fi
 
-# SSL certificate — try domain-specific path, then parent domain (shared cert)
-CERT_FILE=""
-for candidate in \
-    "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
-    "/etc/letsencrypt/live/${DOMAIN#*.}/fullchain.pem"; do
-  if [ -f "$candidate" ]; then
-    CERT_FILE="$candidate"
-    break
-  fi
-done
-
-if [ -n "$CERT_FILE" ]; then
-  EXPIRY=$(openssl x509 -enddate -noout -in "$CERT_FILE" 2>/dev/null | cut -d= -f2)
+# SSL certificate — query the live TLS endpoint (works for wildcard /
+# shared certs without needing filesystem access)
+EXPIRY=$(echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null \
+  | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+if [ -n "$EXPIRY" ]; then
   EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s 2>/dev/null || echo 0)
   NOW_EPOCH=$(date +%s)
   DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
   if [ "$DAYS_LEFT" -gt 7 ]; then
-    ok "SSL certificate valid ($DAYS_LEFT days left) — $CERT_FILE"
+    ok "SSL certificate valid ($DAYS_LEFT days left)"
   elif [ "$DAYS_LEFT" -gt 0 ]; then
     warn "SSL certificate expires in $DAYS_LEFT days! Run: sudo certbot renew"
   else
     warn "SSL certificate EXPIRED! Run: sudo certbot renew"
   fi
 else
-  warn "SSL certificate not found for $DOMAIN (looked in /etc/letsencrypt/live/)"
+  warn "Could not retrieve SSL certificate from $DOMAIN:443"
 fi
 
 # HTTPS reachable
