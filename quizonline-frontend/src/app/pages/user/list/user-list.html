@@ -11,7 +11,15 @@
 
   <div class="card">
     <div class="card-head">
-      <h2 class="card-title"></h2>
+      <app-bulk-actions
+        [options]="bulkActionOptions()"
+        placeholder="Actions groupées…"
+        applyLabel="Appliquer"
+        [count]="selectedCount()"
+        [countText]="selectedCount() > 1 ? selectedCount() + ' sélectionnés' : selectedCount() + ' sélectionné'"
+        [applying]="applyingBulk()"
+        (apply)="applyBulk($event)">
+      </app-bulk-actions>
 
       <div class="card-actions">
         <input
@@ -32,10 +40,14 @@
     </div>
 
     <p-table
+      [dataKey]="'id'"
       [paginator]="rowsData().length > rows"
       [rows]="rows"
       [rowsPerPageOptions]="[5, 10, 20, 50]"
       [value]="rowsData()"
+      [selection]="selectedRows()"
+      (selectionChange)="onSelectionChange($event)"
+      selectionMode="multiple"
       showGridlines
       size="small"
       sortMode="single"
@@ -44,6 +56,7 @@
     >
       <ng-template #header>
         <tr>
+          <th class="col-checkbox" style="width: 3rem"></th>
           <th pSortableColumn="username" style="text-align: center;">{{ ui().pages.userList.username }} <p-sortIcon field="username"></p-sortIcon></th>
           <th pSortableColumn="fullName" style="text-align: center;">{{ ui().pages.userList.name }} <p-sortIcon field="fullName"></p-sortIcon></th>
           <th pSortableColumn="email" style="text-align: center;">{{ ui().pages.userList.email }} <p-sortIcon field="email"></p-sortIcon></th>
@@ -56,6 +69,9 @@
 
       <ng-template #body let-user>
         <tr>
+          <td class="col-checkbox">
+            <p-tableCheckbox [value]="user"></p-tableCheckbox>
+          </td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullName || '-' }}</td>
           <td>{{ user.email || '-' }}</td>
@@ -97,3 +113,5 @@
     </p-table>
   </div>
 </div>
+
+<p-confirmDialog></p-confirmDialog>
