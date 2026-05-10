@@ -170,6 +170,7 @@ class QuizTemplateSerializer(RequestUserMixin, serializers.ModelSerializer):
             "result_available_at",
             "detail_visibility",
             "detail_available_at",
+            "shuffle_questions",
             "is_public",
             "created_by",
             "created_by_username",
@@ -329,6 +330,7 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
             "result_available_at",
             "detail_visibility",
             "detail_available_at",
+            "shuffle_questions",
         ]
 
 
