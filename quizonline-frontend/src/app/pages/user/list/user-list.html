@@ -44,7 +44,6 @@
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="id" style="text-align: center;">{{ ui().pages.userList.id }} <p-sortIcon field="id"></p-sortIcon></th>
           <th pSortableColumn="username" style="text-align: center;">{{ ui().pages.userList.username }} <p-sortIcon field="username"></p-sortIcon></th>
           <th pSortableColumn="fullName" style="text-align: center;">{{ ui().pages.userList.name }} <p-sortIcon field="fullName"></p-sortIcon></th>
           <th pSortableColumn="email" style="text-align: center;">{{ ui().pages.userList.email }} <p-sortIcon field="email"></p-sortIcon></th>
@@ -57,7 +56,6 @@
 
       <ng-template #body let-user>
         <tr>
-          <td style="text-align: center;">{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullName || '-' }}</td>
           <td>{{ user.email || '-' }}</td>

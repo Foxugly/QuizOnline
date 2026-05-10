@@ -45,7 +45,6 @@
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="id" style="text-align: center;">ID <p-sortIcon field="id"></p-sortIcon></th>
           <th pSortableColumn="name" style="text-align: center;">Nom <p-sortIcon field="name"></p-sortIcon></th>
           <th pSortableColumn="description" style="text-align: center;">Description <p-sortIcon field="description"></p-sortIcon></th>
           <th pSortableColumn="subjectsCount" style="text-align: center;">Sujets <p-sortIcon field="subjectsCount"></p-sortIcon></th>
@@ -57,8 +56,6 @@
 
       <ng-template #body let-d>
         <tr>
-          <td style="text-align: center;">{{ d.id }}</td>
-
           <td class="truncate">{{ d.name }}</td>
 
           <td class="muted desc-cell">
