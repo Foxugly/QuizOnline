@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, Injector, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormGroup, Validators, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
@@ -58,7 +58,7 @@ import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 type QuizTemplateTranslationValue = {
   title: string;
@@ -157,6 +157,7 @@ export class QuizCreate implements OnInit {
 
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly route = inject(ActivatedRoute);
   private readonly primeng = inject(PrimeNG);
   private readonly domainService = inject(DomainService);
@@ -179,7 +180,7 @@ export class QuizCreate implements OnInit {
   });
 
   readonly uiText = computed(() => this.getUiText(this.currentLang()));
-  readonly editorUi = computed(() => getEditorUiText(this.currentLang()));
+  readonly editorUi = inject(UiTextService).editor;
   readonly datePickerFormat = computed(() => this.uiText().dateFormat);
   readonly pageTitle = computed(() => this.isEditMode() ? this.uiText().editTitle : this.uiText().createTitle);
   readonly pageSubtitle = computed(() => this.isEditMode() ? this.uiText().editSubtitle : this.uiText().createSubtitle);
@@ -300,24 +301,22 @@ export class QuizCreate implements OnInit {
     }
     this.editingTemplateId.set(templateId);
 
-    this.userService.lang$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((lang) => {
-        const nextLang = lang as LanguageEnumDto;
-        this.currentLang.set(nextLang);
-        this.applyDatePickerLocale(nextLang);
+    effect(() => {
+      const nextLang = this.userService.lang() as LanguageEnumDto;
+      this.currentLang.set(nextLang);
+      this.applyDatePickerLocale(nextLang);
 
-        if (this.quizTemplateLangs().includes(nextLang as LangCode)) {
-          this.quizTemplateActiveLang.set(nextLang as LangCode);
-        }
-        if (this.questionDialogLangs().includes(nextLang as LangCode)) {
-          this.questionDialogActiveLang.set(nextLang as LangCode);
-        }
+      if (this.quizTemplateLangs().includes(nextLang as LangCode)) {
+        this.quizTemplateActiveLang.set(nextLang as LangCode);
+      }
+      if (this.questionDialogLangs().includes(nextLang as LangCode)) {
+        this.questionDialogActiveLang.set(nextLang as LangCode);
+      }
 
-        const localized = this.selectQuizTemplateTranslation(this.collectQuizTemplateTranslations());
-        this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
-        this.quizForm.controls.description.setValue(localized.description, {emitEvent: false});
-      });
+      const localized = this.selectQuizTemplateTranslation(this.collectQuizTemplateTranslations());
+      this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
+      this.quizForm.controls.description.setValue(localized.description, {emitEvent: false});
+    }, {injector: this.injector});
 
     this.quizForm.controls.permanent.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))

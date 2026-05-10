@@ -2,14 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   input,
   output,
-  signal,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {CardModule} from 'primeng/card';
@@ -26,9 +23,9 @@ import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-an
 import {QuestionMediaReadDto} from '../../api/generated/model/question-media-read';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UserService} from '../../services/user/user';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {NoCopyDirective} from '../../shared/directives/no-copy.directive';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
 export interface AnswerPayload {
   questionId: number;
@@ -56,7 +53,7 @@ export interface AnswerPayload {
 })
 export class QuizQuestionComponent {
   userService: UserService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
 
   readonly quizNavItem = input.required<QuizNavItem>();
   readonly showCorrectAnswers = input(false);
@@ -74,21 +71,13 @@ export class QuizQuestionComponent {
   readonly goBack = output<void>();
   readonly finish = output<AnswerPayload>();
 
-  currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
+  readonly currentLang = computed<LanguageEnumDto>(() => this.userService.lang() ?? LanguageEnumDto.Fr);
   selectedOptionIds: number[] = [];
   selectedRadioId: number | null = null;
 
   private sanitizer = inject(DomSanitizer);
-  private destroyRef = inject(DestroyRef);
 
   constructor() {
-    this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
-    this.userService.lang$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((lang) => {
-        this.currentLang.set(lang ?? LanguageEnumDto.Fr);
-      });
-
     effect(() => {
       const item = this.quizNavItem();
       const ids = item.selectedOptionIds ?? [];

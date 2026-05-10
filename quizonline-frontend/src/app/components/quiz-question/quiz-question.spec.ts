@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {of} from 'rxjs';
+import {signal} from '@angular/core';
 
 import {QuizQuestionComponent} from './quiz-question';
 import {UserService} from '../../services/user/user';
@@ -18,7 +18,7 @@ describe('QuizQuestionDto', () => {
           provide: UserService,
           useValue: {
             currentLang: LanguageEnumDto.Fr,
-            lang$: of(LanguageEnumDto.Fr),
+            lang: signal(LanguageEnumDto.Fr).asReadonly(),
           },
         },
       ],

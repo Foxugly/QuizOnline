@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
-import {computed, Injectable, signal, inject} from '@angular/core';
-import {BehaviorSubject, map, Observable, tap} from 'rxjs';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {map, Observable, tap} from 'rxjs';
 
 import {UserApi as UserApiService} from '../../api/generated/api/user.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
@@ -47,18 +47,22 @@ export class UserService {
 
   private readonly STORAGE_KEY = 'lang';
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/user`;
-  private readonly _lang$ = new BehaviorSubject<SupportedLanguage>(this.loadInitialLang());
-  readonly lang$ = this._lang$.asObservable();
+  private readonly _lang = signal<SupportedLanguage>(this.loadInitialLang());
+  /** Reactive language signal — prefer this over `currentLang` in templates/computeds for explicit reactivity. */
+  readonly lang = this._lang.asReadonly();
 
-    private readonly http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly userApi = inject(UserApiService);
 
   constructor() {
-    this.applyLang(this._lang$.value);
+    effect(() => {
+      document.documentElement.lang = String(this._lang());
+    });
   }
 
+  /** Getter kept for backward compat — reads the signal so consumers wrapped in `computed()` become reactive automatically. */
   get currentLang(): SupportedLanguage {
-    return this._lang$.value;
+    return this._lang();
   }
 
   shouldForcePasswordChange(user: CustomUserReadDto | null | undefined = this.currentUser()): boolean {
@@ -98,9 +102,8 @@ export class UserService {
   }
 
   setLang(lang: SupportedLanguage) {
-    this._lang$.next(lang);
+    this._lang.set(lang);
     localStorage.setItem(this.STORAGE_KEY, String(lang));
-    this.applyLang(lang);
   }
 
   setFromApi(lang: LanguageEnumDto | null | undefined): void {
@@ -158,9 +161,5 @@ export class UserService {
       return stored;
     }
     return LanguageEnumDto.En;
-  }
-
-  private applyLang(lang: LanguageEnumDto) {
-    document.documentElement.lang = String(lang);
   }
 }
