@@ -15,7 +15,7 @@ describe('QuestionImport', () => {
       providers: [
         provideRouter([]),
         {provide: QuestionService, useValue: {importQuestions: () => of({})}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
         {provide: AppToastService, useValue: {messages: () => [], add: () => {}, remove: () => {}}},
       ],
     }).compileComponents();

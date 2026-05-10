@@ -13,7 +13,7 @@ describe('UserEditPage', () => {
       providers: [
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, retrieveAdmin: () => of({username: 'test', language: 'fr'}), updateAdmin: () => of({})}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, retrieveAdmin: () => of({username: 'test', language: 'fr'}), updateAdmin: () => of({})}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UserEditPage);

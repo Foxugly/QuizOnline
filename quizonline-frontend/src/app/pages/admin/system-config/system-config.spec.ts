@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {of, throwError} from 'rxjs';
 
@@ -54,7 +55,7 @@ describe('SystemConfigPage', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: LanguageEnumDto.Fr,
+            currentLang: LanguageEnumDto.Fr, lang: signal(LanguageEnumDto.Fr).asReadonly(),
           },
         },
       ],

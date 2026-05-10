@@ -14,7 +14,7 @@ describe('LanguageManagementPage', () => {
       providers: [
         provideRouter([]),
         {provide: LanguageApiService, useValue: {langList: () => of({results: []})}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(LanguageManagementPage);

@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {QuizSubjectForm} from './subject-form';
@@ -21,7 +22,7 @@ describe('QuizSubjectForm', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: 'fr',
+            currentLang: 'fr', lang: signal('fr').asReadonly(),
           },
         },
       ],

@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {provideNoopAnimations} from '@angular/platform-browser/animations';
 import {of} from 'rxjs';
@@ -43,7 +44,7 @@ describe('QuestionList', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: LanguageEnumDto.Fr,
+            currentLang: LanguageEnumDto.Fr, lang: signal(LanguageEnumDto.Fr).asReadonly(),
             currentUser: () => ({current_domain: 1}),
           },
         },

@@ -15,7 +15,7 @@ describe('QuizAlertDetail', () => {
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
         {provide: QuizAlertService, useValue: {retrieve: () => of(null)}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(QuizAlertDetail);

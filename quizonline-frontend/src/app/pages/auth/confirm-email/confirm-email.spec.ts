@@ -16,7 +16,7 @@ describe('ConfirmEmailPage', () => {
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {paramMap: of({get: () => '1'}), snapshot: {paramMap: {get: () => '1'}}}},
         {provide: AuthService, useValue: {confirmEmail: () => of({detail: 'ok'})}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ConfirmEmailPage);

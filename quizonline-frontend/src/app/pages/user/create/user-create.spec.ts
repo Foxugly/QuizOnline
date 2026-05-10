@@ -12,7 +12,7 @@ describe('UserCreatePage', () => {
       imports: [UserCreatePage],
       providers: [
         provideRouter([]),
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, createAdmin: () => of({})}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, createAdmin: () => of({})}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UserCreatePage);

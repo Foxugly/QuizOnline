@@ -20,7 +20,7 @@ describe('Features', () => {
         },
         {
           provide: UserService,
-          useValue: {currentLang: 'fr', currentUser: signal(null)},
+          useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null)},
         },
       ],
     }).compileComponents();

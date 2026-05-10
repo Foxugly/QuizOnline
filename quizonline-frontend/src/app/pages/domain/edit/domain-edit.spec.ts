@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
 import {of} from 'rxjs';
@@ -47,7 +48,7 @@ describe('DomainEdit', () => {
           useValue: {
             list: () => of([]),
             currentUser: () => ({id: 1}),
-            currentLang: 'fr',
+            currentLang: 'fr', lang: signal('fr').asReadonly(),
           },
         },
         {

@@ -15,7 +15,7 @@ describe('QuizTemplateResultsPage', () => {
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {paramMap: of({get: () => '1'}), snapshot: {paramMap: {get: () => '1'}}}},
         {provide: QuizService, useValue: {listTemplateSessions: () => of([]), listTemplates: () => of([]), goList: () => {}, goView: () => {}}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(QuizTemplateResultsPage);

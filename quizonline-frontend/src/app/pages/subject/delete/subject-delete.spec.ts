@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
 import {of} from 'rxjs';
@@ -40,7 +41,7 @@ describe('SubjectDelete', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: 'fr',
+            currentLang: 'fr', lang: signal('fr').asReadonly(),
           },
         },
       ],

@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap} from '@angular/router';
 import {of} from 'rxjs';
@@ -61,7 +62,7 @@ describe('QuestionCreate media uploads', () => {
         {
           provide: UserService,
           useValue: {
-            currentLang: 'fr',
+            currentLang: 'fr', lang: signal('fr').asReadonly(),
           },
         },
         {

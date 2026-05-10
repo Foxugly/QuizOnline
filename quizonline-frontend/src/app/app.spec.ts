@@ -33,7 +33,7 @@ describe('App', () => {
           useValue: {
             currentUser: signal(null),
             getMe: () => of(null),
-            currentLang: 'fr',
+            currentLang: 'fr', lang: signal('fr').asReadonly(),
             isAdmin: () => false,
             isSuperuser: () => false,
             setLang: jasmine.createSpy('setLang'),

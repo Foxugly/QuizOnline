@@ -13,7 +13,7 @@ describe('UserDeletePage', () => {
       providers: [
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, retrieveAdmin: () => of({username: 'test'}), deleteAdmin: () => of(null)}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false, retrieveAdmin: () => of({username: 'test'}), deleteAdmin: () => of(null)}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UserDeletePage);

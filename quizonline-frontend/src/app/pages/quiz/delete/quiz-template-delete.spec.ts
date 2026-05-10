@@ -17,7 +17,7 @@ describe('QuizTemplateDelete', () => {
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
         {provide: QuizService, useValue: {listTemplates: () => of([]), goList: () => {}}},
         {provide: QuizTemplateService, useValue: {retrieve: () => of({}), delete: () => of(null)}},
-        {provide: UserService, useValue: {currentLang: 'fr', currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
+        {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(QuizTemplateDelete);
