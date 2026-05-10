@@ -36,183 +36,26 @@
     <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="builder-stack">
       <p-tabs [value]="activeEditorTab()" (valueChange)="setActiveEditorTab($event)" class="builder-tabs">
         <p-tablist>
-          <p-tab value="settings">{{ uiText().settingsTab }}</p-tab>
-          <p-tab value="questions">{{ uiText().questionsTab }}</p-tab>
+          <p-tab value="texts">
+            <i class="pi pi-language tab-icon"></i>
+            {{ uiText().textsTab }}
+          </p-tab>
+          <p-tab value="configuration">
+            <i class="pi pi-cog tab-icon"></i>
+            {{ uiText().configurationTab }}
+          </p-tab>
+          <p-tab value="questions">
+            <i class="pi pi-list tab-icon"></i>
+            {{ uiText().questionsTab }}
+          </p-tab>
         </p-tablist>
 
         <p-tabpanels class="builder-tabpanels">
-          <p-tabpanel value="settings">
+          <p-tabpanel value="texts">
             <div class="card builder-card">
-              <div class="card-head">
-                <h2 class="card-title">{{ uiText().settingsTitle }}</h2>
-              </div>
-
-              <div class="meta-grid" style="grid-template-columns: auto 1fr 1fr auto 1fr;">
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().active }}</label>
-                  <div class="meta-value widget-center">
-                    <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().domain }}</label>
-                  <div class="meta-value">
-                    <p-select
-                      appendTo="body"
-                      formControlName="domain"
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Choisir un domaine"
-                      [disabled]="true"
-                      [options]="domainOptions()">
-                    </p-select>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().mode }}</label>
-                  <div class="meta-value">
-                    <p-select
-                      appendTo="body"
-                      formControlName="mode"
-                      optionLabel="label"
-                      optionValue="value"
-                      [options]="modeOptions()">
-                    </p-select>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().timer }}</label>
-                  <div class="meta-value widget-center">
-                    <p-toggleswitch formControlName="with_duration" inputId="with_duration"></p-toggleswitch>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().duration }}</label>
-                  <div class="meta-value">
-                    <p-inputnumber
-                      formControlName="duration"
-                      inputId="duration"
-                      [showButtons]="true"
-                      [min]="1"
-                      [max]="9999"
-                      suffix=" min">
-                    </p-inputnumber>
-                  </div>
-                </div>
-              </div>
-
-              <div class="meta-grid" style="grid-template-columns: auto auto 1fr 1fr 1fr 1fr;">
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().public }}</label>
-                  <div class="meta-value widget-center">
-                    <p-toggleswitch formControlName="is_public" inputId="is_public"></p-toggleswitch>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().permanent }}</label>
-                  <div class="meta-value widget-center">
-                    <p-toggleswitch formControlName="permanent" inputId="permanent"></p-toggleswitch>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().shuffleQuestions }}</label>
-                  <div class="meta-value widget-center">
-                    <p-toggleswitch formControlName="shuffle_questions" inputId="shuffle_questions"></p-toggleswitch>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().startedAt }}</label>
-                  <div class="meta-value">
-                    <p-datepicker
-                      appendTo="body"
-                      [dateFormat]="datePickerFormat()"
-                      formControlName="started_at"
-                      inputId="started_at"
-                      [showTime]="true"
-                      hourFormat="24">
-                    </p-datepicker>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().endedAt }}</label>
-                  <div class="meta-value">
-                    <p-datepicker
-                      appendTo="body"
-                      [dateFormat]="datePickerFormat()"
-                      formControlName="ended_at"
-                      inputId="ended_at"
-                      [showTime]="true"
-                      hourFormat="24">
-                    </p-datepicker>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().resultVisibility }}</label>
-                  <div class="meta-value">
-                    <p-select
-                      appendTo="body"
-                      formControlName="result_visibility"
-                      optionLabel="label"
-                      optionValue="value"
-                      [options]="visibilityOptions()">
-                    </p-select>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().resultAvailableAt }}</label>
-                  <div class="meta-value">
-                    <p-datepicker
-                      appendTo="body"
-                      [dateFormat]="datePickerFormat()"
-                      formControlName="result_available_at"
-                      inputId="result_available_at"
-                      [showTime]="true"
-                      hourFormat="24">
-                    </p-datepicker>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().detailVisibility }}</label>
-                  <div class="meta-value">
-                    <p-select
-                      appendTo="body"
-                      formControlName="detail_visibility"
-                      optionLabel="label"
-                      optionValue="value"
-                      [options]="visibilityOptions()">
-                    </p-select>
-                  </div>
-                </div>
-
-                <div class="meta-item">
-                  <label class="meta-label">{{ uiText().detailAvailableAt }}</label>
-                  <div class="meta-value">
-                    <p-datepicker
-                      appendTo="body"
-                      [dateFormat]="datePickerFormat()"
-                      formControlName="detail_available_at"
-                      inputId="detail_available_at"
-                      [showTime]="true"
-                      hourFormat="24">
-                    </p-datepicker>
-                  </div>
-                </div>
-              </div>
-
               <div class="translations-card" formGroupName="translations">
                 <div class="card-head card-head--with-badge">
-                  <h3 class="card-title">{{ uiText().translationsTitle }}</h3>
+                  <h2 class="card-title">{{ uiText().translationsTitle }}</h2>
                   <span class="badge">{{ quizTemplateLangs().length }} {{ uiText().languagesCount }}</span>
                 </div>
                 @if (quizTemplateLangs().length > 0) {
@@ -270,6 +113,169 @@
                   </p-tabs>
                 }
               </div>
+            </div>
+          </p-tabpanel>
+
+          <p-tabpanel value="configuration">
+            <div class="card builder-card config-card">
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-flag config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionStatus }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item config-toggle">
+                    <label class="meta-label">{{ uiText().active }}</label>
+                    <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+                  </div>
+                  <div class="meta-item config-toggle">
+                    <label class="meta-label">{{ uiText().public }}</label>
+                    <p-toggleswitch formControlName="is_public" inputId="is_public"></p-toggleswitch>
+                  </div>
+                </div>
+              </section>
+
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-stopwatch config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionMode }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().mode }}</label>
+                    <p-select
+                      appendTo="body"
+                      formControlName="mode"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="modeOptions()">
+                    </p-select>
+                  </div>
+                  <div class="meta-item config-toggle">
+                    <label class="meta-label">{{ uiText().timer }}</label>
+                    <p-toggleswitch formControlName="with_duration" inputId="with_duration"></p-toggleswitch>
+                  </div>
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().duration }}</label>
+                    <p-inputnumber
+                      formControlName="duration"
+                      inputId="duration"
+                      [showButtons]="true"
+                      [min]="1"
+                      [max]="9999"
+                      suffix=" min">
+                    </p-inputnumber>
+                  </div>
+                </div>
+              </section>
+
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-calendar config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionAvailability }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item config-toggle">
+                    <label class="meta-label">{{ uiText().permanent }}</label>
+                    <p-toggleswitch formControlName="permanent" inputId="permanent"></p-toggleswitch>
+                  </div>
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().startedAt }}</label>
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="started_at"
+                      inputId="started_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().endedAt }}</label>
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="ended_at"
+                      inputId="ended_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
+              </section>
+
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-sort-alt config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionOrdering }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item config-toggle">
+                    <label class="meta-label">{{ uiText().shuffleQuestions }}</label>
+                    <p-toggleswitch formControlName="shuffle_questions" inputId="shuffle_questions"></p-toggleswitch>
+                  </div>
+                </div>
+              </section>
+
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-eye config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionResult }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().resultVisibility }}</label>
+                    <p-select
+                      appendTo="body"
+                      formControlName="result_visibility"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="visibilityOptions()">
+                    </p-select>
+                  </div>
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().resultAvailableAt }}</label>
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="result_available_at"
+                      inputId="result_available_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
+              </section>
+
+              <section class="config-section">
+                <header class="config-section__head">
+                  <i class="pi pi-list-check config-section__icon"></i>
+                  <h3 class="config-section__title">{{ uiText().sectionDetail }}</h3>
+                </header>
+                <div class="config-row">
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().detailVisibility }}</label>
+                    <p-select
+                      appendTo="body"
+                      formControlName="detail_visibility"
+                      optionLabel="label"
+                      optionValue="value"
+                      [options]="visibilityOptions()">
+                    </p-select>
+                  </div>
+                  <div class="meta-item">
+                    <label class="meta-label">{{ uiText().detailAvailableAt }}</label>
+                    <p-datepicker
+                      appendTo="body"
+                      [dateFormat]="datePickerFormat()"
+                      formControlName="detail_available_at"
+                      inputId="detail_available_at"
+                      [showTime]="true"
+                      hourFormat="24">
+                    </p-datepicker>
+                  </div>
+                </div>
+              </section>
             </div>
           </p-tabpanel>
 

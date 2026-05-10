@@ -18,6 +18,67 @@
   padding: 1.25rem;
 }
 
+.tab-icon {
+  margin-right: 0.4rem;
+}
+
+.config-card {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.config-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.25rem;
+}
+
+.config-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.config-section__head {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  margin: 0 0 0.85rem;
+}
+
+.config-section__icon {
+  color: #0369a1;
+  font-size: 1rem;
+}
+
+.config-section__title {
+  color: #1e2c38;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.config-row {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.config-row > .meta-item {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.config-row > .config-toggle {
+  align-self: end;
+  flex: 0 0 auto;
+  min-width: 7rem;
+}
+
+.config-toggle .meta-label {
+  display: block;
+}
+
 .builder-columns {
   display: grid;
   gap: 1.5rem;

@@ -121,7 +121,7 @@ export class QuizCreate implements OnInit {
   selectedQuestions = signal<SelectedQuizQuestion[]>([]);
   search = signal('');
   selectedQuestionSubjectIds = signal<number[]>([]);
-  activeEditorTab = signal<'settings' | 'questions'>('settings');
+  activeEditorTab = signal<'texts' | 'configuration' | 'questions'>('texts');
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
   selectedDomainId = signal(0);
   quizFormValid = signal(false);
@@ -460,7 +460,11 @@ export class QuizCreate implements OnInit {
   }
 
   setActiveEditorTab(value: string | number | undefined): void {
-    this.activeEditorTab.set(value === 'questions' ? 'questions' : 'settings');
+    if (value === 'questions' || value === 'configuration' || value === 'texts') {
+      this.activeEditorTab.set(value);
+    } else {
+      this.activeEditorTab.set('texts');
+    }
   }
 
   onQuizTemplateTabChange(value: string | number | undefined): void {

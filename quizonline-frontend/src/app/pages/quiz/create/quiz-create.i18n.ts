@@ -1,9 +1,15 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 
 export type QuizCreateUiText = {
-  settingsTab: string;
+  textsTab: string;
+  configurationTab: string;
   questionsTab: string;
-  settingsTitle: string;
+  sectionStatus: string;
+  sectionMode: string;
+  sectionAvailability: string;
+  sectionOrdering: string;
+  sectionResult: string;
+  sectionDetail: string;
   questionPoolTitle: string;
   questionSearchPlaceholder: string;
   questionSubjectFilter: string;
@@ -23,7 +29,6 @@ export type QuizCreateUiText = {
   editSubtitle: string;
   createTemplate: string;
   saveTemplate: string;
-  domain: string;
   mode: string;
   timer: string;
   duration: string;
@@ -63,9 +68,15 @@ export type QuizCreateUiText = {
 
 const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
   [LanguageEnumDto.En]: {
-    settingsTab: 'Settings',
+    textsTab: 'Texts & translations',
+    configurationTab: 'Configuration',
     questionsTab: 'Questions',
-    settingsTitle: 'Quiz settings',
+    sectionStatus: 'Status',
+    sectionMode: 'Mode and timing',
+    sectionAvailability: 'Availability window',
+    sectionOrdering: 'Question order',
+    sectionResult: 'Result visibility',
+    sectionDetail: 'Answer detail visibility',
     questionPoolTitle: 'Available questions',
     questionSearchPlaceholder: 'Search a question',
     questionSubjectFilter: 'Subjects',
@@ -85,7 +96,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     editSubtitle: 'Adjust the template settings, visibility, and ordered questions',
     createTemplate: 'Create template',
     saveTemplate: 'Save template',
-    domain: 'Domain',
     mode: 'Mode',
     timer: 'Timer',
     duration: 'Duration',
@@ -123,9 +133,15 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   [LanguageEnumDto.Nl]: {
-    settingsTab: 'Instellingen',
+    textsTab: 'Teksten & vertalingen',
+    configurationTab: 'Configuratie',
     questionsTab: 'Vragen',
-    settingsTitle: 'Quizinstellingen',
+    sectionStatus: 'Status',
+    sectionMode: 'Modus en timing',
+    sectionAvailability: 'Beschikbaarheidsvenster',
+    sectionOrdering: 'Volgorde van vragen',
+    sectionResult: 'Zichtbaarheid van het resultaat',
+    sectionDetail: 'Zichtbaarheid van antwoorddetails',
     questionPoolTitle: 'Beschikbare vragen',
     questionSearchPlaceholder: 'Zoek een vraag',
     questionSubjectFilter: 'Onderwerpen',
@@ -145,7 +161,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     editSubtitle: 'Pas template-instellingen, zichtbaarheid en volgorde van vragen aan',
     createTemplate: 'Template maken',
     saveTemplate: 'Template opslaan',
-    domain: 'Domein',
     mode: 'Modus',
     timer: 'Timer',
     duration: 'Duur',
@@ -183,9 +198,15 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNamesShort: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
   },
   [LanguageEnumDto.It]: {
-    settingsTab: 'Parametri',
+    textsTab: 'Testi e traduzioni',
+    configurationTab: 'Configurazione',
     questionsTab: 'Domande',
-    settingsTitle: 'Parametri del quiz',
+    sectionStatus: 'Stato',
+    sectionMode: 'Modalità e timing',
+    sectionAvailability: 'Finestra di disponibilità',
+    sectionOrdering: 'Ordine delle domande',
+    sectionResult: 'Visibilità del risultato',
+    sectionDetail: 'Visibilità del dettaglio',
     questionPoolTitle: 'Domande disponibili',
     questionSearchPlaceholder: 'Cerca una domanda',
     questionSubjectFilter: 'Soggetti',
@@ -205,7 +226,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     editSubtitle: 'Aggiorna impostazioni, visibilità e ordine delle domande',
     createTemplate: 'Crea template',
     saveTemplate: 'Salva template',
-    domain: 'Dominio',
     mode: 'Modalità',
     timer: 'Timer',
     duration: 'Durata',
@@ -243,9 +263,15 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNamesShort: ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'],
   },
   [LanguageEnumDto.Es]: {
-    settingsTab: 'Parámetros',
+    textsTab: 'Textos y traducciones',
+    configurationTab: 'Configuración',
     questionsTab: 'Preguntas',
-    settingsTitle: 'Parámetros del quiz',
+    sectionStatus: 'Estado',
+    sectionMode: 'Modo y tiempo',
+    sectionAvailability: 'Ventana de disponibilidad',
+    sectionOrdering: 'Orden de las preguntas',
+    sectionResult: 'Visibilidad del resultado',
+    sectionDetail: 'Visibilidad del detalle',
     questionPoolTitle: 'Preguntas disponibles',
     questionSearchPlaceholder: 'Buscar una pregunta',
     questionSubjectFilter: 'Temas',
@@ -265,7 +291,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     editSubtitle: 'Actualiza configuración, visibilidad y orden de las preguntas',
     createTemplate: 'Crear plantilla',
     saveTemplate: 'Guardar plantilla',
-    domain: 'Dominio',
     mode: 'Modo',
     timer: 'Temporizador',
     duration: 'Duración',
@@ -303,9 +328,15 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
   },
   [LanguageEnumDto.Fr]: {
-    settingsTab: 'Paramètres',
+    textsTab: 'Textes et traductions',
+    configurationTab: 'Configuration',
     questionsTab: 'Questions',
-    settingsTitle: 'Paramètres du quiz',
+    sectionStatus: 'Statut',
+    sectionMode: 'Mode et durée',
+    sectionAvailability: 'Fenêtre de disponibilité',
+    sectionOrdering: 'Ordre des questions',
+    sectionResult: 'Visibilité du résultat',
+    sectionDetail: 'Visibilité du détail',
     questionPoolTitle: 'Questions disponibles',
     questionSearchPlaceholder: 'Rechercher une question',
     questionSubjectFilter: 'Sujets',
@@ -325,7 +356,6 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     editSubtitle: 'Ajuste les paramètres, la visibilité et l\'ordre des questions',
     createTemplate: 'Créer le template',
     saveTemplate: 'Enregistrer le template',
-    domain: 'Domaine',
     mode: 'Mode',
     timer: 'Timer',
     duration: 'Durée',
