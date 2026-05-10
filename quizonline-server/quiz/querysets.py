@@ -18,6 +18,21 @@ def quiz_template_queryset():
     )
 
 
+def quiz_template_list_queryset():
+    """Lightweight queryset for list endpoints.
+
+    Skips the ``quiz_questions__question`` prefetch since the list
+    serializer doesn't expose the questions array. Use the heavier
+    ``quiz_template_queryset`` for retrieve / edit paths.
+    """
+    return (
+        QuizTemplate.objects
+        .select_related("domain")
+        .annotate(_questions_count=Count("questions", distinct=True))
+        .order_by("title", "pk")
+    )
+
+
 def available_quiz_template_filter(*, at=None) -> Q:
     if at is None:
         at = timezone.now()
@@ -30,8 +45,8 @@ def available_quiz_template_filter(*, at=None) -> Q:
     )
 
 
-def accessible_quiz_template_queryset(user):
-    queryset = quiz_template_queryset()
+def accessible_quiz_template_queryset(user, *, light: bool = False):
+    queryset = quiz_template_list_queryset() if light else quiz_template_queryset()
     available_filter = available_quiz_template_filter()
     if not user or not getattr(user, "is_authenticated", False):
         return queryset.filter(is_public=True).filter(available_filter)

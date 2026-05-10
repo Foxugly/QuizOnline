@@ -15,6 +15,7 @@ import {QuizListDto} from '../../api/generated/model/quiz-list';
 import {QuizQuestionAnswerDto} from '../../api/generated/model/quiz-question-answer';
 import {QuizQuestionAnswerWriteRequestDto} from '../../api/generated/model/quiz-question-answer-write-request';
 import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
+import {QuizTemplateListDto} from '../../api/generated/model/quiz-template-list';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export interface QuizSubjectCreatePayload {
@@ -111,7 +112,7 @@ export class QuizService {
     );
   }
 
-  listTemplates(): Observable<QuizTemplateDto[]> {
+  listTemplates(): Observable<QuizTemplateListDto[]> {
     return this.qtApi.quizTemplateList({}).pipe(map((response) => response.results ?? []));
   }
 

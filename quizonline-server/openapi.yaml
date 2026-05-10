@@ -1885,7 +1885,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedQuizTemplateList'
+                $ref: '#/components/schemas/PaginatedQuizTemplateListList'
           description: ''
     post:
       operationId: quiz_template_create
@@ -4353,7 +4353,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/QuizSimple'
-    PaginatedQuizTemplateList:
+    PaginatedQuizTemplateListList:
       type: object
       required:
       - count
@@ -4375,7 +4375,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/QuizTemplate'
+            $ref: '#/components/schemas/QuizTemplateList'
     PaginatedSubjectReadList:
       type: object
       required:
@@ -5774,6 +5774,136 @@ components:
       - id
       - questions_count
       - quiz_questions
+      - slug
+      - title
+      - translations
+    QuizTemplateList:
+      type: object
+      description: |-
+        Lightweight serializer used by the list endpoint.
+
+        Drops the heavy ``quiz_questions`` array (which would otherwise pull
+        every QuizQuestion + Question + answer options for every template
+        returned), keeping only the fields the table actually renders. The
+        detail / edit endpoints still use the full ``QuizTemplateSerializer``.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        domain:
+          type: integer
+        title:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        mode:
+          $ref: '#/components/schemas/ModeEnum'
+        description:
+          type: string
+          readOnly: true
+        translations:
+          allOf:
+          - $ref: '#/components/schemas/LocalizedQuizTemplateTranslations'
+          readOnly: true
+        max_questions:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          title: Nombre de questions dans le quiz
+          description: Nombre de questions à poser parmi le pool lié.
+        permanent:
+          type: boolean
+          title: Permanent ?
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        with_duration:
+          type: boolean
+          title: Avec Timer ?
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          title: Temps (en minutes)
+        active:
+          type: boolean
+          title: Actif ?
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        questions_count:
+          type: integer
+          readOnly: true
+        can_answer:
+          type: boolean
+          readOnly: true
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          title: Visibilité du résultat global
+          description: |-
+            Quand le score global du quiz peut être affiché à l'utilisateur.
+
+            * `immediate` - Immédiat
+            * `scheduled` - À partir d'une date
+            * `never` - Jamais
+        result_available_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Résultat global visible à partir de
+          description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
+        detail_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          title: Visibilité du détail des réponses
+          description: |-
+            Quand les réponses détaillées (réponses de l'utilisateur et bonnes réponses) peuvent être affichées.
+
+            * `immediate` - Immédiat
+            * `scheduled` - À partir d'une date
+            * `never` - Jamais
+        detail_available_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Détail visible à partir de
+          description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
+        shuffle_questions:
+          type: boolean
+          title: Mélanger l'ordre des questions
+          description: Si activé, chaque session reçoit un ordre de questions différent,
+            déterministe par session (mêmes questions à chaque rechargement).
+        is_public:
+          type: boolean
+          title: Public ?
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_username:
+          type: string
+          readOnly: true
+          default: ''
+      required:
+      - can_answer
+      - created_at
+      - created_by
+      - created_by_username
+      - description
+      - domain
+      - id
+      - questions_count
       - slug
       - title
       - translations

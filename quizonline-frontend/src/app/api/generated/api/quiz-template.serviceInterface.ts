@@ -14,7 +14,7 @@ import { Observable }                                        from 'rxjs';
 import { GenerateFromSubjectsInputRequestDto } from '../model/models';
 import { PaginatedQuizAssignmentListListDto } from '../model/models';
 import { PaginatedQuizQuestionReadListDto } from '../model/models';
-import { PaginatedQuizTemplateListDto } from '../model/models';
+import { PaginatedQuizTemplateListListDto } from '../model/models';
 import { PatchedQuizQuestionPartialRequestDto } from '../model/models';
 import { PatchedQuizTemplatePartialRequestDto } from '../model/models';
 import { QuizQuestionReadDto } from '../model/models';
@@ -61,7 +61,7 @@ export interface QuizTemplateServiceInterface {
      * @endpoint get /api/quiz/template/
      * @param page A page number within the paginated result set.
      */
-    quizTemplateList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizTemplateListDto>;
+    quizTemplateList(page?: number, extraHttpRequestParams?: any): Observable<PaginatedQuizTemplateListListDto>;
 
     /**
      * Mettre à jour partiellement un template de quiz

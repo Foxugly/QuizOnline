@@ -6,6 +6,7 @@ import {PatchedQuizTemplatePartialRequestDto} from '../../api/generated/model/pa
 import {QuizQuestionReadDto} from '../../api/generated/model/quiz-question-read';
 import {QuizQuestionWriteRequestDto} from '../../api/generated/model/quiz-question-write-request';
 import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
+import {QuizTemplateListDto} from '../../api/generated/model/quiz-template-list';
 import {QuizTemplateWriteRequestDto} from '../../api/generated/model/quiz-template-write-request';
 
 @Injectable({
@@ -14,7 +15,7 @@ import {QuizTemplateWriteRequestDto} from '../../api/generated/model/quiz-templa
 export class QuizTemplateService {
     private readonly api = inject(QuizTemplateApiService);
 
-  list(): Observable<QuizTemplateDto[]> {
+  list(): Observable<QuizTemplateListDto[]> {
     return this.api.quizTemplateList({}).pipe(map((response) => response.results ?? []));
   }
 

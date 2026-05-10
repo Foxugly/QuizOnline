@@ -11,7 +11,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {QuizAssignmentListDto} from '../../../api/generated/model/quiz-assignment-list';
-import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
+import {QuizTemplateListDto} from '../../../api/generated/model/quiz-template-list';
 import {ROUTES} from '../../../app.routes-paths';
 import {QuizService} from '../../../services/quiz/quiz';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
@@ -26,7 +26,7 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 export class QuizTemplateResultsPage implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly template = signal<QuizTemplateDto | null>(null);
+  readonly template = signal<QuizTemplateListDto | null>(null);
   readonly sessions = signal<QuizAssignmentListDto[]>([]);
   readonly search = signal('');
 

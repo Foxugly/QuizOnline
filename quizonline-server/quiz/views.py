@@ -34,6 +34,7 @@ from .permissions import IsOwnerOrStaff, IsQuizAlertParticipant, CanManageQuizTe
 from .querysets import (
     quiz_answer_queryset_for_user,
     accessible_quiz_template_queryset,
+    quiz_template_list_queryset,
     quiz_queryset_for_user,
     quiz_template_queryset,
     template_sessions_queryset,
@@ -48,6 +49,7 @@ from .services import close_quiz_session, create_quizzes_from_template
 from .notifications import notify_quiz_assigned_on_commit
 from .serializers import (
     QuizTemplateSerializer,
+    QuizTemplateListSerializer,
     QuizTemplateWriteSerializer,
     QuizTemplatePartialSerializer,
     QuizListSerializer,
@@ -84,7 +86,7 @@ def not_found_response():
     list=extend_schema(
         tags=["QuizTemplate"],
         summary="Lister les templates de quiz",
-        responses={200: QuizTemplateSerializer(many=True)},
+        responses={200: QuizTemplateListSerializer(many=True)},
     ),
     retrieve=extend_schema(
         tags=["QuizTemplate"],
@@ -134,7 +136,9 @@ class QuizTemplateViewSet(MyModelViewSet):
         return [CanManageQuizTemplate()]
 
     def get_serializer_class(self):
-        if self.action in {"list", "retrieve", "generate_from_subjects"}:
+        if self.action == "list":
+            return QuizTemplateListSerializer
+        if self.action in {"retrieve", "generate_from_subjects"}:
             return QuizTemplateSerializer
         if self.action == "partial_update":
             return QuizTemplatePartialSerializer
@@ -152,10 +156,9 @@ class QuizTemplateViewSet(MyModelViewSet):
             output="200 + [QuizTemplateSerializer] (paginé si pagination activée)",
         )
         if request.user.is_superuser:
-            return super().list(request, *args, **kwargs)
-
-        qs = accessible_quiz_template_queryset(request.user)
-
+            qs = quiz_template_list_queryset()
+        else:
+            qs = accessible_quiz_template_queryset(request.user, light=True)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

@@ -23,7 +23,7 @@ import { PaginatedQuizAssignmentListListDto } from '../model/paginated-quiz-assi
 // @ts-ignore
 import { PaginatedQuizQuestionReadListDto } from '../model/paginated-quiz-question-read-list';
 // @ts-ignore
-import { PaginatedQuizTemplateListDto } from '../model/paginated-quiz-template-list';
+import { PaginatedQuizTemplateListListDto } from '../model/paginated-quiz-template-list-list';
 // @ts-ignore
 import { PatchedQuizQuestionPartialRequestDto } from '../model/patched-quiz-question-partial-request';
 // @ts-ignore
@@ -334,9 +334,9 @@ export class QuizTemplateApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizTemplateListDto>;
-    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizTemplateListDto>>;
-    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizTemplateListDto>>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedQuizTemplateListListDto>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedQuizTemplateListListDto>>;
+    public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedQuizTemplateListListDto>>;
     public quizTemplateList(requestParameters?: QuizTemplateListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const page = requestParameters?.page;
 
@@ -381,7 +381,7 @@ export class QuizTemplateApi extends BaseService {
 
         let localVarPath = `/api/quiz/template/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedQuizTemplateListDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedQuizTemplateListListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),

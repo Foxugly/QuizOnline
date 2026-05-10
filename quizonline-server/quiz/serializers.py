@@ -203,6 +203,21 @@ class QuizTemplateSerializer(RequestUserMixin, serializers.ModelSerializer):
         }
 
 
+class QuizTemplateListSerializer(QuizTemplateSerializer):
+    """Lightweight serializer used by the list endpoint.
+
+    Drops the heavy ``quiz_questions`` array (which would otherwise pull
+    every QuizQuestion + Question + answer options for every template
+    returned), keeping only the fields the table actually renders. The
+    detail / edit endpoints still use the full ``QuizTemplateSerializer``.
+    """
+
+    class Meta(QuizTemplateSerializer.Meta):
+        fields = [
+            field for field in QuizTemplateSerializer.Meta.fields if field != "quiz_questions"
+        ]
+
+
 class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer):
     translations = LocalizedTranslationsDictField(
         value_serializer=LocalizedQuizTemplateTranslationSerializer,
