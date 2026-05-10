@@ -157,30 +157,39 @@ else
   warn "$WEB_SERVER is NOT running"
 fi
 
-# Backend health (local)
+# Backend health (local) — pass the public Host header so Django doesn't reject
 sleep 2
-if curl -sf http://127.0.0.1:8000/api/schema/ > /dev/null 2>&1; then
+if curl -sf -H "Host: $DOMAIN" http://127.0.0.1:8000/api/schema/ > /dev/null 2>&1; then
   ok "Backend API responds on :8000"
 else
   warn "Backend API not responding on :8000"
 fi
 
-# SSL certificate
-CERT_FILE="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
-if [ -f "$CERT_FILE" ]; then
+# SSL certificate — try domain-specific path, then parent domain (shared cert)
+CERT_FILE=""
+for candidate in \
+    "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+    "/etc/letsencrypt/live/${DOMAIN#*.}/fullchain.pem"; do
+  if [ -f "$candidate" ]; then
+    CERT_FILE="$candidate"
+    break
+  fi
+done
+
+if [ -n "$CERT_FILE" ]; then
   EXPIRY=$(openssl x509 -enddate -noout -in "$CERT_FILE" 2>/dev/null | cut -d= -f2)
   EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s 2>/dev/null || echo 0)
   NOW_EPOCH=$(date +%s)
   DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
   if [ "$DAYS_LEFT" -gt 7 ]; then
-    ok "SSL certificate valid ($DAYS_LEFT days left)"
+    ok "SSL certificate valid ($DAYS_LEFT days left) — $CERT_FILE"
   elif [ "$DAYS_LEFT" -gt 0 ]; then
     warn "SSL certificate expires in $DAYS_LEFT days! Run: sudo certbot renew"
   else
     warn "SSL certificate EXPIRED! Run: sudo certbot renew"
   fi
 else
-  warn "SSL certificate not found at $CERT_FILE"
+  warn "SSL certificate not found for $DOMAIN (looked in /etc/letsencrypt/live/)"
 fi
 
 # HTTPS reachable
