@@ -27,6 +27,28 @@
   gap: 1.5rem;
 }
 
+.config-pair {
+  display: grid;
+  gap: 1.25rem 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.config-pair > .config-section {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.config-pair + .config-pair > .config-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.25rem;
+}
+
+@media (max-width: 880px) {
+  .config-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .config-section {
   border-top: 1px solid #e2e8f0;
   padding-top: 1.25rem;
