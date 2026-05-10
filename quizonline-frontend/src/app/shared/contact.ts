@@ -1,4 +1,4 @@
-const EMAIL_USER = 'rvilain';
+const EMAIL_USER = 'info';
 const EMAIL_HOST = 'foxugly';
 const EMAIL_TLD = 'com';
 const PHONE_PREFIX = '+32';
