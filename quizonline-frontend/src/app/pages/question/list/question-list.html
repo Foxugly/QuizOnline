@@ -11,52 +11,15 @@
 
   <div class="card">
     <div class="card-head">
-      <div class="bulk-actions">
-        <p-select
-          [options]="bulkActionOptions()"
-          [ngModel]="selectedBulkAction()"
-          (ngModelChange)="selectedBulkAction.set($event)"
-          [placeholder]="text().bulkPlaceholder"
-          [disabled]="selectedCount() === 0 || applyingBulk()"
-          size="small"
-          appendTo="body"
-          optionLabel="label"
-          optionValue="value"
-          styleClass="bulk-actions__select">
-          <ng-template let-option #item>
-            <span class="bulk-option" [class.bulk-option--danger]="option.danger">
-              @if (option.icon) {
-                <i [class]="option.icon"></i>
-              }
-              <span>{{ option.label }}</span>
-            </span>
-          </ng-template>
-          <ng-template let-option #selectedItem>
-            <span class="bulk-option" [class.bulk-option--danger]="option.danger">
-              @if (option.icon) {
-                <i [class]="option.icon"></i>
-              }
-              <span>{{ option.label }}</span>
-            </span>
-          </ng-template>
-        </p-select>
-
-        <p-button
-          (onClick)="applyBulkAction()"
-          [disabled]="!canApplyBulk()"
-          [loading]="applyingBulk()"
-          [label]="text().bulkApply"
-          severity="primary"
-          size="small"
-          type="button">
-        </p-button>
-
-        @if (selectedCount() > 0) {
-          <span class="bulk-actions__count muted">
-            {{ text().bulkSelectedCount(selectedCount()) }}
-          </span>
-        }
-      </div>
+      <app-bulk-actions
+        [options]="bulkActionOptions()"
+        [placeholder]="text().bulkPlaceholder"
+        [applyLabel]="text().bulkApply"
+        [count]="selectedCount()"
+        [countText]="text().bulkSelectedCount(selectedCount())"
+        [applying]="applyingBulk()"
+        (apply)="applyBulkAction($event)">
+      </app-bulk-actions>
 
       <div class="card-actions card-actions--filters">
         <input

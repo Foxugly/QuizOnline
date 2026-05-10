@@ -1,0 +1,29 @@
+.bulk-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.bulk-actions__select {
+  min-width: 14rem;
+}
+
+.bulk-actions__count {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.bulk-option {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.bulk-option--danger {
+  color: #b91c1c;
+}
+
+.bulk-option--danger i {
+  color: #b91c1c;
+}

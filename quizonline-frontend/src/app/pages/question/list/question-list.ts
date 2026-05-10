@@ -21,6 +21,7 @@ import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
+import {BulkActionsComponent} from '../../../shared/components/bulk-actions/bulk-actions';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {getQuestionListUiText, QuestionListUiText} from './question-list.i18n';
 
@@ -56,6 +57,7 @@ type QuestionListRow = {
     MultiSelectModule,
     SelectModule,
     TableModule,
+    BulkActionsComponent,
     QuestionPreviewDialogComponent,
   ],
   providers: [ConfirmationService],
@@ -77,7 +79,6 @@ export class QuestionList implements OnInit {
   selectedSubjectIds = signal<number[]>([]);
   previewQuestionId = signal<number | null>(null);
   selectedRows = signal<QuestionListRow[]>([]);
-  selectedBulkAction = signal<BulkAction | null>(null);
   applyingBulk = signal(false);
 
   private questionService = inject(QuestionService);
@@ -114,11 +115,6 @@ export class QuestionList implements OnInit {
     ];
   });
 
-  readonly canApplyBulk = computed(() =>
-    this.selectedBulkAction() !== null
-    && this.selectedCount() > 0
-    && !this.applyingBulk(),
-  );
 
   ngOnInit() {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.En);
@@ -236,13 +232,12 @@ export class QuestionList implements OnInit {
     });
   }
 
-  applyBulkAction(): void {
-    const action = this.selectedBulkAction();
-    if (!action || this.selectedCount() === 0 || this.applyingBulk()) {
+  applyBulkAction(action: string): void {
+    if (this.selectedCount() === 0 || this.applyingBulk()) {
       return;
     }
 
-    switch (action) {
+    switch (action as BulkAction) {
       case 'export':
         this.exportRows();
         return;
@@ -280,7 +275,6 @@ export class QuestionList implements OnInit {
     forkJoin(ids.map(id => this.questionService.updatePartial(id, payload))).subscribe({
       next: () => {
         this.selectedRows.set([]);
-        this.selectedBulkAction.set(null);
         this.loadQuestions(this.currentPage());
       },
       error: (err: unknown) => {
@@ -313,7 +307,6 @@ export class QuestionList implements OnInit {
     forkJoin(ids.map(id => this.questionService.delete(id))).subscribe({
       next: () => {
         this.selectedRows.set([]);
-        this.selectedBulkAction.set(null);
         this.first.set(0);
         this.loadQuestions(1);
       },

@@ -1,0 +1,44 @@
+<div class="bulk-actions">
+  <p-select
+    [options]="options()"
+    [ngModel]="selected()"
+    (ngModelChange)="selected.set($event)"
+    [placeholder]="placeholder()"
+    [disabled]="count() === 0 || applying()"
+    size="small"
+    appendTo="body"
+    optionLabel="label"
+    optionValue="value"
+    styleClass="bulk-actions__select">
+    <ng-template let-option #item>
+      <span class="bulk-option" [class.bulk-option--danger]="option.danger">
+        @if (option.icon) {
+          <i [class]="option.icon"></i>
+        }
+        <span>{{ option.label }}</span>
+      </span>
+    </ng-template>
+    <ng-template let-option #selectedItem>
+      <span class="bulk-option" [class.bulk-option--danger]="option.danger">
+        @if (option.icon) {
+          <i [class]="option.icon"></i>
+        }
+        <span>{{ option.label }}</span>
+      </span>
+    </ng-template>
+  </p-select>
+
+  <p-button
+    (onClick)="onApply()"
+    [disabled]="!canApply()"
+    [loading]="applying()"
+    [label]="applyLabel()"
+    severity="primary"
+    size="small"
+    type="button">
+  </p-button>
+
+  @if (count() > 0 && countText()) {
+    <span class="bulk-actions__count muted">{{ countText() }}</span>
+  }
+</div>
