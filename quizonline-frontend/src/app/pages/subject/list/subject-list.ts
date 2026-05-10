@@ -3,18 +3,24 @@ import {FormsModule} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
 import {ButtonModule} from 'primeng/button';
+import {CheckboxModule} from 'primeng/checkbox';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
+import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
+import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
 import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+
+type BulkAction = 'activate' | 'deactivate' | 'delete';
 
 type SubjectListRow = SubjectReadDto & {
   name: string;
@@ -25,7 +31,18 @@ type SubjectListRow = SubjectReadDto & {
 
 @Component({
   selector: 'app-subject-list',
-  imports: [FormsModule, ButtonModule, InputTextModule, PaginatorModule, TableModule, StripPPipe],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    CheckboxModule,
+    ConfirmDialogModule,
+    InputTextModule,
+    PaginatorModule,
+    TableModule,
+    BulkActionsComponent,
+    StripPPipe,
+  ],
+  providers: [ConfirmationService],
   templateUrl: './subject-list.html',
   styleUrl: './subject-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +51,7 @@ export class SubjectList implements OnInit {
   private subjectService: SubjectService = inject(SubjectService);
   private userService: UserService = inject(UserService);
   private domainService: DomainService = inject(DomainService);
+  private confirmationService = inject(ConfirmationService);
 
   readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
   subjects = signal<SubjectReadDto[]>([]);
@@ -41,6 +59,16 @@ export class SubjectList implements OnInit {
   q = signal('');
   currentLang = computed((): LanguageEnumDto => this.userService.currentLang);
   rowsData = computed<SubjectListRow[]>(() => this.subjects().map((subject) => this.toRow(subject)));
+
+  selectedRows = signal<SubjectListRow[]>([]);
+  applyingBulk = signal(false);
+  readonly selectedCount = computed(() => this.selectedRows().length);
+
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => [
+    {label: 'Rendre actif', value: 'activate', icon: 'pi pi-check-circle'},
+    {label: 'Rendre inactif', value: 'deactivate', icon: 'pi pi-times-circle'},
+    {label: 'Supprimer', value: 'delete', icon: 'pi pi-trash', danger: true},
+  ]);
 
   rows = 10;
 
@@ -123,6 +151,72 @@ export class SubjectList implements OnInit {
 
   goDelete(id: number) {
     this.subjectService.goDelete(id);
+  }
+
+  onSelectionChange(rows: SubjectListRow[]): void {
+    this.selectedRows.set(rows);
+  }
+
+  applyBulk(action: string): void {
+    if (this.selectedCount() === 0 || this.applyingBulk()) {
+      return;
+    }
+    switch (action as BulkAction) {
+      case 'activate':
+        this.bulkPatch(true);
+        return;
+      case 'deactivate':
+        this.bulkPatch(false);
+        return;
+      case 'delete':
+        this.confirmBulkDelete();
+        return;
+    }
+  }
+
+  private bulkPatch(active: boolean): void {
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      return;
+    }
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.subjectService.updatePartial(id, {active}))).subscribe({
+      next: () => {
+        this.selectedRows.set([]);
+        this.load();
+      },
+      error: (err: unknown) => logApiError('subject.list.bulk-patch', err),
+      complete: () => this.applyingBulk.set(false),
+    });
+  }
+
+  private confirmBulkDelete(): void {
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      return;
+    }
+    const plural = ids.length > 1 ? 's' : '';
+    this.confirmationService.confirm({
+      header: 'Supprimer',
+      message: `Supprimer ${ids.length} sujet${plural} ? Cette action est irréversible.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Supprimer',
+      rejectLabel: 'Annuler',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.runBulkDelete(ids),
+    });
+  }
+
+  private runBulkDelete(ids: number[]): void {
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.subjectService.delete(id))).subscribe({
+      next: () => {
+        this.selectedRows.set([]);
+        this.load();
+      },
+      error: (err: unknown) => logApiError('subject.list.bulk-delete', err),
+      complete: () => this.applyingBulk.set(false),
+    });
   }
 
   getQuestionCount(subjectId: number): number {
