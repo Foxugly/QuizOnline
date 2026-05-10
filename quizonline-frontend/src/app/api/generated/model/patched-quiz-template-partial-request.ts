@@ -30,6 +30,7 @@ export interface PatchedQuizTemplatePartialRequestDto {
     result_available_at?: string | null;
     detail_visibility?: VisibilityEnumDto;
     detail_available_at?: string | null;
+    shuffle_questions?: boolean;
 }
 
 

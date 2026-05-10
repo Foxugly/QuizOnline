@@ -31,6 +31,7 @@ from .alerting import (
     message_is_unread_for_user,
     unread_count_for_alert,
 )
+from .ordering import session_position_for, session_quiz_questions
 from .policies import (
     ANSWER_CORRECTNESS_FULL,
     ANSWER_CORRECTNESS_HIDDEN,
@@ -573,10 +574,9 @@ class QuizSerializer(QuizListSerializer):
 
     @extend_schema_field(QuizQuestionReadSerializer(many=True))
     def get_questions(self, obj) -> serializers.ModelSerializer:
-        qt = obj.quiz_template
         correctness_state = self._answer_correctness_state(obj)
         return QuizQuestionReadSerializer(
-            qt.quiz_questions.all(),
+            session_quiz_questions(obj),
             many=True,
             context={
                 **self.context,
@@ -776,7 +776,10 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
             qq,
         )
         attrs["quizquestion"] = qq
-        attrs["question_order"] = qq.sort_order
+        quiz_for_order = self.context.get("quiz")
+        attrs["question_order"] = (
+            session_position_for(quiz_for_order, qq) if quiz_for_order else qq.sort_order
+        )
         return attrs
 
     def create(self, validated_data):
@@ -785,6 +788,7 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
         selected = validated_data.pop("selected_options", [])
         validated_data.pop("question_id", None)
         qq = validated_data.pop("quizquestion")
+        position = session_position_for(quiz, qq)
 
         with transaction.atomic():
             try:
@@ -792,15 +796,15 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
                     QuizQuestionAnswer.objects.select_for_update()
                     .get(quiz=quiz, quizquestion=qq)
                 )
-                if instance.question_order != qq.sort_order:
-                    instance.question_order = qq.sort_order
+                if instance.question_order != position:
+                    instance.question_order = position
                     instance.save(update_fields=["question_order"])
             except QuizQuestionAnswer.DoesNotExist:
                 try:
                     instance = QuizQuestionAnswer.objects.create(
                         quiz=quiz,
                         quizquestion=qq,
-                        question_order=qq.sort_order,
+                        question_order=position,
                     )
                 except IntegrityError:
                     instance = (

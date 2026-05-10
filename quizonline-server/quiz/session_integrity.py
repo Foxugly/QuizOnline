@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from quiz.models import Quiz, QuizQuestionAnswer
+from quiz.ordering import session_quiz_questions
 from quiz.scoring import compute_answer_score
 
 
@@ -21,20 +22,15 @@ def reconcile_quiz_answers(quiz: Quiz) -> None:
     Modifie les objets en base via bulk_create / bulk_update.
     Invalide le prefetch cache du quiz en fin d'opération.
     """
-    quiz_questions = list(
-        quiz.quiz_template.quiz_questions
-        .select_related("question")
-        .prefetch_related("question__answer_options")
-        .order_by("sort_order", "id")
-    )
+    quiz_questions = session_quiz_questions(quiz)
 
     existing_answers = list(_answers_queryset(quiz))
     existing_answer_ids = {a.quizquestion_id for a in existing_answers}
 
     missing = []
-    for qq in quiz_questions:
+    for position, qq in enumerate(quiz_questions, start=1):
         if qq.id not in existing_answer_ids:
-            answer = QuizQuestionAnswer(quiz=quiz, quizquestion=qq, question_order=qq.sort_order)
+            answer = QuizQuestionAnswer(quiz=quiz, quizquestion=qq, question_order=position)
             answer._skip_answer_validation = True
             missing.append(answer)
     if missing:

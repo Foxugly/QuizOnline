@@ -53,6 +53,10 @@ export interface QuizTemplateDto {
      * Utilisé uniquement si la visibilité est \'À partir d\'une date\'.
      */
     detail_available_at?: string | null;
+    /**
+     * Si activé, chaque session reçoit un ordre de questions différent.
+     */
+    shuffle_questions?: boolean;
     is_public?: boolean;
     readonly created_by: number;
     readonly created_by_username: string;

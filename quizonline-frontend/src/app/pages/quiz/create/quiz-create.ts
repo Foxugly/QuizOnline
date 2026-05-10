@@ -140,6 +140,7 @@ export class QuizCreate implements OnInit {
     active: [true],
     is_public: [false],
     permanent: [true],
+    shuffle_questions: [false],
     started_at: [null as Date | null],
     ended_at: [null as Date | null],
     with_duration: [false],
@@ -340,6 +341,21 @@ export class QuizCreate implements OnInit {
         } else {
           this.quizForm.controls.result_available_at.disable({emitEvent: false});
           this.quizForm.controls.result_available_at.setValue(null, {emitEvent: false});
+        }
+      });
+
+    this.quizForm.controls.result_available_at.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (!value) {
+          return;
+        }
+        const detailControl = this.quizForm.controls.detail_available_at;
+        if (!detailControl.value) {
+          detailControl.setValue(value, {emitEvent: false});
+          if (this.quizForm.controls.detail_visibility.value !== VisibilityEnumDto.Scheduled) {
+            this.quizForm.controls.detail_visibility.setValue(VisibilityEnumDto.Scheduled);
+          }
         }
       });
 
@@ -898,6 +914,7 @@ export class QuizCreate implements OnInit {
         : 10,
       active: this.quizForm.controls.active.value,
       is_public: this.quizForm.controls.is_public.value,
+      shuffle_questions: this.quizForm.controls.shuffle_questions.value,
       result_visibility: this.quizForm.controls.result_visibility.value,
       result_available_at: this.toIsoDateTime(this.quizForm.controls.result_available_at.value),
       detail_visibility: this.quizForm.controls.detail_visibility.value,
@@ -969,6 +986,7 @@ export class QuizCreate implements OnInit {
       mode: template.mode ?? ModeEnumDto.Practice,
       active: template.active ?? true,
       is_public: template.is_public ?? false,
+      shuffle_questions: template.shuffle_questions ?? false,
       permanent: isPermanent,
       started_at: this.fromIsoDateTime(template.started_at),
       ended_at: this.fromIsoDateTime(template.ended_at),

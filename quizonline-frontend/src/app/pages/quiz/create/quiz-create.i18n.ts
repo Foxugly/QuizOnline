@@ -30,6 +30,7 @@ export type QuizCreateUiText = {
   active: string;
   public: string;
   permanent: string;
+  shuffleQuestions: string;
   startedAt: string;
   endedAt: string;
   resultVisibility: string;
@@ -91,6 +92,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     active: 'Active',
     public: 'Public',
     permanent: 'Permanent',
+    shuffleQuestions: 'Shuffle questions',
     startedAt: 'Start date',
     endedAt: 'End date',
     resultVisibility: 'Result visibility',
@@ -150,6 +152,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     active: 'Actief',
     public: 'Publiek',
     permanent: 'Permanent',
+    shuffleQuestions: 'Vragen mengen',
     startedAt: 'Startdatum',
     endedAt: 'Einddatum',
     resultVisibility: 'Resultaatzichtbaarheid',
@@ -209,6 +212,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     active: 'Attivo',
     public: 'Pubblico',
     permanent: 'Permanente',
+    shuffleQuestions: 'Mescola le domande',
     startedAt: 'Data inizio',
     endedAt: 'Data fine',
     resultVisibility: 'Visibilità risultato',
@@ -268,6 +272,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     active: 'Activo',
     public: 'Publico',
     permanent: 'Permanente',
+    shuffleQuestions: 'Mezclar preguntas',
     startedAt: 'Fecha de inicio',
     endedAt: 'Fecha de fin',
     resultVisibility: 'Visibilidad del resultado',
@@ -327,6 +332,7 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     active: 'Active',
     public: 'Public',
     permanent: 'Permanent',
+    shuffleQuestions: 'Mélanger les questions',
     startedAt: 'Date de début',
     endedAt: 'Date de fin',
     resultVisibility: 'Visibilité du résultat',

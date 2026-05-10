@@ -91,6 +91,14 @@ class QuizTemplate(AuditMixin, models.Model):
         blank=True,
         help_text="Utilisé uniquement si la visibilité est 'À partir d'une date'.",
     )
+    shuffle_questions = models.BooleanField(
+        "Mélanger l'ordre des questions",
+        default=False,
+        help_text=(
+            "Si activé, chaque session reçoit un ordre de questions différent, "
+            "déterministe par session (mêmes questions à chaque rechargement)."
+        ),
+    )
     is_public = models.BooleanField("Public ?", default=False)
     active = models.BooleanField("Actif ?", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -343,6 +351,8 @@ class Quiz(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     ended_at = models.DateTimeField(null=True, blank=True)
     active = models.BooleanField(default=False)
+    result_notification_sent_at = models.DateTimeField(null=True, blank=True)
+    detail_notification_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         indexes = [
