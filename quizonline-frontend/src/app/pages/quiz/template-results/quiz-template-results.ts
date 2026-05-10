@@ -5,7 +5,7 @@ import {UserService} from '../../../services/user/user';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {catchError, finalize, forkJoin, map, of, switchMap} from 'rxjs';
+import {catchError, forkJoin, map, of, switchMap} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
@@ -79,17 +79,18 @@ export class QuizTemplateResultsPage implements OnInit {
           ),
         });
       }),
-      finalize(() => this.loading.set(false)),
     ).subscribe({
       next: ({sessions, template}) => {
         this.sessions.set(sessions);
         this.template.set(template);
+        this.loading.set(false);
       },
       error: (err: unknown) => {
         logApiError('quiz.template-results.load', err);
         this.sessions.set([]);
         this.template.set(null);
-        this.error.set(userFacingApiMessage(err, 'Impossible de charger les resultats des quiz envoyes.'));
+        this.error.set(userFacingApiMessage(err, 'Impossible de charger les résultats des quiz envoyés.'));
+        this.loading.set(false);
       },
     });
   }
@@ -152,5 +153,68 @@ export class QuizTemplateResultsPage implements OnInit {
 
   private normalize(value: string | null | undefined): string {
     return (value ?? '').trim().toLocaleLowerCase();
+  }
+
+  exportCsv(): void {
+    const rows = this.filteredSessions();
+    if (!rows.length) {
+      return;
+    }
+
+    const headers = ['Utilisateur', 'Nom', 'Prénom', 'Email', 'Démarré le', 'Terminé le', 'Score'];
+    const csvRows = [headers, ...rows.map((quiz) => [
+      quiz.user_summary?.username ?? '',
+      quiz.user_summary?.last_name ?? '',
+      quiz.user_summary?.first_name ?? '',
+      quiz.user_summary?.email ?? '',
+      this.csvDate(quiz.started_at),
+      this.csvDate(quiz.ended_at),
+      this.scoreLabel(quiz),
+    ])];
+
+    const csv = csvRows
+      .map((row) => row.map((cell) => this.csvEscape(cell)).join(';'))
+      .join('\r\n');
+
+    // BOM so Excel detects UTF-8 (preserves accents in column headers)
+    const blob = new Blob(['﻿' + csv], {type: 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const filename = `quiz-template-${this.template()?.id ?? 'results'}.csv`;
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private csvEscape(value: string): string {
+    if (value.includes('"') || value.includes(';') || value.includes('\n') || value.includes('\r')) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
+
+  private csvDate(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+    return date.toLocaleString('fr-FR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  private scoreLabel(quiz: QuizAssignmentListDto): string {
+    if (quiz.earned_score == null || quiz.max_score == null) {
+      return '';
+    }
+    return `${quiz.earned_score} / ${quiz.max_score}`;
   }
 }

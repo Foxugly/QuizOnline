@@ -50,6 +50,19 @@
   color: #8b1e1e;
 }
 
+.results-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.results-toolbar input[pInputText] {
+  flex: 1 1 18rem;
+  min-width: 12rem;
+}
+
 .center-cell {
   text-align: center;
 }

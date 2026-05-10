@@ -6238,6 +6238,16 @@ components:
           type: integer
         username:
           type: string
+        first_name:
+          type: string
+          default: ''
+        last_name:
+          type: string
+          default: ''
+        email:
+          type: string
+          format: email
+          default: ''
       required:
       - id
       - username

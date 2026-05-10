@@ -19,12 +19,6 @@
     </div>
 
     <div class="page__tools">
-      <input
-        [ngModel]="search()"
-        (ngModelChange)="search.set($event)"
-        pInputText
-        placeholder="Rechercher dans les quiz envoyes..."
-      >
       <p-button (onClick)="load()" icon="pi pi-refresh" [label]="editorUi().common.refresh" severity="secondary"></p-button>
     </div>
   </div>
@@ -34,6 +28,24 @@
   }
 
   <div class="table-card">
+    <div class="results-toolbar">
+      <input
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        pInputText
+        placeholder="Rechercher dans les quiz envoyés..."
+      >
+      <p-button
+        (onClick)="exportCsv()"
+        [disabled]="!filteredSessions().length"
+        icon="pi pi-file-excel"
+        label="Exporter en CSV"
+        severity="secondary"
+        size="small"
+        type="button"
+      ></p-button>
+    </div>
+
     <p-table
       [value]="filteredSessions()"
       [paginator]="filteredSessions().length > 10"
