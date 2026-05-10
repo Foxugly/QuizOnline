@@ -68,22 +68,30 @@ fi
 
 # ── 4. Sync service files ────────────────────────────────────────────────────
 echo "[4/7] Syncing systemd service files..."
+SVC_UPDATED=0
 for svc in quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
   SRC="$DEPLOY_DIR/$svc.service"
   DST="/etc/systemd/system/$svc.service"
-  if [ -f "$SRC" ]; then
-    if ! diff -q "$SRC" "$DST" > /dev/null 2>&1; then
-      sudo cp "$SRC" "$DST"
-      echo "  Updated: $svc.service"
-    else
-      echo "  OK: $svc.service (no change)"
-    fi
+
+  if [ ! -f "$SRC" ]; then
+    echo "  WARN: $svc.service missing in deploy/, skipping"
+    continue
+  fi
+
+  if [ -f "$DST" ] && cmp -s "$SRC" "$DST"; then
+    echo "  OK: $svc.service (no change)"
+  else
+    sudo cp "$SRC" "$DST"
+    SVC_UPDATED=$((SVC_UPDATED + 1))
+    echo "  Updated: $svc.service"
   fi
 done
 
 # ── 5. Restart services ─────────────────────────────────────────────────────
 echo "[5/7] Restarting services..."
-sudo systemctl daemon-reload
+if [ "$SVC_UPDATED" -gt 0 ]; then
+  sudo systemctl daemon-reload
+fi
 sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
 sudo systemctl reload apache2
 
