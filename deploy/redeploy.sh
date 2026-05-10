@@ -136,20 +136,29 @@ if [ -z "$WEB_SERVER" ]; then
 elif systemctl is-active --quiet "$WEB_SERVER"; then
   ok "$WEB_SERVER is running"
 
-  # Config syntax test (use absolute paths so sudoers matches)
+  # Config syntax test (use absolute paths so sudoers matches).
+  # Trust the binary's own exit code rather than grepping a localised
+  # success string, and surface the actual output when the check fails
+  # so the next debug round doesn't need to SSH in.
   case "$WEB_SERVER" in
     nginx)
-      if sudo /usr/sbin/nginx -t 2>&1 | grep -q "syntax is ok"; then
+      WEB_TEST_OUTPUT=$(sudo /usr/sbin/nginx -t 2>&1)
+      WEB_TEST_RC=$?
+      if [ "$WEB_TEST_RC" -eq 0 ]; then
         ok "nginx config: syntax OK"
       else
-        warn "nginx config: syntax error"
+        warn "nginx config: syntax error (exit=$WEB_TEST_RC)"
+        echo "$WEB_TEST_OUTPUT" | sed 's/^/      /'
       fi
       ;;
     apache2)
-      if sudo /usr/sbin/apachectl configtest 2>&1 | grep -q "Syntax OK"; then
+      WEB_TEST_OUTPUT=$(sudo /usr/sbin/apachectl configtest 2>&1)
+      WEB_TEST_RC=$?
+      if [ "$WEB_TEST_RC" -eq 0 ]; then
         ok "apache2 config: Syntax OK"
       else
-        warn "apache2 config: syntax error"
+        warn "apache2 config: syntax error (exit=$WEB_TEST_RC)"
+        echo "$WEB_TEST_OUTPUT" | sed 's/^/      /'
       fi
       ;;
   esac
