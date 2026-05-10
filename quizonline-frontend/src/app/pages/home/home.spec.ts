@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {provideRouter} from '@angular/router';
 
@@ -34,6 +35,8 @@ describe('Home', () => {
           provide: UserService,
           useValue: {
             isAdmin: () => false,
+            currentLang: 'fr',
+            lang: signal('fr').asReadonly(),
           },
         },
       ],
