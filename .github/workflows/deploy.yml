@@ -58,4 +58,8 @@ jobs:
             sudo -u django mkdir -p "$FRONTEND_DIR"
             sudo -u django tar -xzf /tmp/frontend-build.tar.gz -C "$FRONTEND_DIR"
             rm -f /tmp/frontend-build.tar.gz
-            sudo systemctl reload apache2
+            if systemctl is-active --quiet nginx; then
+              sudo systemctl reload nginx
+            elif systemctl is-active --quiet apache2; then
+              sudo systemctl reload apache2
+            fi

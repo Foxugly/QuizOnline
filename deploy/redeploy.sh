@@ -37,6 +37,15 @@ ERRORS=0
 ok()   { echo "  ✓ $1"; }
 warn() { echo "  ✗ $1"; ERRORS=$((ERRORS + 1)); }
 
+# Detect active reverse proxy (nginx preferred, fallback apache2)
+if systemctl is-active --quiet nginx; then
+  WEB_SERVER="nginx"
+elif systemctl is-active --quiet apache2; then
+  WEB_SERVER="apache2"
+else
+  WEB_SERVER=""
+fi
+
 echo "=== QuizOnline redeploy ==="
 echo "  Repo:    $REPO_DIR"
 echo "  Backend: $BACKEND_DIR"
@@ -93,7 +102,9 @@ if [ "$SVC_UPDATED" -gt 0 ]; then
   sudo systemctl daemon-reload
 fi
 sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
-sudo systemctl reload apache2
+if [ -n "$WEB_SERVER" ]; then
+  sudo systemctl reload "$WEB_SERVER"
+fi
 
 # ── 6. Verify services ──────────────────────────────────────────────────────
 echo "[6/7] Verifying..."
@@ -119,18 +130,31 @@ else
   warn "quizonline-celery-beat is NOT running"
 fi
 
-# Apache
-if systemctl is-active --quiet apache2; then
-  ok "apache2 is running"
-else
-  warn "apache2 is NOT running"
-fi
+# Reverse proxy (nginx or apache2)
+if [ -z "$WEB_SERVER" ]; then
+  warn "No reverse proxy detected (neither nginx nor apache2 is active)"
+elif systemctl is-active --quiet "$WEB_SERVER"; then
+  ok "$WEB_SERVER is running"
 
-# Apache config syntax
-if sudo apachectl configtest 2>&1 | grep -q "Syntax OK"; then
-  ok "Apache config: Syntax OK"
+  # Config syntax test
+  case "$WEB_SERVER" in
+    nginx)
+      if sudo nginx -t 2>&1 | grep -q "syntax is ok"; then
+        ok "nginx config: syntax OK"
+      else
+        warn "nginx config: syntax error"
+      fi
+      ;;
+    apache2)
+      if sudo apachectl configtest 2>&1 | grep -q "Syntax OK"; then
+        ok "apache2 config: Syntax OK"
+      else
+        warn "apache2 config: syntax error"
+      fi
+      ;;
+  esac
 else
-  warn "Apache config: syntax error"
+  warn "$WEB_SERVER is NOT running"
 fi
 
 # Backend health (local)
