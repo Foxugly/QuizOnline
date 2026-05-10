@@ -6,15 +6,19 @@ import {Router} from '@angular/router';
 import {catchError, finalize, forkJoin, of} from 'rxjs';
 import {TabsModule} from 'primeng/tabs';
 import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
+import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuizListDto} from '../../../api/generated/model/quiz-list';
 import {QuizSessionTableComponent} from '../../../components/quiz-session-table/quiz-session-table';
 import {QuizTemplateTableComponent} from '../../../components/quiz-template-table/quiz-template-table';
 import {QuizTemplateAssignDialogComponent} from '../../../components/quiz-template-assign-dialog/quiz-template-assign-dialog';
 import {QuizService} from '../../../services/quiz/quiz';
+import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {AssignableRecipient, QuizTemplateListItem, UserQuizListItem} from './quiz-list.models';
 import {DomainService} from '../../../services/domain/domain';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -27,18 +31,23 @@ type DomainReadWithMembers = DomainReadDto & {
   members?: UserSummaryDto[];
 };
 
+type BulkAction = 'activate' | 'deactivate' | 'delete';
+
 @Component({
   selector: 'app-quiz-list',
   imports: [
     CommonModule,
     FormsModule,
     ButtonModule,
+    ConfirmDialogModule,
     InputTextModule,
     TabsModule,
     QuizTemplateTableComponent,
     QuizSessionTableComponent,
     QuizTemplateAssignDialogComponent,
+    BulkActionsComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './quiz-list.html',
   styleUrl: './quiz-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,15 +68,26 @@ export class QuizListPage implements OnInit {
   selectedTemplate = signal<QuizTemplateListItem | null>(null);
   selectedRecipientIds = signal<number[]>([]);
   assigning = signal(false);
+  selectedTemplates = signal<QuizTemplateListItem[]>([]);
+  applyingBulk = signal(false);
+  readonly selectedCount = computed(() => this.selectedTemplates().length);
 
   private readonly quizService = inject(QuizService);
+  private readonly quizTemplateService = inject(QuizTemplateService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly domainService = inject(DomainService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly canComposeTemplate = computed(() => this.domains().some((domain) => this.canManageDomain(domain)));
   readonly canCreateQuickTemplate = computed(() => this.domains().length > 0);
+
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => [
+    {label: 'Rendre actif', value: 'activate', icon: 'pi pi-check-circle'},
+    {label: 'Rendre inactif', value: 'deactivate', icon: 'pi pi-times-circle'},
+    {label: 'Supprimer', value: 'delete', icon: 'pi pi-trash', danger: true},
+  ]);
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = computed(() => getQuizListUiText(this.currentLang()));
 
@@ -160,6 +180,76 @@ export class QuizListPage implements OnInit {
 
   goCompose(): void {
     this.quizService.goCompose();
+  }
+
+  onTemplatesSelectionChange(rows: QuizTemplateListItem[]): void {
+    this.selectedTemplates.set(rows);
+  }
+
+  applyBulk(action: string): void {
+    if (this.selectedCount() === 0 || this.applyingBulk()) {
+      return;
+    }
+    switch (action as BulkAction) {
+      case 'activate':
+        this.bulkPatch(true);
+        return;
+      case 'deactivate':
+        this.bulkPatch(false);
+        return;
+      case 'delete':
+        this.confirmBulkDelete();
+        return;
+    }
+  }
+
+  private bulkPatch(active: boolean): void {
+    const ids = this.selectedTemplates().map(t => t.id);
+    if (!ids.length) {
+      return;
+    }
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.quizTemplateService.partialUpdate(id, {active}))).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => {
+        this.selectedTemplates.set([]);
+        this.load();
+      },
+      error: (err: unknown) => logApiError('quiz.list.bulk-patch', err),
+      complete: () => this.applyingBulk.set(false),
+    });
+  }
+
+  private confirmBulkDelete(): void {
+    const ids = this.selectedTemplates().map(t => t.id);
+    if (!ids.length) {
+      return;
+    }
+    const plural = ids.length > 1 ? 's' : '';
+    this.confirmationService.confirm({
+      header: 'Supprimer',
+      message: `Supprimer ${ids.length} template${plural} ? Cette action est irréversible.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Supprimer',
+      rejectLabel: 'Annuler',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.runBulkDelete(ids),
+    });
+  }
+
+  private runBulkDelete(ids: number[]): void {
+    this.applyingBulk.set(true);
+    forkJoin(ids.map(id => this.quizTemplateService.destroy(id))).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => {
+        this.selectedTemplates.set([]);
+        this.load();
+      },
+      error: (err: unknown) => logApiError('quiz.list.bulk-delete', err),
+      complete: () => this.applyingBulk.set(false),
+    });
   }
 
   goEditTemplate(templateId: number): void {

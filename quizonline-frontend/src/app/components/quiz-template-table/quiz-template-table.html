@@ -1,9 +1,13 @@
 <section class="list-section">
   <p-table
+    [dataKey]="'id'"
     [paginator]="templates().length > 10"
     [rows]="10"
     [rowsPerPageOptions]="[10, 20, 50]"
     [value]="templates()"
+    [selection]="selection()"
+    (selectionChange)="selectionChange.emit($event)"
+    selectionMode="multiple"
     sortField="created_at"
     [sortOrder]="-1"
     showGridlines
@@ -12,6 +16,7 @@
     stripedRows>
     <ng-template #header>
       <tr>
+        <th class="col-checkbox" style="width: 3rem"></th>
         <th pSortableColumn="title">{{ uiText().templates.headers.title }} <p-sortIcon field="title"></p-sortIcon></th>
         <th pSortableColumn="mode">{{ uiText().templates.headers.mode }} <p-sortIcon field="mode"></p-sortIcon></th>
         <th pSortableColumn="questions_count">{{ uiText().templates.headers.questions }} <p-sortIcon field="questions_count"></p-sortIcon></th>
@@ -26,6 +31,9 @@
 
     <ng-template #body let-template>
       <tr>
+        <td class="col-checkbox">
+          <p-tableCheckbox [value]="template"></p-tableCheckbox>
+        </td>
         <td>{{ template.title }}</td>
         <td class="center-cell">{{ modeLabel(template.mode) }}</td>
         <td class="center-cell">{{ template.questions_count }}</td>
@@ -97,7 +105,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td class="empty-cell" colspan="9">
+        <td class="empty-cell" colspan="10">
           @if (loading()) {
             Chargement...
           } @else {

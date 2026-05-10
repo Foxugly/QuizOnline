@@ -1,6 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
+import {CheckboxModule} from 'primeng/checkbox';
 import {TableModule} from 'primeng/table';
 import {QuizTemplateListItem} from '../../pages/quiz/list/quiz-list.models';
 import {TooltipModule} from 'primeng/tooltip';
@@ -8,7 +9,7 @@ import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
 
 @Component({
   selector: 'app-quiz-template-table',
-  imports: [CommonModule, ButtonModule, TableModule, TooltipModule],
+  imports: [CommonModule, ButtonModule, CheckboxModule, TableModule, TooltipModule],
   templateUrl: './quiz-template-table.html',
   styleUrl: './quiz-template-table.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,12 +19,14 @@ export class QuizTemplateTableComponent {
   readonly loading = input(false);
   readonly creatingTemplateId = input<number | null>(null);
   readonly uiText = input.required<QuizListUiText>();
+  readonly selection = input<QuizTemplateListItem[]>([]);
 
   readonly createFromTemplate = output<number>();
   readonly openAssign = output<QuizTemplateListItem>();
   readonly openResults = output<QuizTemplateListItem>();
   readonly edit = output<number>();
   readonly remove = output<number>();
+  readonly selectionChange = output<QuizTemplateListItem[]>();
 
   emptyMessage(): string {
     return this.uiText().templates.empty;
