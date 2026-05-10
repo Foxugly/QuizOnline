@@ -2,9 +2,9 @@
   <div class="login-page__shell">
     <div class="login-card">
       <div class="login-card__header">
-        <p class="login-card__eyebrow">{{ ui.login.eyebrow }}</p>
-        <h2>{{ ui.login.title }}</h2>
-        <p>{{ ui.login.subtitle }}</p>
+        <p class="login-card__eyebrow">{{ ui().login.eyebrow }}</p>
+        <h2>{{ ui().login.title }}</h2>
+        <p>{{ ui().login.subtitle }}</p>
       </div>
 
       @if (errorMsg()) {
@@ -22,35 +22,35 @@
         autocomplete="on">
 
         <div class="field">
-          <label for="username">{{ ui.login.username }}</label>
+          <label for="username">{{ ui().login.username }}</label>
           <input
             id="username"
             type="text"
             pInputText
             formControlName="username"
-            [placeholder]="ui.login.usernamePlaceholder"
+            [placeholder]="ui().login.usernamePlaceholder"
             autofocus
           />
           @if (f.username.touched && f.username.invalid) {
             <small class="field__error">
-              {{ ui.login.usernameError }}
+              {{ ui().login.usernameError }}
             </small>
           }
         </div>
 
         <div class="field">
-          <label for="password">{{ ui.login.password }}</label>
+          <label for="password">{{ ui().login.password }}</label>
           <p-password
             [feedback]="false"
             [toggleMask]="true"
             formControlName="password"
             id="password"
-            [placeholder]="ui.login.passwordPlaceholder"
+            [placeholder]="ui().login.passwordPlaceholder"
             fluid
           ></p-password>
           @if (f.password.touched && f.password.invalid) {
             <small class="field__error">
-              {{ ui.login.passwordError }}
+              {{ ui().login.passwordError }}
             </small>
           }
         </div>
@@ -62,17 +62,17 @@
               formControlName="remember"
               [binary]="true"
             ></p-checkbox>
-            <label for="remember">{{ ui.login.remember }}</label>
+            <label for="remember">{{ ui().login.remember }}</label>
           </div>
 
           <a routerLink="/reset-password" class="link">
-            {{ ui.login.forgotPassword }}
+            {{ ui().login.forgotPassword }}
           </a>
         </div>
 
         <p-button
           type="submit"
-          [label]="ui.login.submit"
+          [label]="ui().login.submit"
           styleClass="login-submit"
           [disabled]="loading() || form.invalid"
           [loading]="loading()"
@@ -80,8 +80,8 @@
       </form>
 
       <div class="login-card__footer">
-        <span class="muted">{{ ui.login.noAccount }}</span>
-        <a routerLink="/register" class="link">{{ ui.login.createAccount }}</a>
+        <span class="muted">{{ ui().login.noAccount }}</span>
+        <a routerLink="/register" class="link">{{ ui().login.createAccount }}</a>
       </div>
     </div>
   </div>

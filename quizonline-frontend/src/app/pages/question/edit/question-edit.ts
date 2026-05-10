@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -33,7 +34,6 @@ import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-question-edit',
@@ -48,7 +48,7 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionEdit implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   id!: number;
   readonly emptyLanguagesMessage = 'Aucune langue active sur ce domaine.';
 

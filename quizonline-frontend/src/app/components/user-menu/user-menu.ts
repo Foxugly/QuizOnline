@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
-import {getUiText} from '../../shared/i18n/ui-text';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-user-menu',
@@ -18,9 +18,7 @@ export class UserMenuComponent {
   private readonly userService = inject(UserService);
   protected readonly open = signal(false);
 
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
+  readonly ui = inject(UiTextService).ui;
 
   goPreferences() {
     this.open.set(false);

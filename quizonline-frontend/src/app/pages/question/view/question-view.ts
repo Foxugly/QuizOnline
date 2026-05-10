@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {QuestionService,} from '../../../services/question/question';
@@ -7,7 +8,6 @@ import {ButtonModule} from 'primeng/button';
 import {ToggleButtonModule} from 'primeng/togglebutton';
 import {FormsModule} from '@angular/forms';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
 
 @Component({
@@ -18,7 +18,7 @@ import {QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionView implements OnInit {
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   id!: number;
   loading = signal(false);
   error = signal<string | null>(null);

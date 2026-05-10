@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {forkJoin} from 'rxjs';
@@ -18,7 +19,6 @@ import {BulkActionsComponent, BulkActionOption} from '../../../shared/components
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
@@ -56,7 +56,7 @@ export class DomainList implements OnInit {
   private userService: UserService = inject(UserService);
   private confirmationService = inject(ConfirmationService);
 
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);

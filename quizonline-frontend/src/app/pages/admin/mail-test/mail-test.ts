@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -9,7 +10,6 @@ import {TextareaModule} from 'primeng/textarea';
 
 import {MailTestService} from '../../../services/admin/mail-test';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
 import {logApiError} from '../../../shared/api/api-errors';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
@@ -34,7 +34,7 @@ export class MailTestPage {
   private readonly toast = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly ui = computed(() => getUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).ui;
   readonly t = computed(() => this.ui().admin.mailTest);
 
   readonly submitting = signal(false);

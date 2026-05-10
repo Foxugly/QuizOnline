@@ -2,9 +2,9 @@
   <div class="preferences-shell">
     <section class="hero">
       <div class="hero__copy">
-        <p class="hero__eyebrow">{{ ui.preferences.eyebrow }}</p>
-        <h1>{{ ui.preferences.title }}</h1>
-        <p class="hero__text">{{ ui.preferences.subtitle }}</p>
+        <p class="hero__eyebrow">{{ ui().preferences.eyebrow }}</p>
+        <h1>{{ ui().preferences.title }}</h1>
+        <p class="hero__text">{{ ui().preferences.subtitle }}</p>
       </div>
       <div class="hero__meta">
         <span class="meta-pill">{{ roleLabel }}</span>
@@ -15,44 +15,44 @@
     <div class="preferences-grid">
       @if (loading()) {
         <p-card class="panel panel--form">
-          <p class="state">{{ ui.preferences.loading }}</p>
+          <p class="state">{{ ui().preferences.loading }}</p>
         </p-card>
       } @else {
         <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()">
           <p-card class="panel panel--form">
-            <ng-template pTemplate="title">{{ ui.preferences.profileTitle }}</ng-template>
-            <ng-template pTemplate="subtitle">{{ ui.preferences.profileSubtitle }}</ng-template>
+            <ng-template pTemplate="title">{{ ui().preferences.profileTitle }}</ng-template>
+            <ng-template pTemplate="subtitle">{{ ui().preferences.profileSubtitle }}</ng-template>
 
             <div class="field-grid">
               <div class="field">
-                <label for="username">{{ ui.preferences.username }}</label>
+                <label for="username">{{ ui().preferences.username }}</label>
                 <input id="username" pInputText formControlName="username">
               </div>
 
               <div class="field">
-                <label for="email">{{ ui.preferences.email }}</label>
+                <label for="email">{{ ui().preferences.email }}</label>
                 <input id="email" pInputText formControlName="email" type="email">
               </div>
 
               <div class="field">
-                <label for="first_name">{{ ui.preferences.firstName }}</label>
+                <label for="first_name">{{ ui().preferences.firstName }}</label>
                 <input id="first_name" pInputText formControlName="first_name">
               </div>
 
               <div class="field">
-                <label for="last_name">{{ ui.preferences.lastName }}</label>
+                <label for="last_name">{{ ui().preferences.lastName }}</label>
                 <input id="last_name" pInputText formControlName="last_name">
               </div>
 
               <div class="field">
-                <label for="language">{{ ui.preferences.language }}</label>
+                <label for="language">{{ ui().preferences.language }}</label>
                 <p-select
                   inputId="language"
                   [options]="languageOptions"
                   formControlName="language"
                   optionLabel="label"
                   optionValue="value"
-                  [placeholder]="ui.preferences.chooseLanguage"
+                  [placeholder]="ui().preferences.chooseLanguage"
                 ></p-select>
               </div>
             </div>
@@ -67,13 +67,13 @@
             <div class="actions">
               <p-button
                 type="submit"
-                [label]="ui.preferences.save"
+                [label]="ui().preferences.save"
                 icon="pi pi-save"
                 [loading]="saving()"
               ></p-button>
               <p-button
                 type="button"
-                [label]="ui.preferences.changePassword"
+                [label]="ui().preferences.changePassword"
                 icon="pi pi-lock"
                 severity="secondary"
                 [text]="true"
@@ -83,14 +83,14 @@
           </p-card>
 
           <p-card class="panel panel--summary">
-            <ng-template pTemplate="title">{{ ui.preferences.domainsTitle }}</ng-template>
-            <ng-template pTemplate="subtitle">{{ ui.preferences.domainsSubtitle }}</ng-template>
+            <ng-template pTemplate="title">{{ ui().preferences.domainsTitle }}</ng-template>
+            <ng-template pTemplate="subtitle">{{ ui().preferences.domainsSubtitle }}</ng-template>
 
             <div class="form form--stacked">
               <div class="domain-toolbar">
                 <p-button
                   type="button"
-                  [label]="ui.preferences.addDomain"
+                  [label]="ui().preferences.addDomain"
                   icon="pi pi-plus"
                   severity="secondary"
                   [disabled]="saving()"
@@ -99,22 +99,22 @@
               </div>
 
               <div class="domain-list">
-                <p class="domain-list__title">{{ ui.preferences.linkedDomainsList }}</p>
+                <p class="domain-list__title">{{ ui().preferences.linkedDomainsList }}</p>
                 @if (visibleDomainEntries.length) {
                   @for (entry of visibleDomainEntries; track entry.id) {
                     <div class="domain-list__item">
                       <div class="domain-list__content">
                         <span class="domain-list__name">{{ entry.name }}</span>
                         <span class="domain-list__role">{{ entry.role }}</span>
-                        <span class="domain-list__owner">{{ ui.preferences.ownerLabel }} {{ entry.ownerName }}</span>
+                        <span class="domain-list__owner">{{ ui().preferences.ownerLabel }} {{ entry.ownerName }}</span>
                       </div>
                       <div class="domain-list__actions">
                         @if (entry.isCurrent) {
-                          <span class="domain-list__badge">{{ ui.preferences.currentBadge }}</span>
+                          <span class="domain-list__badge">{{ ui().preferences.currentBadge }}</span>
                         } @else if (entry.canSetCurrent) {
                           <p-button
                             type="button"
-                            [label]="ui.preferences.setCurrent"
+                            [label]="ui().preferences.setCurrent"
                             size="small"
                             [text]="true"
                             [disabled]="saving()"
@@ -124,7 +124,7 @@
                         @if (entry.canUnlink) {
                           <p-button
                             type="button"
-                            [label]="ui.preferences.unlinkDomain"
+                            [label]="ui().preferences.unlinkDomain"
                             size="small"
                             severity="danger"
                             [text]="true"
@@ -135,7 +135,7 @@
                         @if (entry.canDelete) {
                           <p-button
                             type="button"
-                            [label]="ui.preferences.deleteDomain"
+                            [label]="ui().preferences.deleteDomain"
                             size="small"
                             severity="danger"
                             [outlined]="true"
@@ -147,7 +147,7 @@
                     </div>
                   }
                 } @else {
-                  <p class="state">{{ ui.preferences.noDomain }}</p>
+                  <p class="state">{{ ui().preferences.noDomain }}</p>
                 }
               </div>
             </div>
@@ -159,7 +159,7 @@
 </div>
 
 <p-dialog
-  [header]="ui.preferences.addDomain"
+  [header]="ui().preferences.addDomain"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -184,7 +184,7 @@
         </button>
       }
     } @else {
-      <p class="state">{{ ui.preferences.noMoreDomains }}</p>
+      <p class="state">{{ ui().preferences.noMoreDomains }}</p>
     }
   </div>
 
@@ -192,14 +192,14 @@
     <div class="link-dialog__footer">
       <p-button
         type="button"
-        [label]="ui.preferences.cancel"
+        [label]="ui().preferences.cancel"
         severity="secondary"
         [text]="true"
         (onClick)="closeLinkDomainsDialog()"
       ></p-button>
       <p-button
         type="button"
-        [label]="ui.preferences.linkSelectedDomains"
+        [label]="ui().preferences.linkSelectedDomains"
         icon="pi pi-link"
         [disabled]="!selectedDomainIdsToLink().length || saving()"
         [loading]="saving()"

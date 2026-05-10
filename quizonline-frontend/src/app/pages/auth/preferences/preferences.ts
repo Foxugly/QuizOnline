@@ -15,7 +15,7 @@ import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-preferences',
@@ -58,9 +58,7 @@ export class Preferences implements OnInit {
     language: [LanguageEnumDto.En, [Validators.required]],
   });
 
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
+  readonly ui = inject(UiTextService).ui;
 
   get languageOptions() {
     return [
@@ -78,12 +76,12 @@ export class Preferences implements OnInit {
       return '-';
     }
     if (me.is_superuser) {
-      return this.ui.preferences.roleSuperuser;
+      return this.ui().preferences.roleSuperuser;
     }
     if (me.is_staff) {
-      return this.ui.preferences.roleManager;
+      return this.ui().preferences.roleManager;
     }
-    return this.ui.preferences.roleUser;
+    return this.ui().preferences.roleUser;
   }
 
   get visibleDomainEntries() {
@@ -100,8 +98,8 @@ export class Preferences implements OnInit {
         id: domain.id,
         name: this.getDomainLabel(domain),
         role: isOwner
-          ? this.ui.preferences.roleOwner
-          : (isDomainManager ? this.ui.preferences.roleManager : this.ui.preferences.roleMember),
+          ? this.ui().preferences.roleOwner
+          : (isDomainManager ? this.ui().preferences.roleManager : this.ui().preferences.roleMember),
         ownerName: domain.owner?.username || '-',
         isCurrent: me.current_domain === domain.id,
         canSetCurrent: me.current_domain !== domain.id,
@@ -149,7 +147,7 @@ export class Preferences implements OnInit {
           });
         },
         error: () => {
-          this.error.set(this.ui.preferences.loadError);
+          this.error.set(this.ui().preferences.loadError);
         },
       });
   }
@@ -165,7 +163,7 @@ export class Preferences implements OnInit {
 
     const me = this.currentUser();
     if (!me) {
-      this.error.set(this.ui.preferences.userMissing);
+      this.error.set(this.ui().preferences.userMissing);
       return;
     }
 
@@ -198,10 +196,10 @@ export class Preferences implements OnInit {
             last_name: updatedUser.last_name ?? '',
             language: updatedUser.language ?? LanguageEnumDto.En,
           });
-          this.success.set(this.ui.preferences.saveSuccess);
+          this.success.set(this.ui().preferences.saveSuccess);
         },
         error: () => {
-          this.error.set(this.ui.preferences.saveError);
+          this.error.set(this.ui().preferences.saveError);
         },
       });
   }
@@ -257,10 +255,10 @@ export class Preferences implements OnInit {
         next: ({profile, visibleDomains}) => {
           this.currentUser.set(profile);
           this.visibleDomains.set(visibleDomains ?? []);
-          this.success.set(this.ui.preferences.saveSuccess);
+          this.success.set(this.ui().preferences.saveSuccess);
         },
         error: () => {
-          this.error.set(this.ui.preferences.saveError);
+          this.error.set(this.ui().preferences.saveError);
         },
       });
   }
@@ -293,10 +291,10 @@ export class Preferences implements OnInit {
           this.currentUser.set(profile);
           this.visibleDomains.set(visibleDomains ?? []);
           this.availableDomains.set(availableDomains ?? []);
-          this.success.set(this.ui.preferences.deleteDomainSuccess);
+          this.success.set(this.ui().preferences.deleteDomainSuccess);
         },
         error: () => {
-          this.error.set(this.ui.preferences.deleteDomainError);
+          this.error.set(this.ui().preferences.deleteDomainError);
         },
       });
   }
@@ -323,10 +321,10 @@ export class Preferences implements OnInit {
           if (closeDialog) {
             this.closeLinkDomainsDialog();
           }
-          this.success.set(this.ui.preferences.saveSuccess);
+          this.success.set(this.ui().preferences.saveSuccess);
         },
         error: () => {
-          this.error.set(this.ui.preferences.saveError);
+          this.error.set(this.ui().preferences.saveError);
         },
       });
   }

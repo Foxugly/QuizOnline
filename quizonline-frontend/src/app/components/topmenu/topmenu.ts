@@ -12,7 +12,7 @@ import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
 import {ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
-import {getUiText} from '../../shared/i18n/ui-text';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {DomainService, DomainTranslations} from '../../services/domain/domain';
 import {AuthService} from '../../services/auth/auth';
 
@@ -68,21 +68,18 @@ export class TopMenuComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
+  readonly ui = inject(UiTextService).ui;
   readonly visibleDomains = signal<DomainReadDto[]>([]);
   readonly domainMenuOpen = signal(false);
   readonly adminMenuOpen = signal(false);
   readonly mobileMenuOpen = signal(false);
-
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
 
   get currentUser(): CustomUserReadDto | null {
     return this.userService.currentUser();
   }
 
   get currentDomainLabel(): string {
-    return this.currentUser?.current_domain_title?.trim() || this.ui.topmenu.noDomains;
+    return this.currentUser?.current_domain_title?.trim() || this.ui().topmenu.noDomains;
   }
 
   get canManageCurrentDomain(): boolean {
@@ -128,7 +125,7 @@ export class TopMenuComponent implements OnInit {
 
     if (isAuthenticated) {
       items.push({
-        label: this.ui.topmenu.quiz,
+        label: this.ui().topmenu.quiz,
         link: ROUTES.quiz.list(),
       });
     }
@@ -136,11 +133,11 @@ export class TopMenuComponent implements OnInit {
     if (this.canManageCurrentDomain) {
       items.unshift(
         {
-          label: this.ui.topmenu.subjects,
+          label: this.ui().topmenu.subjects,
           link: ROUTES.subject.list(),
         },
         {
-          label: this.ui.topmenu.questions,
+          label: this.ui().topmenu.questions,
           link: ROUTES.question.list(),
         },
       );
@@ -149,7 +146,7 @@ export class TopMenuComponent implements OnInit {
     if (this.canAccessDomainsMenu) {
       items.unshift(
         {
-          label: this.ui.topmenu.domains,
+          label: this.ui().topmenu.domains,
           link: ROUTES.domain.list(),
         },
       );
@@ -163,18 +160,18 @@ export class TopMenuComponent implements OnInit {
     }
 
     items.unshift({
-      label: this.ui.topmenu.features,
+      label: this.ui().topmenu.features,
       link: ['/features'],
     });
 
     items.push(
       {
-        label: this.ui.topmenu.donate,
+        label: this.ui().topmenu.donate,
         link: ['/donate'],
         accent: true,
       },
       {
-        label: this.ui.topmenu.about,
+        label: this.ui().topmenu.about,
         link: ['/about'],
       },
     );
@@ -236,24 +233,24 @@ export class TopMenuComponent implements OnInit {
   get adminMenuItems(): AdminNavItem[] {
     const items: AdminNavItem[] = [
       {
-        label: this.ui.admin.stats.title,
+        label: this.ui().admin.stats.title,
         icon: 'pi pi-chart-bar',
         link: ROUTES.admin.stats(),
       },
       {
-        label: this.ui.admin.systemConfig.title,
+        label: this.ui().admin.systemConfig.title,
         icon: 'pi pi-server',
         link: ROUTES.admin.systemConfig(),
       },
       {
-        label: this.ui.admin.mailTest.title,
+        label: this.ui().admin.mailTest.title,
         icon: 'pi pi-send',
         link: ROUTES.admin.mailTest(),
       },
     ];
     if (this.userService.isSuperuser()) {
       items.push({
-        label: this.ui.admin.languages.title,
+        label: this.ui().admin.languages.title,
         icon: 'pi pi-language',
         link: ROUTES.admin.languages(),
       });

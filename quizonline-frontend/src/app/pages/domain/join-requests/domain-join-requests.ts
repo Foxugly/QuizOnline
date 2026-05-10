@@ -18,7 +18,7 @@ import {JoinRequestStatusEnumDto} from '../../../api/generated/model/join-reques
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 
 type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
@@ -60,7 +60,8 @@ export class DomainJoinRequestsPage implements OnInit {
   readonly rejectingRequest = signal<DomainJoinRequestReadDto | null>(null);
 
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
-  readonly t = computed(() => getUiText(this.currentLang()).admin.joinRequests);
+  private readonly uiText = inject(UiTextService);
+  readonly t = computed(() => this.uiText.ui().admin.joinRequests);
 
   readonly statusOptions = computed(() => {
     const labels = this.t();

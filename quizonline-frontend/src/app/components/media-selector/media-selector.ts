@@ -1,5 +1,6 @@
 // src/app/components/media-selector/media-selector.ts
 import {Component, computed, forwardRef, inject, input, OnDestroy, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR,} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {ButtonModule} from 'primeng/button';
@@ -10,7 +11,6 @@ import {DividerModule} from 'primeng/divider';
 import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip'; // pour [tooltip], optionnel
 import {toCanonicalYoutubeUrl} from '../../shared/media/youtube';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null;
@@ -47,7 +47,7 @@ export interface MediaSelectorValue {
 })
 export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   /** URL saisie pour YouTube / externe dans l’onglet 2 */
   youtubeUrl = signal<string>('');
   youtubeError = signal<string | null>(null);

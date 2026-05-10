@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
@@ -9,7 +10,6 @@ import {MessageModule} from 'primeng/message';
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-confirm-email',
@@ -25,7 +25,7 @@ export class ConfirmEmailPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly userService = inject(UserService);
 
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   readonly loading = signal(true);
   readonly successMessage = signal<string | null>(null);

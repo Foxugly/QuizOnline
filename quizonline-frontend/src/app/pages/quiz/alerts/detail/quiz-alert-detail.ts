@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -14,7 +15,6 @@ import {ROUTES} from '../../../../app.routes-paths';
 import {QuizAlertService, QuizAlertThreadDetailDto} from '../../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
-import {getEditorUiText} from '../../../../shared/i18n/editor-ui-text';
 import {
   canSendReply,
   canShowComposer,
@@ -39,7 +39,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertDetail implements OnInit {
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly thread = signal<QuizAlertThreadDetailDto | null>(null);

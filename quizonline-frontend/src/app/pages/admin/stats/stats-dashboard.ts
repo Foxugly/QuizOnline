@@ -1,4 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CardModule} from 'primeng/card';
 import {ChartModule} from 'primeng/chart';
@@ -7,7 +8,6 @@ import {TableModule} from 'primeng/table';
 
 import {DashboardStats, DomainStats, StatsService} from '../../../services/admin/stats';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
 import {logApiError} from '../../../shared/api/api-errors';
 
 interface KpiCard {
@@ -28,7 +28,7 @@ export class StatsDashboardPage implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly ui = computed(() => getUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).ui;
   readonly stats = signal<DashboardStats | null>(null);
 
   readonly kpiCards = computed<KpiCard[]>(() => {

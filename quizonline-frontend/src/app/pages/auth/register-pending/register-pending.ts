@@ -5,7 +5,7 @@ import {ButtonModule} from 'primeng/button';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-register-pending',
@@ -20,9 +20,7 @@ export class RegisterPendingPage {
 
   app = window.__APP__!;
 
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
+  readonly ui = inject(UiTextService).ui;
 
   goLogin(): void {
     void this.router.navigate(ROUTES.auth.login());

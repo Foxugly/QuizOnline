@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, ChangeDetectionStrategy, computed, inject, input, output} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -8,7 +9,6 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';
 import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 @Component({
@@ -25,7 +25,7 @@ import {UserService} from '../../services/user/user';
 })
 export class QuizQuestionLibraryComponent {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   readonly texts = input.required<QuizCreateUiText>();
   readonly selectedDomainId = input(0);
   readonly loading = input(false);

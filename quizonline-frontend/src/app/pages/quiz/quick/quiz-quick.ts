@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, signal, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject, switchMap} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
@@ -7,7 +8,6 @@ import {QuizSubjectCreatePayload, QuizService} from '../../../services/quiz/quiz
 import {QuizSubjectForm} from '../subject-form/subject-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-quiz-quick-page',
@@ -17,7 +17,7 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizQuickPage {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   @ViewChild(QuizSubjectForm) private subjectForm?: QuizSubjectForm;
 
   saving = signal(false);

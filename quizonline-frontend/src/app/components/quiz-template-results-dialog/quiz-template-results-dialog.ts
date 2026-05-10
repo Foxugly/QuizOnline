@@ -1,11 +1,11 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
 import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {QuizTemplateAssignmentSessionDto} from '../../services/quiz/quiz';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 @Component({
@@ -17,7 +17,7 @@ import {UserService} from '../../services/user/user';
 })
 export class QuizTemplateResultsDialogComponent {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   visible = input(false);
   template = input<QuizTemplateDto | null>(null);
   sessions = input<QuizTemplateAssignmentSessionDto[]>([]);

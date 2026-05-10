@@ -1,11 +1,11 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {ActivatedRoute} from '@angular/router';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-domain-delete',
@@ -23,7 +23,7 @@ export class DomainDelete implements OnInit {
   id!: number;
   domain = signal<DomainReadDto | null>(null);
   currentLang = computed(() => this.userService.currentLang);
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   getName(d: DomainReadDto | null): string {
     if (d) {

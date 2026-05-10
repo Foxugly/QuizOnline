@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
@@ -12,7 +13,6 @@ import {
   SystemConfigService,
 } from '../../../services/admin/system-config';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
 import {logApiError} from '../../../shared/api/api-errors';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
@@ -39,7 +39,7 @@ export class SystemConfigPage implements OnInit {
   private readonly toast = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly ui = computed(() => getUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).ui;
   readonly t = computed(() => this.ui().admin.systemConfig);
 
   readonly loading = signal(true);

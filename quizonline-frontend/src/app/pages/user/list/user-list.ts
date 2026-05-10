@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -16,7 +17,6 @@ import {ROUTES} from '../../../app.routes-paths';
 import {AdminUserDto, UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
@@ -47,7 +47,7 @@ export class UserListPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmationService = inject(ConfirmationService);
 
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   readonly users = signal<AdminUserDto[]>([]);
   readonly q = signal('');
   readonly rows = 10;

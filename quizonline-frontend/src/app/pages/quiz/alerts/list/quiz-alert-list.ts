@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
@@ -15,7 +16,6 @@ import {UserService} from '../../../../services/user/user';
 import {ROUTES} from '../../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
 import {formatLocalizedDateTime} from '../../../../shared/i18n/date-time';
-import {getEditorUiText} from '../../../../shared/i18n/editor-ui-text';
 
 type AlertStatusFilter = 'all' | 'open' | 'closed';
 type AlertReadFilter = 'all' | 'unread' | 'read';
@@ -28,7 +28,7 @@ type AlertReadFilter = 'all' | 'unread' | 'read';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertList implements OnInit {
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly threads = signal<QuizAlertThreadListDto[]>([]);

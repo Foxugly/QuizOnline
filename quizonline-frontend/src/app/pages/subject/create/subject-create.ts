@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {
   FormControl,
   FormGroup,
@@ -29,7 +30,6 @@ import {
 } from '../../../shared/forms/localized-text-form';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 
@@ -47,7 +47,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectCreate implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues configurees.";
 
   // UI state

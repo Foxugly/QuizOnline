@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -11,7 +12,6 @@ import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
 import {UserService} from '../../services/user/user';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
 type DomainOption = { id: number; name: string };
 
@@ -46,7 +46,7 @@ export class SubjectEditorFormComponent {
   readonly domainOptions = input<DomainOption[]>([]);
   readonly emptyLanguagesMessage = input('Ce domaine n a pas de langues configurees.');
   readonly submitLabel = input('Enregistrer');
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   readonly tabChange = output<string | number | undefined>();
   readonly translateActive = output<void>();

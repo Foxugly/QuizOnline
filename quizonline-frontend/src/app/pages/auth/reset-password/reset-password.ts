@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {finalize} from 'rxjs/operators';
@@ -11,7 +12,6 @@ import {ButtonModule} from 'primeng/button';
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-reset-password',
@@ -27,7 +27,7 @@ export class ResetPassword {
   private readonly destroyRef = inject(DestroyRef);
   private readonly userService = inject(UserService);
 
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   // State
   readonly submitted = signal(false);

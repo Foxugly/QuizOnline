@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {UserService} from '../../../services/user/user';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
@@ -35,7 +35,7 @@ export class QuizTemplateResultsPage implements OnInit {
   private readonly quizService = inject(QuizService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
 
   readonly filteredSessions = computed(() => {
     const term = this.normalize(this.search());

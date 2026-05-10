@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 
@@ -9,7 +10,6 @@ import {UserAdminFormComponent} from '../../../components/user-admin-form/user-a
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 const LANGUAGE_OPTIONS = [
   {label: 'English', value: LanguageEnumDto.En},
@@ -33,7 +33,7 @@ export class UserEditPage implements OnInit {
 
   private userId = 0;
   readonly submitError = signal<string | null>(null);
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   readonly languageOptions = LANGUAGE_OPTIONS;
   readonly form = this.fb.group({
     username: this.fb.control({value: '', disabled: true}, [Validators.required]),

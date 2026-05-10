@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
@@ -7,7 +8,6 @@ import {ROUTES} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
 import {openContactEmail} from '../../shared/contact';
-import {getUiText} from '../../shared/i18n/ui-text';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +20,7 @@ export class Home {
   readonly app = window.__APP__!;
   private readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
-  readonly ui = computed(() => getUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).ui;
 
   readonly isAuthenticated = computed(() => this.auth.isLoggedIn());
   readonly isAdmin = this.userService.isAdmin;

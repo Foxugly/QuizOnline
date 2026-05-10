@@ -13,20 +13,20 @@
       @if (open()) {
         <div class="user-menu__panel" (click)="$event.stopPropagation()">
           <button type="button" class="user-menu__item" (click)="goPreferences()">
-            {{ ui.userMenu.preferences }}
+            {{ ui().userMenu.preferences }}
           </button>
           <button type="button" class="user-menu__item" (click)="goChangePassword()">
-            {{ ui.userMenu.changePassword }}
+            {{ ui().userMenu.changePassword }}
           </button>
           <button type="button" class="user-menu__item user-menu__item--danger" (click)="logout()">
-            {{ ui.userMenu.logout }}
+            {{ ui().userMenu.logout }}
           </button>
         </div>
       }
     </div>
   } @else {
     <button class="user-trigger" type="button" (click)="goLogin()">
-      {{ ui.userMenu.login }}
+      {{ ui().userMenu.login }}
     </button>
   }
 </div>

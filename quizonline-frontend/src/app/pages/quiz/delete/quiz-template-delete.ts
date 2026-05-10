@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
@@ -6,7 +7,6 @@ import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 @Component({
   selector: 'app-quiz-template-delete',
@@ -21,7 +21,7 @@ export class QuizTemplateDelete implements OnInit {
   private readonly quizTemplateService = inject(QuizTemplateService);
   private readonly userService = inject(UserService);
 
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   template = signal<QuizTemplateDto | null>(null);
   error = signal<string | null>(null);
   templateId = 0;

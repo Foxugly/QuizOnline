@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -26,7 +27,6 @@ import {
 } from '../../services/question/question-editor-form';
 import {LangCode} from '../../services/translation/translation';
 import {UserService} from '../../services/user/user';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
 type DomainOption = { id: number; name: string };
 type SubjectOption = { code: number; name: string };
@@ -76,7 +76,7 @@ export class QuestionEditorFormComponent {
   readonly showDuplicateAction = input(false);
   readonly deleteLabel = input('Supprimer la question');
   readonly duplicateLabel = input('Dupliquer');
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   readonly tabChanged = output<string | number | undefined>();
   readonly translateActive = output<void>();

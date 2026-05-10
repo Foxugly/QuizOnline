@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {ButtonModule} from 'primeng/button';
@@ -7,7 +8,6 @@ import {MessageModule} from 'primeng/message';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 @Component({
@@ -21,7 +21,7 @@ export class UserDeletePage implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
 
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   readonly userId = signal(0);
   readonly username = signal('');
   readonly submitError = signal<string | null>(null);

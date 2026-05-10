@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -26,7 +27,6 @@ import {
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 type UserOption = { label: string; value: number };
@@ -49,7 +49,7 @@ type DomainWritePayload = DomainWriteRequestDto & {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainCreate implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   loading = signal(true);
   submitError = signal<string | null>(null);
   translating = signal(false);

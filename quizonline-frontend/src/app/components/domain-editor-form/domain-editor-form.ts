@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
@@ -14,7 +15,6 @@ import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
 import {UserService} from '../../services/user/user';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
 type UserOption = { label: string; value: number };
 type LangOption = { label: string; value: string };
@@ -54,7 +54,7 @@ export class DomainEditorFormComponent {
   readonly ownerPlaceholder = input('Choisir un owner');
   readonly submitLabel = input('Enregistrer');
   readonly titleLabel = input('Nom');
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
 
   readonly tabValueChange = output<string | number | undefined>();
   readonly translateClick = output<string>();

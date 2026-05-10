@@ -23,7 +23,7 @@ import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {ROUTES} from '../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 
 @Component({
@@ -69,9 +69,7 @@ export class Register implements OnInit {
     return this.form.controls;
   }
 
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
+  readonly ui = inject(UiTextService).ui;
 
   get domainOptions() {
     return this.domains().map((domain) => ({
@@ -157,7 +155,7 @@ export class Register implements OnInit {
         error: (err) => {
           logApiError('auth.register.load-languages', err);
           this.languages.set([]);
-          this.errorMessage.set(userFacingApiMessage(err, this.ui.register.loadLanguagesError));
+          this.errorMessage.set(userFacingApiMessage(err, this.ui().register.loadLanguagesError));
           if (!this.form.get('language')?.value) {
             this.form.get('language')?.setValue('en');
           }
@@ -179,7 +177,7 @@ export class Register implements OnInit {
           logApiError('auth.register.load-domains', err);
           this.domains.set([]);
           if (!this.errorMessage()) {
-            this.errorMessage.set(userFacingApiMessage(err, this.ui.register.loadDomainsError));
+            this.errorMessage.set(userFacingApiMessage(err, this.ui().register.loadDomainsError));
           }
         },
       });
@@ -205,7 +203,7 @@ export class Register implements OnInit {
       }
     }
 
-    return this.ui.register.submitError;
+    return this.ui().register.submitError;
   }
 
   goRegister(): void {

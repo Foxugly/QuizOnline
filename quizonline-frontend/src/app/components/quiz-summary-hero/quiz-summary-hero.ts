@@ -1,8 +1,8 @@
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 export interface QuizSummaryFact {
@@ -22,7 +22,7 @@ export interface QuizSummaryFact {
 })
 export class QuizSummaryHeroComponent {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   readonly session = input.required<QuizDto>();
   readonly statusLabel = input.required<string>();
   readonly statusSeverity = input<'secondary' | 'success' | 'warn' | 'danger' | 'contrast' | 'info'>('secondary');

@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -37,7 +38,6 @@ import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
@@ -54,7 +54,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionCreate implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues actives configurees.";
   readonly practiceTooltip = 'la question sera publique et selectionnable pour les quizzes generes.';
 

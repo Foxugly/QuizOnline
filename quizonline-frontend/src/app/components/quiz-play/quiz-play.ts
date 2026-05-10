@@ -1,7 +1,7 @@
 import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 @Component({
@@ -13,7 +13,7 @@ import {UserService} from '../../services/user/user';
 })
 export class QuizPlayComponent {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   questionNavItems: QuizNavItem[] = [];
   currentQuestionIndex = 1;
 

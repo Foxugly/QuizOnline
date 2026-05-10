@@ -12,7 +12,7 @@ import {PasswordChangeRequestDto} from '../../../api/generated/model/password-ch
 import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 (window as any).__APP__ = {
   name: environment.appName,
@@ -49,17 +49,14 @@ export class ChangePasswordPage {
       validators: [this.passwordsMatchValidator],
     },
   );
+  readonly ui = inject(UiTextService).ui;
   submitted = false;
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
   infoMessage = this.userService.requiresPasswordChange()
-    ? this.ui.changePassword.forceMessage
+    ? this.ui().changePassword.forceMessage
     : '';
-
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
 
   private passwordsMatchValidator(group: AbstractControl) {
     const newPwd = group.get('new_password')?.value;
@@ -134,14 +131,14 @@ export class ChangePasswordPage {
           }
         }
 
-        this.errorMessage = this.ui.changePassword.error;
+        this.errorMessage = this.ui().changePassword.error;
       },
     });
   }
 
   private handlePasswordChangeSuccess(): void {
     this.isSubmitting = false;
-    this.successMessage = this.ui.changePassword.success;
+    this.successMessage = this.ui().changePassword.success;
     this.infoMessage = '';
     this.form.reset();
     this.submitted = false;

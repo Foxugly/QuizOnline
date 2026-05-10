@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
@@ -16,8 +17,6 @@ import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {LanguageWriteRequestDto} from '../../../api/generated/model/language-write-request';
 import {PatchedLanguagePartialRequestDto} from '../../../api/generated/model/patched-language-partial-request';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 import {logApiError} from '../../../shared/api/api-errors';
 
 @Component({
@@ -43,8 +42,8 @@ export class LanguageManagementPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmationService = inject(ConfirmationService);
 
-  readonly ui = computed(() => getUiText(this.userService.currentLang));
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).ui;
+  readonly editorUi = inject(UiTextService).editor;
   readonly t = computed(() => this.ui().admin.languages);
 
   readonly languages = signal<LanguageReadDto[]>([]);

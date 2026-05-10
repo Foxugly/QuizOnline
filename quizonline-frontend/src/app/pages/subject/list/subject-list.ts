@@ -1,4 +1,5 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
@@ -18,7 +19,6 @@ import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
@@ -53,7 +53,7 @@ export class SubjectList implements OnInit {
   private domainService: DomainService = inject(DomainService);
   private confirmationService = inject(ConfirmationService);
 
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   subjects = signal<SubjectReadDto[]>([]);
   questionCounts = signal<Record<number, number>>({});
   q = signal('');

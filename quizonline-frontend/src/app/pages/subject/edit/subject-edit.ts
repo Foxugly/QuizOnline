@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
 
@@ -32,7 +33,6 @@ import {
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 
 @Component({
@@ -51,7 +51,7 @@ import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubjectEdit implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   id!: number;
 
   // UI state

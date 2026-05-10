@@ -10,7 +10,7 @@ import {PasswordModule} from 'primeng/password';
 import {ROUTES} from '../../../app.routes-paths';
 import {AuthService} from '../../../services/auth/auth';
 import {UserService} from '../../../services/user/user';
-import {getUiText} from '../../../shared/i18n/ui-text';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-login',
@@ -51,13 +51,11 @@ export class LoginPage implements OnInit {
     return this.form.controls;
   }
 
-  get ui() {
-    return getUiText(this.userService.currentLang);
-  }
+  readonly ui = inject(UiTextService).ui;
 
   ngOnInit() {
     if (this.route.snapshot.queryParamMap.get('email_confirmation_required') === '1') {
-      this.infoMsg.set(this.ui.login.confirmEmailRequired);
+      this.infoMsg.set(this.ui().login.confirmEmailRequired);
     }
   }
 
@@ -90,7 +88,7 @@ export class LoginPage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMsg.set(err?.error?.detail || this.ui.login.invalidCredentials);
+        this.errorMsg.set(err?.error?.detail || this.ui().login.invalidCredentials);
       },
     });
   }

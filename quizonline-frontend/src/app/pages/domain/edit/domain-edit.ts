@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -21,7 +22,6 @@ import {
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
-import {getEditorUiText} from '../../../shared/i18n/editor-ui-text';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
@@ -58,7 +58,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainEdit implements OnInit {
-  readonly ui = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly ui = inject(UiTextService).editor;
   id!: number;
 
   loading = signal(true);

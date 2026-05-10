@@ -1,8 +1,8 @@
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
-import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 import {UserService} from '../../services/user/user';
 
 @Component({
@@ -14,7 +14,7 @@ import {UserService} from '../../services/user/user';
 })
 export class QuizListToolbarComponent {
   private readonly userService = inject(UserService);
-  readonly editorUi = computed(() => getEditorUiText(this.userService.currentLang));
+  readonly editorUi = inject(UiTextService).editor;
   readonly search = input('');
   readonly canCompose = input(false);
   readonly canQuickCreate = input(false);
