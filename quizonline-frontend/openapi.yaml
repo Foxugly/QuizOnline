@@ -4678,6 +4678,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        shuffle_questions:
+          type: boolean
+          title: Mélanger l'ordre des questions
+          description: Si activé, chaque session reçoit un ordre de questions différent,
+            déterministe par session (mêmes questions à chaque rechargement).
     PatchedSubjectPartialRequest:
       type: object
       properties:
@@ -5739,6 +5744,11 @@ components:
           nullable: true
           title: Détail visible à partir de
           description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
+        shuffle_questions:
+          type: boolean
+          title: Mélanger l'ordre des questions
+          description: Si activé, chaque session reçoit un ordre de questions différent,
+            déterministe par session (mêmes questions à chaque rechargement).
         is_public:
           type: boolean
           title: Public ?
@@ -5853,6 +5863,11 @@ components:
           nullable: true
           title: Détail visible à partir de
           description: Utilisé uniquement si la visibilité est 'À partir d'une date'.
+        shuffle_questions:
+          type: boolean
+          title: Mélanger l'ordre des questions
+          description: Si activé, chaque session reçoit un ordre de questions différent,
+            déterministe par session (mêmes questions à chaque rechargement).
       required:
       - domain
       - title

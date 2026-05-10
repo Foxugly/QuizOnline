@@ -30,6 +30,9 @@ export interface PatchedQuizTemplatePartialRequestDto {
     result_available_at?: string | null;
     detail_visibility?: VisibilityEnumDto;
     detail_available_at?: string | null;
+    /**
+     * Si activé, chaque session reçoit un ordre de questions différent, déterministe par session (mêmes questions à chaque rechargement).
+     */
     shuffle_questions?: boolean;
 }
 

@@ -49,7 +49,7 @@ export interface QuizTemplateWriteRequestDto {
      */
     detail_available_at?: string | null;
     /**
-     * Si activé, chaque session reçoit un ordre de questions différent.
+     * Si activé, chaque session reçoit un ordre de questions différent, déterministe par session (mêmes questions à chaque rechargement).
      */
     shuffle_questions?: boolean;
 }
