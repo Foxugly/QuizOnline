@@ -1,4 +1,4 @@
-<div class="quiz-question">
+<div class="quiz-question" [appNoCopy]="!readonlyMode()" [trackFocusLoss]="!readonlyMode()">
   <p-card class="quiz-question--card">
     <ng-template pTemplate="header">
       <div class="quiz-question--card-header">

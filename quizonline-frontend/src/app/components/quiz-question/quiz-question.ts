@@ -26,6 +26,7 @@ import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-an
 import {QuestionMediaReadDto} from '../../api/generated/model/question-media-read';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UserService} from '../../services/user/user';
+import {NoCopyDirective} from '../../shared/directives/no-copy.directive';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
 import {getEditorUiText} from '../../shared/i18n/editor-ui-text';
 
@@ -50,6 +51,7 @@ export interface AnswerPayload {
     ImageModule,
     ButtonModule,
     ToggleButtonModule,
+    NoCopyDirective,
   ],
 })
 export class QuizQuestionComponent {
