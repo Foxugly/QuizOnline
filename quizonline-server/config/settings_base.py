@@ -201,6 +201,12 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / env("MEDIA_ROOT_DIR")
+# Make uploaded media world-readable so nginx (running as www-data) can
+# serve them under /media/. Without this, files inherit the temp-file
+# permissions from the upload handler which are typically 0o600 and
+# unreadable for the web server.
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
