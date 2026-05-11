@@ -3,15 +3,20 @@
 }
 
 .summary-hero {
-  align-items: start;
+  align-items: center;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
   display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 1fr);
-  padding: 1rem 11rem 1rem 1.1rem;
-  position: relative;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "main score aside";
+  padding: 1rem 1.1rem;
+}
+
+.summary-hero__main {
+  grid-area: main;
+  min-width: 0;
 }
 
 .summary-hero__eyebrow {
@@ -54,7 +59,7 @@
   display: grid;
   gap: 0.65rem 1.1rem;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  margin-top: 4.75rem;
+  margin-top: 1rem;
   width: 100%;
 }
 
@@ -84,15 +89,13 @@
 
 .summary-hero__score {
   align-items: center;
+  align-self: center;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  grid-area: score;
   justify-content: center;
-  left: 50%;
-  position: absolute;
   text-align: center;
-  top: 50%;
-  transform: translate(-50%, -50%);
 }
 
 // Card-style emphasis around the resolved score (skipped for the pending
@@ -135,14 +138,12 @@
   font-weight: 500;
 }
 
+// When the result/detail visibility windows are still scheduled the
+// score panel becomes a full-width banner spanning the score + aside
+// columns; the aside is empty in that state.
 .summary-hero__score--pending {
-  // Stretch across the row, leaving the aside column its 11rem on the
-  // right. The base .summary-hero__score is centered with translate
-  // (-50%, -50%); here we keep only the vertical centering and let
-  // left/right define the horizontal extent.
-  left: 1.1rem;
-  right: 11rem;
-  transform: translateY(-50%);
+  grid-column: score / aside-end;
+  width: 100%;
 }
 
 .summary-hero__score-line--pending {
@@ -159,8 +160,6 @@
 }
 
 .summary-hero__pending-item--start {
-  // First item sits at the start; if a second item is rendered it
-  // gets pushed to the end by the auto-margin below.
   margin-right: auto;
 }
 
@@ -185,26 +184,25 @@
 }
 
 .summary-hero__aside {
-  align-items: flex-start;
+  align-items: flex-end;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  position: absolute;
-  right: 1.1rem;
-  top: 1rem;
-  z-index: 1;
+  grid-area: aside;
 }
 
 @media (max-width: 960px) {
   .summary-hero {
+    grid-template-areas:
+      "main"
+      "score"
+      "aside";
     grid-template-columns: 1fr;
-    padding-right: 1.1rem;
   }
 
   .summary-hero__aside {
-    position: static;
-    right: auto;
-    top: auto;
+    align-items: stretch;
     width: 100%;
   }
 
@@ -212,18 +210,8 @@
     grid-template-columns: 1fr;
   }
 
-  .summary-hero__score {
-    left: auto;
-    margin-top: 0.85rem;
-    position: static;
-    top: auto;
-    transform: none;
-  }
-
   .summary-hero__score--pending {
-    left: auto;
-    right: auto;
-    transform: none;
+    grid-column: auto;
   }
 
   .summary-hero__title {
