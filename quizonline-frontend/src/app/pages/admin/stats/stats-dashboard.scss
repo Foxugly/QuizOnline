@@ -10,40 +10,11 @@
   font-weight: 650;
 }
 
-/* ── KPI cards ── */
+/* ── KPI cards (children styled inside <app-statistic variant="kpi">) ── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-}
-
-.kpi-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 1.25rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.kpi-card__icon {
-  font-size: 1.5rem;
-  color: #6b7280;
-}
-
-.kpi-card__value {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-  color: #111827;
-}
-
-.kpi-card__label {
-  font-size: 0.85rem;
-  color: #6b7280;
 }
 
 /* ── Charts ── */

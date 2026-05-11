@@ -1,5 +1,13 @@
-<span class="statistic__label">{{ label() }}</span>
-<span class="statistic__value">{{ value() }}</span>
+@if (icon(); as iconClass) {
+  <i [class]="iconClass + ' statistic__icon'"></i>
+}
+@if (variant() === 'kpi') {
+  <span class="statistic__value">{{ value() }}</span>
+  <span class="statistic__label">{{ label() }}</span>
+} @else {
+  <span class="statistic__label">{{ label() }}</span>
+  <span class="statistic__value">{{ value() }}</span>
+}
 @if (caption(); as cap) {
   <span class="statistic__caption">{{ cap }}</span>
 }

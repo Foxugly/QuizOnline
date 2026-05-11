@@ -9,6 +9,7 @@ import {TableModule} from 'primeng/table';
 import {DashboardStats, DomainStats, StatsService} from '../../../services/admin/stats';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
+import {StatisticComponent} from '../../../shared/components/statistic/statistic';
 
 interface KpiCard {
   icon: string;
@@ -18,7 +19,7 @@ interface KpiCard {
 
 @Component({
   selector: 'app-stats-dashboard',
-  imports: [CardModule, ChartModule, TableModule, ProgressBarModule],
+  imports: [CardModule, ChartModule, TableModule, ProgressBarModule, StatisticComponent],
   templateUrl: './stats-dashboard.html',
   styleUrl: './stats-dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

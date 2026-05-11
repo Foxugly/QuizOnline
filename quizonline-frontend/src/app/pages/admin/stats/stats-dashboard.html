@@ -6,11 +6,12 @@
   @if (kpiCards().length) {
     <section class="kpi-grid">
       @for (card of kpiCards(); track card.label) {
-        <article class="kpi-card">
-          <i [class]="card.icon + ' kpi-card__icon'"></i>
-          <span class="kpi-card__value">{{ card.value }}</span>
-          <span class="kpi-card__label">{{ card.label }}</span>
-        </article>
+        <app-statistic
+          variant="kpi"
+          [icon]="card.icon"
+          [label]="card.label"
+          [value]="card.value"
+        />
       }
     </section>
   }

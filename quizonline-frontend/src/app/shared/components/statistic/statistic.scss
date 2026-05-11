@@ -59,3 +59,39 @@
   color: #475569;
   font-size: 0.88rem;
 }
+
+// ---------- KPI variant ----------
+//
+// Dashboard tile: icon on top, big number, label underneath. Sits in a
+// plain white card with a 1px border + soft shadow so it slots into a
+// grid of equally-sized cards.
+
+:host([data-variant="kpi"]) {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  gap: 0.3rem;
+  padding: 1.25rem 1rem;
+}
+
+:host([data-variant="kpi"]) .statistic__icon {
+  color: #6b7280;
+  font-size: 1.5rem;
+}
+
+:host([data-variant="kpi"]) .statistic__value {
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+:host([data-variant="kpi"]) .statistic__label {
+  color: #6b7280;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
