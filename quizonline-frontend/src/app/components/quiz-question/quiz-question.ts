@@ -70,6 +70,7 @@ export class QuizQuestionComponent {
   readonly goPrevious = output<AnswerPayload>();
   readonly goBack = output<void>();
   readonly finish = output<AnswerPayload>();
+  readonly selectionChanged = output<AnswerPayload>();
 
   readonly currentLang = computed<LanguageEnumDto>(() => this.userService.lang() ?? LanguageEnumDto.Fr);
   selectedOptionIds: number[] = [];
@@ -100,6 +101,7 @@ export class QuizQuestionComponent {
     }
     this.selectedRadioId = optionId;
     this.selectedOptionIds = optionId == null ? [] : [optionId];
+    this.selectionChanged.emit(this.buildPayload());
   }
 
   onNextClick(): void {
@@ -139,10 +141,11 @@ export class QuizQuestionComponent {
       if (!this.selectedOptionIds.includes(optionId)) {
         this.selectedOptionIds = [...this.selectedOptionIds, optionId];
       }
-      return;
+    } else {
+      this.selectedOptionIds = this.selectedOptionIds.filter(id => id !== optionId);
     }
 
-    this.selectedOptionIds = this.selectedOptionIds.filter(id => id !== optionId);
+    this.selectionChanged.emit(this.buildPayload());
   }
 
   isChecked(optionId?: number): boolean {

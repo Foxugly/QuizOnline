@@ -108,6 +108,16 @@ export class QuizQuestionView implements OnInit {
     this.changeQuestion(index);
   }
 
+  onSelectionChanged(payload: AnswerPayload): void {
+    if (this.reviewMode) {
+      return;
+    }
+    this.setCurrentItem({
+      answered: payload.selectedOptionIds.length > 0,
+      selectedOptionIds: payload.selectedOptionIds,
+    });
+  }
+
   goBackToQuiz(): void {
     this.quizService.goView(this.quiz_id);
   }

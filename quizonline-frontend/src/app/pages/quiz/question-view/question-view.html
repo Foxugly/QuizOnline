@@ -44,6 +44,7 @@
         (goBack)="goBackToQuiz()"
         (flagToggled)="toggleFlag()"
         (reportRequested)="openReportDialog()"
+        (selectionChanged)="onSelectionChanged($event)"
         [hasNext]="hasQuestionNext(index)"
         [hasPrevious]="hasQuestionPrev(index)"
       ></app-quiz-question>
