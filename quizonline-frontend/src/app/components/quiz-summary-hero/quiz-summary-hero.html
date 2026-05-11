@@ -35,11 +35,18 @@
   </div>
 
   @if (showScore()) {
-    <div class="summary-hero__score">
-      <span class="summary-hero__score-label">Score</span>
-      <span class="summary-hero__score-value">{{ scoreLabel() }}</span>
-      <span class="summary-hero__score-meta">{{ scoreMetaLabel() }}</span>
-    </div>
+    @if (resultPending()) {
+      <div class="summary-hero__score summary-hero__score--pending">
+        <span class="summary-hero__score-label">{{ editorUi().quiz.scoreAvailableOn }}</span>
+        <span class="summary-hero__score-value">{{ resultAvailableLabel() }}</span>
+      </div>
+    } @else {
+      <div class="summary-hero__score">
+        <span class="summary-hero__score-label">Score</span>
+        <span class="summary-hero__score-value">{{ scoreLabel() }}</span>
+        <span class="summary-hero__score-meta">{{ scoreMetaLabel() }}</span>
+      </div>
+    }
   }
 
   <div class="summary-hero__aside">
@@ -47,12 +54,17 @@
       <p-button (onClick)="onStart()" icon="pi pi-play" [label]="editorUi().quiz.startQuiz" severity="primary"></p-button>
     } @else if (session().can_answer) {
       <p-button (onClick)="onOpenQuestion()" icon="pi pi-arrow-right" [label]="editorUi().quiz.continueQuiz" severity="primary"></p-button>
+    } @else if (detailPending()) {
+      <p class="summary-hero__detail-pending">
+        <span class="summary-hero__detail-pending-label">{{ editorUi().quiz.detailAvailableOn }}</span>
+        <span class="summary-hero__detail-pending-value">{{ detailAvailableLabel() }}</span>
+      </p>
     } @else if (canReview()) {
       <p-button (onClick)="onOpenQuestion()" icon="pi pi-eye" [label]="editorUi().quiz.viewCorrection" severity="primary"></p-button>
     } @else {
       <p-button [disabled]="true" icon="pi pi-check" [label]="editorUi().quiz.quizFinished" severity="secondary"></p-button>
     }
-    @if (!session().can_answer && session().started_at) {
+    @if (!session().can_answer && session().started_at && !detailPending()) {
       <p-button (onClick)="onDownloadPdf()" icon="pi pi-file-pdf" [label]="editorUi().common.downloadPdf" severity="secondary"></p-button>
     }
   </div>

@@ -3,7 +3,9 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
+import {VisibilityEnumDto} from '../../api/generated/model/visibility-enum';
 import {UserService} from '../../services/user/user';
+import {formatLocalizedDateTime} from '../../shared/i18n/date-time';
 
 export interface QuizSummaryFact {
   label: string;
@@ -36,6 +38,42 @@ export class QuizSummaryHeroComponent {
   readonly start = output();
   readonly openQuestion = output();
   readonly downloadPdf = output();
+
+  private readonly resultAvailableDate = computed(() => {
+    const at = this.session().result_available_at;
+    return at ? new Date(at) : null;
+  });
+
+  private readonly detailAvailableDate = computed(() => {
+    const at = this.session().detail_available_at;
+    return at ? new Date(at) : null;
+  });
+
+  readonly resultPending = computed(() => {
+    if (this.session().result_visibility !== VisibilityEnumDto.Scheduled) {
+      return false;
+    }
+    const at = this.resultAvailableDate();
+    return at != null && at.getTime() > Date.now();
+  });
+
+  readonly detailPending = computed(() => {
+    if (this.session().detail_visibility !== VisibilityEnumDto.Scheduled) {
+      return false;
+    }
+    const at = this.detailAvailableDate();
+    return at != null && at.getTime() > Date.now();
+  });
+
+  readonly resultAvailableLabel = computed(() => {
+    const at = this.resultAvailableDate();
+    return at ? formatLocalizedDateTime(at, this.userService.currentLang) : null;
+  });
+
+  readonly detailAvailableLabel = computed(() => {
+    const at = this.detailAvailableDate();
+    return at ? formatLocalizedDateTime(at, this.userService.currentLang) : null;
+  });
 
   onBack(): void {
     this.back.emit();

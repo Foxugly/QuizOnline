@@ -39,6 +39,8 @@ export type EditorUiText = {
     quizFinished: string;
     backToList: string;
     questionLabel: string;
+    scoreAvailableOn: string;
+    detailAvailableOn: string;
   };
   pages: {
     domainCreate: {title: string; subtitle: string;};

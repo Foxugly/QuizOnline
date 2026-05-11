@@ -41,6 +41,8 @@ export const FR: EditorUiText = {
     quizFinished: 'Quiz terminé',
     backToList: 'Retour à la liste',
     questionLabel: 'Question',
+    scoreAvailableOn: 'Score disponible le',
+    detailAvailableOn: 'Détail disponible le',
   },
   pages: {
     domainCreate: {title: 'Créer le domaine', subtitle: 'Traductions, statut et accès'},

@@ -114,6 +114,35 @@
   font-size: 0.9rem;
 }
 
+.summary-hero__score--pending .summary-hero__score-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.summary-hero__detail-pending {
+  align-items: flex-end;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  text-align: right;
+}
+
+.summary-hero__detail-pending-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-hero__detail-pending-value {
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 .summary-hero__aside {
   align-items: flex-start;
   display: flex;
