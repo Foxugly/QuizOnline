@@ -1,0 +1,22 @@
+:host {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  text-align: center;
+}
+
+.statistic__label {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.statistic__value {
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+}

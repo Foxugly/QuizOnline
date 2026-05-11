@@ -35,10 +35,7 @@
   <div class="summary-hero__info-row">
     <div class="summary-hero__info-left">
       @for (fact of infoFacts(); track fact.label) {
-        <div class="summary-hero__fact">
-          <span class="summary-hero__fact-label">{{ fact.label }}</span>
-          <span class="summary-hero__fact-value">{{ fact.value }}</span>
-        </div>
+        <app-statistic [label]="fact.label" [value]="fact.value"/>
       }
     </div>
 
@@ -78,10 +75,7 @@
   @if (dateFacts().length) {
     <div class="summary-hero__dates-row">
       @for (fact of dateFacts(); track fact.label) {
-        <span class="summary-hero__date">
-          <span class="summary-hero__date-label">{{ fact.label }}</span>
-          <span class="summary-hero__date-value">{{ fact.value }}</span>
-        </span>
+        <app-statistic [label]="fact.label" [value]="fact.value"/>
       }
     </div>
   }

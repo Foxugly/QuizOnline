@@ -5,6 +5,7 @@ import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
 import {VisibilityEnumDto} from '../../api/generated/model/visibility-enum';
 import {UserService} from '../../services/user/user';
+import {StatisticComponent} from '../../shared/components/statistic/statistic';
 import {formatLocalizedDateTime} from '../../shared/i18n/date-time';
 
 export interface QuizSummaryFact {
@@ -17,6 +18,7 @@ export interface QuizSummaryFact {
   imports: [
     ButtonModule,
     TagModule,
+    StatisticComponent,
   ],
   templateUrl: './quiz-summary-hero.html',
   styleUrl: './quiz-summary-hero.scss',
