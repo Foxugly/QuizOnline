@@ -14,7 +14,6 @@ describe('QuizSummaryHeroComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(QuizSummaryHeroComponent);
     fixture.componentRef.setInput('session', {id: 1, quiz_template: 1, mode: 'exam'});
-    fixture.componentRef.setInput('statusLabel', 'En cours');
     fixture.componentRef.setInput('scoreLabel', '0/0');
     fixture.componentRef.setInput('scoreMetaLabel', '0%');
   });
