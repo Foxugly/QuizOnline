@@ -792,15 +792,11 @@ class QuizQuestionAnswerWriteSerializer(serializers.ModelSerializer):
             order = attrs["question_order"]
             if order <= 0:
                 raise serializers.ValidationError({"question_order": "Doit Ãªtre un entier positif."})
-            try:
-                qq_by_order = QuizQuestion.objects.get(
-                    quiz=quiz.quiz_template,
-                    sort_order=order,
-                )
-            except QuizQuestion.DoesNotExist:
-                raise serializers.ValidationError(
-                    {"question_order": "Aucune question Ã  cet ordre dans le template de ce quiz."}
-                )
+            ordered = session_quiz_questions(quiz)
+            if order > len(ordered):
+                raise serializers.ValidationError({"question_order": "Aucune question à cet ordre dans ce quiz."})
+            qq_by_order = ordered[order - 1]
+
 
         if qq_by_id and qq_by_order and qq_by_id.pk != qq_by_order.pk:
             raise serializers.ValidationError(
