@@ -208,7 +208,6 @@ export class QuizQuestionView implements OnInit {
 
     const answerPayload: QuizQuestionAnswerWriteRequestDto = {
       question_id: payload.questionId,
-      question_order: payload.index,
       selected_options: payload.selectedOptionIds,
     };
 

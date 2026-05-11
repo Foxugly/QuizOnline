@@ -4,8 +4,11 @@ import {QuizQuestionReadDto} from '../../api/generated/model/quiz-question-read'
 import {QuizNavItem} from '../../components/quiz-nav/quiz-nav';
 
 export function buildQuizNavItems(questions: QuizQuestionReadDto[]): QuizNavItem[] {
+  // The API returns questions in this session's display order (after shuffle
+  // when enabled). The on-screen index is always the array position so the
+  // user sees 1, 2, 3 regardless of the underlying QuizQuestion.sort_order.
   return questions.map((quizQuestion, index) => ({
-    index: quizQuestion.sort_order ?? index + 1,
+    index: index + 1,
     id: quizQuestion.question.id,
     answered: false,
     flagged: false,

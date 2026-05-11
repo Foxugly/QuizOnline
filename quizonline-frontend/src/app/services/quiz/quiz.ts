@@ -148,8 +148,8 @@ export class QuizService {
     quizId: number,
     payload: QuizQuestionAnswerWriteRequestDto,
   ): Observable<QuizQuestionAnswerDto> {
-    if (payload.question_order == null) {
-      throw new Error('question_order is required');
+    if (payload.question_id == null) {
+      throw new Error('question_id is required');
     }
 
     return this.answerApi.quizAnswerCreate({quizId, quizQuestionAnswerWriteRequestDto: payload});
