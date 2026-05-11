@@ -62,6 +62,20 @@ export type EditorUiText = {
     finishQuizButton: string;
     finishQuizConfirmHeader: string;
     finishQuizConfirmMessage: string;
+    timeUp: string;
+    timeUpAutoClose: string;
+    timeRemaining: string;
+    autoClosingInProgress: string;
+    reviewModeLabel: string;
+    reviewModeValue: string;
+    quizUnavailable: string;
+    saveAnswerFailed: string;
+    noQuestions: string;
+    closeFailed: string;
+    alertSendFailed: string;
+    reportDialogHeader: string;
+    reportDialogBody: string;
+    reportDialogPlaceholder: string;
   };
   pages: {
     domainCreate: {title: string; subtitle: string;};

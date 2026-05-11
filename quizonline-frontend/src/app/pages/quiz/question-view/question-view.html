@@ -3,11 +3,11 @@
     @if (hasTimer() && !reviewMode) {
       <section class="timer-banner" [class.timer-banner--danger]="(remainingSeconds() ?? 0) <= 30">
         <div>
-          <p class="timer-banner__label">Temps restant</p>
+          <p class="timer-banner__label">{{ editorUi().quiz.timeRemaining }}</p>
           <strong class="timer-banner__value">{{ formattedRemainingTime() }}</strong>
         </div>
         @if (autoClosing()) {
-          <p class="timer-banner__state">Clôture automatique en cours…</p>
+          <p class="timer-banner__state">{{ editorUi().quiz.autoClosingInProgress }}</p>
         }
       </section>
     }
@@ -15,8 +15,8 @@
     @if (reviewMode) {
       <section class="timer-banner">
         <div>
-          <p class="timer-banner__label">Mode</p>
-          <strong class="timer-banner__value">Correction</strong>
+          <p class="timer-banner__label">{{ editorUi().quiz.reviewModeLabel }}</p>
+          <strong class="timer-banner__value">{{ editorUi().quiz.reviewModeValue }}</strong>
         </div>
       </section>
     }
@@ -49,8 +49,7 @@
         [hasPrevious]="hasQuestionPrev(index)"
       ></app-quiz-question>
     } @else {
-      <!-- optionnel : loader, message, etc. -->
-      <p>Chargement de la question…</p>
+      <p>{{ editorUi().common.loading }}</p>
     }
   </main>
 </div>
@@ -61,16 +60,16 @@
   [(visible)]="reportDialogVisible"
   [modal]="true"
   [style]="{ width: '42rem', maxWidth: '96vw' }"
-  header="Signaler une question"
+  [header]="editorUi().quiz.reportDialogHeader"
 >
   <div class="report-dialog">
-    <p>Votre message sera envoyé au créateur du quiz avec la question courante et la langue active.</p>
+    <p>{{ editorUi().quiz.reportDialogBody }}</p>
     <textarea
       [ngModel]="reportMessage()"
       (ngModelChange)="reportMessage.set($event)"
       pInputTextarea
       rows="6"
-      placeholder="Décrivez le problème rencontré…"
+      [placeholder]="editorUi().quiz.reportDialogPlaceholder"
     ></textarea>
   </div>
 

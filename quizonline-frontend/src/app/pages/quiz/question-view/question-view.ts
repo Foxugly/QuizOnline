@@ -72,7 +72,7 @@ export class QuizQuestionView implements OnInit {
   ngOnInit(): void {
     this.quiz_id = Number(this.route.snapshot.paramMap.get('quiz_id'));
     if (!this.quiz_id || Number.isNaN(this.quiz_id)) {
-      this.error.set('Identifiant de quiz invalide.');
+      this.error.set(this.editorUi().quiz.invalidQuizId);
       return;
     }
 
@@ -172,7 +172,7 @@ export class QuizQuestionView implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.question.alert', err);
-          this.error.set(userFacingApiMessage(err, 'Impossible d’envoyer cette alerte.'));
+          this.error.set(userFacingApiMessage(err, this.editorUi().quiz.alertSendFailed));
         },
       });
   }
@@ -227,7 +227,7 @@ export class QuizQuestionView implements OnInit {
 
   private persistAnswer(payload: AnswerPayload, afterSave?: () => void): void {
     if (this.isAnswerLocked()) {
-      this.error.set('Le temps du quiz est écoulé.');
+      this.error.set(this.editorUi().quiz.timeUp);
       this.closeQuizAndRedirect(true);
       return;
     }
@@ -264,27 +264,28 @@ export class QuizQuestionView implements OnInit {
    * expiry path does.
    */
   private handleSaveError(err: unknown): void {
+    const ui = this.editorUi().quiz;
     this.quizService
       .retrieveQuiz(this.quiz_id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (session) => {
           if (!session.can_answer) {
-            this.error.set('Ce quiz n\'est plus disponible.');
+            this.error.set(ui.quizUnavailable);
             this.closeQuizAndRedirect(true);
             return;
           }
-          this.error.set(userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."));
+          this.error.set(userFacingApiMessage(err, ui.saveAnswerFailed));
         },
         error: () => {
           // Re-fetch itself failed (network etc.). Fall back to whatever the
           // local timer thinks.
           if (this.isTimedOut()) {
-            this.error.set('Le temps du quiz est écoulé.');
+            this.error.set(ui.timeUp);
             this.closeQuizAndRedirect(true);
             return;
           }
-          this.error.set(userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."));
+          this.error.set(userFacingApiMessage(err, ui.saveAnswerFailed));
         },
       });
   }
@@ -330,7 +331,7 @@ export class QuizQuestionView implements OnInit {
 
           const navItems = applyQuizAnswers(buildQuizNavItems(session.questions), answers);
           if (!navItems.length) {
-            this.error.set('Ce quiz ne contient aucune question.');
+            this.error.set(this.editorUi().quiz.noQuestions);
             return;
           }
 
@@ -341,7 +342,7 @@ export class QuizQuestionView implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.question.load-session', err);
-          this.error.set(userFacingApiMessage(err, 'Impossible de charger ce quiz.'));
+          this.error.set(userFacingApiMessage(err, this.editorUi().quiz.loadFailed));
         },
       });
   }
@@ -388,7 +389,7 @@ export class QuizQuestionView implements OnInit {
   private handleTimerExpired(): void {
     this.clearTimer();
     this.remainingSeconds.set(0);
-    this.error.set('Le temps du quiz est écoulé. Clôture automatique en cours.');
+    this.error.set(this.editorUi().quiz.timeUpAutoClose);
     this.closeQuizAndRedirect(true);
   }
 
@@ -417,7 +418,7 @@ export class QuizQuestionView implements OnInit {
             this.quizService.goView(this.quiz_id);
             return;
           }
-          this.error.set(userFacingApiMessage(err, 'Impossible de clôturer ce quiz.'));
+          this.error.set(userFacingApiMessage(err, this.editorUi().quiz.closeFailed));
         },
       });
   }
