@@ -117,33 +117,24 @@ describe('quiz session state helpers', () => {
     expect(hydrated[1].answered).toBeFalse();
   });
 
-  it('falls back to question id when persisted order no longer matches', () => {
-    const reorderedItems = [
-      {
-        ...buildQuizNavItems(questions)[0],
-        index: 10,
-      },
-      {
-        ...buildQuizNavItems(questions)[1],
-        index: 20,
-      },
-    ];
+  it('leaves items untouched when no answer matches their session position', () => {
+    const items = buildQuizNavItems(questions);
     const answers: QuizQuestionAnswerDto[] = [
       {
-        id: 202,
+        id: 203,
         quiz: 700,
-        quizquestion_id: 11,
-        question_order: 2,
-        question_id: 101,
+        quizquestion_id: 99,
+        question_order: 99,
+        question_id: 999,
         selected_options: [777],
         answered_at: '2026-03-30T12:06:00Z',
       },
     ];
 
-    const hydrated = applyQuizAnswers(reorderedItems, answers);
+    const hydrated = applyQuizAnswers(items, answers);
 
-    expect(hydrated[1].answered).toBeTrue();
-    expect(hydrated[1].selectedOptionIds).toEqual([777]);
+    expect(hydrated[0].answered).toBeFalse();
+    expect(hydrated[1].answered).toBeFalse();
   });
 
   it('updates and retrieves a single nav item', () => {

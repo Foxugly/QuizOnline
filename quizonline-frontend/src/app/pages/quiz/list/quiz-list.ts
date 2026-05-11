@@ -328,12 +328,7 @@ export class QuizListPage implements OnInit {
   }
 
   private getCurrentUser() {
-    const currentUser = this.userService.currentUser();
-    if (currentUser) {
-      return of(currentUser);
-    }
-
-    return this.userService.getMe().pipe(catchError(() => of(null)));
+    return this.userService.currentUserOrFetch().pipe(catchError(() => of(null)));
   }
 
   private toUserQuizListItem(quiz: QuizListDto): UserQuizListItem {

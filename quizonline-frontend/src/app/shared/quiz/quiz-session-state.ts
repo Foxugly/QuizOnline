@@ -21,16 +21,16 @@ export function applyQuizAnswers(
   items: QuizNavItem[],
   answers: QuizQuestionAnswerDto[],
 ): QuizNavItem[] {
+  // item.index and answer.question_order both come from the same source of
+  // truth — session_position_for(quiz, qq) on the backend — so a direct
+  // lookup by position is enough.
   const answersByOrder = new Map<number, QuizQuestionAnswerDto>();
-  const answersByQuestionId = new Map<number, QuizQuestionAnswerDto>();
-
   for (const answer of answers) {
     answersByOrder.set(answer.question_order, answer);
-    answersByQuestionId.set(answer.question_id, answer);
   }
 
   return items.map((item) => {
-    const answer = answersByOrder.get(item.index) ?? answersByQuestionId.get(item.id);
+    const answer = answersByOrder.get(item.index);
     if (!answer) {
       return item;
     }

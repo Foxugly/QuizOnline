@@ -122,9 +122,7 @@ export class Preferences implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
     forkJoin({
-      me: this.userService.currentUser()
-        ? of(this.userService.currentUser() as CustomUserReadDto)
-        : this.userService.getMe(),
+      me: this.userService.currentUserOrFetch(),
       availableDomains: this.domainService.availableForLinking(),
       visibleDomains: this.domainService.list(),
     })

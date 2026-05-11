@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
-import {map, Observable, tap} from 'rxjs';
+import {map, Observable, of, tap} from 'rxjs';
 
 import {UserApi as UserApiService} from '../../api/generated/api/user.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
@@ -127,6 +127,16 @@ export class UserService {
         this.syncLanguageFromMe(me);
       }),
     );
+  }
+
+  /**
+   * Returns the cached current user if we already have one, otherwise fetches
+   * from /user/me/. Use this in pages that need the current user but don't
+   * want to thrash the API every time the page is mounted.
+   */
+  currentUserOrFetch(): Observable<CustomUserReadDto> {
+    const cached = this.currentUser();
+    return cached ? of(cached) : this.getMe();
   }
 
   updateMeLanguage(language: LanguageEnumDto): Observable<CustomUserReadDto> {

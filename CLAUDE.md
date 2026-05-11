@@ -32,11 +32,14 @@ Monorepo with two main modules:
 
 ## Deployment
 
-- CI builds the frontend bundle (not the EC2 instance, memory-limited)
-- SCP bundle to EC2, then SSH to run `deploy/redeploy.sh`
-- `deploy/redeploy.sh` handles git pull, pip install, migrate, collectstatic, service restart, health checks
-- Service files: `deploy/quizonline-gunicorn.service`, `deploy/quizonline-celery.service`, `deploy/quizonline-celery-beat.service`
-- Apache reverse proxy with config in `deploy/apache.conf`
+- AWS EC2 with the repo checked out at `/var/www/django_websites/QuizOnline/`
+- Django runs as user `django`, group `www-data`; gunicorn binds 127.0.0.1:8000
+- Reverse proxy: **nginx** (the `deploy/apache.conf` template is kept for parity but the live server runs nginx)
+- Live config template in `deploy/nginx.conf` — drop in `/etc/nginx/sites-available/quizonline`; locations `/`, `/api/`, `/admin/`, `/static/`, `/media/` plus the cache + security headers
+- CI builds the frontend bundle (not on EC2 — memory-limited), GitHub Actions triggers Deploy on push to `main`
+- `deploy/redeploy.sh` handles git pull, pip install, migrate, collectstatic, optional frontend build (`--skip-frontend`), service restart, health checks
+- systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`
+- Frontend bundle is served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
 
 ## OpenAPI sync
 
