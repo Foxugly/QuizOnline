@@ -12,6 +12,23 @@
   padding: 1.1rem 1.4rem 1.25rem;
 }
 
+// ---------- Eyebrow: status tag + mode chip ----------
+
+.summary-hero__eyebrow {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.summary-hero__mode {
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 // ---------- Row 1: title + action ----------
 
 .summary-hero__title-row {
@@ -174,6 +191,7 @@
   flex-wrap: wrap;
   font-size: 0.85rem;
   gap: 0.45rem 1.6rem;
+  justify-content: center;
   padding-top: 0.85rem;
 }
 

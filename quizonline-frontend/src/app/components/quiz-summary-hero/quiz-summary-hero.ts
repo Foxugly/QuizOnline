@@ -1,6 +1,7 @@
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
+import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
 import {VisibilityEnumDto} from '../../api/generated/model/visibility-enum';
 import {UserService} from '../../services/user/user';
@@ -15,6 +16,7 @@ export interface QuizSummaryFact {
   selector: 'app-quiz-summary-hero',
   imports: [
     ButtonModule,
+    TagModule,
   ],
   templateUrl: './quiz-summary-hero.html',
   styleUrl: './quiz-summary-hero.scss',
@@ -70,6 +72,30 @@ export class QuizSummaryHeroComponent {
   readonly detailAvailableLabel = computed(() => {
     const at = this.detailAvailableDate();
     return at ? formatLocalizedDateTime(at, this.userService.currentLang) : null;
+  });
+
+  readonly modeLabel = computed(() => {
+    const ui = this.editorUi().quiz;
+    switch (this.session().mode) {
+      case 'practice':
+        return ui.modePractice;
+      case 'exam':
+        return ui.modeExam;
+      default:
+        return this.session().mode;
+    }
+  });
+
+  readonly status = computed<{label: string; severity: 'secondary' | 'warn' | 'success'}>(() => {
+    const session = this.session();
+    const ui = this.editorUi().quiz;
+    if (!session.started_at) {
+      return {label: ui.statusReady, severity: 'secondary'};
+    }
+    if (session.can_answer) {
+      return {label: ui.statusInProgress, severity: 'warn'};
+    }
+    return {label: ui.statusFinished, severity: 'success'};
   });
 
   onBack(): void {
