@@ -14,6 +14,7 @@ import {
 } from '../../../services/question/question';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {UserService} from '../../../services/user/user';
+import {TruncateFilenamePipe} from '../../../shared/pipes/truncate-filename.pipe';
 import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i18n';
 
 @Component({
@@ -25,6 +26,7 @@ import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i
     ButtonModule,
     CardModule,
     FileUploadModule,
+    TruncateFilenamePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

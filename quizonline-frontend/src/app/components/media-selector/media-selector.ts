@@ -12,6 +12,7 @@ import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip'; // pour [tooltip], optionnel
 import {toCanonicalYoutubeUrl} from '../../shared/media/youtube';
 import {UserService} from '../../services/user/user';
+import {TruncateFilenamePipe} from '../../shared/pipes/truncate-filename.pipe';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null;
 
@@ -36,7 +37,7 @@ export interface MediaSelectorValue {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./media-selector.scss'],
   imports: [CommonModule, ButtonModule, FileUploadModule, TabsModule, InputTextModule, FormsModule, DividerModule,
-    TagModule, TooltipModule,],
+    TagModule, TooltipModule, TruncateFilenamePipe],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

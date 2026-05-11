@@ -51,7 +51,7 @@
 
       <div class="selected-file">
         <strong>{{ text().selectedFile }}:</strong>
-        <span>{{ selectedFileName() ?? text().noFile }}</span>
+        <span [title]="selectedFileName() ?? ''">{{ (selectedFileName() | truncateFilename) || text().noFile }}</span>
       </div>
     </section>
 

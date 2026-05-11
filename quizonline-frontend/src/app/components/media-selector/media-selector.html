@@ -143,8 +143,9 @@
                   target="_blank"
                   rel="noopener"
                   class="media-thumb-link"
+                  [title]="getMediaLabel(m)"
                 >
-                  {{ getMediaLabel(m) }}
+                  {{ getMediaLabel(m) | truncateFilename }}
                 </a>
               }
             </div>
