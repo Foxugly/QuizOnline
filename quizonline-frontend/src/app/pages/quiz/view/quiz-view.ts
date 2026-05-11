@@ -7,7 +7,7 @@ import {QuizSummaryFact, QuizSummaryHeroComponent} from '../../../components/qui
 import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
-import {formatLocalizedDateTime} from '../../../shared/i18n/date-time';
+import {formatLocalizedDateTime, languageLocale} from '../../../shared/i18n/date-time';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
@@ -52,7 +52,16 @@ export class QuizView implements OnInit {
     if (!session || !session.started_at || session.earned_score == null || session.max_score == null) {
       return QuizView.FALLBACK_LABEL;
     }
-    return `${session.earned_score} / ${session.max_score}`;
+    const ratio = `${session.earned_score} / ${session.max_score}`;
+    if (!session.max_score) {
+      return ratio;
+    }
+    const pct = (session.earned_score / session.max_score) * 100;
+    const formatted = new Intl.NumberFormat(languageLocale(this.userService.currentLang), {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(pct);
+    return `${ratio} (${formatted}%)`;
   });
   readonly timerLabel = computed(() => {
     const session = this.quizSession();
@@ -84,9 +93,6 @@ export class QuizView implements OnInit {
       {label: ui.questionsLabel, value: String(session.max_questions ?? QuizView.FALLBACK_LABEL)},
     ];
 
-    if (session.created_at) {
-      facts.push({label: ui.createdOn, value: this.formatDateTime(session.created_at)});
-    }
     if (session.started_at) {
       facts.push({label: ui.startedOn, value: this.formatDateTime(session.started_at)});
     }
