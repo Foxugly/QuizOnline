@@ -103,6 +103,14 @@
   text-transform: uppercase;
 }
 
+.summary-hero__score-line {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+}
+
 .summary-hero__score-value {
   color: #0f172a;
   font-size: 1.55rem;
