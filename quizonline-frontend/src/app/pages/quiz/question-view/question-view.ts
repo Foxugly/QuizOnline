@@ -7,6 +7,8 @@ import {FormsModule} from '@angular/forms';
 import {DialogModule} from 'primeng/dialog';
 import {TextareaModule} from 'primeng/textarea';
 import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
 import {AnswerPayload, QuizQuestionComponent} from '../../../components/quiz-question/quiz-question';
 import {QuizNav, QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
 import {QuizDto} from '../../../api/generated/model/quiz';
@@ -29,9 +31,11 @@ import {UserService} from '../../../services/user/user';
     DialogModule,
     TextareaModule,
     ButtonModule,
+    ConfirmDialogModule,
     QuizQuestionComponent,
     QuizNav,
   ],
+  providers: [ConfirmationService],
   templateUrl: './question-view.html',
   styleUrl: './question-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +62,7 @@ export class QuizQuestionView implements OnInit {
   private readonly quizService = inject(QuizService);
   private readonly quizAlertService = inject(QuizAlertService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly confirmationService = inject(ConfirmationService);
   private timerId: number | null = null;
 
   constructor() {
@@ -99,8 +104,19 @@ export class QuizQuestionView implements OnInit {
       this.quizService.goView(this.quiz_id);
       return;
     }
-    this.persistAnswer(payload, () => {
-      this.closeQuizAndRedirect();
+    const ui = this.editorUi().quiz;
+    this.confirmationService.confirm({
+      header: ui.finishQuizConfirmHeader,
+      message: ui.finishQuizConfirmMessage,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: ui.finishQuizButton,
+      rejectLabel: this.editorUi().common.cancel,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.persistAnswer(payload, () => {
+          this.closeQuizAndRedirect();
+        });
+      },
     });
   }
 

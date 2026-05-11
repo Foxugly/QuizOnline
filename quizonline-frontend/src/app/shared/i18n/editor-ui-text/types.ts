@@ -59,6 +59,9 @@ export type EditorUiText = {
     invalidQuizId: string;
     loadFailed: string;
     startFailed: string;
+    finishQuizButton: string;
+    finishQuizConfirmHeader: string;
+    finishQuizConfirmMessage: string;
   };
   pages: {
     domainCreate: {title: string; subtitle: string;};

@@ -151,6 +151,15 @@
               severity="secondary"
               variant="outlined"
             ></p-button>
+            @if (!readonlyMode()) {
+              <p-button
+                (onClick)="onFinishClick()"
+                icon="pi pi-check"
+                [label]="editorUi().quiz.finishQuizButton"
+                severity="danger"
+                variant="outlined"
+              ></p-button>
+            }
           </div>
 
           <div class="card-footer__group card-footer__group--right">

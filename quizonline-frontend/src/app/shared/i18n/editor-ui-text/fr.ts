@@ -60,6 +60,9 @@ export const FR: EditorUiText = {
     invalidQuizId: 'Identifiant de quiz invalide.',
     loadFailed: 'Impossible de charger ce quiz.',
     startFailed: 'Impossible de démarrer ce quiz.',
+    finishQuizButton: 'Terminer le quiz',
+    finishQuizConfirmHeader: 'Terminer le quiz',
+    finishQuizConfirmMessage: 'Cette action est définitive. Continuer ?',
   },
   pages: {
     domainCreate: {title: 'Créer le domaine', subtitle: 'Traductions, statut et accès'},

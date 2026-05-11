@@ -129,6 +129,13 @@ export class QuizQuestionComponent {
     this.goBack.emit();
   }
 
+  onFinishClick(): void {
+    if (this.readonlyMode()) {
+      return;
+    }
+    this.finish.emit(this.buildPayload());
+  }
+
   onToggleCheckbox(optionId: number | undefined, checked: boolean): void {
     if (this.readonlyMode()) {
       return;

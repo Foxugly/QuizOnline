@@ -60,6 +60,9 @@ export const EN: EditorUiText = {
     invalidQuizId: 'Invalid quiz identifier.',
     loadFailed: 'Failed to load this quiz.',
     startFailed: 'Failed to start this quiz.',
+    finishQuizButton: 'Finish quiz',
+    finishQuizConfirmHeader: 'Finish quiz',
+    finishQuizConfirmMessage: 'This action is final. Continue?',
   },
   pages: {
     domainCreate: {title: 'Create domain', subtitle: 'Translations, status and access'},
