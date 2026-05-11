@@ -11,6 +11,7 @@ import { QuizQuestionAnswerDto } from './quiz-question-answer';
 import { AnswerCorrectnessStateEnumDto } from './answer-correctness-state-enum';
 import { UserSummaryDto } from './user-summary';
 import { QuizQuestionReadDto } from './quiz-question-read';
+import { VisibilityEnumDto } from './visibility-enum';
 
 
 /**
@@ -35,6 +36,10 @@ export interface QuizDto {
     readonly duration: number;
     readonly earned_score: number | null;
     readonly max_score: number | null;
+    readonly result_visibility: VisibilityEnumDto;
+    readonly result_available_at: string | null;
+    readonly detail_visibility: VisibilityEnumDto;
+    readonly detail_available_at: string | null;
     readonly questions: Array<QuizQuestionReadDto>;
     readonly answers: Array<QuizQuestionAnswerDto>;
     readonly total_answers: number | null;

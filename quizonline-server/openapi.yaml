@@ -5047,6 +5047,24 @@ components:
           format: double
           nullable: true
           readOnly: true
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        result_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        detail_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        detail_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
         questions:
           type: array
           items:
@@ -5075,6 +5093,8 @@ components:
       - can_answer
       - correct_answers
       - created_at
+      - detail_available_at
+      - detail_visibility
       - duration
       - earned_score
       - id
@@ -5085,6 +5105,8 @@ components:
       - quiz_template
       - quiz_template_description
       - quiz_template_title
+      - result_available_at
+      - result_visibility
       - total_answers
       - user
       - user_summary
@@ -5403,6 +5425,24 @@ components:
           type: number
           format: double
           readOnly: true
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        result_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        detail_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        detail_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
         total_answers:
           type: integer
           readOnly: true
@@ -5413,6 +5453,8 @@ components:
       - can_answer
       - correct_answers
       - created_at
+      - detail_available_at
+      - detail_visibility
       - duration
       - earned_score
       - id
@@ -5422,6 +5464,8 @@ components:
       - quiz_template
       - quiz_template_description
       - quiz_template_title
+      - result_available_at
+      - result_visibility
       - total_answers
       - user
       - user_summary
@@ -5490,9 +5534,29 @@ components:
           type: number
           format: double
           readOnly: true
+        result_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        result_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        detail_visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        detail_available_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
       required:
       - can_answer
       - created_at
+      - detail_available_at
+      - detail_visibility
       - duration
       - earned_score
       - id
@@ -5502,6 +5566,8 @@ components:
       - quiz_template
       - quiz_template_description
       - quiz_template_title
+      - result_available_at
+      - result_visibility
       - user
       - user_summary
       - with_duration

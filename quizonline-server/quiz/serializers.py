@@ -487,6 +487,22 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
     duration = serializers.IntegerField(source="quiz_template.duration", read_only=True)
     earned_score = serializers.FloatField(source="_earned_score", read_only=True)
     max_score = serializers.FloatField(source="_max_score", read_only=True)
+    result_visibility = serializers.ChoiceField(
+        choices=QuizTemplate._meta.get_field("result_visibility").choices,
+        source="quiz_template.result_visibility",
+        read_only=True,
+    )
+    result_available_at = serializers.DateTimeField(
+        source="quiz_template.result_available_at", read_only=True, allow_null=True
+    )
+    detail_visibility = serializers.ChoiceField(
+        choices=QuizTemplate._meta.get_field("detail_visibility").choices,
+        source="quiz_template.detail_visibility",
+        read_only=True,
+    )
+    detail_available_at = serializers.DateTimeField(
+        source="quiz_template.detail_available_at", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = Quiz
@@ -509,6 +525,10 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
             "duration",
             "earned_score",
             "max_score",
+            "result_visibility",
+            "result_available_at",
+            "detail_visibility",
+            "detail_available_at",
         ]
         read_only_fields = [
             "created_at",
@@ -523,6 +543,10 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
             "duration",
             "earned_score",
             "max_score",
+            "result_visibility",
+            "result_available_at",
+            "detail_visibility",
+            "detail_available_at",
         ]
 
     @extend_schema_field(UserSummarySerializer(allow_null=True))

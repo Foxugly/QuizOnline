@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { UserSummaryDto } from './user-summary';
+import { VisibilityEnumDto } from './visibility-enum';
 
 
 /**
@@ -32,5 +33,11 @@ export interface QuizListDto {
     readonly duration: number;
     readonly earned_score: number;
     readonly max_score: number;
+    readonly result_visibility: VisibilityEnumDto;
+    readonly result_available_at: string | null;
+    readonly detail_visibility: VisibilityEnumDto;
+    readonly detail_available_at: string | null;
 }
+
+
 
