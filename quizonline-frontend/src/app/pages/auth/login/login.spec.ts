@@ -13,9 +13,9 @@ describe('LoginPage', () => {
     (window as Window & {__APP__?: unknown}).__APP__ = {
       name: 'QuizOnline',
       version: 'test',
-      logoSvg: 'assets/qna.svg',
+      logoSvg: '/qna.svg',
       logoIco: '/favicon.ico',
-      logoPng: 'assets/qna.png',
+      logoPng: '/qna.png',
       author: 'Foxugly',
       year: '2026',
     };

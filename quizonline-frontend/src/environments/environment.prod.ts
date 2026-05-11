@@ -4,7 +4,7 @@ export const environment = {
   appName: 'QuizOnline',
   author: 'Foxugly',
   year: '2025',
-  logoSvg: 'assets/qna.svg',
+  logoSvg: '/qna.svg',
   logoIco: '/favicon.ico',
-  logoPng: 'assets/qna.png',
+  logoPng: '/qna.png',
 };
