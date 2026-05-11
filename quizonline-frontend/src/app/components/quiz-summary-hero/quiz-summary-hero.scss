@@ -122,17 +122,39 @@
   font-size: 0.9rem;
 }
 
+.summary-hero__score--pending {
+  // Stretch across the row, leaving the aside column its 11rem on the
+  // right. The base .summary-hero__score is centered with translate
+  // (-50%, -50%); here we keep only the vertical centering and let
+  // left/right define the horizontal extent.
+  left: 1.1rem;
+  right: 11rem;
+  transform: translateY(-50%);
+}
+
 .summary-hero__score-line--pending {
   align-items: stretch;
   gap: 1.4rem;
+  width: 100%;
 }
 
 .summary-hero__pending-item {
-  align-items: center;
+  align-items: flex-start;
   display: inline-flex;
   flex-direction: column;
   gap: 0.18rem;
-  text-align: center;
+}
+
+.summary-hero__pending-item--start {
+  // First item sits at the start; if a second item is rendered it
+  // gets pushed to the end by the auto-margin below.
+  margin-right: auto;
+}
+
+.summary-hero__pending-item--end {
+  align-items: flex-end;
+  margin-left: auto;
+  text-align: right;
 }
 
 .summary-hero__pending-label {
@@ -182,6 +204,12 @@
     margin-top: 0.85rem;
     position: static;
     top: auto;
+    transform: none;
+  }
+
+  .summary-hero__score--pending {
+    left: auto;
+    right: auto;
     transform: none;
   }
 

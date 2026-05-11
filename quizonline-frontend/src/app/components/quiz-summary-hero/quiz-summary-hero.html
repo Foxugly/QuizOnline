@@ -36,13 +36,13 @@
       <div class="summary-hero__score summary-hero__score--pending">
         <div class="summary-hero__score-line summary-hero__score-line--pending">
           @if (resultPending()) {
-            <span class="summary-hero__pending-item">
+            <span class="summary-hero__pending-item summary-hero__pending-item--start">
               <span class="summary-hero__pending-label">{{ editorUi().quiz.scoreAvailableOn }}</span>
               <span class="summary-hero__pending-value">{{ resultAvailableLabel() }}</span>
             </span>
           }
           @if (detailPending()) {
-            <span class="summary-hero__pending-item">
+            <span class="summary-hero__pending-item summary-hero__pending-item--end">
               <span class="summary-hero__pending-label">{{ editorUi().quiz.detailAvailableOn }}</span>
               <span class="summary-hero__pending-value">{{ detailAvailableLabel() }}</span>
             </span>
