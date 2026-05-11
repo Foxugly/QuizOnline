@@ -1,6 +1,6 @@
 <div class="page">
   @if (loading()) {
-    <div class="question-detail__status">Chargement...</div>
+    <div class="question-detail__status">{{ editorUi().common.loading }}</div>
   } @else if (error()) {
     <div class="question-detail__status question-detail__status--error">
       {{ error() }}

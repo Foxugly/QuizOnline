@@ -8,6 +8,7 @@ import {QuizService} from '../../../services/quiz/quiz';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {formatLocalizedDateTime} from '../../../shared/i18n/date-time';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-view',
@@ -30,19 +31,21 @@ export class QuizView implements OnInit {
   private readonly quizService = inject(QuizService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly editorUi = inject(UiTextService).editor;
 
   readonly status = computed(() => {
     const session = this.quizSession();
+    const ui = this.editorUi().quiz;
     if (!session) {
       return {label: QuizView.FALLBACK_LABEL, severity: 'secondary' as const};
     }
     if (!session.started_at) {
-      return {label: 'Pret', severity: 'secondary' as const};
+      return {label: ui.statusReady, severity: 'secondary' as const};
     }
     if (session.can_answer) {
-      return {label: 'En cours', severity: 'warn' as const};
+      return {label: ui.statusInProgress, severity: 'warn' as const};
     }
-    return {label: 'Termine', severity: 'success' as const};
+    return {label: ui.statusFinished, severity: 'success' as const};
   });
   readonly scoreLabel = computed(() => {
     const session = this.quizSession();
@@ -56,7 +59,7 @@ export class QuizView implements OnInit {
     if (!session) {
       return QuizView.FALLBACK_LABEL;
     }
-    return session.with_duration ? `${session.duration} min` : 'Sans limite';
+    return session.with_duration ? `${session.duration} min` : this.editorUi().quiz.noTimeLimit;
   });
   readonly scoreMetaLabel = computed(() => {
     const session = this.quizSession();
@@ -64,28 +67,31 @@ export class QuizView implements OnInit {
       return QuizView.FALLBACK_LABEL;
     }
 
-    return `${session.correct_answers} bonnes reponses sur ${session.total_answers}`;
+    return this.editorUi().quiz.correctAnswersOf
+      .replace('{correct}', String(session.correct_answers))
+      .replace('{total}', String(session.total_answers));
   });
   readonly showScore = computed(() => Boolean(this.quizSession()?.started_at));
   readonly summaryFacts = computed(() => {
     const session = this.quizSession();
+    const ui = this.editorUi().quiz;
     if (!session) {
       return [];
     }
 
     const facts: QuizSummaryFact[] = [
-      {label: 'Timer', value: this.timerLabel()},
-      {label: 'Questions', value: String(session.max_questions ?? QuizView.FALLBACK_LABEL)},
+      {label: ui.timerLabel, value: this.timerLabel()},
+      {label: ui.questionsLabel, value: String(session.max_questions ?? QuizView.FALLBACK_LABEL)},
     ];
 
     if (session.created_at) {
-      facts.push({label: 'Cree le', value: this.formatDateTime(session.created_at)});
+      facts.push({label: ui.createdOn, value: this.formatDateTime(session.created_at)});
     }
     if (session.started_at) {
-      facts.push({label: 'Demarre le', value: this.formatDateTime(session.started_at)});
+      facts.push({label: ui.startedOn, value: this.formatDateTime(session.started_at)});
     }
     if (!session.can_answer && session.ended_at) {
-      facts.push({label: 'Cloture le', value: this.formatDateTime(session.ended_at)});
+      facts.push({label: ui.closedOn, value: this.formatDateTime(session.ended_at)});
     }
 
     return facts;
@@ -102,7 +108,7 @@ export class QuizView implements OnInit {
   ngOnInit(): void {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     if (!this.id || Number.isNaN(this.id)) {
-      this.error.set('Identifiant de quiz invalide.');
+      this.error.set(this.editorUi().quiz.invalidQuizId);
       return;
     }
 
@@ -116,7 +122,7 @@ export class QuizView implements OnInit {
   goStart(): void {
     this.quizService.goStart(this.id, (err: unknown) => {
       logApiError('quiz.view.start', err);
-      this.error.set(userFacingApiMessage(err, 'Impossible de démarrer ce quiz.'));
+      this.error.set(userFacingApiMessage(err, this.editorUi().quiz.startFailed));
     });
   }
 
@@ -158,7 +164,7 @@ export class QuizView implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.view.load-session', err);
-          this.error.set(userFacingApiMessage(err, 'Impossible de charger ce quiz.'));
+          this.error.set(userFacingApiMessage(err, this.editorUi().quiz.loadFailed));
         },
       });
   }

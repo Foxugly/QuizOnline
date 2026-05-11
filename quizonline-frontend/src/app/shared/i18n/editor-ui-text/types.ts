@@ -41,6 +41,24 @@ export type EditorUiText = {
     questionLabel: string;
     scoreAvailableOn: string;
     detailAvailableOn: string;
+    statusReady: string;
+    statusInProgress: string;
+    statusFinished: string;
+    modePractice: string;
+    modeExam: string;
+    correctionLabel: string;
+    scoreLabel: string;
+    timerLabel: string;
+    questionsLabel: string;
+    noTimeLimit: string;
+    createdOn: string;
+    startedOn: string;
+    closedOn: string;
+    /** Template with {correct} and {total} placeholders, e.g. "{correct} bonnes réponses sur {total}". */
+    correctAnswersOf: string;
+    invalidQuizId: string;
+    loadFailed: string;
+    startFailed: string;
   };
   pages: {
     domainCreate: {title: string; subtitle: string;};

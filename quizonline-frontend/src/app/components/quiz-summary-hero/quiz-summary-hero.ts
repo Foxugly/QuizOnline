@@ -75,6 +75,18 @@ export class QuizSummaryHeroComponent {
     return at ? formatLocalizedDateTime(at, this.userService.currentLang) : null;
   });
 
+  readonly modeLabel = computed(() => {
+    const ui = this.editorUi().quiz;
+    switch (this.session().mode) {
+      case 'practice':
+        return ui.modePractice;
+      case 'exam':
+        return ui.modeExam;
+      default:
+        return this.session().mode;
+    }
+  });
+
   onBack(): void {
     this.back.emit();
   }
