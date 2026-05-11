@@ -12,8 +12,18 @@
   <div class="card">
     <p-tabs [value]="activeTab()" (valueChange)="setActiveTab($event)" class="quiz-tabs">
       <p-tablist>
-        <p-tab value="templates">{{ uiText().tabs.templates }}</p-tab>
-        <p-tab value="sessions">{{ uiText().tabs.sessions }}</p-tab>
+        <p-tab value="templates">
+          <span class="quiz-tab-label">
+            {{ uiText().tabs.templates }}
+            <p-badge [value]="filteredTemplates().length.toString()" severity="secondary" />
+          </span>
+        </p-tab>
+        <p-tab value="sessions">
+          <span class="quiz-tab-label">
+            {{ uiText().tabs.sessions }}
+            <p-badge [value]="filteredMyQuizzes().length.toString()" severity="secondary" />
+          </span>
+        </p-tab>
         <div class="quiz-tabs__actions">
           <input
             [ngModel]="q()"

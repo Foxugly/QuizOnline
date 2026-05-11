@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {catchError, finalize, forkJoin, of} from 'rxjs';
 import {TabsModule} from 'primeng/tabs';
+import {BadgeModule} from 'primeng/badge';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
@@ -38,6 +39,7 @@ type BulkAction = 'activate' | 'deactivate' | 'delete';
   imports: [
     CommonModule,
     FormsModule,
+    BadgeModule,
     ButtonModule,
     ConfirmDialogModule,
     InputTextModule,

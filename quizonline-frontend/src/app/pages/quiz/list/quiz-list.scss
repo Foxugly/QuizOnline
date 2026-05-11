@@ -2,6 +2,12 @@
   display: block;
 }
 
+.quiz-tab-label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+}
+
 :host ::ng-deep .quiz-tabs .p-tablist {
   align-items: center;
   display: flex;
