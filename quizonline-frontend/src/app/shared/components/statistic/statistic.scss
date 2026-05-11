@@ -20,3 +20,42 @@
   font-weight: 600;
   word-break: break-word;
 }
+
+.statistic__caption {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+// ---------- Hero variant ----------
+//
+// Used for the resolved score: blue gradient card, oversized value,
+// optional caption right under the value.
+
+:host([data-variant="hero"]) {
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(30, 64, 175, 0.12);
+  gap: 0.35rem;
+  padding: 0.75rem 1.6rem;
+}
+
+:host([data-variant="hero"]) .statistic__label {
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+}
+
+:host([data-variant="hero"]) .statistic__value {
+  color: #1e3a8a;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+:host([data-variant="hero"]) .statistic__caption {
+  color: #475569;
+  font-size: 0.88rem;
+}

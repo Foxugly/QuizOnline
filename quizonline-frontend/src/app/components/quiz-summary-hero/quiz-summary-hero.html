@@ -42,16 +42,17 @@
     <div class="summary-hero__info-center">
       @if (showScore()) {
         @if (resultPending()) {
-          <div class="summary-hero__score-pending">
-            <span class="summary-hero__pending-label">{{ editorUi().quiz.scoreAvailableOn }}</span>
-            <span class="summary-hero__pending-value">{{ resultAvailableLabel() }}</span>
-          </div>
+          <app-statistic
+            [label]="editorUi().quiz.scoreAvailableOn"
+            [value]="resultAvailableLabel() ?? ''"
+          />
         } @else {
-          <div class="summary-hero__score-card">
-            <span class="summary-hero__score-label">{{ editorUi().quiz.scoreLabel }}</span>
-            <span class="summary-hero__score-value">{{ scoreLabel() }}</span>
-            <span class="summary-hero__score-meta">{{ scoreMetaLabel() }}</span>
-          </div>
+          <app-statistic
+            variant="hero"
+            [label]="editorUi().quiz.scoreLabel"
+            [value]="scoreLabel()"
+            [caption]="scoreMetaLabel()"
+          />
         }
       }
     </div>
@@ -59,10 +60,10 @@
     <div class="summary-hero__info-right">
       @if (!session().can_answer && session().started_at) {
         @if (detailPending()) {
-          <div class="summary-hero__detail-pending">
-            <span class="summary-hero__pending-label">{{ editorUi().quiz.detailAvailableOn }}</span>
-            <span class="summary-hero__pending-value">{{ detailAvailableLabel() }}</span>
-          </div>
+          <app-statistic
+            [label]="editorUi().quiz.detailAvailableOn"
+            [value]="detailAvailableLabel() ?? ''"
+          />
         } @else if (canReview()) {
           <p-button (onClick)="onOpenQuestion()" icon="pi pi-eye" [label]="editorUi().quiz.viewCorrection" severity="primary"></p-button>
           <p-button (onClick)="onDownloadPdf()" icon="pi pi-file-pdf" [label]="editorUi().common.downloadPdf" severity="secondary"></p-button>

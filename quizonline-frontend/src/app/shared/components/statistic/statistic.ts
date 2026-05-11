@@ -1,4 +1,6 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, HostBinding, input} from '@angular/core';
+
+export type StatisticVariant = 'default' | 'hero';
 
 @Component({
   selector: 'app-statistic',
@@ -9,4 +11,11 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 export class StatisticComponent {
   readonly label = input.required<string>();
   readonly value = input.required<string>();
+  readonly caption = input<string | null>(null);
+  readonly variant = input<StatisticVariant>('default');
+
+  @HostBinding('attr.data-variant')
+  get variantAttr(): StatisticVariant {
+    return this.variant();
+  }
 }

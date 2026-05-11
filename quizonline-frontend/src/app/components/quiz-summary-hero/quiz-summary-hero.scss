@@ -94,73 +94,6 @@
   justify-content: center;
 }
 
-// ---------- Score card ----------
-
-.summary-hero__score-card {
-  align-items: center;
-  background: linear-gradient(180deg, #eff6ff, #dbeafe);
-  border: 1px solid #bfdbfe;
-  border-radius: 16px;
-  box-shadow: 0 8px 22px rgba(30, 64, 175, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.75rem 1.6rem;
-  text-align: center;
-}
-
-.summary-hero__score-label {
-  color: #1d4ed8;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.summary-hero__score-value {
-  color: #1e3a8a;
-  font-size: 2.4rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.summary-hero__score-meta {
-  color: #475569;
-  font-size: 0.88rem;
-  font-weight: 500;
-}
-
-// ---------- Pending banners ----------
-
-.summary-hero__score-pending,
-.summary-hero__detail-pending {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-  text-align: center;
-}
-
-.summary-hero__detail-pending {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.summary-hero__pending-label {
-  color: #64748b;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.summary-hero__pending-value {
-  color: #0f172a;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
 // ---------- Row 4: dates ----------
 
 .summary-hero__dates-row {
@@ -195,10 +128,5 @@
   .summary-hero__info-left,
   .summary-hero__info-right {
     align-items: center;
-  }
-
-  .summary-hero__detail-pending {
-    align-items: center;
-    text-align: center;
   }
 }

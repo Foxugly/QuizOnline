@@ -1,2 +1,5 @@
 <span class="statistic__label">{{ label() }}</span>
 <span class="statistic__value">{{ value() }}</span>
+@if (caption(); as cap) {
+  <span class="statistic__caption">{{ cap }}</span>
+}
