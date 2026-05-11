@@ -13,7 +13,6 @@ import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
-import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
@@ -40,7 +39,6 @@ type SubjectListRow = SubjectReadDto & {
     PaginatorModule,
     TableModule,
     BulkActionsComponent,
-    StripPPipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './subject-list.html',
