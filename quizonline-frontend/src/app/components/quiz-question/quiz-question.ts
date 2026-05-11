@@ -261,7 +261,9 @@ export class QuizQuestionComponent {
   }
 
   protected canShowCorrectionState(): boolean {
-    return this.readonlyMode() || (this.displayMode() === 'preview' && this.showCorrectAnswers());
+    // Trust the backend's answer_correctness_state ("full" → showCorrectAnswers=true)
+    // regardless of displayMode. This covers practice mode mid-quiz too.
+    return this.showCorrectAnswers() || this.readonlyMode();
   }
 
   private buildPayload(): AnswerPayload {
