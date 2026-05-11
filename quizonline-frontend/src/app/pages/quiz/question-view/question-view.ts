@@ -250,14 +250,41 @@ export class QuizQuestionView implements OnInit {
         },
         error: (err: unknown): void => {
           logApiError('quiz.question.save-answer', err);
-          this.error.set(
-            this.isTimedOut()
-              ? 'Le temps du quiz est écoulé.'
-              : userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."),
-          );
-          if (this.isTimedOut()) {
+          this.handleSaveError(err);
+        },
+      });
+  }
+
+  /**
+   * Reconcile a save failure with the server's view of the quiz. The frontend
+   * timer / state may disagree with the backend (clock skew, or the parent
+   * QuizTemplate.ended_at passed while Quiz.ended_at is still in the future).
+   * Server is the source of truth: re-fetch, and if can_answer is false we
+   * stop the session and bounce the user back to /quiz/{id} like the timer
+   * expiry path does.
+   */
+  private handleSaveError(err: unknown): void {
+    this.quizService
+      .retrieveQuiz(this.quiz_id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (session) => {
+          if (!session.can_answer) {
+            this.error.set('Ce quiz n\'est plus disponible.');
             this.closeQuizAndRedirect(true);
+            return;
           }
+          this.error.set(userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."));
+        },
+        error: () => {
+          // Re-fetch itself failed (network etc.). Fall back to whatever the
+          // local timer thinks.
+          if (this.isTimedOut()) {
+            this.error.set('Le temps du quiz est écoulé.');
+            this.closeQuizAndRedirect(true);
+            return;
+          }
+          this.error.set(userFacingApiMessage(err, "Impossible d'enregistrer cette réponse."));
         },
       });
   }
