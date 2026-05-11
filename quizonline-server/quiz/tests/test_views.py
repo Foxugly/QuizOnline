@@ -1360,6 +1360,33 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(quiz.ended_at, ended)  # non écrasé
         self.assertFalse(quiz.active)
 
+    def test_close_quiz_pulls_future_ended_at_back_to_now(self):
+        """Closing a timed quiz early stamps the actual finish time."""
+        future_end = timezone.now() + timezone.timedelta(minutes=30)
+        quiz = self._create_quiz(
+            self.qt_ok, self.u1, active=True, started_at=timezone.now(), ended_at=future_end
+        )
+
+        url = self._rev(
+            "api:quiz-api:quiz-close",
+            "quiz-api:quiz-close",
+            quiz_id=quiz.id,
+        )
+
+        before = timezone.now()
+        self._auth(self.u1)
+        res = self.client.post(url, {}, format="json")
+        after = timezone.now()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        quiz.refresh_from_db()
+        self.assertFalse(quiz.active)
+        # ended_at was in the future; the close endpoint should have
+        # rewound it to the moment the user clicked "Terminer".
+        self.assertLess(quiz.ended_at, future_end)
+        self.assertGreaterEqual(quiz.ended_at, before)
+        self.assertLessEqual(quiz.ended_at, after)
+
     def test_quiz_retrieve_auto_expires_elapsed_session(self):
         quiz = self._create_quiz(
             self.qt_ok,

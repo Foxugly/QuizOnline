@@ -40,8 +40,15 @@ def close_quiz_session(*, quiz) -> Quiz:
     reconcile_quiz_answers(quiz)
 
     quiz.active = False
-    if not quiz.ended_at:
-        quiz.ended_at = timezone.now()
+    # Record the actual finish time. If the user clicked "Terminer" before
+    # the planned ended_at (timed quiz), stamp ended_at to "now" so the
+    # session duration reflects when they actually stopped, not the slot
+    # that was provisionally reserved at start. If the timer already
+    # expired (ended_at <= now) we keep that value — that's the real
+    # endpoint of the session.
+    now = timezone.now()
+    if not quiz.ended_at or quiz.ended_at > now:
+        quiz.ended_at = now
     quiz.save(update_fields=["active", "ended_at"])
     notify_quiz_completed(quiz)
     return quiz
