@@ -81,25 +81,30 @@ export class QuizView implements OnInit {
       .replace('{total}', String(session.total_answers));
   });
   readonly showScore = computed(() => Boolean(this.quizSession()?.started_at));
-  readonly summaryFacts = computed(() => {
+  readonly infoFacts = computed<QuizSummaryFact[]>(() => {
     const session = this.quizSession();
     const ui = this.editorUi().quiz;
     if (!session) {
       return [];
     }
-
-    const facts: QuizSummaryFact[] = [
+    return [
       {label: ui.timerLabel, value: this.timerLabel()},
       {label: ui.questionsLabel, value: String(session.max_questions ?? QuizView.FALLBACK_LABEL)},
     ];
-
+  });
+  readonly dateFacts = computed<QuizSummaryFact[]>(() => {
+    const session = this.quizSession();
+    const ui = this.editorUi().quiz;
+    if (!session) {
+      return [];
+    }
+    const facts: QuizSummaryFact[] = [];
     if (session.started_at) {
       facts.push({label: ui.startedOn, value: this.formatDateTime(session.started_at)});
     }
     if (!session.can_answer && session.ended_at) {
       facts.push({label: ui.closedOn, value: this.formatDateTime(session.ended_at)});
     }
-
     return facts;
   });
   readonly canReview = computed(() => {

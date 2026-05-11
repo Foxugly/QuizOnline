@@ -8,12 +8,11 @@
   } @else if (quizSession(); as session) {
     <app-quiz-summary-hero
       [session]="session"
-      [statusLabel]="status().label"
-      [statusSeverity]="status().severity"
       [showScore]="showScore()"
       [scoreLabel]="scoreLabel()"
       [scoreMetaLabel]="scoreMetaLabel()"
-      [facts]="summaryFacts()"
+      [infoFacts]="infoFacts()"
+      [dateFacts]="dateFacts()"
       [canReview]="canReview()"
       (back)="goBack()"
       (start)="goStart()"

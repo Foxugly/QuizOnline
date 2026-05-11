@@ -1,7 +1,6 @@
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
 import {VisibilityEnumDto} from '../../api/generated/model/visibility-enum';
 import {UserService} from '../../services/user/user';
@@ -16,7 +15,6 @@ export interface QuizSummaryFact {
   selector: 'app-quiz-summary-hero',
   imports: [
     ButtonModule,
-    TagModule,
   ],
   templateUrl: './quiz-summary-hero.html',
   styleUrl: './quiz-summary-hero.scss',
@@ -26,12 +24,11 @@ export class QuizSummaryHeroComponent {
   private readonly userService = inject(UserService);
   readonly editorUi = inject(UiTextService).editor;
   readonly session = input.required<QuizDto>();
-  readonly statusLabel = input.required<string>();
-  readonly statusSeverity = input<'secondary' | 'success' | 'warn' | 'danger' | 'contrast' | 'info'>('secondary');
   readonly showScore = input(true);
   readonly scoreLabel = input.required<string>();
   readonly scoreMetaLabel = input.required<string>();
-  readonly facts = input<QuizSummaryFact[]>([]);
+  readonly infoFacts = input<QuizSummaryFact[]>([]);
+  readonly dateFacts = input<QuizSummaryFact[]>([]);
   readonly canReview = input(false);
 
   readonly back = output();
@@ -73,18 +70,6 @@ export class QuizSummaryHeroComponent {
   readonly detailAvailableLabel = computed(() => {
     const at = this.detailAvailableDate();
     return at ? formatLocalizedDateTime(at, this.userService.currentLang) : null;
-  });
-
-  readonly modeLabel = computed(() => {
-    const ui = this.editorUi().quiz;
-    switch (this.session().mode) {
-      case 'practice':
-        return ui.modePractice;
-      case 'exam':
-        return ui.modeExam;
-      default:
-        return this.session().mode;
-    }
   });
 
   onBack(): void {
