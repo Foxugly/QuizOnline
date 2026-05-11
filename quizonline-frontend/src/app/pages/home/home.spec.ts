@@ -15,7 +15,7 @@ describe('Home', () => {
       name: 'QuizOnline',
       version: 'test',
       logoSvg: 'assets/qna.svg',
-      logoIco: 'assets/qna.ico',
+      logoIco: '/favicon.ico',
       logoPng: 'assets/qna.png',
       author: 'Foxugly',
       year: '2026',

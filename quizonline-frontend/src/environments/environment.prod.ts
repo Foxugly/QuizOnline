@@ -5,6 +5,6 @@ export const environment = {
   author: 'Foxugly',
   year: '2025',
   logoSvg: 'assets/qna.svg',
-  logoIco: 'assets/qna.ico',
+  logoIco: '/favicon.ico',
   logoPng: 'assets/qna.png',
 };
