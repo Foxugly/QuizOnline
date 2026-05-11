@@ -16,6 +16,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
   selector: 'app-preferences',
@@ -39,11 +40,10 @@ export class Preferences implements OnInit {
   private readonly domainService = inject(DomainService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly toast = inject(AppToastService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly success = signal<string | null>(null);
   readonly availableDomains = signal<DomainReadDto[]>([]);
   readonly visibleDomains = signal<DomainReadDto[]>([]);
   readonly currentUser = signal<CustomUserReadDto | null>(null);
@@ -147,15 +147,12 @@ export class Preferences implements OnInit {
           });
         },
         error: () => {
-          this.error.set(this.ui().preferences.loadError);
+          this.toast.add({severity: 'error', detail: this.ui().preferences.loadError});
         },
       });
   }
 
   save(): void {
-    this.error.set(null);
-    this.success.set(null);
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -163,7 +160,7 @@ export class Preferences implements OnInit {
 
     const me = this.currentUser();
     if (!me) {
-      this.error.set(this.ui().preferences.userMissing);
+      this.toast.add({severity: 'error', detail: this.ui().preferences.userMissing});
       return;
     }
 
@@ -196,10 +193,10 @@ export class Preferences implements OnInit {
             last_name: updatedUser.last_name ?? '',
             language: updatedUser.language ?? LanguageEnumDto.En,
           });
-          this.success.set(this.ui().preferences.saveSuccess);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
         error: () => {
-          this.error.set(this.ui().preferences.saveError);
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
         },
       });
   }
@@ -239,8 +236,6 @@ export class Preferences implements OnInit {
   }
 
   setCurrentDomain(domainId: number): void {
-    this.error.set(null);
-    this.success.set(null);
     this.saving.set(true);
     this.userService.setCurrentDomain(domainId)
       .pipe(
@@ -255,10 +250,10 @@ export class Preferences implements OnInit {
         next: ({profile, visibleDomains}) => {
           this.currentUser.set(profile);
           this.visibleDomains.set(visibleDomains ?? []);
-          this.success.set(this.ui().preferences.saveSuccess);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
         error: () => {
-          this.error.set(this.ui().preferences.saveError);
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
         },
       });
   }
@@ -273,8 +268,6 @@ export class Preferences implements OnInit {
   }
 
   deleteOwnedDomain(domainId: number): void {
-    this.error.set(null);
-    this.success.set(null);
     this.saving.set(true);
     this.domainService.delete(domainId)
       .pipe(
@@ -291,17 +284,15 @@ export class Preferences implements OnInit {
           this.currentUser.set(profile);
           this.visibleDomains.set(visibleDomains ?? []);
           this.availableDomains.set(availableDomains ?? []);
-          this.success.set(this.ui().preferences.deleteDomainSuccess);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.deleteDomainSuccess});
         },
         error: () => {
-          this.error.set(this.ui().preferences.deleteDomainError);
+          this.toast.add({severity: 'error', detail: this.ui().preferences.deleteDomainError});
         },
       });
   }
 
   private persistLinkedDomains(managed_domain_ids: number[], closeDialog: boolean): void {
-    this.error.set(null);
-    this.success.set(null);
     this.saving.set(true);
     this.userService.updateMeProfile({managed_domain_ids})
       .pipe(
@@ -321,10 +312,10 @@ export class Preferences implements OnInit {
           if (closeDialog) {
             this.closeLinkDomainsDialog();
           }
-          this.success.set(this.ui().preferences.saveSuccess);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
         error: () => {
-          this.error.set(this.ui().preferences.saveError);
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
         },
       });
   }
