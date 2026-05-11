@@ -1,10 +1,9 @@
 import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ButtonModule} from 'primeng/button';
 
 @Component({
   selector: 'app-question-button',
-  imports: [CommonModule, ButtonModule],
+  imports: [CommonModule],
   templateUrl: './question-button.html',
   styleUrl: './question-button.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

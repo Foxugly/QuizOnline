@@ -3,19 +3,27 @@
   width: 100%;
 }
 
-/* On laisse le wrapper gérer la largeur */
 .question-button {
-  width: 100%;
+  align-items: center;
+  background: transparent; // overridden by [style]="styleObject" at runtime
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-weight: 600;
+  height: 30px;
+  justify-content: center;
+  min-width: 30px;
+  padding: 0;
+  transition: background 120ms ease, border-color 120ms ease;
+  width: 70%;
 }
 
-/* On cible le VRAI bouton interne PrimeNG en cassant l'encapsulation */
-:host ::ng-deep .question-button .p-button {
-  height: 30px; /* hauteur uniforme pour tous */
-  min-width: 30px;
-  width: 70%;
-  padding: 0; /* pour éviter les variations */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
+.question-button:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.question-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }

@@ -1,9 +1,7 @@
-<p-button
-  [label]="label()"
-  [style]="styleObject"
+<button
+  type="button"
   class="question-button"
+  [style]="styleObject"
   [disabled]="disabled()"
-  (onClick)="onClick($event)"
-  size="small"
->
-</p-button>
+  (click)="onClick($event)"
+>{{ label() }}</button>
