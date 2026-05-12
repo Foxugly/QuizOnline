@@ -163,6 +163,10 @@ REST_FRAMEWORK = {
         "admin": "30/min",
         "admin_email_test": "5/min",
         "quiz_export": "20/min",
+        # Cap inviter spam: an owner/manager can send up to 100
+        # invitations per hour. The action takes a list of up to 50
+        # addresses, so this allows two full bursts per hour.
+        "domain_invite": "100/hour",
     },
 }
 

@@ -1,3 +1,5 @@
+import logging
+
 from django.db import transaction
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -9,6 +11,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404 as drf_get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle, SimpleRateThrottle
 from rest_framework.views import APIView
 from config.tools import MyModelViewSet
 
@@ -47,6 +50,41 @@ from .serializers import (
 from .services import domains_with_pending_for_user, users_who_can_approve
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
+
+_logger = logging.getLogger(__name__)
+
+
+def _client_ip(request) -> str:
+    """
+    Best-effort client IP for audit logging. Honours ``X-Forwarded-For``
+    (left-most hop) when the request transits the nginx reverse proxy in
+    production; falls back to ``REMOTE_ADDR`` otherwise. Always returns a
+    string (empty if neither is available) so structured logs stay typed.
+    """
+    if request is None:
+        return ""
+    forwarded = (request.META.get("HTTP_X_FORWARDED_FOR") or "").split(",")[0].strip()
+    return forwarded or request.META.get("REMOTE_ADDR", "") or ""
+
+
+class _DomainInviteThrottle(ScopedRateThrottle):
+    """
+    ScopedRateThrottle preconfigured with the ``domain_invite`` scope.
+    Avoids the awkward dance of setting ``throttle_scope`` on the action
+    function attribute, which DRF's ``@action`` does not pass through to
+    ``as_view``. We pin the scope in :meth:`allow_request` so it does
+    not need to come from the view object.
+    """
+
+    def allow_request(self, request, view):
+        self.scope = "domain_invite"
+        self.rate = self.get_rate()
+        self.num_requests, self.duration = self.parse_rate(self.rate)
+        # ``BaseThrottle.allow_request`` is overridden by ``SimpleRateThrottle``
+        # (the parent of ScopedRateThrottle) — call it skipping
+        # ScopedRateThrottle which would otherwise look up the scope on the
+        # view object.
+        return SimpleRateThrottle.allow_request(self, request, view)
 
 
 @extend_schema_view(
@@ -305,6 +343,18 @@ class DomainViewSet(MyModelViewSet):
         serializer = DomainReadSerializer(queryset, many=True, context=self.get_serializer_context())
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        tags=["Domain"],
+        summary="Modifier le rôle d'un membre",
+        description=(
+            "Trois intentions exclusives selon le payload : "
+            "``is_domain_manager`` (promouvoir / rétrograder), "
+            "``is_active`` (toggle global avec garde-fous), "
+            "``remove_member`` (retirer du domaine, scope local)."
+        ),
+        request=DomainMemberRoleSerializer,
+        responses={status.HTTP_200_OK: OpenApiResponse(response=OpenApiTypes.OBJECT)},
+    )
     @action(detail=True, methods=["post"], url_path="member-role")
     def member_role(self, request, *args, **kwargs):
         domain = self.get_object()
@@ -509,7 +559,13 @@ class DomainViewSet(MyModelViewSet):
         request=DomainInviteRequestSerializer,
         responses={status.HTTP_200_OK: DomainInviteResultSerializer(many=True)},
     )
-    @action(detail=True, methods=["post"], url_path="invite", pagination_class=None)
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="invite",
+        pagination_class=None,
+        throttle_classes=[_DomainInviteThrottle],
+    )
     def invite(self, request, *args, **kwargs):
         domain = self.get_object()
         serializer = DomainInviteRequestSerializer(data=request.data)
@@ -869,6 +925,21 @@ class DomainJoinRequestDecideView(APIView):
     the requested action, all signed and time-stamped. We *also* require a
     DRF auth session (``IsAuthenticated``) so that a forwarded mail cannot
     be acted on by an attacker who never logged in to the platform.
+
+    CSRF notes
+    ----------
+    This endpoint is intentionally exempt from CSRF concerns because the
+    Angular SPA authenticates via the ``Authorization: Bearer <JWT>``
+    header (see ``rest_framework_simplejwt``). The browser does NOT
+    automatically attach that header on cross-origin or cross-tab
+    navigation, so the classical "moderator clicks a malicious link in
+    a forged email" CSRF scenario does not produce a valid auth header
+    against this endpoint.
+
+    If the deployment ever switches JWT from header to cookie storage,
+    this view would need an explicit CSRF token check on POST. Until
+    then, the only secret that matters is the signed decision token in
+    the URL, which is short-lived (7 days) and bound to one recipient.
     """
 
     permission_classes = [IsAuthenticated]
@@ -883,7 +954,7 @@ class DomainJoinRequestDecideView(APIView):
         parsed = self._parse(token)
         if isinstance(parsed, Response):
             return parsed
-        return self._execute(parsed, request.user)
+        return self._execute(parsed, request.user, request=request)
 
     @staticmethod
     def _parse(token: str):
@@ -928,7 +999,7 @@ class DomainJoinRequestDecideView(APIView):
             "request": DomainJoinRequestReadSerializer(join_request).data,
         })
 
-    def _execute(self, payload, user) -> Response:
+    def _execute(self, payload, user, *, request=None) -> Response:
         action_kind = payload["action"]
         now = timezone.now()
         with transaction.atomic():
@@ -942,6 +1013,24 @@ class DomainJoinRequestDecideView(APIView):
 
             previous_status = join_request.status
             was_already_decided = previous_status != DomainJoinRequest.STATUS_PENDING
+
+            # Audit log: capture IP + user-agent + the request id so a
+            # later investigation can correlate a suspicious decision
+            # with a specific HTTP call. We log on the structured app
+            # logger; persisting on a per-row column is left to the
+            # future ``DomainAuditLog`` table (Phase B).
+            _logger.info(
+                "domain.join.email_decision",
+                extra={
+                    "request_id": join_request.id,
+                    "domain_id": join_request.domain_id,
+                    "actor_user_id": getattr(user, "id", None),
+                    "action": action_kind,
+                    "previous_status": previous_status,
+                    "remote_addr": _client_ip(request) if request else None,
+                    "user_agent": (request.META.get("HTTP_USER_AGENT", "") if request else ""),
+                },
+            )
 
             if action_kind == "approve":
                 join_request.status = DomainJoinRequest.STATUS_APPROVED
