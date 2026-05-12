@@ -67,21 +67,33 @@ class ParseDecisionTokenTests(TestCase):
                 parse_decision_token(token)
 
     def test_payload_with_wrong_shape_raises_invalid(self):
-        """A signed-but-malformed payload (e.g. missing fields) still rejects."""
-        from django.core.signing import TimestampSigner
+        """A signed-but-malformed payload (e.g. wrong top-level type) still rejects."""
+        from django.core import signing
         from domain.decision_token import SALT
 
-        signer = TimestampSigner(salt=SALT)
-        # Valid signature, but payload is not a JSON object.
-        token = signer.sign('["not", "a", "dict"]')
+        # Valid signature with the same salt, but payload is a list, not a dict.
+        token = signing.dumps(["not", "a", "dict"], salt=SALT)
         with self.assertRaises(DecisionTokenInvalid):
             parse_decision_token(token)
 
     def test_payload_with_unknown_action_raises_invalid(self):
-        from django.core.signing import TimestampSigner
+        from django.core import signing
         from domain.decision_token import SALT
 
-        signer = TimestampSigner(salt=SALT)
-        token = signer.sign('{"rid": 1, "uid": 2, "act": "purge"}')
+        token = signing.dumps({"rid": 1, "uid": 2, "act": "purge"}, salt=SALT)
         with self.assertRaises(DecisionTokenInvalid):
             parse_decision_token(token)
+
+    def test_token_is_url_safe(self):
+        """
+        The token rides in a URL path segment, so it must not contain
+        characters that need percent-encoding. The signing.dumps base64
+        alphabet is URL-safe (``-`` / ``_``), and the timestamp/signature
+        use the same alphabet -- this test guards against ever switching
+        back to a JSON-prefixed payload that would break mail links.
+        """
+        token = make_decision_token(request_id=99, recipient_user_id=42, action="approve")
+        import string
+        allowed = set(string.ascii_letters + string.digits + "-_.:")
+        bad = sorted(set(token) - allowed)
+        self.assertFalse(bad, f"token contains non URL-safe chars: {bad!r} (full token={token!r})")

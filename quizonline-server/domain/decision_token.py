@@ -2,9 +2,13 @@
 Signed, time-limited tokens for moderating a domain join request from an
 email link.
 
-The token is built with :class:`django.core.signing.TimestampSigner`
-(HMAC over the request payload + the current epoch second, signed with
-``settings.SECRET_KEY``). It is intentionally narrow:
+The token is built with :func:`django.core.signing.dumps`, which packs
+the payload as compressed URL-safe base64 + timestamp + signature signed
+with ``settings.SECRET_KEY``. URL-safe encoding matters: this token is
+embedded raw in a URL path segment, so we cannot afford characters that
+would need percent-encoding (``{``, ``}``, ``"``, etc.).
+
+The signature is intentionally narrow:
 
 * the action (``approve`` / ``reject``) is baked into the token, so a
   recipient cannot switch the verb after the fact;
@@ -13,12 +17,10 @@ The token is built with :class:`django.core.signing.TimestampSigner`
 * a 7-day TTL bounds the blast radius of leaked or forwarded mail;
 * the salt scopes the signature to this domain (``domain.join.decide``)
   so tokens cannot be replayed against other signing surfaces that may
-  later reuse ``TimestampSigner``.
+  later reuse the same SECRET_KEY.
 """
 
-import json
-
-from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from django.core import signing
 
 DECISION_TOKEN_TTL_SECONDS = 7 * 24 * 3600  # 7 days
 SALT = "domain.join.decide"
@@ -40,26 +42,18 @@ class DecisionTokenInvalid(DecisionTokenError):
 def make_decision_token(*, request_id: int, recipient_user_id: int, action: str) -> str:
     if action not in ALLOWED_ACTIONS:
         raise ValueError(f"invalid action: {action!r}")
-    payload = json.dumps(
+    return signing.dumps(
         {"rid": int(request_id), "uid": int(recipient_user_id), "act": action},
-        separators=(",", ":"),
+        salt=SALT,
     )
-    signer = TimestampSigner(salt=SALT)
-    return signer.sign(payload)
 
 
 def parse_decision_token(token: str) -> dict:
-    signer = TimestampSigner(salt=SALT)
     try:
-        payload = signer.unsign(token, max_age=DECISION_TOKEN_TTL_SECONDS)
-    except SignatureExpired as exc:
+        data = signing.loads(token, salt=SALT, max_age=DECISION_TOKEN_TTL_SECONDS)
+    except signing.SignatureExpired as exc:
         raise DecisionTokenExpired() from exc
-    except BadSignature as exc:
-        raise DecisionTokenInvalid() from exc
-
-    try:
-        data = json.loads(payload)
-    except (ValueError, TypeError) as exc:
+    except signing.BadSignature as exc:
         raise DecisionTokenInvalid() from exc
 
     if not isinstance(data, dict):
