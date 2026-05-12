@@ -60,6 +60,9 @@
           <th>{{ text().members.colUser }}</th>
           <th>{{ text().members.colEmail }}</th>
           <th>{{ text().members.colRole }}</th>
+          @if (canManage()) {
+            <th class="col-actions">{{ text().members.colActions }}</th>
+          }
         </tr>
       </ng-template>
       <ng-template #body let-row>
@@ -73,6 +76,41 @@
               [severity]="row.role === 'owner' ? 'success' : row.role === 'manager' ? 'info' : 'secondary'">
             </p-tag>
           </td>
+          @if (canManage()) {
+            <td class="col-actions">
+              @if (canActOnRow(row)) {
+                <div class="row-actions">
+                  @if (row.role === 'member') {
+                    <p-button
+                      (click)="promote(row)"
+                      icon="pi pi-arrow-up"
+                      [pTooltip]="text().members.promote"
+                      severity="info"
+                      size="small"
+                      type="button">
+                    </p-button>
+                  } @else if (row.role === 'manager') {
+                    <p-button
+                      (click)="demote(row)"
+                      icon="pi pi-arrow-down"
+                      [pTooltip]="text().members.demote"
+                      severity="secondary"
+                      size="small"
+                      type="button">
+                    </p-button>
+                  }
+                  <p-button
+                    (click)="confirmRemove(row)"
+                    icon="pi pi-user-minus"
+                    [pTooltip]="text().members.remove"
+                    severity="danger"
+                    size="small"
+                    type="button">
+                  </p-button>
+                </div>
+              }
+            </td>
+          }
         </tr>
       </ng-template>
     </p-table>
@@ -80,3 +118,5 @@
     <p class="muted">{{ text().members.membersNone }}</p>
   }
 </section>
+
+<p-confirmDialog></p-confirmDialog>

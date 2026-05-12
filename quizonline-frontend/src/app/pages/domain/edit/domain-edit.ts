@@ -6,7 +6,7 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {forkJoin, of} from 'rxjs';
-import {catchError, finalize} from 'rxjs/operators';
+import {catchError, finalize, switchMap} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {TabsModule} from 'primeng/tabs';
@@ -143,6 +143,7 @@ export class DomainEdit implements OnInit {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
   readonly editText = computed(() => getDomainEditUiText(this.userService.currentLang ?? LanguageEnumDto.Fr));
+  readonly currentUserId = computed(() => this.userService.currentUser()?.id ?? null);
   readonly canModerate = computed(() => {
     const dto = this.domain();
     const me = this.userService.currentUser();
@@ -156,6 +157,16 @@ export class DomainEdit implements OnInit {
       return true;
     }
     return (dto.managers ?? []).some(m => m.id === me.id);
+  });
+  /** Owner-only (or superuser) gate for role changes / member removal in the
+   *  Members tab. Matches the backend rule introduced in this same change. */
+  readonly canManageMembers = computed(() => {
+    const dto = this.domain();
+    const me = this.userService.currentUser();
+    if (!dto || !me) {
+      return false;
+    }
+    return !!me.is_superuser || dto.owner?.id === me.id;
   });
   readonly pendingCount = computed(() => this.pendingRequests().length);
 
@@ -287,6 +298,38 @@ export class DomainEdit implements OnInit {
     if (value === 'members' || value === 'config') {
       this.topTab.set(value);
     }
+  }
+
+  onMemberRoleChange(evt: {userId: number; makeManager: boolean}): void {
+    const url = `${this.apiBaseUrl}/${this.id}/member-role/`;
+    this.http.post(url, {user_id: evt.userId, is_domain_manager: evt.makeManager})
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.domainService.detail(this.id)),
+      )
+      .subscribe({
+        next: (dto) => this.domain.set(dto),
+        error: (err) => {
+          logApiError('domain.edit.member-role', err);
+          this.submitError.set(this.editText().members.actionFailed);
+        },
+      });
+  }
+
+  onMemberRemove(evt: {userId: number}): void {
+    const url = `${this.apiBaseUrl}/${this.id}/member-role/`;
+    this.http.post(url, {user_id: evt.userId, remove_member: true})
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.domainService.detail(this.id)),
+      )
+      .subscribe({
+        next: (dto) => this.domain.set(dto),
+        error: (err) => {
+          logApiError('domain.edit.member-remove', err);
+          this.submitError.set(this.editText().members.actionFailed);
+        },
+      });
   }
 
   private loadPendingRequests(): void {

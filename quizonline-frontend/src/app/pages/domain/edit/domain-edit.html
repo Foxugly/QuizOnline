@@ -65,7 +65,11 @@
               [domain]="d"
               [pendingRequests]="pendingRequests()"
               [canModerate]="canModerate()"
-              [text]="editText()">
+              [canManage]="canManageMembers()"
+              [currentUserId]="currentUserId()"
+              [text]="editText()"
+              (roleChange)="onMemberRoleChange($event)"
+              (removeMember)="onMemberRemove($event)">
             </app-domain-members-tab>
           }
         </p-tabpanel>

@@ -1,9 +1,12 @@
 import {DatePipe, NgClass} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
+import {ConfirmationService} from 'primeng/api';
 
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
 import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-request-read';
@@ -19,6 +22,9 @@ type MemberRow = {
   role: 'owner' | 'manager' | 'member';
 };
 
+export type MemberRoleChange = {userId: number; makeManager: boolean};
+export type MemberRemove = {userId: number};
+
 @Component({
   selector: 'app-domain-members-tab',
   imports: [
@@ -26,9 +32,12 @@ type MemberRow = {
     NgClass,
     RouterLink,
     ButtonModule,
+    ConfirmDialogModule,
     TableModule,
     TagModule,
+    TooltipModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './domain-members-tab.html',
   styleUrl: './domain-members-tab.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +46,17 @@ export class DomainMembersTab {
   readonly domain = input.required<DomainDetailDto>();
   readonly pendingRequests = input<DomainJoinRequestReadDto[]>([]);
   readonly canModerate = input<boolean>(false);
+  /** True iff the current user is the owner (or a superuser): only they can
+   *  change roles and remove members from this tab. Managers see read-only. */
+  readonly canManage = input<boolean>(false);
+  /** Current user id; used to forbid acting on oneself from the tab. */
+  readonly currentUserId = input<number | null>(null);
   readonly text = input.required<DomainEditUiText>();
+
+  readonly roleChange = output<MemberRoleChange>();
+  readonly removeMember = output<MemberRemove>();
+
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly memberRows = computed<MemberRow[]>(() => {
     const d = this.domain();
@@ -85,5 +104,49 @@ export class DomainMembersTab {
       default:
         return labels.roleMember;
     }
+  }
+
+  /** Whether the current user may act on this row. Owners cannot be touched
+   *  from the UI (must transfer ownership instead), and you can never act
+   *  on yourself from this surface. */
+  canActOnRow(row: MemberRow): boolean {
+    if (!this.canManage()) {
+      return false;
+    }
+    if (row.role === 'owner') {
+      return false;
+    }
+    const me = this.currentUserId();
+    return me == null || row.id !== me;
+  }
+
+  promote(row: MemberRow): void {
+    if (!this.canActOnRow(row) || row.role !== 'member') {
+      return;
+    }
+    this.roleChange.emit({userId: row.id, makeManager: true});
+  }
+
+  demote(row: MemberRow): void {
+    if (!this.canActOnRow(row) || row.role !== 'manager') {
+      return;
+    }
+    this.roleChange.emit({userId: row.id, makeManager: false});
+  }
+
+  confirmRemove(row: MemberRow): void {
+    if (!this.canActOnRow(row)) {
+      return;
+    }
+    const labels = this.text().members;
+    this.confirmationService.confirm({
+      header: labels.confirmRemoveHeader,
+      message: labels.confirmRemoveMessage(row.username),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: labels.confirmRemoveAccept,
+      rejectLabel: labels.confirmRemoveCancel,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.removeMember.emit({userId: row.id}),
+    });
   }
 }
