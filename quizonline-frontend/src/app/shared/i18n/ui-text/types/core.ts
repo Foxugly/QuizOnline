@@ -103,4 +103,12 @@ export type PreferencesUiText = {
   pendingRequestsEmpty: string;
   pendingRequestsRequestedAt: string;
   pendingRequestsCancel: string;
+  notificationsTitle: string;
+  notificationsSubtitle: string;
+  notificationKindJoinRequestCreated: string;
+  notificationKindJoinRequestDecided: string;
+  notificationKindJoinRequestExpiry: string;
+  notificationKindInviteReceived: string;
+  notificationKindTransferReceived: string;
+  notificationsSaved: string;
 };

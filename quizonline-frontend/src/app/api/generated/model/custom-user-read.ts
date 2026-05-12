@@ -40,6 +40,7 @@ export interface CustomUserReadDto {
     readonly owned_domain_ids: Array<number>;
     readonly managed_domain_ids: Array<number>;
     readonly pending_join_requests: Array<any>;
+    notification_prefs?: any | null;
 }
 
 

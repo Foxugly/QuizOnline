@@ -16,6 +16,7 @@ export interface PatchedCustomUserProfileUpdateRequestDto {
     last_name?: string;
     language?: LanguageEnumDto;
     managed_domain_ids?: Array<number>;
+    notification_prefs?: any | null;
 }
 
 

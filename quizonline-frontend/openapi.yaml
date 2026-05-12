@@ -4136,6 +4136,7 @@ components:
           type: array
           items: {}
           readOnly: true
+        notification_prefs: {}
       required:
       - current_domain_title
       - email_confirmed
@@ -5519,6 +5520,7 @@ components:
           items:
             type: integer
             minimum: 1
+        notification_prefs: {}
     PatchedDomainPartialRequest:
       type: object
       properties:

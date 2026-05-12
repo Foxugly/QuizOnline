@@ -173,6 +173,28 @@
               </div>
             </div>
           </p-card>
+
+          <p-card class="panel panel--summary">
+            <ng-template pTemplate="title">{{ ui().preferences.notificationsTitle }}</ng-template>
+            <ng-template pTemplate="subtitle">{{ ui().preferences.notificationsSubtitle }}</ng-template>
+
+            <div class="form form--stacked">
+              @for (kind of notificationKinds; track kind) {
+                <div class="domain-list__item">
+                  <div class="domain-list__content">
+                    <span class="domain-list__name">{{ notificationKindLabel(kind) }}</span>
+                  </div>
+                  <div class="domain-list__actions">
+                    <p-toggleswitch
+                      [ngModel]="isNotificationEnabled(kind)"
+                      (ngModelChange)="toggleNotification(kind, $event)"
+                      [disabled]="saving()">
+                    </p-toggleswitch>
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
         </form>
       }
     </div>

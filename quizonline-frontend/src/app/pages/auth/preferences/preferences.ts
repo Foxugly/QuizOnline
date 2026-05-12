@@ -10,6 +10,7 @@ import {CardModule} from 'primeng/card';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -29,6 +30,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     DialogModule,
     InputTextModule,
     SelectModule,
+    ToggleSwitchModule,
   ],
   templateUrl: './preferences.html',
   styleUrls: ['./preferences.scss'],
@@ -325,6 +327,77 @@ export class Preferences implements OnInit {
       return this.getDomainLabel(available);
     }
     return `Domain #${domainId}`;
+  }
+
+  /**
+   * Canonical notification kinds — keep in sync with
+   * ``customuser/notifications.py NOTIFICATION_KINDS``.
+   */
+  readonly notificationKinds = [
+    'domain.join_request.created',
+    'domain.join_request.decided',
+    'domain.join_request.expiry_warning',
+    'domain.invite.received',
+    'domain.transfer.received',
+  ] as const;
+
+  /** Whether the given kind is currently enabled for the user (default: yes). */
+  isNotificationEnabled(kind: string): boolean {
+    const me = this.currentUser();
+    const prefs = (me?.notification_prefs as Record<string, unknown> | null | undefined) ?? {};
+    return prefs[kind] !== false;
+  }
+
+  /** Localised label for a notification kind. */
+  notificationKindLabel(kind: string): string {
+    const t = this.ui().preferences;
+    switch (kind) {
+      case 'domain.join_request.created':
+        return t.notificationKindJoinRequestCreated;
+      case 'domain.join_request.decided':
+        return t.notificationKindJoinRequestDecided;
+      case 'domain.join_request.expiry_warning':
+        return t.notificationKindJoinRequestExpiry;
+      case 'domain.invite.received':
+        return t.notificationKindInviteReceived;
+      case 'domain.transfer.received':
+        return t.notificationKindTransferReceived;
+      default:
+        return kind;
+    }
+  }
+
+  /** Toggle one notification kind and persist via the profile update endpoint. */
+  toggleNotification(kind: string, enabled: boolean): void {
+    const me = this.currentUser();
+    if (!me) {
+      return;
+    }
+    const next: Record<string, boolean> = {
+      ...((me.notification_prefs as Record<string, boolean> | null) ?? {}),
+    };
+    if (enabled) {
+      // Sparse map: missing key = enabled. Strip the explicit-false
+      // entry instead of writing True.
+      delete next[kind];
+    } else {
+      next[kind] = false;
+    }
+    this.saving.set(true);
+    this.userService.updateMeProfile({notification_prefs: next as unknown as object} as unknown as Parameters<typeof this.userService.updateMeProfile>[0])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.currentUser.set(updated);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.notificationsSaved});
+        },
+        error: () => {
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        },
+      });
   }
 
   /**
