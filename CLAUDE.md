@@ -21,14 +21,29 @@ Monorepo with two main modules:
 5 supported languages: FR, EN, NL, IT, ES.
 
 - `editor-ui-text/` : labels for quiz editor UI
-- `ui-text/` : page content and general UI text
+- `ui-text/` : shell, auth and admin UI text — accessed via `inject(UiTextService).ui` / `.editor`
+- Page-scoped i18n lives next to the component (`pages/<page>/<page>.i18n.ts`) and is bound reactively through `inject(UiTextService).localized(getXxxUiText)`
 
 ## Backend conventions
 
 - Admin endpoints: protected with `IsSuperUser` permission class
-- Rate limiting: `ScopedRateThrottle` on public endpoints
+- Rate limiting: `ScopedRateThrottle` on public endpoints; every scope is overridable via `THROTTLE_*` env vars (see `.env.example`)
 - Email: outbox pattern with Celery delivery
 - Tests: `pytest` and Django test runner
+
+## Domain features (Phase B / C / D)
+
+Production-grade moderation, invitations and observability on every `Domain`:
+
+- **Bulk approve / reject** join requests via `POST /api/domain/{id}/join-request/bulk-approve|bulk-reject/` (atomic, audited, returns `{processed, skipped}`)
+- **Multi-domain invite** fan-out: `POST /api/domain/{id}/invite/` accepts `additional_domain_ids` to invite the same email list to several domains in one call; tighter `domain_invite_fanout` throttle bucket
+- **Analytics** per domain: `GET /api/domain/{id}/analytics/` returns counters + acceptance rate + median time-to-decision + top deciders. Surfaced as the "Analytics" tab in `/domain/{id}/edit` and deep-linked via `?tab=analytics`
+- **Moderation tile** (`GET /api/domain/moderation-summary/`) cached per-user 60 s with proactive invalidation on every mutation that changes pending count or the moderator set
+- **Magic-link login** via `/api/auth/magic-link/request|exchange/` — passwordless sign-in
+- **Transfer ownership** — `POST /api/domain/{id}/transfer/` issues a signed invitation to the future owner
+- **Persistent invitations** (`DomainInvite`) with resend / revoke / accept-state lookup
+- **Audit log** (`DomainAuditLog`) per domain, exposed in the edit page
+- **Per-user notification preferences** on `CustomUser.notification_prefs`
 
 ## Deployment
 
