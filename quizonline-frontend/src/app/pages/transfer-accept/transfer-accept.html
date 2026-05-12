@@ -1,0 +1,71 @@
+<div class="page">
+  <div class="header-line">
+    <div class="header-line__left"></div>
+    <div class="header-center">
+      <h1 class="title">{{ text().title }}</h1>
+    </div>
+    <div class="header-line__right"></div>
+  </div>
+
+  <section class="card form-card transfer-card">
+    @if (loading()) {
+      <div class="transfer-loading">
+        <p-progressSpinner styleClass="transfer-spinner" strokeWidth="3"></p-progressSpinner>
+        <p class="muted">{{ text().loading }}</p>
+      </div>
+    } @else if (error(); as err) {
+      <p-message severity="error" [closable]="false">
+        @switch (err) {
+          @case ('tokenInvalid') { {{ text().errors.tokenInvalid }} }
+          @case ('tokenExpired') { {{ text().errors.tokenExpired }} }
+          @case ('notFound') { {{ text().errors.notFound }} }
+          @default { {{ text().errors.generic }} }
+        }
+      </p-message>
+
+      <div class="footer-actions">
+        <p-button
+          routerLink="/"
+          [label]="text().buttons.backHome"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+      </div>
+    } @else if (state(); as s) {
+      @switch (s.state) {
+        @case ('transferred') {
+          <p-message severity="success" [closable]="false">
+            {{ text().states.transferred }}
+          </p-message>
+        }
+        @case ('no_longer_eligible') {
+          <p-message severity="warn" [closable]="false">
+            {{ text().states.noLongerEligible }}
+          </p-message>
+        }
+        @case ('wrong_account') {
+          <p-message severity="warn" [closable]="false">
+            {{ text().states.wrongAccount(s.future_owner_username) }}
+          </p-message>
+          <div class="footer-actions">
+            <p-button (onClick)="goLogin()" icon="pi pi-sign-in" [label]="text().states.accept" severity="primary" type="button"></p-button>
+          </div>
+        }
+        @case ('ready_to_accept') {
+          <h2 class="transfer-heading">{{ text().states.readyHeading }}</h2>
+          <p class="muted">{{ text().states.readyExplain(s.domain_name, s.initiator_username) }}</p>
+          <div class="footer-actions">
+            <p-button (onClick)="accept()" icon="pi pi-check" [label]="accepting() ? text().states.accepting : text().states.accept" [loading]="accepting()" [disabled]="accepting()" severity="success" type="button"></p-button>
+          </div>
+        }
+      }
+
+      @if (s.state === 'transferred' || s.state === 'no_longer_eligible') {
+        <div class="footer-actions">
+          <p-button routerLink="/" [label]="text().buttons.backHome" severity="secondary" variant="outlined" type="button"></p-button>
+        </div>
+      }
+    }
+  </section>
+</div>

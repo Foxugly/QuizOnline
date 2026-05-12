@@ -7,14 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { StateEnumDto } from './state-enum';
+import { DomainInviteStateStateEnumDto } from './domain-invite-state-state-enum';
 
 
 /**
  * Shape of GET/POST ``/api/domain/invite/accept/{token}/``.
  */
 export interface DomainInviteStateDto { 
-    state: StateEnumDto;
+    state: DomainInviteStateStateEnumDto;
     domain_id: number;
     domain_name: string;
     inviter_username: string;

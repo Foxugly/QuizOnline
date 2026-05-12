@@ -223,4 +223,10 @@ export const routes: Routes = [
     path: 'invite/accept/:token',
     loadComponent: () => import('./pages/invite-accept/invite-accept').then((m) => m.InviteAcceptPage),
   },
+  {
+    // Same pattern as invite/accept: page is public so it can render the
+    // "wrong_account" / "no_longer_eligible" states even before login.
+    path: 'transfer/accept/:token',
+    loadComponent: () => import('./pages/transfer-accept/transfer-accept').then((m) => m.TransferAcceptPage),
+  },
 ];

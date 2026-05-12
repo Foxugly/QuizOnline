@@ -35,6 +35,7 @@ model/domain-detail.ts
 model/domain-invite-request-request.ts
 model/domain-invite-result-status-enum.ts
 model/domain-invite-result.ts
+model/domain-invite-state-state-enum.ts
 model/domain-invite-state.ts
 model/domain-join-request-decide-response.ts
 model/domain-join-request-read.ts
@@ -42,6 +43,9 @@ model/domain-member-role-request.ts
 model/domain-name-summary.ts
 model/domain-read.ts
 model/domain-stats.ts
+model/domain-transfer-request-request.ts
+model/domain-transfer-state-state-enum.ts
+model/domain-transfer-state.ts
 model/domain-write-request.ts
 model/domain-write.ts
 model/email-confirmation-request.ts
@@ -130,7 +134,6 @@ model/quiz-template.ts
 model/quiz-update-request.ts
 model/quiz.ts
 model/set-current-domain-request.ts
-model/state-enum.ts
 model/subject-detail.ts
 model/subject-read.ts
 model/subject-write-request.ts

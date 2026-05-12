@@ -79,5 +79,65 @@
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+
+    @if (canManageMembers()) {
+      <section class="card form-card transfer-zone">
+        <div class="card-head">
+          <h2 class="card-title">
+            <i class="pi pi-arrow-right-arrow-left"></i>
+            {{ editText().transfer.button }}
+          </h2>
+        </div>
+        <p class="muted">{{ editText().transfer.dialogHint }}</p>
+        <div class="footer-actions">
+          <p-button
+            (onClick)="openTransferDialog()"
+            icon="pi pi-arrow-right-arrow-left"
+            [label]="editText().transfer.button"
+            severity="warn"
+            type="button"
+            variant="outlined">
+          </p-button>
+        </div>
+      </section>
+    }
   }
 </div>
+
+<p-dialog
+  [header]="editText().transfer.dialogTitle"
+  [(visible)]="transferDialogVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }">
+  <p class="muted">{{ editText().transfer.dialogHint }}</p>
+  <p-select
+    [options]="transferCandidates()"
+    [(ngModel)]="transferTargetId"
+    [filter]="true"
+    [showClear]="true"
+    optionLabel="label"
+    optionValue="value"
+    [placeholder]="editText().transfer.pickPlaceholder"
+    class="w-full">
+  </p-select>
+  @if (transferError(); as err) {
+    <p-message severity="error" [closable]="false">{{ err }}</p-message>
+  }
+  <ng-template #footer>
+    <p-button
+      [label]="editText().transfer.cancel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="closeTransferDialog()"
+      type="button">
+    </p-button>
+    <p-button
+      [label]="transferring() ? editText().transfer.sending : editText().transfer.submit"
+      icon="pi pi-send"
+      [loading]="transferring()"
+      [disabled]="!transferTargetId() || transferring()"
+      (onClick)="submitTransfer()"
+      type="button">
+    </p-button>
+  </ng-template>
+</p-dialog>

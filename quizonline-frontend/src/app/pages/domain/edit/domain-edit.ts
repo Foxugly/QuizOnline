@@ -11,6 +11,10 @@ import {catchError, finalize, switchMap} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {TabsModule} from 'primeng/tabs';
 import {BadgeModule} from 'primeng/badge';
+import {DialogModule} from 'primeng/dialog';
+import {SelectModule} from 'primeng/select';
+import {MessageModule} from 'primeng/message';
+import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
@@ -60,9 +64,13 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   selector: 'app-domain-edit',
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     ButtonModule,
     TabsModule,
     BadgeModule,
+    DialogModule,
+    SelectModule,
+    MessageModule,
     DomainEditorFormComponent,
     DomainMembersTab,
   ],
@@ -187,6 +195,19 @@ export class DomainEdit implements OnInit {
 
   readonly inviteResults = signal<DomainInviteResultDto[] | null>(null);
   readonly inviting = signal<boolean>(false);
+
+  // Transfer-ownership dialog state.
+  readonly transferDialogVisible = signal<boolean>(false);
+  readonly transferTargetId = signal<number | null>(null);
+  readonly transferring = signal<boolean>(false);
+  readonly transferError = signal<string | null>(null);
+  /** Candidates for the future-owner select: every known user except
+   *  the current owner. The component already loads ``userService.list``
+   *  into ``ownerOptions`` on init, so we just filter it. */
+  readonly transferCandidates = computed(() => {
+    const ownerId = this.domain()?.owner?.id;
+    return this.ownerOptions().filter(o => o.value !== ownerId);
+  });
 
   private readonly domainApi = inject(DomainApiService);
 
@@ -387,6 +408,56 @@ export class DomainEdit implements OnInit {
           this.submitError.set(this.editText().members.actionFailed);
         },
       });
+  }
+
+  openTransferDialog(): void {
+    this.transferTargetId.set(null);
+    this.transferError.set(null);
+    this.transferDialogVisible.set(true);
+  }
+
+  closeTransferDialog(): void {
+    this.transferDialogVisible.set(false);
+    this.transferTargetId.set(null);
+    this.transferError.set(null);
+  }
+
+  submitTransfer(): void {
+    const userId = this.transferTargetId();
+    if (!userId || this.transferring()) {
+      return;
+    }
+    this.transferring.set(true);
+    this.transferError.set(null);
+    this.http.post(
+      `${this.apiBaseUrl}/${this.id}/transfer/`,
+      {user_id: userId},
+    ).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.transferring.set(false)),
+    ).subscribe({
+      next: () => {
+        // Stay on the page; the proposal is sent but ownership has not
+        // moved yet. Show a toast-like message and close.
+        this.transferDialogVisible.set(false);
+        this.submitError.set(this.editText().transfer.successMessage);
+      },
+      error: (err) => {
+        logApiError('domain.edit.transfer', err);
+        const detail = err?.error?.detail;
+        const t = this.editText().transfer;
+        switch (detail) {
+          case 'already_owner':
+            this.transferError.set(t.errorAlreadyOwner);
+            return;
+          case 'future_owner_unreachable':
+            this.transferError.set(t.errorTargetUnreachable);
+            return;
+          default:
+            this.transferError.set(t.errorGeneric);
+        }
+      },
+    });
   }
 
   private loadPendingRequests(): void {

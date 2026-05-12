@@ -583,6 +583,52 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/domain/{domain_id}/transfer/:
+    post:
+      operationId: domain_transfer_create
+      description: |-
+        Le propriétaire envoie une proposition de transfert au futur propriétaire désigné par ``user_id``. Un e-mail signé est envoyé : tant que le destinataire n'a pas cliqué le lien et confirmé, la propriété ne change pas.
+
+        Refusé si l'appelant n'est pas le propriétaire actuel, ou si la cible est elle-même déjà le propriétaire.
+      summary: Initier un transfert de propriété
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainTransferRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DomainTransferRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DomainTransferRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '202':
+          description: Transfer email queued.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/domain/available-for-linking/:
     get:
       operationId: domain_available_for_linking_retrieve
@@ -812,6 +858,110 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ModerationSummaryItem'
+          description: ''
+  /api/domain/transfer/accept/{token}/:
+    get:
+      operationId: domain_transfer_accept_retrieve
+      description: |-
+        Public-GET / auth-POST view that consumes a transfer token. GET is
+        open so the landing page can render even for a not-yet-logged-in
+        visitor (and route them to ``/login?next=...``); POST requires the
+        invited account to be authenticated.
+      summary: Décoder un token de transfert de propriété
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainTransferState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+    post:
+      operationId: domain_transfer_accept_create
+      description: 'Si l''utilisateur connecté est le destinataire encodé dans le
+        token, transfère la propriété : l''ancien owner est ajouté aux membres, le
+        nouveau owner devient ``Domain.owner`` et est aussi ajouté aux membres / managers.
+        Idempotent si déjà transféré.'
+      summary: Accepter le transfert (utilisateur authentifié)
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainTransferState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
           description: ''
   /api/lang/:
     get:
@@ -3944,7 +4094,7 @@ components:
       description: Shape of GET/POST ``/api/domain/invite/accept/{token}/``.
       properties:
         state:
-          $ref: '#/components/schemas/StateEnum'
+          $ref: '#/components/schemas/DomainInviteStateStateEnum'
         domain_id:
           type: integer
         domain_name:
@@ -3960,6 +4110,22 @@ components:
       - invited_email
       - inviter_username
       - state
+    DomainInviteStateStateEnum:
+      enum:
+      - ready_to_accept
+      - login_required
+      - signup_required
+      - wrong_account
+      - already_member
+      - accepted
+      type: string
+      description: |-
+        * `ready_to_accept` - ready_to_accept
+        * `login_required` - login_required
+        * `signup_required` - signup_required
+        * `wrong_account` - wrong_account
+        * `already_member` - already_member
+        * `accepted` - accepted
     DomainJoinRequestDecideResponse:
       type: object
       description: Shape of the GET/POST response from the public moderation endpoint.
@@ -4146,6 +4312,47 @@ components:
       - subjects_count
       - translations
       - updated_at
+    DomainTransferRequestRequest:
+      type: object
+      description: Payload for ``POST /api/domain/{id}/transfer/``.
+      properties:
+        user_id:
+          type: integer
+          minimum: 1
+      required:
+      - user_id
+    DomainTransferState:
+      type: object
+      description: Shape of GET/POST ``/api/domain/transfer/accept/{token}/``.
+      properties:
+        state:
+          $ref: '#/components/schemas/DomainTransferStateStateEnum'
+        domain_id:
+          type: integer
+        domain_name:
+          type: string
+        initiator_username:
+          type: string
+        future_owner_username:
+          type: string
+      required:
+      - domain_id
+      - domain_name
+      - future_owner_username
+      - initiator_username
+      - state
+    DomainTransferStateStateEnum:
+      enum:
+      - ready_to_accept
+      - wrong_account
+      - no_longer_eligible
+      - transferred
+      type: string
+      description: |-
+        * `ready_to_accept` - ready_to_accept
+        * `wrong_account` - wrong_account
+        * `no_longer_eligible` - no_longer_eligible
+        * `transferred` - transferred
     DomainWrite:
       type: object
       properties:
@@ -6575,22 +6782,6 @@ components:
         domain_id:
           type: integer
           nullable: true
-    StateEnum:
-      enum:
-      - ready_to_accept
-      - login_required
-      - signup_required
-      - wrong_account
-      - already_member
-      - accepted
-      type: string
-      description: |-
-        * `ready_to_accept` - ready_to_accept
-        * `login_required` - login_required
-        * `signup_required` - signup_required
-        * `wrong_account` - wrong_account
-        * `already_member` - already_member
-        * `accepted` - accepted
     SubjectDetail:
       type: object
       properties:

@@ -33,6 +33,10 @@ import { DomainMemberRoleRequestDto } from '../model/domain-member-role-request'
 // @ts-ignore
 import { DomainReadDto } from '../model/domain-read';
 // @ts-ignore
+import { DomainTransferRequestRequestDto } from '../model/domain-transfer-request-request';
+// @ts-ignore
+import { DomainTransferStateDto } from '../model/domain-transfer-state';
+// @ts-ignore
 import { DomainWriteDto } from '../model/domain-write';
 // @ts-ignore
 import { DomainWriteRequestDto } from '../model/domain-write-request';
@@ -144,6 +148,20 @@ export interface DomainPartialUpdateRequestParams {
 export interface DomainRetrieveRequestParams {
     /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
     domainId: number;
+}
+
+export interface DomainTransferAcceptCreateRequestParams {
+    token: string;
+}
+
+export interface DomainTransferAcceptRetrieveRequestParams {
+    token: string;
+}
+
+export interface DomainTransferCreateRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+    domainTransferRequestRequestDto: DomainTransferRequestRequestDto;
 }
 
 export interface DomainUpdateRequestParams {
@@ -1508,6 +1526,205 @@ export class DomainApi extends BaseService {
         return this.httpClient.request<DomainReadDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Accepter le transfert (utilisateur authentifié)
+     * Si l\&#39;utilisateur connecté est le destinataire encodé dans le token, transfère la propriété : l\&#39;ancien owner est ajouté aux membres, le nouveau owner devient &#x60;&#x60;Domain.owner&#x60;&#x60; et est aussi ajouté aux membres / managers. Idempotent si déjà transféré.
+     * @endpoint post /api/domain/transfer/accept/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainTransferAcceptCreate(requestParameters: DomainTransferAcceptCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainTransferStateDto>;
+    public domainTransferAcceptCreate(requestParameters: DomainTransferAcceptCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainTransferStateDto>>;
+    public domainTransferAcceptCreate(requestParameters: DomainTransferAcceptCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainTransferStateDto>>;
+    public domainTransferAcceptCreate(requestParameters: DomainTransferAcceptCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainTransferAcceptCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainTransferStateDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Décoder un token de transfert de propriété
+     * Public-GET / auth-POST view that consumes a transfer token. GET is open so the landing page can render even for a not-yet-logged-in visitor (and route them to &#x60;&#x60;/login?next&#x3D;...&#x60;&#x60;); POST requires the invited account to be authenticated.
+     * @endpoint get /api/domain/transfer/accept/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainTransferAcceptRetrieve(requestParameters: DomainTransferAcceptRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainTransferStateDto>;
+    public domainTransferAcceptRetrieve(requestParameters: DomainTransferAcceptRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainTransferStateDto>>;
+    public domainTransferAcceptRetrieve(requestParameters: DomainTransferAcceptRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainTransferStateDto>>;
+    public domainTransferAcceptRetrieve(requestParameters: DomainTransferAcceptRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainTransferAcceptRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainTransferStateDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Initier un transfert de propriété
+     * Le propriétaire envoie une proposition de transfert au futur propriétaire désigné par &#x60;&#x60;user_id&#x60;&#x60;. Un e-mail signé est envoyé : tant que le destinataire n\&#39;a pas cliqué le lien et confirmé, la propriété ne change pas.  Refusé si l\&#39;appelant n\&#39;est pas le propriétaire actuel, ou si la cible est elle-même déjà le propriétaire.
+     * @endpoint post /api/domain/{domain_id}/transfer/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainTransferCreate(requestParameters: DomainTransferCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public domainTransferCreate(requestParameters: DomainTransferCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public domainTransferCreate(requestParameters: DomainTransferCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public domainTransferCreate(requestParameters: DomainTransferCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainTransferCreate.');
+        }
+        const domainTransferRequestRequestDto = requestParameters?.domainTransferRequestRequestDto;
+        if (domainTransferRequestRequestDto === null || domainTransferRequestRequestDto === undefined) {
+            throw new Error('Required parameter domainTransferRequestRequestDto was null or undefined when calling domainTransferCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/transfer/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: domainTransferRequestRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

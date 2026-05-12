@@ -47,6 +47,19 @@ export type DomainEditUiText = {
     inviteResultInvalid: (email: string) => string;
     inviteResultSummary: (sent: number, total: number) => string;
   };
+  transfer: {
+    button: string;
+    dialogTitle: string;
+    dialogHint: string;
+    pickPlaceholder: string;
+    submit: string;
+    sending: string;
+    cancel: string;
+    successMessage: string;
+    errorAlreadyOwner: string;
+    errorTargetUnreachable: string;
+    errorGeneric: string;
+  };
 };
 
 const FR: DomainEditUiText = {
@@ -92,6 +105,19 @@ const FR: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email} : déjà membre.`,
     inviteResultInvalid: (email) => `${email} : adresse invalide.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} envoyée${sent > 1 ? 's' : ''} sur ${total}.`,
+  },
+  transfer: {
+    button: 'Transférer la propriété',
+    dialogTitle: 'Transférer la propriété du domaine',
+    dialogHint: 'Choisis le nouveau propriétaire. Un e-mail lui sera envoyé : la propriété ne change pas tant qu\'il n\'a pas confirmé.',
+    pickPlaceholder: 'Sélectionner un utilisateur',
+    submit: 'Envoyer la proposition',
+    sending: 'Envoi…',
+    cancel: 'Annuler',
+    successMessage: 'Proposition envoyée. Le futur propriétaire recevra un e-mail.',
+    errorAlreadyOwner: 'Cet utilisateur est déjà le propriétaire.',
+    errorTargetUnreachable: 'L\'utilisateur n\'a pas d\'adresse e-mail valide.',
+    errorGeneric: 'Impossible d\'envoyer la proposition.',
   },
 };
 
@@ -139,6 +165,19 @@ const EN: DomainEditUiText = {
     inviteResultInvalid: (email) => `${email}: invalid address.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} sent out of ${total}.`,
   },
+  transfer: {
+    button: 'Transfer ownership',
+    dialogTitle: 'Transfer domain ownership',
+    dialogHint: 'Pick the new owner. An email will be sent — ownership does not change until they confirm.',
+    pickPlaceholder: 'Select a user',
+    submit: 'Send proposal',
+    sending: 'Sending…',
+    cancel: 'Cancel',
+    successMessage: 'Proposal sent. The future owner will receive an email.',
+    errorAlreadyOwner: 'This user is already the owner.',
+    errorTargetUnreachable: 'This user has no valid email address.',
+    errorGeneric: 'Unable to send the proposal.',
+  },
 };
 
 const NL: DomainEditUiText = {
@@ -184,6 +223,19 @@ const NL: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: is al lid.`,
     inviteResultInvalid: (email) => `${email}: ongeldig adres.`,
     inviteResultSummary: (sent, total) => `${sent} van ${total} uitnodigingen verzonden.`,
+  },
+  transfer: {
+    button: 'Eigenaarschap overdragen',
+    dialogTitle: 'Domeineigenaarschap overdragen',
+    dialogHint: 'Kies de nieuwe eigenaar. Er wordt een e-mail verzonden — het eigenaarschap verandert pas na bevestiging.',
+    pickPlaceholder: 'Een gebruiker selecteren',
+    submit: 'Voorstel verzenden',
+    sending: 'Versturen…',
+    cancel: 'Annuleren',
+    successMessage: 'Voorstel verzonden. De toekomstige eigenaar ontvangt een e-mail.',
+    errorAlreadyOwner: 'Deze gebruiker is al eigenaar.',
+    errorTargetUnreachable: 'Deze gebruiker heeft geen geldig e-mailadres.',
+    errorGeneric: 'Kan het voorstel niet verzenden.',
   },
 };
 
@@ -231,6 +283,19 @@ const IT: DomainEditUiText = {
     inviteResultInvalid: (email) => `${email}: indirizzo non valido.`,
     inviteResultSummary: (sent, total) => `${sent} invit${sent > 1 ? 'i inviati' : 'o inviato'} su ${total}.`,
   },
+  transfer: {
+    button: 'Trasferisci la proprietà',
+    dialogTitle: 'Trasferisci la proprietà del dominio',
+    dialogHint: 'Scegli il nuovo proprietario. Verrà inviata un\'e-mail: la proprietà non cambia finché non conferma.',
+    pickPlaceholder: 'Seleziona un utente',
+    submit: 'Invia la proposta',
+    sending: 'Invio in corso…',
+    cancel: 'Annulla',
+    successMessage: 'Proposta inviata. Il futuro proprietario riceverà un\'e-mail.',
+    errorAlreadyOwner: 'Questo utente è già il proprietario.',
+    errorTargetUnreachable: 'Questo utente non ha un indirizzo e-mail valido.',
+    errorGeneric: 'Impossibile inviare la proposta.',
+  },
 };
 
 const ES: DomainEditUiText = {
@@ -276,6 +341,19 @@ const ES: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: ya es miembro.`,
     inviteResultInvalid: (email) => `${email}: dirección no válida.`,
     inviteResultSummary: (sent, total) => `${sent} invitación${sent > 1 ? 'es enviadas' : ' enviada'} de ${total}.`,
+  },
+  transfer: {
+    button: 'Transferir la propiedad',
+    dialogTitle: 'Transferir la propiedad del dominio',
+    dialogHint: 'Elige el nuevo propietario. Se enviará un correo: la propiedad no cambia hasta que confirme.',
+    pickPlaceholder: 'Selecciona un usuario',
+    submit: 'Enviar la propuesta',
+    sending: 'Enviando…',
+    cancel: 'Cancelar',
+    successMessage: 'Propuesta enviada. El futuro propietario recibirá un correo.',
+    errorAlreadyOwner: 'Este usuario ya es el propietario.',
+    errorTargetUnreachable: 'Este usuario no tiene una dirección de correo válida.',
+    errorGeneric: 'No se puede enviar la propuesta.',
   },
 };
 
