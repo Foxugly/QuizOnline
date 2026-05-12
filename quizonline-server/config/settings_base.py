@@ -42,6 +42,22 @@ env = environ.Env(
     DATA_UPLOAD_MAX_MEMORY_SIZE=(int, 10 * 1024 * 1024),
     FILE_UPLOAD_MAX_MEMORY_SIZE=(int, 10 * 1024 * 1024),
     MAX_UPLOAD_FILE_SIZE=(int, 10 * 1024 * 1024),
+    # Throttle rates: every DRF scope is overridable from the
+    # environment so operators can re-tune without a code deploy.
+    # Format follows DRF: ``<int>/<period>`` where period is one of
+    # ``second / minute / hour / day``.
+    THROTTLE_TOKEN_OBTAIN=(str, "5/min"),
+    THROTTLE_PASSWORD_RESET=(str, "3/hour"),
+    THROTTLE_PASSWORD_RESET_CONFIRM=(str, "10/hour"),
+    THROTTLE_EMAIL_CONFIRM=(str, "10/hour"),
+    THROTTLE_QUIZ_ANSWER=(str, "60/min"),
+    THROTTLE_ADMIN=(str, "30/min"),
+    THROTTLE_ADMIN_EMAIL_TEST=(str, "5/min"),
+    THROTTLE_QUIZ_EXPORT=(str, "20/min"),
+    THROTTLE_DOMAIN_INVITE=(str, "100/hour"),
+    THROTTLE_DOMAIN_INVITE_FANOUT=(str, "5/hour"),
+    THROTTLE_MAGIC_LINK_REQUEST=(str, "3/hour"),
+    THROTTLE_MAGIC_LINK_EXCHANGE=(str, "30/min"),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))
@@ -154,31 +170,30 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": env("API_PAGE_SIZE"),
+    # Throttle rates are read from the environment with the historical
+    # values as fallback defaults — see the ``THROTTLE_*`` entries in
+    # the ``env`` constructor above and ``.env.example`` for the
+    # operator-facing description of each scope.
+    #
+    # Notable scopes:
+    #   - ``domain_invite``: single-domain invite path, generous because
+    #     a single hit sends at most ``len(emails)`` mails (capped at 50).
+    #   - ``domain_invite_fanout``: hit with ``additional_domain_ids``
+    #     non-empty; one request can fan out to up to 21 domains so the
+    #     per-hour budget must be much tighter than ``domain_invite``.
     "DEFAULT_THROTTLE_RATES": {
-        "token_obtain": "5/min",
-        "password_reset": "3/hour",
-        "password_reset_confirm": "10/hour",
-        "email_confirm": "10/hour",
-        "quiz_answer": "60/min",
-        "admin": "30/min",
-        "admin_email_test": "5/min",
-        "quiz_export": "20/min",
-        # Cap inviter spam on the single-domain path: an owner/manager
-        # can send up to 100 invitations per hour. The action takes a
-        # list of up to 50 addresses, so this allows two full bursts
-        # per hour.
-        "domain_invite": "100/hour",
-        # Multi-domain fan-out path (``additional_domain_ids`` non-empty).
-        # A single hit can send out up to ``len(emails) × (1 + len(extras))``
-        # mails, so the per-hit budget can balloon by × 21. Switch the
-        # caller to a much tighter bucket when they fan out, so the
-        # nominal /hour budget is not multiplied by the fan-out factor.
-        "domain_invite_fanout": "5/hour",
-        # Passwordless login: keep the request rate low (3/hour per IP)
-        # because the endpoint sends mail; the exchange rate is higher
-        # (30/min) to handle the same user retrying on a flaky network.
-        "magic_link_request": "3/hour",
-        "magic_link_exchange": "30/min",
+        "token_obtain": env("THROTTLE_TOKEN_OBTAIN"),
+        "password_reset": env("THROTTLE_PASSWORD_RESET"),
+        "password_reset_confirm": env("THROTTLE_PASSWORD_RESET_CONFIRM"),
+        "email_confirm": env("THROTTLE_EMAIL_CONFIRM"),
+        "quiz_answer": env("THROTTLE_QUIZ_ANSWER"),
+        "admin": env("THROTTLE_ADMIN"),
+        "admin_email_test": env("THROTTLE_ADMIN_EMAIL_TEST"),
+        "quiz_export": env("THROTTLE_QUIZ_EXPORT"),
+        "domain_invite": env("THROTTLE_DOMAIN_INVITE"),
+        "domain_invite_fanout": env("THROTTLE_DOMAIN_INVITE_FANOUT"),
+        "magic_link_request": env("THROTTLE_MAGIC_LINK_REQUEST"),
+        "magic_link_exchange": env("THROTTLE_MAGIC_LINK_EXCHANGE"),
     },
 }
 
