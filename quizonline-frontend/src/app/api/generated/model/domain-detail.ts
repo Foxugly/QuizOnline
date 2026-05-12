@@ -22,6 +22,7 @@ export interface DomainDetailDto {
     readonly join_policy: JoinPolicyEnumDto;
     readonly owner: UserSummaryDto;
     readonly managers: Array<UserSummaryDto>;
+    readonly members: Array<UserSummaryDto>;
     readonly created_at: string;
     readonly updated_at: string;
     readonly subjects: Array<SubjectReadDto>;

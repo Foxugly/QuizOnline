@@ -3538,6 +3538,11 @@ components:
           items:
             $ref: '#/components/schemas/UserSummary'
           readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSummary'
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -3558,6 +3563,7 @@ components:
       - id
       - join_policy
       - managers
+      - members
       - owner
       - subjects
       - translations

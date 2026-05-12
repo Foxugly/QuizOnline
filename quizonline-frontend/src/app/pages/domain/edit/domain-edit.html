@@ -21,28 +21,55 @@
 
   @if (loading()) {
     <div class="card">
-      <p class="muted">Chargement...</p>
+      <p class="muted">{{ ui().common.loading }}</p>
     </div>
   } @else {
-    <app-domain-editor-form
-      [activeTab]="activeTab()"
-      [availableManagers]="availableManagers()"
-      [form]="form"
-      [langCodeOptions]="langCodeOptions()"
-      [ownerOptions]="ownerOptions()"
-      [ownerPlaceholder]="ui().domainForm.owner"
-      [ownerReadonly]="!canEditOwner()"
-      [selectedManagers]="selectedManagers()"
-      [submitError]="submitError()"
-      [submitLabel]="ui().common.save"
-      [tabCodes]="tabCodes()"
-      [titleLabel]="ui().domainForm.titleLabel"
-      [translating]="translating()"
-      (cancel)="goList()"
-      (managersPickListChange)="onManagersPickListChange()"
-      (submitForm)="save()"
-      (tabValueChange)="onTabValueChange($event)"
-      (translateClick)="translateFrom($event)">
-    </app-domain-editor-form>
+    <p-tabs [value]="topTab()" (valueChange)="onTopTabChange($event)">
+      <p-tablist>
+        <p-tab value="config">{{ editText().tabs.config }}</p-tab>
+        <p-tab value="members">
+          {{ editText().tabs.members }}
+          @if (canModerate() && pendingCount() > 0) {
+            <p-badge [value]="pendingCount() + ''" severity="warn"/>
+          }
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="config">
+          <app-domain-editor-form
+            [activeTab]="activeTab()"
+            [availableManagers]="availableManagers()"
+            [form]="form"
+            [langCodeOptions]="langCodeOptions()"
+            [ownerOptions]="ownerOptions()"
+            [ownerPlaceholder]="ui().domainForm.owner"
+            [ownerReadonly]="!canEditOwner()"
+            [selectedManagers]="selectedManagers()"
+            [submitError]="submitError()"
+            [submitLabel]="ui().common.save"
+            [tabCodes]="tabCodes()"
+            [titleLabel]="ui().domainForm.titleLabel"
+            [translating]="translating()"
+            (cancel)="goList()"
+            (managersPickListChange)="onManagersPickListChange()"
+            (submitForm)="save()"
+            (tabValueChange)="onTabValueChange($event)"
+            (translateClick)="translateFrom($event)">
+          </app-domain-editor-form>
+        </p-tabpanel>
+
+        <p-tabpanel value="members">
+          @if (domain(); as d) {
+            <app-domain-members-tab
+              [domain]="d"
+              [pendingRequests]="pendingRequests()"
+              [canModerate]="canModerate()"
+              [text]="editText()">
+            </app-domain-members-tab>
+          }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </div>

@@ -1,3 +1,4 @@
+import {HttpClient} from '@angular/common/http';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
@@ -8,6 +9,8 @@ import {forkJoin, of} from 'rxjs';
 import {catchError, finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
+import {TabsModule} from 'primeng/tabs';
+import {BadgeModule} from 'primeng/badge';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
@@ -20,16 +23,20 @@ import {
   syncLocalizedTextControls,
 } from '../../../shared/forms/localized-text-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
+import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
+import {getDomainEditUiText} from './domain-edit.i18n';
 
 type UserOption = { label: string; value: number };
 type DomainUserRef = UserSummaryDto;
@@ -52,7 +59,10 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   imports: [
     ReactiveFormsModule,
     ButtonModule,
+    TabsModule,
+    BadgeModule,
     DomainEditorFormComponent,
+    DomainMembersTab,
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',
@@ -67,6 +77,8 @@ export class DomainEdit implements OnInit {
   translating = signal(false);
 
   domain = signal<DomainDetailDto | null>(null);
+  pendingRequests = signal<DomainJoinRequestReadDto[]>([]);
+  topTab = signal<'config' | 'members'>('config');
 
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
@@ -127,6 +139,25 @@ export class DomainEdit implements OnInit {
   currentLang = computed(() => this.userService.currentLang);
   private languageService = inject(LanguageService);
   private translator = inject(TranslationService);
+  private http = inject(HttpClient);
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
+
+  readonly editText = computed(() => getDomainEditUiText(this.userService.currentLang ?? LanguageEnumDto.Fr));
+  readonly canModerate = computed(() => {
+    const dto = this.domain();
+    const me = this.userService.currentUser();
+    if (!dto || !me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    if (dto.owner?.id === me.id) {
+      return true;
+    }
+    return (dto.managers ?? []).some(m => m.id === me.id);
+  });
+  readonly pendingCount = computed(() => this.pendingRequests().length);
 
   ngOnInit(): void {
     const rawId = this.route.snapshot.paramMap.get('id');
@@ -176,6 +207,14 @@ export class DomainEdit implements OnInit {
         this.canEditOwner.set(
           !!me && (me.is_superuser || domain.owner?.id === me.id),
         );
+
+        const canMod =
+          !!me && (me.is_superuser
+            || domain.owner?.id === me.id
+            || (domain.managers ?? []).some(m => m.id === me.id));
+        if (canMod) {
+          this.loadPendingRequests();
+        }
 
         // 2) Set global active languages
         const activeLangs = (languages ?? []).filter(l => l.active);
@@ -242,6 +281,28 @@ export class DomainEdit implements OnInit {
     this.form.controls.managers.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.recomputePickList());
+  }
+
+  onTopTabChange(value: string | number | undefined): void {
+    if (value === 'members' || value === 'config') {
+      this.topTab.set(value);
+    }
+  }
+
+  private loadPendingRequests(): void {
+    const url = `${this.apiBaseUrl}/${this.id}/join-request/?status=pending`;
+    this.http.get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(url)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-pending-join-requests', err);
+          return of([] as DomainJoinRequestReadDto[]);
+        }),
+      )
+      .subscribe((response) => {
+        const list = Array.isArray(response) ? response : (response?.results ?? []);
+        this.pendingRequests.set(list);
+      });
   }
 
   onTabValueChange(v: string | number | undefined): void {

@@ -1,0 +1,82 @@
+<section class="members-tab card form-card">
+  <div class="card-head">
+    <h2 class="card-title">{{ text().members.pendingTitle }}</h2>
+    @if (canModerate()) {
+      <p-button
+        [routerLink]="['/domain', domain().id, 'join-requests']"
+        icon="pi pi-hammer"
+        [label]="text().members.pendingOpenModeration"
+        severity="warn"
+        size="small"
+        type="button"
+        variant="outlined">
+      </p-button>
+    }
+  </div>
+
+  @if (pendingRequests().length > 0) {
+    <p-table
+      [value]="pendingRequests()"
+      [paginator]="pendingRequests().length > 10"
+      [rows]="10"
+      styleClass="table"
+      size="small"
+      stripedRows>
+      <ng-template #header>
+        <tr>
+          <th>{{ text().members.colUser }}</th>
+          <th>{{ text().members.colEmail }}</th>
+          <th>{{ text().members.colRequestedAt }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-req>
+        <tr>
+          <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
+          <td>{{ req.user_summary?.email || '' }}</td>
+          <td>{{ req.created_at | date:'short' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <p class="muted">{{ text().members.pendingNone }}</p>
+  }
+
+  <div class="divider"></div>
+
+  <div class="card-head">
+    <h2 class="card-title">{{ text().members.membersTitle }}</h2>
+  </div>
+
+  @if (memberRows().length > 0) {
+    <p-table
+      [value]="memberRows()"
+      [paginator]="memberRows().length > 10"
+      [rows]="10"
+      styleClass="table"
+      size="small"
+      stripedRows>
+      <ng-template #header>
+        <tr>
+          <th>{{ text().members.colUser }}</th>
+          <th>{{ text().members.colEmail }}</th>
+          <th>{{ text().members.colRole }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td>{{ row.username }}</td>
+          <td>{{ row.email || '—' }}</td>
+          <td>
+            <p-tag
+              [value]="roleLabel(row.role)"
+              [ngClass]="'role-' + row.role"
+              [severity]="row.role === 'owner' ? 'success' : row.role === 'manager' ? 'info' : 'secondary'">
+            </p-tag>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <p class="muted">{{ text().members.membersNone }}</p>
+  }
+</section>
