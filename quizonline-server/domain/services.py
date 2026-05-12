@@ -215,6 +215,24 @@ def _moderation_tile_cache_key(user_id: int) -> str:
     return _MODERATION_TILE_CACHE_KEY_FMT.format(user_id=user_id)
 
 
+def invalidate_moderation_tile_for_users(user_ids) -> None:
+    """
+    Drop the cached moderation-tile payload for the listed user ids.
+
+    Use this when a mutation changes *who* may moderate a given
+    domain (membership / role / join_policy changes) — a user being
+    demoted or removed still has their tile entry warm from before
+    the change, and otherwise the entry would survive for up to the
+    full TTL with stale "you have pending requests" claims.
+    """
+    from django.core.cache import cache
+
+    ids = {int(uid) for uid in user_ids if uid}
+    if not ids:
+        return
+    cache.delete_many([_moderation_tile_cache_key(uid) for uid in ids])
+
+
 def invalidate_moderation_tile_for_domain(domain: Domain) -> None:
     """
     Drop the cached moderation-tile payload for every user who can
@@ -223,15 +241,18 @@ def invalidate_moderation_tile_for_domain(domain: Domain) -> None:
     of this set and may see ≤60 s stale data, which is acceptable
     for a dashboard tile and avoids fanning out the invalidation
     across the whole admin user base.
-    """
-    from django.core.cache import cache
 
+    Note: this only covers users who *currently* moderate the
+    domain. Mutations that change the moderator set itself (member
+    removal, manager demotion, join_policy toggle) must also call
+    :func:`invalidate_moderation_tile_for_users` with the ids of
+    the users whose rights are about to change — otherwise the
+    just-demoted manager keeps their stale entry until the TTL.
+    """
     user_ids: set[int] = {domain.owner_id} if domain.owner_id else set()
     if domain.join_policy == JoinPolicy.OWNER_MANAGERS:
         user_ids.update(domain.managers.values_list("id", flat=True))
-    if not user_ids:
-        return
-    cache.delete_many([_moderation_tile_cache_key(uid) for uid in user_ids])
+    invalidate_moderation_tile_for_users(user_ids)
 
 
 def domains_with_pending_for_user(user) -> list[dict]:

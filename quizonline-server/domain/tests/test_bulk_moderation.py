@@ -110,17 +110,25 @@ class BulkRejectTests(TestCase):
         self.client.force_authenticate(self.owner)
 
     def test_rejects_all_pending_with_shared_reason(self):
-        resp = self.client.post(
-            self.URL.format(self.domain.id),
-            {"request_ids": [r.id for r in self.reqs], "reason": "off-topic"},
-            format="json",
-        )
+        OutboundEmail.objects.all().delete()
+        # Capture on_commit callbacks so the rejection-mail batch
+        # actually fires inside the test transaction; without this
+        # wrapper the ``transaction.on_commit`` in the view would
+        # silently skip and we would never assert the mail count.
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(
+                self.URL.format(self.domain.id),
+                {"request_ids": [r.id for r in self.reqs], "reason": "off-topic"},
+                format="json",
+            )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data, {"processed": 3, "skipped": 0})
         for r in self.reqs:
             r.refresh_from_db()
             self.assertEqual(r.status, DomainJoinRequest.STATUS_REJECTED)
             self.assertEqual(r.reject_reason, "off-topic")
+        # One mail per rejected row.
+        self.assertEqual(OutboundEmail.objects.count(), 3)
 
     def test_stranger_cannot_bulk_reject(self):
         stranger = User.objects.create_user(username="x", password="p")
@@ -130,6 +138,8 @@ class BulkRejectTests(TestCase):
             {"request_ids": [r.id for r in self.reqs]},
             format="json",
         )
-        # The viewset is scoped to active domains; the perm check then
-        # fires with the can-approve gate.
-        self.assertIn(resp.status_code, (status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND))
+        # The viewset is scoped to active domains, so the domain
+        # itself is found; the permission gate then refuses the
+        # stranger and the viewset must return 403 (a 404 would be a
+        # contract regression that breaks the dialog UI).
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)

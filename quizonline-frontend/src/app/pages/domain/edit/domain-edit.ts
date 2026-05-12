@@ -490,6 +490,14 @@ export class DomainEdit implements OnInit {
     // domains visible to the user (``DomainService.list``) and keep
     // only those the user can actually invite to (owner OR manager),
     // excluding the one currently being edited.
+    //
+    // The list is loaded once on ngOnInit and never refreshed during
+    // the page lifetime, so a manager added or removed elsewhere in
+    // the system between page-load and dialog-open will not surface
+    // until a full reload. This is acceptable because the server-side
+    // ``invite`` action re-screens every target id and returns
+    // ``forbidden_domain`` for any unauthorised pick; the worst case
+    // is one wasted HTTP round-trip, not a privilege bypass.
     this.domainService.list()
       .pipe(
         takeUntilDestroyed(this.destroyRef),

@@ -163,10 +163,17 @@ REST_FRAMEWORK = {
         "admin": "30/min",
         "admin_email_test": "5/min",
         "quiz_export": "20/min",
-        # Cap inviter spam: an owner/manager can send up to 100
-        # invitations per hour. The action takes a list of up to 50
-        # addresses, so this allows two full bursts per hour.
+        # Cap inviter spam on the single-domain path: an owner/manager
+        # can send up to 100 invitations per hour. The action takes a
+        # list of up to 50 addresses, so this allows two full bursts
+        # per hour.
         "domain_invite": "100/hour",
+        # Multi-domain fan-out path (``additional_domain_ids`` non-empty).
+        # A single hit can send out up to ``len(emails) × (1 + len(extras))``
+        # mails, so the per-hit budget can balloon by × 21. Switch the
+        # caller to a much tighter bucket when they fan out, so the
+        # nominal /hour budget is not multiplied by the fan-out factor.
+        "domain_invite_fanout": "5/hour",
         # Passwordless login: keep the request rate low (3/hour per IP)
         # because the endpoint sends mail; the exchange rate is higher
         # (30/min) to handle the same user retrying on a flaky network.

@@ -187,6 +187,46 @@ class DomainMultiDomainInviteTests(TestCase):
         # Only the primary domain sends mail.
         self.assertEqual(OutboundEmail.objects.count(), 1)
 
+    def test_unknown_id_in_additional_surfaces_forbidden(self):
+        # An id pointing at no row at all is treated the same as
+        # "forbidden domain" so the caller cannot enumerate which
+        # domain ids exist on the platform.
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL.format(self.primary.id),
+            {
+                "emails": ["fresh@x.test"],
+                "additional_domain_ids": [999_999],
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        by_domain = {row["domain_id"]: row for row in resp.data}
+        self.assertEqual(by_domain[self.primary.id]["status"], "sent")
+        self.assertEqual(by_domain[999_999]["status"], "forbidden_domain")
+        self.assertEqual(OutboundEmail.objects.count(), 1)
+
+    def test_inactive_additional_domain_surfaces_forbidden(self):
+        # ``active=False`` domains are also collapsed into the
+        # forbidden_domain status — see the docstring note in the
+        # ``invite`` view.
+        self.also_mine.active = False
+        self.also_mine.save(update_fields=["active"])
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL.format(self.primary.id),
+            {
+                "emails": ["fresh@x.test"],
+                "additional_domain_ids": [self.also_mine.id],
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        by_domain = {row["domain_id"]: row for row in resp.data}
+        self.assertEqual(by_domain[self.primary.id]["status"], "sent")
+        self.assertEqual(by_domain[self.also_mine.id]["status"], "forbidden_domain")
+        self.assertEqual(OutboundEmail.objects.count(), 1)
+
     def test_dedup_when_primary_id_repeats_in_additional(self):
         # Putting the primary id in ``additional_domain_ids`` should
         # not cause the email to go out twice.

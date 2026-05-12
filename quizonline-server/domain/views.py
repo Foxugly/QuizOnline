@@ -65,6 +65,7 @@ from .services import (
     compute_join_request_analytics,
     domains_with_pending_for_user,
     invalidate_moderation_tile_for_domain,
+    invalidate_moderation_tile_for_users,
     record_audit,
     upsert_invite,
     users_who_can_approve,
@@ -95,10 +96,21 @@ class _DomainInviteThrottle(ScopedRateThrottle):
     function attribute, which DRF's ``@action`` does not pass through to
     ``as_view``. We pin the scope in :meth:`allow_request` so it does
     not need to come from the view object.
+
+    When the caller fans out the invitation to several domains
+    (``additional_domain_ids`` non-empty), switch to the much tighter
+    ``domain_invite_fanout`` bucket — a single hit on this path can
+    send up to ``len(emails) × (1 + len(extras))`` mails, so reusing
+    the per-hit budget of the single-domain bucket would multiply the
+    real per-hour mail volume by the fan-out factor.
     """
 
     def allow_request(self, request, view):
-        self.scope = "domain_invite"
+        self.scope = (
+            "domain_invite_fanout"
+            if self._is_fanout(request)
+            else "domain_invite"
+        )
         self.rate = self.get_rate()
         self.num_requests, self.duration = self.parse_rate(self.rate)
         # ``BaseThrottle.allow_request`` is overridden by ``SimpleRateThrottle``
@@ -106,6 +118,17 @@ class _DomainInviteThrottle(ScopedRateThrottle):
         # ScopedRateThrottle which would otherwise look up the scope on the
         # view object.
         return SimpleRateThrottle.allow_request(self, request, view)
+
+    @staticmethod
+    def _is_fanout(request) -> bool:
+        try:
+            data = request.data
+        except Exception:
+            return False
+        if not isinstance(data, dict):
+            return False
+        extras = data.get("additional_domain_ids") or []
+        return bool(extras)
 
 
 @extend_schema_view(
@@ -412,6 +435,12 @@ class DomainViewSet(MyModelViewSet):
                     target_user=target,
                     metadata={"remote_addr": _client_ip(request)},
                 )
+                # Removed user may have been a manager: drop their tile
+                # entry so they do not keep seeing pending-request
+                # counters they can no longer act on.
+                transaction.on_commit(
+                    lambda t=target.id: invalidate_moderation_tile_for_users([t])
+                )
                 return Response(
                     {
                         "id": target.id,
@@ -480,6 +509,11 @@ class DomainViewSet(MyModelViewSet):
                         actor=requester,
                         target_user=target,
                         metadata={"remote_addr": _client_ip(request)},
+                    )
+                    # Demoted manager may no longer moderate: drop their
+                    # tile entry now instead of waiting for the TTL.
+                    transaction.on_commit(
+                        lambda t=target.id: invalidate_moderation_tile_for_users([t])
                     )
 
             if update_fields:
@@ -652,11 +686,35 @@ class DomainViewSet(MyModelViewSet):
                     targets.append((extra, dom_id))
 
         User = get_user_model()
+        # Resolve every email → User once instead of once per
+        # (email × domain) pair. Case-insensitive match mirrors the
+        # original ``filter(email__iexact=...)`` lookup; ``deduped_emails``
+        # is already lowercased above.
+        from django.db.models.functions import Lower
+
+        users_by_email: dict[str, "User"] = {}
+        if deduped_emails:
+            for u in (
+                User.objects
+                .annotate(_email_lower=Lower("email"))
+                .filter(_email_lower__in=deduped_emails)
+            ):
+                users_by_email.setdefault((u.email or "").lower(), u)
         all_results: list[dict] = []
         for target_domain, target_id in targets:
             if target_domain is None:
                 # User cannot invite to this domain — surface one row
                 # per email so the caller can render the outcome.
+                # Three distinct underlying conditions get collapsed
+                # into the same ``forbidden_domain`` status:
+                #   1. unknown / soft-deleted domain id;
+                #   2. domain exists but ``active=False``;
+                #   3. domain exists but the caller lacks owner /
+                #      manager rights on it.
+                # The collapse is intentional (anti-enumeration: a
+                # caller cannot tell whether a domain id is unused or
+                # simply out of reach for them) — do not split without
+                # discussing the security trade-off first.
                 for email in deduped_emails:
                     all_results.append({
                         "email": email,
@@ -665,10 +723,11 @@ class DomainViewSet(MyModelViewSet):
                     })
                 continue
 
+            member_ids = set(target_domain.members.values_list("id", flat=True))
             per_domain_results: list[dict] = []
             for email in deduped_emails:
-                existing = User.objects.filter(email__iexact=email).first()
-                if existing and target_domain.members.filter(pk=existing.pk).exists():
+                existing = users_by_email.get(email)
+                if existing and existing.id in member_ids:
                     per_domain_results.append({
                         "email": email,
                         "status": "already_member",
@@ -947,6 +1006,11 @@ class DomainViewSet(MyModelViewSet):
                 actor=user,
                 target_user=user,
                 metadata={"remote_addr": _client_ip(request)},
+            )
+            # A self-leaving manager loses their moderation rights on
+            # this domain: drop their tile entry on commit.
+            transaction.on_commit(
+                lambda uid=user.id: invalidate_moderation_tile_for_users([uid])
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -1336,6 +1400,12 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             )
         join_request.status = DomainJoinRequest.STATUS_CANCELLED
         join_request.save(update_fields=["status", "updated_at"])
+        # Synchronous invalidation (no ``transaction.on_commit`` wrap) is
+        # safe here because this endpoint deliberately does not open an
+        # outer ``transaction.atomic`` — see the docstring above — and
+        # the project does not enable ``ATOMIC_REQUESTS``. The ``save``
+        # above runs in autocommit, so by the time we get here the new
+        # status is durably visible to other readers.
         invalidate_moderation_tile_for_domain(domain)
         return Response(self.get_serializer(join_request).data)
 

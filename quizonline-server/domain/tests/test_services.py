@@ -181,6 +181,32 @@ class DomainsWithPendingForUserTests(TestCase):
             third = domains_with_pending_for_user(self.owner)
         self.assertEqual(third, first)
 
+    def test_user_level_invalidation_drops_just_that_user(self):
+        # ``invalidate_moderation_tile_for_users`` is the primitive
+        # used when a manager is demoted / removed / leaves: the
+        # affected user must lose their tile entry even though the
+        # current managers list (read inside
+        # ``invalidate_moderation_tile_for_domain``) no longer
+        # contains them.
+        from django.core.cache import cache
+        from domain.services import invalidate_moderation_tile_for_users
+
+        cache.clear()
+        # Populate the cache for both the owner (sees 2 pending
+        # domains) and the manager (sees 1, via OWNER_MANAGERS
+        # policy on domain_a).
+        domains_with_pending_for_user(self.owner)
+        manager_first = domains_with_pending_for_user(self.manager)
+        self.assertEqual(len(manager_first), 1)
+        # Drop the manager's entry only.
+        invalidate_moderation_tile_for_users([self.manager.id])
+        # The manager's next call must hit SQL again, the owner's
+        # next call must still be a cache hit.
+        with self.assertNumQueries(2):
+            domains_with_pending_for_user(self.manager)
+        with self.assertNumQueries(0):
+            domains_with_pending_for_user(self.owner)
+
     def test_query_count_is_bounded_when_many_domains(self):
         # Lock the moderation-tile query budget: with the prefetched
         # translations the work should be one SELECT for the domains

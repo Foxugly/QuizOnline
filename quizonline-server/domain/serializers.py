@@ -250,6 +250,8 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         previous_policy = instance.join_policy
+        previous_owner_id = instance.owner_id
+        previous_manager_ids = set(instance.managers.values_list("id", flat=True))
         translations = validated_data.pop("translations", None)
         langs = validated_data.pop("allowed_languages", None)
         new_owner = validated_data.pop("owner", None)
@@ -286,6 +288,45 @@ class DomainWriteSerializer(serializers.ModelSerializer):
                     transaction.on_commit(
                         lambda jr=jr: send_join_request_approved_email(join_request=jr)
                     )
+
+            # Drop the moderation-tile cache for every user whose right
+            # to moderate this domain may have changed:
+            #   - any added or removed manager,
+            #   - the outgoing or incoming owner on an ownership swap,
+            #   - every previous manager when ``join_policy`` flips away
+            #     from ``OWNER_MANAGERS`` (they lose moderation rights),
+            #   - every current manager when it flips *into*
+            #     ``OWNER_MANAGERS`` (they gain rights and would
+            #     otherwise be missing from the cache).
+            from domain.services import invalidate_moderation_tile_for_users
+
+            affected_ids: set[int] = set()
+            new_manager_ids = (
+                set(instance.managers.values_list("id", flat=True))
+                if managers is not None
+                else previous_manager_ids
+            )
+            affected_ids |= previous_manager_ids ^ new_manager_ids
+            if previous_owner_id != instance.owner_id:
+                if previous_owner_id:
+                    affected_ids.add(previous_owner_id)
+                if instance.owner_id:
+                    affected_ids.add(instance.owner_id)
+            if (
+                previous_policy == "owner_managers"
+                and new_policy != "owner_managers"
+            ):
+                affected_ids |= previous_manager_ids
+            if (
+                previous_policy != "owner_managers"
+                and new_policy == "owner_managers"
+            ):
+                affected_ids |= new_manager_ids
+            if affected_ids:
+                transaction.on_commit(
+                    lambda ids=frozenset(affected_ids):
+                    invalidate_moderation_tile_for_users(ids),
+                )
 
         return instance
 
