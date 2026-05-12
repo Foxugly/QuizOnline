@@ -6,13 +6,14 @@ from core.mailers._common import (
     render_html_email,
     user_language,
 )
+from core.mailers._localized_copy import pick_copy
 from domain.invite_token import make_invite_token
 
 
-def _invite_copy(language_code: str) -> dict[str, str]:
+def _build_copy_catalog() -> dict[str, dict[str, str]]:
     app = settings.NAME_APP
-    if language_code == "fr":
-        return {
+    return {
+        "fr": {
             "greeting": "Bonjour",
             "subject": f"{app} - vous êtes invité à rejoindre un domaine",
             "intro": "Vous avez été invité à rejoindre le domaine",
@@ -20,9 +21,8 @@ def _invite_copy(language_code: str) -> dict[str, str]:
             "action": "Pour accepter cette invitation, cliquez sur le bouton ci-dessous.",
             "accept_label": "Accepter l'invitation",
             "expiry_note": "Ce lien expire dans 7 jours.",
-        }
-    if language_code == "nl":
-        return {
+        },
+        "nl": {
             "greeting": "Hallo",
             "subject": f"{app} - u bent uitgenodigd om een domein te vervoegen",
             "intro": "U bent uitgenodigd om het domein te vervoegen",
@@ -30,9 +30,8 @@ def _invite_copy(language_code: str) -> dict[str, str]:
             "action": "Klik op de knop hieronder om de uitnodiging te aanvaarden.",
             "accept_label": "Uitnodiging aanvaarden",
             "expiry_note": "Deze link vervalt over 7 dagen.",
-        }
-    if language_code == "it":
-        return {
+        },
+        "it": {
             "greeting": "Ciao",
             "subject": f"{app} - sei invitato a unirti a un dominio",
             "intro": "Sei stato invitato a unirti al dominio",
@@ -40,9 +39,8 @@ def _invite_copy(language_code: str) -> dict[str, str]:
             "action": "Per accettare questo invito, clicca sul pulsante qui sotto.",
             "accept_label": "Accetta l'invito",
             "expiry_note": "Questo link scade tra 7 giorni.",
-        }
-    if language_code == "es":
-        return {
+        },
+        "es": {
             "greeting": "Hola",
             "subject": f"{app} - estás invitado a unirte a un dominio",
             "intro": "Has sido invitado a unirte al dominio",
@@ -50,16 +48,21 @@ def _invite_copy(language_code: str) -> dict[str, str]:
             "action": "Para aceptar esta invitación, haz clic en el botón siguiente.",
             "accept_label": "Aceptar la invitación",
             "expiry_note": "Este enlace expira en 7 días.",
-        }
-    return {
-        "greeting": "Hello",
-        "subject": f"{app} - you have been invited to join a domain",
-        "intro": "You have been invited to join the domain",
-        "by_inviter": "by",
-        "action": "To accept this invitation, click the button below.",
-        "accept_label": "Accept invitation",
-        "expiry_note": "This link expires in 7 days.",
+        },
+        "en": {
+            "greeting": "Hello",
+            "subject": f"{app} - you have been invited to join a domain",
+            "intro": "You have been invited to join the domain",
+            "by_inviter": "by",
+            "action": "To accept this invitation, click the button below.",
+            "accept_label": "Accept invitation",
+            "expiry_note": "This link expires in 7 days.",
+        },
     }
+
+
+def _invite_copy(language_code: str) -> dict[str, str]:
+    return pick_copy(catalog=_build_copy_catalog(), language_code=language_code)
 
 
 def _domain_display_name(domain, language_code: str) -> str:

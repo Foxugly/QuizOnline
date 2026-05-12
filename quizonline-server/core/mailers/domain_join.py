@@ -6,13 +6,15 @@ from core.mailers._common import (
     send_user_email,
     user_language,
 )
+from core.mailers._localized_copy import pick_copy
 from domain.decision_token import make_decision_token
 
 
-def _domain_join_copy(language_code: str) -> dict[str, str]:
+def _build_copy_catalog() -> dict[str, dict[str, str]]:
+    """Catalog evaluated lazily to honour ``settings.NAME_APP`` at first use."""
     app = settings.NAME_APP
-    if language_code == "fr":
-        return {
+    return {
+        "fr": {
             "greeting": "Bonjour",
             "request_subject": f"{app} - nouvelle demande d'accès à votre domaine",
             "request_intro": "Un utilisateur a demandé à rejoindre votre domaine",
@@ -24,9 +26,8 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
             "rejected_subject": f"{app} - votre demande d'accès a été refusée",
             "rejected_body": 'Votre demande d\'accès au domaine "{domain}" a été refusée.',
             "rejected_reason_label": "Motif :",
-        }
-    if language_code == "nl":
-        return {
+        },
+        "nl": {
             "greeting": "Hallo",
             "request_subject": f"{app} - nieuwe toegangsaanvraag voor uw domein",
             "request_intro": "Een gebruiker heeft toegang gevraagd tot uw domein",
@@ -38,9 +39,8 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
             "rejected_subject": f"{app} - uw toegangsaanvraag is afgewezen",
             "rejected_body": 'Uw toegangsaanvraag voor het domein "{domain}" is afgewezen.',
             "rejected_reason_label": "Reden:",
-        }
-    if language_code == "it":
-        return {
+        },
+        "it": {
             "greeting": "Ciao",
             "request_subject": f"{app} - nuova richiesta di accesso al tuo dominio",
             "request_intro": "Un utente ha chiesto di unirsi al tuo dominio",
@@ -52,9 +52,8 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
             "rejected_subject": f"{app} - la tua richiesta di accesso è stata rifiutata",
             "rejected_body": 'La tua richiesta di accesso al dominio "{domain}" è stata rifiutata.',
             "rejected_reason_label": "Motivo:",
-        }
-    if language_code == "es":
-        return {
+        },
+        "es": {
             "greeting": "Hola",
             "request_subject": f"{app} - nueva solicitud de acceso a tu dominio",
             "request_intro": "Un usuario ha solicitado unirse a tu dominio",
@@ -66,20 +65,25 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
             "rejected_subject": f"{app} - tu solicitud de acceso ha sido rechazada",
             "rejected_body": 'Tu solicitud de acceso al dominio "{domain}" ha sido rechazada.',
             "rejected_reason_label": "Motivo:",
-        }
-    return {
-        "greeting": "Hello",
-        "request_subject": f"{app} - new join request on your domain",
-        "request_intro": "A user has requested to join your domain",
-        "request_action": "You can approve or reject this request from the buttons below or from the interface.",
-        "approve_label": "Approve",
-        "reject_label": "Reject",
-        "approved_subject": f"{app} - your join request was approved",
-        "approved_body": 'Your join request on "{domain}" was approved. You are now a member.',
-        "rejected_subject": f"{app} - your join request was rejected",
-        "rejected_body": 'Your join request on "{domain}" was rejected.',
-        "rejected_reason_label": "Reason:",
+        },
+        "en": {
+            "greeting": "Hello",
+            "request_subject": f"{app} - new join request on your domain",
+            "request_intro": "A user has requested to join your domain",
+            "request_action": "You can approve or reject this request from the buttons below or from the interface.",
+            "approve_label": "Approve",
+            "reject_label": "Reject",
+            "approved_subject": f"{app} - your join request was approved",
+            "approved_body": 'Your join request on "{domain}" was approved. You are now a member.',
+            "rejected_subject": f"{app} - your join request was rejected",
+            "rejected_body": 'Your join request on "{domain}" was rejected.',
+            "rejected_reason_label": "Reason:",
+        },
     }
+
+
+def _domain_join_copy(language_code: str) -> dict[str, str]:
+    return pick_copy(catalog=_build_copy_catalog(), language_code=language_code)
 
 
 def _domain_name_for(domain, recipient) -> str:

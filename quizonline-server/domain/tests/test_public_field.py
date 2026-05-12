@@ -13,6 +13,7 @@ only, not access.
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import translation
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -23,6 +24,12 @@ User = get_user_model()
 
 
 class PublicFieldDefaultsTests(TestCase):
+    def setUp(self):
+        # parler needs an active language to instantiate translatable models;
+        # other tests in this suite that run before ours leave the thread
+        # state inconsistent. Re-activating defensively here is cheap.
+        translation.activate("fr")
+
     def test_new_domains_are_public_by_default(self):
         owner = User.objects.create_user(username="o", password="p")
         d = Domain.objects.create(owner=owner, name="D", active=True)
@@ -33,6 +40,7 @@ class AvailableForLinkingTests(TestCase):
     URL = "/api/domain/available-for-linking/"
 
     def setUp(self):
+        translation.activate("fr")
         self.owner = User.objects.create_user(username="o", password="p")
         self.outsider = User.objects.create_user(username="x", password="p")
         self.public_domain = Domain.objects.create(
@@ -62,6 +70,7 @@ class JoinRequestCreateOnPrivateTests(TestCase):
     URL = "/api/domain/{}/join-request/"
 
     def setUp(self):
+        translation.activate("fr")
         self.owner = User.objects.create_user(username="o", password="p")
         self.outsider = User.objects.create_user(username="x", password="p", email="x@x.test")
         self.private_domain = Domain.objects.create(
@@ -98,6 +107,7 @@ class InviteFlowWorksOnPrivateDomainTests(TestCase):
     we did not break it while plugging the catalog leak."""
 
     def setUp(self):
+        translation.activate("fr")
         self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
         self.invited = User.objects.create_user(
             username="invited", password="p", email="invited@x.test",
