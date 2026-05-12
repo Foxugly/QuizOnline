@@ -188,6 +188,7 @@ export const IT: UiText = {
       cancelled: 'Annullata',
       all: 'Tutte',
       noRequests: 'Nessuna richiesta.',
+      moderate: 'Modera le richieste di accesso',
     },
   },
 };

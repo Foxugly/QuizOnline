@@ -95,6 +95,17 @@
           <td class="col-actions">
             <div class="row-actions">
               <p-button
+                (click)="goJoinRequests(d.id)"
+                icon="pi pi-hammer"
+                id="btn_moderate_join_requests"
+                [pTooltip]="ui().admin.joinRequests.moderate"
+                [disabled]="d.pendingJoinRequests === 0"
+                severity="warn"
+                size="small"
+                type="button">
+              </p-button>
+
+              <p-button
                 (click)="goEdit(d.id)"
                 icon="pi pi-pencil"
                 id="btn_edit_domain"

@@ -188,6 +188,7 @@ export const EN: UiText = {
       cancelled: 'Cancelled',
       all: 'All',
       noRequests: 'No requests.',
+      moderate: 'Moderate join requests',
     },
   },
 };

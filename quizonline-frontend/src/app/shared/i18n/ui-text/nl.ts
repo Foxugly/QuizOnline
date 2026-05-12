@@ -187,6 +187,7 @@ export const NL: UiText = {
       cancelled: 'Geannuleerd',
       all: 'Alle',
       noRequests: 'Geen aanvragen.',
+      moderate: 'Toegangsaanvragen modereren',
     },
   },
 };

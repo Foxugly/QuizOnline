@@ -87,5 +87,6 @@ export type AdminUiText = {
     cancelled: string;
     all: string;
     noRequests: string;
+    moderate: string;
   };
 };

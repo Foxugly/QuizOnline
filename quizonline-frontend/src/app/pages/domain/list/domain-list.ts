@@ -1,9 +1,10 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {forkJoin} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
 import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
@@ -42,6 +43,7 @@ type DomainListRow = DomainReadDto & {
     InputTextModule,
     PaginatorModule,
     TableModule,
+    TooltipModule,
     BadgeModule,
     BulkActionsComponent,
     StripPPipe,
@@ -55,8 +57,10 @@ export class DomainList implements OnInit {
   private domainService = inject(DomainService);
   private userService: UserService = inject(UserService);
   private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
 
   readonly editorUi = inject(UiTextService).editor;
+  readonly ui = inject(UiTextService).ui;
   domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);
@@ -122,6 +126,10 @@ export class DomainList implements OnInit {
 
   goDelete(id: number) {
     this.domainService.goDelete(id);
+  }
+
+  goJoinRequests(id: number): void {
+    void this.router.navigate(['/domain', id, 'join-requests']);
   }
 
   onSelectionChange(rows: DomainListRow[]): void {

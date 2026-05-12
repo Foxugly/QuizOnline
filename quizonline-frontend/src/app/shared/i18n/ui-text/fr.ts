@@ -310,6 +310,7 @@ export const FR: UiText = {
       cancelled: 'Annulée',
       all: 'Toutes',
       noRequests: 'Aucune demande.',
+      moderate: 'Modérer les demandes',
     },
   },
 };
