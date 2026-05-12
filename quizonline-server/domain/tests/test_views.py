@@ -610,3 +610,34 @@ class DomainMemberRoleHardeningTests(TestCase):
             payload={"user_id": self.exclusive_member.id, "remove_member": False},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # -------- is_domain_manager: owner-only --------
+    def test_is_domain_manager_refused_when_requester_is_a_manager(self):
+        # A regular manager cannot promote a member to manager: only the
+        # owner has that authority. This guards against manager coups where
+        # one manager promotes an ally to dilute or override the owner's
+        # control.
+        response = self._post(
+            requester=self.other_manager,
+            payload={"user_id": self.exclusive_member.id, "is_domain_manager": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(self.domain.managers.filter(pk=self.exclusive_member.pk).exists())
+
+    def test_is_domain_manager_refused_when_requester_demotes_peer(self):
+        # Symmetric guard: a manager cannot demote a peer manager either.
+        response = self._post(
+            requester=self.other_manager,
+            payload={"user_id": self.other_manager.id, "is_domain_manager": False},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(self.domain.managers.filter(pk=self.other_manager.pk).exists())
+
+    def test_is_domain_manager_allowed_for_superuser(self):
+        # Superusers are above the owner-only rule, by design.
+        response = self._post(
+            requester=self.superuser,
+            payload={"user_id": self.exclusive_member.id, "is_domain_manager": True},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.domain.managers.filter(pk=self.exclusive_member.pk).exists())

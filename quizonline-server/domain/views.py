@@ -346,6 +346,15 @@ class DomainViewSet(MyModelViewSet):
 
             # --- Intent C: domain-scoped manager flag ---
             if "is_domain_manager" in validated:
+                # Promoting / demoting domain managers is owner-only (or
+                # superuser). Peer managers cannot rearrange the leadership
+                # of a domain — only the owner has that authority. This
+                # avoids manager-coups and matches the same trust model as
+                # ``Domain.owner`` itself.
+                if not is_superuser and domain.owner_id != requester.id:
+                    raise PermissionDenied(
+                        "Seul le propriétaire du domaine peut modifier les rôles."
+                    )
                 make_manager = validated["is_domain_manager"]
                 if make_manager:
                     domain.managers.add(target)
