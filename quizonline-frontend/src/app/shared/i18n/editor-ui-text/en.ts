@@ -90,9 +90,8 @@ export const EN: EditorUiText = {
     userEdit: {title: 'Edit user', subtitle: 'Account settings'},
     userList: {title: 'Users', subtitle: 'User management', id: 'ID', username: 'Username', name: 'Name', email: 'Email', nbDomainMax: 'Max domains', active: 'Active', emailConfirmed: 'Email confirmed', actions: 'Actions'},
     quizTemplateResults: {
-      title: 'Sent quiz results',
-      subtitleWithTemplate: 'Sessions linked to template {title}.',
-      subtitleGeneric: 'Sessions linked to this template.',
+      title: 'Quiz results',
+      titleWithTemplate: 'Quiz results: {title}',
       searchPlaceholder: 'Search sent quizzes…',
       exportCsv: 'Export as CSV',
       loadFailed: 'Failed to load the sent quiz results.',

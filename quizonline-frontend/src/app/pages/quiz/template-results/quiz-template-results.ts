@@ -37,13 +37,13 @@ export class QuizTemplateResultsPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly editorUi = inject(UiTextService).editor;
 
-  readonly subtitleHtml = computed(() => {
+  readonly titleHtml = computed(() => {
     const ui = this.editorUi().pages.quizTemplateResults;
     const tpl = this.template();
     if (!tpl) {
-      return ui.subtitleGeneric;
+      return ui.title;
     }
-    return ui.subtitleWithTemplate.replace('{title}', `<strong>${this.escapeHtml(tpl.title)}</strong>`);
+    return ui.titleWithTemplate.replace('{title}', `<strong>${this.escapeHtml(tpl.title)}</strong>`);
   });
 
   readonly filteredSessions = computed(() => {

@@ -90,9 +90,8 @@ export const FR: EditorUiText = {
     userEdit: {title: 'Éditer l\'utilisateur', subtitle: 'Paramètres du compte'},
     userList: {title: 'Utilisateurs', subtitle: 'Gestion des utilisateurs', id: 'ID', username: 'Identifiant', name: 'Nom', email: 'Email', nbDomainMax: 'Domaines max', active: 'Actif', emailConfirmed: 'Email confirmé', actions: 'Actions'},
     quizTemplateResults: {
-      title: 'Résultats des quiz envoyés',
-      subtitleWithTemplate: 'Sessions liées au template {title}.',
-      subtitleGeneric: 'Sessions liées à ce template.',
+      title: 'Résultats du quiz',
+      titleWithTemplate: 'Résultats du quiz : {title}',
       searchPlaceholder: 'Rechercher dans les quiz envoyés…',
       exportCsv: 'Exporter en CSV',
       loadFailed: 'Impossible de charger les résultats des quiz envoyés.',

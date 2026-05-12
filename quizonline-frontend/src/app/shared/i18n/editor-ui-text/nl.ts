@@ -18,9 +18,8 @@ export const NL: EditorUiText = {
     userEdit: {title: 'Gebruiker bewerken', subtitle: 'Accountinstellingen'},
     userList: {title: 'Gebruikers', subtitle: 'Gebruikersbeheer', id: 'ID', username: 'Gebruikersnaam', name: 'Naam', email: 'E-mail', nbDomainMax: 'Max domeinen', active: 'Actief', emailConfirmed: 'E-mail bevestigd', actions: 'Acties'},
     quizTemplateResults: {
-      title: 'Resultaten van verzonden quizzen',
-      subtitleWithTemplate: 'Sessies gekoppeld aan template {title}.',
-      subtitleGeneric: 'Sessies gekoppeld aan dit template.',
+      title: 'Quizresultaten',
+      titleWithTemplate: 'Quizresultaten: {title}',
       searchPlaceholder: 'Zoeken in verzonden quizzen…',
       exportCsv: 'Exporteren als CSV',
       loadFailed: 'Kan de resultaten van de verzonden quizzen niet laden.',

@@ -91,8 +91,7 @@ export type EditorUiText = {
     userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};
     quizTemplateResults: {
       title: string;
-      subtitleWithTemplate: string;
-      subtitleGeneric: string;
+      titleWithTemplate: string;
       searchPlaceholder: string;
       exportCsv: string;
       loadFailed: string;
