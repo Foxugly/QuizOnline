@@ -452,7 +452,7 @@ const IT: DomainEditUiText = {
     demote: 'Retrocedi a membro',
     remove: 'Rimuovi dal dominio',
     confirmRemoveHeader: 'Rimuovere questo membro?',
-    confirmRemoveMessage: (username) => `Rimuovere ${username} dal dominio? L\'operazione è immediata.`,
+    confirmRemoveMessage: (username) => `Rimuovere ${username} dal dominio? L'operazione è immediata.`,
     confirmRemoveAccept: 'Rimuovi',
     confirmRemoveCancel: 'Annulla',
     actionFailed: 'L\'azione non è riuscita.',

@@ -124,7 +124,7 @@ const IT: InviteAcceptUiText = {
     accepting: 'Accettazione in corso…',
     accepted: 'Ora fai parte del dominio.',
     alreadyMember: 'Sei già un membro di questo dominio.',
-    wrongAccount: (expectedEmail) => `Questo link è per ${expectedEmail}. Accedi con quell\'account.`,
+    wrongAccount: (expectedEmail) => `Questo link è per ${expectedEmail}. Accedi con quell'account.`,
     loginRequired: 'Esiste già un account per questo indirizzo. Accedi per accettare l\'invito.',
     loginCta: 'Accedi',
     signupRequired: 'Nessun account per questo indirizzo. Creane uno per accettare l\'invito.',

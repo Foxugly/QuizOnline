@@ -107,7 +107,7 @@ const IT: TransferAcceptUiText = {
     accept: 'Accetta il trasferimento',
     accepting: 'Accettazione in corso…',
     transferred: 'Ora sei il proprietario di questo dominio.',
-    wrongAccount: (futureOwnerUsername) => `Questo link è per ${futureOwnerUsername}. Accedi con quell\'account.`,
+    wrongAccount: (futureOwnerUsername) => `Questo link è per ${futureOwnerUsername}. Accedi con quell'account.`,
     noLongerEligible: 'Questo trasferimento non è più possibile: la proprietà è cambiata dopo l\'invio del link.',
   },
   buttons: {
