@@ -1,7 +1,14 @@
 .about-page {
   display: grid;
-  gap: 1.5rem;
-  padding: 1rem 0 2rem;
+  gap: 1rem;
+}
+
+:host ::ng-deep .about-tabs .p-tabpanel,
+:host ::ng-deep .about-tabs .p-tabpanels {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
 /* ── Hero ── */
@@ -56,13 +63,9 @@
   font-size: 0.95rem;
 }
 
-/* ── Tab content (shared) ── */
+/* ── Tab content (shared) — sits inside the outer .card, no own frame ── */
 .tab-content {
-  padding: 1.5rem;
-  border: 1px solid #dde5ef;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(30, 44, 56, 0.05);
+  padding: 0.5rem 0 0;
 }
 
 .tab-content h2 {
