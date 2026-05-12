@@ -3,7 +3,7 @@
     <div class="header-spacer"></div>
 
     <div class="header-center">
-      <h1 class="title">Domaines</h1>
+      <h1 class="title">{{ uiText().title }}</h1>
     </div>
 
     <div class="header-actions"></div>
@@ -13,10 +13,10 @@
     <div class="card-head">
       <app-bulk-actions
         [options]="bulkActionOptions()"
-        placeholder="Actions groupées…"
-        applyLabel="Appliquer"
+        [placeholder]="uiText().bulkPlaceholder"
+        [applyLabel]="uiText().bulkApply"
         [count]="selectedCount()"
-        [countText]="selectedCount() > 1 ? selectedCount() + ' sélectionnés' : selectedCount() + ' sélectionné'"
+        [countText]="uiText().bulkSelectedCount(selectedCount())"
         [applying]="applyingBulk()"
         (apply)="applyBulk($event)">
       </app-bulk-actions>
@@ -24,7 +24,7 @@
       <div class="card-actions">
         <input
           pInputText
-          placeholder="Rechercher..."
+          [placeholder]="uiText().searchPlaceholder"
           [ngModel]="q()"
           (ngModelChange)="q.set($event); load()"
         />
@@ -58,13 +58,12 @@
       <ng-template #header>
         <tr>
           <th class="col-checkbox" style="width: 3rem"></th>
-          <th pSortableColumn="name" style="text-align: center;">Nom <p-sortIcon field="name"></p-sortIcon></th>
-          <th pSortableColumn="description" style="text-align: center;">Description <p-sortIcon field="description"></p-sortIcon></th>
-          <th pSortableColumn="subjectsCount" style="text-align: center;">Sujets <p-sortIcon field="subjectsCount"></p-sortIcon></th>
-          <th pSortableColumn="questionsCount" style="text-align: center;">Questions <p-sortIcon field="questionsCount"></p-sortIcon></th>
+          <th pSortableColumn="name" style="text-align: center;">{{ uiText().colName }} <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="subjectsCount" style="text-align: center;">{{ uiText().colSubjects }} <p-sortIcon field="subjectsCount"></p-sortIcon></th>
+          <th pSortableColumn="questionsCount" style="text-align: center;">{{ uiText().colQuestions }} <p-sortIcon field="questionsCount"></p-sortIcon></th>
           <th pSortableColumn="join_policy" style="text-align: center;">{{ editorUi().domainForm.joinPolicy }} <p-sortIcon field="join_policy"></p-sortIcon></th>
-          <th pSortableColumn="pendingJoinRequests" style="text-align: center;">Demandes <p-sortIcon field="pendingJoinRequests"></p-sortIcon></th>
-          <th class="col-actions">Actions</th>
+          <th pSortableColumn="pendingJoinRequests" style="text-align: center;">{{ uiText().colPendingRequests }} <p-sortIcon field="pendingJoinRequests"></p-sortIcon></th>
+          <th class="col-actions">{{ uiText().colActions }}</th>
         </tr>
       </ng-template>
 
@@ -74,10 +73,6 @@
             <p-tableCheckbox [value]="d"></p-tableCheckbox>
           </td>
           <td class="truncate">{{ d.name }}</td>
-
-          <td class="muted desc-cell">
-            <div class="desc" [innerHTML]="d.description | stripP"></div>
-          </td>
 
           <td style="text-align: center;">{{ d.subjectsCount }}</td>
 

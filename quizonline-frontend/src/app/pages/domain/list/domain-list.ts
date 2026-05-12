@@ -10,24 +10,20 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
-import {BadgeModule} from 'primeng/badge';
 import {ConfirmationService} from 'primeng/api';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
-import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
-import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
+import {getDomainListUiText} from './domain-list.i18n';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
-type LangCode = `${LanguageEnumDto}`;
 type DomainListRow = DomainReadDto & {
   name: string;
-  description: string;
   subjectsCount: number;
   questionsCount: number;
   pendingJoinRequests: number;
@@ -45,9 +41,7 @@ type DomainListRow = DomainReadDto & {
     PaginatorModule,
     TableModule,
     TooltipModule,
-    BadgeModule,
     BulkActionsComponent,
-    StripPPipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './domain-list.html',
@@ -62,6 +56,7 @@ export class DomainList implements OnInit {
 
   readonly editorUi = inject(UiTextService).editor;
   readonly ui = inject(UiTextService).ui;
+  readonly uiText = computed(() => getDomainListUiText(this.userService.currentLang));
   domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);
@@ -71,11 +66,14 @@ export class DomainList implements OnInit {
   applyingBulk = signal(false);
   readonly selectedCount = computed(() => this.selectedRows().length);
 
-  readonly bulkActionOptions = computed<BulkActionOption[]>(() => [
-    {label: 'Rendre actif', value: 'activate', icon: 'pi pi-check-circle'},
-    {label: 'Rendre inactif', value: 'deactivate', icon: 'pi pi-times-circle'},
-    {label: 'Supprimer', value: 'delete', icon: 'pi pi-trash', danger: true},
-  ]);
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
+    const labels = this.uiText();
+    return [
+      {label: labels.bulkActivate, value: 'activate', icon: 'pi pi-check-circle'},
+      {label: labels.bulkDeactivate, value: 'deactivate', icon: 'pi pi-times-circle'},
+      {label: labels.bulkDelete, value: 'delete', icon: 'pi pi-trash', danger: true},
+    ];
+  });
 
   rows = 10;
 
@@ -89,11 +87,6 @@ export class DomainList implements OnInit {
   getName(d: DomainReadDto): string {
     const t = this.getDTDto(d);
     return t?.name ?? '';
-  }
-
-  getDescription(d: DomainReadDto): string {
-    const t = this.getDTDto(d);
-    return t?.description ?? '';
   }
 
   ngOnInit() {
@@ -193,13 +186,13 @@ export class DomainList implements OnInit {
     if (!ids.length) {
       return;
     }
-    const plural = ids.length > 1 ? 's' : '';
+    const labels = this.uiText();
     this.confirmationService.confirm({
-      header: 'Supprimer',
-      message: `Supprimer ${ids.length} domaine${plural} ? Cette action est irréversible.`,
+      header: labels.bulkDeleteHeader,
+      message: labels.bulkDeleteConfirm(ids.length),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Supprimer',
-      rejectLabel: 'Annuler',
+      acceptLabel: labels.bulkDelete,
+      rejectLabel: labels.bulkConfirmCancel,
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.runBulkDelete(ids),
     });
@@ -222,7 +215,6 @@ export class DomainList implements OnInit {
     return {
       ...domain,
       name: this.getName(domain),
-      description: this.getDescription(domain),
       subjectsCount: domainWithCounts.subjects_count ?? 0,
       questionsCount: domainWithCounts.questions_count ?? 0,
       pendingJoinRequests: domain.pending_join_requests_count ?? 0,
