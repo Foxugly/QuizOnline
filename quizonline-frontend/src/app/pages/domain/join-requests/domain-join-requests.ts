@@ -4,7 +4,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetection
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
-import {finalize} from 'rxjs';
+import {finalize, forkJoin, Observable} from 'rxjs';
 import {BadgeModule} from 'primeng/badge';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
@@ -20,8 +20,11 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
+import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
+import {logApiError} from '../../../shared/api/api-errors';
 
 type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
+type BulkAction = 'approve' | 'reject';
 
 @Component({
   selector: 'app-domain-join-requests',
@@ -29,6 +32,7 @@ type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
     CommonModule,
     FormsModule,
     BadgeModule,
+    BulkActionsComponent,
     ButtonModule,
     DialogModule,
     TextareaModule,
@@ -58,6 +62,23 @@ export class DomainJoinRequestsPage implements OnInit {
   readonly rejectDialogVisible = signal(false);
   readonly rejectReason = signal('');
   readonly rejectingRequest = signal<DomainJoinRequestReadDto | null>(null);
+
+  /** Multi-row selection state for bulk approve/reject. Lives only while
+   *  the filter is "pending"; switching status clears it. */
+  readonly selectedRows = signal<DomainJoinRequestReadDto[]>([]);
+  readonly applyingBulk = signal(false);
+  readonly bulkRejectDialogVisible = signal(false);
+  readonly bulkRejectReason = signal('');
+
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
+    const labels = this.t();
+    return [
+      {label: labels.bulkApprove, value: 'approve', icon: 'pi pi-check-circle'},
+      {label: labels.bulkReject, value: 'reject', icon: 'pi pi-times-circle', danger: true},
+    ];
+  });
+  readonly selectedCount = computed(() => this.selectedRows().length);
+  readonly canBulk = computed(() => this.statusFilter() === 'pending');
 
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   private readonly uiText = inject(UiTextService);
@@ -99,7 +120,85 @@ export class DomainJoinRequestsPage implements OnInit {
   }
 
   onStatusFilterChange(): void {
+    // Selection is meaningless once the filter leaves "pending" — clear it
+    // so the bulk-actions bar resets too.
+    this.selectedRows.set([]);
     this.loadRequests();
+  }
+
+  onSelectionChange(rows: DomainJoinRequestReadDto[]): void {
+    this.selectedRows.set(rows);
+  }
+
+  applyBulk(action: string): void {
+    if (this.applyingBulk() || this.selectedCount() === 0) {
+      return;
+    }
+    if (action === 'approve') {
+      this.runBulkApprove();
+      return;
+    }
+    if (action === 'reject') {
+      this.bulkRejectReason.set('');
+      this.bulkRejectDialogVisible.set(true);
+    }
+  }
+
+  confirmBulkReject(): void {
+    const reason = this.bulkRejectReason();
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      this.bulkRejectDialogVisible.set(false);
+      return;
+    }
+    const calls: Array<Observable<unknown>> = ids.map(id =>
+      this.http.post(`${this.apiBaseUrl}/${this.domainId}/join-request/${id}/reject/`, {reason})
+    );
+    this.applyingBulk.set(true);
+    forkJoin(calls)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingBulk.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.bulkRejectDialogVisible.set(false);
+          this.bulkRejectReason.set('');
+          this.selectedRows.set([]);
+          this.loadDomain();
+          this.loadRequests();
+        },
+        error: (err) => logApiError('domain.join-requests.bulk-reject', err),
+      });
+  }
+
+  cancelBulkReject(): void {
+    this.bulkRejectDialogVisible.set(false);
+    this.bulkRejectReason.set('');
+  }
+
+  private runBulkApprove(): void {
+    const ids = this.selectedRows().map(row => row.id);
+    if (!ids.length) {
+      return;
+    }
+    const calls = ids.map(id =>
+      this.domainApi.domainJoinRequestApproveCreate({domainId: this.domainId, reqId: id})
+    );
+    this.applyingBulk.set(true);
+    forkJoin(calls)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingBulk.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.selectedRows.set([]);
+          this.loadDomain();
+          this.loadRequests();
+        },
+        error: (err) => logApiError('domain.join-requests.bulk-approve', err),
+      });
   }
 
   userNameFor(userId: number): string {

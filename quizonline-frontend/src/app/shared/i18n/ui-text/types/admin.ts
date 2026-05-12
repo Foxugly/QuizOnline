@@ -92,5 +92,14 @@ export type AdminUiText = {
     decidedAt: string;
     reason: string;
     noReason: string;
+    bulkPlaceholder: string;
+    bulkApply: string;
+    bulkApprove: string;
+    bulkReject: string;
+    bulkCancel: string;
+    bulkSelectedCount: (n: number) => string;
+    bulkRejectHeader: string;
+    bulkRejectMessage: (n: number) => string;
+    bulkActionFailed: string;
   };
 };

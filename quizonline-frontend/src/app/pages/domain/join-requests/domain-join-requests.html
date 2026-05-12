@@ -16,9 +16,35 @@
     />
   </div>
 
-  <p-table [value]="requests()" [loading]="loading()" [rows]="50" [paginator]="requests().length > 50">
+  @if (canBulk()) {
+    <div class="mb-3">
+      <app-bulk-actions
+        [options]="bulkActionOptions()"
+        [placeholder]="t().bulkPlaceholder"
+        [applyLabel]="t().bulkApply"
+        [count]="selectedCount()"
+        [countText]="t().bulkSelectedCount(selectedCount())"
+        [applying]="applyingBulk()"
+        (apply)="applyBulk($event)">
+      </app-bulk-actions>
+    </div>
+  }
+
+  <p-table
+    [value]="requests()"
+    [loading]="loading()"
+    [rows]="50"
+    [paginator]="requests().length > 50"
+    [selection]="selectedRows()"
+    (selectionChange)="onSelectionChange($event)"
+    selectionMode="multiple"
+    dataKey="id"
+  >
     <ng-template #header>
       <tr>
+        @if (canBulk()) {
+          <th class="col-checkbox" style="width: 3rem"></th>
+        }
         <th>{{ t().user }}</th>
         <th>{{ t().email }}</th>
         <th>{{ t().requestedAt }}</th>
@@ -31,6 +57,11 @@
     </ng-template>
     <ng-template #body let-req>
       <tr>
+        @if (canBulk()) {
+          <td class="col-checkbox">
+            <p-tableCheckbox [value]="req" [disabled]="!isPending(req)"></p-tableCheckbox>
+          </td>
+        }
         <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
         <td>{{ req.user_summary?.email || t().noReason }}</td>
         <td>{{ req.created_at | date:'short' }}</td>
@@ -50,7 +81,7 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="8" class="text-center p-4">{{ t().noRequests }}</td>
+        <td [attr.colspan]="canBulk() ? 9 : 8" class="text-center p-4">{{ t().noRequests }}</td>
       </tr>
     </ng-template>
   </p-table>
@@ -71,5 +102,25 @@
   ></textarea>
   <ng-template #footer>
     <button pButton [label]="t().reject" severity="danger" (click)="confirmReject()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="t().bulkRejectHeader"
+  [(visible)]="bulkRejectDialogVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+>
+  <p class="muted">{{ t().bulkRejectMessage(selectedCount()) }}</p>
+  <textarea
+    pInputTextarea
+    [(ngModel)]="bulkRejectReason"
+    [placeholder]="t().rejectReasonPlaceholder"
+    rows="4"
+    class="w-full"
+  ></textarea>
+  <ng-template #footer>
+    <button pButton [label]="t().bulkCancel" severity="secondary" [text]="true" (click)="cancelBulkReject()" type="button"></button>
+    <button pButton [label]="t().bulkReject" severity="danger" [loading]="applyingBulk()" (click)="confirmBulkReject()" type="button"></button>
   </ng-template>
 </p-dialog>
