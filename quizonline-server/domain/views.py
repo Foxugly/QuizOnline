@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from config.tools import MyModelViewSet
 
 from core.mailers.domain_invite import send_domain_invite_email
+from core.mailers.domain_transfer import send_domain_transfer_email
 from core.mailers.domain_join import (
     send_join_request_created_email,
     send_join_request_approved_email,
@@ -31,6 +32,11 @@ from .invite_token import (
     InviteTokenInvalid,
     parse_invite_token,
 )
+from .transfer_token import (
+    TransferTokenExpired,
+    TransferTokenInvalid,
+    parse_transfer_token,
+)
 from .models import Domain, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
@@ -45,6 +51,8 @@ from .serializers import (
     DomainInviteRequestSerializer,
     DomainInviteResultSerializer,
     DomainInviteStateSerializer,
+    DomainTransferRequestSerializer,
+    DomainTransferStateSerializer,
     ModerationSummaryItemSerializer,
 )
 from .services import (
@@ -643,6 +651,65 @@ class DomainViewSet(MyModelViewSet):
         )
 
         return Response(results, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Initier un transfert de propriété",
+        description=(
+            "Le propriétaire envoie une proposition de transfert au futur "
+            "propriétaire désigné par ``user_id``. Un e-mail signé est "
+            "envoyé : tant que le destinataire n'a pas cliqué le lien et "
+            "confirmé, la propriété ne change pas.\n\n"
+            "Refusé si l'appelant n'est pas le propriétaire actuel, ou si "
+            "la cible est elle-même déjà le propriétaire."
+        ),
+        request=DomainTransferRequestSerializer,
+        responses={
+            status.HTTP_202_ACCEPTED: OpenApiResponse(description="Transfer email queued."),
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="transfer")
+    def transfer(self, request, *args, **kwargs):
+        domain = self.get_object()
+        # Owner-only: even managers cannot start a transfer. This is a
+        # higher-trust action than role changes (which we also gated to
+        # owner-only in Phase A).
+        is_superuser = bool(getattr(request.user, "is_superuser", False))
+        if not is_superuser and domain.owner_id != request.user.id:
+            return Response(
+                {"detail": "owner_only"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer = DomainTransferRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        future_owner_id = serializer.validated_data["user_id"]
+
+        User = get_user_model()
+        future_owner = User.objects.filter(pk=future_owner_id).first()
+        if not future_owner or not future_owner.email:
+            return Response(
+                {"detail": "future_owner_unreachable"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if future_owner.id == domain.owner_id:
+            return Response(
+                {"detail": "already_owner"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        send_domain_transfer_email(
+            domain=domain, initiator=request.user, future_owner=future_owner,
+        )
+        record_audit(
+            domain=domain,
+            action="transfer.initiate",
+            actor=request.user,
+            target_user=future_owner,
+            metadata={"remote_addr": _client_ip(request)},
+        )
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     @extend_schema(
         tags=["Domain"],
@@ -1248,4 +1315,125 @@ class DomainInviteAcceptView(APIView):
         except InviteTokenExpired:
             return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
         except InviteTokenInvalid:
+            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Domain"],
+        summary="Décoder un token de transfert de propriété",
+        responses={
+            status.HTTP_200_OK: DomainTransferStateSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+    post=extend_schema(
+        tags=["Domain"],
+        summary="Accepter le transfert (utilisateur authentifié)",
+        description=(
+            "Si l'utilisateur connecté est le destinataire encodé dans le "
+            "token, transfère la propriété : l'ancien owner est ajouté aux "
+            "membres, le nouveau owner devient ``Domain.owner`` et est aussi "
+            "ajouté aux membres / managers. Idempotent si déjà transféré."
+        ),
+        request=None,
+        responses={
+            status.HTTP_200_OK: DomainTransferStateSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_401_UNAUTHORIZED: ErrorDetailSerializer,
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+)
+class DomainTransferAcceptView(APIView):
+    """
+    Public-GET / auth-POST view that consumes a transfer token. GET is
+    open so the landing page can render even for a not-yet-logged-in
+    visitor (and route them to ``/login?next=...``); POST requires the
+    invited account to be authenticated.
+    """
+
+    permission_classes = []
+
+    def get(self, request, token: str):
+        return self._respond(request, token, do_transfer=False)
+
+    def post(self, request, token: str):
+        return self._respond(request, token, do_transfer=True)
+
+    def _respond(self, request, token: str, *, do_transfer: bool) -> Response:
+        parsed = self._parse(token)
+        if isinstance(parsed, Response):
+            return parsed
+
+        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=parsed["domain_id"])
+        User = get_user_model()
+        initiator = User.objects.filter(pk=parsed["initiator_id"]).first()
+        future_owner = User.objects.filter(pk=parsed["future_owner_id"]).first()
+
+        # If the initiator is no longer the current owner the transfer
+        # was either already consumed or revoked by an ownership change
+        # elsewhere — surface this rather than silently moving the
+        # domain again under a possibly malicious link.
+        if initiator is None or future_owner is None or domain.owner_id != initiator.id:
+            base = {
+                "domain_id": domain.id,
+                "domain_name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}",
+                "initiator_username": initiator.username if initiator else "",
+                "future_owner_username": future_owner.username if future_owner else "",
+            }
+            return Response({**base, "state": "no_longer_eligible"})
+
+        base_payload = {
+            "domain_id": domain.id,
+            "domain_name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}",
+            "initiator_username": initiator.username,
+            "future_owner_username": future_owner.username,
+        }
+
+        user = getattr(request, "user", None)
+        is_auth = bool(user and user.is_authenticated)
+        if not is_auth or user.id != future_owner.id:
+            return Response(
+                {**base_payload, "state": "wrong_account"},
+                status=status.HTTP_403_FORBIDDEN if do_transfer else status.HTTP_200_OK,
+            )
+
+        if not do_transfer:
+            return Response({**base_payload, "state": "ready_to_accept"})
+
+        # Execute the transfer atomically: old owner demoted to plain
+        # member, new owner promoted to ``Domain.owner`` and added to
+        # members + managers so they retain full control.
+        with transaction.atomic():
+            previous_owner = initiator
+            domain.owner = future_owner
+            domain.save(update_fields=["owner", "updated_at"])
+            domain.members.add(future_owner, previous_owner)
+            domain.managers.add(future_owner)
+            record_audit(
+                domain=domain,
+                action="transfer.accept",
+                actor=future_owner,
+                target_user=previous_owner,
+                metadata={
+                    "previous_owner_id": previous_owner.id,
+                    "remote_addr": _client_ip(request),
+                },
+            )
+
+        return Response({**base_payload, "state": "transferred"})
+
+    @staticmethod
+    def _parse(token: str):
+        try:
+            return parse_transfer_token(token)
+        except TransferTokenExpired:
+            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
+        except TransferTokenInvalid:
             return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)

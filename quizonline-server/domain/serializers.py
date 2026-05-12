@@ -482,6 +482,25 @@ class DomainInviteResultSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=("sent", "already_member", "invalid"))
 
 
+class DomainTransferRequestSerializer(serializers.Serializer):
+    """Payload for ``POST /api/domain/{id}/transfer/``."""
+    user_id = serializers.IntegerField(min_value=1)
+
+
+class DomainTransferStateSerializer(serializers.Serializer):
+    """Shape of GET/POST ``/api/domain/transfer/accept/{token}/``."""
+    state = serializers.ChoiceField(choices=(
+        "ready_to_accept",
+        "wrong_account",
+        "no_longer_eligible",
+        "transferred",
+    ))
+    domain_id = serializers.IntegerField()
+    domain_name = serializers.CharField()
+    initiator_username = serializers.CharField()
+    future_owner_username = serializers.CharField()
+
+
 class DomainInviteStateSerializer(serializers.Serializer):
     """Shape of GET/POST ``/api/domain/invite/accept/{token}/``."""
     state = serializers.ChoiceField(choices=(

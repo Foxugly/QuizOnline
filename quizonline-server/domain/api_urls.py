@@ -5,6 +5,7 @@ from .views import (
     DomainInviteAcceptView,
     DomainJoinRequestDecideView,
     DomainJoinRequestViewSet,
+    DomainTransferAcceptView,
     DomainViewSet,
 )
 
@@ -32,6 +33,11 @@ urlpatterns = [
         "invite/accept/<str:token>/",
         DomainInviteAcceptView.as_view(),
         name="domain-invite-accept",
+    ),
+    path(
+        "transfer/accept/<str:token>/",
+        DomainTransferAcceptView.as_view(),
+        name="domain-transfer-accept",
     ),
 ] + router.urls + [
     path(
