@@ -33,8 +33,9 @@ from .serializers import (
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
     DomainJoinRequestDecideResponseSerializer,
+    ModerationSummaryItemSerializer,
 )
-from .services import users_who_can_approve
+from .services import domains_with_pending_for_user, users_who_can_approve
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -192,10 +193,9 @@ class DomainViewSet(MyModelViewSet):
             return [AllowAny()]
         if self.action == "available_for_linking":
             return [AllowAny()]
-        if self.action == "leave":
-            # Self-leave is a user-scoped action: a plain member must be
-            # allowed to drop themselves without owner/manager rights. The
-            # action body still guards against non-members and the owner.
+        if self.action in ("leave", "moderation_summary"):
+            # User-scoped actions: any authenticated user may call them and
+            # the action body does the data scoping itself.
             return [IsAuthenticated()]
         return [IsAuthenticated(), IsDomainOwnerOrManager()]
 
@@ -453,6 +453,36 @@ class DomainViewSet(MyModelViewSet):
             raise PermissionDenied("Vous ne pouvez pas vous retirer vous-même du domaine.")
         if domain.managers.filter(pk=target.pk).exists():
             raise PermissionDenied("Un manager ne peut pas en retirer un autre.")
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Tableau de bord modération : domaines avec demandes en attente",
+        description=(
+            "Pour l'utilisateur connecté, renvoie la liste des domaines qu'il "
+            "peut modérer et qui ont au moins une demande d'adhésion en "
+            "attente. Trié par nombre de demandes décroissant.\n\n"
+            "Endpoint volontairement léger (aucune action), pensé pour une "
+            "tuile d'accueil."
+        ),
+        responses={
+            status.HTTP_200_OK: ModerationSummaryItemSerializer(many=True),
+        },
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="moderation-summary",
+        permission_classes=[IsAuthenticated],
+        # Explicitly disable pagination on this action: we return a small
+        # list (one item per moderable domain with pending requests) and
+        # never need pagination. Without this, the viewset's default
+        # pagination class would prompt drf-spectacular to advertise a
+        # ``Paginated...`` response shape that diverges from what we
+        # actually return.
+        pagination_class=None,
+    )
+    def moderation_summary(self, request, *args, **kwargs):
+        return Response(domains_with_pending_for_user(request.user))
 
     @extend_schema(
         tags=["Domain"],

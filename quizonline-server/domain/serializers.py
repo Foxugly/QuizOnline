@@ -435,3 +435,10 @@ class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
     action = serializers.ChoiceField(choices=("approve", "reject"))
     was_already_decided = serializers.BooleanField()
     request = DomainJoinRequestReadSerializer()
+
+
+class ModerationSummaryItemSerializer(serializers.Serializer):
+    """One row in the moderator dashboard summary list."""
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    pending_count = serializers.IntegerField()

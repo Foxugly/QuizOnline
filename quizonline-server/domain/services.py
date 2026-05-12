@@ -34,6 +34,58 @@ def flip_pending_to_approved(domain, user, *, by) -> int:
     )
 
 
+def domains_with_pending_for_user(user) -> list[dict]:
+    """
+    For the moderation dashboard tile: list the domains the user can
+    moderate that currently have at least one pending join request.
+    Returns ``[{id, name, pending_count}]`` ordered by pending_count
+    descending (so the busiest domain shows up first).
+
+    Implementation note: the "can-moderate" set mirrors
+    :class:`CanApproveJoinRequest`:
+
+      - superuser sees everything;
+      - the owner sees their domains;
+      - a manager sees the domain only if its ``join_policy`` is
+        ``OWNER_MANAGERS``.
+    """
+    from django.db.models import Count, Q
+
+    if not getattr(user, "is_authenticated", False):
+        return []
+
+    if user.is_superuser:
+        moderable_qs = Domain.objects.filter(active=True)
+    else:
+        moderable_qs = Domain.objects.filter(active=True).filter(
+            Q(owner=user)
+            | Q(managers=user, join_policy=JoinPolicy.OWNER_MANAGERS)
+        )
+
+    qs = (
+        moderable_qs.distinct()
+        .annotate(
+            pending_count=Count(
+                "join_requests",
+                filter=Q(join_requests__status=DomainJoinRequest.STATUS_PENDING),
+                distinct=True,
+            )
+        )
+        .filter(pending_count__gt=0)
+        .order_by("-pending_count", "id")
+        .prefetch_related("translations")
+    )
+
+    out = []
+    for domain in qs:
+        out.append({
+            "id": domain.id,
+            "name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.id}",
+            "pending_count": domain.pending_count,
+        })
+    return out
+
+
 def auto_decline_stale_pending_requests(*, older_than_days: int = 30) -> int:
     """
     Mark as ``CANCELLED`` all pending join requests created more than
