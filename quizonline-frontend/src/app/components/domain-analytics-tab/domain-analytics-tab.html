@@ -1,0 +1,65 @@
+@if (loading()) {
+  <div class="analytics-loading">
+    <p-progressspinner styleClass="w-3rem h-3rem" />
+    <p>{{ labels().loading }}</p>
+  </div>
+} @else if (analytics(); as a) {
+  <section class="analytics-card">
+    <h2>{{ labels().title }}</h2>
+
+    <ul class="analytics-counters">
+      <li>
+        <span class="analytics-counters__label">{{ labels().pendingCount }}</span>
+        <span class="analytics-counters__value">{{ a.pending_count }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().approvedCount }}</span>
+        <span class="analytics-counters__value">{{ a.approved_count }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().rejectedCount }}</span>
+        <span class="analytics-counters__value">{{ a.rejected_count }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().cancelledCount }}</span>
+        <span class="analytics-counters__value">{{ a.cancelled_count }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().totalDecisions }}</span>
+        <span class="analytics-counters__value">{{ a.total_decisions }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().acceptRate }}</span>
+        <span class="analytics-counters__value">{{ acceptRateDisplay() }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ labels().medianDecision }}</span>
+        <span class="analytics-counters__value">{{ medianDecisionDisplay() }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="analytics-card">
+    <h3>{{ labels().topDecidersTitle }}</h3>
+    @if (a.top_deciders.length === 0) {
+      <p class="muted">{{ labels().topDecidersEmpty }}</p>
+    } @else {
+      <p-table [value]="a.top_deciders" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ labels().colDecider }}</th>
+            <th class="analytics-table__count">{{ labels().colDecisionCount }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>{{ row.username }}</td>
+            <td class="analytics-table__count">{{ labels().decisionsLabel(row.count) }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </section>
+} @else {
+  <p class="muted">{{ labels().empty }}</p>
+}

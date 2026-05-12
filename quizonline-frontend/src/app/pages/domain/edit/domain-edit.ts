@@ -30,10 +30,12 @@ import {
 } from '../../../shared/forms/localized-text-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {DomainAnalyticsTab} from '../../../components/domain-analytics-tab/domain-analytics-tab';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
+import {DomainAnalyticsDto} from '../../../api/generated/model/domain-analytics';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainAuditLogReadDto} from '../../../api/generated/model/domain-audit-log-read';
 import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
@@ -75,6 +77,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     SelectModule,
     MessageModule,
     TableModule,
+    DomainAnalyticsTab,
     DomainEditorFormComponent,
     DomainMembersTab,
   ],
@@ -92,9 +95,12 @@ export class DomainEdit implements OnInit {
 
   domain = signal<DomainDetailDto | null>(null);
   pendingRequests = signal<DomainJoinRequestReadDto[]>([]);
-  topTab = signal<'config' | 'members' | 'audit'>('config');
+  topTab = signal<'config' | 'members' | 'audit' | 'analytics'>('config');
   readonly auditRows = signal<DomainAuditLogReadDto[]>([]);
   readonly auditLoading = signal<boolean>(false);
+
+  readonly analytics = signal<DomainAnalyticsDto | null>(null);
+  readonly analyticsLoading = signal<boolean>(false);
 
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
@@ -280,6 +286,16 @@ export class DomainEdit implements OnInit {
           this.loadAdditionalInvitableDomains();
         }
 
+        // Deep-link from /domain/list : ``?tab=analytics`` opens the
+        // analytics tab directly. We only honour it once the domain is
+        // loaded and the user actually has moderator rights, otherwise
+        // the tab is hidden.
+        const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+        if (requestedTab === 'analytics' && canMod) {
+          this.topTab.set('analytics');
+          this.loadAnalytics();
+        }
+
         // 2) Set global active languages
         const activeLangs = (languages ?? []).filter(l => l.active);
         this.languages.set(activeLangs);
@@ -348,12 +364,34 @@ export class DomainEdit implements OnInit {
   }
 
   onTopTabChange(value: string | number | undefined): void {
-    if (value === 'members' || value === 'config' || value === 'audit') {
+    if (
+      value === 'members'
+      || value === 'config'
+      || value === 'audit'
+      || value === 'analytics'
+    ) {
       this.topTab.set(value);
       if (value === 'audit' && this.auditRows().length === 0) {
         this.loadAuditLog();
       }
+      if (value === 'analytics' && this.analytics() === null) {
+        this.loadAnalytics();
+      }
     }
+  }
+
+  private loadAnalytics(): void {
+    this.analyticsLoading.set(true);
+    this.editApi.getAnalytics(this.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-analytics', err);
+          return of(null);
+        }),
+        finalize(() => this.analyticsLoading.set(false)),
+      )
+      .subscribe((data) => this.analytics.set(data));
   }
 
   private loadAuditLog(): void {

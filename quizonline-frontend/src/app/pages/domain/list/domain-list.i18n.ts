@@ -17,6 +17,7 @@ export type DomainListUiText = {
   bulkDeleteHeader: string;
   bulkDeleteConfirm: (n: number) => string;
   bulkConfirmCancel: string;
+  analyticsTooltip: string;
 };
 
 const FR: DomainListUiText = {
@@ -36,6 +37,7 @@ const FR: DomainListUiText = {
   bulkDeleteHeader: 'Supprimer',
   bulkDeleteConfirm: (n) => `Supprimer ${n} domaine${n > 1 ? 's' : ''} ? Cette action est irréversible.`,
   bulkConfirmCancel: 'Annuler',
+  analyticsTooltip: 'Voir les statistiques',
 };
 
 const EN: DomainListUiText = {
@@ -55,6 +57,7 @@ const EN: DomainListUiText = {
   bulkDeleteHeader: 'Delete',
   bulkDeleteConfirm: (n) => `Delete ${n} domain${n > 1 ? 's' : ''}? This action is irreversible.`,
   bulkConfirmCancel: 'Cancel',
+  analyticsTooltip: 'View analytics',
 };
 
 const NL: DomainListUiText = {
@@ -74,6 +77,7 @@ const NL: DomainListUiText = {
   bulkDeleteHeader: 'Verwijderen',
   bulkDeleteConfirm: (n) => `${n} domein${n > 1 ? 'en' : ''} verwijderen? Deze actie is onomkeerbaar.`,
   bulkConfirmCancel: 'Annuleren',
+  analyticsTooltip: 'Statistieken bekijken',
 };
 
 const IT: DomainListUiText = {
@@ -93,6 +97,7 @@ const IT: DomainListUiText = {
   bulkDeleteHeader: 'Elimina',
   bulkDeleteConfirm: (n) => `Eliminare ${n} domini${n > 1 ? '' : 'o'}? Questa azione è irreversibile.`,
   bulkConfirmCancel: 'Annulla',
+  analyticsTooltip: 'Vedi le statistiche',
 };
 
 const ES: DomainListUiText = {
@@ -112,6 +117,7 @@ const ES: DomainListUiText = {
   bulkDeleteHeader: 'Eliminar',
   bulkDeleteConfirm: (n) => `¿Eliminar ${n} dominio${n > 1 ? 's' : ''}? Esta acción es irreversible.`,
   bulkConfirmCancel: 'Cancelar',
+  analyticsTooltip: 'Ver estadísticas',
 };
 
 const DICT: Record<LanguageEnumDto, DomainListUiText> = {

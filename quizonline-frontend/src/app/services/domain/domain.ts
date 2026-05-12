@@ -103,8 +103,8 @@ export class DomainService {
     this.router.navigate(ROUTES.domain.list());
   }
 
-  goEdit(domainId: number): void {
-    this.router.navigate(ROUTES.domain.edit(domainId));
+  goEdit(domainId: number, queryParams?: Record<string, string>): void {
+    this.router.navigate(ROUTES.domain.edit(domainId), {queryParams});
   }
 
   goDelete(domainId: number): void {

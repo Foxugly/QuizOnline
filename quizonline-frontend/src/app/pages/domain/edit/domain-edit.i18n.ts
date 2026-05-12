@@ -5,6 +5,7 @@ export type DomainEditUiText = {
     config: string;
     members: string;
     audit: string;
+    analytics: string;
   };
   audit: {
     title: string;
@@ -15,6 +16,26 @@ export type DomainEditUiText = {
     colTarget: string;
     actionLabel: (action: string) => string;
     systemActor: string;
+  };
+  analytics: {
+    title: string;
+    loading: string;
+    empty: string;
+    pendingCount: string;
+    approvedCount: string;
+    rejectedCount: string;
+    cancelledCount: string;
+    totalDecisions: string;
+    acceptRate: string;
+    acceptRateUnknown: string;
+    medianDecision: string;
+    medianDecisionUnknown: string;
+    topDecidersTitle: string;
+    topDecidersEmpty: string;
+    colDecider: string;
+    colDecisionCount: string;
+    decisionsLabel: (n: number) => string;
+    durationFormat: (totalSeconds: number) => string;
   };
   errors: {
     invalidId: string;
@@ -180,7 +201,7 @@ const ES_ACTION_LABELS: Record<string, string> = {
 };
 
 const FR: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Membres', audit: 'Journal'},
+  tabs: {config: 'Configuration', members: 'Membres', audit: 'Journal', analytics: 'Statistiques'},
   audit: {
     title: 'Journal des actions',
     empty: 'Aucune action enregistrée.',
@@ -249,6 +270,37 @@ const FR: DomainEditUiText = {
     invitationConfirmRevokeAccept: 'Révoquer',
     invitationConfirmRevokeCancel: 'Annuler',
   },
+  analytics: {
+    title: 'Statistiques des demandes d\'adhésion',
+    loading: 'Chargement…',
+    empty: 'Pas encore de données.',
+    pendingCount: 'En attente',
+    approvedCount: 'Approuvées',
+    rejectedCount: 'Refusées',
+    cancelledCount: 'Annulées',
+    totalDecisions: 'Décisions totales',
+    acceptRate: 'Taux d\'acceptation',
+    acceptRateUnknown: '—',
+    medianDecision: 'Temps médian avant décision',
+    medianDecisionUnknown: '—',
+    topDecidersTitle: 'Top modérateurs',
+    topDecidersEmpty: 'Aucune décision enregistrée.',
+    colDecider: 'Modérateur',
+    colDecisionCount: 'Décisions',
+    decisionsLabel: (n) => n <= 1 ? `${n} décision` : `${n} décisions`,
+    durationFormat: (totalSeconds) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      if (s < 60) return `${s} s`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      if (h < 24) return remM ? `${h} h ${remM} min` : `${h} h`;
+      const d = Math.floor(h / 24);
+      const remH = h % 24;
+      return remH ? `${d} j ${remH} h` : `${d} j`;
+    },
+  },
   transfer: {
     button: 'Transférer la propriété',
     dialogTitle: 'Transférer la propriété du domaine',
@@ -265,7 +317,7 @@ const FR: DomainEditUiText = {
 };
 
 const EN: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Members', audit: 'Activity'},
+  tabs: {config: 'Configuration', members: 'Members', audit: 'Activity', analytics: 'Analytics'},
   audit: {
     title: 'Activity log',
     empty: 'No action recorded yet.',
@@ -334,6 +386,37 @@ const EN: DomainEditUiText = {
     invitationConfirmRevokeAccept: 'Revoke',
     invitationConfirmRevokeCancel: 'Cancel',
   },
+  analytics: {
+    title: 'Join-request analytics',
+    loading: 'Loading…',
+    empty: 'No data yet.',
+    pendingCount: 'Pending',
+    approvedCount: 'Approved',
+    rejectedCount: 'Rejected',
+    cancelledCount: 'Cancelled',
+    totalDecisions: 'Total decisions',
+    acceptRate: 'Acceptance rate',
+    acceptRateUnknown: '—',
+    medianDecision: 'Median time to decision',
+    medianDecisionUnknown: '—',
+    topDecidersTitle: 'Top moderators',
+    topDecidersEmpty: 'No decisions recorded yet.',
+    colDecider: 'Moderator',
+    colDecisionCount: 'Decisions',
+    decisionsLabel: (n) => n <= 1 ? `${n} decision` : `${n} decisions`,
+    durationFormat: (totalSeconds) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      if (s < 60) return `${s} s`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      if (h < 24) return remM ? `${h} h ${remM} min` : `${h} h`;
+      const d = Math.floor(h / 24);
+      const remH = h % 24;
+      return remH ? `${d} d ${remH} h` : `${d} d`;
+    },
+  },
   transfer: {
     button: 'Transfer ownership',
     dialogTitle: 'Transfer domain ownership',
@@ -350,7 +433,7 @@ const EN: DomainEditUiText = {
 };
 
 const NL: DomainEditUiText = {
-  tabs: {config: 'Configuratie', members: 'Leden', audit: 'Activiteit'},
+  tabs: {config: 'Configuratie', members: 'Leden', audit: 'Activiteit', analytics: 'Statistieken'},
   audit: {
     title: 'Activiteitenlogboek',
     empty: 'Nog geen actie geregistreerd.',
@@ -419,6 +502,37 @@ const NL: DomainEditUiText = {
     invitationConfirmRevokeAccept: 'Intrekken',
     invitationConfirmRevokeCancel: 'Annuleren',
   },
+  analytics: {
+    title: 'Statistieken aanvragen',
+    loading: 'Laden…',
+    empty: 'Nog geen gegevens.',
+    pendingCount: 'In afwachting',
+    approvedCount: 'Goedgekeurd',
+    rejectedCount: 'Afgewezen',
+    cancelledCount: 'Geannuleerd',
+    totalDecisions: 'Totaal beslissingen',
+    acceptRate: 'Acceptatiepercentage',
+    acceptRateUnknown: '—',
+    medianDecision: 'Mediaan tot beslissing',
+    medianDecisionUnknown: '—',
+    topDecidersTitle: 'Top moderators',
+    topDecidersEmpty: 'Nog geen beslissingen geregistreerd.',
+    colDecider: 'Moderator',
+    colDecisionCount: 'Beslissingen',
+    decisionsLabel: (n) => n <= 1 ? `${n} beslissing` : `${n} beslissingen`,
+    durationFormat: (totalSeconds) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      if (s < 60) return `${s} s`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      if (h < 24) return remM ? `${h} u ${remM} min` : `${h} u`;
+      const d = Math.floor(h / 24);
+      const remH = h % 24;
+      return remH ? `${d} d ${remH} u` : `${d} d`;
+    },
+  },
   transfer: {
     button: 'Eigenaarschap overdragen',
     dialogTitle: 'Domeineigenaarschap overdragen',
@@ -435,7 +549,7 @@ const NL: DomainEditUiText = {
 };
 
 const IT: DomainEditUiText = {
-  tabs: {config: 'Configurazione', members: 'Membri', audit: 'Attività'},
+  tabs: {config: 'Configurazione', members: 'Membri', audit: 'Attività', analytics: 'Statistiche'},
   audit: {
     title: 'Registro attività',
     empty: 'Nessuna azione registrata.',
@@ -504,6 +618,37 @@ const IT: DomainEditUiText = {
     invitationConfirmRevokeAccept: 'Revoca',
     invitationConfirmRevokeCancel: 'Annulla',
   },
+  analytics: {
+    title: 'Statistiche delle richieste di adesione',
+    loading: 'Caricamento…',
+    empty: 'Ancora nessun dato.',
+    pendingCount: 'In attesa',
+    approvedCount: 'Approvate',
+    rejectedCount: 'Rifiutate',
+    cancelledCount: 'Annullate',
+    totalDecisions: 'Decisioni totali',
+    acceptRate: 'Tasso di accettazione',
+    acceptRateUnknown: '—',
+    medianDecision: 'Tempo mediano fino alla decisione',
+    medianDecisionUnknown: '—',
+    topDecidersTitle: 'Migliori moderatori',
+    topDecidersEmpty: 'Nessuna decisione registrata.',
+    colDecider: 'Moderatore',
+    colDecisionCount: 'Decisioni',
+    decisionsLabel: (n) => n <= 1 ? `${n} decisione` : `${n} decisioni`,
+    durationFormat: (totalSeconds) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      if (s < 60) return `${s} s`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      if (h < 24) return remM ? `${h} h ${remM} min` : `${h} h`;
+      const d = Math.floor(h / 24);
+      const remH = h % 24;
+      return remH ? `${d} g ${remH} h` : `${d} g`;
+    },
+  },
   transfer: {
     button: 'Trasferisci la proprietà',
     dialogTitle: 'Trasferisci la proprietà del dominio',
@@ -520,7 +665,7 @@ const IT: DomainEditUiText = {
 };
 
 const ES: DomainEditUiText = {
-  tabs: {config: 'Configuración', members: 'Miembros', audit: 'Actividad'},
+  tabs: {config: 'Configuración', members: 'Miembros', audit: 'Actividad', analytics: 'Estadísticas'},
   audit: {
     title: 'Registro de actividad',
     empty: 'No hay acciones registradas.',
@@ -588,6 +733,37 @@ const ES: DomainEditUiText = {
     invitationConfirmRevokeMessage: (email) => `¿Revocar la invitación para ${email}? El enlace ya enviado dejará de funcionar.`,
     invitationConfirmRevokeAccept: 'Revocar',
     invitationConfirmRevokeCancel: 'Cancelar',
+  },
+  analytics: {
+    title: 'Estadísticas de solicitudes de adhesión',
+    loading: 'Cargando…',
+    empty: 'Aún no hay datos.',
+    pendingCount: 'Pendientes',
+    approvedCount: 'Aprobadas',
+    rejectedCount: 'Rechazadas',
+    cancelledCount: 'Canceladas',
+    totalDecisions: 'Decisiones totales',
+    acceptRate: 'Tasa de aceptación',
+    acceptRateUnknown: '—',
+    medianDecision: 'Mediana hasta la decisión',
+    medianDecisionUnknown: '—',
+    topDecidersTitle: 'Mejores moderadores',
+    topDecidersEmpty: 'Aún no hay decisiones registradas.',
+    colDecider: 'Moderador',
+    colDecisionCount: 'Decisiones',
+    decisionsLabel: (n) => n <= 1 ? `${n} decisión` : `${n} decisiones`,
+    durationFormat: (totalSeconds) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      if (s < 60) return `${s} s`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m} min`;
+      const h = Math.floor(m / 60);
+      const remM = m % 60;
+      if (h < 24) return remM ? `${h} h ${remM} min` : `${h} h`;
+      const d = Math.floor(h / 24);
+      const remH = h % 24;
+      return remH ? `${d} d ${remH} h` : `${d} d`;
+    },
   },
   transfer: {
     button: 'Transferir la propiedad',

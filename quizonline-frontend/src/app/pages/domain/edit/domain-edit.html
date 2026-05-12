@@ -36,6 +36,9 @@
         @if (canManageMembers()) {
           <p-tab value="audit">{{ editText().tabs.audit }}</p-tab>
         }
+        @if (canModerate()) {
+          <p-tab value="analytics">{{ editText().tabs.analytics }}</p-tab>
+        }
       </p-tablist>
 
       <p-tabpanels>
@@ -98,6 +101,14 @@
               <p class="muted">{{ editText().audit.empty }}</p>
             }
           </section>
+        </p-tabpanel>
+
+        <p-tabpanel value="analytics">
+          <app-domain-analytics-tab
+            [analytics]="analytics()"
+            [loading]="analyticsLoading()"
+            [text]="editText()">
+          </app-domain-analytics-tab>
         </p-tabpanel>
 
         <p-tabpanel value="members">

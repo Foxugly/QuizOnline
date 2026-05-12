@@ -3,6 +3,7 @@ import {Injectable, inject} from '@angular/core';
 import {map, Observable} from 'rxjs';
 
 import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
+import {DomainAnalyticsDto} from '../../api/generated/model/domain-analytics';
 import {DomainAuditLogReadDto} from '../../api/generated/model/domain-audit-log-read';
 import {DomainInviteReadDto} from '../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../api/generated/model/domain-invite-result';
@@ -26,6 +27,10 @@ export class DomainEditApi {
     return this.api.domainAuditList({domainId}).pipe(
       map((page) => page?.results ?? []),
     );
+  }
+
+  getAnalytics(domainId: number): Observable<DomainAnalyticsDto> {
+    return this.api.domainAnalyticsRetrieve({domainId});
   }
 
   listInvitations(domainId: number): Observable<DomainInviteReadDto[]> {

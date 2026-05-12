@@ -126,6 +126,27 @@ export class DomainList implements OnInit {
     void this.router.navigate(['/domain', id, 'join-requests']);
   }
 
+  /** Deep-link to ``/domain/{id}/edit`` with the analytics tab preselected. */
+  goAnalytics(id: number): void {
+    this.domainService.goEdit(id, {tab: 'analytics'});
+  }
+
+  /** True iff the current user may see analytics for a domain row
+   *  (superuser, owner, or in the managers list). */
+  canModerateRow(row: DomainListRow): boolean {
+    const me = this.userService.currentUser();
+    if (!me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    if (row.owner?.id === me.id) {
+      return true;
+    }
+    return (row.managers ?? []).some((m) => m.id === me.id);
+  }
+
   /** Localized label for a domain's join policy (Auto / Owner / Owner+managers). */
   joinPolicyLabel(policy: JoinPolicyEnumDto | undefined): string {
     const labels = this.editorUi().domainForm;
