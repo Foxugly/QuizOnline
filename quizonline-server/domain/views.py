@@ -286,8 +286,11 @@ class DomainViewSet(MyModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="available-for-linking")
     def available_for_linking(self, request, *args, **kwargs):
+        # Only public domains surface in the discovery catalog. Private
+        # domains are joinable only through an emailed invitation, so
+        # they must never appear here.
         queryset = (
-            Domain.objects.filter(active=True)
+            Domain.objects.filter(active=True, public=True)
             .select_related("owner")
             .prefetch_related("managers", "members", "allowed_languages", "translations")
             .order_by("id")
@@ -636,6 +639,16 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             return Response(
                 {"detail": "already_member"},
                 status=status.HTTP_409_CONFLICT,
+            )
+        # Private domains accept only invitation-based access. A
+        # spontaneous join-request is refused even if the caller somehow
+        # learned the domain id (e.g., from another user). Note we 404
+        # rather than 403 to keep the existence of the domain undisclosed
+        # to outsiders, matching the discovery filter.
+        if not domain.public:
+            return Response(
+                {"detail": "not_found"},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         if domain.join_policy == JoinPolicy.AUTO:

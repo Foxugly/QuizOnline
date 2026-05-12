@@ -38,6 +38,7 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "public",
             "join_policy",
             "subjects_count",
             "questions_count",
@@ -128,6 +129,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "public",
             "join_policy",
             "owner",
             "managers",
@@ -298,6 +300,7 @@ class DomainPartialSerializer(DomainWriteSerializer):
     managers = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False)
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     active = serializers.BooleanField(required=False)
+    public = serializers.BooleanField(required=False)
 
     def validate(self, attrs):
         self._validate_owner_change(attrs)
@@ -324,6 +327,7 @@ class DomainDetailSerializer(DomainReadSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "public",
             "join_policy",
             "pending_join_requests_count",
             "my_join_request_status",

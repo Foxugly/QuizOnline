@@ -64,6 +64,7 @@ class DomainSerializersTestCase(TestCase):
             "translations",
             "allowed_languages",
             "active",
+            "public",
             "join_policy",
             "pending_join_requests_count",
             "my_join_request_status",

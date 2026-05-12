@@ -35,6 +35,11 @@ class Domain(AuditMixin, TranslatableModel):
         blank=True,
     )
     active = models.BooleanField(default=True, db_index=True)
+    # Public = discoverable through the "available domains" catalog and
+    # joinable via a normal join-request. When False, the domain is
+    # hidden from non-members and can only be joined through an emailed
+    # invitation. Existing members keep access — visibility only.
+    public = models.BooleanField(default=True, db_index=True)
 
     join_policy = models.CharField(
         max_length=20,
