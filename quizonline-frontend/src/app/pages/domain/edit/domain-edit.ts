@@ -1,4 +1,3 @@
-import {HttpClient} from '@angular/common/http';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
@@ -19,6 +18,7 @@ import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainEditApi} from '../../../services/domain/domain-edit-api';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
 import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
@@ -29,11 +29,9 @@ import {
   syncLocalizedTextControls,
 } from '../../../shared/forms/localized-text-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
-import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
-import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
@@ -158,8 +156,7 @@ export class DomainEdit implements OnInit {
   currentLang = computed(() => this.userService.currentLang);
   private languageService = inject(LanguageService);
   private translator = inject(TranslationService);
-  private http = inject(HttpClient);
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
+  private editApi = inject(DomainEditApi);
 
   readonly editText = computed(() => getDomainEditUiText(this.userService.currentLang ?? LanguageEnumDto.Fr));
   readonly currentUserId = computed(() => this.userService.currentUser()?.id ?? null);
@@ -217,8 +214,6 @@ export class DomainEdit implements OnInit {
     const ownerId = this.domain()?.owner?.id;
     return this.ownerOptions().filter(o => o.value !== ownerId);
   });
-
-  private readonly domainApi = inject(DomainApiService);
 
   ngOnInit(): void {
     const rawId = this.route.snapshot.paramMap.get('id');
@@ -356,9 +351,7 @@ export class DomainEdit implements OnInit {
 
   private loadAuditLog(): void {
     this.auditLoading.set(true);
-    this.http.get<{results?: DomainAuditLogReadDto[]} | DomainAuditLogReadDto[]>(
-      `${this.apiBaseUrl}/${this.id}/audit/`,
-    )
+    this.editApi.listAudit(this.id)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
@@ -367,20 +360,11 @@ export class DomainEdit implements OnInit {
         }),
         finalize(() => this.auditLoading.set(false)),
       )
-      .subscribe((response) => {
-        const list = Array.isArray(response) ? response : (response?.results ?? []);
-        this.auditRows.set(list);
-      });
+      .subscribe((rows) => this.auditRows.set(rows));
   }
 
   onMemberRoleChange(evt: {userId: number; makeManager: boolean}): void {
-    this.domainApi.domainMemberRoleCreate({
-      domainId: this.id,
-      domainMemberRoleRequestDto: {
-        user_id: evt.userId,
-        is_domain_manager: evt.makeManager,
-      },
-    })
+    this.editApi.changeMemberRole(this.id, evt.userId, evt.makeManager)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => this.domainService.detail(this.id)),
@@ -401,20 +385,14 @@ export class DomainEdit implements OnInit {
     this.inviting.set(true);
     this.inviteResults.set(null);
     const language = this.userService.currentLang ?? LanguageEnumDto.Fr;
-    this.domainApi.domainInviteCreate({
-      domainId: this.id,
-      domainInviteRequestRequestDto: {
-        emails: evt.emails,
-        language,
-      },
-    })
+    this.editApi.sendInvites(this.id, evt.emails, language)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.inviting.set(false)),
       )
       .subscribe({
         next: (results) => {
-          this.inviteResults.set(results ?? []);
+          this.inviteResults.set(results);
           // Refresh the pending-invitations table so the new rows
           // surface immediately under the members tab.
           this.loadInvitations();
@@ -427,7 +405,7 @@ export class DomainEdit implements OnInit {
   }
 
   onInviteResend(evt: {inviteId: number}): void {
-    this.http.post(`${this.apiBaseUrl}/${this.id}/invitations/${evt.inviteId}/resend/`, null)
+    this.editApi.resendInvitation(this.id, evt.inviteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadInvitations(),
@@ -439,7 +417,7 @@ export class DomainEdit implements OnInit {
   }
 
   onInviteRevoke(evt: {inviteId: number}): void {
-    this.http.post(`${this.apiBaseUrl}/${this.id}/invitations/${evt.inviteId}/revoke/`, null)
+    this.editApi.revokeInvitation(this.id, evt.inviteId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadInvitations(),
@@ -451,7 +429,7 @@ export class DomainEdit implements OnInit {
   }
 
   private loadInvitations(): void {
-    this.domainApi.domainInvitationsList({domainId: this.id})
+    this.editApi.listInvitations(this.id)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
@@ -459,17 +437,11 @@ export class DomainEdit implements OnInit {
           return of([] as DomainInviteReadDto[]);
         }),
       )
-      .subscribe((rows) => this.invitations.set(rows ?? []));
+      .subscribe((rows) => this.invitations.set(rows));
   }
 
   onMemberRemove(evt: {userId: number}): void {
-    this.domainApi.domainMemberRoleCreate({
-      domainId: this.id,
-      domainMemberRoleRequestDto: {
-        user_id: evt.userId,
-        remove_member: true,
-      },
-    })
+    this.editApi.removeMember(this.id, evt.userId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => this.domainService.detail(this.id)),
@@ -502,40 +474,38 @@ export class DomainEdit implements OnInit {
     }
     this.transferring.set(true);
     this.transferError.set(null);
-    this.http.post(
-      `${this.apiBaseUrl}/${this.id}/transfer/`,
-      {user_id: userId},
-    ).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.transferring.set(false)),
-    ).subscribe({
-      next: () => {
-        // Stay on the page; the proposal is sent but ownership has not
-        // moved yet. Show a toast-like message and close.
-        this.transferDialogVisible.set(false);
-        this.submitError.set(this.editText().transfer.successMessage);
-      },
-      error: (err) => {
-        logApiError('domain.edit.transfer', err);
-        const detail = err?.error?.detail;
-        const t = this.editText().transfer;
-        switch (detail) {
-          case 'already_owner':
-            this.transferError.set(t.errorAlreadyOwner);
-            return;
-          case 'future_owner_unreachable':
-            this.transferError.set(t.errorTargetUnreachable);
-            return;
-          default:
-            this.transferError.set(t.errorGeneric);
-        }
-      },
-    });
+    this.editApi.proposeTransfer(this.id, userId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.transferring.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          // Stay on the page; the proposal is sent but ownership has not
+          // moved yet. Show a toast-like message and close.
+          this.transferDialogVisible.set(false);
+          this.submitError.set(this.editText().transfer.successMessage);
+        },
+        error: (err) => {
+          logApiError('domain.edit.transfer', err);
+          const detail = err?.error?.detail;
+          const t = this.editText().transfer;
+          switch (detail) {
+            case 'already_owner':
+              this.transferError.set(t.errorAlreadyOwner);
+              return;
+            case 'future_owner_unreachable':
+              this.transferError.set(t.errorTargetUnreachable);
+              return;
+            default:
+              this.transferError.set(t.errorGeneric);
+          }
+        },
+      });
   }
 
   private loadPendingRequests(): void {
-    const url = `${this.apiBaseUrl}/${this.id}/join-request/?status=pending`;
-    this.http.get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(url)
+    this.editApi.listPendingJoinRequests(this.id)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
@@ -543,10 +513,7 @@ export class DomainEdit implements OnInit {
           return of([] as DomainJoinRequestReadDto[]);
         }),
       )
-      .subscribe((response) => {
-        const list = Array.isArray(response) ? response : (response?.results ?? []);
-        this.pendingRequests.set(list);
-      });
+      .subscribe((rows) => this.pendingRequests.set(rows));
   }
 
   onTabValueChange(v: string | number | undefined): void {
