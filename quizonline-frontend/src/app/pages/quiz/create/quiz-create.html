@@ -25,7 +25,7 @@
     </div>
   } @else if (!canManageAnyDomain()) {
     <div class="card">
-      <div class="alert alert--error">La composition de quiz est reservee au owner ou aux gestionnaires d'un domaine.</div>
+      <div class="alert alert--error">{{ uiText().composeReservedForOwner }}</div>
     </div>
   } @else {
     @if (error()) {
@@ -34,7 +34,7 @@
       </div>
     }
 
-    <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="builder-stack">
+    <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="card form-card builder-stack">
       <p-tabs [value]="activeEditorTab()" (valueChange)="setActiveEditorTab($event)" class="builder-tabs">
         <p-tablist>
           <p-tab value="texts">
@@ -53,7 +53,7 @@
 
         <p-tabpanels class="builder-tabpanels">
           <p-tabpanel value="texts">
-            <div class="card builder-card">
+            <div class="builder-pane">
               <div class="translations-card" formGroupName="translations">
                 <div class="card-head card-head--with-badge">
                   <h2 class="card-title">{{ uiText().translationsTitle }}</h2>
@@ -90,7 +90,7 @@
                             <div class="meta-item meta-item--full">
                               <label class="meta-label">{{ uiText().quizTitle }} ({{ lang.toUpperCase() }})</label>
                               <div class="meta-value">
-                                <input formControlName="title" pInputText placeholder="Ex: Examen blanc chimie" type="text" />
+                                <input formControlName="title" pInputText [placeholder]="uiText().quizTitlePlaceholder" type="text" />
                               </div>
                             </div>
 
@@ -118,7 +118,7 @@
           </p-tabpanel>
 
           <p-tabpanel value="configuration">
-            <div class="card builder-card config-card">
+            <div class="builder-pane config-card">
               <div class="config-pair">
                 <section class="config-section">
                   <header class="config-section__head">
@@ -347,7 +347,7 @@
   [modal]="true"
   [style]="{ width: '90vw', maxWidth: '1100px' }"
   [visible]="questionDialogVisible()"
-  [header]="isEditMode() ? 'Creer une question pour ce template' : 'Creer une question pour ce quiz'"
+  [header]="isEditMode() ? editorUi().pages.quizCreate.createQuestionForTemplate : editorUi().pages.quizCreate.createQuestionForQuiz"
   (visibleChange)="questionDialogVisible.set($event)">
   <app-question-editor-form
     [activeLang]="questionDialogActiveLang()"
@@ -360,7 +360,7 @@
     [showTranslateAction]="true"
     [subjectOptions]="subjectOptions()"
     [submitError]="questionSubmitError()"
-    submitLabel="Creer la question"
+    [submitLabel]="editorUi().pages.quizCreate.createQuestion"
     [tabCodes]="questionDialogLangs()"
     [translating]="questionTranslating()"
     (addOptionClicked)="addQuestionOption()"

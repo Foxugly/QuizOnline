@@ -12,10 +12,15 @@
   background: transparent;
   border: 0;
   box-shadow: none;
+  padding: 0;
 }
 
-.builder-card {
-  padding: 1.25rem;
+// The form already wraps everything in a .card; the per-tab pane just
+// adds vertical breathing room without a second border / shadow.
+.builder-pane {
+  display: grid;
+  gap: 1rem;
+  padding: 0.25rem 0;
 }
 
 .tab-icon {

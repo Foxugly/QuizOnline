@@ -43,7 +43,9 @@ export type QuizCreateUiText = {
   detailVisibility: string;
   detailAvailableAt: string;
   quizTitle: string;
+  quizTitlePlaceholder: string;
   quizDescription: string;
+  composeReservedForOwner: string;
   translationsTitle: string;
   languagesCount: string;
   translateOthers: string;
@@ -110,7 +112,9 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     detailVisibility: 'Detail visibility',
     detailAvailableAt: 'Detail available at',
     quizTitle: 'Title',
+    quizTitlePlaceholder: 'e.g. Chemistry mock exam',
     quizDescription: 'Description',
+    composeReservedForOwner: 'Quiz composition is restricted to the owner or managers of a domain.',
     translationsTitle: 'Translations',
     languagesCount: 'languages',
     translateOthers: 'Translate to other languages',
@@ -175,7 +179,9 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     detailVisibility: 'Detailzichtbaarheid',
     detailAvailableAt: 'Details beschikbaar vanaf',
     quizTitle: 'Titel',
+    quizTitlePlaceholder: 'bv. Proefexamen scheikunde',
     quizDescription: 'Beschrijving',
+    composeReservedForOwner: 'Het samenstellen van quizzen is voorbehouden aan de eigenaar of beheerders van een domein.',
     translationsTitle: 'Vertalingen',
     languagesCount: 'talen',
     translateOthers: 'Vertalen naar andere talen',
@@ -240,7 +246,9 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     detailVisibility: 'Visibilità dettagli',
     detailAvailableAt: 'Dettagli disponibili dal',
     quizTitle: 'Titolo',
+    quizTitlePlaceholder: 'es. Esame di chimica',
     quizDescription: 'Descrizione',
+    composeReservedForOwner: 'La composizione del quiz è riservata al proprietario o ai gestori di un dominio.',
     translationsTitle: 'Traduzioni',
     languagesCount: 'lingue',
     translateOthers: 'Traduci nelle altre lingue',
@@ -305,7 +313,9 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     detailVisibility: 'Visibilidad del detalle',
     detailAvailableAt: 'Detalle disponible desde',
     quizTitle: 'Título',
+    quizTitlePlaceholder: 'p. ej. Examen de química',
     quizDescription: 'Descripción',
+    composeReservedForOwner: 'La composición de quizzes está reservada al propietario o a los gestores de un dominio.',
     translationsTitle: 'Traducciones',
     languagesCount: 'idiomas',
     translateOthers: 'Traducir a los otros idiomas',
@@ -370,7 +380,9 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
     detailVisibility: 'Visibilité du détail',
     detailAvailableAt: 'Détail disponible à partir de',
     quizTitle: 'Titre',
+    quizTitlePlaceholder: 'Ex. : Examen blanc chimie',
     quizDescription: 'Description',
+    composeReservedForOwner: 'La composition d’un quiz est réservée au propriétaire ou aux gestionnaires d’un domaine.',
     translationsTitle: 'Traductions',
     languagesCount: 'langues',
     translateOthers: 'Traduire vers les autres langues',
