@@ -25,7 +25,7 @@ export const EN: UiText = {
     username: 'Username', usernamePlaceholder: 'Your username', usernameError: 'Username is required (min. 3 characters)',
     password: 'Password', passwordPlaceholder: 'Your password', passwordError: 'Password is required (min. 4 characters)',
     remember: 'Remember me', forgotPassword: 'Forgot password?', submit: 'Sign in', noAccount: 'No account yet?',
-    createAccount: 'Create account', invalidCredentials: 'Invalid credentials. Try again.', confirmEmailRequired: 'Confirm your email address before signing in.',
+    createAccount: 'Create account', invalidCredentials: 'Invalid credentials. Try again.', confirmEmailRequired: 'Confirm your email address before signing in.', magicLinkSwitch: 'Sign in with a magic link', magicLinkBackToPassword: 'Use a password', magicLinkEmail: 'Email', magicLinkEmailPlaceholder: 'your@email.com', magicLinkSubmit: 'Send the link', magicLinkSent: 'If an account exists, a sign-in link has been emailed.', magicLinkError: 'Could not send the link. Try again.', magicLinkExchanging: 'Signing in…', magicLinkExchangeFailed: 'Invalid or already used link.', magicLinkExpired: 'Expired link. Request a new one.',
   },
   register: {
     title: 'Create an account', subtitle: 'Identity, language and security', back: 'Back', create: 'Create', loading: 'Loading...',

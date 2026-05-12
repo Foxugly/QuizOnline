@@ -62,6 +62,19 @@ export class AuthService {
     );
   }
 
+  /**
+   * Token-only login path used by the magic-link exchange: caller has
+   * already obtained an ``access`` + ``refresh`` pair from a non-password
+   * endpoint and just needs the AuthService to adopt them and pull /me.
+   * ``remember`` defaults to true so the magic-link experience matches
+   * the "I clicked an email link, I expect to stay signed in" mental
+   * model.
+   */
+  loginWithTokens(access: string, refresh: string, remember = true): Observable<CustomUserReadDto> {
+    this.setTokens(access, refresh, remember);
+    return this.userService.getMe();
+  }
+
   refreshTokens(): Observable<TokenRefreshDto> | null {
     // De-duplicate concurrent refreshes. After a full page reload, multiple
     // components fire API calls in parallel, each gets a 401, and each would

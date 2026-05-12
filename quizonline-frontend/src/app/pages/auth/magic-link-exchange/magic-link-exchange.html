@@ -1,0 +1,20 @@
+<section class="page">
+  <div class="card form-card magic-exchange-card">
+    @if (working()) {
+      <div class="magic-exchange__working">
+        <p-progressSpinner strokeWidth="3"></p-progressSpinner>
+        <p class="muted">{{ ui().login.magicLinkExchanging }}</p>
+      </div>
+    } @else if (error() === 'expired') {
+      <p-message severity="warn" [closable]="false">{{ ui().login.magicLinkExpired }}</p-message>
+      <div class="footer-actions">
+        <p-button routerLink="/login" [label]="ui().login.submit" severity="primary" type="button"></p-button>
+      </div>
+    } @else if (error() === 'invalid') {
+      <p-message severity="error" [closable]="false">{{ ui().login.magicLinkExchangeFailed }}</p-message>
+      <div class="footer-actions">
+        <p-button routerLink="/login" [label]="ui().login.submit" severity="primary" type="button"></p-button>
+      </div>
+    }
+  </div>
+</section>

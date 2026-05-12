@@ -1,0 +1,15 @@
+.magic-exchange-card {
+  max-width: 480px;
+  margin: 3rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.magic-exchange__working {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 1rem 0;
+}

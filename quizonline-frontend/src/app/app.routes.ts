@@ -8,6 +8,12 @@ import {superuserGuard} from './guards/superuser.guard';
 export const routes: Routes = [
   {path: '', redirectTo: 'home', pathMatch: 'full'},
   {path: 'login', loadComponent: () => import('./pages/auth/login/login').then((m) => m.LoginPage)},
+  {
+    // Public landing for the magic-link emails: must not be auth-gated
+    // because the page itself is what authenticates the visitor.
+    path: 'auth/magic/:token',
+    loadComponent: () => import('./pages/auth/magic-link-exchange/magic-link-exchange').then((m) => m.MagicLinkExchangePage),
+  },
   {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
   {path: 'donate', loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
   {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},

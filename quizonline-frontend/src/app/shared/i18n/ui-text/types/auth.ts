@@ -15,6 +15,16 @@ export type LoginUiText = {
   createAccount: string;
   invalidCredentials: string;
   confirmEmailRequired: string;
+  magicLinkSwitch: string;
+  magicLinkBackToPassword: string;
+  magicLinkEmail: string;
+  magicLinkEmailPlaceholder: string;
+  magicLinkSubmit: string;
+  magicLinkSent: string;
+  magicLinkError: string;
+  magicLinkExchanging: string;
+  magicLinkExchangeFailed: string;
+  magicLinkExpired: string;
 };
 
 export type RegisterUiText = {

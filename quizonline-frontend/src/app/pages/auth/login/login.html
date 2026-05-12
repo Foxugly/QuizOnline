@@ -15,69 +15,104 @@
         <p-message severity="info" styleClass="alert alert--info">{{ infoMsg() }}</p-message>
       }
 
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        class="login-form"
-        autocomplete="on">
+      @if (!magicLinkMode()) {
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          class="login-form"
+          autocomplete="on">
 
-        <div class="field">
-          <label for="username">{{ ui().login.username }}</label>
-          <input
-            id="username"
-            type="text"
-            pInputText
-            formControlName="username"
-            [placeholder]="ui().login.usernamePlaceholder"
-            autofocus
-          />
-          @if (f.username.touched && f.username.invalid) {
-            <small class="field__error">
-              {{ ui().login.usernameError }}
-            </small>
-          }
-        </div>
-
-        <div class="field">
-          <label for="password">{{ ui().login.password }}</label>
-          <p-password
-            [feedback]="false"
-            [toggleMask]="true"
-            formControlName="password"
-            id="password"
-            [placeholder]="ui().login.passwordPlaceholder"
-            fluid
-          ></p-password>
-          @if (f.password.touched && f.password.invalid) {
-            <small class="field__error">
-              {{ ui().login.passwordError }}
-            </small>
-          }
-        </div>
-
-        <div class="login-form__meta">
-          <div class="checkbox">
-            <p-checkbox
-              inputId="remember"
-              formControlName="remember"
-              [binary]="true"
-            ></p-checkbox>
-            <label for="remember">{{ ui().login.remember }}</label>
+          <div class="field">
+            <label for="username">{{ ui().login.username }}</label>
+            <input
+              id="username"
+              type="text"
+              pInputText
+              formControlName="username"
+              [placeholder]="ui().login.usernamePlaceholder"
+              autofocus
+            />
+            @if (f.username.touched && f.username.invalid) {
+              <small class="field__error">
+                {{ ui().login.usernameError }}
+              </small>
+            }
           </div>
 
-          <a routerLink="/reset-password" class="link">
-            {{ ui().login.forgotPassword }}
-          </a>
-        </div>
+          <div class="field">
+            <label for="password">{{ ui().login.password }}</label>
+            <p-password
+              [feedback]="false"
+              [toggleMask]="true"
+              formControlName="password"
+              id="password"
+              [placeholder]="ui().login.passwordPlaceholder"
+              fluid
+            ></p-password>
+            @if (f.password.touched && f.password.invalid) {
+              <small class="field__error">
+                {{ ui().login.passwordError }}
+              </small>
+            }
+          </div>
 
-        <p-button
-          type="submit"
-          [label]="ui().login.submit"
-          styleClass="login-submit"
-          [disabled]="loading() || form.invalid"
-          [loading]="loading()"
-        ></p-button>
-      </form>
+          <div class="login-form__meta">
+            <div class="checkbox">
+              <p-checkbox
+                inputId="remember"
+                formControlName="remember"
+                [binary]="true"
+              ></p-checkbox>
+              <label for="remember">{{ ui().login.remember }}</label>
+            </div>
+
+            <a routerLink="/reset-password" class="link">
+              {{ ui().login.forgotPassword }}
+            </a>
+          </div>
+
+          <p-button
+            type="submit"
+            [label]="ui().login.submit"
+            styleClass="login-submit"
+            [disabled]="loading() || form.invalid"
+            [loading]="loading()"
+          ></p-button>
+        </form>
+
+        <button type="button" class="link login-page__toggle" (click)="toggleMagicLinkMode()">
+          {{ ui().login.magicLinkSwitch }}
+        </button>
+      } @else {
+        <form class="login-form" (ngSubmit)="submitMagicLink()">
+          <div class="field">
+            <label for="magic-email">{{ ui().login.magicLinkEmail }}</label>
+            <input
+              id="magic-email"
+              type="email"
+              pInputText
+              [ngModel]="magicLinkEmail()"
+              (ngModelChange)="magicLinkEmail.set($event)"
+              name="email"
+              [placeholder]="ui().login.magicLinkEmailPlaceholder"
+              autofocus
+              autocomplete="email"
+            />
+          </div>
+
+          <p-button
+            type="submit"
+            [label]="ui().login.magicLinkSubmit"
+            styleClass="login-submit"
+            [disabled]="!magicLinkEmail().trim() || magicLinkSubmitting()"
+            [loading]="magicLinkSubmitting()"
+          ></p-button>
+        </form>
+
+        <button type="button" class="link login-page__toggle" (click)="toggleMagicLinkMode()">
+          {{ ui().login.magicLinkBackToPassword }}
+        </button>
+      }
 
       <div class="login-card__footer">
         <span class="muted">{{ ui().login.noAccount }}</span>

@@ -59,6 +59,80 @@ paths:
       responses:
         '200':
           description: System configuration snapshot
+  /api/auth/magic-link/exchange/:
+    post:
+      operationId: auth_magic_link_exchange_create
+      description: Valide la signature et la TTL du token, vérifie que l'utilisateur
+        est actif et a confirmé son e-mail, puis émet une paire access / refresh comme
+        l'endpoint password classique.
+      summary: Échanger un token magique contre une paire JWT
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MagicLinkExchangeRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MagicLinkExchangeRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MagicLinkExchangeRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MagicLinkExchangeResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+  /api/auth/magic-link/request/:
+    post:
+      operationId: auth_magic_link_request_create
+      description: Envoie un lien de connexion par e-mail si un compte actif et confirmé
+        existe pour cette adresse. Réponse identique dans tous les cas pour ne pas
+        divulguer l'existence d'un compte.
+      summary: Demander un lien magique de connexion
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MagicLinkRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MagicLinkRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MagicLinkRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/domain/:
     get:
       operationId: domain_list
@@ -4896,6 +4970,37 @@ components:
       type: object
       additionalProperties:
         $ref: '#/components/schemas/LocalizedSubjectTranslation'
+    MagicLinkExchangeRequestRequest:
+      type: object
+      description: Payload for ``POST /api/auth/magic-link/exchange/``.
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 2048
+      required:
+      - token
+    MagicLinkExchangeResponse:
+      type: object
+      description: JWT pair returned on successful exchange.
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    MagicLinkRequestRequest:
+      type: object
+      description: Payload for ``POST /api/auth/magic-link/request/``.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
     MediaAsset:
       type: object
       properties:

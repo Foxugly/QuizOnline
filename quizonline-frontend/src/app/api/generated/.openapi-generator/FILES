@@ -72,6 +72,9 @@ model/localized-quiz-template-translation-request.ts
 model/localized-quiz-template-translation.ts
 model/localized-subject-detail-translation.ts
 model/localized-subject-translation.ts
+model/magic-link-exchange-request-request.ts
+model/magic-link-exchange-response.ts
+model/magic-link-request-request.ts
 model/media-asset-kind-enum.ts
 model/media-asset-upload-kind-enum.ts
 model/media-asset-upload-request.ts

@@ -21,6 +21,12 @@ import { EmailConfirmationRequestDto } from '../model/email-confirmation-request
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { MagicLinkExchangeRequestRequestDto } from '../model/magic-link-exchange-request-request';
+// @ts-ignore
+import { MagicLinkExchangeResponseDto } from '../model/magic-link-exchange-response';
+// @ts-ignore
+import { MagicLinkRequestRequestDto } from '../model/magic-link-request-request';
+// @ts-ignore
 import { PasswordChangeRequestDto } from '../model/password-change-request';
 // @ts-ignore
 import { PasswordResetConfirmRequestDto } from '../model/password-reset-confirm-request';
@@ -34,6 +40,14 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
 
+
+export interface AuthMagicLinkExchangeCreateRequestParams {
+    magicLinkExchangeRequestRequestDto: MagicLinkExchangeRequestRequestDto;
+}
+
+export interface AuthMagicLinkRequestCreateRequestParams {
+    magicLinkRequestRequestDto: MagicLinkRequestRequestDto;
+}
 
 export interface UserEmailConfirmCreateRequestParams {
     emailConfirmationRequestDto: EmailConfirmationRequestDto;
@@ -59,6 +73,152 @@ export class AuthApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * Échanger un token magique contre une paire JWT
+     * Valide la signature et la TTL du token, vérifie que l\&#39;utilisateur est actif et a confirmé son e-mail, puis émet une paire access / refresh comme l\&#39;endpoint password classique.
+     * @endpoint post /api/auth/magic-link/exchange/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public authMagicLinkExchangeCreate(requestParameters: AuthMagicLinkExchangeCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MagicLinkExchangeResponseDto>;
+    public authMagicLinkExchangeCreate(requestParameters: AuthMagicLinkExchangeCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MagicLinkExchangeResponseDto>>;
+    public authMagicLinkExchangeCreate(requestParameters: AuthMagicLinkExchangeCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MagicLinkExchangeResponseDto>>;
+    public authMagicLinkExchangeCreate(requestParameters: AuthMagicLinkExchangeCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const magicLinkExchangeRequestRequestDto = requestParameters?.magicLinkExchangeRequestRequestDto;
+        if (magicLinkExchangeRequestRequestDto === null || magicLinkExchangeRequestRequestDto === undefined) {
+            throw new Error('Required parameter magicLinkExchangeRequestRequestDto was null or undefined when calling authMagicLinkExchangeCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/magic-link/exchange/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<MagicLinkExchangeResponseDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: magicLinkExchangeRequestRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Demander un lien magique de connexion
+     * Envoie un lien de connexion par e-mail si un compte actif et confirmé existe pour cette adresse. Réponse identique dans tous les cas pour ne pas divulguer l\&#39;existence d\&#39;un compte.
+     * @endpoint post /api/auth/magic-link/request/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public authMagicLinkRequestCreate(requestParameters: AuthMagicLinkRequestCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ErrorDetailDto>;
+    public authMagicLinkRequestCreate(requestParameters: AuthMagicLinkRequestCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ErrorDetailDto>>;
+    public authMagicLinkRequestCreate(requestParameters: AuthMagicLinkRequestCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ErrorDetailDto>>;
+    public authMagicLinkRequestCreate(requestParameters: AuthMagicLinkRequestCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const magicLinkRequestRequestDto = requestParameters?.magicLinkRequestRequestDto;
+        if (magicLinkRequestRequestDto === null || magicLinkRequestRequestDto === undefined) {
+            throw new Error('Required parameter magicLinkRequestRequestDto was null or undefined when calling authMagicLinkRequestCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/magic-link/request/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ErrorDetailDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: magicLinkRequestRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**
