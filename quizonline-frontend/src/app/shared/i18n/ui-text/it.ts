@@ -60,8 +60,12 @@ export const IT: UiText = {
     firstName: 'Nome', lastName: 'Cognome', language: 'Lingua', domains: 'Domini collegati', chooseDomains: 'Scegli i domini collegati', currentDomain: 'Dominio corrente', chooseLanguage: 'Scegli una lingua',
     noDomain: 'Nessun dominio', save: 'Salva', changePassword: 'Cambia password', role: 'Ruolo', user: 'Utente', currentDomainLabel: 'Dominio attuale',
     managedDomains: 'Domini gestiti', ownedDomains: 'Domini posseduti', activeAccount: 'Account attivo', yes: 'Si', no: 'No',
-    roleSuperuser: 'Superuser', roleManager: 'Gestore', roleUser: 'Utente', roleOwner: 'Proprietario', roleMember: 'Membro collegato', domainsTitle: 'Domini', domainsSubtitle: 'Gestisci i domini collegati e scegli quello corrente.', linkedDomainsList: 'Domini visibili', currentBadge: 'Corrente', setCurrent: 'Imposta corrente', unlinkDomain: 'Scollega', addDomain: 'Collega un dominio', noMoreDomains: 'Nessun altro dominio disponibile.', linkSelectedDomains: 'Collega selezione', cancel: 'Annulla', ownerLabel: 'Proprietario:', deleteDomain: 'Elimina', deleteDomainSuccess: 'Dominio eliminato.', deleteDomainError: 'Impossibile eliminare questo dominio.', loadError: 'Impossibile caricare le preferenze.',
+    roleSuperuser: 'Superuser', roleManager: 'Gestore', roleUser: 'Utente', roleOwner: 'Proprietario', roleMember: 'Membro collegato', domainsTitle: 'Domini', domainsSubtitle: 'Gestisci i domini collegati e scegli quello corrente.', linkedDomainsList: 'Domini visibili', currentBadge: 'Corrente', setCurrent: 'Imposta corrente', unlinkDomain: 'Esci', addDomain: 'Collega un dominio', noMoreDomains: 'Nessun altro dominio disponibile.', linkSelectedDomains: 'Collega selezione', cancel: 'Annulla', ownerLabel: 'Proprietario:', deleteDomain: 'Elimina', deleteDomainSuccess: 'Dominio eliminato.', deleteDomainError: 'Impossibile eliminare questo dominio.', loadError: 'Impossibile caricare le preferenze.',
     saveError: 'Impossibile salvare le preferenze.', saveSuccess: 'Preferenze salvate.', userMissing: 'Utente non trovato.',
+    pendingRequestsTitle: 'Le mie richieste in attesa',
+    pendingRequestsEmpty: 'Nessuna richiesta in attesa.',
+    pendingRequestsRequestedAt: 'Richiesta il',
+    pendingRequestsCancel: 'Annulla richiesta',
   },
   admin: {
     menuLabel: 'Amministrazione',

@@ -96,4 +96,8 @@ export type PreferencesUiText = {
   saveError: string;
   saveSuccess: string;
   userMissing: string;
+  pendingRequestsTitle: string;
+  pendingRequestsEmpty: string;
+  pendingRequestsRequestedAt: string;
+  pendingRequestsCancel: string;
 };

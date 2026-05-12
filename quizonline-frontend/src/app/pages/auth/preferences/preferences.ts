@@ -256,13 +256,93 @@ export class Preferences implements OnInit {
       });
   }
 
+  /**
+   * Voluntary self-leave: removes the current user from this domain's
+   * members + managers via the dedicated backend action. Refreshes the
+   * user profile + visible/available domains so the UI reflects the new
+   * state immediately.
+   */
   unlinkDomain(domainId: number): void {
+    this.saving.set(true);
+    this.domainService.leave(domainId)
+      .pipe(
+        switchMap(() => forkJoin({
+          profile: this.userService.getMe(),
+          visibleDomains: this.domainService.list(),
+          availableDomains: this.domainService.availableForLinking(),
+        })),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: ({profile, visibleDomains, availableDomains}) => {
+          this.currentUser.set(profile);
+          this.visibleDomains.set(visibleDomains ?? []);
+          this.availableDomains.set(availableDomains ?? []);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
+        },
+        error: () => {
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        },
+      });
+  }
+
+  /**
+   * Cancel one of the current user's pending join requests. Refreshes
+   * the user profile so the pending list reflects the cancellation.
+   */
+  cancelPendingRequest(domainId: number, requestId: number): void {
+    this.saving.set(true);
+    this.domainService.cancelJoinRequest(domainId, requestId)
+      .pipe(
+        switchMap(() => this.userService.getMe()),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: (profile) => {
+          this.currentUser.set(profile);
+          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
+        },
+        error: () => {
+          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        },
+      });
+  }
+
+  /**
+   * Localized name for a pending request's target domain. Falls back to
+   * the available-domains catalog if the user hasn't been admitted yet,
+   * so the user can see *what* they applied to even before approval.
+   */
+  pendingDomainName(domainId: number): string {
+    const visible = this.visibleDomains().find((d) => d.id === domainId);
+    if (visible) {
+      return this.getDomainLabel(visible);
+    }
+    const available = this.availableDomains().find((d) => d.id === domainId);
+    if (available) {
+      return this.getDomainLabel(available);
+    }
+    return `Domain #${domainId}`;
+  }
+
+  /**
+   * Pending requests with a friendly domain name, surfaced for the
+   * "Mes demandes en attente" section.
+   */
+  get pendingRequestEntries(): Array<{id: number; domainId: number; name: string; createdAt: string}> {
     const me = this.currentUser();
     if (!me) {
-      return;
+      return [];
     }
-    const managed_domain_ids = (me.managed_domain_ids ?? []).filter((id) => id !== domainId);
-    this.persistLinkedDomains(managed_domain_ids, false);
+    const pending = (me.pending_join_requests ?? []) as Array<{id: number; domain_id: number; created_at: string}>;
+    return pending.map((req) => ({
+      id: req.id,
+      domainId: req.domain_id,
+      name: this.pendingDomainName(req.domain_id),
+      createdAt: req.created_at,
+    }));
   }
 
   deleteOwnedDomain(domainId: number): void {

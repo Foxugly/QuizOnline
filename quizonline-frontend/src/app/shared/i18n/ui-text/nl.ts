@@ -59,8 +59,12 @@ export const NL: UiText = {
     loading: 'Laden...', username: 'Gebruikersnaam', email: 'E-mail', firstName: 'Voornaam', lastName: 'Achternaam', language: 'Taal',
     domains: 'Gekoppelde domeinen', chooseDomains: 'Kies gekoppelde domeinen', currentDomain: 'Huidig domein', chooseLanguage: 'Kies een taal', noDomain: 'Geen domein', save: 'Opslaan', changePassword: 'Wachtwoord wijzigen',
     role: 'Rol', user: 'Gebruiker', currentDomainLabel: 'Huidig domein', managedDomains: 'Beheerde domeinen', ownedDomains: 'Eigen domeinen',
-    activeAccount: 'Actief account', yes: 'Ja', no: 'Nee', roleSuperuser: 'Superuser', roleManager: 'Beheerder', roleUser: 'Gebruiker', roleOwner: 'Eigenaar', roleMember: 'Gekoppeld lid', domainsTitle: 'Domeinen', domainsSubtitle: 'Beheer uw gekoppelde domeinen en kies het huidige domein.', linkedDomainsList: 'Zichtbare domeinen', currentBadge: 'Huidig', setCurrent: 'Instellen als huidig', unlinkDomain: 'Ontkoppelen', addDomain: 'Domein koppelen', noMoreDomains: 'Geen extra domein beschikbaar.', linkSelectedDomains: 'Selectie koppelen', cancel: 'Annuleren', ownerLabel: 'Eigenaar:', deleteDomain: 'Verwijderen', deleteDomainSuccess: 'Domein verwijderd.', deleteDomainError: 'Kan dit domein niet verwijderen.',
+    activeAccount: 'Actief account', yes: 'Ja', no: 'Nee', roleSuperuser: 'Superuser', roleManager: 'Beheerder', roleUser: 'Gebruiker', roleOwner: 'Eigenaar', roleMember: 'Gekoppeld lid', domainsTitle: 'Domeinen', domainsSubtitle: 'Beheer uw gekoppelde domeinen en kies het huidige domein.', linkedDomainsList: 'Zichtbare domeinen', currentBadge: 'Huidig', setCurrent: 'Instellen als huidig', unlinkDomain: 'Verlaten', addDomain: 'Domein koppelen', noMoreDomains: 'Geen extra domein beschikbaar.', linkSelectedDomains: 'Selectie koppelen', cancel: 'Annuleren', ownerLabel: 'Eigenaar:', deleteDomain: 'Verwijderen', deleteDomainSuccess: 'Domein verwijderd.', deleteDomainError: 'Kan dit domein niet verwijderen.',
     loadError: 'Kan uw voorkeuren niet laden.', saveError: 'Kan voorkeuren niet opslaan.', saveSuccess: 'Voorkeuren opgeslagen.', userMissing: 'Gebruiker niet gevonden.',
+    pendingRequestsTitle: 'Mijn openstaande aanvragen',
+    pendingRequestsEmpty: 'Geen openstaande aanvraag.',
+    pendingRequestsRequestedAt: 'Aangevraagd op',
+    pendingRequestsCancel: 'Aanvraag annuleren',
   },
   admin: {
     menuLabel: 'Administratie',

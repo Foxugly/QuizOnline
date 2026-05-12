@@ -467,6 +467,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
+  /api/domain/{domain_id}/leave/:
+    post:
+      operationId: domain_leave_create
+      description: |-
+        L'utilisateur connecté se retire du domaine. Refuse :
+
+        - si l'utilisateur est le owner (il doit d'abord transférer la propriété) ;
+        - si l'utilisateur n'est pas membre du domaine.
+
+        Tout statut de manager est aussi retiré. Idempotent au niveau
+        du M2M (`remove` sur un non-membre est un no-op).
+      summary: Quitter le domaine (action volontaire de l'utilisateur)
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Quitté.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/domain/{domain_id}/member-role/:
     post:
       operationId: domain_member_role_create

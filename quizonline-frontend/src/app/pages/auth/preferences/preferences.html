@@ -91,6 +91,34 @@
                 ></p-button>
               </div>
 
+              @if (pendingRequestEntries.length) {
+                <div class="domain-list">
+                  <p class="domain-list__title">{{ ui().preferences.pendingRequestsTitle }}</p>
+                  @for (req of pendingRequestEntries; track req.id) {
+                    <div class="domain-list__item">
+                      <div class="domain-list__content">
+                        <span class="domain-list__name">{{ req.name }}</span>
+                        <span class="domain-list__role">
+                          {{ ui().preferences.pendingRequestsRequestedAt }}
+                          {{ req.createdAt | date:'short' }}
+                        </span>
+                      </div>
+                      <div class="domain-list__actions">
+                        <p-button
+                          type="button"
+                          [label]="ui().preferences.pendingRequestsCancel"
+                          size="small"
+                          severity="danger"
+                          [text]="true"
+                          [disabled]="saving()"
+                          (onClick)="cancelPendingRequest(req.domainId, req.id)"
+                        ></p-button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
               <div class="domain-list">
                 <p class="domain-list__title">{{ ui().preferences.linkedDomainsList }}</p>
                 @if (visibleDomainEntries.length) {

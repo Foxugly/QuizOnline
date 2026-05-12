@@ -60,8 +60,12 @@ export const EN: UiText = {
     firstName: 'First name', lastName: 'Last name', language: 'Language', domains: 'Linked domains', chooseDomains: 'Choose linked domains', currentDomain: 'Current domain', chooseLanguage: 'Choose a language',
     noDomain: 'No domain', save: 'Save', changePassword: 'Change password', role: 'Role', user: 'User', currentDomainLabel: 'Current domain',
     managedDomains: 'Managed domains', ownedDomains: 'Owned domains', activeAccount: 'Active account', yes: 'Yes', no: 'No',
-    roleSuperuser: 'Superuser', roleManager: 'Manager', roleUser: 'User', roleOwner: 'Owner', roleMember: 'Linked member', domainsTitle: 'Domains', domainsSubtitle: 'Manage your linked domains and choose the current one.', linkedDomainsList: 'Visible domains', currentBadge: 'Current', setCurrent: 'Set current', unlinkDomain: 'Unlink', addDomain: 'Link a domain', noMoreDomains: 'No additional domain available.', linkSelectedDomains: 'Link selection', cancel: 'Cancel', ownerLabel: 'Owner:', deleteDomain: 'Delete', deleteDomainSuccess: 'Domain deleted.', deleteDomainError: 'Unable to delete this domain.', loadError: 'Unable to load your preferences.',
+    roleSuperuser: 'Superuser', roleManager: 'Manager', roleUser: 'User', roleOwner: 'Owner', roleMember: 'Linked member', domainsTitle: 'Domains', domainsSubtitle: 'Manage your linked domains and choose the current one.', linkedDomainsList: 'Visible domains', currentBadge: 'Current', setCurrent: 'Set current', unlinkDomain: 'Leave', addDomain: 'Link a domain', noMoreDomains: 'No additional domain available.', linkSelectedDomains: 'Link selection', cancel: 'Cancel', ownerLabel: 'Owner:', deleteDomain: 'Delete', deleteDomainSuccess: 'Domain deleted.', deleteDomainError: 'Unable to delete this domain.', loadError: 'Unable to load your preferences.',
     saveError: 'Unable to save preferences.', saveSuccess: 'Preferences saved.', userMissing: 'User not found.',
+    pendingRequestsTitle: 'My pending requests',
+    pendingRequestsEmpty: 'No pending request.',
+    pendingRequestsRequestedAt: 'Requested at',
+    pendingRequestsCancel: 'Cancel request',
   },
   admin: {
     menuLabel: 'Administration',

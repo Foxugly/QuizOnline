@@ -60,8 +60,12 @@ export const ES: UiText = {
     firstName: 'Nombre', lastName: 'Apellido', language: 'Idioma', domains: 'Dominios vinculados', chooseDomains: 'Elegir dominios vinculados', currentDomain: 'Dominio actual', chooseLanguage: 'Elegir un idioma',
     noDomain: 'Ningun dominio', save: 'Guardar', changePassword: 'Cambiar contrasena', role: 'Rol', user: 'Usuario', currentDomainLabel: 'Dominio actual',
     managedDomains: 'Dominios gestionados', ownedDomains: 'Dominios propios', activeAccount: 'Cuenta activa', yes: 'Si', no: 'No',
-    roleSuperuser: 'Superuser', roleManager: 'Gestor', roleUser: 'Usuario', roleOwner: 'Propietario', roleMember: 'Miembro vinculado', domainsTitle: 'Dominios', domainsSubtitle: 'Gestiona tus dominios vinculados y elige el dominio actual.', linkedDomainsList: 'Dominios visibles', currentBadge: 'Actual', setCurrent: 'Definir actual', unlinkDomain: 'Desvincular', addDomain: 'Vincular un dominio', noMoreDomains: 'No hay más dominios disponibles.', linkSelectedDomains: 'Vincular selección', cancel: 'Cancelar', ownerLabel: 'Propietario:', deleteDomain: 'Eliminar', deleteDomainSuccess: 'Dominio eliminado.', deleteDomainError: 'No se puede eliminar este dominio.', loadError: 'No se pueden cargar tus preferencias.',
+    roleSuperuser: 'Superuser', roleManager: 'Gestor', roleUser: 'Usuario', roleOwner: 'Propietario', roleMember: 'Miembro vinculado', domainsTitle: 'Dominios', domainsSubtitle: 'Gestiona tus dominios vinculados y elige el dominio actual.', linkedDomainsList: 'Dominios visibles', currentBadge: 'Actual', setCurrent: 'Definir actual', unlinkDomain: 'Abandonar', addDomain: 'Vincular un dominio', noMoreDomains: 'No hay más dominios disponibles.', linkSelectedDomains: 'Vincular selección', cancel: 'Cancelar', ownerLabel: 'Propietario:', deleteDomain: 'Eliminar', deleteDomainSuccess: 'Dominio eliminado.', deleteDomainError: 'No se puede eliminar este dominio.', loadError: 'No se pueden cargar tus preferencias.',
     saveError: 'No se pueden guardar las preferencias.', saveSuccess: 'Preferencias guardadas.', userMissing: 'Usuario no encontrado.',
+    pendingRequestsTitle: 'Mis solicitudes pendientes',
+    pendingRequestsEmpty: 'Sin solicitudes pendientes.',
+    pendingRequestsRequestedAt: 'Solicitado el',
+    pendingRequestsCancel: 'Cancelar solicitud',
   },
   admin: {
     menuLabel: 'Administración',

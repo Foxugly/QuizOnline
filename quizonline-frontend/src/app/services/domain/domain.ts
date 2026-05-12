@@ -81,6 +81,16 @@ export class DomainService {
     return this.api.domainDestroy({domainId}).pipe(map(() => void 0));
   }
 
+  /** Voluntary self-leave: removes the current user from the domain's members + managers. */
+  leave(domainId: number): Observable<void> {
+    return this.api.domainLeaveCreate({domainId}).pipe(map(() => void 0));
+  }
+
+  /** Cancel one's own pending join request on a domain. */
+  cancelJoinRequest(domainId: number, reqId: number): Observable<void> {
+    return this.api.domainJoinRequestCancelCreate({domainId, reqId}).pipe(map(() => void 0));
+  }
+
   goNew(): void {
     this.router.navigate(ROUTES.domain.add());
   }
