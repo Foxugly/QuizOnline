@@ -27,9 +27,11 @@ import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
+import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
@@ -168,7 +170,24 @@ export class DomainEdit implements OnInit {
     }
     return !!me.is_superuser || dto.owner?.id === me.id;
   });
+  /** Owner OR manager (or superuser) — both can send invitations. */
+  readonly canInvite = computed(() => {
+    const dto = this.domain();
+    const me = this.userService.currentUser();
+    if (!dto || !me) {
+      return false;
+    }
+    if (me.is_superuser || dto.owner?.id === me.id) {
+      return true;
+    }
+    return (dto.managers ?? []).some(m => m.id === me.id);
+  });
   readonly pendingCount = computed(() => this.pendingRequests().length);
+
+  readonly inviteResults = signal<DomainInviteResultDto[] | null>(null);
+  readonly inviting = signal<boolean>(false);
+
+  private readonly domainApi = inject(DomainApiService);
 
   ngOnInit(): void {
     const rawId = this.route.snapshot.paramMap.get('id');
@@ -311,6 +330,33 @@ export class DomainEdit implements OnInit {
         next: (dto) => this.domain.set(dto),
         error: (err) => {
           logApiError('domain.edit.member-role', err);
+          this.submitError.set(this.editText().members.actionFailed);
+        },
+      });
+  }
+
+  onInviteRequest(evt: {emails: string[]}): void {
+    if (!evt.emails.length || this.inviting()) {
+      return;
+    }
+    this.inviting.set(true);
+    this.inviteResults.set(null);
+    const language = this.userService.currentLang ?? LanguageEnumDto.Fr;
+    this.domainApi.domainInviteCreate({
+      domainId: this.id,
+      domainInviteRequestRequestDto: {
+        emails: evt.emails,
+        language,
+      },
+    })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.inviting.set(false)),
+      )
+      .subscribe({
+        next: (results) => this.inviteResults.set(results ?? []),
+        error: (err) => {
+          logApiError('domain.edit.invite', err);
           this.submitError.set(this.editText().members.actionFailed);
         },
       });

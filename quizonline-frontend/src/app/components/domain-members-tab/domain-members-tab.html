@@ -1,17 +1,30 @@
 <section class="members-tab card form-card">
   <div class="card-head">
     <h2 class="card-title">{{ text().members.pendingTitle }}</h2>
-    @if (canModerate()) {
-      <p-button
-        [routerLink]="['/domain', domain().id, 'join-requests']"
-        icon="pi pi-hammer"
-        [label]="text().members.pendingOpenModeration"
-        severity="warn"
-        size="small"
-        type="button"
-        variant="outlined">
-      </p-button>
-    }
+    <div class="members-tab__actions">
+      @if (canInvite()) {
+        <p-button
+          (click)="openInviteDialog()"
+          icon="pi pi-user-plus"
+          [label]="text().members.inviteButton"
+          severity="primary"
+          size="small"
+          type="button"
+          variant="outlined">
+        </p-button>
+      }
+      @if (canModerate()) {
+        <p-button
+          [routerLink]="['/domain', domain().id, 'join-requests']"
+          icon="pi pi-hammer"
+          [label]="text().members.pendingOpenModeration"
+          severity="warn"
+          size="small"
+          type="button"
+          variant="outlined">
+        </p-button>
+      }
+    </div>
   </div>
 
   @if (pendingRequests().length > 0) {
@@ -120,3 +133,44 @@
 </section>
 
 <p-confirmDialog></p-confirmDialog>
+
+<p-dialog
+  [header]="text().members.inviteDialogTitle"
+  [(visible)]="inviteDialogVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  (onHide)="closeInviteDialog()">
+  <p class="muted">{{ text().members.inviteDialogHint }}</p>
+
+  <label class="invite-dialog__label" for="invite-emails">{{ text().members.inviteEmailsLabel }}</label>
+  <textarea
+    id="invite-emails"
+    pInputTextarea
+    [ngModel]="inviteInput()"
+    (ngModelChange)="inviteInput.set($event)"
+    [placeholder]="text().members.inviteEmailsPlaceholder"
+    rows="5"
+    class="w-full">
+  </textarea>
+
+  @if (inviteResults(); as results) {
+    <ul class="invite-dialog__results">
+      @for (r of results; track r.email) {
+        <li [class.is-sent]="r.status === 'sent'"
+            [class.is-already]="r.status === 'already_member'"
+            [class.is-invalid]="r.status === 'invalid'">
+          @switch (r.status) {
+            @case ('sent') { {{ text().members.inviteResultSent(r.email) }} }
+            @case ('already_member') { {{ text().members.inviteResultAlreadyMember(r.email) }} }
+            @default { {{ text().members.inviteResultInvalid(r.email) }} }
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <ng-template #footer>
+    <p-button [label]="text().members.inviteCancel" severity="secondary" [text]="true" (onClick)="closeInviteDialog()" type="button"></p-button>
+    <p-button [label]="text().members.inviteSubmit" icon="pi pi-send" [loading]="inviting()" [disabled]="!inviteInput().trim() || inviting()" (onClick)="submitInvite()" type="button"></p-button>
+  </ng-template>
+</p-dialog>

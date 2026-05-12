@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import {finalize} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
@@ -41,7 +41,14 @@ export class Register implements OnInit {
   private readonly languageService = inject(LanguageService);
   private readonly domainService = inject(DomainService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly userService = inject(UserService);
+
+  /** Set when the user landed here from an /invite/accept token: pre-fills
+   *  and locks the email field so they cannot register under a different
+   *  address than the one the inviter typed. */
+  readonly invitationToken = signal<string | null>(null);
+  readonly emailLocked = signal<boolean>(false);
 
   form: FormGroup = this.fb.nonNullable.group(
     {
@@ -106,6 +113,29 @@ export class Register implements OnInit {
   ngOnInit(): void {
     this.loadLanguages();
     this.loadDomains();
+    this.applyInvitationQueryParams();
+  }
+
+  /**
+   * When the user arrives from the ``invite/accept/<token>`` landing page,
+   * the page redirects here with ``?invitation=<token>&email=<addr>``. We
+   * pre-fill and lock the email so the new account is unambiguously the
+   * one the inviter meant. The token is preserved on the URL so a
+   * follow-up step (after the post-registration email confirmation) can
+   * recover it and complete the join.
+   */
+  private applyInvitationQueryParams(): void {
+    const qp = this.route.snapshot.queryParamMap;
+    const token = qp.get('invitation');
+    const email = qp.get('email');
+    if (token) {
+      this.invitationToken.set(token);
+    }
+    if (email) {
+      this.form.get('email')?.setValue(email);
+      this.form.get('email')?.disable();
+      this.emailLocked.set(true);
+    }
   }
 
   onSubmit(): void {

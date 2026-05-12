@@ -217,4 +217,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/join-request-decide/join-request-decide').then((m) => m.JoinRequestDecidePage),
     canActivate: [authGuard],
   },
+  {
+    // Public route: the invite-accept page itself routes the visitor to
+    // login or signup when needed, so we must NOT gate it behind authGuard.
+    path: 'invite/accept/:token',
+    loadComponent: () => import('./pages/invite-accept/invite-accept').then((m) => m.InviteAcceptPage),
+  },
 ];

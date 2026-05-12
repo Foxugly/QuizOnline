@@ -1,0 +1,84 @@
+<div class="page">
+  <div class="header-line">
+    <div class="header-line__left"></div>
+    <div class="header-center">
+      <h1 class="title">{{ text().title }}</h1>
+    </div>
+    <div class="header-line__right"></div>
+  </div>
+
+  <section class="card form-card invite-card">
+    @if (loading()) {
+      <div class="invite-loading">
+        <p-progressSpinner styleClass="invite-spinner" strokeWidth="3"></p-progressSpinner>
+        <p class="muted">{{ text().loading }}</p>
+      </div>
+    } @else if (error(); as err) {
+      <p-message severity="error" [closable]="false">
+        @switch (err) {
+          @case ('tokenInvalid') { {{ text().errors.tokenInvalid }} }
+          @case ('tokenExpired') { {{ text().errors.tokenExpired }} }
+          @case ('notFound') { {{ text().errors.notFound }} }
+          @default { {{ text().errors.generic }} }
+        }
+      </p-message>
+
+      <div class="footer-actions">
+        <p-button
+          routerLink="/"
+          [label]="text().buttons.backHome"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+      </div>
+    } @else if (state(); as s) {
+      @switch (s.state) {
+        @case ('accepted') {
+          <p-message severity="success" [closable]="false">
+            {{ text().states.accepted }}
+          </p-message>
+        }
+        @case ('already_member') {
+          <p-message severity="info" [closable]="false">
+            {{ text().states.alreadyMember }}
+          </p-message>
+        }
+        @case ('wrong_account') {
+          <p-message severity="warn" [closable]="false">
+            {{ text().states.wrongAccount(s.invited_email) }}
+          </p-message>
+        }
+        @case ('login_required') {
+          <p-message severity="info" [closable]="false">
+            {{ text().states.loginRequired }}
+          </p-message>
+          <div class="footer-actions">
+            <p-button (onClick)="goLogin()" icon="pi pi-sign-in" [label]="text().states.loginCta" severity="primary" type="button"></p-button>
+          </div>
+        }
+        @case ('signup_required') {
+          <p-message severity="info" [closable]="false">
+            {{ text().states.signupRequired }}
+          </p-message>
+          <div class="footer-actions">
+            <p-button (onClick)="goSignup()" icon="pi pi-user-plus" [label]="text().states.signupCta" severity="primary" type="button"></p-button>
+          </div>
+        }
+        @case ('ready_to_accept') {
+          <h2 class="invite-heading">{{ text().states.readyHeading }}</h2>
+          <p class="muted">{{ text().states.readyExplain(s.domain_name, s.inviter_username) }}</p>
+          <div class="footer-actions">
+            <p-button (onClick)="accept()" icon="pi pi-check" [label]="accepting() ? text().states.accepting : text().states.accept" [loading]="accepting()" [disabled]="accepting()" severity="success" type="button"></p-button>
+          </div>
+        }
+      }
+
+      @if (s.state === 'accepted' || s.state === 'already_member') {
+        <div class="footer-actions">
+          <p-button routerLink="/" [label]="text().buttons.backHome" severity="secondary" variant="outlined" type="button"></p-button>
+        </div>
+      }
+    }
+  </section>
+</div>

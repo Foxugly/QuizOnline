@@ -66,10 +66,14 @@
               [pendingRequests]="pendingRequests()"
               [canModerate]="canModerate()"
               [canManage]="canManageMembers()"
+              [canInvite]="canInvite()"
               [currentUserId]="currentUserId()"
               [text]="editText()"
+              [inviteResults]="inviteResults()"
+              [inviting]="inviting()"
               (roleChange)="onMemberRoleChange($event)"
-              (removeMember)="onMemberRemove($event)">
+              (removeMember)="onMemberRemove($event)"
+              (inviteRequest)="onInviteRequest($event)">
             </app-domain-members-tab>
           }
         </p-tabpanel>

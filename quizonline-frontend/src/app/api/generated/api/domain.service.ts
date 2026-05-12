@@ -19,6 +19,12 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { DomainDetailDto } from '../model/domain-detail';
 // @ts-ignore
+import { DomainInviteRequestRequestDto } from '../model/domain-invite-request-request';
+// @ts-ignore
+import { DomainInviteResultDto } from '../model/domain-invite-result';
+// @ts-ignore
+import { DomainInviteStateDto } from '../model/domain-invite-state';
+// @ts-ignore
 import { DomainJoinRequestDecideResponseDto } from '../model/domain-join-request-decide-response';
 // @ts-ignore
 import { DomainJoinRequestReadDto } from '../model/domain-join-request-read';
@@ -57,6 +63,20 @@ export interface DomainDestroyRequestParams {
 export interface DomainDetailsRetrieveRequestParams {
     /** ID du domaine. */
     domainId: number;
+}
+
+export interface DomainInviteAcceptCreateRequestParams {
+    token: string;
+}
+
+export interface DomainInviteAcceptRetrieveRequestParams {
+    token: string;
+}
+
+export interface DomainInviteCreateRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+    domainInviteRequestRequestDto: DomainInviteRequestRequestDto;
 }
 
 export interface DomainJoinRequestApproveCreateRequestParams {
@@ -377,6 +397,205 @@ export class DomainApi extends BaseService {
         return this.httpClient.request<DomainDetailDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Accepter l\&#39;invitation (utilisateur authentifié)
+     * Ajoute l\&#39;utilisateur connecté aux membres du domaine si son adresse e-mail correspond à celle encodée dans le token. Sinon renvoie 403 &#x60;&#x60;wrong_account&#x60;&#x60; — l\&#39;invitation reste valide pour le bon compte jusqu\&#39;à expiration.
+     * @endpoint post /api/domain/invite/accept/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainInviteAcceptCreate(requestParameters: DomainInviteAcceptCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainInviteStateDto>;
+    public domainInviteAcceptCreate(requestParameters: DomainInviteAcceptCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainInviteStateDto>>;
+    public domainInviteAcceptCreate(requestParameters: DomainInviteAcceptCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainInviteStateDto>>;
+    public domainInviteAcceptCreate(requestParameters: DomainInviteAcceptCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainInviteAcceptCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainInviteStateDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Décoder un token d\&#39;invitation
+     * Décode le lien d\&#39;invitation reçu par mail et renvoie l\&#39;état du destinataire vis-à-vis du domaine : prêt à accepter, doit se connecter, doit s\&#39;inscrire, etc.  Endpoint public : la page d\&#39;acceptation est volontairement accessible avant l\&#39;authentification pour pouvoir orienter le visiteur vers la bonne action (login / signup).
+     * @endpoint get /api/domain/invite/accept/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainInviteAcceptRetrieve(requestParameters: DomainInviteAcceptRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainInviteStateDto>;
+    public domainInviteAcceptRetrieve(requestParameters: DomainInviteAcceptRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainInviteStateDto>>;
+    public domainInviteAcceptRetrieve(requestParameters: DomainInviteAcceptRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainInviteStateDto>>;
+    public domainInviteAcceptRetrieve(requestParameters: DomainInviteAcceptRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainInviteAcceptRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainInviteStateDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Inviter un ou plusieurs utilisateurs par e-mail
+     * Envoie une invitation signée à chaque adresse de la liste. Le destinataire suivra un lien qui pointe sur la page d\&#39;acceptation frontend ; aucun objet d\&#39;invitation n\&#39;est créé côté DB (le token est l\&#39;invitation).  Accessible aux owners et aux managers du domaine.
+     * @endpoint post /api/domain/{domain_id}/invite/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainInviteCreate(requestParameters: DomainInviteCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<DomainInviteResultDto>>;
+    public domainInviteCreate(requestParameters: DomainInviteCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<DomainInviteResultDto>>>;
+    public domainInviteCreate(requestParameters: DomainInviteCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<DomainInviteResultDto>>>;
+    public domainInviteCreate(requestParameters: DomainInviteCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainInviteCreate.');
+        }
+        const domainInviteRequestRequestDto = requestParameters?.domainInviteRequestRequestDto;
+        if (domainInviteRequestRequestDto === null || domainInviteRequestRequestDto === undefined) {
+            throw new Error('Required parameter domainInviteRequestRequestDto was null or undefined when calling domainInviteCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<DomainInviteResultDto>>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: domainInviteRequestRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

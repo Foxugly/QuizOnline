@@ -35,6 +35,17 @@ export type DomainEditUiText = {
     confirmRemoveAccept: string;
     confirmRemoveCancel: string;
     actionFailed: string;
+    inviteButton: string;
+    inviteDialogTitle: string;
+    inviteDialogHint: string;
+    inviteEmailsLabel: string;
+    inviteEmailsPlaceholder: string;
+    inviteSubmit: string;
+    inviteCancel: string;
+    inviteResultSent: (email: string) => string;
+    inviteResultAlreadyMember: (email: string) => string;
+    inviteResultInvalid: (email: string) => string;
+    inviteResultSummary: (sent: number, total: number) => string;
   };
 };
 
@@ -70,6 +81,17 @@ const FR: DomainEditUiText = {
     confirmRemoveAccept: 'Retirer',
     confirmRemoveCancel: 'Annuler',
     actionFailed: 'L\'action a échoué.',
+    inviteButton: 'Inviter par e-mail',
+    inviteDialogTitle: 'Inviter de nouveaux membres',
+    inviteDialogHint: 'Saisis une ou plusieurs adresses e-mail (séparées par des virgules ou des sauts de ligne).',
+    inviteEmailsLabel: 'Adresses e-mail',
+    inviteEmailsPlaceholder: 'alice@example.com, bob@example.com',
+    inviteSubmit: 'Envoyer les invitations',
+    inviteCancel: 'Annuler',
+    inviteResultSent: (email) => `${email} : invitation envoyée.`,
+    inviteResultAlreadyMember: (email) => `${email} : déjà membre.`,
+    inviteResultInvalid: (email) => `${email} : adresse invalide.`,
+    inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} envoyée${sent > 1 ? 's' : ''} sur ${total}.`,
   },
 };
 
@@ -105,6 +127,17 @@ const EN: DomainEditUiText = {
     confirmRemoveAccept: 'Remove',
     confirmRemoveCancel: 'Cancel',
     actionFailed: 'The action failed.',
+    inviteButton: 'Invite by email',
+    inviteDialogTitle: 'Invite new members',
+    inviteDialogHint: 'Enter one or more email addresses (comma- or newline-separated).',
+    inviteEmailsLabel: 'Email addresses',
+    inviteEmailsPlaceholder: 'alice@example.com, bob@example.com',
+    inviteSubmit: 'Send invitations',
+    inviteCancel: 'Cancel',
+    inviteResultSent: (email) => `${email}: invitation sent.`,
+    inviteResultAlreadyMember: (email) => `${email}: already a member.`,
+    inviteResultInvalid: (email) => `${email}: invalid address.`,
+    inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} sent out of ${total}.`,
   },
 };
 
@@ -140,6 +173,17 @@ const NL: DomainEditUiText = {
     confirmRemoveAccept: 'Verwijderen',
     confirmRemoveCancel: 'Annuleren',
     actionFailed: 'De actie is mislukt.',
+    inviteButton: 'Per e-mail uitnodigen',
+    inviteDialogTitle: 'Nieuwe leden uitnodigen',
+    inviteDialogHint: 'Voer een of meer e-mailadressen in (gescheiden door komma\'s of regeleinden).',
+    inviteEmailsLabel: 'E-mailadressen',
+    inviteEmailsPlaceholder: 'alice@example.com, bob@example.com',
+    inviteSubmit: 'Uitnodigingen versturen',
+    inviteCancel: 'Annuleren',
+    inviteResultSent: (email) => `${email}: uitnodiging verzonden.`,
+    inviteResultAlreadyMember: (email) => `${email}: is al lid.`,
+    inviteResultInvalid: (email) => `${email}: ongeldig adres.`,
+    inviteResultSummary: (sent, total) => `${sent} van ${total} uitnodigingen verzonden.`,
   },
 };
 
@@ -175,6 +219,17 @@ const IT: DomainEditUiText = {
     confirmRemoveAccept: 'Rimuovi',
     confirmRemoveCancel: 'Annulla',
     actionFailed: 'L\'azione non è riuscita.',
+    inviteButton: 'Invita per e-mail',
+    inviteDialogTitle: 'Invita nuovi membri',
+    inviteDialogHint: 'Inserisci uno o più indirizzi e-mail (separati da virgole o a capo).',
+    inviteEmailsLabel: 'Indirizzi e-mail',
+    inviteEmailsPlaceholder: 'alice@example.com, bob@example.com',
+    inviteSubmit: 'Invia gli inviti',
+    inviteCancel: 'Annulla',
+    inviteResultSent: (email) => `${email}: invito inviato.`,
+    inviteResultAlreadyMember: (email) => `${email}: già membro.`,
+    inviteResultInvalid: (email) => `${email}: indirizzo non valido.`,
+    inviteResultSummary: (sent, total) => `${sent} invit${sent > 1 ? 'i inviati' : 'o inviato'} su ${total}.`,
   },
 };
 
@@ -210,6 +265,17 @@ const ES: DomainEditUiText = {
     confirmRemoveAccept: 'Quitar',
     confirmRemoveCancel: 'Cancelar',
     actionFailed: 'La acción falló.',
+    inviteButton: 'Invitar por correo',
+    inviteDialogTitle: 'Invitar a nuevos miembros',
+    inviteDialogHint: 'Introduce uno o más correos (separados por comas o saltos de línea).',
+    inviteEmailsLabel: 'Correos electrónicos',
+    inviteEmailsPlaceholder: 'alice@example.com, bob@example.com',
+    inviteSubmit: 'Enviar invitaciones',
+    inviteCancel: 'Cancelar',
+    inviteResultSent: (email) => `${email}: invitación enviada.`,
+    inviteResultAlreadyMember: (email) => `${email}: ya es miembro.`,
+    inviteResultInvalid: (email) => `${email}: dirección no válida.`,
+    inviteResultSummary: (sent, total) => `${sent} invitación${sent > 1 ? 'es enviadas' : ' enviada'} de ${total}.`,
   },
 };
 
