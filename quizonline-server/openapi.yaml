@@ -271,6 +271,37 @@ paths:
           description: Forbidden.
         '404':
           description: Not found (domain non visible ou inexistant).
+  /api/domain/{domain_id}/audit/:
+    get:
+      operationId: domain_audit_list
+      description: Liste paginée des dernières actions administratives sur le domaine.
+        Réservée aux owner / managers / superusers (la queryset du viewset gère déjà
+        la confidentialité).
+      summary: Journal d'audit d'un domaine
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDomainAuditLogReadList'
+          description: ''
   /api/domain/{domain_id}/details/:
     get:
       operationId: domain_details_retrieve
@@ -4056,6 +4087,35 @@ components:
       required:
       - domains
       - totals
+    DomainAuditLogRead:
+      type: object
+      description: Lightweight view of an audit-log row for the per-domain audit page.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        action:
+          type: string
+          readOnly: true
+        actor_username:
+          type: string
+          readOnly: true
+        target_username:
+          type: string
+          readOnly: true
+        metadata:
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor_username
+      - created_at
+      - id
+      - metadata
+      - target_username
     DomainDetail:
       type: object
       properties:
@@ -4948,6 +5008,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CustomUserRead'
+    PaginatedDomainAuditLogReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainAuditLogRead'
     PaginatedDomainJoinRequestReadList:
       type: object
       required:

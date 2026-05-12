@@ -13,7 +13,7 @@ from config.serializers import (
     localized_translations_map_schema,
 )
 
-from .models import Domain, DomainInvite, DomainJoinRequest
+from .models import Domain, DomainAuditLog, DomainInvite, DomainJoinRequest
 from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
@@ -439,6 +439,30 @@ class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
     action = serializers.ChoiceField(choices=("approve", "reject"))
     was_already_decided = serializers.BooleanField()
     request = DomainJoinRequestReadSerializer()
+
+
+class DomainAuditLogReadSerializer(serializers.ModelSerializer):
+    """Lightweight view of an audit-log row for the per-domain audit page."""
+    actor_username = serializers.SerializerMethodField()
+    target_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DomainAuditLog
+        fields = [
+            "id",
+            "action",
+            "actor_username",
+            "target_username",
+            "metadata",
+            "created_at",
+        ]
+        read_only_fields = fields
+
+    def get_actor_username(self, obj) -> str:
+        return obj.actor.username if obj.actor_id else ""
+
+    def get_target_username(self, obj) -> str:
+        return obj.target_user.username if obj.target_user_id else ""
 
 
 class ModerationSummaryItemSerializer(serializers.Serializer):

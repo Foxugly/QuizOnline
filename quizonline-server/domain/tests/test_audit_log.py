@@ -160,6 +160,41 @@ class InviteActionRecordAuditTests(TestCase):
         self.assertEqual(len(rows.first().metadata["results"]), 2)
 
 
+class AuditLogEndpointTests(TestCase):
+    URL = "/api/domain/{}/audit/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="p")
+        self.outsider = User.objects.create_user(username="x", password="p")
+        self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
+        # Two audit rows on this domain, one on another (must not leak).
+        DomainAuditLog.objects.create(
+            domain=self.domain, actor=self.owner, action="member.promote", metadata={},
+        )
+        DomainAuditLog.objects.create(
+            domain=self.domain, actor=self.owner, action="invite.bulk_send", metadata={},
+        )
+        other = Domain.objects.create(owner=self.owner, name="Other", active=True)
+        DomainAuditLog.objects.create(
+            domain=other, actor=self.owner, action="member.demote", metadata={},
+        )
+        self.client = APIClient()
+
+    def test_owner_sees_own_domain_audit(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        actions = sorted(r["action"] for r in rows)
+        self.assertEqual(actions, ["invite.bulk_send", "member.promote"])
+
+    def test_outsider_is_404(self):
+        self.client.force_authenticate(self.outsider)
+        resp = self.client.get(self.URL.format(self.domain.id))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
 class LeaveActionRecordAuditTests(TestCase):
     def setUp(self):
         translation.activate("fr")

@@ -37,7 +37,7 @@ from .transfer_token import (
     TransferTokenInvalid,
     parse_transfer_token,
 )
-from .models import Domain, DomainInvite, DomainJoinRequest, JoinPolicy
+from .models import Domain, DomainAuditLog, DomainInvite, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
     DomainReadSerializer,
@@ -48,6 +48,7 @@ from .serializers import (
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
     DomainJoinRequestDecideResponseSerializer,
+    DomainAuditLogReadSerializer,
     DomainInviteReadSerializer,
     DomainInviteRequestSerializer,
     DomainInviteResultSerializer,
@@ -747,6 +748,31 @@ class DomainViewSet(MyModelViewSet):
             metadata={"invite_id": invite.id, "email": invite.email, "remote_addr": _client_ip(request)},
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Journal d'audit d'un domaine",
+        description=(
+            "Liste paginée des dernières actions administratives sur le "
+            "domaine. Réservée aux owner / managers / superusers (la "
+            "queryset du viewset gère déjà la confidentialité)."
+        ),
+        responses={status.HTTP_200_OK: DomainAuditLogReadSerializer(many=True)},
+    )
+    @action(detail=True, methods=["get"], url_path="audit")
+    def audit_log(self, request, *args, **kwargs):
+        domain = self.get_object()
+        qs = (
+            DomainAuditLog.objects
+            .filter(domain=domain)
+            .select_related("actor", "target_user")
+            .order_by("-created_at")
+        )
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = DomainAuditLogReadSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(DomainAuditLogReadSerializer(qs, many=True).data)
 
     @extend_schema(
         tags=["Domain"],
