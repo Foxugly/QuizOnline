@@ -13,7 +13,7 @@ from config.serializers import (
     localized_translations_map_schema,
 )
 
-from .models import Domain, DomainJoinRequest
+from .models import Domain, DomainInvite, DomainJoinRequest
 from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
@@ -446,6 +446,28 @@ class ModerationSummaryItemSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     pending_count = serializers.IntegerField()
+
+
+class DomainInviteReadSerializer(serializers.ModelSerializer):
+    """Lightweight view over a persisted DomainInvite row."""
+
+    inviter_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DomainInvite
+        fields = [
+            "id",
+            "email",
+            "status",
+            "inviter_username",
+            "created_at",
+            "expires_at",
+            "last_sent_at",
+        ]
+        read_only_fields = fields
+
+    def get_inviter_username(self, obj) -> str:
+        return obj.inviter.username if obj.inviter_id else ""
 
 
 class DomainInviteRequestSerializer(serializers.Serializer):

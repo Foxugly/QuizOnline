@@ -300,6 +300,99 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
+  /api/domain/{domain_id}/invitations/:
+    get:
+      operationId: domain_invitations_list
+      summary: Lister les invitations en attente sur un domaine
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DomainInviteRead'
+          description: ''
+  /api/domain/{domain_id}/invitations/{invite_id}/resend/:
+    post:
+      operationId: domain_invitations_resend_create
+      description: 'Refresh ``last_sent_at`` + ``expires_at`` du row pending et réémet
+        l''e-mail avec un nouveau token signé. Idempotent : la ligne reste la même,
+        seule la date d''envoi change.'
+      summary: Renvoyer une invitation existante
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      - in: path
+        name: invite_id
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainInviteRead'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+  /api/domain/{domain_id}/invitations/{invite_id}/revoke/:
+    post:
+      operationId: domain_invitations_revoke_create
+      description: 'Marque l''invitation ``revoked`` : le token déjà émis ne matche
+        plus la table, le destinataire ne peut plus l''utiliser.'
+      summary: Révoquer une invitation en attente
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      - in: path
+        name: invite_id
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Revoked.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/domain/{domain_id}/invite/:
     post:
       operationId: domain_invite_create
@@ -4038,6 +4131,54 @@ components:
       - subjects
       - translations
       - updated_at
+    DomainInviteRead:
+      type: object
+      description: Lightweight view over a persisted DomainInvite row.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DomainInviteReadStatusEnum'
+          readOnly: true
+        inviter_username:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - expires_at
+      - id
+      - inviter_username
+      - last_sent_at
+      - status
+    DomainInviteReadStatusEnum:
+      enum:
+      - pending
+      - accepted
+      - revoked
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `accepted` - Accepted
+        * `revoked` - Revoked
     DomainInviteRequestRequest:
       type: object
       description: |-

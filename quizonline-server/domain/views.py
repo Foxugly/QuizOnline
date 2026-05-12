@@ -37,7 +37,7 @@ from .transfer_token import (
     TransferTokenInvalid,
     parse_transfer_token,
 )
-from .models import Domain, DomainJoinRequest, JoinPolicy
+from .models import Domain, DomainInvite, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
     DomainReadSerializer,
@@ -48,6 +48,7 @@ from .serializers import (
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
     DomainJoinRequestDecideResponseSerializer,
+    DomainInviteReadSerializer,
     DomainInviteRequestSerializer,
     DomainInviteResultSerializer,
     DomainInviteStateSerializer,
@@ -651,6 +652,101 @@ class DomainViewSet(MyModelViewSet):
         )
 
         return Response(results, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Lister les invitations en attente sur un domaine",
+        responses={status.HTTP_200_OK: DomainInviteReadSerializer(many=True)},
+    )
+    @action(detail=True, methods=["get"], url_path="invitations", pagination_class=None)
+    def invitations(self, request, *args, **kwargs):
+        domain = self.get_object()
+        qs = DomainInvite.objects.filter(
+            domain=domain,
+            status=DomainInvite.STATUS_PENDING,
+        ).order_by("-created_at").select_related("inviter")
+        return Response(DomainInviteReadSerializer(qs, many=True).data)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Renvoyer une invitation existante",
+        description=(
+            "Refresh ``last_sent_at`` + ``expires_at`` du row pending et "
+            "réémet l'e-mail avec un nouveau token signé. Idempotent : la "
+            "ligne reste la même, seule la date d'envoi change."
+        ),
+        request=None,
+        responses={
+            status.HTTP_200_OK: DomainInviteReadSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+        },
+    )
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path=r"invitations/(?P<invite_id>[0-9]+)/resend",
+        pagination_class=None,
+    )
+    def invitation_resend(self, request, invite_id=None, *args, **kwargs):
+        domain = self.get_object()
+        invite = drf_get_object_or_404(
+            DomainInvite.objects.filter(
+                domain=domain, status=DomainInvite.STATUS_PENDING,
+            ),
+            pk=invite_id,
+        )
+        # Reuse the upsert helper to refresh timestamps consistently with
+        # the bulk invite path.
+        upsert_invite(domain=domain, email=invite.email, inviter=request.user)
+        send_domain_invite_email(
+            email=invite.email, domain=domain, inviter=request.user,
+            language=getattr(request.user, "language", "en") or "en",
+        )
+        record_audit(
+            domain=domain,
+            action="invite.resend",
+            actor=request.user,
+            metadata={"invite_id": invite.id, "email": invite.email, "remote_addr": _client_ip(request)},
+        )
+        invite.refresh_from_db()
+        return Response(DomainInviteReadSerializer(invite).data)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Révoquer une invitation en attente",
+        description=(
+            "Marque l'invitation ``revoked`` : le token déjà émis ne "
+            "matche plus la table, le destinataire ne peut plus l'utiliser."
+        ),
+        request=None,
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Revoked."),
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+        },
+    )
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path=r"invitations/(?P<invite_id>[0-9]+)/revoke",
+        pagination_class=None,
+    )
+    def invitation_revoke(self, request, invite_id=None, *args, **kwargs):
+        domain = self.get_object()
+        invite = drf_get_object_or_404(
+            DomainInvite.objects.filter(
+                domain=domain, status=DomainInvite.STATUS_PENDING,
+            ),
+            pk=invite_id,
+        )
+        invite.status = DomainInvite.STATUS_REVOKED
+        invite.save(update_fields=["status", "updated_at"])
+        record_audit(
+            domain=domain,
+            action="invite.revoke",
+            actor=request.user,
+            metadata={"invite_id": invite.id, "email": invite.email, "remote_addr": _client_ip(request)},
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
         tags=["Domain"],
@@ -1287,6 +1383,21 @@ class DomainInviteAcceptView(APIView):
         user = getattr(request, "user", None)
         is_auth = bool(user and user.is_authenticated)
 
+        # Look up the persisted invite row. The row is the canonical
+        # source of truth: if it has been REVOKED the token must not be
+        # consumable any more, even though the signature still verifies.
+        # ``None`` for legacy tokens minted before the persistence layer
+        # was introduced — we fall back to "token alone is enough" in
+        # that case so old links keep working.
+        persisted_invite = DomainInvite.objects.filter(
+            domain=domain, email=invited_email,
+        ).order_by("-created_at").first()
+        if persisted_invite and persisted_invite.status == DomainInvite.STATUS_REVOKED:
+            return Response(
+                {"detail": "token_invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if is_auth:
             if (user.email or "").lower() != invited_email:
                 return Response(
@@ -1299,6 +1410,23 @@ class DomainInviteAcceptView(APIView):
             if do_accept:
                 with transaction.atomic():
                     domain.members.add(user)
+                    if persisted_invite and persisted_invite.status == DomainInvite.STATUS_PENDING:
+                        persisted_invite.status = DomainInvite.STATUS_ACCEPTED
+                        persisted_invite.accepted_by = user
+                        persisted_invite.accepted_at = timezone.now()
+                        persisted_invite.save(update_fields=[
+                            "status", "accepted_by", "accepted_at", "updated_at",
+                        ])
+                    record_audit(
+                        domain=domain,
+                        action="invite.accept_via_link",
+                        actor=user,
+                        target_user=user,
+                        metadata={
+                            "invite_id": persisted_invite.id if persisted_invite else None,
+                            "remote_addr": _client_ip(request),
+                        },
+                    )
                 return Response({**base_payload, "state": "accepted"})
             return Response({**base_payload, "state": "ready_to_accept"})
 
