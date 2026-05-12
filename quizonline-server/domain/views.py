@@ -48,6 +48,7 @@ from .serializers import (
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
     DomainJoinRequestDecideResponseSerializer,
+    DomainAnalyticsSerializer,
     DomainAuditLogReadSerializer,
     DomainInviteReadSerializer,
     DomainInviteRequestSerializer,
@@ -58,6 +59,7 @@ from .serializers import (
     ModerationSummaryItemSerializer,
 )
 from .services import (
+    compute_join_request_analytics,
     domains_with_pending_for_user,
     record_audit,
     upsert_invite,
@@ -773,6 +775,21 @@ class DomainViewSet(MyModelViewSet):
             serializer = DomainAuditLogReadSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         return Response(DomainAuditLogReadSerializer(qs, many=True).data)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Statistiques de modération pour un domaine",
+        description=(
+            "Counts par statut, taux d'acceptation, délai médian de "
+            "décision et top des modérateurs. Accessible aux owner / "
+            "managers du domaine (via la queryset scope habituelle)."
+        ),
+        responses={status.HTTP_200_OK: DomainAnalyticsSerializer},
+    )
+    @action(detail=True, methods=["get"], url_path="analytics", pagination_class=None)
+    def analytics(self, request, *args, **kwargs):
+        domain = self.get_object()
+        return Response(compute_join_request_analytics(domain))
 
     @extend_schema(
         tags=["Domain"],

@@ -132,6 +132,81 @@ def flip_pending_to_approved(domain, user, *, by) -> int:
     )
 
 
+def compute_join_request_analytics(domain) -> dict:
+    """
+    Aggregate per-domain join-request analytics. Pure-Python on top of
+    a handful of ORM ``count`` / ``aggregate`` calls so the function
+    stays portable across SQLite (tests) and Postgres (prod) without a
+    backend-specific ``percentile_cont``.
+
+    Returns::
+
+        {
+            "pending_count": int,
+            "approved_count": int,
+            "rejected_count": int,
+            "cancelled_count": int,
+            "total_decisions": int,        # approved + rejected
+            "accept_rate_pct": float | None,
+            "median_decision_seconds": int | None,
+            "top_deciders": [{"username": str, "count": int}, ...],  # top 5
+        }
+    """
+    from django.db.models import Count
+    from domain.models import DomainJoinRequest
+
+    qs = DomainJoinRequest.objects.filter(domain=domain)
+
+    by_status = {row["status"]: row["c"] for row in qs.values("status").annotate(c=Count("id"))}
+    pending = by_status.get(DomainJoinRequest.STATUS_PENDING, 0)
+    approved = by_status.get(DomainJoinRequest.STATUS_APPROVED, 0)
+    rejected = by_status.get(DomainJoinRequest.STATUS_REJECTED, 0)
+    cancelled = by_status.get(DomainJoinRequest.STATUS_CANCELLED, 0)
+    total_decisions = approved + rejected
+
+    accept_rate: float | None = None
+    if total_decisions > 0:
+        accept_rate = round(approved * 100.0 / total_decisions, 1)
+
+    # Median decision time: pull (decided_at - created_at) for every
+    # decided row and pick the middle value. Bounded by ~thousands of
+    # rows per domain in realistic deployments, so the Python loop
+    # is cheap and avoids vendor-specific SQL.
+    decided = (
+        qs.filter(decided_at__isnull=False)
+          .values_list("created_at", "decided_at")
+    )
+    deltas_seconds = sorted(int((d - c).total_seconds()) for c, d in decided if d > c)
+    median_seconds: int | None = None
+    if deltas_seconds:
+        n = len(deltas_seconds)
+        median_seconds = deltas_seconds[n // 2] if n % 2 else (
+            (deltas_seconds[n // 2 - 1] + deltas_seconds[n // 2]) // 2
+        )
+
+    top_deciders_rows = (
+        qs.filter(decided_by__isnull=False)
+          .values("decided_by__username")
+          .annotate(c=Count("id"))
+          .order_by("-c")[:5]
+    )
+    top_deciders = [
+        {"username": r["decided_by__username"], "count": r["c"]}
+        for r in top_deciders_rows
+    ]
+
+    return {
+        "pending_count": pending,
+        "approved_count": approved,
+        "rejected_count": rejected,
+        "cancelled_count": cancelled,
+        "total_decisions": total_decisions,
+        "accept_rate_pct": accept_rate,
+        "median_decision_seconds": median_seconds,
+        "top_deciders": top_deciders,
+    }
+
+
 def domains_with_pending_for_user(user) -> list[dict]:
     """
     For the moderation dashboard tile: list the domains the user can

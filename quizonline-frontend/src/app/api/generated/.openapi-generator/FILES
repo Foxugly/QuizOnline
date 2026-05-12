@@ -31,6 +31,8 @@ model/custom-user-admin-update-request.ts
 model/custom-user-create-request.ts
 model/custom-user-read.ts
 model/dashboard-stats-response.ts
+model/domain-analytics-decider.ts
+model/domain-analytics.ts
 model/domain-audit-log-read.ts
 model/domain-detail.ts
 model/domain-invite-read-status-enum.ts

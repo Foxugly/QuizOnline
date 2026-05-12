@@ -345,6 +345,31 @@ paths:
           description: Forbidden.
         '404':
           description: Not found (domain non visible ou inexistant).
+  /api/domain/{domain_id}/analytics/:
+    get:
+      operationId: domain_analytics_retrieve
+      description: Counts par statut, taux d'acceptation, délai médian de décision
+        et top des modérateurs. Accessible aux owner / managers du domaine (via la
+        queryset scope habituelle).
+      summary: Statistiques de modération pour un domaine
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainAnalytics'
+          description: ''
   /api/domain/{domain_id}/audit/:
     get:
       operationId: domain_audit_list
@@ -4162,6 +4187,50 @@ components:
       required:
       - domains
       - totals
+    DomainAnalytics:
+      type: object
+      description: Shape returned by ``GET /api/domain/{id}/analytics/``.
+      properties:
+        pending_count:
+          type: integer
+        approved_count:
+          type: integer
+        rejected_count:
+          type: integer
+        cancelled_count:
+          type: integer
+        total_decisions:
+          type: integer
+        accept_rate_pct:
+          type: number
+          format: double
+          nullable: true
+        median_decision_seconds:
+          type: integer
+          nullable: true
+        top_deciders:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainAnalyticsDecider'
+      required:
+      - accept_rate_pct
+      - approved_count
+      - cancelled_count
+      - median_decision_seconds
+      - pending_count
+      - rejected_count
+      - top_deciders
+      - total_decisions
+    DomainAnalyticsDecider:
+      type: object
+      properties:
+        username:
+          type: string
+        count:
+          type: integer
+      required:
+      - count
+      - username
     DomainAuditLogRead:
       type: object
       description: Lightweight view of an audit-log row for the per-domain audit page.

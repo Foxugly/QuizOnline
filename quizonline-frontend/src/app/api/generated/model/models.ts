@@ -7,6 +7,8 @@ export * from './custom-user-admin-update-request';
 export * from './custom-user-create-request';
 export * from './custom-user-read';
 export * from './dashboard-stats-response';
+export * from './domain-analytics-decider';
+export * from './domain-analytics';
 export * from './domain-audit-log-read';
 export * from './domain-detail';
 export * from './domain-invite-read';

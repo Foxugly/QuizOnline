@@ -441,6 +441,23 @@ class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
     request = DomainJoinRequestReadSerializer()
 
 
+class DomainAnalyticsDeciderSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    count = serializers.IntegerField()
+
+
+class DomainAnalyticsSerializer(serializers.Serializer):
+    """Shape returned by ``GET /api/domain/{id}/analytics/``."""
+    pending_count = serializers.IntegerField()
+    approved_count = serializers.IntegerField()
+    rejected_count = serializers.IntegerField()
+    cancelled_count = serializers.IntegerField()
+    total_decisions = serializers.IntegerField()
+    accept_rate_pct = serializers.FloatField(allow_null=True)
+    median_decision_seconds = serializers.IntegerField(allow_null=True)
+    top_deciders = DomainAnalyticsDeciderSerializer(many=True)
+
+
 class DomainAuditLogReadSerializer(serializers.ModelSerializer):
     """Lightweight view of an audit-log row for the per-domain audit page."""
     actor_username = serializers.SerializerMethodField()

@@ -17,6 +17,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { DomainAnalyticsDto } from '../model/domain-analytics';
+// @ts-ignore
 import { DomainDetailDto } from '../model/domain-detail';
 // @ts-ignore
 import { DomainInviteReadDto } from '../model/domain-invite-read';
@@ -60,6 +62,11 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
 
+
+export interface DomainAnalyticsRetrieveRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+}
 
 export interface DomainAuditListRequestParams {
     /** A unique integer value identifying this domain. */
@@ -206,6 +213,67 @@ export class DomainApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * Statistiques de modération pour un domaine
+     * Counts par statut, taux d\&#39;acceptation, délai médian de décision et top des modérateurs. Accessible aux owner / managers du domaine (via la queryset scope habituelle).
+     * @endpoint get /api/domain/{domain_id}/analytics/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainAnalyticsRetrieve(requestParameters: DomainAnalyticsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainAnalyticsDto>;
+    public domainAnalyticsRetrieve(requestParameters: DomainAnalyticsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainAnalyticsDto>>;
+    public domainAnalyticsRetrieve(requestParameters: DomainAnalyticsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainAnalyticsDto>>;
+    public domainAnalyticsRetrieve(requestParameters: DomainAnalyticsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainAnalyticsRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainAnalyticsDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**
