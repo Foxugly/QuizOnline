@@ -51,6 +51,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
             "owned_domain_ids",
             "managed_domain_ids",
             "pending_join_requests",
+            "notification_prefs",
         ]
         read_only_fields = [
             "id",
@@ -185,10 +186,11 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
         required=False,
         allow_empty=True,
     )
+    notification_prefs = serializers.JSONField(required=False)
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "language", "managed_domain_ids"]
+        fields = ["email", "first_name", "last_name", "language", "managed_domain_ids", "notification_prefs"]
 
     def validate_managed_domain_ids(self, value: List[int]) -> List[int]:
         domain_ids = sorted(set(value))
@@ -200,6 +202,12 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
                 f"Unknown or inactive domain id(s): {', '.join(map(str, missing_ids))}."
             )
         return domain_ids
+
+    def validate_notification_prefs(self, value) -> dict:
+        # Canonicalise the payload: only known kinds, only False entries
+        # are persisted (True / missing == enabled).
+        from customuser.notifications import normalize_prefs
+        return normalize_prefs(value)
 
     def update(self, instance, validated_data):
         managed_domain_ids = validated_data.pop("managed_domain_ids", None)

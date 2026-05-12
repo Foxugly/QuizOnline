@@ -55,6 +55,7 @@ class CustomUserReadSerializerTests(TestCase):
                 "owned_domain_ids",
                 "managed_domain_ids",
                 "pending_join_requests",
+                "notification_prefs",
             },
         )
         self.assertEqual(data["username"], "u1")

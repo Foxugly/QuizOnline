@@ -14,6 +14,12 @@ class CustomUser(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     must_change_password = models.BooleanField(default=False)
     nb_domain_max = models.PositiveIntegerField(default=0)
+    # Per-kind opt-outs for non-critical notifications. Stored as a
+    # ``{kind: bool}`` map; the absence of a key means "enabled" so a
+    # fresh user gets every notification by default. Security-critical
+    # mails (registration confirmation, password reset, magic-link
+    # sign-in) are NOT gated by this map — they always send.
+    notification_prefs = models.JSONField(default=dict, blank=True)
 
     current_domain = models.ForeignKey(
         "domain.Domain",

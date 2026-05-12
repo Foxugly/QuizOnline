@@ -112,8 +112,17 @@ def send_domain_invite_email(*, email: str, domain, inviter, language: str = "en
     account); we do not assume a User row exists. Language defaults to
     English when we cannot guess the recipient's preference (no profile
     to read from yet).
+
+    If a User row does exist for ``email`` and they have opted out of
+    ``KIND_INVITE_RECEIVED``, the mail is silently dropped.
     """
+    from customuser.notifications import KIND_INVITE_RECEIVED, notification_enabled
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
     if not email:
+        return
+    existing = User.objects.filter(email__iexact=email).first()
+    if existing is not None and not notification_enabled(existing, KIND_INVITE_RECEIVED):
         return
     copy = _invite_copy(user_language(type("_U", (), {"language": language})()))
     token = make_invite_token(domain_id=domain.id, email=email, inviter_id=inviter.id)

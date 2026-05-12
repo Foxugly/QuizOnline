@@ -57,8 +57,11 @@ def send_join_request_expiry_warning_email(*, join_request, days_left: int) -> N
     job; the row's ``expiry_warning_sent_at`` is bumped by the caller
     so we never re-fire on the same row.
     """
+    from customuser.notifications import KIND_JOIN_REQUEST_EXPIRY, notification_enabled
     user = join_request.user
     if not getattr(user, "email", ""):
+        return
+    if not notification_enabled(user, KIND_JOIN_REQUEST_EXPIRY):
         return
     domain = join_request.domain
 
@@ -221,10 +224,13 @@ def _build_request_html(recipient, *, join_request, requester, domain) -> str:
 
 
 def send_join_request_created_email(*, join_request, recipients) -> None:
+    from customuser.notifications import KIND_JOIN_REQUEST_CREATED, notification_enabled
     domain = join_request.domain
     requester = join_request.user
     for recipient in recipients:
         if not getattr(recipient, "email", ""):
+            continue
+        if not notification_enabled(recipient, KIND_JOIN_REQUEST_CREATED):
             continue
         send_user_email(
             user=recipient,
@@ -239,9 +245,12 @@ def send_join_request_created_email(*, join_request, recipients) -> None:
 
 
 def send_join_request_approved_email(*, join_request) -> None:
+    from customuser.notifications import KIND_JOIN_REQUEST_DECIDED, notification_enabled
     domain = join_request.domain
     requester = join_request.user
     if not requester.email:
+        return
+    if not notification_enabled(requester, KIND_JOIN_REQUEST_DECIDED):
         return
 
     def body_builder(u):
@@ -267,10 +276,13 @@ def send_join_request_approved_email(*, join_request) -> None:
 
 
 def send_join_request_rejected_email(*, join_request) -> None:
+    from customuser.notifications import KIND_JOIN_REQUEST_DECIDED, notification_enabled
     domain = join_request.domain
     requester = join_request.user
     reason = (join_request.reject_reason or "").strip()
     if not requester.email:
+        return
+    if not notification_enabled(requester, KIND_JOIN_REQUEST_DECIDED):
         return
 
     def body_builder(u):

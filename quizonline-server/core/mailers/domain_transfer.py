@@ -80,7 +80,10 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
     Bound to ``future_owner.email`` — the accept endpoint will refuse
     any other authenticated user.
     """
+    from customuser.notifications import KIND_TRANSFER_RECEIVED, notification_enabled
     if not getattr(future_owner, "email", ""):
+        return
+    if not notification_enabled(future_owner, KIND_TRANSFER_RECEIVED):
         return
     token = make_transfer_token(
         domain_id=domain.id,
