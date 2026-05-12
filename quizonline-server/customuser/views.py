@@ -25,7 +25,9 @@ from .services import (
     change_password,
     confirm_email,
     confirm_password_reset,
+    exchange_magic_link,
     register_user,
+    request_magic_link,
     request_password_reset,
 )
 from .serializers import (
@@ -34,6 +36,9 @@ from .serializers import (
     CustomUserProfileUpdateSerializer,
     CustomUserReadSerializer,
     EmailConfirmationSerializer,
+    MagicLinkExchangeRequestSerializer,
+    MagicLinkExchangeResponseSerializer,
+    MagicLinkRequestSerializer,
     PasswordChangeSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetOKSerializer,
@@ -41,8 +46,19 @@ from .serializers import (
     QuizSimpleSerializer,
     SetCurrentDomainSerializer,
 )
-from .throttling import PasswordResetRateThrottle
-from .throttling import PasswordResetConfirmRateThrottle, EmailConfirmRateThrottle
+from .throttling import (
+    EmailConfirmRateThrottle,
+    MagicLinkExchangeRateThrottle,
+    MagicLinkRequestRateThrottle,
+    PasswordResetConfirmRateThrottle,
+    PasswordResetRateThrottle,
+)
+from .magic_link_token import (
+    MagicLinkTokenExpired,
+    MagicLinkTokenInvalid,
+    parse_magic_link_token,
+)
+from rest_framework_simplejwt.tokens import RefreshToken
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -415,5 +431,78 @@ class EmailConfirmView(GenericAPIView):
 
         return Response(
             {"detail": "Adresse email confirmée avec succès."},
+            status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema(
+    tags=["Auth"],
+    summary="Demander un lien magique de connexion",
+    description=(
+        "Envoie un lien de connexion par e-mail si un compte actif et "
+        "confirmé existe pour cette adresse. Réponse identique dans tous les "
+        "cas pour ne pas divulguer l'existence d'un compte."
+    ),
+    request=MagicLinkRequestSerializer,
+    responses={status.HTTP_200_OK: ErrorDetailSerializer},
+)
+class MagicLinkRequestView(GenericAPIView):
+    """``POST /api/auth/magic-link/request/`` — passwordless login mailer."""
+    permission_classes = [AllowAny]
+    throttle_classes = [MagicLinkRequestRateThrottle]
+    serializer_class = MagicLinkRequestSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        request_magic_link(serializer.validated_data["email"])
+        # Constant-time response: same payload whether or not the user
+        # exists. Frontend should simply tell the visitor to check their
+        # inbox.
+        return Response({"detail": "ok"}, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    tags=["Auth"],
+    summary="Échanger un token magique contre une paire JWT",
+    description=(
+        "Valide la signature et la TTL du token, vérifie que l'utilisateur "
+        "est actif et a confirmé son e-mail, puis émet une paire access / "
+        "refresh comme l'endpoint password classique."
+    ),
+    request=MagicLinkExchangeRequestSerializer,
+    responses={
+        status.HTTP_200_OK: MagicLinkExchangeResponseSerializer,
+        status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+        status.HTTP_410_GONE: ErrorDetailSerializer,
+    },
+)
+class MagicLinkExchangeView(GenericAPIView):
+    """``POST /api/auth/magic-link/exchange/`` — token → JWT pair."""
+    permission_classes = [AllowAny]
+    throttle_classes = [MagicLinkExchangeRateThrottle]
+    serializer_class = MagicLinkExchangeRequestSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            payload = parse_magic_link_token(serializer.validated_data["token"])
+        except MagicLinkTokenExpired:
+            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
+        except MagicLinkTokenInvalid:
+            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = exchange_magic_link(user_id=payload["user_id"])
+        if user is None:
+            # Could not resolve the user (deleted), or user is no longer
+            # eligible (deactivated, email no longer confirmed). Surface
+            # a single error shape so attackers cannot distinguish
+            # "deleted" from "deactivated" via timing or wording.
+            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {"access": str(refresh.access_token), "refresh": str(refresh)},
             status=status.HTTP_200_OK,
         )

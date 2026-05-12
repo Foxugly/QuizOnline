@@ -7,6 +7,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenRefreshView
 from customuser.auth import EmailConfirmedTokenObtainPairView
+from customuser.views import MagicLinkExchangeView, MagicLinkRequestView
 
 
 def health_check(request):
@@ -27,6 +28,9 @@ urlpatterns = [
     path("api/token/", EmailConfirmedTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
+    # Passwordless / magic-link sign-in.
+    path("api/auth/magic-link/request/", MagicLinkRequestView.as_view(), name="magic_link_request"),
+    path("api/auth/magic-link/exchange/", MagicLinkExchangeView.as_view(), name="magic_link_exchange"),
 ]
 
 if settings.DEBUG:

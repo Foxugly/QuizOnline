@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from core.mailers import send_password_reset_email, send_registration_confirmation_email
+from core.mailers.magic_link import send_magic_link_email
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
 from domain.services import users_who_can_approve
 from core.mailers.domain_join import send_join_request_created_email
@@ -28,6 +29,40 @@ def request_password_reset(email: str, request) -> None:
     user.must_change_password = True
     user.save(update_fields=["must_change_password"])
     send_password_reset_email(user)
+
+
+def request_magic_link(email: str) -> None:
+    """
+    If a user with ``email`` exists, queue a magic-link mail. Otherwise
+    silently return — we do NOT reveal account existence through this
+    endpoint (constant-time behaviour from the caller's perspective).
+    The endpoint is rate-limited at the view layer; here we only do the
+    happy-path mail-send.
+
+    Requires the user to be active and email-confirmed; otherwise the
+    magic link would bypass our usual sign-in guards.
+    """
+    user = User.objects.filter(email__iexact=(email or "").strip()).first()
+    if user is None:
+        return
+    if not user.is_active or not getattr(user, "email_confirmed", False):
+        return
+    send_magic_link_email(user=user)
+
+
+def exchange_magic_link(*, user_id: int):
+    """
+    Resolve the user id baked in a magic-link token and return the user
+    iff it would normally be allowed to log in. Returns ``None`` for any
+    refusal so the view layer can map a single "invalid or expired"
+    response shape and never leak the cause.
+    """
+    user = User.objects.filter(pk=user_id).first()
+    if user is None:
+        return None
+    if not user.is_active or not getattr(user, "email_confirmed", False):
+        return None
+    return user
 
 
 def revoke_user_refresh_tokens(user) -> None:

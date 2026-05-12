@@ -167,6 +167,11 @@ REST_FRAMEWORK = {
         # invitations per hour. The action takes a list of up to 50
         # addresses, so this allows two full bursts per hour.
         "domain_invite": "100/hour",
+        # Passwordless login: keep the request rate low (3/hour per IP)
+        # because the endpoint sends mail; the exchange rate is higher
+        # (30/min) to handle the same user retrying on a flaky network.
+        "magic_link_request": "3/hour",
+        "magic_link_exchange": "30/min",
     },
 }
 

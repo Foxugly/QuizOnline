@@ -282,6 +282,22 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         return value
 
 
+class MagicLinkRequestSerializer(serializers.Serializer):
+    """Payload for ``POST /api/auth/magic-link/request/``."""
+    email = serializers.EmailField()
+
+
+class MagicLinkExchangeRequestSerializer(serializers.Serializer):
+    """Payload for ``POST /api/auth/magic-link/exchange/``."""
+    token = serializers.CharField(max_length=2048)
+
+
+class MagicLinkExchangeResponseSerializer(serializers.Serializer):
+    """JWT pair returned on successful exchange."""
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
 class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField()
     token = serializers.CharField()

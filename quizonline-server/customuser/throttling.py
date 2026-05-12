@@ -20,3 +20,13 @@ class EmailConfirmRateThrottle(AnonRateThrottle):
 
 class QuizAnswerRateThrottle(UserRateThrottle):
     scope = "quiz_answer"
+
+
+class MagicLinkRequestRateThrottle(AnonRateThrottle):
+    """Cap how often a single IP can ask for a sign-in link."""
+    scope = "magic_link_request"
+
+
+class MagicLinkExchangeRateThrottle(AnonRateThrottle):
+    """Cap exchange attempts (used both for valid + invalid tokens)."""
+    scope = "magic_link_exchange"
