@@ -12,13 +12,13 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
     if language_code == "fr":
         return {
             "greeting": "Bonjour",
-            "request_subject": f"{app} - nouvelle demande d'acces a votre domaine",
-            "request_intro": "Un utilisateur a demande a rejoindre votre domaine",
+            "request_subject": f"{app} - nouvelle demande d'accès à votre domaine",
+            "request_intro": "Un utilisateur a demandé à rejoindre votre domaine",
             "request_action": "Vous pouvez approuver ou refuser cette demande dans l'interface.",
-            "approved_subject": f"{app} - votre demande d'acces a ete approuvee",
-            "approved_body": 'Votre demande d\'acces au domaine "{domain}" a ete approuvee. Vous etes maintenant membre.',
-            "rejected_subject": f"{app} - votre demande d'acces a ete refusee",
-            "rejected_body": 'Votre demande d\'acces au domaine "{domain}" a ete refusee.',
+            "approved_subject": f"{app} - votre demande d'accès a été approuvée",
+            "approved_body": 'Votre demande d\'accès au domaine "{domain}" a été approuvée. Vous êtes maintenant membre.',
+            "rejected_subject": f"{app} - votre demande d'accès a été refusée",
+            "rejected_body": 'Votre demande d\'accès au domaine "{domain}" a été refusée.',
             "rejected_reason_label": "Motif :",
         }
     if language_code == "nl":
@@ -32,6 +32,30 @@ def _domain_join_copy(language_code: str) -> dict[str, str]:
             "rejected_subject": f"{app} - uw toegangsaanvraag is afgewezen",
             "rejected_body": 'Uw toegangsaanvraag voor het domein "{domain}" is afgewezen.',
             "rejected_reason_label": "Reden:",
+        }
+    if language_code == "it":
+        return {
+            "greeting": "Ciao",
+            "request_subject": f"{app} - nuova richiesta di accesso al tuo dominio",
+            "request_intro": "Un utente ha chiesto di unirsi al tuo dominio",
+            "request_action": "Puoi approvare o rifiutare questa richiesta dall'interfaccia.",
+            "approved_subject": f"{app} - la tua richiesta di accesso è stata approvata",
+            "approved_body": 'La tua richiesta di accesso al dominio "{domain}" è stata approvata. Ora sei un membro.',
+            "rejected_subject": f"{app} - la tua richiesta di accesso è stata rifiutata",
+            "rejected_body": 'La tua richiesta di accesso al dominio "{domain}" è stata rifiutata.',
+            "rejected_reason_label": "Motivo:",
+        }
+    if language_code == "es":
+        return {
+            "greeting": "Hola",
+            "request_subject": f"{app} - nueva solicitud de acceso a tu dominio",
+            "request_intro": "Un usuario ha solicitado unirse a tu dominio",
+            "request_action": "Puedes aprobar o rechazar esta solicitud desde la interfaz.",
+            "approved_subject": f"{app} - tu solicitud de acceso ha sido aprobada",
+            "approved_body": 'Tu solicitud de acceso al dominio "{domain}" ha sido aprobada. Ahora eres miembro.',
+            "rejected_subject": f"{app} - tu solicitud de acceso ha sido rechazada",
+            "rejected_body": 'Tu solicitud de acceso al dominio "{domain}" ha sido rechazada.',
+            "rejected_reason_label": "Motivo:",
         }
     return {
         "greeting": "Hello",
