@@ -325,6 +325,8 @@ class DomainDetailSerializer(DomainReadSerializer):
             "allowed_languages",
             "active",
             "join_policy",
+            "pending_join_requests_count",
+            "my_join_request_status",
             "owner",
             "managers",
             "members",

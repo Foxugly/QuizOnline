@@ -3635,6 +3635,14 @@ components:
           allOf:
           - $ref: '#/components/schemas/JoinPolicyEnum'
           readOnly: true
+        pending_join_requests_count:
+          type: integer
+          nullable: true
+          readOnly: true
+        my_join_request_status:
+          type: string
+          nullable: true
+          readOnly: true
         owner:
           allOf:
           - $ref: '#/components/schemas/UserSummary'
@@ -3670,7 +3678,9 @@ components:
       - join_policy
       - managers
       - members
+      - my_join_request_status
       - owner
+      - pending_join_requests_count
       - subjects
       - translations
       - updated_at
