@@ -1,26 +1,29 @@
 <section class="page">
-  <div class="page__header">
-    <div class="page__header-copy">
+  <div class="header-line">
+    <div class="header-line__left">
       <p-button
         (onClick)="goBack()"
         icon="pi pi-arrow-left"
         [label]="editorUi().common.back"
+        class="page-back-button"
         severity="secondary"
-        text
-      ></p-button>
-      <h1>Resultats des quiz envoyes</h1>
-      <p>
-        @if (template(); as selectedTemplate) {
-          Sessions liees au template <strong>{{ selectedTemplate.title }}</strong>.
-        } @else {
-          Sessions liees a ce template.
-        }
-      </p>
+        type="button"
+        variant="outlined">
+      </p-button>
     </div>
 
-    <div class="page__tools">
-      <p-button (onClick)="load()" icon="pi pi-refresh" [label]="editorUi().common.refresh" severity="secondary"></p-button>
+    <div class="header-center">
+      <h1 class="title">Resultats des quiz envoyes</h1>
+      @if (template(); as selectedTemplate) {
+        <p class="subtitle">
+          Sessions liees au template <strong>{{ selectedTemplate.title }}</strong>.
+        </p>
+      } @else {
+        <p class="subtitle">Sessions liees a ce template.</p>
+      }
     </div>
+
+    <div class="header-line__right"></div>
   </div>
 
   @if (error()) {
@@ -35,6 +38,14 @@
         pInputText
         placeholder="Rechercher dans les quiz envoyés..."
       >
+      <p-button
+        (onClick)="load()"
+        icon="pi pi-refresh"
+        [label]="editorUi().common.refresh"
+        severity="secondary"
+        size="small"
+        type="button"
+      ></p-button>
       <p-button
         (onClick)="exportCsv()"
         [disabled]="!filteredSessions().length"
