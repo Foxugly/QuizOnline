@@ -54,15 +54,15 @@ class DomainReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(UserSummarySerializer)
     def get_owner(self, obj: Domain) -> dict[str, int | str]:
-        return {"id": obj.owner_id, "username": obj.owner.username}
+        return _user_summary(obj.owner)
 
     @extend_schema_field(UserSummarySerializer(many=True))
     def get_managers(self, obj: Domain) -> list[dict[str, int | str]]:
-        return [{"id": u.id, "username": u.username} for u in obj.managers.all()]
+        return [_user_summary(u) for u in obj.managers.all()]
 
     @extend_schema_field(UserSummarySerializer(many=True))
     def get_members(self, obj: Domain) -> list[dict[str, int | str]]:
-        return [{"id": u.id, "username": u.username} for u in obj.members.all()]
+        return [_user_summary(u) for u in obj.members.all()]
 
     @extend_schema_field(LanguageReadSerializer(many=True))
     def get_allowed_languages(self, obj: Domain) -> list[dict]:
@@ -327,6 +327,7 @@ class DomainDetailSerializer(DomainReadSerializer):
             "join_policy",
             "owner",
             "managers",
+            "members",
             "created_at",
             "updated_at",
             "subjects"
