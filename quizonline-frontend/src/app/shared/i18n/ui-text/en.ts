@@ -18,7 +18,7 @@ export const EN: UiText = {
     languages: 'Languages',
     features: 'Features',
     featuresValue: 'Quizzes, messages, assignments, review',
-    contactCta: 'Contact me',
+    contactCta: 'Contact me', moderationTileTitle: 'Requests to moderate', moderationTileSubtitle: (total) => `${total} pending across your domains.`, moderationTileCount: (n) => n <= 1 ? `${n} request` : `${n} requests`,
   },
   login: {
     eyebrow: 'Login', title: 'Access your workspace', subtitle: 'Sign in to continue.',

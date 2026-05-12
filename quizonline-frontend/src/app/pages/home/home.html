@@ -31,4 +31,30 @@
     </aside>
   </header>
 
+  @if (moderationSummary().length > 0) {
+    <section class="moderation-tile card form-card">
+      <div class="card-head">
+        <div class="card-head__main">
+          <h2 class="card-title">
+            <i class="pi pi-hammer"></i>
+            {{ ui().home.moderationTileTitle }}
+          </h2>
+          <p class="muted">{{ ui().home.moderationTileSubtitle(moderationTotal()) }}</p>
+        </div>
+      </div>
+
+      <ul class="moderation-tile__list">
+        @for (item of moderationSummary(); track item.id) {
+          <li class="moderation-tile__item">
+            <button type="button" class="moderation-tile__link" (click)="goModerate(item.id)">
+              <span class="moderation-tile__name">{{ item.name }}</span>
+              <span class="moderation-tile__count">{{ ui().home.moderationTileCount(item.pending_count) }}</span>
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
 </section>

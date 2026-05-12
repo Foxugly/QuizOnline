@@ -19,6 +19,9 @@ export const ES: UiText = {
     features: 'Funciones',
     featuresValue: 'Cuestionarios, mensajes, asignaciones, revision',
     contactCta: 'Contáctame',
+    moderationTileTitle: 'Solicitudes por moderar',
+    moderationTileSubtitle: (total) => `${total} pendientes en tus dominios.`,
+    moderationTileCount: (n) => n <= 1 ? `${n} solicitud` : `${n} solicitudes`,
   },
   login: {
     eyebrow: 'Acceso', title: 'Accede a tu espacio', subtitle: 'Inicia sesion para continuar.',

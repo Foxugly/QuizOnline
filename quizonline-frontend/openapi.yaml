@@ -651,6 +651,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
+  /api/domain/moderation-summary/:
+    get:
+      operationId: domain_moderation_summary_list
+      description: |-
+        Pour l'utilisateur connecté, renvoie la liste des domaines qu'il peut modérer et qui ont au moins une demande d'adhésion en attente. Trié par nombre de demandes décroissant.
+
+        Endpoint volontairement léger (aucune action), pensé pour une tuile d'accueil.
+      summary: 'Tableau de bord modération : domaines avec demandes en attente'
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModerationSummaryItem'
+          description: ''
   /api/lang/:
     get:
       operationId: lang_list
@@ -4291,6 +4312,20 @@ components:
       description: |-
         * `practice` - Practice
         * `exam` - Examen
+    ModerationSummaryItem:
+      type: object
+      description: One row in the moderator dashboard summary list.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        pending_count:
+          type: integer
+      required:
+      - id
+      - name
+      - pending_count
     PaginatedCustomUserReadList:
       type: object
       required:

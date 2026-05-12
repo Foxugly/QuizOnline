@@ -19,6 +19,9 @@ export const NL: UiText = {
     features: 'Functies',
     featuresValue: 'Quizzen, meldingen, toewijzingen, correctie',
     contactCta: 'Contact opnemen',
+    moderationTileTitle: 'Aanvragen ter goedkeuring',
+    moderationTileSubtitle: (total) => `${total} openstaand op uw domeinen.`,
+    moderationTileCount: (n) => n <= 1 ? `${n} aanvraag` : `${n} aanvragen`,
   },
   login: {
     eyebrow: 'Aanmelden', title: 'Toegang tot uw ruimte', subtitle: 'Meld u aan om verder te gaan.',

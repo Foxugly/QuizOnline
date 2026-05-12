@@ -19,6 +19,9 @@ export const IT: UiText = {
     features: 'Funzionalita',
     featuresValue: 'Quiz, messaggi, assegnazioni, revisione',
     contactCta: 'Contattami',
+    moderationTileTitle: 'Richieste da moderare',
+    moderationTileSubtitle: (total) => `${total} in attesa nei tuoi domini.`,
+    moderationTileCount: (n) => n <= 1 ? `${n} richiesta` : `${n} richieste`,
   },
   login: {
     eyebrow: 'Accesso', title: 'Accedi al tuo spazio', subtitle: 'Autenticati per continuare.',

@@ -42,6 +42,9 @@ export const FR: UiText = {
     features: 'Fonctions',
     featuresValue: 'Quiz, messages, affectations, correction',
     contactCta: 'Me contacter',
+    moderationTileTitle: 'Demandes à modérer',
+    moderationTileSubtitle: (total) => `${total} en attente sur vos domaines.`,
+    moderationTileCount: (n) => n <= 1 ? `${n} demande` : `${n} demandes`,
   },
   login: {
     eyebrow: 'Connexion',

@@ -66,6 +66,7 @@ model/media-asset-upload-request.ts
 model/media-asset.ts
 model/mode-enum.ts
 model/models.ts
+model/moderation-summary-item.ts
 model/paginated-custom-user-read-list.ts
 model/paginated-domain-join-request-read-list.ts
 model/paginated-domain-read-list.ts

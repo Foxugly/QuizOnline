@@ -41,6 +41,7 @@ export * from './media-asset-kind-enum';
 export * from './media-asset-upload-kind-enum';
 export * from './media-asset-upload-request';
 export * from './mode-enum';
+export * from './moderation-summary-item';
 export * from './paginated-custom-user-read-list';
 export * from './paginated-domain-join-request-read-list';
 export * from './paginated-domain-read-list';

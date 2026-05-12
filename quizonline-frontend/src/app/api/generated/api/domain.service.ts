@@ -31,6 +31,8 @@ import { DomainWriteRequestDto } from '../model/domain-write-request';
 // @ts-ignore
 import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
+import { ModerationSummaryItemDto } from '../model/moderation-summary-item';
+// @ts-ignore
 import { PaginatedDomainJoinRequestReadListDto } from '../model/paginated-domain-join-request-read-list';
 // @ts-ignore
 import { PaginatedDomainReadListDto } from '../model/paginated-domain-read-list';
@@ -1092,6 +1094,62 @@ export class DomainApi extends BaseService {
             {
                 context: localVarHttpContext,
                 body: domainWriteRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Tableau de bord modération : domaines avec demandes en attente
+     * Pour l\&#39;utilisateur connecté, renvoie la liste des domaines qu\&#39;il peut modérer et qui ont au moins une demande d\&#39;adhésion en attente. Trié par nombre de demandes décroissant.  Endpoint volontairement léger (aucune action), pensé pour une tuile d\&#39;accueil.
+     * @endpoint get /api/domain/moderation-summary/
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainModerationSummaryList(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ModerationSummaryItemDto>>;
+    public domainModerationSummaryList(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ModerationSummaryItemDto>>>;
+    public domainModerationSummaryList(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ModerationSummaryItemDto>>>;
+    public domainModerationSummaryList(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/moderation-summary/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<ModerationSummaryItemDto>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

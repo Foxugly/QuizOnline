@@ -42,6 +42,9 @@ export type HomeUiText = {
   features: string;
   featuresValue: string;
   contactCta: string;
+  moderationTileTitle: string;
+  moderationTileSubtitle: (total: number) => string;
+  moderationTileCount: (n: number) => string;
 };
 
 export type PreferencesUiText = {
