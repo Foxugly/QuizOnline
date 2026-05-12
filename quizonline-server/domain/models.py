@@ -157,3 +157,63 @@ class DomainJoinRequest(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} → {self.domain} ({self.status})"
+
+
+class DomainAuditLog(models.Model):
+    """
+    Append-only audit trail for any meaningful administrative action
+    performed on a domain. One row per action; the row is the source
+    of truth for "who did what when".
+
+    The model is generic on purpose: ``action`` is a free-form string
+    (e.g. ``"member.promote"``, ``"member.remove"``,
+    ``"join_request.approve_via_email"``) and ``metadata`` is a JSON
+    blob that carries the per-action context (IP, user-agent,
+    target_user_id, previous_status, …). Adding a new audit-worthy
+    action does not require a migration.
+
+    Designed for read performance on per-domain audit views: the
+    ``(domain, -created_at)`` index covers the common query "show me
+    the last N actions on this domain".
+    """
+
+    ACTION_MAX_LENGTH = 64
+
+    domain = models.ForeignKey(
+        Domain,
+        on_delete=models.CASCADE,
+        related_name="audit_logs",
+    )
+    # ``actor`` may be NULL for system-driven actions (Celery beat job,
+    # signed-mail token executed without an active user, …). We do not
+    # cascade so audit history outlives user deletions.
+    actor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="emitted_domain_audit_logs",
+    )
+    action = models.CharField(max_length=ACTION_MAX_LENGTH, db_index=True)
+    # Optional pointer at the affected user (e.g., the user being
+    # promoted / removed). Many actions only have a domain target, in
+    # which case this stays NULL.
+    target_user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="received_domain_audit_logs",
+    )
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["domain", "-created_at"], name="dom_audit_dom_ct_idx"),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        actor = self.actor.username if self.actor_id else "system"
+        return f"[{self.created_at:%Y-%m-%d %H:%M}] {actor} {self.action} on {self.domain_id}"

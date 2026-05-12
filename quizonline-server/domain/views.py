@@ -47,7 +47,7 @@ from .serializers import (
     DomainInviteStateSerializer,
     ModerationSummaryItemSerializer,
 )
-from .services import domains_with_pending_for_user, users_who_can_approve
+from .services import domains_with_pending_for_user, record_audit, users_who_can_approve
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -384,6 +384,13 @@ class DomainViewSet(MyModelViewSet):
                 domain.managers.remove(target)
                 domain.members.remove(target)
                 target.refresh_from_db(fields=["is_active", "is_staff"])
+                record_audit(
+                    domain=domain,
+                    action="member.remove",
+                    actor=requester,
+                    target_user=target,
+                    metadata={"remote_addr": _client_ip(request)},
+                )
                 return Response(
                     {
                         "id": target.id,
@@ -429,6 +436,13 @@ class DomainViewSet(MyModelViewSet):
                     # affected rows when there is no pending request.
                     from domain.services import flip_pending_to_approved
                     flip_pending_to_approved(domain, target, by=requester)
+                    record_audit(
+                        domain=domain,
+                        action="member.promote",
+                        actor=requester,
+                        target_user=target,
+                        metadata={"remote_addr": _client_ip(request)},
+                    )
                 else:
                     domain.managers.remove(target)
                     if (
@@ -439,6 +453,13 @@ class DomainViewSet(MyModelViewSet):
                     ):
                         target.is_staff = False
                         update_fields.append("is_staff")
+                    record_audit(
+                        domain=domain,
+                        action="member.demote",
+                        actor=requester,
+                        target_user=target,
+                        metadata={"remote_addr": _client_ip(request)},
+                    )
 
             if update_fields:
                 target.save(update_fields=update_fields)
@@ -598,6 +619,20 @@ class DomainViewSet(MyModelViewSet):
             except Exception:  # pragma: no cover — defensive
                 results.append({"email": email, "status": "invalid"})
 
+        # One audit row per invite batch, listing the outcome per address.
+        # We do not store individual emails on separate rows to avoid an
+        # unbounded burst when a moderator sends 50 invitations at once.
+        record_audit(
+            domain=domain,
+            action="invite.bulk_send",
+            actor=request.user,
+            metadata={
+                "results": results,
+                "language": language,
+                "remote_addr": _client_ip(request),
+            },
+        )
+
         return Response(results, status=status.HTTP_200_OK)
 
     @extend_schema(
@@ -634,6 +669,13 @@ class DomainViewSet(MyModelViewSet):
         with transaction.atomic():
             domain.managers.remove(user)
             domain.members.remove(user)
+            record_audit(
+                domain=domain,
+                action="member.self_leave",
+                actor=user,
+                target_user=user,
+                metadata={"remote_addr": _client_ip(request)},
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -804,6 +846,13 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             join_request.decided_at = timezone.now()
             join_request.save(update_fields=["status", "decided_by", "decided_at", "updated_at"])
             domain.members.add(join_request.user)
+            record_audit(
+                domain=domain,
+                action="join_request.approve",
+                actor=request.user,
+                target_user=join_request.user,
+                metadata={"request_id": join_request.id, "remote_addr": _client_ip(request)},
+            )
             transaction.on_commit(
                 lambda jr=join_request: send_join_request_approved_email(join_request=jr)
             )
@@ -832,6 +881,17 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             join_request.decided_at = timezone.now()
             join_request.reject_reason = reason
             join_request.save(update_fields=["status", "decided_by", "decided_at", "reject_reason", "updated_at"])
+            record_audit(
+                domain=domain,
+                action="join_request.reject",
+                actor=request.user,
+                target_user=join_request.user,
+                metadata={
+                    "request_id": join_request.id,
+                    "reason": reason,
+                    "remote_addr": _client_ip(request),
+                },
+            )
             transaction.on_commit(
                 lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
             )
@@ -1017,19 +1077,22 @@ class DomainJoinRequestDecideView(APIView):
             # Audit log: capture IP + user-agent + the request id so a
             # later investigation can correlate a suspicious decision
             # with a specific HTTP call. We log on the structured app
-            # logger; persisting on a per-row column is left to the
-            # future ``DomainAuditLog`` table (Phase B).
-            _logger.info(
-                "domain.join.email_decision",
-                extra={
-                    "request_id": join_request.id,
-                    "domain_id": join_request.domain_id,
-                    "actor_user_id": getattr(user, "id", None),
-                    "action": action_kind,
-                    "previous_status": previous_status,
-                    "remote_addr": _client_ip(request) if request else None,
-                    "user_agent": (request.META.get("HTTP_USER_AGENT", "") if request else ""),
-                },
+            # logger AND persist a ``DomainAuditLog`` row so the trail
+            # survives log rotation and is queryable per-domain.
+            audit_meta = {
+                "request_id": join_request.id,
+                "previous_status": previous_status,
+                "remote_addr": _client_ip(request) if request else None,
+                "user_agent": (request.META.get("HTTP_USER_AGENT", "") if request else ""),
+                "via": "email_link",
+            }
+            _logger.info("domain.join.email_decision", extra={**audit_meta, "action": action_kind})
+            record_audit(
+                domain=join_request.domain,
+                action=f"join_request.{action_kind}_via_email",
+                actor=user,
+                target_user=join_request.user,
+                metadata=audit_meta,
             )
 
             if action_kind == "approve":

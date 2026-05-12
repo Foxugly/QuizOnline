@@ -1,13 +1,40 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Any, Mapping
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from domain.models import Domain, DomainJoinRequest, JoinPolicy
+from domain.models import Domain, DomainAuditLog, DomainJoinRequest, JoinPolicy
 
 User = get_user_model()
+
+
+def record_audit(
+    *,
+    domain: Domain | int,
+    action: str,
+    actor=None,
+    target_user=None,
+    metadata: Mapping[str, Any] | None = None,
+) -> DomainAuditLog:
+    """
+    Append one row to the ``DomainAuditLog`` table.
+
+    Centralised here so callers do not need to know the column names
+    or import the model directly. ``domain`` may be a Domain instance
+    or a primary-key int (useful when we hold a reference but the
+    instance is not in scope).
+    """
+    domain_id = domain.id if isinstance(domain, Domain) else int(domain)
+    return DomainAuditLog.objects.create(
+        domain_id=domain_id,
+        actor=actor if actor and getattr(actor, "id", None) else None,
+        target_user=target_user if target_user and getattr(target_user, "id", None) else None,
+        action=action[: DomainAuditLog.ACTION_MAX_LENGTH],
+        metadata=dict(metadata or {}),
+    )
 
 
 def users_who_can_approve(domain: Domain) -> list:
