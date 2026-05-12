@@ -325,13 +325,17 @@ export class DomainJoinRequestsPage implements OnInit {
     const filter = this.statusFilter();
     const statusParam = filter === 'all' ? '' : filter;
     const url = `${this.apiBaseUrl}/${this.domainId}/join-request/${statusParam ? '?status=' + statusParam : ''}`;
-    this.http.get<{count: number; results: DomainJoinRequestReadDto[]}>(url)
+    // The endpoint disables pagination, so the body is either a raw
+    // array or — if pagination is re-enabled later — a ``{results}``
+    // wrapper. Accept both shapes.
+    this.http.get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(url)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
       )
       .subscribe((response) => {
-        this.requests.set(response.results ?? []);
+        const list = Array.isArray(response) ? response : (response?.results ?? []);
+        this.requests.set(list);
       });
   }
 }
