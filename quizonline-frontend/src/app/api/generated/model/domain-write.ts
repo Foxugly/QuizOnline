@@ -13,6 +13,7 @@ import { JoinPolicyEnumDto } from './join-policy-enum';
 export interface DomainWriteDto { 
     allowed_languages: Array<number>;
     active?: boolean;
+    'public'?: boolean;
     join_policy?: JoinPolicyEnumDto;
     owner?: number;
     managers: Array<number>;

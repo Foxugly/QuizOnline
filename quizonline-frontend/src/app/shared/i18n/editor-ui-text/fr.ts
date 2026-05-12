@@ -129,6 +129,8 @@ export const FR: EditorUiText = {
     joinPolicyOwner: 'Validation par le propriétaire',
     joinPolicyOwnerManagers: 'Validation par le propriétaire ou un gestionnaire',
     joinPolicyHint: 'Définit comment un utilisateur rejoint ce domaine : automatique, ou après validation.',
+    publicLabel: 'Public',
+    publicHint: 'Un domaine privé n\'apparaît pas dans le catalogue : on n\'y entre que sur invitation.',
   },
   subjectForm: {
     domain: 'Domaine',

@@ -129,6 +129,8 @@ export type EditorUiText = {
     joinPolicyOwner: string;
     joinPolicyOwnerManagers: string;
     joinPolicyHint: string;
+    publicLabel: string;
+    publicHint: string;
   };
   subjectForm: {
     domain: string;

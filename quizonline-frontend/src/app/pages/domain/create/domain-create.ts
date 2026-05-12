@@ -86,6 +86,7 @@ export class DomainCreate implements OnInit {
   private fb = inject(FormBuilder);
   form = this.fb.group({
     active: new FormControl<boolean>(true, {nonNullable: true}),
+    public: new FormControl<boolean>(true, {nonNullable: true}),
     owner: new FormControl<number | null>(null),
     managers: new FormControl<number[]>([], {nonNullable: true}),
     join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
@@ -328,6 +329,7 @@ export class DomainCreate implements OnInit {
     const translations = buildLocalizedTextRecord(this.translationsGroup()) as DomainTranslations;
     return {
       active: this.form.controls.active.value ?? true,
+      public: this.form.controls.public.value ?? true,
       managers: this.form.controls.managers.value ?? [],
       join_policy: this.form.controls.join_policy.value,
       allowed_languages,

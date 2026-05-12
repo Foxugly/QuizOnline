@@ -129,6 +129,8 @@ export const EN: EditorUiText = {
     joinPolicyOwner: 'Owner approval required',
     joinPolicyOwnerManagers: 'Owner or manager approval required',
     joinPolicyHint: 'How a user becomes a member of this domain: automatic, or after approval.',
+    publicLabel: 'Public',
+    publicHint: 'A private domain is not listed in the catalog: you can only join via invitation.',
   },
   subjectForm: {
     domain: 'Domain',

@@ -15,6 +15,7 @@ export interface PatchedDomainPartialRequestDto {
     translations?: { [key: string]: LocalizedNameDescriptionTranslationRequestDto; };
     allowed_languages?: Array<number>;
     active?: boolean;
+    'public'?: boolean;
     join_policy?: JoinPolicyEnumDto;
     owner?: number;
     managers?: Array<number>;

@@ -122,6 +122,7 @@ export class DomainEdit implements OnInit {
   private fb = inject(FormBuilder);
   form = this.fb.group({
     active: new FormControl<boolean>(true, {nonNullable: true}),
+    public: new FormControl<boolean>(true, {nonNullable: true}),
     owner: new FormControl<number | null>(null),
     managers: new FormControl<number[]>([], {nonNullable: true}),
     join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
@@ -509,6 +510,7 @@ export class DomainEdit implements OnInit {
 
     this.form.patchValue({
       active: dto.active ?? true,
+      public: dto.public ?? true,
       owner: ownerId,
       managers: managerIds,
       join_policy: (dto.join_policy as JoinPolicyEnumDto | undefined) ?? JoinPolicyEnumDto.Auto,
@@ -540,6 +542,7 @@ export class DomainEdit implements OnInit {
 
     return {
       active: this.form.controls.active.value,
+      public: this.form.controls.public.value,
       managers: this.form.controls.managers.value,
       join_policy: this.form.controls.join_policy.value,
       allowed_languages,

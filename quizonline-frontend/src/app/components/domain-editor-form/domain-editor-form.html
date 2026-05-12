@@ -8,6 +8,14 @@
     </div>
 
     <div class="meta-item">
+      <label class="meta-label" for="public">{{ ui().domainForm.publicLabel }}</label>
+      <div class="meta-value widget-center">
+        <p-toggleswitch formControlName="public" inputId="public"></p-toggleswitch>
+      </div>
+      <div class="meta-hint">{{ ui().domainForm.publicHint }}</div>
+    </div>
+
+    <div class="meta-item">
       <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
       <div class="meta-value widget-center">
         <p-select
