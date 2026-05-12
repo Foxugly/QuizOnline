@@ -59,6 +59,7 @@ export type QuizListUiText = {
     loadError: string;
     resultsError: string;
     createError: string;
+    pendingApprovalBanner: (domains: string) => string;
   };
 };
 
@@ -118,6 +119,7 @@ const FR: QuizListUiText = {
     loadError: 'Impossible de charger les quiz.',
     resultsError: 'Impossible de charger les résultats.',
     createError: 'Impossible de créer ce quiz.',
+    pendingApprovalBanner: (domains: string) => `En attente de validation pour : ${domains}. Les quiz de ces domaines apparaîtront une fois votre accès approuvé.`,
   },
 };
 
@@ -177,6 +179,7 @@ const EN: QuizListUiText = {
     loadError: 'Unable to load quizzes.',
     resultsError: 'Unable to load results.',
     createError: 'Unable to create this quiz.',
+    pendingApprovalBanner: (domains: string) => `Pending approval for: ${domains}. Quizzes from these domains will appear once your access is approved.`,
   },
 };
 
@@ -236,6 +239,7 @@ const NL: QuizListUiText = {
     loadError: 'Kan quizzen niet laden.',
     resultsError: 'Kan resultaten niet laden.',
     createError: 'Kan deze quiz niet maken.',
+    pendingApprovalBanner: (domains: string) => `In afwachting van goedkeuring voor: ${domains}. Quizzen uit deze domeinen verschijnen zodra je toegang is goedgekeurd.`,
   },
 };
 
@@ -295,6 +299,7 @@ const IT: QuizListUiText = {
     loadError: 'Impossibile caricare i quiz.',
     resultsError: 'Impossibile caricare i risultati.',
     createError: 'Impossibile creare questo quiz.',
+    pendingApprovalBanner: (domains: string) => `In attesa di approvazione per: ${domains}. I quiz di questi domini appariranno una volta che il tuo accesso sarà approvato.`,
   },
 };
 
@@ -354,6 +359,7 @@ const ES: QuizListUiText = {
     loadError: 'No se pueden cargar los cuestionarios.',
     resultsError: 'No se pueden cargar los resultados.',
     createError: 'No se puede crear este cuestionario.',
+    pendingApprovalBanner: (domains: string) => `Pendiente de aprobación para: ${domains}. Los cuestionarios de estos dominios aparecerán una vez aprobado tu acceso.`,
   },
 };
 

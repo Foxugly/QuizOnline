@@ -9,6 +9,12 @@
     <div class="header-actions"></div>
   </div>
 
+  @if (pendingDomains().length > 0) {
+    <p-message severity="warn" [closable]="false">
+      {{ uiText().messages.pendingApprovalBanner(pendingDomainNames()) }}
+    </p-message>
+  }
+
   <div class="card">
     <p-tabs [value]="activeTab()" (valueChange)="setActiveTab($event)" class="quiz-tabs">
       <p-tablist>

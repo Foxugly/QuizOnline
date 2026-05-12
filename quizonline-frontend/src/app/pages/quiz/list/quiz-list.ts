@@ -9,6 +9,7 @@ import {BadgeModule} from 'primeng/badge';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
+import {MessageModule} from 'primeng/message';
 import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuizListDto} from '../../../api/generated/model/quiz-list';
@@ -43,6 +44,7 @@ type BulkAction = 'activate' | 'deactivate' | 'delete';
     ButtonModule,
     ConfirmDialogModule,
     InputTextModule,
+    MessageModule,
     TabsModule,
     QuizTemplateTableComponent,
     QuizSessionTableComponent,
@@ -93,22 +95,60 @@ export class QuizListPage implements OnInit {
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = computed(() => getQuizListUiText(this.currentLang()));
 
+  /** Set of domain ids where the current user has a pending join request. */
+  readonly pendingDomainIds = computed(() => {
+    const requests = this.userService.currentUser()?.pending_join_requests ?? [];
+    return new Set(requests.map((req: { domain_id?: number }) => req.domain_id).filter((id): id is number => typeof id === 'number'));
+  });
+
+  /** Domains the user has a pending join request for (resolved to known DomainReadDto when possible). */
+  readonly pendingDomains = computed(() => {
+    const ids = this.pendingDomainIds();
+    if (!ids.size) {
+      return [] as DomainReadDto[];
+    }
+    return this.domains().filter((d) => ids.has(d.id));
+  });
+
+  /** Comma-joined human-readable names of pending domains, for the banner. */
+  readonly pendingDomainNames = computed(() => {
+    const lang = this.userService.currentLang;
+    const visibleById = new Map(this.domains().map((d) => [d.id, d]));
+    return [...this.pendingDomainIds()]
+      .map((id) => {
+        const domain = visibleById.get(id);
+        return domain ? this.localizedDomainName(domain, lang) : `#${id}`;
+      })
+      .join(', ');
+  });
+
+  private localizedDomainName(domain: DomainReadDto, lang: string): string {
+    const translations = domain.translations ?? {};
+    const entry = (translations as Record<string, {name?: string}>)[lang]
+      ?? (translations as Record<string, {name?: string}>)['fr']
+      ?? (translations as Record<string, {name?: string}>)['en']
+      ?? Object.values(translations as Record<string, {name?: string}>)[0];
+    return entry?.name?.trim() || `#${domain.id}`;
+  }
+
   readonly filteredTemplates = computed(() => {
     const term = this.normalize(this.q());
-    return this.templates().filter((template) =>
-      !term || this.matchesSearch(term, template.title, template.description ?? '', template.mode ?? ''),
-    );
+    const pending = this.pendingDomainIds();
+    return this.templates()
+      .filter((template) => !pending.has(template.domain ?? -1))
+      .filter((template) =>
+        !term || this.matchesSearch(term, template.title, template.description ?? '', template.mode ?? ''),
+      );
   });
 
   readonly filteredMyQuizzes = computed(() => {
     const term = this.normalize(this.q());
-    if (!term) {
-      return this.myQuizzes();
-    }
-
-    return this.myQuizzes().filter((quiz) =>
-      this.matchesSearch(term, quiz.quiz_template_title, quiz.quiz_template_description, quiz.mode),
-    );
+    const pending = this.pendingDomainIds();
+    return this.myQuizzes()
+      .filter((quiz) => !pending.has(quiz.domain ?? -1))
+      .filter((quiz) =>
+        !term || this.matchesSearch(term, quiz.quiz_template_title, quiz.quiz_template_description, quiz.mode),
+      );
   });
 
   ngOnInit(): void {
