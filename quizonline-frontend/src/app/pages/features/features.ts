@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 
-import {UserService} from '../../services/user/user';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getFeaturesUiText} from './features.i18n';
 
 @Component({
@@ -11,7 +11,5 @@ import {getFeaturesUiText} from './features.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Features {
-  private readonly userService = inject(UserService);
-
-  protected readonly ui = computed(() => getFeaturesUiText(this.userService.currentLang));
+  protected readonly ui = inject(UiTextService).localized(getFeaturesUiText);
 }

@@ -26,6 +26,7 @@ import {DomainService} from '../../../services/domain/domain';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getQuizListUiText} from './quiz-list.i18n';
 import {ROUTES} from '../../../app.routes-paths';
 
@@ -88,7 +89,7 @@ export class QuizListPage implements OnInit {
   readonly canCreateQuickTemplate = computed(() => this.domains().length > 0);
 
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
-  readonly uiText = computed(() => getQuizListUiText(this.currentLang()));
+  readonly uiText = inject(UiTextService).localized(getQuizListUiText);
   readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
     const labels = this.uiText().bulk;
     return [

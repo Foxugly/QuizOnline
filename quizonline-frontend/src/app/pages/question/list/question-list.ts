@@ -23,7 +23,8 @@ import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {BulkActionsComponent} from '../../../shared/components/bulk-actions/bulk-actions';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {getQuestionListUiText, QuestionListUiText} from './question-list.i18n';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {getQuestionListUiText} from './question-list.i18n';
 
 type BulkAction =
   | 'export'
@@ -66,7 +67,7 @@ type QuestionListRow = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionList implements OnInit {
-  readonly text = computed<QuestionListUiText>(() => getQuestionListUiText(this.userService.currentLang));
+  readonly text = inject(UiTextService).localized(getQuestionListUiText);
   totalRecords = signal(0);
   rows = signal(10);
   first = signal(0);

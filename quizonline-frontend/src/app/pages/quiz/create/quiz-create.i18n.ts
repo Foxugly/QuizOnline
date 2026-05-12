@@ -406,6 +406,8 @@ const QUIZ_CREATE_UI_TEXT: Record<LanguageEnumDto, QuizCreateUiText> = {
   },
 };
 
-export function getQuizCreateUiText(lang: LanguageEnumDto): QuizCreateUiText {
-  return QUIZ_CREATE_UI_TEXT[lang] ?? QUIZ_CREATE_UI_TEXT[LanguageEnumDto.Fr];
+export function getQuizCreateUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): QuizCreateUiText {
+  return QUIZ_CREATE_UI_TEXT[lang as LanguageEnumDto] ?? QUIZ_CREATE_UI_TEXT[LanguageEnumDto.Fr];
 }

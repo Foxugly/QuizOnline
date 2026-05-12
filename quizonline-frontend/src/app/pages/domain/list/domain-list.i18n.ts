@@ -122,6 +122,8 @@ const DICT: Record<LanguageEnumDto, DomainListUiText> = {
   [LanguageEnumDto.Es]: ES,
 };
 
-export function getDomainListUiText(lang: LanguageEnumDto): DomainListUiText {
-  return DICT[lang] ?? EN;
+export function getDomainListUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): DomainListUiText {
+  return DICT[lang as LanguageEnumDto] ?? EN;
 }

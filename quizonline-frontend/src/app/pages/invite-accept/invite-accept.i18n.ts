@@ -170,6 +170,8 @@ const DICT: Record<LanguageEnumDto, InviteAcceptUiText> = {
   [LanguageEnumDto.Es]: ES,
 };
 
-export function getInviteAcceptUiText(lang: LanguageEnumDto): InviteAcceptUiText {
-  return DICT[lang] ?? EN;
+export function getInviteAcceptUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): InviteAcceptUiText {
+  return DICT[lang as LanguageEnumDto] ?? EN;
 }

@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {TabsModule} from 'primeng/tabs';
 
-import {UserService} from '../../services/user/user';
 import {CONTACT_INFO, emailDisplay, openContactEmail, phoneDisplay} from '../../shared/contact';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getAboutUiText} from './about.i18n';
 
 @Component({
@@ -13,10 +13,8 @@ import {getAboutUiText} from './about.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class About {
-  private readonly userService = inject(UserService);
-
   protected readonly repositoryUrl = 'https://github.com/Foxugly/QuizOnline';
-  protected readonly ui = computed(() => getAboutUiText(this.userService.currentLang));
+  protected readonly ui = inject(UiTextService).localized(getAboutUiText);
   protected readonly technicalCardKeys = ['repository', 'backend', 'frontend'] as const;
   protected readonly activeTab = signal('company');
   protected readonly contact = CONTACT_INFO;

@@ -146,6 +146,8 @@ const DICT: Record<LanguageEnumDto, TransferAcceptUiText> = {
   [LanguageEnumDto.Es]: ES,
 };
 
-export function getTransferAcceptUiText(lang: LanguageEnumDto): TransferAcceptUiText {
-  return DICT[lang] ?? EN;
+export function getTransferAcceptUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): TransferAcceptUiText {
+  return DICT[lang as LanguageEnumDto] ?? EN;
 }

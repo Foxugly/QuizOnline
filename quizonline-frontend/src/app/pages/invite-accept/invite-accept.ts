@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   OnInit,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -17,11 +16,11 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {DomainInviteStateDto} from '../../api/generated/model/domain-invite-state';
-import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
-import {getInviteAcceptUiText, InviteAcceptUiText} from './invite-accept.i18n';
+import {getInviteAcceptUiText} from './invite-accept.i18n';
 
 type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'notFound' | 'generic';
 
@@ -44,9 +43,7 @@ export class InviteAcceptPage implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly text = computed<InviteAcceptUiText>(
-    () => getInviteAcceptUiText(this.userService.currentLang ?? LanguageEnumDto.Fr),
-  );
+  readonly text = inject(UiTextService).localized(getInviteAcceptUiText);
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);

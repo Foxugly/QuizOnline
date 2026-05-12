@@ -158,7 +158,7 @@ export class DomainEdit implements OnInit {
   private translator = inject(TranslationService);
   private editApi = inject(DomainEditApi);
 
-  readonly editText = computed(() => getDomainEditUiText(this.userService.currentLang ?? LanguageEnumDto.Fr));
+  readonly editText = inject(UiTextService).localized(getDomainEditUiText);
   readonly currentUserId = computed(() => this.userService.currentUser()?.id ?? null);
   readonly canModerate = computed(() => {
     const dto = this.domain();

@@ -15,7 +15,8 @@ import {
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {UserService} from '../../../services/user/user';
 import {TruncateFilenamePipe} from '../../../shared/pipes/truncate-filename.pipe';
-import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i18n';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {getQuestionImportUiText} from './question-import.i18n';
 
 @Component({
   selector: 'app-question-import',
@@ -31,7 +32,7 @@ import {getQuestionImportUiText, QuestionImportUiText} from './question-import.i
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionImport implements OnInit {
-  readonly text = computed<QuestionImportUiText>(() => getQuestionImportUiText(this.currentLang()));
+  readonly text = inject(UiTextService).localized(getQuestionImportUiText);
   readonly hasValidFile = computed(
     () => this.validationErrors().length === 0 && (this.importFile() !== null || this.importFileRaw() !== null),
   );

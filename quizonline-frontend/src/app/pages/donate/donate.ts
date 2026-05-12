@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 
-import {UserService} from '../../services/user/user';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getDonateUiText} from './donate.i18n';
 
 @Component({
@@ -10,8 +10,6 @@ import {getDonateUiText} from './donate.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Donate {
-  private readonly userService = inject(UserService);
-
   protected readonly sponsorUrl = 'https://github.com/sponsors/Foxugly';
-  protected readonly ui = computed(() => getDonateUiText(this.userService.currentLang));
+  protected readonly ui = inject(UiTextService).localized(getDonateUiText);
 }

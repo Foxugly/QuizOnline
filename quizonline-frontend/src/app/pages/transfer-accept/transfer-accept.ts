@@ -4,7 +4,6 @@ import {
   Component,
   DestroyRef,
   OnInit,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -17,11 +16,11 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {DomainTransferStateDto} from '../../api/generated/model/domain-transfer-state';
-import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
-import {getTransferAcceptUiText, TransferAcceptUiText} from './transfer-accept.i18n';
+import {getTransferAcceptUiText} from './transfer-accept.i18n';
 
 type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'notFound' | 'generic';
 
@@ -44,9 +43,7 @@ export class TransferAcceptPage implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly text = computed<TransferAcceptUiText>(
-    () => getTransferAcceptUiText(this.userService.currentLang ?? LanguageEnumDto.Fr),
-  );
+  readonly text = inject(UiTextService).localized(getTransferAcceptUiText);
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);

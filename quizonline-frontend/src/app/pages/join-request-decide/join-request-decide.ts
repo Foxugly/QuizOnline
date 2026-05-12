@@ -21,11 +21,11 @@ import {DomainApi as DomainApiService} from '../../api/generated/api/domain.serv
 import {ActionEnumDto} from '../../api/generated/model/action-enum';
 import {DomainJoinRequestDecideResponseDto} from '../../api/generated/model/domain-join-request-decide-response';
 import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-status-enum';
-import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
-import {JoinRequestDecideUiText, getJoinRequestDecideUiText} from './join-request-decide.i18n';
+import {getJoinRequestDecideUiText} from './join-request-decide.i18n';
 
 type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'recipientMismatch'
   | 'cannotApproveAnymore' | 'requestNotFound' | 'generic';
@@ -50,9 +50,7 @@ export class JoinRequestDecidePage implements OnInit {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly text = computed<JoinRequestDecideUiText>(
-    () => getJoinRequestDecideUiText(this.userService.currentLang ?? LanguageEnumDto.Fr)
-  );
+  readonly text = inject(UiTextService).localized(getJoinRequestDecideUiText);
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);

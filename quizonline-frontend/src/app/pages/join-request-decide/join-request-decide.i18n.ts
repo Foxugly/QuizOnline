@@ -278,6 +278,8 @@ const DICT: Record<LanguageEnumDto, JoinRequestDecideUiText> = {
   [LanguageEnumDto.Es]: ES,
 };
 
-export function getJoinRequestDecideUiText(lang: LanguageEnumDto): JoinRequestDecideUiText {
-  return DICT[lang] ?? EN;
+export function getJoinRequestDecideUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): JoinRequestDecideUiText {
+  return DICT[lang as LanguageEnumDto] ?? EN;
 }

@@ -56,7 +56,7 @@ export class DomainList implements OnInit {
 
   readonly editorUi = inject(UiTextService).editor;
   readonly ui = inject(UiTextService).ui;
-  readonly uiText = computed(() => getDomainListUiText(this.userService.currentLang));
+  readonly uiText = inject(UiTextService).localized(getDomainListUiText);
   domains = signal<DomainReadDto[]>([]);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);
