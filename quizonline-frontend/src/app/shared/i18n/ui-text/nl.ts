@@ -216,6 +216,10 @@ export const NL: UiText = {
       bulkRejectHeader: 'Meerdere aanvragen afwijzen',
       bulkRejectMessage: (n) => `De onderstaande reden wordt voor de ${n} afgewezen aanvragen opgeslagen.`,
       bulkActionFailed: 'Een of meer acties zijn mislukt.',
+      bulkResultTitle: 'Bulkactie voltooid',
+      bulkResultDetail: (processed, skipped) => skipped > 0
+        ? `${processed} aanvra(a)g(en) verwerkt, ${skipped} overgeslagen (al beslist of buiten bereik).`
+        : `${processed} aanvra(a)g(en) verwerkt.`,
     },
   },
 };

@@ -349,6 +349,10 @@ export const FR: UiText = {
       bulkRejectHeader: 'Refuser plusieurs demandes',
       bulkRejectMessage: (n) => `Le motif ci-dessous sera enregistré pour les ${n} demandes refusées.`,
       bulkActionFailed: 'Une ou plusieurs actions ont échoué.',
+      bulkResultTitle: 'Action groupée terminée',
+      bulkResultDetail: (processed, skipped) => skipped > 0
+        ? `${processed} demande(s) traitée(s), ${skipped} ignorée(s) (déjà décidée(s) ou hors périmètre).`
+        : `${processed} demande(s) traitée(s).`,
     },
   },
 };

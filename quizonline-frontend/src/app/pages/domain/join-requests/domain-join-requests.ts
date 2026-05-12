@@ -4,7 +4,7 @@ import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetection
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
-import {finalize, forkJoin, Observable} from 'rxjs';
+import {finalize} from 'rxjs';
 import {BadgeModule} from 'primeng/badge';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
@@ -13,6 +13,7 @@ import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
 import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
+import {DomainJoinRequestBulkResultDto} from '../../../api/generated/model/domain-join-request-bulk-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {JoinRequestStatusEnumDto} from '../../../api/generated/model/join-request-status-enum';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
@@ -22,6 +23,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {logApiError} from '../../../shared/api/api-errors';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
 type BulkAction = 'approve' | 'reject';
@@ -50,6 +52,7 @@ export class DomainJoinRequestsPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(AppToastService);
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
   readonly domainId = Number(this.route.snapshot.paramMap.get('domainId'));
@@ -151,24 +154,29 @@ export class DomainJoinRequestsPage implements OnInit {
       this.bulkRejectDialogVisible.set(false);
       return;
     }
-    const calls: Array<Observable<unknown>> = ids.map(id =>
-      this.http.post(`${this.apiBaseUrl}/${this.domainId}/join-request/${id}/reject/`, {reason})
-    );
     this.applyingBulk.set(true);
-    forkJoin(calls)
+    this.domainApi
+      .domainJoinRequestBulkRejectCreate({
+        domainId: this.domainId,
+        domainJoinRequestBulkRejectRequestDto: {request_ids: ids, reason},
+      })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.applyingBulk.set(false)),
       )
       .subscribe({
-        next: () => {
+        next: (result) => {
           this.bulkRejectDialogVisible.set(false);
           this.bulkRejectReason.set('');
           this.selectedRows.set([]);
+          this.notifyBulkResult(result);
           this.loadDomain();
           this.loadRequests();
         },
-        error: (err) => logApiError('domain.join-requests.bulk-reject', err),
+        error: (err) => {
+          logApiError('domain.join-requests.bulk-reject', err);
+          this.toast.add({severity: 'error', summary: this.t().bulkActionFailed});
+        },
       });
   }
 
@@ -182,23 +190,37 @@ export class DomainJoinRequestsPage implements OnInit {
     if (!ids.length) {
       return;
     }
-    const calls = ids.map(id =>
-      this.domainApi.domainJoinRequestApproveCreate({domainId: this.domainId, reqId: id})
-    );
     this.applyingBulk.set(true);
-    forkJoin(calls)
+    this.domainApi
+      .domainJoinRequestBulkApproveCreate({
+        domainId: this.domainId,
+        domainJoinRequestBulkApproveRequestDto: {request_ids: ids},
+      })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.applyingBulk.set(false)),
       )
       .subscribe({
-        next: () => {
+        next: (result) => {
           this.selectedRows.set([]);
+          this.notifyBulkResult(result);
           this.loadDomain();
           this.loadRequests();
         },
-        error: (err) => logApiError('domain.join-requests.bulk-approve', err),
+        error: (err) => {
+          logApiError('domain.join-requests.bulk-approve', err);
+          this.toast.add({severity: 'error', summary: this.t().bulkActionFailed});
+        },
       });
+  }
+
+  private notifyBulkResult(result: DomainJoinRequestBulkResultDto): void {
+    const labels = this.t();
+    this.toast.add({
+      severity: result.skipped > 0 ? 'warn' : 'success',
+      summary: labels.bulkResultTitle,
+      detail: labels.bulkResultDetail(result.processed, result.skipped),
+    });
   }
 
   userNameFor(userId: number): string {

@@ -217,6 +217,10 @@ export const IT: UiText = {
       bulkRejectHeader: 'Rifiuta più richieste',
       bulkRejectMessage: (n) => `Il motivo qui sotto sarà salvato per le ${n} richieste rifiutate.`,
       bulkActionFailed: 'Una o più azioni non sono riuscite.',
+      bulkResultTitle: 'Azione in blocco completata',
+      bulkResultDetail: (processed, skipped) => skipped > 0
+        ? `${processed} richiesta/e elaborata/e, ${skipped} ignorata/e (già decisa/e o fuori ambito).`
+        : `${processed} richiesta/e elaborata/e.`,
     },
   },
 };

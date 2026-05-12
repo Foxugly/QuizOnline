@@ -101,5 +101,7 @@ export type AdminUiText = {
     bulkRejectHeader: string;
     bulkRejectMessage: (n: number) => string;
     bulkActionFailed: string;
+    bulkResultTitle: string;
+    bulkResultDetail: (processed: number, skipped: number) => string;
   };
 };

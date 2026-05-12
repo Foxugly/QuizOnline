@@ -217,6 +217,10 @@ export const ES: UiText = {
       bulkRejectHeader: 'Rechazar varias solicitudes',
       bulkRejectMessage: (n) => `El motivo siguiente se guardará para las ${n} solicitudes rechazadas.`,
       bulkActionFailed: 'Una o varias acciones fallaron.',
+      bulkResultTitle: 'Acción masiva completada',
+      bulkResultDetail: (processed, skipped) => skipped > 0
+        ? `${processed} solicitud(es) procesada(s), ${skipped} omitida(s) (ya decidida(s) o fuera de alcance).`
+        : `${processed} solicitud(es) procesada(s).`,
     },
   },
 };
