@@ -14,7 +14,12 @@ from django.test import TestCase
 from django.utils import timezone
 
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
-from domain.services import auto_decline_stale_pending_requests, domains_with_pending_for_user
+from domain.services import (
+    auto_decline_stale_pending_requests,
+    domains_with_pending_for_user,
+    send_expiring_join_request_warnings,
+)
+from core.models import OutboundEmail
 
 User = get_user_model()
 
@@ -155,6 +160,59 @@ class DomainsWithPendingForUserTests(TestCase):
     def test_no_pending_domain_excluded(self):
         ids = [d["id"] for d in domains_with_pending_for_user(self.owner)]
         self.assertNotIn(self.domain_c.id, ids)
+
+
+class SendExpiringJoinRequestWarningsTests(TestCase):
+    def setUp(self):
+        from django.utils import translation
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="p")
+        self.user = User.objects.create_user(username="u", password="p", email="u@x.test")
+        self.domain = Domain.objects.create(
+            owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
+        )
+
+    def _make_pending(self, *, days_ago: int) -> DomainJoinRequest:
+        jr = DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
+        DomainJoinRequest.objects.filter(pk=jr.pk).update(
+            created_at=timezone.now() - timedelta(days=days_ago),
+        )
+        jr.refresh_from_db()
+        return jr
+
+    def test_warns_request_in_warning_window(self):
+        OutboundEmail.objects.all().delete()
+        jr = self._make_pending(days_ago=28)  # 2 days from auto-decline
+        sent = send_expiring_join_request_warnings(auto_decline_days=30, warn_days_before=3)
+        self.assertEqual(sent, 1)
+        self.assertEqual(OutboundEmail.objects.count(), 1)
+        jr.refresh_from_db()
+        self.assertIsNotNone(jr.expiry_warning_sent_at)
+
+    def test_ignores_recent_requests(self):
+        self._make_pending(days_ago=5)
+        self.assertEqual(send_expiring_join_request_warnings(), 0)
+
+    def test_ignores_already_warned(self):
+        jr = self._make_pending(days_ago=28)
+        jr.expiry_warning_sent_at = timezone.now()
+        jr.save(update_fields=["expiry_warning_sent_at"])
+        self.assertEqual(send_expiring_join_request_warnings(), 0)
+
+    def test_ignores_past_threshold(self):
+        # > auto_decline_days old: belongs to the auto-cancel sweep,
+        # not the warning window.
+        self._make_pending(days_ago=45)
+        self.assertEqual(send_expiring_join_request_warnings(), 0)
+
+    def test_idempotent_within_a_day(self):
+        OutboundEmail.objects.all().delete()
+        self._make_pending(days_ago=28)
+        first = send_expiring_join_request_warnings()
+        second = send_expiring_join_request_warnings()
+        self.assertEqual(first, 1)
+        self.assertEqual(second, 0)
+        self.assertEqual(OutboundEmail.objects.count(), 1)
 
 
 class ModerationSummaryEndpointTests(TestCase):

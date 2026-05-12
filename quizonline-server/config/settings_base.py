@@ -241,6 +241,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "domain.tasks.auto_decline_stale_join_requests_task",
         "schedule": 24 * 3600.0,  # once a day
     },
+    "send-expiring-join-request-warnings": {
+        "task": "domain.tasks.send_expiring_join_request_warnings_task",
+        "schedule": 24 * 3600.0,  # once a day
+    },
 }
 DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE")
 FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE")

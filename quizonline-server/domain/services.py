@@ -184,6 +184,50 @@ def domains_with_pending_for_user(user) -> list[dict]:
     return out
 
 
+def send_expiring_join_request_warnings(
+    *,
+    auto_decline_days: int = 30,
+    warn_days_before: int = 3,
+) -> int:
+    """
+    Email the requester of every pending join request that will
+    auto-cancel within ``warn_days_before`` days — once and only once
+    per row, gated by ``expiry_warning_sent_at``.
+
+    Returns the number of warnings actually queued.
+    """
+    from core.mailers.domain_join import send_join_request_expiry_warning_email
+
+    now = timezone.now()
+    # Window: requests created between (decline_threshold - warn_days) and
+    # (decline_threshold). The lower bound prevents us from re-flagging
+    # 60-day-old rows that already passed the auto-decline cutoff (those
+    # are cleaned up by the dedicated task).
+    decline_threshold = now - timedelta(days=auto_decline_days)
+    warn_threshold = decline_threshold + timedelta(days=warn_days_before)
+    expiring = list(
+        DomainJoinRequest.objects.filter(
+            status=DomainJoinRequest.STATUS_PENDING,
+            expiry_warning_sent_at__isnull=True,
+            created_at__lte=warn_threshold,
+            created_at__gt=decline_threshold,
+        ).select_related("user", "domain")
+    )
+    sent = 0
+    for jr in expiring:
+        days_left = max(
+            1,
+            auto_decline_days - int((now - jr.created_at).total_seconds() // 86400),
+        )
+        send_join_request_expiry_warning_email(join_request=jr, days_left=days_left)
+        # Tag the row with NOW so a re-run on the same day is a no-op
+        # even if mail delivery itself is async — the row is "committed"
+        # to having been warned the moment we enqueue.
+        DomainJoinRequest.objects.filter(pk=jr.pk).update(expiry_warning_sent_at=now)
+        sent += 1
+    return sent
+
+
 def auto_decline_stale_pending_requests(*, older_than_days: int = 30) -> int:
     """
     Mark as ``CANCELLED`` all pending join requests created more than

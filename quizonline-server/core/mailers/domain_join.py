@@ -10,6 +10,84 @@ from core.mailers._localized_copy import pick_copy
 from domain.decision_token import make_decision_token
 
 
+def _build_warning_copy_catalog() -> dict[str, dict[str, str]]:
+    app = settings.NAME_APP
+    return {
+        "fr": {
+            "greeting": "Bonjour",
+            "subject": f"{app} - votre demande d'accès va expirer",
+            "body": 'Votre demande d\'accès au domaine "{domain}" va expirer dans {days} jour(s) faute de décision. Si elle reste en attente, elle sera automatiquement annulée.',
+            "outro": "Vous pouvez la maintenir en attente en attendant ou contacter le propriétaire du domaine.",
+        },
+        "nl": {
+            "greeting": "Hallo",
+            "subject": f"{app} - uw toegangsaanvraag zal verlopen",
+            "body": 'Uw toegangsaanvraag voor het domein "{domain}" verloopt over {days} dag(en) bij gebrek aan beslissing. Wordt deze niet beslist, dan wordt zij automatisch geannuleerd.',
+            "outro": "U kunt afwachten of contact opnemen met de eigenaar van het domein.",
+        },
+        "it": {
+            "greeting": "Ciao",
+            "subject": f"{app} - la tua richiesta di accesso sta per scadere",
+            "body": 'La tua richiesta di accesso al dominio "{domain}" scadrà tra {days} giorno(i) in mancanza di una decisione. Se rimane in sospeso, sarà annullata automaticamente.',
+            "outro": "Puoi attendere o contattare il proprietario del dominio.",
+        },
+        "es": {
+            "greeting": "Hola",
+            "subject": f"{app} - tu solicitud de acceso está por expirar",
+            "body": 'Tu solicitud de acceso al dominio "{domain}" expirará en {days} día(s) si no se toma una decisión. Si permanece pendiente, se cancelará automáticamente.',
+            "outro": "Puedes esperar o contactar al propietario del dominio.",
+        },
+        "en": {
+            "greeting": "Hello",
+            "subject": f"{app} - your join request is about to expire",
+            "body": 'Your join request on "{domain}" will expire in {days} day(s) without a decision. If still pending, it will be cancelled automatically.',
+            "outro": "You can wait it out or contact the domain owner.",
+        },
+    }
+
+
+def _warning_copy(language_code: str) -> dict[str, str]:
+    return pick_copy(catalog=_build_warning_copy_catalog(), language_code=language_code)
+
+
+def send_join_request_expiry_warning_email(*, join_request, days_left: int) -> None:
+    """
+    Heads-up to the requester that their pending join request is on
+    the verge of being auto-cancelled. Sent by the daily Celery beat
+    job; the row's ``expiry_warning_sent_at`` is bumped by the caller
+    so we never re-fire on the same row.
+    """
+    user = join_request.user
+    if not getattr(user, "email", ""):
+        return
+    domain = join_request.domain
+
+    def body_builder(u):
+        copy = _warning_copy(user_language(u))
+        return (
+            f"{copy['greeting']} {u.get_display_name()},\n\n"
+            + copy["body"].format(domain=_domain_name_for(domain, u), days=days_left) + "\n\n"
+            + copy["outro"] + "\n"
+        )
+
+    def html_builder(u):
+        copy = _warning_copy(user_language(u))
+        return render_html_email(
+            heading=f"{copy['greeting']} {u.get_display_name()},",
+            blocks=[
+                {"type": "text", "content": copy["body"].format(domain=_domain_name_for(domain, u), days=days_left)},
+                {"type": "text", "content": copy["outro"]},
+            ],
+        )
+
+    send_user_email(
+        user=user,
+        subject_builder=lambda u: _warning_copy(user_language(u))["subject"],
+        body_builder=body_builder,
+        html_builder=html_builder,
+    )
+
+
 def _build_copy_catalog() -> dict[str, dict[str, str]]:
     """Catalog evaluated lazily to honour ``settings.NAME_APP`` at first use."""
     app = settings.NAME_APP

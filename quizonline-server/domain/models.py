@@ -137,6 +137,10 @@ class DomainJoinRequest(models.Model):
     )
     decided_at = models.DateTimeField(null=True, blank=True)
     reject_reason = models.TextField(blank=True, max_length=500)
+    # Set when the daily expiry-warning task has emailed the requester.
+    # Stored as a timestamp (not a boolean) so we can audit when the
+    # warning went out and never re-fire it on the same row.
+    expiry_warning_sent_at = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
