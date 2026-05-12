@@ -14,6 +14,8 @@ import {BadgeModule} from 'primeng/badge';
 import {DialogModule} from 'primeng/dialog';
 import {SelectModule} from 'primeng/select';
 import {MessageModule} from 'primeng/message';
+import {TableModule} from 'primeng/table';
+import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
@@ -35,6 +37,7 @@ import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.s
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainAuditLogReadDto} from '../../../api/generated/model/domain-audit-log-read';
 import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
@@ -66,12 +69,14 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    DatePipe,
     ButtonModule,
     TabsModule,
     BadgeModule,
     DialogModule,
     SelectModule,
     MessageModule,
+    TableModule,
     DomainEditorFormComponent,
     DomainMembersTab,
   ],
@@ -89,7 +94,9 @@ export class DomainEdit implements OnInit {
 
   domain = signal<DomainDetailDto | null>(null);
   pendingRequests = signal<DomainJoinRequestReadDto[]>([]);
-  topTab = signal<'config' | 'members'>('config');
+  topTab = signal<'config' | 'members' | 'audit'>('config');
+  readonly auditRows = signal<DomainAuditLogReadDto[]>([]);
+  readonly auditLoading = signal<boolean>(false);
 
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
@@ -339,9 +346,31 @@ export class DomainEdit implements OnInit {
   }
 
   onTopTabChange(value: string | number | undefined): void {
-    if (value === 'members' || value === 'config') {
+    if (value === 'members' || value === 'config' || value === 'audit') {
       this.topTab.set(value);
+      if (value === 'audit' && this.auditRows().length === 0) {
+        this.loadAuditLog();
+      }
     }
+  }
+
+  private loadAuditLog(): void {
+    this.auditLoading.set(true);
+    this.http.get<{results?: DomainAuditLogReadDto[]} | DomainAuditLogReadDto[]>(
+      `${this.apiBaseUrl}/${this.id}/audit/`,
+    )
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-audit', err);
+          return of([] as DomainAuditLogReadDto[]);
+        }),
+        finalize(() => this.auditLoading.set(false)),
+      )
+      .subscribe((response) => {
+        const list = Array.isArray(response) ? response : (response?.results ?? []);
+        this.auditRows.set(list);
+      });
   }
 
   onMemberRoleChange(evt: {userId: number; makeManager: boolean}): void {

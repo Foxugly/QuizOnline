@@ -31,6 +31,7 @@ model/custom-user-admin-update-request.ts
 model/custom-user-create-request.ts
 model/custom-user-read.ts
 model/dashboard-stats-response.ts
+model/domain-audit-log-read.ts
 model/domain-detail.ts
 model/domain-invite-read-status-enum.ts
 model/domain-invite-read.ts
@@ -79,6 +80,7 @@ model/mode-enum.ts
 model/models.ts
 model/moderation-summary-item.ts
 model/paginated-custom-user-read-list.ts
+model/paginated-domain-audit-log-read-list.ts
 model/paginated-domain-join-request-read-list.ts
 model/paginated-domain-read-list.ts
 model/paginated-language-read-list.ts

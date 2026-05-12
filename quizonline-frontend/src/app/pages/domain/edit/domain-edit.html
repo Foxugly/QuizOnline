@@ -33,6 +33,9 @@
             <p-badge [value]="pendingCount() + ''" severity="warn"/>
           }
         </p-tab>
+        @if (canManageMembers()) {
+          <p-tab value="audit">{{ editText().tabs.audit }}</p-tab>
+        }
       </p-tablist>
 
       <p-tabpanels>
@@ -57,6 +60,44 @@
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)">
           </app-domain-editor-form>
+        </p-tabpanel>
+
+        <p-tabpanel value="audit">
+          <section class="card form-card">
+            <div class="card-head">
+              <h2 class="card-title">{{ editText().audit.title }}</h2>
+            </div>
+            @if (auditLoading()) {
+              <p class="muted">{{ ui().common.loading }}</p>
+            } @else if (auditRows().length > 0) {
+              <p-table
+                [value]="auditRows()"
+                [paginator]="auditRows().length > 25"
+                [rows]="25"
+                styleClass="table"
+                size="small"
+                stripedRows>
+                <ng-template #header>
+                  <tr>
+                    <th>{{ editText().audit.colWhen }}</th>
+                    <th>{{ editText().audit.colActor }}</th>
+                    <th>{{ editText().audit.colAction }}</th>
+                    <th>{{ editText().audit.colTarget }}</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-row>
+                  <tr>
+                    <td>{{ row.created_at | date:'medium' }}</td>
+                    <td>{{ row.actor_username || editText().audit.systemActor }}</td>
+                    <td>{{ editText().audit.actionLabel(row.action) }}</td>
+                    <td>{{ row.target_username || '—' }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            } @else {
+              <p class="muted">{{ editText().audit.empty }}</p>
+            }
+          </section>
         </p-tabpanel>
 
         <p-tabpanel value="members">

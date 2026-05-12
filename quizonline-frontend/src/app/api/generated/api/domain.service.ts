@@ -47,6 +47,8 @@ import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
 import { ModerationSummaryItemDto } from '../model/moderation-summary-item';
 // @ts-ignore
+import { PaginatedDomainAuditLogReadListDto } from '../model/paginated-domain-audit-log-read-list';
+// @ts-ignore
 import { PaginatedDomainJoinRequestReadListDto } from '../model/paginated-domain-join-request-read-list';
 // @ts-ignore
 import { PaginatedDomainReadListDto } from '../model/paginated-domain-read-list';
@@ -58,6 +60,13 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import { BaseService } from '../api.base.service';
 
+
+export interface DomainAuditListRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+    /** A page number within the paginated result set. */
+    page?: number;
+}
 
 export interface DomainCreateRequestParams {
     domainWriteRequestDto: DomainWriteRequestDto;
@@ -197,6 +206,80 @@ export class DomainApi extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * Journal d\&#39;audit d\&#39;un domaine
+     * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).
+     * @endpoint get /api/domain/{domain_id}/audit/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainAuditList(requestParameters: DomainAuditListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedDomainAuditLogReadListDto>;
+    public domainAuditList(requestParameters: DomainAuditListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedDomainAuditLogReadListDto>>;
+    public domainAuditList(requestParameters: DomainAuditListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedDomainAuditLogReadListDto>>;
+    public domainAuditList(requestParameters: DomainAuditListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainAuditList.');
+        }
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PaginatedDomainAuditLogReadListDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**

@@ -4,6 +4,17 @@ export type DomainEditUiText = {
   tabs: {
     config: string;
     members: string;
+    audit: string;
+  };
+  audit: {
+    title: string;
+    empty: string;
+    colWhen: string;
+    colActor: string;
+    colAction: string;
+    colTarget: string;
+    actionLabel: (action: string) => string;
+    systemActor: string;
   };
   errors: {
     invalidId: string;
@@ -73,8 +84,108 @@ export type DomainEditUiText = {
   };
 };
 
+const FR_ACTION_LABELS: Record<string, string> = {
+  'member.promote': 'Promu gestionnaire',
+  'member.demote': 'Rétrogradé en membre',
+  'member.remove': 'Retiré du domaine',
+  'member.self_leave': 'A quitté le domaine',
+  'join_request.approve': 'Demande approuvée',
+  'join_request.reject': 'Demande refusée',
+  'join_request.approve_via_email': 'Demande approuvée (mail)',
+  'join_request.reject_via_email': 'Demande refusée (mail)',
+  'invite.bulk_send': 'Invitations envoyées',
+  'invite.resend': 'Invitation renvoyée',
+  'invite.revoke': 'Invitation révoquée',
+  'invite.accept_via_link': 'Invitation acceptée',
+  'invite.auto_accept_on_signup': 'Invitation acceptée à l\'inscription',
+  'transfer.initiate': 'Transfert de propriété initié',
+  'transfer.accept': 'Transfert de propriété accepté',
+};
+
+const EN_ACTION_LABELS: Record<string, string> = {
+  'member.promote': 'Promoted to manager',
+  'member.demote': 'Demoted to member',
+  'member.remove': 'Removed from domain',
+  'member.self_leave': 'Left the domain',
+  'join_request.approve': 'Request approved',
+  'join_request.reject': 'Request rejected',
+  'join_request.approve_via_email': 'Request approved (email)',
+  'join_request.reject_via_email': 'Request rejected (email)',
+  'invite.bulk_send': 'Invitations sent',
+  'invite.resend': 'Invitation resent',
+  'invite.revoke': 'Invitation revoked',
+  'invite.accept_via_link': 'Invitation accepted',
+  'invite.auto_accept_on_signup': 'Invitation accepted on signup',
+  'transfer.initiate': 'Ownership transfer initiated',
+  'transfer.accept': 'Ownership transfer accepted',
+};
+
+const NL_ACTION_LABELS: Record<string, string> = {
+  'member.promote': 'Bevorderd tot beheerder',
+  'member.demote': 'Gedegradeerd tot lid',
+  'member.remove': 'Verwijderd uit domein',
+  'member.self_leave': 'Heeft het domein verlaten',
+  'join_request.approve': 'Aanvraag goedgekeurd',
+  'join_request.reject': 'Aanvraag afgewezen',
+  'join_request.approve_via_email': 'Aanvraag goedgekeurd (e-mail)',
+  'join_request.reject_via_email': 'Aanvraag afgewezen (e-mail)',
+  'invite.bulk_send': 'Uitnodigingen verzonden',
+  'invite.resend': 'Uitnodiging opnieuw verzonden',
+  'invite.revoke': 'Uitnodiging ingetrokken',
+  'invite.accept_via_link': 'Uitnodiging aanvaard',
+  'invite.auto_accept_on_signup': 'Uitnodiging aanvaard bij aanmelding',
+  'transfer.initiate': 'Eigendomsoverdracht gestart',
+  'transfer.accept': 'Eigendomsoverdracht aanvaard',
+};
+
+const IT_ACTION_LABELS: Record<string, string> = {
+  'member.promote': 'Promosso a gestore',
+  'member.demote': 'Retrocesso a membro',
+  'member.remove': 'Rimosso dal dominio',
+  'member.self_leave': 'Ha lasciato il dominio',
+  'join_request.approve': 'Richiesta approvata',
+  'join_request.reject': 'Richiesta rifiutata',
+  'join_request.approve_via_email': 'Richiesta approvata (e-mail)',
+  'join_request.reject_via_email': 'Richiesta rifiutata (e-mail)',
+  'invite.bulk_send': 'Inviti inviati',
+  'invite.resend': 'Invito reinviato',
+  'invite.revoke': 'Invito revocato',
+  'invite.accept_via_link': 'Invito accettato',
+  'invite.auto_accept_on_signup': 'Invito accettato all\'iscrizione',
+  'transfer.initiate': 'Trasferimento di proprietà avviato',
+  'transfer.accept': 'Trasferimento di proprietà accettato',
+};
+
+const ES_ACTION_LABELS: Record<string, string> = {
+  'member.promote': 'Promovido a gestor',
+  'member.demote': 'Degradado a miembro',
+  'member.remove': 'Eliminado del dominio',
+  'member.self_leave': 'Abandonó el dominio',
+  'join_request.approve': 'Solicitud aprobada',
+  'join_request.reject': 'Solicitud rechazada',
+  'join_request.approve_via_email': 'Solicitud aprobada (correo)',
+  'join_request.reject_via_email': 'Solicitud rechazada (correo)',
+  'invite.bulk_send': 'Invitaciones enviadas',
+  'invite.resend': 'Invitación reenviada',
+  'invite.revoke': 'Invitación revocada',
+  'invite.accept_via_link': 'Invitación aceptada',
+  'invite.auto_accept_on_signup': 'Invitación aceptada al registrarse',
+  'transfer.initiate': 'Transferencia de propiedad iniciada',
+  'transfer.accept': 'Transferencia de propiedad aceptada',
+};
+
 const FR: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Membres'},
+  tabs: {config: 'Configuration', members: 'Membres', audit: 'Journal'},
+  audit: {
+    title: 'Journal des actions',
+    empty: 'Aucune action enregistrée.',
+    colWhen: 'Date',
+    colActor: 'Acteur',
+    colAction: 'Action',
+    colTarget: 'Cible',
+    actionLabel: (action) => FR_ACTION_LABELS[action] ?? action,
+    systemActor: 'système',
+  },
   errors: {
     invalidId: 'Identifiant invalide.',
     loadDomainFailed: 'Impossible de charger le domaine.',
@@ -144,7 +255,17 @@ const FR: DomainEditUiText = {
 };
 
 const EN: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Members'},
+  tabs: {config: 'Configuration', members: 'Members', audit: 'Activity'},
+  audit: {
+    title: 'Activity log',
+    empty: 'No action recorded yet.',
+    colWhen: 'When',
+    colActor: 'Actor',
+    colAction: 'Action',
+    colTarget: 'Target',
+    actionLabel: (action) => EN_ACTION_LABELS[action] ?? action,
+    systemActor: 'system',
+  },
   errors: {
     invalidId: 'Invalid identifier.',
     loadDomainFailed: 'Failed to load the domain.',
@@ -214,7 +335,17 @@ const EN: DomainEditUiText = {
 };
 
 const NL: DomainEditUiText = {
-  tabs: {config: 'Configuratie', members: 'Leden'},
+  tabs: {config: 'Configuratie', members: 'Leden', audit: 'Activiteit'},
+  audit: {
+    title: 'Activiteitenlogboek',
+    empty: 'Nog geen actie geregistreerd.',
+    colWhen: 'Wanneer',
+    colActor: 'Actor',
+    colAction: 'Actie',
+    colTarget: 'Doel',
+    actionLabel: (action) => NL_ACTION_LABELS[action] ?? action,
+    systemActor: 'systeem',
+  },
   errors: {
     invalidId: 'Ongeldige identificatie.',
     loadDomainFailed: 'Kan het domein niet laden.',
@@ -284,7 +415,17 @@ const NL: DomainEditUiText = {
 };
 
 const IT: DomainEditUiText = {
-  tabs: {config: 'Configurazione', members: 'Membri'},
+  tabs: {config: 'Configurazione', members: 'Membri', audit: 'Attività'},
+  audit: {
+    title: 'Registro attività',
+    empty: 'Nessuna azione registrata.',
+    colWhen: 'Quando',
+    colActor: 'Attore',
+    colAction: 'Azione',
+    colTarget: 'Bersaglio',
+    actionLabel: (action) => IT_ACTION_LABELS[action] ?? action,
+    systemActor: 'sistema',
+  },
   errors: {
     invalidId: 'Identificatore non valido.',
     loadDomainFailed: 'Impossibile caricare il dominio.',
@@ -354,7 +495,17 @@ const IT: DomainEditUiText = {
 };
 
 const ES: DomainEditUiText = {
-  tabs: {config: 'Configuración', members: 'Miembros'},
+  tabs: {config: 'Configuración', members: 'Miembros', audit: 'Actividad'},
+  audit: {
+    title: 'Registro de actividad',
+    empty: 'No hay acciones registradas.',
+    colWhen: 'Cuándo',
+    colActor: 'Autor',
+    colAction: 'Acción',
+    colTarget: 'Objetivo',
+    actionLabel: (action) => ES_ACTION_LABELS[action] ?? action,
+    systemActor: 'sistema',
+  },
   errors: {
     invalidId: 'Identificador no válido.',
     loadDomainFailed: 'No se puede cargar el dominio.',
