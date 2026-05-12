@@ -20,6 +20,8 @@ export interface DomainDetailDto {
     readonly allowed_languages: Array<LanguageReadDto>;
     readonly active: boolean;
     readonly join_policy: JoinPolicyEnumDto;
+    readonly pending_join_requests_count: number | null;
+    readonly my_join_request_status: string | null;
     readonly owner: UserSummaryDto;
     readonly managers: Array<UserSummaryDto>;
     readonly members: Array<UserSummaryDto>;
