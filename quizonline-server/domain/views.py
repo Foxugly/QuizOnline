@@ -192,6 +192,11 @@ class DomainViewSet(MyModelViewSet):
             return [AllowAny()]
         if self.action == "available_for_linking":
             return [AllowAny()]
+        if self.action == "leave":
+            # Self-leave is a user-scoped action: a plain member must be
+            # allowed to drop themselves without owner/manager rights. The
+            # action body still guards against non-members and the owner.
+            return [IsAuthenticated()]
         return [IsAuthenticated(), IsDomainOwnerOrManager()]
 
     def get_serializer_class(self):
@@ -439,6 +444,42 @@ class DomainViewSet(MyModelViewSet):
             raise PermissionDenied("Vous ne pouvez pas vous retirer vous-même du domaine.")
         if domain.managers.filter(pk=target.pk).exists():
             raise PermissionDenied("Un manager ne peut pas en retirer un autre.")
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Quitter le domaine (action volontaire de l'utilisateur)",
+        description=(
+            "L'utilisateur connecté se retire du domaine. Refuse :\n\n"
+            "- si l'utilisateur est le owner (il doit d'abord transférer la propriété) ;\n"
+            "- si l'utilisateur n'est pas membre du domaine.\n\n"
+            "Tout statut de manager est aussi retiré. Idempotent au niveau\n"
+            "du M2M (`remove` sur un non-membre est un no-op)."
+        ),
+        request=None,
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Quitté."),
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_409_CONFLICT: ErrorDetailSerializer,
+        },
+    )
+    @action(detail=True, methods=["post"], url_path="leave", permission_classes=[IsAuthenticated])
+    def leave(self, request, *args, **kwargs):
+        domain = self.get_object()
+        user = request.user
+        if domain.owner_id == user.id:
+            return Response(
+                {"detail": "owner_cannot_leave"},
+                status=status.HTTP_409_CONFLICT,
+            )
+        if not domain.members.filter(pk=user.pk).exists():
+            return Response(
+                {"detail": "not_a_member"},
+                status=status.HTTP_409_CONFLICT,
+            )
+        with transaction.atomic():
+            domain.managers.remove(user)
+            domain.members.remove(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class DomainJoinRequestViewSet(viewsets.GenericViewSet):
