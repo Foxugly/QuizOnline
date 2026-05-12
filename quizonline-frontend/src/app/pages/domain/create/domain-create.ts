@@ -12,6 +12,7 @@ import {CardModule} from 'primeng/card';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
+import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 
@@ -86,6 +87,7 @@ export class DomainCreate implements OnInit {
     active: new FormControl<boolean>(true, {nonNullable: true}),
     owner: new FormControl<number | null>(null),
     managers: new FormControl<number[]>([], {nonNullable: true}),
+    join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
 
     allowed_language_codes: new FormControl<LangCode[]>([], {
       nonNullable: true,
@@ -326,6 +328,7 @@ export class DomainCreate implements OnInit {
     return {
       active: this.form.controls.active.value ?? true,
       managers: this.form.controls.managers.value ?? [],
+      join_policy: this.form.controls.join_policy.value,
       allowed_languages,
       translations,
       ...(typeof owner === 'number' ? { owner } : {}),

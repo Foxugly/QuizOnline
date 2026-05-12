@@ -3525,6 +3525,10 @@ components:
         active:
           type: boolean
           readOnly: true
+        join_policy:
+          allOf:
+          - $ref: '#/components/schemas/JoinPolicyEnum'
+          readOnly: true
         owner:
           allOf:
           - $ref: '#/components/schemas/UserSummary'
@@ -3552,6 +3556,7 @@ components:
       - allowed_languages
       - created_at
       - id
+      - join_policy
       - managers
       - owner
       - subjects

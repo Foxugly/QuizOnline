@@ -324,6 +324,7 @@ class DomainDetailSerializer(DomainReadSerializer):
             "translations",
             "allowed_languages",
             "active",
+            "join_policy",
             "owner",
             "managers",
             "created_at",

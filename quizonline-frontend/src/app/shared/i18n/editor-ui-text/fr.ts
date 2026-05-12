@@ -124,6 +124,11 @@ export const FR: EditorUiText = {
     available: 'Disponibles',
     selected: 'Sélectionnés',
     readonly: 'readonly',
+    joinPolicy: 'Liaison au domaine',
+    joinPolicyAuto: 'Automatique',
+    joinPolicyOwner: 'Validation par le propriétaire',
+    joinPolicyOwnerManagers: 'Validation par le propriétaire ou un gestionnaire',
+    joinPolicyHint: 'Définit comment un utilisateur rejoint ce domaine : automatique, ou après validation.',
   },
   subjectForm: {
     domain: 'Domaine',

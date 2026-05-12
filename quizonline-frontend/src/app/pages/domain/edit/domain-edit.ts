@@ -26,6 +26,7 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
+import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
@@ -109,6 +110,7 @@ export class DomainEdit implements OnInit {
     active: new FormControl<boolean>(true, {nonNullable: true}),
     owner: new FormControl<number | null>(null),
     managers: new FormControl<number[]>([], {nonNullable: true}),
+    join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
 
     allowed_language_codes: new FormControl<LangCode[]>([], {
       nonNullable: true,
@@ -359,6 +361,7 @@ export class DomainEdit implements OnInit {
       active: dto.active ?? true,
       owner: ownerId,
       managers: managerIds,
+      join_policy: (dto.join_policy as JoinPolicyEnumDto | undefined) ?? JoinPolicyEnumDto.Auto,
     });
   }
 
@@ -388,6 +391,7 @@ export class DomainEdit implements OnInit {
     return {
       active: this.form.controls.active.value,
       managers: this.form.controls.managers.value,
+      join_policy: this.form.controls.join_policy.value,
       allowed_languages,
       translations,
       ...(typeof owner === 'number' ? { owner } : {}),

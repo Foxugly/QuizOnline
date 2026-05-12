@@ -124,6 +124,11 @@ export const EN: EditorUiText = {
     available: 'Available',
     selected: 'Selected',
     readonly: 'readonly',
+    joinPolicy: 'Domain join policy',
+    joinPolicyAuto: 'Automatic',
+    joinPolicyOwner: 'Owner approval required',
+    joinPolicyOwnerManagers: 'Owner or manager approval required',
+    joinPolicyHint: 'How a user becomes a member of this domain: automatic, or after approval.',
   },
   subjectForm: {
     domain: 'Domain',

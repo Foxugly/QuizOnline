@@ -14,10 +14,12 @@ import {SelectButtonModule} from 'primeng/selectbutton';
 import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
+import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
 import {UserService} from '../../services/user/user';
 
 type UserOption = { label: string; value: number };
 type LangOption = { label: string; value: string };
+type JoinPolicyOption = { label: string; value: JoinPolicyEnumDto };
 
 @Component({
   selector: 'app-domain-editor-form',
@@ -55,6 +57,15 @@ export class DomainEditorFormComponent {
   readonly submitLabel = input('Enregistrer');
   readonly titleLabel = input('Nom');
   readonly ui = inject(UiTextService).editor;
+
+  readonly joinPolicyOptions = computed<JoinPolicyOption[]>(() => {
+    const labels = this.ui().domainForm;
+    return [
+      {label: labels.joinPolicyAuto, value: JoinPolicyEnumDto.Auto},
+      {label: labels.joinPolicyOwner, value: JoinPolicyEnumDto.Owner},
+      {label: labels.joinPolicyOwnerManagers, value: JoinPolicyEnumDto.OwnerManagers},
+    ];
+  });
 
   readonly tabValueChange = output<string | number | undefined>();
   readonly translateClick = output<string>();

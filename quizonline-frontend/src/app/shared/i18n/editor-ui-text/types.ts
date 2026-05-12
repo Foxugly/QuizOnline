@@ -124,6 +124,11 @@ export type EditorUiText = {
     available: string;
     selected: string;
     readonly: string;
+    joinPolicy: string;
+    joinPolicyAuto: string;
+    joinPolicyOwner: string;
+    joinPolicyOwnerManagers: string;
+    joinPolicyHint: string;
   };
   subjectForm: {
     domain: string;

@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { JoinPolicyEnumDto } from './join-policy-enum';
 import { UserSummaryDto } from './user-summary';
 import { SubjectReadDto } from './subject-read';
 import { LanguageReadDto } from './language-read';
@@ -18,10 +19,13 @@ export interface DomainDetailDto {
     readonly translations: { [key: string]: LocalizedNameDescriptionTranslationDto; };
     readonly allowed_languages: Array<LanguageReadDto>;
     readonly active: boolean;
+    readonly join_policy: JoinPolicyEnumDto;
     readonly owner: UserSummaryDto;
     readonly managers: Array<UserSummaryDto>;
     readonly created_at: string;
     readonly updated_at: string;
     readonly subjects: Array<SubjectReadDto>;
 }
+
+
 
