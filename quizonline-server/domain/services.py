@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -29,6 +31,26 @@ def flip_pending_to_approved(domain, user, *, by) -> int:
             decided_by=by,
             decided_at=timezone.now(),
         )
+    )
+
+
+def auto_decline_stale_pending_requests(*, older_than_days: int = 30) -> int:
+    """
+    Mark as ``CANCELLED`` all pending join requests created more than
+    ``older_than_days`` ago. No emails are sent: the goal is to keep the
+    moderation queue clean from forgotten requests.
+
+    A monotonic single-column update (PENDING → CANCELLED) — no
+    ``select_for_update`` because the worst case of a concurrent approve
+    is "the approve wins" (last-write-wins), which is acceptable.
+
+    Returns the number of rows updated.
+    """
+    cutoff = timezone.now() - timedelta(days=older_than_days)
+    return (
+        DomainJoinRequest.objects
+        .filter(status=DomainJoinRequest.STATUS_PENDING, created_at__lt=cutoff)
+        .update(status=DomainJoinRequest.STATUS_CANCELLED)
     )
 
 
