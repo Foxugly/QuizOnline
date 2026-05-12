@@ -442,3 +442,53 @@ class ModerationSummaryItemSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     pending_count = serializers.IntegerField()
+
+
+class DomainInviteRequestSerializer(serializers.Serializer):
+    """
+    Payload for ``POST /api/domain/{id}/invite/``.
+
+    ``language`` is optional and used to pick the email locale when we
+    have no User row to read a preference from yet (fresh invitations to
+    addresses not on the platform).
+
+    We deliberately use a plain ``CharField`` with manual validation
+    rather than a ``ChoiceField``: drf-spectacular would otherwise emit
+    a new ad-hoc enum schema that collides with the shared
+    ``LanguageEnum`` referenced everywhere else in the API.
+    """
+    emails = serializers.ListField(
+        child=serializers.EmailField(),
+        min_length=1,
+        max_length=50,
+        allow_empty=False,
+    )
+    language = serializers.CharField(required=False, default="en", max_length=8)
+
+    def validate_language(self, value):
+        valid = {code for code, _ in settings.LANGUAGES}
+        if value not in valid:
+            raise serializers.ValidationError("Unsupported language.")
+        return value
+
+
+class DomainInviteResultSerializer(serializers.Serializer):
+    """Per-invitation outcome returned by the bulk invite endpoint."""
+    email = serializers.EmailField()
+    status = serializers.ChoiceField(choices=("sent", "already_member", "invalid"))
+
+
+class DomainInviteStateSerializer(serializers.Serializer):
+    """Shape of GET/POST ``/api/domain/invite/accept/{token}/``."""
+    state = serializers.ChoiceField(choices=(
+        "ready_to_accept",
+        "login_required",
+        "signup_required",
+        "wrong_account",
+        "already_member",
+        "accepted",
+    ))
+    domain_id = serializers.IntegerField()
+    domain_name = serializers.CharField()
+    inviter_username = serializers.CharField()
+    invited_email = serializers.EmailField()

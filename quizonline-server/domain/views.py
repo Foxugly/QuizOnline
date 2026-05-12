@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from config.tools import MyModelViewSet
 
+from core.mailers.domain_invite import send_domain_invite_email
 from core.mailers.domain_join import (
     send_join_request_created_email,
     send_join_request_approved_email,
@@ -21,6 +22,11 @@ from .decision_token import (
     DecisionTokenExpired,
     DecisionTokenInvalid,
     parse_decision_token,
+)
+from .invite_token import (
+    InviteTokenExpired,
+    InviteTokenInvalid,
+    parse_invite_token,
 )
 from .models import Domain, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
@@ -33,6 +39,9 @@ from .serializers import (
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
     DomainJoinRequestDecideResponseSerializer,
+    DomainInviteRequestSerializer,
+    DomainInviteResultSerializer,
+    DomainInviteStateSerializer,
     ModerationSummaryItemSerializer,
 )
 from .services import domains_with_pending_for_user, users_who_can_approve
@@ -486,6 +495,54 @@ class DomainViewSet(MyModelViewSet):
 
     @extend_schema(
         tags=["Domain"],
+        summary="Inviter un ou plusieurs utilisateurs par e-mail",
+        description=(
+            "Envoie une invitation signée à chaque adresse de la liste. Le "
+            "destinataire suivra un lien qui pointe sur la page d'acceptation "
+            "frontend ; aucun objet d'invitation n'est créé côté DB (le token "
+            "est l'invitation).\n\n"
+            "Accessible aux owners et aux managers du domaine."
+        ),
+        request=DomainInviteRequestSerializer,
+        responses={status.HTTP_200_OK: DomainInviteResultSerializer(many=True)},
+    )
+    @action(detail=True, methods=["post"], url_path="invite", pagination_class=None)
+    def invite(self, request, *args, **kwargs):
+        domain = self.get_object()
+        serializer = DomainInviteRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        emails = serializer.validated_data["emails"]
+        language = serializer.validated_data["language"]
+
+        User = get_user_model()
+        results: list[dict] = []
+        seen_lower: set[str] = set()
+
+        for raw_email in emails:
+            email = (raw_email or "").strip().lower()
+            if not email or email in seen_lower:
+                # The serializer already filtered out malformed addresses, so
+                # we only need to deduplicate within the same request.
+                continue
+            seen_lower.add(email)
+
+            existing = User.objects.filter(email__iexact=email).first()
+            if existing and domain.members.filter(pk=existing.pk).exists():
+                results.append({"email": email, "status": "already_member"})
+                continue
+
+            try:
+                send_domain_invite_email(
+                    email=email, domain=domain, inviter=request.user, language=language,
+                )
+                results.append({"email": email, "status": "sent"})
+            except Exception:  # pragma: no cover — defensive
+                results.append({"email": email, "status": "invalid"})
+
+        return Response(results, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        tags=["Domain"],
         summary="Quitter le domaine (action volontaire de l'utilisateur)",
         description=(
             "L'utilisateur connecté se retire du domaine. Refuse :\n\n"
@@ -910,3 +967,111 @@ class DomainJoinRequestDecideView(APIView):
             "was_already_decided": was_already_decided,
             "request": DomainJoinRequestReadSerializer(join_request).data,
         })
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Domain"],
+        summary="Décoder un token d'invitation",
+        description=(
+            "Décode le lien d'invitation reçu par mail et renvoie l'état du "
+            "destinataire vis-à-vis du domaine : prêt à accepter, doit se "
+            "connecter, doit s'inscrire, etc.\n\n"
+            "Endpoint public : la page d'acceptation est volontairement "
+            "accessible avant l'authentification pour pouvoir orienter le "
+            "visiteur vers la bonne action (login / signup)."
+        ),
+        responses={
+            status.HTTP_200_OK: DomainInviteStateSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+    post=extend_schema(
+        tags=["Domain"],
+        summary="Accepter l'invitation (utilisateur authentifié)",
+        description=(
+            "Ajoute l'utilisateur connecté aux membres du domaine si son "
+            "adresse e-mail correspond à celle encodée dans le token. Sinon "
+            "renvoie 403 ``wrong_account`` — l'invitation reste valide pour "
+            "le bon compte jusqu'à expiration."
+        ),
+        request=None,
+        responses={
+            status.HTTP_200_OK: DomainInviteStateSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_401_UNAUTHORIZED: ErrorDetailSerializer,
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+)
+class DomainInviteAcceptView(APIView):
+    """Decode an invitation token and (POST) materialise membership."""
+
+    # Public GET so the landing page can render without forcing a login
+    # first; POST checks ``request.user.is_authenticated`` itself so
+    # anonymous POSTs return the ``signup_required`` state instead of a
+    # blanket 401.
+    permission_classes = []
+
+    def get(self, request, token: str):
+        return self._respond(request, token, do_accept=False)
+
+    def post(self, request, token: str):
+        return self._respond(request, token, do_accept=True)
+
+    def _respond(self, request, token: str, *, do_accept: bool) -> Response:
+        parsed = self._parse(token)
+        if isinstance(parsed, Response):
+            return parsed
+        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=parsed["domain_id"])
+        invited_email = parsed["email"]
+
+        User = get_user_model()
+        inviter = User.objects.filter(pk=parsed["inviter_id"]).first()
+        inviter_username = inviter.username if inviter else ""
+
+        domain_name = domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}"
+
+        base_payload = {
+            "domain_id": domain.id,
+            "domain_name": domain_name,
+            "inviter_username": inviter_username,
+            "invited_email": invited_email,
+        }
+
+        user = getattr(request, "user", None)
+        is_auth = bool(user and user.is_authenticated)
+
+        if is_auth:
+            if (user.email or "").lower() != invited_email:
+                return Response(
+                    {**base_payload, "state": "wrong_account"},
+                    status=status.HTTP_403_FORBIDDEN if do_accept else status.HTTP_200_OK,
+                )
+            if domain.members.filter(pk=user.pk).exists():
+                return Response({**base_payload, "state": "already_member"})
+
+            if do_accept:
+                with transaction.atomic():
+                    domain.members.add(user)
+                return Response({**base_payload, "state": "accepted"})
+            return Response({**base_payload, "state": "ready_to_accept"})
+
+        # Anonymous: route based on whether an account exists for that mail.
+        existing = User.objects.filter(email__iexact=invited_email).first()
+        if existing:
+            return Response({**base_payload, "state": "login_required"})
+        return Response({**base_payload, "state": "signup_required"})
+
+    @staticmethod
+    def _parse(token: str):
+        try:
+            return parse_invite_token(token)
+        except InviteTokenExpired:
+            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
+        except InviteTokenInvalid:
+            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)

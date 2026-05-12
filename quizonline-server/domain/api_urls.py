@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
+    DomainInviteAcceptView,
     DomainJoinRequestDecideView,
     DomainJoinRequestViewSet,
     DomainViewSet,
@@ -26,6 +27,11 @@ urlpatterns = [
         "join-request/decide/<str:token>/",
         DomainJoinRequestDecideView.as_view(),
         name="domain-join-request-decide",
+    ),
+    path(
+        "invite/accept/<str:token>/",
+        DomainInviteAcceptView.as_view(),
+        name="domain-invite-accept",
     ),
 ] + router.urls + [
     path(

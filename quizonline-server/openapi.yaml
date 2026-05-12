@@ -300,6 +300,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
+  /api/domain/{domain_id}/invite/:
+    post:
+      operationId: domain_invite_create
+      description: |-
+        Envoie une invitation signée à chaque adresse de la liste. Le destinataire suivra un lien qui pointe sur la page d'acceptation frontend ; aucun objet d'invitation n'est créé côté DB (le token est l'invitation).
+
+        Accessible aux owners et aux managers du domaine.
+      summary: Inviter un ou plusieurs utilisateurs par e-mail
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainInviteRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DomainInviteRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DomainInviteRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DomainInviteResult'
+          description: ''
   /api/domain/{domain_id}/join-request/:
     get:
       operationId: domain_join_request_list
@@ -552,6 +592,102 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DomainWrite'
+          description: ''
+  /api/domain/invite/accept/{token}/:
+    get:
+      operationId: domain_invite_accept_retrieve
+      description: |-
+        Décode le lien d'invitation reçu par mail et renvoie l'état du destinataire vis-à-vis du domaine : prêt à accepter, doit se connecter, doit s'inscrire, etc.
+
+        Endpoint public : la page d'acceptation est volontairement accessible avant l'authentification pour pouvoir orienter le visiteur vers la bonne action (login / signup).
+      summary: Décoder un token d'invitation
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainInviteState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+    post:
+      operationId: domain_invite_accept_create
+      description: Ajoute l'utilisateur connecté aux membres du domaine si son adresse
+        e-mail correspond à celle encodée dans le token. Sinon renvoie 403 ``wrong_account``
+        — l'invitation reste valide pour le bon compte jusqu'à expiration.
+      summary: Accepter l'invitation (utilisateur authentifié)
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainInviteState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
           description: ''
   /api/domain/join-request/decide/{token}/:
     get:
@@ -3743,6 +3879,78 @@ components:
       - subjects
       - translations
       - updated_at
+    DomainInviteRequestRequest:
+      type: object
+      description: |-
+        Payload for ``POST /api/domain/{id}/invite/``.
+
+        ``language`` is optional and used to pick the email locale when we
+        have no User row to read a preference from yet (fresh invitations to
+        addresses not on the platform).
+
+        We deliberately use a plain ``CharField`` with manual validation
+        rather than a ``ChoiceField``: drf-spectacular would otherwise emit
+        a new ad-hoc enum schema that collides with the shared
+        ``LanguageEnum`` referenced everywhere else in the API.
+      properties:
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+            minLength: 1
+          maxItems: 50
+          minItems: 1
+        language:
+          type: string
+          minLength: 1
+          default: en
+          maxLength: 8
+      required:
+      - emails
+    DomainInviteResult:
+      type: object
+      description: Per-invitation outcome returned by the bulk invite endpoint.
+      properties:
+        email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/DomainInviteResultStatusEnum'
+      required:
+      - email
+      - status
+    DomainInviteResultStatusEnum:
+      enum:
+      - sent
+      - already_member
+      - invalid
+      type: string
+      description: |-
+        * `sent` - sent
+        * `already_member` - already_member
+        * `invalid` - invalid
+    DomainInviteState:
+      type: object
+      description: Shape of GET/POST ``/api/domain/invite/accept/{token}/``.
+      properties:
+        state:
+          $ref: '#/components/schemas/StateEnum'
+        domain_id:
+          type: integer
+        domain_name:
+          type: string
+        inviter_username:
+          type: string
+        invited_email:
+          type: string
+          format: email
+      required:
+      - domain_id
+      - domain_name
+      - invited_email
+      - inviter_username
+      - state
     DomainJoinRequestDecideResponse:
       type: object
       description: Shape of the GET/POST response from the public moderation endpoint.
@@ -6322,6 +6530,22 @@ components:
         domain_id:
           type: integer
           nullable: true
+    StateEnum:
+      enum:
+      - ready_to_accept
+      - login_required
+      - signup_required
+      - wrong_account
+      - already_member
+      - accepted
+      type: string
+      description: |-
+        * `ready_to_accept` - ready_to_accept
+        * `login_required` - login_required
+        * `signup_required` - signup_required
+        * `wrong_account` - wrong_account
+        * `already_member` - already_member
+        * `accepted` - accepted
     SubjectDetail:
       type: object
       properties:
