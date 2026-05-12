@@ -730,6 +730,74 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
+  /api/domain/{domain_id}/join-request/bulk-approve/:
+    post:
+      operationId: domain_join_request_bulk_approve_create
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      summary: Approuver plusieurs demandes en une requête
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkApproveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkApproveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkApproveRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestBulkResult'
+          description: ''
+  /api/domain/{domain_id}/join-request/bulk-reject/:
+    post:
+      operationId: domain_join_request_bulk_reject_create
+      description: Nested under /api/domain/{domain_id}/join-request/.
+      summary: Refuser plusieurs demandes en une requête
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkRejectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkRejectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DomainJoinRequestBulkRejectRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestBulkResult'
+          description: ''
   /api/domain/{domain_id}/leave/:
     post:
       operationId: domain_leave_create
@@ -4471,6 +4539,47 @@ components:
         * `wrong_account` - wrong_account
         * `already_member` - already_member
         * `accepted` - accepted
+    DomainJoinRequestBulkApproveRequest:
+      type: object
+      description: Payload for ``POST /api/domain/{id}/join-request/bulk-approve/``.
+      properties:
+        request_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          maxItems: 200
+          minItems: 1
+      required:
+      - request_ids
+    DomainJoinRequestBulkRejectRequest:
+      type: object
+      description: Payload for ``POST /api/domain/{id}/join-request/bulk-reject/``.
+      properties:
+        request_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          maxItems: 200
+          minItems: 1
+        reason:
+          type: string
+          default: ''
+          maxLength: 500
+      required:
+      - request_ids
+    DomainJoinRequestBulkResult:
+      type: object
+      description: Outcome of a bulk action.
+      properties:
+        processed:
+          type: integer
+        skipped:
+          type: integer
+      required:
+      - processed
+      - skipped
     DomainJoinRequestDecideResponse:
       type: object
       description: Shape of the GET/POST response from the public moderation endpoint.

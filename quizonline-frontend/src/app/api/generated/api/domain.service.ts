@@ -29,6 +29,12 @@ import { DomainInviteResultDto } from '../model/domain-invite-result';
 // @ts-ignore
 import { DomainInviteStateDto } from '../model/domain-invite-state';
 // @ts-ignore
+import { DomainJoinRequestBulkApproveRequestDto } from '../model/domain-join-request-bulk-approve-request';
+// @ts-ignore
+import { DomainJoinRequestBulkRejectRequestDto } from '../model/domain-join-request-bulk-reject-request';
+// @ts-ignore
+import { DomainJoinRequestBulkResultDto } from '../model/domain-join-request-bulk-result';
+// @ts-ignore
 import { DomainJoinRequestDecideResponseDto } from '../model/domain-join-request-decide-response';
 // @ts-ignore
 import { DomainJoinRequestReadDto } from '../model/domain-join-request-read';
@@ -123,6 +129,16 @@ export interface DomainInviteCreateRequestParams {
 export interface DomainJoinRequestApproveCreateRequestParams {
     domainId: number;
     reqId: number;
+}
+
+export interface DomainJoinRequestBulkApproveCreateRequestParams {
+    domainId: number;
+    domainJoinRequestBulkApproveRequestDto: DomainJoinRequestBulkApproveRequestDto;
+}
+
+export interface DomainJoinRequestBulkRejectCreateRequestParams {
+    domainId: number;
+    domainJoinRequestBulkRejectRequestDto: DomainJoinRequestBulkRejectRequestDto;
 }
 
 export interface DomainJoinRequestCancelCreateRequestParams {
@@ -1040,6 +1056,160 @@ export class DomainApi extends BaseService {
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Approuver plusieurs demandes en une requête
+     * Nested under /api/domain/{domain_id}/join-request/.
+     * @endpoint post /api/domain/{domain_id}/join-request/bulk-approve/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainJoinRequestBulkApproveCreate(requestParameters: DomainJoinRequestBulkApproveCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestBulkResultDto>;
+    public domainJoinRequestBulkApproveCreate(requestParameters: DomainJoinRequestBulkApproveCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestBulkResultDto>>;
+    public domainJoinRequestBulkApproveCreate(requestParameters: DomainJoinRequestBulkApproveCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestBulkResultDto>>;
+    public domainJoinRequestBulkApproveCreate(requestParameters: DomainJoinRequestBulkApproveCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestBulkApproveCreate.');
+        }
+        const domainJoinRequestBulkApproveRequestDto = requestParameters?.domainJoinRequestBulkApproveRequestDto;
+        if (domainJoinRequestBulkApproveRequestDto === null || domainJoinRequestBulkApproveRequestDto === undefined) {
+            throw new Error('Required parameter domainJoinRequestBulkApproveRequestDto was null or undefined when calling domainJoinRequestBulkApproveCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-approve/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainJoinRequestBulkResultDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: domainJoinRequestBulkApproveRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Refuser plusieurs demandes en une requête
+     * Nested under /api/domain/{domain_id}/join-request/.
+     * @endpoint post /api/domain/{domain_id}/join-request/bulk-reject/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainJoinRequestBulkRejectCreate(requestParameters: DomainJoinRequestBulkRejectCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestBulkResultDto>;
+    public domainJoinRequestBulkRejectCreate(requestParameters: DomainJoinRequestBulkRejectCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestBulkResultDto>>;
+    public domainJoinRequestBulkRejectCreate(requestParameters: DomainJoinRequestBulkRejectCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestBulkResultDto>>;
+    public domainJoinRequestBulkRejectCreate(requestParameters: DomainJoinRequestBulkRejectCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainJoinRequestBulkRejectCreate.');
+        }
+        const domainJoinRequestBulkRejectRequestDto = requestParameters?.domainJoinRequestBulkRejectRequestDto;
+        if (domainJoinRequestBulkRejectRequestDto === null || domainJoinRequestBulkRejectRequestDto === undefined) {
+            throw new Error('Required parameter domainJoinRequestBulkRejectRequestDto was null or undefined when calling domainJoinRequestBulkRejectCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-reject/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainJoinRequestBulkResultDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: domainJoinRequestBulkRejectRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

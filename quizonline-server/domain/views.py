@@ -47,6 +47,9 @@ from .serializers import (
     DomainMemberRoleSerializer,
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
+    DomainJoinRequestBulkApproveSerializer,
+    DomainJoinRequestBulkRejectSerializer,
+    DomainJoinRequestBulkResultSerializer,
     DomainJoinRequestDecideResponseSerializer,
     DomainAnalyticsSerializer,
     DomainAuditLogReadSerializer,
@@ -1111,6 +1114,120 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
                 lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
             )
         return Response(self.get_serializer(join_request).data)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Approuver plusieurs demandes en une requête",
+        request=DomainJoinRequestBulkApproveSerializer,
+        responses={status.HTTP_200_OK: DomainJoinRequestBulkResultSerializer},
+    )
+    @action(detail=False, methods=["post"], url_path="bulk-approve")
+    def bulk_approve(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        serializer = DomainJoinRequestBulkApproveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        ids = serializer.validated_data["request_ids"]
+
+        now = timezone.now()
+        processed = 0
+        skipped = 0
+        approved_rows: list[DomainJoinRequest] = []
+        with transaction.atomic():
+            rows = list(
+                DomainJoinRequest.objects.select_for_update()
+                .filter(pk__in=ids, domain=domain)
+            )
+            for jr in rows:
+                if jr.status != DomainJoinRequest.STATUS_PENDING:
+                    skipped += 1
+                    continue
+                jr.status = DomainJoinRequest.STATUS_APPROVED
+                jr.decided_by = request.user
+                jr.decided_at = now
+                jr.save(update_fields=["status", "decided_by", "decided_at", "updated_at"])
+                domain.members.add(jr.user)
+                approved_rows.append(jr)
+                processed += 1
+            # Anything in ``ids`` that we did not see is also "skipped"
+            # (gone, foreign-domain, etc.) — surface this in the count.
+            skipped += len(ids) - len(rows)
+            record_audit(
+                domain=domain,
+                action="join_request.bulk_approve",
+                actor=request.user,
+                metadata={
+                    "processed": processed,
+                    "skipped": skipped,
+                    "remote_addr": _client_ip(request),
+                },
+            )
+
+        # Fire the notification emails after the transaction commits so
+        # we do not spam users for rows that ultimately rolled back.
+        def _notify():
+            for jr in approved_rows:
+                send_join_request_approved_email(join_request=jr)
+        transaction.on_commit(_notify)
+
+        return Response({"processed": processed, "skipped": skipped})
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Refuser plusieurs demandes en une requête",
+        request=DomainJoinRequestBulkRejectSerializer,
+        responses={status.HTTP_200_OK: DomainJoinRequestBulkResultSerializer},
+    )
+    @action(detail=False, methods=["post"], url_path="bulk-reject")
+    def bulk_reject(self, request, *args, **kwargs):
+        domain = self._get_domain()
+        self._check_can_approve(domain)
+        serializer = DomainJoinRequestBulkRejectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        ids = serializer.validated_data["request_ids"]
+        reason = serializer.validated_data.get("reason", "")
+
+        now = timezone.now()
+        processed = 0
+        skipped = 0
+        rejected_rows: list[DomainJoinRequest] = []
+        with transaction.atomic():
+            rows = list(
+                DomainJoinRequest.objects.select_for_update()
+                .filter(pk__in=ids, domain=domain)
+            )
+            for jr in rows:
+                if jr.status != DomainJoinRequest.STATUS_PENDING:
+                    skipped += 1
+                    continue
+                jr.status = DomainJoinRequest.STATUS_REJECTED
+                jr.decided_by = request.user
+                jr.decided_at = now
+                jr.reject_reason = reason
+                jr.save(update_fields=[
+                    "status", "decided_by", "decided_at", "reject_reason", "updated_at",
+                ])
+                rejected_rows.append(jr)
+                processed += 1
+            skipped += len(ids) - len(rows)
+            record_audit(
+                domain=domain,
+                action="join_request.bulk_reject",
+                actor=request.user,
+                metadata={
+                    "processed": processed,
+                    "skipped": skipped,
+                    "reason": reason,
+                    "remote_addr": _client_ip(request),
+                },
+            )
+
+        def _notify():
+            for jr in rejected_rows:
+                send_join_request_rejected_email(join_request=jr)
+        transaction.on_commit(_notify)
+
+        return Response({"processed": processed, "skipped": skipped})
 
     @action(detail=True, methods=["post"], url_path="cancel")
     def cancel(self, request, *args, **kwargs):

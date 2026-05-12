@@ -434,6 +434,31 @@ class DomainJoinRequestRejectSerializer(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True, max_length=500, default="")
 
 
+class DomainJoinRequestBulkApproveSerializer(serializers.Serializer):
+    """Payload for ``POST /api/domain/{id}/join-request/bulk-approve/``."""
+    request_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        min_length=1,
+        max_length=200,
+    )
+
+
+class DomainJoinRequestBulkRejectSerializer(serializers.Serializer):
+    """Payload for ``POST /api/domain/{id}/join-request/bulk-reject/``."""
+    request_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        min_length=1,
+        max_length=200,
+    )
+    reason = serializers.CharField(required=False, allow_blank=True, max_length=500, default="")
+
+
+class DomainJoinRequestBulkResultSerializer(serializers.Serializer):
+    """Outcome of a bulk action."""
+    processed = serializers.IntegerField()
+    skipped = serializers.IntegerField()
+
+
 class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
     """Shape of the GET/POST response from the public moderation endpoint."""
     action = serializers.ChoiceField(choices=("approve", "reject"))
