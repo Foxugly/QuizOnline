@@ -64,6 +64,7 @@ from .serializers import (
 from .services import (
     compute_join_request_analytics,
     domains_with_pending_for_user,
+    invalidate_moderation_tile_for_domain,
     record_audit,
     upsert_invite,
     users_who_can_approve,
@@ -1035,6 +1036,9 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
                     recipients=approvers,
                 )
             )
+            transaction.on_commit(
+                lambda d=domain: invalidate_moderation_tile_for_domain(d)
+            )
 
         return Response(
             {
@@ -1074,6 +1078,9 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             transaction.on_commit(
                 lambda jr=join_request: send_join_request_approved_email(join_request=jr)
             )
+            transaction.on_commit(
+                lambda d=domain: invalidate_moderation_tile_for_domain(d)
+            )
         return Response(self.get_serializer(join_request).data)
 
     @action(detail=True, methods=["post"], url_path="reject")
@@ -1112,6 +1119,9 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             )
             transaction.on_commit(
                 lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
+            )
+            transaction.on_commit(
+                lambda d=domain: invalidate_moderation_tile_for_domain(d)
             )
         return Response(self.get_serializer(join_request).data)
 
@@ -1169,6 +1179,10 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             for jr in approved_rows:
                 send_join_request_approved_email(join_request=jr)
         transaction.on_commit(_notify)
+        if processed:
+            transaction.on_commit(
+                lambda d=domain: invalidate_moderation_tile_for_domain(d)
+            )
 
         return Response({"processed": processed, "skipped": skipped})
 
@@ -1226,6 +1240,10 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             for jr in rejected_rows:
                 send_join_request_rejected_email(join_request=jr)
         transaction.on_commit(_notify)
+        if processed:
+            transaction.on_commit(
+                lambda d=domain: invalidate_moderation_tile_for_domain(d)
+            )
 
         return Response({"processed": processed, "skipped": skipped})
 
@@ -1265,6 +1283,7 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
             )
         join_request.status = DomainJoinRequest.STATUS_CANCELLED
         join_request.save(update_fields=["status", "updated_at"])
+        invalidate_moderation_tile_for_domain(domain)
         return Response(self.get_serializer(join_request).data)
 
 
@@ -1457,6 +1476,11 @@ class DomainJoinRequestDecideView(APIView):
                     join_request.domain.members.remove(join_request.user)
                 transaction.on_commit(
                     lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
+                )
+
+            if not was_already_decided:
+                transaction.on_commit(
+                    lambda d=join_request.domain: invalidate_moderation_tile_for_domain(d)
                 )
 
         return Response({

@@ -207,6 +207,33 @@ def compute_join_request_analytics(domain) -> dict:
     }
 
 
+MODERATION_TILE_CACHE_TTL_SECONDS = 60
+_MODERATION_TILE_CACHE_KEY_FMT = "domain:moderation_tile:v1:{user_id}"
+
+
+def _moderation_tile_cache_key(user_id: int) -> str:
+    return _MODERATION_TILE_CACHE_KEY_FMT.format(user_id=user_id)
+
+
+def invalidate_moderation_tile_for_domain(domain: Domain) -> None:
+    """
+    Drop the cached moderation-tile payload for every user who can
+    currently moderate ``domain`` (owner, plus managers when the
+    ``join_policy`` enables manager moderation). Superusers fall out
+    of this set and may see ≤60 s stale data, which is acceptable
+    for a dashboard tile and avoids fanning out the invalidation
+    across the whole admin user base.
+    """
+    from django.core.cache import cache
+
+    user_ids: set[int] = {domain.owner_id} if domain.owner_id else set()
+    if domain.join_policy == JoinPolicy.OWNER_MANAGERS:
+        user_ids.update(domain.managers.values_list("id", flat=True))
+    if not user_ids:
+        return
+    cache.delete_many([_moderation_tile_cache_key(uid) for uid in user_ids])
+
+
 def domains_with_pending_for_user(user) -> list[dict]:
     """
     For the moderation dashboard tile: list the domains the user can
@@ -221,11 +248,24 @@ def domains_with_pending_for_user(user) -> list[dict]:
       - the owner sees their domains;
       - a manager sees the domain only if its ``join_policy`` is
         ``OWNER_MANAGERS``.
+
+    Result is cached per-user for ``MODERATION_TILE_CACHE_TTL_SECONDS``.
+    Mutations that affect a moderator's pending count
+    (create / approve / reject / cancel) must call
+    :func:`invalidate_moderation_tile_for_domain` to drop the entry
+    early. Without an early invalidation the tile is at most that
+    many seconds stale.
     """
+    from django.core.cache import cache
     from django.db.models import Count, Q
 
     if not getattr(user, "is_authenticated", False):
         return []
+
+    cache_key = _moderation_tile_cache_key(user.id)
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
 
     if user.is_superuser:
         moderable_qs = Domain.objects.filter(active=True)
@@ -271,6 +311,7 @@ def domains_with_pending_for_user(user) -> list[dict]:
             "name": name,
             "pending_count": domain.pending_count,
         })
+    cache.set(cache_key, out, timeout=MODERATION_TILE_CACHE_TTL_SECONDS)
     return out
 
 

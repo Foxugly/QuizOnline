@@ -93,6 +93,8 @@ class AutoDeclineStalePendingTests(TestCase):
 
 class DomainsWithPendingForUserTests(TestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
         self.owner = User.objects.create_user(username="own", password="p")
         self.manager = User.objects.create_user(username="mgr", password="p")
         self.stranger = User.objects.create_user(username="x", password="p")
@@ -161,6 +163,24 @@ class DomainsWithPendingForUserTests(TestCase):
         ids = [d["id"] for d in domains_with_pending_for_user(self.owner)]
         self.assertNotIn(self.domain_c.id, ids)
 
+    def test_cached_within_ttl_then_invalidates_on_mutation(self):
+        from django.core.cache import cache
+        from domain.services import invalidate_moderation_tile_for_domain
+
+        cache.clear()
+        # First call populates the cache (does SQL).
+        first = domains_with_pending_for_user(self.owner)
+        self.assertEqual(len(first), 2)
+        # Second call inside TTL hits cache → zero queries.
+        with self.assertNumQueries(0):
+            second = domains_with_pending_for_user(self.owner)
+        self.assertEqual(second, first)
+        # Invalidation drops the entry and the next call hits the DB again.
+        invalidate_moderation_tile_for_domain(self.domain_a)
+        with self.assertNumQueries(2):
+            third = domains_with_pending_for_user(self.owner)
+        self.assertEqual(third, first)
+
     def test_query_count_is_bounded_when_many_domains(self):
         # Lock the moderation-tile query budget: with the prefetched
         # translations the work should be one SELECT for the domains
@@ -168,6 +188,7 @@ class DomainsWithPendingForUserTests(TestCase):
         # number of domains. Without prefetching, ``safe_translation_getter``
         # would issue one extra SELECT per domain (the regression we
         # want to prevent).
+        from django.core.cache import cache
         from django.utils import translation
         translation.activate("fr")
         # Add 4 more pending domains for the same owner.
@@ -177,6 +198,7 @@ class DomainsWithPendingForUserTests(TestCase):
                 join_policy=JoinPolicy.OWNER_MANAGERS,
             )
             DomainJoinRequest.objects.create(domain=d, user=self.applicant1)
+        cache.clear()  # ensure we measure the uncached path
         with self.assertNumQueries(2):
             result = domains_with_pending_for_user(self.owner)
         # Sanity-check that we actually walked over 6 domains
@@ -241,7 +263,13 @@ class ModerationSummaryEndpointTests(TestCase):
     URL = "/api/domain/moderation-summary/"
 
     def setUp(self):
+        from django.core.cache import cache
         from rest_framework.test import APIClient
+
+        # The moderation tile is now cached per-user; clear between tests
+        # so a previous test's payload cannot leak into ours via a recycled
+        # user id (the DB rolls back, the process cache doesn't).
+        cache.clear()
 
         self.owner = User.objects.create_user(username="o", password="p")
         self.applicant = User.objects.create_user(username="a", password="p")
