@@ -515,6 +515,104 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainWrite'
           description: ''
+  /api/domain/join-request/decide/{token}/:
+    get:
+      operationId: domain_join_request_decide_retrieve
+      description: |-
+        Décode le token signé envoyé par mail, vérifie que l'utilisateur connecté en est bien le destinataire, et renvoie l'état courant de la demande pour que le frontend puisse afficher un récapitulatif avant exécution.
+
+        Aucune écriture n'est faite par ce GET — il sert uniquement à alimenter la page de confirmation.
+      summary: Décoder un token de décision (depuis un lien email)
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestDecideResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+    post:
+      operationId: domain_join_request_decide_create
+      description: 'Exécute l''action (`approve` ou `reject`) encodée dans le token.
+        Le clic depuis le mail compte comme une décision explicite : si la demande
+        avait déjà été tranchée (côté app ou autre mail), la nouvelle décision écrase
+        l''ancienne (last-decision-wins), avec un renvoi de mail à l''utilisateur
+        concerné.'
+      summary: Exécuter la décision portée par un token de mail
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainJoinRequestDecideResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/lang/:
     get:
       operationId: lang_list
@@ -3295,6 +3393,14 @@ paths:
           description: Lien invalide / token invalide
 components:
   schemas:
+    ActionEnum:
+      enum:
+      - approve
+      - reject
+      type: string
+      description: |-
+        * `approve` - approve
+        * `reject` - reject
     AlertThreadStatusEnum:
       enum:
       - open
@@ -3568,6 +3674,20 @@ components:
       - subjects
       - translations
       - updated_at
+    DomainJoinRequestDecideResponse:
+      type: object
+      description: Shape of the GET/POST response from the public moderation endpoint.
+      properties:
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        was_already_decided:
+          type: boolean
+        request:
+          $ref: '#/components/schemas/DomainJoinRequestRead'
+      required:
+      - action
+      - request
+      - was_already_decided
     DomainJoinRequestRead:
       type: object
       properties:

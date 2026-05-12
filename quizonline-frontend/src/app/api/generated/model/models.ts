@@ -1,3 +1,4 @@
+export * from './action-enum';
 export * from './alert-thread-status-enum';
 export * from './answer-correctness-state-enum';
 export * from './bulk-create-from-template-input-request';
@@ -7,6 +8,7 @@ export * from './custom-user-create-request';
 export * from './custom-user-read';
 export * from './dashboard-stats-response';
 export * from './domain-detail';
+export * from './domain-join-request-decide-response';
 export * from './domain-join-request-read';
 export * from './domain-name-summary';
 export * from './domain-read';

@@ -19,6 +19,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { DomainDetailDto } from '../model/domain-detail';
 // @ts-ignore
+import { DomainJoinRequestDecideResponseDto } from '../model/domain-join-request-decide-response';
+// @ts-ignore
 import { DomainJoinRequestReadDto } from '../model/domain-join-request-read';
 // @ts-ignore
 import { DomainReadDto } from '../model/domain-read';
@@ -67,6 +69,14 @@ export interface DomainJoinRequestCancelCreateRequestParams {
 
 export interface DomainJoinRequestCreateRequestParams {
     domainId: number;
+}
+
+export interface DomainJoinRequestDecideCreateRequestParams {
+    token: string;
+}
+
+export interface DomainJoinRequestDecideRetrieveRequestParams {
+    token: string;
 }
 
 export interface DomainJoinRequestListRequestParams {
@@ -546,6 +556,128 @@ export class DomainApi extends BaseService {
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Exécuter la décision portée par un token de mail
+     * Exécute l\&#39;action (&#x60;approve&#x60; ou &#x60;reject&#x60;) encodée dans le token. Le clic depuis le mail compte comme une décision explicite : si la demande avait déjà été tranchée (côté app ou autre mail), la nouvelle décision écrase l\&#39;ancienne (last-decision-wins), avec un renvoi de mail à l\&#39;utilisateur concerné.
+     * @endpoint post /api/domain/join-request/decide/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainJoinRequestDecideCreate(requestParameters: DomainJoinRequestDecideCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestDecideResponseDto>;
+    public domainJoinRequestDecideCreate(requestParameters: DomainJoinRequestDecideCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestDecideResponseDto>>;
+    public domainJoinRequestDecideCreate(requestParameters: DomainJoinRequestDecideCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestDecideResponseDto>>;
+    public domainJoinRequestDecideCreate(requestParameters: DomainJoinRequestDecideCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainJoinRequestDecideCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainJoinRequestDecideResponseDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Décoder un token de décision (depuis un lien email)
+     * Décode le token signé envoyé par mail, vérifie que l\&#39;utilisateur connecté en est bien le destinataire, et renvoie l\&#39;état courant de la demande pour que le frontend puisse afficher un récapitulatif avant exécution.  Aucune écriture n\&#39;est faite par ce GET — il sert uniquement à alimenter la page de confirmation.
+     * @endpoint get /api/domain/join-request/decide/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainJoinRequestDecideRetrieve(requestParameters: DomainJoinRequestDecideRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainJoinRequestDecideResponseDto>;
+    public domainJoinRequestDecideRetrieve(requestParameters: DomainJoinRequestDecideRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainJoinRequestDecideResponseDto>>;
+    public domainJoinRequestDecideRetrieve(requestParameters: DomainJoinRequestDecideRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainJoinRequestDecideResponseDto>>;
+    public domainJoinRequestDecideRetrieve(requestParameters: DomainJoinRequestDecideRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling domainJoinRequestDecideRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainJoinRequestDecideResponseDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

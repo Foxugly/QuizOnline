@@ -22,6 +22,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/action-enum.ts
 model/alert-thread-status-enum.ts
 model/answer-correctness-state-enum.ts
 model/bulk-create-from-template-input-request.ts
@@ -31,6 +32,7 @@ model/custom-user-create-request.ts
 model/custom-user-read.ts
 model/dashboard-stats-response.ts
 model/domain-detail.ts
+model/domain-join-request-decide-response.ts
 model/domain-join-request-read.ts
 model/domain-name-summary.ts
 model/domain-read.ts

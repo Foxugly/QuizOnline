@@ -1,0 +1,128 @@
+<div class="page">
+  <div class="header-line">
+    <div class="header-line__left"></div>
+    <div class="header-center">
+      <h1 class="title">{{ text().title }}</h1>
+    </div>
+    <div class="header-line__right"></div>
+  </div>
+
+  <section class="card form-card decide-card">
+    @if (loading()) {
+      <div class="decide-loading">
+        <p-progressSpinner styleClass="decide-spinner" strokeWidth="3"></p-progressSpinner>
+        <p class="muted">{{ text().loading }}</p>
+      </div>
+    } @else if (error(); as err) {
+      <p-message severity="error" [closable]="false">
+        @switch (err) {
+          @case ('tokenInvalid') { {{ text().errors.tokenInvalid }} }
+          @case ('tokenExpired') { {{ text().errors.tokenExpired }} }
+          @case ('recipientMismatch') { {{ text().errors.recipientMismatch }} }
+          @case ('cannotApproveAnymore') { {{ text().errors.cannotApproveAnymore }} }
+          @case ('requestNotFound') { {{ text().errors.requestNotFound }} }
+          @default { {{ text().errors.generic }} }
+        }
+      </p-message>
+
+      <div class="footer-actions">
+        <p-button
+          routerLink="/"
+          [label]="text().buttons.backHome"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+      </div>
+    } @else if (done(); as completedAction) {
+      <p-message severity="success" [closable]="false">
+        @if (completedAction === 'approve') {
+          {{ text().done.approved }}
+        } @else {
+          {{ text().done.rejected }}
+        }
+      </p-message>
+
+      <div class="footer-actions">
+        <p-button
+          routerLink="/"
+          [label]="text().buttons.backHome"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+      </div>
+    } @else if (decision(); as dec) {
+      <p class="decide-line">
+        {{ text().recap.requesterLine(dec.request.user_summary?.username ?? ('#' + dec.request.user), dec.request.user_summary?.email ?? '') }}
+      </p>
+
+      <p class="decide-line">
+        {{ text().recap.requestedAt((dec.request.created_at | date:'medium') ?? '') }}
+      </p>
+
+      <p class="decide-line">
+        @if (dec.action === 'approve') {
+          {{ text().recap.actionLineApprove }}
+        } @else {
+          {{ text().recap.actionLineReject }}
+        }
+      </p>
+
+      @if (isOverride()) {
+        <p-message severity="warn" [closable]="false">
+          <strong>{{ text().override.bannerTitle }}</strong>
+          <span class="override-explain">{{ text().override.bannerExplain }}</span>
+        </p-message>
+
+        <p class="decide-line">
+          {{ text().recap.statusLine(statusLabel()) }}
+        </p>
+
+        @if (dec.request.decided_by_summary?.username; as decidedByUsername) {
+          <p class="decide-line">
+            {{ text().recap.decidedBy(decidedByUsername, dec.request.decided_at ? ((dec.request.decided_at | date:'medium') ?? '') : '') }}
+          </p>
+        }
+
+        @if (dec.request.reject_reason) {
+          <p class="decide-line">
+            {{ text().recap.rejectReason(dec.request.reject_reason) }}
+          </p>
+        }
+      }
+
+      <div class="footer-actions">
+        <p-button
+          routerLink="/"
+          [label]="text().buttons.backHome"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+
+        @if (dec.action === 'approve') {
+          <p-button
+            (onClick)="confirm()"
+            icon="pi pi-check"
+            [label]="submitting() ? text().buttons.submitting : (isOverride() ? text().buttons.overrideApprove : text().buttons.confirmApprove)"
+            [loading]="submitting()"
+            [disabled]="submitting()"
+            severity="success"
+            type="button">
+          </p-button>
+        } @else {
+          <p-button
+            (onClick)="confirm()"
+            icon="pi pi-times"
+            [label]="submitting() ? text().buttons.submitting : (isOverride() ? text().buttons.overrideReject : text().buttons.confirmReject)"
+            [loading]="submitting()"
+            [disabled]="submitting()"
+            severity="danger"
+            type="button">
+          </p-button>
+        }
+      </div>
+    }
+  </section>
+</div>

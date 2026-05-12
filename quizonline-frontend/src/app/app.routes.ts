@@ -212,4 +212,9 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/domain/join-requests/domain-join-requests').then((m) => m.DomainJoinRequestsPage),
     canActivate: [authGuard, domainAccessGuard],
   },
+  {
+    path: 'join-request/decide/:token',
+    loadComponent: () => import('./pages/join-request-decide/join-request-decide').then((m) => m.JoinRequestDecidePage),
+    canActivate: [authGuard],
+  },
 ];
