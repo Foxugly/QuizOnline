@@ -47,7 +47,12 @@ from .serializers import (
     DomainInviteStateSerializer,
     ModerationSummaryItemSerializer,
 )
-from .services import domains_with_pending_for_user, record_audit, users_who_can_approve
+from .services import (
+    domains_with_pending_for_user,
+    record_audit,
+    upsert_invite,
+    users_who_can_approve,
+)
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -612,6 +617,10 @@ class DomainViewSet(MyModelViewSet):
                 continue
 
             try:
+                # Persist (or refresh) the invite row before emailing so
+                # the resend / revoke flows have a handle and the accept
+                # endpoint can cross-check.
+                upsert_invite(domain=domain, email=email, inviter=request.user)
                 send_domain_invite_email(
                     email=email, domain=domain, inviter=request.user, language=language,
                 )

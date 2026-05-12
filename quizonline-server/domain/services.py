@@ -6,9 +6,80 @@ from typing import Any, Mapping
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from domain.models import Domain, DomainAuditLog, DomainJoinRequest, JoinPolicy
+from domain.models import Domain, DomainAuditLog, DomainInvite, DomainJoinRequest, JoinPolicy
+from domain.invite_token import INVITE_TOKEN_TTL_SECONDS
 
 User = get_user_model()
+
+
+def upsert_invite(*, domain: Domain, email: str, inviter) -> DomainInvite:
+    """
+    Get-or-create a pending DomainInvite for the (domain, email) pair.
+    If a pending row already exists, refresh ``last_sent_at`` and
+    ``expires_at`` so the caller can reuse it for a resend without
+    minting a new DB row. The signed token is still emitted by the
+    caller — this function manages the persistence side only.
+    """
+    now = timezone.now()
+    new_expiry = now + timedelta(seconds=INVITE_TOKEN_TTL_SECONDS)
+    obj, created = DomainInvite.objects.get_or_create(
+        domain=domain,
+        email=email.strip().lower(),
+        status=DomainInvite.STATUS_PENDING,
+        defaults={
+            "inviter": inviter if getattr(inviter, "id", None) else None,
+            "expires_at": new_expiry,
+            "last_sent_at": now,
+        },
+    )
+    if not created:
+        obj.last_sent_at = now
+        obj.expires_at = new_expiry
+        obj.inviter = inviter if getattr(inviter, "id", None) else obj.inviter
+        obj.save(update_fields=["last_sent_at", "expires_at", "inviter", "updated_at"])
+    return obj
+
+
+def auto_accept_pending_invites_for_email(*, user, email: str) -> list[DomainInvite]:
+    """
+    Sweep every pending DomainInvite addressed to ``email`` and accept
+    it for ``user``: add to domain.members, mark the row ``accepted``,
+    record an audit row. Returns the list of consumed invites so the
+    caller can decide whether to notify the user / inviter.
+
+    Called from the email-confirmation activation flow so the user
+    lands inside every domain they had been invited to as soon as
+    their account is active. Stateless: re-running is a no-op.
+    """
+    if not email:
+        return []
+    normalized = email.strip().lower()
+    pending = list(
+        DomainInvite.objects
+        .select_for_update(of=("self",))
+        .filter(email=normalized, status=DomainInvite.STATUS_PENDING, expires_at__gt=timezone.now())
+        .select_related("domain")
+    )
+    if not pending:
+        return []
+    now = timezone.now()
+    for inv in pending:
+        # ``domain.members.add`` is idempotent at the M2M level: a
+        # user who is already a member (e.g. re-confirmed their mail)
+        # silently stays a member.
+        inv.domain.members.add(user)
+        inv.status = DomainInvite.STATUS_ACCEPTED
+        inv.accepted_by = user
+        inv.accepted_at = now
+        inv.save(update_fields=["status", "accepted_by", "accepted_at", "updated_at"])
+        DomainAuditLog.objects.create(
+            domain=inv.domain,
+            actor=user,
+            target_user=user,
+            action="invite.auto_accept_on_signup",
+            metadata={"invite_id": inv.id, "inviter_id": inv.inviter_id},
+        )
+    return pending
 
 
 def record_audit(

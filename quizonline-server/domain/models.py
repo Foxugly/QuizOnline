@@ -159,6 +159,93 @@ class DomainJoinRequest(models.Model):
         return f"{self.user} → {self.domain} ({self.status})"
 
 
+class DomainInvite(models.Model):
+    """
+    Outstanding email invitation to join a domain.
+
+    The signed token in the mail is still self-contained — see
+    :mod:`domain.invite_token` — but persisting one row per pending
+    invitation gives us three properties the stateless design did not
+    have:
+
+    1. **Resend**: an owner who lost the original mail can re-send
+       without remembering the exact addresses.
+    2. **Revoke**: an owner who changes their mind can mark the row
+       revoked; the accept endpoint cross-checks the row state so the
+       token alone is not enough.
+    3. **Audit / dashboard**: visible list of "I invited 3 people, 1
+       accepted, 2 still pending."
+
+    Only one ``pending`` row per ``(domain, email)`` at a time; the
+    partial unique constraint kicks in on the second insert and the
+    invite view re-uses the existing row instead.
+    """
+
+    STATUS_PENDING = "pending"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_REVOKED = "revoked"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, _("Pending")),
+        (STATUS_ACCEPTED, _("Accepted")),
+        (STATUS_REVOKED, _("Revoked")),
+    ]
+
+    domain = models.ForeignKey(
+        Domain,
+        on_delete=models.CASCADE,
+        related_name="invites",
+    )
+    email = models.EmailField(db_index=True)
+    inviter = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="sent_domain_invites",
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        db_index=True,
+    )
+    # Pre-computed for cheap queries ("which invites expire in 3 days").
+    # The accept endpoint also uses this as a fast denial signal before
+    # bothering with token decoding.
+    expires_at = models.DateTimeField()
+    # Bumped each time we re-send the mail; useful both for audit and
+    # for cron-driven "remind invitees who never clicked" jobs.
+    last_sent_at = models.DateTimeField(auto_now_add=True)
+    accepted_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="accepted_domain_invites",
+    )
+    accepted_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["domain", "email"],
+                condition=models.Q(status="pending"),
+                name="uniq_pending_invite_per_domain_email",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["email", "status"], name="dom_invite_em_st_idx"),
+            models.Index(fields=["domain", "status"], name="dom_invite_dom_st_idx"),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.email} → {self.domain_id} ({self.status})"
+
+
 class DomainAuditLog(models.Model):
     """
     Append-only audit trail for any meaningful administrative action

@@ -57,6 +57,20 @@ def confirm_email(uid: str, token: str):
     if not user.email_confirmed:
         user.email_confirmed = True
         user.save(update_fields=["email_confirmed"])
+        # Just-confirmed accounts may be carrying pending domain
+        # invitations addressed to this mail. Now that we know the
+        # mailbox belongs to the user, sweep & accept them so the
+        # invitee lands inside every domain they were invited to.
+        # Import lazily to avoid a customuser → domain → customuser
+        # cycle at module load.
+        try:
+            from domain.services import auto_accept_pending_invites_for_email
+            auto_accept_pending_invites_for_email(user=user, email=user.email or "")
+        except Exception:  # pragma: no cover — defensive
+            # An invite-side failure must not block the activation
+            # itself: the user is still email-confirmed, they can
+            # accept manually by re-clicking the invitation mail.
+            pass
     return user
 
 
