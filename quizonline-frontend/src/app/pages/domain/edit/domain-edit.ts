@@ -35,6 +35,7 @@ import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.s
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
+import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
@@ -195,6 +196,7 @@ export class DomainEdit implements OnInit {
 
   readonly inviteResults = signal<DomainInviteResultDto[] | null>(null);
   readonly inviting = signal<boolean>(false);
+  readonly invitations = signal<DomainInviteReadDto[]>([]);
 
   // Transfer-ownership dialog state.
   readonly transferDialogVisible = signal<boolean>(false);
@@ -266,6 +268,7 @@ export class DomainEdit implements OnInit {
             || (domain.managers ?? []).some(m => m.id === me.id));
         if (canMod) {
           this.loadPendingRequests();
+          this.loadInvitations();
         }
 
         // 2) Set global active languages
@@ -381,12 +384,53 @@ export class DomainEdit implements OnInit {
         finalize(() => this.inviting.set(false)),
       )
       .subscribe({
-        next: (results) => this.inviteResults.set(results ?? []),
+        next: (results) => {
+          this.inviteResults.set(results ?? []);
+          // Refresh the pending-invitations table so the new rows
+          // surface immediately under the members tab.
+          this.loadInvitations();
+        },
         error: (err) => {
           logApiError('domain.edit.invite', err);
           this.submitError.set(this.editText().members.actionFailed);
         },
       });
+  }
+
+  onInviteResend(evt: {inviteId: number}): void {
+    this.http.post(`${this.apiBaseUrl}/${this.id}/invitations/${evt.inviteId}/resend/`, null)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.loadInvitations(),
+        error: (err) => {
+          logApiError('domain.edit.invite-resend', err);
+          this.submitError.set(this.editText().members.actionFailed);
+        },
+      });
+  }
+
+  onInviteRevoke(evt: {inviteId: number}): void {
+    this.http.post(`${this.apiBaseUrl}/${this.id}/invitations/${evt.inviteId}/revoke/`, null)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.loadInvitations(),
+        error: (err) => {
+          logApiError('domain.edit.invite-revoke', err);
+          this.submitError.set(this.editText().members.actionFailed);
+        },
+      });
+  }
+
+  private loadInvitations(): void {
+    this.domainApi.domainInvitationsList({domainId: this.id})
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-invitations', err);
+          return of([] as DomainInviteReadDto[]);
+        }),
+      )
+      .subscribe((rows) => this.invitations.set(rows ?? []));
   }
 
   onMemberRemove(evt: {userId: number}): void {

@@ -71,9 +71,12 @@
               [text]="editText()"
               [inviteResults]="inviteResults()"
               [inviting]="inviting()"
+              [invitations]="invitations()"
               (roleChange)="onMemberRoleChange($event)"
               (removeMember)="onMemberRemove($event)"
-              (inviteRequest)="onInviteRequest($event)">
+              (inviteRequest)="onInviteRequest($event)"
+              (inviteResend)="onInviteResend($event)"
+              (inviteRevoke)="onInviteRevoke($event)">
             </app-domain-members-tab>
           }
         </p-tabpanel>

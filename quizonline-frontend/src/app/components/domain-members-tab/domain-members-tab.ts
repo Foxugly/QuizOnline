@@ -12,6 +12,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
+import {DomainInviteReadDto} from '../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../api/generated/model/domain-invite-result';
 import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-request-read';
 import {UserSummaryDto} from '../../api/generated/model/user-summary';
@@ -29,6 +30,8 @@ type MemberRow = {
 export type MemberRoleChange = {userId: number; makeManager: boolean};
 export type MemberRemove = {userId: number};
 export type InviteRequest = {emails: string[]};
+export type InviteResend = {inviteId: number};
+export type InviteRevoke = {inviteId: number; email: string};
 
 @Component({
   selector: 'app-domain-members-tab',
@@ -66,10 +69,14 @@ export class DomainMembersTab {
    *  host when a new invite dialog is opened. */
   readonly inviteResults = input<DomainInviteResultDto[] | null>(null);
   readonly inviting = input<boolean>(false);
+  /** Pending invitations to render below the moderation block. */
+  readonly invitations = input<DomainInviteReadDto[]>([]);
 
   readonly roleChange = output<MemberRoleChange>();
   readonly removeMember = output<MemberRemove>();
   readonly inviteRequest = output<InviteRequest>();
+  readonly inviteResend = output<InviteResend>();
+  readonly inviteRevoke = output<InviteRevoke>();
 
   readonly inviteDialogVisible = signal<boolean>(false);
   readonly inviteInput = signal<string>('');
@@ -183,6 +190,29 @@ export class DomainMembersTab {
       return;
     }
     this.inviteRequest.emit({emails});
+  }
+
+  onResendInvitation(invite: DomainInviteReadDto): void {
+    if (!this.canInvite()) {
+      return;
+    }
+    this.inviteResend.emit({inviteId: invite.id});
+  }
+
+  confirmRevokeInvitation(invite: DomainInviteReadDto): void {
+    if (!this.canInvite()) {
+      return;
+    }
+    const labels = this.text().members;
+    this.confirmationService.confirm({
+      header: labels.invitationConfirmRevokeHeader,
+      message: labels.invitationConfirmRevokeMessage(invite.email),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: labels.invitationConfirmRevokeAccept,
+      rejectLabel: labels.invitationConfirmRevokeCancel,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.inviteRevoke.emit({inviteId: invite.id, email: invite.email}),
+    });
   }
 
   /** Split the textarea content on commas, semicolons, whitespace and newlines. */

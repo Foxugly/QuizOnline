@@ -8,6 +8,8 @@ export * from './custom-user-create-request';
 export * from './custom-user-read';
 export * from './dashboard-stats-response';
 export * from './domain-detail';
+export * from './domain-invite-read';
+export * from './domain-invite-read-status-enum';
 export * from './domain-invite-request-request';
 export * from './domain-invite-result';
 export * from './domain-invite-result-status-enum';

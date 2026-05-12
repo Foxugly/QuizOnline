@@ -46,6 +46,17 @@ export type DomainEditUiText = {
     inviteResultAlreadyMember: (email: string) => string;
     inviteResultInvalid: (email: string) => string;
     inviteResultSummary: (sent: number, total: number) => string;
+    invitationsTitle: string;
+    invitationsEmpty: string;
+    invitationsColEmail: string;
+    invitationsColSentAt: string;
+    invitationsColExpiresAt: string;
+    invitationResend: string;
+    invitationRevoke: string;
+    invitationConfirmRevokeHeader: string;
+    invitationConfirmRevokeMessage: (email: string) => string;
+    invitationConfirmRevokeAccept: string;
+    invitationConfirmRevokeCancel: string;
   };
   transfer: {
     button: string;
@@ -105,6 +116,17 @@ const FR: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email} : déjà membre.`,
     inviteResultInvalid: (email) => `${email} : adresse invalide.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} envoyée${sent > 1 ? 's' : ''} sur ${total}.`,
+    invitationsTitle: 'Invitations en attente',
+    invitationsEmpty: 'Aucune invitation en attente.',
+    invitationsColEmail: 'E-mail',
+    invitationsColSentAt: 'Envoyée le',
+    invitationsColExpiresAt: 'Expire le',
+    invitationResend: 'Renvoyer',
+    invitationRevoke: 'Révoquer',
+    invitationConfirmRevokeHeader: 'Révoquer cette invitation ?',
+    invitationConfirmRevokeMessage: (email) => `Révoquer l'invitation pour ${email} ? Le lien envoyé deviendra invalide.`,
+    invitationConfirmRevokeAccept: 'Révoquer',
+    invitationConfirmRevokeCancel: 'Annuler',
   },
   transfer: {
     button: 'Transférer la propriété',
@@ -164,6 +186,17 @@ const EN: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: already a member.`,
     inviteResultInvalid: (email) => `${email}: invalid address.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} sent out of ${total}.`,
+    invitationsTitle: 'Pending invitations',
+    invitationsEmpty: 'No pending invitation.',
+    invitationsColEmail: 'Email',
+    invitationsColSentAt: 'Sent at',
+    invitationsColExpiresAt: 'Expires at',
+    invitationResend: 'Resend',
+    invitationRevoke: 'Revoke',
+    invitationConfirmRevokeHeader: 'Revoke this invitation?',
+    invitationConfirmRevokeMessage: (email) => `Revoke the invitation for ${email}? The link already sent will stop working.`,
+    invitationConfirmRevokeAccept: 'Revoke',
+    invitationConfirmRevokeCancel: 'Cancel',
   },
   transfer: {
     button: 'Transfer ownership',
@@ -223,6 +256,17 @@ const NL: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: is al lid.`,
     inviteResultInvalid: (email) => `${email}: ongeldig adres.`,
     inviteResultSummary: (sent, total) => `${sent} van ${total} uitnodigingen verzonden.`,
+    invitationsTitle: 'Openstaande uitnodigingen',
+    invitationsEmpty: 'Geen openstaande uitnodiging.',
+    invitationsColEmail: 'E-mail',
+    invitationsColSentAt: 'Verzonden op',
+    invitationsColExpiresAt: 'Verloopt op',
+    invitationResend: 'Opnieuw verzenden',
+    invitationRevoke: 'Intrekken',
+    invitationConfirmRevokeHeader: 'Deze uitnodiging intrekken?',
+    invitationConfirmRevokeMessage: (email) => `De uitnodiging voor ${email} intrekken? De reeds verzonden link werkt niet meer.`,
+    invitationConfirmRevokeAccept: 'Intrekken',
+    invitationConfirmRevokeCancel: 'Annuleren',
   },
   transfer: {
     button: 'Eigenaarschap overdragen',
@@ -282,6 +326,17 @@ const IT: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: già membro.`,
     inviteResultInvalid: (email) => `${email}: indirizzo non valido.`,
     inviteResultSummary: (sent, total) => `${sent} invit${sent > 1 ? 'i inviati' : 'o inviato'} su ${total}.`,
+    invitationsTitle: 'Inviti in attesa',
+    invitationsEmpty: 'Nessun invito in attesa.',
+    invitationsColEmail: 'E-mail',
+    invitationsColSentAt: 'Inviato il',
+    invitationsColExpiresAt: 'Scade il',
+    invitationResend: 'Reinvia',
+    invitationRevoke: 'Revoca',
+    invitationConfirmRevokeHeader: 'Revocare questo invito?',
+    invitationConfirmRevokeMessage: (email) => `Revocare l'invito per ${email}? Il link già inviato smetterà di funzionare.`,
+    invitationConfirmRevokeAccept: 'Revoca',
+    invitationConfirmRevokeCancel: 'Annulla',
   },
   transfer: {
     button: 'Trasferisci la proprietà',
@@ -341,6 +396,17 @@ const ES: DomainEditUiText = {
     inviteResultAlreadyMember: (email) => `${email}: ya es miembro.`,
     inviteResultInvalid: (email) => `${email}: dirección no válida.`,
     inviteResultSummary: (sent, total) => `${sent} invitación${sent > 1 ? 'es enviadas' : ' enviada'} de ${total}.`,
+    invitationsTitle: 'Invitaciones pendientes',
+    invitationsEmpty: 'No hay invitaciones pendientes.',
+    invitationsColEmail: 'Correo',
+    invitationsColSentAt: 'Enviada el',
+    invitationsColExpiresAt: 'Expira el',
+    invitationResend: 'Reenviar',
+    invitationRevoke: 'Revocar',
+    invitationConfirmRevokeHeader: '¿Revocar esta invitación?',
+    invitationConfirmRevokeMessage: (email) => `¿Revocar la invitación para ${email}? El enlace ya enviado dejará de funcionar.`,
+    invitationConfirmRevokeAccept: 'Revocar',
+    invitationConfirmRevokeCancel: 'Cancelar',
   },
   transfer: {
     button: 'Transferir la propiedad',

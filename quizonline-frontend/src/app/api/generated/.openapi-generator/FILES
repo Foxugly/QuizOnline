@@ -32,6 +32,8 @@ model/custom-user-create-request.ts
 model/custom-user-read.ts
 model/dashboard-stats-response.ts
 model/domain-detail.ts
+model/domain-invite-read-status-enum.ts
+model/domain-invite-read.ts
 model/domain-invite-request-request.ts
 model/domain-invite-result-status-enum.ts
 model/domain-invite-result.ts
