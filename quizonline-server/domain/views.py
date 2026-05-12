@@ -614,51 +614,104 @@ class DomainViewSet(MyModelViewSet):
         serializer.is_valid(raise_exception=True)
         emails = serializer.validated_data["emails"]
         language = serializer.validated_data["language"]
+        additional_ids = serializer.validated_data.get("additional_domain_ids") or []
 
-        User = get_user_model()
-        results: list[dict] = []
+        # Deduplicate the email list once for the whole fan-out.
+        deduped_emails: list[str] = []
         seen_lower: set[str] = set()
-
         for raw_email in emails:
             email = (raw_email or "").strip().lower()
-            if not email or email in seen_lower:
-                # The serializer already filtered out malformed addresses, so
-                # we only need to deduplicate within the same request.
-                continue
-            seen_lower.add(email)
+            if email and email not in seen_lower:
+                seen_lower.add(email)
+                deduped_emails.append(email)
 
-            existing = User.objects.filter(email__iexact=email).first()
-            if existing and domain.members.filter(pk=existing.pk).exists():
-                results.append({"email": email, "status": "already_member"})
-                continue
-
-            try:
-                # Persist (or refresh) the invite row before emailing so
-                # the resend / revoke flows have a handle and the accept
-                # endpoint can cross-check.
-                upsert_invite(domain=domain, email=email, inviter=request.user)
-                send_domain_invite_email(
-                    email=email, domain=domain, inviter=request.user, language=language,
+        # Resolve the target-domain set: the primary domain plus any
+        # additional ones the caller asked to fan-out to. Each
+        # additional id is screened against the same owner-or-manager
+        # gate the primary domain already passed (via the view's
+        # get_object permission stack).
+        targets: list[tuple[Domain | None, int]] = [(domain, domain.id)]
+        forbidden_ids: set[int] = set()
+        if additional_ids:
+            seen_ids: set[int] = {domain.id}
+            owner_or_manager = IsDomainOwnerOrManager()
+            for dom_id in additional_ids:
+                if dom_id in seen_ids:
+                    continue
+                seen_ids.add(dom_id)
+                extra = (
+                    Domain.objects.filter(pk=dom_id, active=True)
+                    .first()
                 )
-                results.append({"email": email, "status": "sent"})
-            except Exception:  # pragma: no cover — defensive
-                results.append({"email": email, "status": "invalid"})
+                if extra is None or not owner_or_manager.has_object_permission(
+                    request, self, extra,
+                ):
+                    targets.append((None, dom_id))
+                    forbidden_ids.add(dom_id)
+                else:
+                    targets.append((extra, dom_id))
 
-        # One audit row per invite batch, listing the outcome per address.
-        # We do not store individual emails on separate rows to avoid an
-        # unbounded burst when a moderator sends 50 invitations at once.
-        record_audit(
-            domain=domain,
-            action="invite.bulk_send",
-            actor=request.user,
-            metadata={
-                "results": results,
-                "language": language,
-                "remote_addr": _client_ip(request),
-            },
-        )
+        User = get_user_model()
+        all_results: list[dict] = []
+        for target_domain, target_id in targets:
+            if target_domain is None:
+                # User cannot invite to this domain — surface one row
+                # per email so the caller can render the outcome.
+                for email in deduped_emails:
+                    all_results.append({
+                        "email": email,
+                        "status": "forbidden_domain",
+                        "domain_id": target_id,
+                    })
+                continue
 
-        return Response(results, status=status.HTTP_200_OK)
+            per_domain_results: list[dict] = []
+            for email in deduped_emails:
+                existing = User.objects.filter(email__iexact=email).first()
+                if existing and target_domain.members.filter(pk=existing.pk).exists():
+                    per_domain_results.append({
+                        "email": email,
+                        "status": "already_member",
+                        "domain_id": target_id,
+                    })
+                    continue
+
+                try:
+                    upsert_invite(
+                        domain=target_domain, email=email, inviter=request.user,
+                    )
+                    send_domain_invite_email(
+                        email=email, domain=target_domain,
+                        inviter=request.user, language=language,
+                    )
+                    per_domain_results.append({
+                        "email": email,
+                        "status": "sent",
+                        "domain_id": target_id,
+                    })
+                except Exception:  # pragma: no cover — defensive
+                    per_domain_results.append({
+                        "email": email,
+                        "status": "invalid",
+                        "domain_id": target_id,
+                    })
+
+            # One audit row per target domain (not per fan-out) so each
+            # domain's history records its own batch outcome.
+            record_audit(
+                domain=target_domain,
+                action="invite.bulk_send",
+                actor=request.user,
+                metadata={
+                    "results": per_domain_results,
+                    "language": language,
+                    "remote_addr": _client_ip(request),
+                    "fan_out_size": len(targets),
+                },
+            )
+            all_results.extend(per_domain_results)
+
+        return Response(all_results, status=status.HTTP_200_OK)
 
     @extend_schema(
         tags=["Domain"],

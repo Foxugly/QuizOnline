@@ -4478,6 +4478,12 @@ components:
           minLength: 1
           default: en
           maxLength: 8
+        additional_domain_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          maxItems: 20
       required:
       - emails
     DomainInviteResult:
@@ -4489,7 +4495,10 @@ components:
           format: email
         status:
           $ref: '#/components/schemas/DomainInviteResultStatusEnum'
+        domain_id:
+          type: integer
       required:
+      - domain_id
       - email
       - status
     DomainInviteResultStatusEnum:
@@ -4497,11 +4506,13 @@ components:
       - sent
       - already_member
       - invalid
+      - forbidden_domain
       type: string
       description: |-
         * `sent` - sent
         * `already_member` - already_member
         * `invalid` - invalid
+        * `forbidden_domain` - forbidden_domain
     DomainInviteState:
       type: object
       description: Shape of GET/POST ``/api/domain/invite/accept/{token}/``.

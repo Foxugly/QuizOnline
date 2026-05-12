@@ -15,5 +15,6 @@
 export interface DomainInviteRequestRequestDto { 
     emails: Array<string>;
     language?: string;
+    additional_domain_ids?: Array<number>;
 }
 

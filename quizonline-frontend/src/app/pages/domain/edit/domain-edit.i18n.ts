@@ -56,7 +56,12 @@ export type DomainEditUiText = {
     inviteResultSent: (email: string) => string;
     inviteResultAlreadyMember: (email: string) => string;
     inviteResultInvalid: (email: string) => string;
+    inviteResultForbidden: (email: string) => string;
     inviteResultSummary: (sent: number, total: number) => string;
+    inviteAdditionalDomainsLabel: string;
+    inviteAdditionalDomainsHint: string;
+    inviteAdditionalDomainsPlaceholder: string;
+    inviteResultDomainPrefix: (domainName: string) => string;
     invitationsTitle: string;
     invitationsEmpty: string;
     invitationsColEmail: string;
@@ -226,7 +231,12 @@ const FR: DomainEditUiText = {
     inviteResultSent: (email) => `${email} : invitation envoyée.`,
     inviteResultAlreadyMember: (email) => `${email} : déjà membre.`,
     inviteResultInvalid: (email) => `${email} : adresse invalide.`,
+    inviteResultForbidden: (email) => `${email} : vous n'avez pas le droit d'inviter sur ce domaine.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} envoyée${sent > 1 ? 's' : ''} sur ${total}.`,
+    inviteAdditionalDomainsLabel: 'Inviter aussi sur d\'autres domaines',
+    inviteAdditionalDomainsHint: 'Optionnel. Les mêmes adresses recevront une invitation pour chacun des domaines choisis.',
+    inviteAdditionalDomainsPlaceholder: 'Choisir un ou plusieurs domaines…',
+    inviteResultDomainPrefix: (domainName) => `[${domainName}]`,
     invitationsTitle: 'Invitations en attente',
     invitationsEmpty: 'Aucune invitation en attente.',
     invitationsColEmail: 'E-mail',
@@ -306,7 +316,12 @@ const EN: DomainEditUiText = {
     inviteResultSent: (email) => `${email}: invitation sent.`,
     inviteResultAlreadyMember: (email) => `${email}: already a member.`,
     inviteResultInvalid: (email) => `${email}: invalid address.`,
+    inviteResultForbidden: (email) => `${email}: you cannot invite to this domain.`,
     inviteResultSummary: (sent, total) => `${sent} invitation${sent > 1 ? 's' : ''} sent out of ${total}.`,
+    inviteAdditionalDomainsLabel: 'Also invite to other domains',
+    inviteAdditionalDomainsHint: 'Optional. The same addresses will receive an invitation for every domain you pick.',
+    inviteAdditionalDomainsPlaceholder: 'Pick one or more domains…',
+    inviteResultDomainPrefix: (domainName) => `[${domainName}]`,
     invitationsTitle: 'Pending invitations',
     invitationsEmpty: 'No pending invitation.',
     invitationsColEmail: 'Email',
@@ -386,7 +401,12 @@ const NL: DomainEditUiText = {
     inviteResultSent: (email) => `${email}: uitnodiging verzonden.`,
     inviteResultAlreadyMember: (email) => `${email}: is al lid.`,
     inviteResultInvalid: (email) => `${email}: ongeldig adres.`,
+    inviteResultForbidden: (email) => `${email}: u mag niet uitnodigen voor dit domein.`,
     inviteResultSummary: (sent, total) => `${sent} van ${total} uitnodigingen verzonden.`,
+    inviteAdditionalDomainsLabel: 'Ook uitnodigen voor andere domeinen',
+    inviteAdditionalDomainsHint: 'Optioneel. Dezelfde adressen ontvangen een uitnodiging voor elk gekozen domein.',
+    inviteAdditionalDomainsPlaceholder: 'Kies een of meer domeinen…',
+    inviteResultDomainPrefix: (domainName) => `[${domainName}]`,
     invitationsTitle: 'Openstaande uitnodigingen',
     invitationsEmpty: 'Geen openstaande uitnodiging.',
     invitationsColEmail: 'E-mail',
@@ -466,7 +486,12 @@ const IT: DomainEditUiText = {
     inviteResultSent: (email) => `${email}: invito inviato.`,
     inviteResultAlreadyMember: (email) => `${email}: già membro.`,
     inviteResultInvalid: (email) => `${email}: indirizzo non valido.`,
+    inviteResultForbidden: (email) => `${email}: non puoi invitare su questo dominio.`,
     inviteResultSummary: (sent, total) => `${sent} invit${sent > 1 ? 'i inviati' : 'o inviato'} su ${total}.`,
+    inviteAdditionalDomainsLabel: 'Invita anche su altri domini',
+    inviteAdditionalDomainsHint: 'Facoltativo. Gli stessi indirizzi riceveranno un invito per ciascun dominio scelto.',
+    inviteAdditionalDomainsPlaceholder: 'Scegli uno o più domini…',
+    inviteResultDomainPrefix: (domainName) => `[${domainName}]`,
     invitationsTitle: 'Inviti in attesa',
     invitationsEmpty: 'Nessun invito in attesa.',
     invitationsColEmail: 'E-mail',
@@ -546,7 +571,12 @@ const ES: DomainEditUiText = {
     inviteResultSent: (email) => `${email}: invitación enviada.`,
     inviteResultAlreadyMember: (email) => `${email}: ya es miembro.`,
     inviteResultInvalid: (email) => `${email}: dirección no válida.`,
+    inviteResultForbidden: (email) => `${email}: no puedes invitar a este dominio.`,
     inviteResultSummary: (sent, total) => `${sent} invitación${sent > 1 ? 'es enviadas' : ' enviada'} de ${total}.`,
+    inviteAdditionalDomainsLabel: 'Invitar también a otros dominios',
+    inviteAdditionalDomainsHint: 'Opcional. Las mismas direcciones recibirán una invitación para cada dominio elegido.',
+    inviteAdditionalDomainsPlaceholder: 'Elige uno o más dominios…',
+    inviteResultDomainPrefix: (domainName) => `[${domainName}]`,
     invitationsTitle: 'Invitaciones pendientes',
     invitationsEmpty: 'No hay invitaciones pendientes.',
     invitationsColEmail: 'Correo',

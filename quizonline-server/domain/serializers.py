@@ -556,6 +556,18 @@ class DomainInviteRequestSerializer(serializers.Serializer):
         allow_empty=False,
     )
     language = serializers.CharField(required=False, default="en", max_length=8)
+    # Optional fan-out: when non-empty, the same invitation is also
+    # issued for each of the additional domains. The caller must have
+    # invite rights on every listed domain — otherwise the per-row
+    # result for that domain comes back as ``forbidden_domain`` and no
+    # mail is sent for it. Capped at 20 to keep the audit + mail
+    # workload bounded.
+    additional_domain_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        required=False,
+        default=list,
+        max_length=20,
+    )
 
     def validate_language(self, value):
         valid = {code for code, _ in settings.LANGUAGES}
@@ -567,7 +579,14 @@ class DomainInviteRequestSerializer(serializers.Serializer):
 class DomainInviteResultSerializer(serializers.Serializer):
     """Per-invitation outcome returned by the bulk invite endpoint."""
     email = serializers.EmailField()
-    status = serializers.ChoiceField(choices=("sent", "already_member", "invalid"))
+    status = serializers.ChoiceField(
+        choices=("sent", "already_member", "invalid", "forbidden_domain"),
+    )
+    # Identifies which target domain this outcome row belongs to. The
+    # field is required so callers can correlate results when fanning
+    # the same invitation out to several domains via
+    # ``additional_domain_ids``.
+    domain_id = serializers.IntegerField()
 
 
 class DomainTransferRequestSerializer(serializers.Serializer):

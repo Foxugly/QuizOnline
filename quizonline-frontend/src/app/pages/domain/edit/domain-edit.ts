@@ -202,6 +202,12 @@ export class DomainEdit implements OnInit {
   readonly inviting = signal<boolean>(false);
   readonly invitations = signal<DomainInviteReadDto[]>([]);
 
+  /** Other active domains the current user may invite to (owner OR
+   *  manager), excluding the one being edited. Loaded once at init and
+   *  passed to the members tab so the multi-domain invite multi-select
+   *  has a list to render. */
+  readonly additionalInvitableDomains = signal<{label: string; value: number}[]>([]);
+
   // Transfer-ownership dialog state.
   readonly transferDialogVisible = signal<boolean>(false);
   readonly transferTargetId = signal<number | null>(null);
@@ -271,6 +277,7 @@ export class DomainEdit implements OnInit {
         if (canMod) {
           this.loadPendingRequests();
           this.loadInvitations();
+          this.loadAdditionalInvitableDomains();
         }
 
         // 2) Set global active languages
@@ -378,14 +385,14 @@ export class DomainEdit implements OnInit {
       });
   }
 
-  onInviteRequest(evt: {emails: string[]}): void {
+  onInviteRequest(evt: {emails: string[]; additionalDomainIds: number[]}): void {
     if (!evt.emails.length || this.inviting()) {
       return;
     }
     this.inviting.set(true);
     this.inviteResults.set(null);
     const language = this.userService.currentLang ?? LanguageEnumDto.Fr;
-    this.editApi.sendInvites(this.id, evt.emails, language)
+    this.editApi.sendInvites(this.id, evt.emails, language, evt.additionalDomainIds)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.inviting.set(false)),
@@ -438,6 +445,50 @@ export class DomainEdit implements OnInit {
         }),
       )
       .subscribe((rows) => this.invitations.set(rows));
+  }
+
+  private loadAdditionalInvitableDomains(): void {
+    // Multi-domain invite: build the picker list once at init from the
+    // domains visible to the user (``DomainService.list``) and keep
+    // only those the user can actually invite to (owner OR manager),
+    // excluding the one currently being edited.
+    this.domainService.list()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-invitable-domains', err);
+          return of([]);
+        }),
+      )
+      .subscribe((domains) => {
+        const me = this.userService.currentUser();
+        if (!me) {
+          this.additionalInvitableDomains.set([]);
+          return;
+        }
+        const lang = this.userService.currentLang;
+        const options = (domains ?? [])
+          .filter((d) => {
+            if (d.id === this.id) {
+              return false;
+            }
+            if (d.active === false) {
+              return false;
+            }
+            if (me.is_superuser || d.owner?.id === me.id) {
+              return true;
+            }
+            return (d.managers ?? []).some((m) => m.id === me.id);
+          })
+          .map((d) => {
+            const tr = d.translations ?? {};
+            const entry = tr[lang] ?? tr['fr'] ?? tr['en'] ?? Object.values(tr)[0];
+            const name = entry?.name?.trim() || `Domain #${d.id}`;
+            return {label: name, value: d.id};
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+        this.additionalInvitableDomains.set(options);
+      });
   }
 
   onMemberRemove(evt: {userId: number}): void {

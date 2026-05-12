@@ -16,6 +16,7 @@ import { DomainInviteResultStatusEnumDto } from './domain-invite-result-status-e
 export interface DomainInviteResultDto { 
     email: string;
     status: DomainInviteResultStatusEnumDto;
+    domain_id: number;
 }
 
 

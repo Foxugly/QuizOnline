@@ -10,7 +10,7 @@
 
 
 /**
- * * `sent` - sent * `already_member` - already_member * `invalid` - invalid
+ * * `sent` - sent * `already_member` - already_member * `invalid` - invalid * `forbidden_domain` - forbidden_domain
  */
 export enum DomainInviteResultStatusEnumDto {
 
@@ -18,6 +18,8 @@ export enum DomainInviteResultStatusEnumDto {
 
     AlreadyMember = 'already_member',
 
-    Invalid = 'invalid'
+    Invalid = 'invalid',
+
+    ForbiddenDomain = 'forbidden_domain'
 }
 

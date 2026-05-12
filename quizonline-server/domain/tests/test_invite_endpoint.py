@@ -65,7 +65,10 @@ class DomainInviteEndpointTests(TestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data, [{"email": "fresh@x.test", "status": "sent"}])
+        self.assertEqual(
+            resp.data,
+            [{"email": "fresh@x.test", "status": "sent", "domain_id": self.domain.id}],
+        )
         self.assertEqual(OutboundEmail.objects.count(), 1)
         outbound = OutboundEmail.objects.first()
         self.assertIn("fresh@x.test", outbound.recipients)
@@ -104,7 +107,10 @@ class DomainInviteEndpointTests(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         # All three normalize to "a@x.test" → one outcome, one mail.
-        self.assertEqual(resp.data, [{"email": "a@x.test", "status": "sent"}])
+        self.assertEqual(
+            resp.data,
+            [{"email": "a@x.test", "status": "sent", "domain_id": self.domain.id}],
+        )
         self.assertEqual(OutboundEmail.objects.count(), 1)
 
     def test_invite_rejects_invalid_email_at_validation(self):
@@ -115,6 +121,87 @@ class DomainInviteEndpointTests(TestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class DomainMultiDomainInviteTests(TestCase):
+    """Phase C #18: fan an invite out to additional domains in one call."""
+
+    URL = "/api/domain/{}/invite/"
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username="ow", password="p", email="o@x.test")
+        self.stranger = User.objects.create_user(username="sg", password="p")
+        # Three domains: the primary, a second one the owner also owns,
+        # and a third domain owned by someone else (forbidden).
+        self.primary = Domain.objects.create(
+            owner=self.owner, name="P", active=True, join_policy=JoinPolicy.OWNER,
+        )
+        self.also_mine = Domain.objects.create(
+            owner=self.owner, name="A", active=True, join_policy=JoinPolicy.OWNER,
+        )
+        other_owner = User.objects.create_user(username="oth", password="p")
+        self.foreign = Domain.objects.create(
+            owner=other_owner, name="F", active=True, join_policy=JoinPolicy.OWNER,
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.owner)
+
+    def test_fan_out_to_owned_domain_sends_two_mails(self):
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL.format(self.primary.id),
+            {
+                "emails": ["fresh@x.test"],
+                "additional_domain_ids": [self.also_mine.id],
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        statuses = sorted(
+            (row["domain_id"], row["status"]) for row in resp.data
+        )
+        self.assertEqual(
+            statuses,
+            sorted([
+                (self.primary.id, "sent"),
+                (self.also_mine.id, "sent"),
+            ]),
+        )
+        # One mail per (email × domain) pair.
+        self.assertEqual(OutboundEmail.objects.count(), 2)
+
+    def test_forbidden_domain_surfaces_forbidden_row(self):
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL.format(self.primary.id),
+            {
+                "emails": ["fresh@x.test"],
+                "additional_domain_ids": [self.foreign.id],
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        by_domain = {row["domain_id"]: row for row in resp.data}
+        self.assertEqual(by_domain[self.primary.id]["status"], "sent")
+        self.assertEqual(by_domain[self.foreign.id]["status"], "forbidden_domain")
+        # Only the primary domain sends mail.
+        self.assertEqual(OutboundEmail.objects.count(), 1)
+
+    def test_dedup_when_primary_id_repeats_in_additional(self):
+        # Putting the primary id in ``additional_domain_ids`` should
+        # not cause the email to go out twice.
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL.format(self.primary.id),
+            {
+                "emails": ["fresh@x.test"],
+                "additional_domain_ids": [self.primary.id, self.also_mine.id],
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        domain_ids = sorted(row["domain_id"] for row in resp.data)
+        self.assertEqual(domain_ids, sorted([self.primary.id, self.also_mine.id]))
 
 
 class DomainInviteAcceptEndpointTests(TestCase):

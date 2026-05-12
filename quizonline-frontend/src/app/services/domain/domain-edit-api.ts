@@ -38,11 +38,16 @@ export class DomainEditApi {
     domainId: number,
     emails: string[],
     language: LanguageEnumDto,
+    additionalDomainIds: number[] = [],
   ): Observable<DomainInviteResultDto[]> {
     return this.api
       .domainInviteCreate({
         domainId,
-        domainInviteRequestRequestDto: {emails, language},
+        domainInviteRequestRequestDto: {
+          emails,
+          language,
+          ...(additionalDomainIds.length ? {additional_domain_ids: additionalDomainIds} : {}),
+        },
       })
       .pipe(map((rows) => rows ?? []));
   }

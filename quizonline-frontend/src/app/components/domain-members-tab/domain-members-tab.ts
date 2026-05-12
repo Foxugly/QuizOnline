@@ -5,6 +5,7 @@ import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {DialogModule} from 'primeng/dialog';
+import {MultiSelectModule} from 'primeng/multiselect';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
 import {TextareaModule} from 'primeng/textarea';
@@ -29,9 +30,10 @@ type MemberRow = {
 
 export type MemberRoleChange = {userId: number; makeManager: boolean};
 export type MemberRemove = {userId: number};
-export type InviteRequest = {emails: string[]};
+export type InviteRequest = {emails: string[]; additionalDomainIds: number[]};
 export type InviteResend = {inviteId: number};
 export type InviteRevoke = {inviteId: number; email: string};
+export type AdditionalDomainOption = {label: string; value: number};
 
 @Component({
   selector: 'app-domain-members-tab',
@@ -43,6 +45,7 @@ export type InviteRevoke = {inviteId: number; email: string};
     ButtonModule,
     ConfirmDialogModule,
     DialogModule,
+    MultiSelectModule,
     TableModule,
     TagModule,
     TextareaModule,
@@ -71,6 +74,9 @@ export class DomainMembersTab {
   readonly inviting = input<boolean>(false);
   /** Pending invitations to render below the moderation block. */
   readonly invitations = input<DomainInviteReadDto[]>([]);
+  /** Other domains the current user may invite to (owner or manager,
+   *  excluding the current one). Empty array hides the multi-select. */
+  readonly additionalDomainOptions = input<AdditionalDomainOption[]>([]);
 
   readonly roleChange = output<MemberRoleChange>();
   readonly removeMember = output<MemberRemove>();
@@ -80,6 +86,7 @@ export class DomainMembersTab {
 
   readonly inviteDialogVisible = signal<boolean>(false);
   readonly inviteInput = signal<string>('');
+  readonly selectedAdditionalDomainIds = signal<number[]>([]);
 
   private readonly confirmationService = inject(ConfirmationService);
 
@@ -177,6 +184,7 @@ export class DomainMembersTab {
 
   openInviteDialog(): void {
     this.inviteInput.set('');
+    this.selectedAdditionalDomainIds.set([]);
     this.inviteDialogVisible.set(true);
   }
 
@@ -189,7 +197,10 @@ export class DomainMembersTab {
     if (!emails.length || this.inviting()) {
       return;
     }
-    this.inviteRequest.emit({emails});
+    this.inviteRequest.emit({
+      emails,
+      additionalDomainIds: this.selectedAdditionalDomainIds(),
+    });
   }
 
   onResendInvitation(invite: DomainInviteReadDto): void {

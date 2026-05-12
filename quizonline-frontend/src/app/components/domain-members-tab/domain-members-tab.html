@@ -209,15 +209,36 @@
     class="w-full">
   </textarea>
 
+  @if (additionalDomainOptions().length > 0) {
+    <label class="invite-dialog__label" for="invite-additional-domains">
+      {{ text().members.inviteAdditionalDomainsLabel }}
+    </label>
+    <p-multiselect
+      inputId="invite-additional-domains"
+      [options]="additionalDomainOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="selectedAdditionalDomainIds()"
+      (ngModelChange)="selectedAdditionalDomainIds.set($event)"
+      [placeholder]="text().members.inviteAdditionalDomainsPlaceholder"
+      [showClear]="true"
+      [filter]="true"
+      styleClass="w-full">
+    </p-multiselect>
+    <p class="muted invite-dialog__hint">{{ text().members.inviteAdditionalDomainsHint }}</p>
+  }
+
   @if (inviteResults(); as results) {
     <ul class="invite-dialog__results">
-      @for (r of results; track r.email) {
+      @for (r of results; track $index) {
         <li [class.is-sent]="r.status === 'sent'"
             [class.is-already]="r.status === 'already_member'"
-            [class.is-invalid]="r.status === 'invalid'">
+            [class.is-invalid]="r.status === 'invalid'"
+            [class.is-forbidden]="r.status === 'forbidden_domain'">
           @switch (r.status) {
             @case ('sent') { {{ text().members.inviteResultSent(r.email) }} }
             @case ('already_member') { {{ text().members.inviteResultAlreadyMember(r.email) }} }
+            @case ('forbidden_domain') { {{ text().members.inviteResultForbidden(r.email) }} }
             @default { {{ text().members.inviteResultInvalid(r.email) }} }
           }
         </li>
