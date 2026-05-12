@@ -189,6 +189,10 @@ export const IT: UiText = {
       all: 'Tutte',
       noRequests: 'Nessuna richiesta.',
       moderate: 'Modera le richieste di accesso',
+      decidedBy: 'Deciso da',
+      decidedAt: 'Deciso il',
+      reason: 'Motivo',
+      noReason: '—',
     },
   },
 };

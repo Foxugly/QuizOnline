@@ -189,6 +189,10 @@ export const ES: UiText = {
       all: 'Todas',
       noRequests: 'Ninguna solicitud.',
       moderate: 'Moderar las solicitudes de acceso',
+      decidedBy: 'Decidido por',
+      decidedAt: 'Decidido el',
+      reason: 'Motivo',
+      noReason: '—',
     },
   },
 };

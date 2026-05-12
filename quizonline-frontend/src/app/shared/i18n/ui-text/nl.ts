@@ -188,6 +188,10 @@ export const NL: UiText = {
       all: 'Alle',
       noRequests: 'Geen aanvragen.',
       moderate: 'Toegangsaanvragen modereren',
+      decidedBy: 'Beslist door',
+      decidedAt: 'Beslist op',
+      reason: 'Reden',
+      noReason: '—',
     },
   },
 };

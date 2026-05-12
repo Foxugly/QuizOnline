@@ -3574,6 +3574,11 @@ components:
         user:
           type: integer
           readOnly: true
+        user_summary:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/JoinRequestStatusEnum'
@@ -3583,6 +3588,11 @@ components:
           type: integer
           readOnly: true
           nullable: true
+        decided_by_summary:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
         decided_at:
           type: string
           format: date-time
@@ -3603,12 +3613,14 @@ components:
       - created_at
       - decided_at
       - decided_by
+      - decided_by_summary
       - domain
       - id
       - reject_reason
       - status
       - updated_at
       - user
+      - user_summary
     DomainNameSummary:
       type: object
       properties:

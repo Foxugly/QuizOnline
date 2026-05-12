@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { UserSummaryDto } from './user-summary';
 import { JoinRequestStatusEnumDto } from './join-request-status-enum';
 
 
@@ -14,8 +15,10 @@ export interface DomainJoinRequestReadDto {
     readonly id: number;
     readonly domain: number;
     readonly user: number;
+    readonly user_summary: UserSummaryDto | null;
     readonly status: JoinRequestStatusEnumDto;
     readonly decided_by: number | null;
+    readonly decided_by_summary: UserSummaryDto | null;
     readonly decided_at: string | null;
     readonly reject_reason: string;
     readonly created_at: string;

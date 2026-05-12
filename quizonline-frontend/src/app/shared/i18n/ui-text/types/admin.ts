@@ -88,5 +88,9 @@ export type AdminUiText = {
     all: string;
     noRequests: string;
     moderate: string;
+    decidedBy: string;
+    decidedAt: string;
+    reason: string;
+    noReason: string;
   };
 };

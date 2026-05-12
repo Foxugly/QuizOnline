@@ -189,6 +189,10 @@ export const EN: UiText = {
       all: 'All',
       noRequests: 'No requests.',
       moderate: 'Moderate join requests',
+      decidedBy: 'Decided by',
+      decidedAt: 'Decided at',
+      reason: 'Reason',
+      noReason: '—',
     },
   },
 };

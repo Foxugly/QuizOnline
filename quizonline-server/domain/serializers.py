@@ -384,20 +384,43 @@ class DomainMemberRoleSerializer(serializers.Serializer):
 
 
 class DomainJoinRequestReadSerializer(serializers.ModelSerializer):
+    user_summary = serializers.SerializerMethodField()
+    decided_by_summary = serializers.SerializerMethodField()
+
     class Meta:
         model = DomainJoinRequest
         fields = (
             "id",
             "domain",
             "user",
+            "user_summary",
             "status",
             "decided_by",
+            "decided_by_summary",
             "decided_at",
             "reject_reason",
             "created_at",
             "updated_at",
         )
         read_only_fields = fields
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_user_summary(self, obj) -> dict | None:
+        return _user_summary(obj.user) if obj.user_id else None
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_decided_by_summary(self, obj) -> dict | None:
+        return _user_summary(obj.decided_by) if obj.decided_by_id else None
+
+
+def _user_summary(user) -> dict:
+    return {
+        "id": user.id,
+        "username": user.username,
+        "first_name": user.first_name or "",
+        "last_name": user.last_name or "",
+        "email": user.email or "",
+    }
 
 
 class DomainJoinRequestRejectSerializer(serializers.Serializer):

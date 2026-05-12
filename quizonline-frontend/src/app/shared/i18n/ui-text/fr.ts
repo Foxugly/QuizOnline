@@ -311,6 +311,10 @@ export const FR: UiText = {
       all: 'Toutes',
       noRequests: 'Aucune demande.',
       moderate: 'Modérer les demandes',
+      decidedBy: 'Décidé par',
+      decidedAt: 'Décidé le',
+      reason: 'Raison',
+      noReason: '—',
     },
   },
 };

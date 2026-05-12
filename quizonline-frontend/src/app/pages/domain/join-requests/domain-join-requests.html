@@ -23,17 +23,23 @@
         <th>{{ t().email }}</th>
         <th>{{ t().requestedAt }}</th>
         <th>{{ t().status }}</th>
+        <th>{{ t().decidedBy }}</th>
+        <th>{{ t().decidedAt }}</th>
+        <th>{{ t().reason }}</th>
         <th>{{ t().actions }}</th>
       </tr>
     </ng-template>
     <ng-template #body let-req>
       <tr>
-        <td>{{ userNameFor(req.user) }}</td>
-        <td>—</td>
+        <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
+        <td>{{ req.user_summary?.email || t().noReason }}</td>
         <td>{{ req.created_at | date:'short' }}</td>
         <td>
           <p-tag [value]="statusLabel(req.status)" [severity]="statusSeverity(req.status)" />
         </td>
+        <td>{{ req.decided_by_summary?.username || t().noReason }}</td>
+        <td>{{ req.decided_at ? (req.decided_at | date:'short') : t().noReason }}</td>
+        <td>{{ req.reject_reason || t().noReason }}</td>
         <td>
           @if (isPending(req)) {
             <button pButton [label]="t().approve" severity="success" size="small" class="mr-2" (click)="approve(req)"></button>
@@ -44,7 +50,7 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="5" class="text-center p-4">{{ t().noRequests }}</td>
+        <td colspan="8" class="text-center p-4">{{ t().noRequests }}</td>
       </tr>
     </ng-template>
   </p-table>
