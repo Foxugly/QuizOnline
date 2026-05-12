@@ -29,6 +29,8 @@ import { DomainJoinRequestDecideResponseDto } from '../model/domain-join-request
 // @ts-ignore
 import { DomainJoinRequestReadDto } from '../model/domain-join-request-read';
 // @ts-ignore
+import { DomainMemberRoleRequestDto } from '../model/domain-member-role-request';
+// @ts-ignore
 import { DomainReadDto } from '../model/domain-read';
 // @ts-ignore
 import { DomainWriteDto } from '../model/domain-write';
@@ -130,7 +132,7 @@ export interface DomainListRequestParams {
 export interface DomainMemberRoleCreateRequestParams {
     /** A unique integer value identifying this domain. */
     domainId: number;
-    domainWriteRequestDto: DomainWriteRequestDto;
+    domainMemberRoleRequestDto: DomainMemberRoleRequestDto;
 }
 
 export interface DomainPartialUpdateRequestParams {
@@ -1249,23 +1251,25 @@ export class DomainApi extends BaseService {
     }
 
     /**
+     * Modifier le rôle d\&#39;un membre
+     * Trois intentions exclusives selon le payload : &#x60;&#x60;is_domain_manager&#x60;&#x60; (promouvoir / rétrograder), &#x60;&#x60;is_active&#x60;&#x60; (toggle global avec garde-fous), &#x60;&#x60;remove_member&#x60;&#x60; (retirer du domaine, scope local).
      * @endpoint post /api/domain/{domain_id}/member-role/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainWriteDto>;
-    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainWriteDto>>;
-    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainWriteDto>>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<{ [key: string]: any; }>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<{ [key: string]: any; }>>;
+    public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<{ [key: string]: any; }>>;
     public domainMemberRoleCreate(requestParameters: DomainMemberRoleCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const domainId = requestParameters?.domainId;
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainMemberRoleCreate.');
         }
-        const domainWriteRequestDto = requestParameters?.domainWriteRequestDto;
-        if (domainWriteRequestDto === null || domainWriteRequestDto === undefined) {
-            throw new Error('Required parameter domainWriteRequestDto was null or undefined when calling domainMemberRoleCreate.');
+        const domainMemberRoleRequestDto = requestParameters?.domainMemberRoleRequestDto;
+        if (domainMemberRoleRequestDto === null || domainMemberRoleRequestDto === undefined) {
+            throw new Error('Required parameter domainMemberRoleRequestDto was null or undefined when calling domainMemberRoleCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -1309,10 +1313,10 @@ export class DomainApi extends BaseService {
 
         let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/member-role/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<DomainWriteDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<{ [key: string]: any; }>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: domainWriteRequestDto,
+                body: domainMemberRoleRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

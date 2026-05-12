@@ -14,6 +14,7 @@ export * from './domain-invite-result-status-enum';
 export * from './domain-invite-state';
 export * from './domain-join-request-decide-response';
 export * from './domain-join-request-read';
+export * from './domain-member-role-request';
 export * from './domain-name-summary';
 export * from './domain-read';
 export * from './domain-stats';

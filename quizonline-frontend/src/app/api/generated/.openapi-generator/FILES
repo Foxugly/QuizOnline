@@ -38,6 +38,7 @@ model/domain-invite-result.ts
 model/domain-invite-state.ts
 model/domain-join-request-decide-response.ts
 model/domain-join-request-read.ts
+model/domain-member-role-request.ts
 model/domain-name-summary.ts
 model/domain-read.ts
 model/domain-stats.ts

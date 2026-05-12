@@ -548,6 +548,10 @@ paths:
   /api/domain/{domain_id}/member-role/:
     post:
       operationId: domain_member_role_create
+      description: 'Trois intentions exclusives selon le payload : ``is_domain_manager``
+        (promouvoir / rétrograder), ``is_active`` (toggle global avec garde-fous),
+        ``remove_member`` (retirer du domaine, scope local).'
+      summary: Modifier le rôle d'un membre
       parameters:
       - in: path
         name: domain_id
@@ -556,18 +560,18 @@ paths:
         description: A unique integer value identifying this domain.
         required: true
       tags:
-      - domain
+      - Domain
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DomainWriteRequest'
+              $ref: '#/components/schemas/DomainMemberRoleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/DomainWriteRequest'
+              $ref: '#/components/schemas/DomainMemberRoleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/DomainWriteRequest'
+              $ref: '#/components/schemas/DomainMemberRoleRequest'
         required: true
       security:
       - jwtAuth: []
@@ -576,7 +580,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DomainWrite'
+                type: object
+                additionalProperties: {}
           description: ''
   /api/domain/available-for-linking/:
     get:
@@ -4028,6 +4033,32 @@ components:
       - updated_at
       - user
       - user_summary
+    DomainMemberRoleRequest:
+      type: object
+      description: |-
+        Three intents are supported on a single endpoint:
+
+        - ``is_domain_manager``: add/remove the user from this domain's managers
+          (scoped to the domain).
+        - ``is_active``: toggle the global ``User.is_active`` flag (locks/unlocks
+          the account on the entire platform). Permitted only with strong guards
+          enforced in the view — see ``DomainViewSet._authorize_is_active_change``.
+        - ``remove_member``: remove the user from this domain's members (and
+          managers) entirely. Scoped operation, never touches ``User.is_active``.
+          Cannot be combined with the other intents (a remove + flip would be
+          ambiguous to audit).
+      properties:
+        user_id:
+          type: integer
+          minimum: 1
+        is_domain_manager:
+          type: boolean
+        is_active:
+          type: boolean
+        remove_member:
+          type: boolean
+      required:
+      - user_id
     DomainNameSummary:
       type: object
       properties:

@@ -321,8 +321,13 @@ export class DomainEdit implements OnInit {
   }
 
   onMemberRoleChange(evt: {userId: number; makeManager: boolean}): void {
-    const url = `${this.apiBaseUrl}/${this.id}/member-role/`;
-    this.http.post(url, {user_id: evt.userId, is_domain_manager: evt.makeManager})
+    this.domainApi.domainMemberRoleCreate({
+      domainId: this.id,
+      domainMemberRoleRequestDto: {
+        user_id: evt.userId,
+        is_domain_manager: evt.makeManager,
+      },
+    })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => this.domainService.detail(this.id)),
@@ -364,8 +369,13 @@ export class DomainEdit implements OnInit {
   }
 
   onMemberRemove(evt: {userId: number}): void {
-    const url = `${this.apiBaseUrl}/${this.id}/member-role/`;
-    this.http.post(url, {user_id: evt.userId, remove_member: true})
+    this.domainApi.domainMemberRoleCreate({
+      domainId: this.id,
+      domainMemberRoleRequestDto: {
+        user_id: evt.userId,
+        remove_member: true,
+      },
+    })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => this.domainService.detail(this.id)),
