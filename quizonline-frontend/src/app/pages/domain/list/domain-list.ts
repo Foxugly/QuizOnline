@@ -13,6 +13,7 @@ import {TableModule} from 'primeng/table';
 import {BadgeModule} from 'primeng/badge';
 import {ConfirmationService} from 'primeng/api';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {StripPPipe} from '../../../shared/pipes/strip-p.pipe';
@@ -130,6 +131,24 @@ export class DomainList implements OnInit {
 
   goJoinRequests(id: number): void {
     void this.router.navigate(['/domain', id, 'join-requests']);
+  }
+
+  /** Localized label for a domain's join policy (Auto / Owner / Owner+managers). */
+  joinPolicyLabel(policy: JoinPolicyEnumDto | undefined): string {
+    const labels = this.editorUi().domainForm;
+    switch (policy) {
+      case JoinPolicyEnumDto.Owner:
+        return labels.joinPolicyOwner;
+      case JoinPolicyEnumDto.OwnerManagers:
+        return labels.joinPolicyOwnerManagers;
+      case JoinPolicyEnumDto.Auto:
+      default:
+        return labels.joinPolicyAuto;
+    }
+  }
+
+  isAutoPolicy(policy: JoinPolicyEnumDto | undefined): boolean {
+    return (policy ?? JoinPolicyEnumDto.Auto) === JoinPolicyEnumDto.Auto;
   }
 
   onSelectionChange(rows: DomainListRow[]): void {
