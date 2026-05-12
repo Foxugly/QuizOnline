@@ -5,6 +5,14 @@ export type DomainEditUiText = {
     config: string;
     members: string;
   };
+  errors: {
+    invalidId: string;
+    loadDomainFailed: string;
+    formInvalid: string;
+    needOneLanguage: string;
+    saveFailed: string;
+    translationFailed: string;
+  };
   members: {
     pendingTitle: string;
     pendingNone: string;
@@ -23,6 +31,14 @@ export type DomainEditUiText = {
 
 const FR: DomainEditUiText = {
   tabs: {config: 'Configuration', members: 'Membres'},
+  errors: {
+    invalidId: 'Identifiant invalide.',
+    loadDomainFailed: 'Impossible de charger le domaine.',
+    formInvalid: 'Le formulaire contient des erreurs.',
+    needOneLanguage: 'Sélectionne au moins une langue valide.',
+    saveFailed: 'Erreur lors de l\'enregistrement.',
+    translationFailed: 'Erreur lors de la traduction.',
+  },
   members: {
     pendingTitle: 'Demandes en attente',
     pendingNone: 'Aucune demande en attente.',
@@ -41,6 +57,14 @@ const FR: DomainEditUiText = {
 
 const EN: DomainEditUiText = {
   tabs: {config: 'Configuration', members: 'Members'},
+  errors: {
+    invalidId: 'Invalid identifier.',
+    loadDomainFailed: 'Failed to load the domain.',
+    formInvalid: 'The form contains errors.',
+    needOneLanguage: 'Select at least one valid language.',
+    saveFailed: 'Error while saving.',
+    translationFailed: 'Error while translating.',
+  },
   members: {
     pendingTitle: 'Pending requests',
     pendingNone: 'No pending request.',
@@ -59,6 +83,14 @@ const EN: DomainEditUiText = {
 
 const NL: DomainEditUiText = {
   tabs: {config: 'Configuratie', members: 'Leden'},
+  errors: {
+    invalidId: 'Ongeldige identificatie.',
+    loadDomainFailed: 'Kan het domein niet laden.',
+    formInvalid: 'Het formulier bevat fouten.',
+    needOneLanguage: 'Selecteer minstens één geldige taal.',
+    saveFailed: 'Fout bij het opslaan.',
+    translationFailed: 'Fout bij het vertalen.',
+  },
   members: {
     pendingTitle: 'Openstaande aanvragen',
     pendingNone: 'Geen openstaande aanvraag.',
@@ -77,6 +109,14 @@ const NL: DomainEditUiText = {
 
 const IT: DomainEditUiText = {
   tabs: {config: 'Configurazione', members: 'Membri'},
+  errors: {
+    invalidId: 'Identificatore non valido.',
+    loadDomainFailed: 'Impossibile caricare il dominio.',
+    formInvalid: 'Il modulo contiene errori.',
+    needOneLanguage: 'Seleziona almeno una lingua valida.',
+    saveFailed: 'Errore durante il salvataggio.',
+    translationFailed: 'Errore durante la traduzione.',
+  },
   members: {
     pendingTitle: 'Richieste in attesa',
     pendingNone: 'Nessuna richiesta in attesa.',
@@ -95,6 +135,14 @@ const IT: DomainEditUiText = {
 
 const ES: DomainEditUiText = {
   tabs: {config: 'Configuración', members: 'Miembros'},
+  errors: {
+    invalidId: 'Identificador no válido.',
+    loadDomainFailed: 'No se puede cargar el dominio.',
+    formInvalid: 'El formulario contiene errores.',
+    needOneLanguage: 'Selecciona al menos un idioma válido.',
+    saveFailed: 'Error al guardar.',
+    translationFailed: 'Error al traducir.',
+  },
   members: {
     pendingTitle: 'Solicitudes pendientes',
     pendingNone: 'Sin solicitudes pendientes.',

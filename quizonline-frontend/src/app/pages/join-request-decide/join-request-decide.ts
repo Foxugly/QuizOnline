@@ -146,7 +146,6 @@ export class JoinRequestDecidePage implements OnInit {
         case 'token_recipient_mismatch':
           this.error.set('recipientMismatch');
           return;
-        case 'cannotApproveAnymore':
         case 'cannot_approve_anymore':
           this.error.set('cannotApproveAnymore');
           return;

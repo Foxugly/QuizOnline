@@ -163,7 +163,7 @@ export class DomainEdit implements OnInit {
     const rawId = this.route.snapshot.paramMap.get('id');
     const id = Number(rawId);
     if (!Number.isFinite(id)) {
-      this.submitError.set("ID invalide.");
+      this.submitError.set(this.editText().errors.invalidId);
       this.loading.set(false);
       return;
     }
@@ -198,7 +198,7 @@ export class DomainEdit implements OnInit {
       )
       .subscribe(({domain, users, languages}) => {
         if (!domain) {
-          this.submitError.set("Impossible de charger le domaine.");
+          this.submitError.set(this.editText().errors.loadDomainFailed);
           return;
         }
 
@@ -339,14 +339,14 @@ export class DomainEdit implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.submitError.set("Le formulaire contient des erreurs.");
+      this.submitError.set(this.editText().errors.formInvalid);
       return;
     }
 
     const payload = this.buildPayload();
 
     if (!payload.allowed_languages?.length) {
-      this.submitError.set("Sélectionne au moins une langue valide.");
+      this.submitError.set(this.editText().errors.needOneLanguage);
       return;
     }
 
@@ -356,7 +356,7 @@ export class DomainEdit implements OnInit {
         next: () => this.goList(),
         error: (err) => {
           logApiError('domain.edit.submit', err);
-          this.submitError.set(userFacingApiMessage(err, "Erreur lors de l'enregistrement."));
+          this.submitError.set(userFacingApiMessage(err, this.editText().errors.saveFailed));
         },
       });
   }
@@ -400,7 +400,7 @@ export class DomainEdit implements OnInit {
       }
     } catch (e) {
       logApiError('domain.edit.translate', e);
-      this.submitError.set(userFacingApiMessage(e, 'Erreur lors de la traduction.'));
+      this.submitError.set(userFacingApiMessage(e, this.editText().errors.translationFailed));
     } finally {
       this.translating.set(false);
     }

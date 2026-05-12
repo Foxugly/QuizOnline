@@ -29,6 +29,7 @@ import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors'
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
+import {getDomainCreateUiText} from './domain-create.i18n';
 
 type UserOption = { label: string; value: number };
 type DomainWritePayload = DomainWriteRequestDto & {
@@ -114,8 +115,8 @@ export class DomainCreate implements OnInit {
       this.lastToastMessage = detail;
       this.toast.add({
         severity: 'error',
-        summary: this.localizedSummary(),
-        detail: this.localizeDetail(detail),
+        summary: this.toastErrorSummary(),
+        detail,
       });
     });
   }
@@ -174,7 +175,7 @@ export class DomainCreate implements OnInit {
         },
         error: (err) => {
           logApiError('domain.create.load-initial', err);
-          const detail = userFacingApiMessage(err, this.toastText().loadFailed);
+          const detail = userFacingApiMessage(err, this.errText().loadFailed);
           this.submitError.set(detail);
           this.showErrorToast(detail);
         },
@@ -271,7 +272,7 @@ export class DomainCreate implements OnInit {
       }
     } catch (e) {
       logApiError('domain.create.translate', e);
-      const detail = userFacingApiMessage(e, this.toastText().translateFailed);
+      const detail = userFacingApiMessage(e, this.errText().translateFailed);
       this.submitError.set(detail);
       this.showErrorToast(detail);
     } finally {
@@ -284,15 +285,15 @@ export class DomainCreate implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.showErrorToast(this.toastText().invalidForm);
-      this.submitError.set('Le formulaire contient des erreurs.');
+      this.showErrorToast(this.errText().invalidForm);
+      this.submitError.set(this.errText().invalidForm);
       return;
     }
 
     const dto = this.buildDto();
     if (!dto.allowed_languages || !dto.allowed_languages.length) {
-      this.showErrorToast(this.toastText().missingLanguages);
-      this.submitError.set("Impossible de déterminer les IDs des langues (liste des langues non chargée ?).");
+      this.showErrorToast(this.errText().missingLanguages);
+      this.submitError.set(this.errText().missingLanguages);
       return;
     }
 
@@ -302,7 +303,7 @@ export class DomainCreate implements OnInit {
         next: () => this.domainService.goList(),
         error: (err) => {
           logApiError('domain.create.submit', err);
-          this.submitError.set(userFacingApiMessage(err, 'Erreur backend lors de la création.'));
+          this.submitError.set(userFacingApiMessage(err, this.errText().saveFailed));
         },
       });
   }
@@ -371,69 +372,34 @@ export class DomainCreate implements OnInit {
 
   }
 
-  private localizedSummary(): string {
-    switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
-        return 'Fout';
-      case LanguageEnumDto.It:
-        return 'Errore';
-      case LanguageEnumDto.Es:
-      case LanguageEnumDto.En:
-        return 'Error';
-      case LanguageEnumDto.Fr:
-      default:
-        return 'Erreur';
-    }
-  }
-
-  private localizeDetail(detail: string): string {
-    switch (detail) {
-      case 'Le formulaire contient des erreurs.':
-        return this.msg('The form contains errors.', 'Le formulaire contient des erreurs.', 'Het formulier bevat fouten.', 'Il modulo contiene errori.', 'El formulario contiene errores.');
-      case "Impossible de dÃ©terminer les IDs des langues (liste des langues non chargÃ©e ?).":
-        return this.msg('Unable to determine language IDs.', "Impossible de determiner les IDs des langues.", 'Kan de taal-IDs niet bepalen.', 'Impossibile determinare gli ID delle lingue.', 'No se pueden determinar los IDs de los idiomas.');
-      case 'Erreur lors du chargement initial.':
-        return this.msg('Failed to load initial data.', 'Erreur lors du chargement initial.', 'Fout bij het laden van de begingegevens.', 'Errore durante il caricamento iniziale.', 'Error al cargar los datos iniciales.');
-      case 'Erreur lors de la traduction.':
-        return this.msg('Translation failed.', 'Erreur lors de la traduction.', 'Fout tijdens het vertalen.', 'Errore durante la traduzione.', 'Error durante la traduccion.');
-      case 'Erreur backend lors de la crÃ©ation.':
-        return this.msg('Backend error while creating.', 'Erreur backend lors de la creation.', 'Backendfout bij het aanmaken.', 'Errore backend durante la creazione.', 'Error del backend al crear.');
-      default:
-        return detail;
-    }
-  }
-
-  private msg(en: string, fr: string, nl: string, it: string, es: string): string {
-    switch (this.userService.currentLang) {
-      case LanguageEnumDto.Nl:
-        return nl;
-      case LanguageEnumDto.It:
-        return it;
-      case LanguageEnumDto.Es:
-        return es;
-      case LanguageEnumDto.En:
-        return en;
-      case LanguageEnumDto.Fr:
-      default:
-        return fr;
-    }
-  }
-
   private showErrorToast(detail: string): void {
     this.toast.add({
       severity: 'error',
-      summary: this.localizedSummary(),
-      detail: this.localizeDetail(detail),
+      summary: this.toastErrorSummary(),
+      detail,
     });
   }
 
-  private toastText(): {loadFailed: string; translateFailed: string; invalidForm: string; missingLanguages: string; saveFailed: string} {
+  private toastErrorSummary(): string {
+    const lang = this.userService.currentLang ?? LanguageEnumDto.Fr;
+    return getDomainCreateUiText(lang).toastErrorSummary;
+  }
+
+  private errText(): {
+    loadFailed: string;
+    translateFailed: string;
+    invalidForm: string;
+    missingLanguages: string;
+    saveFailed: string;
+  } {
+    const lang = this.userService.currentLang ?? LanguageEnumDto.Fr;
+    const e = getDomainCreateUiText(lang).errors;
     return {
-      loadFailed: 'Erreur lors du chargement initial.',
-      translateFailed: 'Erreur lors de la traduction.',
-      invalidForm: 'Le formulaire contient des erreurs.',
-      missingLanguages: "Impossible de dÃ©terminer les IDs des langues (liste des langues non chargÃ©e ?).",
-      saveFailed: 'Erreur backend lors de la crÃ©ation.',
+      loadFailed: e.loadFailed,
+      translateFailed: e.translationFailed,
+      invalidForm: e.formInvalid,
+      missingLanguages: e.missingLanguageIds,
+      saveFailed: e.saveFailed,
     };
   }
 }
