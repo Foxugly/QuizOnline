@@ -53,6 +53,14 @@ export type QuizListUiText = {
     roleManager: string;
     roleMember: string;
   };
+  bulk: {
+    placeholder: string;
+    apply: string;
+    activate: string;
+    deactivate: string;
+    delete: string;
+    selectedCount: (n: number) => string;
+  };
   messages: {
     assignSuccess: (count: number) => string;
     assignError: string;
@@ -112,6 +120,14 @@ const FR: QuizListUiText = {
     roleOwner: 'Propriétaire',
     roleManager: 'Gestionnaire',
     roleMember: 'Membre lié',
+  },
+  bulk: {
+    placeholder: 'Actions groupées…',
+    apply: 'Appliquer',
+    activate: 'Rendre actif',
+    deactivate: 'Rendre inactif',
+    delete: 'Supprimer',
+    selectedCount: (n) => n <= 1 ? `${n} sélectionné` : `${n} sélectionnés`,
   },
   messages: {
     assignSuccess: (count) => `${count} quiz envoyé(s).`,
@@ -173,6 +189,14 @@ const EN: QuizListUiText = {
     roleManager: 'Manager',
     roleMember: 'Linked member',
   },
+  bulk: {
+    placeholder: 'Bulk actions…',
+    apply: 'Apply',
+    activate: 'Make active',
+    deactivate: 'Make inactive',
+    delete: 'Delete',
+    selectedCount: (n) => `${n} selected`,
+  },
   messages: {
     assignSuccess: (count) => `${count} quiz(es) sent.`,
     assignError: 'Unable to send this quiz.',
@@ -232,6 +256,14 @@ const NL: QuizListUiText = {
     roleOwner: 'Eigenaar',
     roleManager: 'Beheerder',
     roleMember: 'Gekoppeld lid',
+  },
+  bulk: {
+    placeholder: 'Bulkacties…',
+    apply: 'Toepassen',
+    activate: 'Activeren',
+    deactivate: 'Deactiveren',
+    delete: 'Verwijderen',
+    selectedCount: (n) => `${n} geselecteerd`,
   },
   messages: {
     assignSuccess: (count) => `${count} quiz(zen) verzonden.`,
@@ -293,6 +325,14 @@ const IT: QuizListUiText = {
     roleManager: 'Gestore',
     roleMember: 'Membro collegato',
   },
+  bulk: {
+    placeholder: 'Azioni in blocco…',
+    apply: 'Applica',
+    activate: 'Attiva',
+    deactivate: 'Disattiva',
+    delete: 'Elimina',
+    selectedCount: (n) => `${n} selezionat${n <= 1 ? 'o' : 'i'}`,
+  },
   messages: {
     assignSuccess: (count) => `${count} quiz inviato/i.`,
     assignError: 'Impossibile inviare questo quiz.',
@@ -352,6 +392,14 @@ const ES: QuizListUiText = {
     roleOwner: 'Propietario',
     roleManager: 'Gestor',
     roleMember: 'Miembro vinculado',
+  },
+  bulk: {
+    placeholder: 'Acciones masivas…',
+    apply: 'Aplicar',
+    activate: 'Activar',
+    deactivate: 'Desactivar',
+    delete: 'Eliminar',
+    selectedCount: (n) => `${n} seleccionado${n > 1 ? 's' : ''}`,
   },
   messages: {
     assignSuccess: (count) => `${count} cuestionario(s) enviado(s).`,

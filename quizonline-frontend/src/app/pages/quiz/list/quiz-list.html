@@ -67,10 +67,10 @@
           <div class="quiz-bulk-row">
             <app-bulk-actions
               [options]="bulkActionOptions()"
-              placeholder="Actions groupées…"
-              applyLabel="Appliquer"
+              [placeholder]="uiText().bulk.placeholder"
+              [applyLabel]="uiText().bulk.apply"
               [count]="selectedCount()"
-              [countText]="selectedCount() > 1 ? selectedCount() + ' sélectionnés' : selectedCount() + ' sélectionné'"
+              [countText]="uiText().bulk.selectedCount(selectedCount())"
               [applying]="applyingBulk()"
               (apply)="applyBulk($event)">
             </app-bulk-actions>

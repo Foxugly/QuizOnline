@@ -87,13 +87,16 @@ export class QuizListPage implements OnInit {
   readonly canComposeTemplate = computed(() => this.domains().some((domain) => this.canManageDomain(domain)));
   readonly canCreateQuickTemplate = computed(() => this.domains().length > 0);
 
-  readonly bulkActionOptions = computed<BulkActionOption[]>(() => [
-    {label: 'Rendre actif', value: 'activate', icon: 'pi pi-check-circle'},
-    {label: 'Rendre inactif', value: 'deactivate', icon: 'pi pi-times-circle'},
-    {label: 'Supprimer', value: 'delete', icon: 'pi pi-trash', danger: true},
-  ]);
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = computed(() => getQuizListUiText(this.currentLang()));
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
+    const labels = this.uiText().bulk;
+    return [
+      {label: labels.activate, value: 'activate', icon: 'pi pi-check-circle'},
+      {label: labels.deactivate, value: 'deactivate', icon: 'pi pi-times-circle'},
+      {label: labels.delete, value: 'delete', icon: 'pi pi-trash', danger: true},
+    ];
+  });
 
   /** Set of domain ids where the current user has a pending join request. */
   readonly pendingDomainIds = computed(() => {
