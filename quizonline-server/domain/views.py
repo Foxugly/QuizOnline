@@ -9,12 +9,18 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404 as drf_get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from config.tools import MyModelViewSet
 
 from core.mailers.domain_join import (
     send_join_request_created_email,
     send_join_request_approved_email,
     send_join_request_rejected_email,
+)
+from .decision_token import (
+    DecisionTokenExpired,
+    DecisionTokenInvalid,
+    parse_decision_token,
 )
 from .models import Domain, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
@@ -26,6 +32,7 @@ from .serializers import (
     DomainMemberRoleSerializer,
     DomainJoinRequestReadSerializer,
     DomainJoinRequestRejectSerializer,
+    DomainJoinRequestDecideResponseSerializer,
 )
 from .services import users_who_can_approve
 from config.tools import ErrorDetailSerializer
@@ -661,3 +668,165 @@ class DomainJoinRequestViewSet(viewsets.GenericViewSet):
         join_request.status = DomainJoinRequest.STATUS_CANCELLED
         join_request.save(update_fields=["status", "updated_at"])
         return Response(self.get_serializer(join_request).data)
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Domain"],
+        summary="Décoder un token de décision (depuis un lien email)",
+        description=(
+            "Décode le token signé envoyé par mail, vérifie que l'utilisateur "
+            "connecté en est bien le destinataire, et renvoie l'état courant de "
+            "la demande pour que le frontend puisse afficher un récapitulatif "
+            "avant exécution.\n\n"
+            "Aucune écriture n'est faite par ce GET — il sert uniquement à "
+            "alimenter la page de confirmation."
+        ),
+        responses={
+            status.HTTP_200_OK: DomainJoinRequestDecideResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+    post=extend_schema(
+        tags=["Domain"],
+        summary="Exécuter la décision portée par un token de mail",
+        description=(
+            "Exécute l'action (`approve` ou `reject`) encodée dans le token. "
+            "Le clic depuis le mail compte comme une décision explicite : si la "
+            "demande avait déjà été tranchée (côté app ou autre mail), la "
+            "nouvelle décision écrase l'ancienne (last-decision-wins), avec un "
+            "renvoi de mail à l'utilisateur concerné."
+        ),
+        request=None,
+        responses={
+            status.HTTP_200_OK: DomainJoinRequestDecideResponseSerializer,
+            status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+            status.HTTP_410_GONE: ErrorDetailSerializer,
+        },
+    ),
+)
+class DomainJoinRequestDecideView(APIView):
+    """
+    Public landing endpoint for the email accept/reject links.
+
+    The token is the only thing that bridges an opaque inbox to a specific
+    pending request: it carries the request id, the recipient user id and
+    the requested action, all signed and time-stamped. We *also* require a
+    DRF auth session (``IsAuthenticated``) so that a forwarded mail cannot
+    be acted on by an attacker who never logged in to the platform.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, token: str):
+        parsed = self._parse(token)
+        if isinstance(parsed, Response):
+            return parsed
+        return self._build_state_response(parsed, request.user)
+
+    def post(self, request, token: str):
+        parsed = self._parse(token)
+        if isinstance(parsed, Response):
+            return parsed
+        return self._execute(parsed, request.user)
+
+    @staticmethod
+    def _parse(token: str):
+        try:
+            return parse_decision_token(token)
+        except DecisionTokenExpired:
+            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
+        except DecisionTokenInvalid:
+            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def _authorize(user, payload, join_request) -> Response | None:
+        if user.id != payload["recipient_user_id"]:
+            return Response(
+                {"detail": "token_recipient_mismatch"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        perm = CanApproveJoinRequest()
+        # ``has_object_permission`` is called with the bound domain so that
+        # owner / manager / superuser checks honour the *current* state of
+        # the domain — a moderator who has been removed since the mail was
+        # sent loses access here.
+        fake_request = type("_R", (), {"user": user})()
+        if not perm.has_object_permission(fake_request, None, join_request.domain):
+            return Response(
+                {"detail": "cannot_approve_anymore"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return None
+
+    def _build_state_response(self, payload, user) -> Response:
+        join_request = drf_get_object_or_404(
+            DomainJoinRequest.objects.select_related("user", "decided_by", "domain"),
+            pk=payload["request_id"],
+        )
+        denial = self._authorize(user, payload, join_request)
+        if denial is not None:
+            return denial
+        return Response({
+            "action": payload["action"],
+            "was_already_decided": join_request.status != DomainJoinRequest.STATUS_PENDING,
+            "request": DomainJoinRequestReadSerializer(join_request).data,
+        })
+
+    def _execute(self, payload, user) -> Response:
+        action_kind = payload["action"]
+        now = timezone.now()
+        with transaction.atomic():
+            join_request = drf_get_object_or_404(
+                DomainJoinRequest.objects.select_for_update().select_related("user", "decided_by", "domain"),
+                pk=payload["request_id"],
+            )
+            denial = self._authorize(user, payload, join_request)
+            if denial is not None:
+                return denial
+
+            previous_status = join_request.status
+            was_already_decided = previous_status != DomainJoinRequest.STATUS_PENDING
+
+            if action_kind == "approve":
+                join_request.status = DomainJoinRequest.STATUS_APPROVED
+                join_request.decided_by = user
+                join_request.decided_at = now
+                # Approving from mail clears any prior reject reason so the
+                # row stays internally consistent (status APPROVED + empty
+                # reason).
+                join_request.reject_reason = ""
+                join_request.save(update_fields=[
+                    "status", "decided_by", "decided_at", "reject_reason", "updated_at",
+                ])
+                join_request.domain.members.add(join_request.user)
+                transaction.on_commit(
+                    lambda jr=join_request: send_join_request_approved_email(join_request=jr)
+                )
+            else:  # reject
+                join_request.status = DomainJoinRequest.STATUS_REJECTED
+                join_request.decided_by = user
+                join_request.decided_at = now
+                # No reason captured from a one-click mail link.
+                join_request.reject_reason = ""
+                join_request.save(update_fields=[
+                    "status", "decided_by", "decided_at", "reject_reason", "updated_at",
+                ])
+                # Last-decision-wins: if a previous approve had put the user
+                # in the domain, take them back out.
+                if previous_status == DomainJoinRequest.STATUS_APPROVED:
+                    join_request.domain.members.remove(join_request.user)
+                transaction.on_commit(
+                    lambda jr=join_request: send_join_request_rejected_email(join_request=jr)
+                )
+
+        return Response({
+            "action": action_kind,
+            "was_already_decided": was_already_decided,
+            "request": DomainJoinRequestReadSerializer(join_request).data,
+        })

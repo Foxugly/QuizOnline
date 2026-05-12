@@ -426,3 +426,10 @@ def _user_summary(user) -> dict:
 
 class DomainJoinRequestRejectSerializer(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True, max_length=500, default="")
+
+
+class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
+    """Shape of the GET/POST response from the public moderation endpoint."""
+    action = serializers.ChoiceField(choices=("approve", "reject"))
+    was_already_decided = serializers.BooleanField()
+    request = DomainJoinRequestReadSerializer()

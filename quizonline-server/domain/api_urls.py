@@ -1,7 +1,11 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import DomainJoinRequestViewSet, DomainViewSet
+from .views import (
+    DomainJoinRequestDecideView,
+    DomainJoinRequestViewSet,
+    DomainViewSet,
+)
 
 app_name = "domain-api"
 
@@ -14,7 +18,16 @@ join_request_approve = DomainJoinRequestViewSet.as_view({"post": "approve"})
 join_request_reject = DomainJoinRequestViewSet.as_view({"post": "reject"})
 join_request_cancel = DomainJoinRequestViewSet.as_view({"post": "cancel"})
 
-urlpatterns = router.urls + [
+# Decode-from-mail endpoint MUST come before the router URLs: the router
+# registers `<domain_id>/` with a permissive `[^/.]+` regex, which would
+# happily swallow ``join-request`` as a domain id and 404 from there.
+urlpatterns = [
+    path(
+        "join-request/decide/<str:token>/",
+        DomainJoinRequestDecideView.as_view(),
+        name="domain-join-request-decide",
+    ),
+] + router.urls + [
     path(
         "<int:domain_id>/join-request/",
         join_request_list,
