@@ -161,6 +161,28 @@ class DomainsWithPendingForUserTests(TestCase):
         ids = [d["id"] for d in domains_with_pending_for_user(self.owner)]
         self.assertNotIn(self.domain_c.id, ids)
 
+    def test_query_count_is_bounded_when_many_domains(self):
+        # Lock the moderation-tile query budget: with the prefetched
+        # translations the work should be one SELECT for the domains
+        # plus one SELECT for their translations — independent of the
+        # number of domains. Without prefetching, ``safe_translation_getter``
+        # would issue one extra SELECT per domain (the regression we
+        # want to prevent).
+        from django.utils import translation
+        translation.activate("fr")
+        # Add 4 more pending domains for the same owner.
+        for i in range(4):
+            d = Domain.objects.create(
+                owner=self.owner, name=f"X{i}", active=True,
+                join_policy=JoinPolicy.OWNER_MANAGERS,
+            )
+            DomainJoinRequest.objects.create(domain=d, user=self.applicant1)
+        with self.assertNumQueries(2):
+            result = domains_with_pending_for_user(self.owner)
+        # Sanity-check that we actually walked over 6 domains
+        # (2 pre-existing + 4 added).
+        self.assertEqual(len(result), 6)
+
 
 class SendExpiringJoinRequestWarningsTests(TestCase):
     def setUp(self):

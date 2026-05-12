@@ -249,11 +249,26 @@ def domains_with_pending_for_user(user) -> list[dict]:
         .prefetch_related("translations")
     )
 
+    # Resolve the display name directly from the prefetched translations
+    # queryset. ``safe_translation_getter`` would still issue one SELECT
+    # per domain because parler's per-language cache doesn't share state
+    # with the ``prefetch_related`` cache when ``any_language=True``.
+    from django.utils.translation import get_language
+
+    active_lang = get_language() or ""
+
     out = []
     for domain in qs:
+        translations = list(domain.translations.all())
+        by_code = {t.language_code: t.name for t in translations}
+        name = (
+            by_code.get(active_lang)
+            or next((t.name for t in translations if t.name), None)
+            or f"Domain#{domain.id}"
+        )
         out.append({
             "id": domain.id,
-            "name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.id}",
+            "name": name,
             "pending_count": domain.pending_count,
         })
     return out
