@@ -37,6 +37,15 @@ export class QuizTemplateResultsPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly editorUi = inject(UiTextService).editor;
 
+  readonly subtitleHtml = computed(() => {
+    const ui = this.editorUi().pages.quizTemplateResults;
+    const tpl = this.template();
+    if (!tpl) {
+      return ui.subtitleGeneric;
+    }
+    return ui.subtitleWithTemplate.replace('{title}', `<strong>${this.escapeHtml(tpl.title)}</strong>`);
+  });
+
   readonly filteredSessions = computed(() => {
     const term = this.normalize(this.search());
     if (!term) {
@@ -89,7 +98,7 @@ export class QuizTemplateResultsPage implements OnInit {
         logApiError('quiz.template-results.load', err);
         this.sessions.set([]);
         this.template.set(null);
-        this.error.set(userFacingApiMessage(err, 'Impossible de charger les résultats des quiz envoyés.'));
+        this.error.set(userFacingApiMessage(err, this.editorUi().pages.quizTemplateResults.loadFailed));
         this.loading.set(false);
       },
     });
@@ -123,13 +132,14 @@ export class QuizTemplateResultsPage implements OnInit {
   }
 
   statusLabel(quiz: QuizAssignmentListDto): string {
+    const ui = this.editorUi();
     if (quiz.ended_at) {
-      return 'Repondu';
+      return ui.pages.quizTemplateResults.statusAnswered;
     }
     if (quiz.started_at) {
-      return 'En cours';
+      return ui.quiz.statusInProgress;
     }
-    return 'Non commence';
+    return ui.pages.quizTemplateResults.statusNotStarted;
   }
 
   formatDateTime(value: string | null | undefined): string {
@@ -161,7 +171,16 @@ export class QuizTemplateResultsPage implements OnInit {
       return;
     }
 
-    const headers = ['Utilisateur', 'Nom', 'Prénom', 'Email', 'Démarré le', 'Terminé le', 'Score'];
+    const ui = this.editorUi();
+    const headers = [
+      ui.pages.quizTemplateResults.colUser,
+      ui.pages.quizTemplateResults.csvLastName,
+      ui.pages.quizTemplateResults.csvFirstName,
+      ui.pages.quizTemplateResults.csvEmail,
+      ui.quiz.startedOn,
+      ui.quiz.closedOn,
+      ui.pages.quizTemplateResults.colScore,
+    ];
     const csvRows = [headers, ...rows.map((quiz) => [
       quiz.user_summary?.username ?? '',
       quiz.user_summary?.last_name ?? '',
@@ -209,6 +228,15 @@ export class QuizTemplateResultsPage implements OnInit {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   private scoreLabel(quiz: QuizAssignmentListDto): string {

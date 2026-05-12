@@ -89,6 +89,25 @@ export type EditorUiText = {
     quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
     userEdit: {title: string; subtitle: string;};
     userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};
+    quizTemplateResults: {
+      title: string;
+      subtitleWithTemplate: string;
+      subtitleGeneric: string;
+      searchPlaceholder: string;
+      exportCsv: string;
+      loadFailed: string;
+      emptyMessage: string;
+      statusAnswered: string;
+      statusNotStarted: string;
+      colUser: string;
+      colStatus: string;
+      colAnswers: string;
+      colScore: string;
+      colActions: string;
+      csvLastName: string;
+      csvFirstName: string;
+      csvEmail: string;
+    };
   };
   domainForm: {
     translations: string;

@@ -13,14 +13,8 @@
     </div>
 
     <div class="header-center">
-      <h1 class="title">Resultats des quiz envoyes</h1>
-      @if (template(); as selectedTemplate) {
-        <p class="subtitle">
-          Sessions liees au template <strong>{{ selectedTemplate.title }}</strong>.
-        </p>
-      } @else {
-        <p class="subtitle">Sessions liees a ce template.</p>
-      }
+      <h1 class="title">{{ editorUi().pages.quizTemplateResults.title }}</h1>
+      <p class="subtitle" [innerHTML]="subtitleHtml()"></p>
     </div>
 
     <div class="header-line__right"></div>
@@ -36,7 +30,7 @@
         [ngModel]="search()"
         (ngModelChange)="search.set($event)"
         pInputText
-        placeholder="Rechercher dans les quiz envoyés..."
+        [placeholder]="editorUi().pages.quizTemplateResults.searchPlaceholder"
       >
       <p-button
         (onClick)="load()"
@@ -50,7 +44,7 @@
         (onClick)="exportCsv()"
         [disabled]="!filteredSessions().length"
         icon="pi pi-file-excel"
-        label="Exporter en CSV"
+        [label]="editorUi().pages.quizTemplateResults.exportCsv"
         severity="secondary"
         size="small"
         type="button"
@@ -70,14 +64,14 @@
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="user_summary.username">Utilisateur <p-sortIcon field="user_summary.username"></p-sortIcon></th>
-          <th pSortableColumn="status">Statut <p-sortIcon field="status"></p-sortIcon></th>
-          <th pSortableColumn="created_at">Cree le <p-sortIcon field="created_at"></p-sortIcon></th>
-          <th pSortableColumn="started_at">Demarre le <p-sortIcon field="started_at"></p-sortIcon></th>
-          <th pSortableColumn="ended_at">Termine le <p-sortIcon field="ended_at"></p-sortIcon></th>
-          <th pSortableColumn="total_answers">Reponses <p-sortIcon field="total_answers"></p-sortIcon></th>
-          <th pSortableColumn="earned_score">Score <p-sortIcon field="earned_score"></p-sortIcon></th>
-          <th style="width: 200px;">Actions</th>
+          <th pSortableColumn="user_summary.username">{{ editorUi().pages.quizTemplateResults.colUser }} <p-sortIcon field="user_summary.username"></p-sortIcon></th>
+          <th pSortableColumn="status">{{ editorUi().pages.quizTemplateResults.colStatus }} <p-sortIcon field="status"></p-sortIcon></th>
+          <th pSortableColumn="created_at">{{ editorUi().quiz.createdOn }} <p-sortIcon field="created_at"></p-sortIcon></th>
+          <th pSortableColumn="started_at">{{ editorUi().quiz.startedOn }} <p-sortIcon field="started_at"></p-sortIcon></th>
+          <th pSortableColumn="ended_at">{{ editorUi().quiz.closedOn }} <p-sortIcon field="ended_at"></p-sortIcon></th>
+          <th pSortableColumn="total_answers">{{ editorUi().pages.quizTemplateResults.colAnswers }} <p-sortIcon field="total_answers"></p-sortIcon></th>
+          <th pSortableColumn="earned_score">{{ editorUi().pages.quizTemplateResults.colScore }} <p-sortIcon field="earned_score"></p-sortIcon></th>
+          <th style="width: 200px;">{{ editorUi().pages.quizTemplateResults.colActions }}</th>
         </tr>
       </ng-template>
 
@@ -127,9 +121,9 @@
         <tr>
           <td class="empty-cell" colspan="8">
             @if (loading()) {
-              Chargement...
+              {{ editorUi().common.loading }}
             } @else {
-              Aucun quiz envoye ne correspond au filtre.
+              {{ editorUi().pages.quizTemplateResults.emptyMessage }}
             }
           </td>
         </tr>
