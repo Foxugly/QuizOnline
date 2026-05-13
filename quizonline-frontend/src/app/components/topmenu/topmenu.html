@@ -39,7 +39,6 @@
             <div class="topbar-dropdown topbar-dropdown--admin">
               @for (item of adminMenuItems; track item.label) {
                 <button class="topbar-dropdown__item" type="button" (click)="goAdmin(item)">
-                  <i [class]="item.icon"></i>
                   <span>{{ item.label }}</span>
                 </button>
               }

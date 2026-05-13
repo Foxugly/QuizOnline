@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const ES: UiText = {
-  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
+  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', users: 'Usuarios', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contrasena', logout: 'Cerrar sesion', login: 'Iniciar sesion'},
   footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
   home: {
@@ -28,7 +28,7 @@ export const ES: UiText = {
     username: 'Usuario', usernamePlaceholder: 'Tu nombre de usuario', usernameError: 'El nombre de usuario es obligatorio (min. 3 caracteres)',
     password: 'Contrasena', passwordPlaceholder: 'Tu contrasena', passwordError: 'La contrasena es obligatoria (min. 4 caracteres)',
     remember: 'Recordarme', forgotPassword: 'Has olvidado tu contrasena?', submit: 'Iniciar sesion', noAccount: 'Aun no tienes cuenta?',
-    createAccount: 'Crear cuenta', invalidCredentials: 'Credenciales invalidas. Intentalo de nuevo.', confirmEmailRequired: 'Confirma tu direccion de correo antes de iniciar sesion.', magicLinkSwitch: 'Iniciar sesión con un enlace mágico', magicLinkBackToPassword: 'Usar una contraseña', magicLinkEmail: 'Correo electrónico', magicLinkEmailPlaceholder: 'tu@email.com', magicLinkSubmit: 'Enviar el enlace', magicLinkSent: 'Si existe una cuenta, te hemos enviado un enlace de acceso por correo.', magicLinkError: 'No se pudo enviar el enlace. Inténtalo de nuevo.', magicLinkExchanging: 'Iniciando sesión…', magicLinkExchangeFailed: 'Enlace no válido o ya usado.', magicLinkExpired: 'Enlace caducado. Solicita uno nuevo.',
+    createAccount: 'Crear cuenta', invalidCredentials: 'Credenciales invalidas. Intentalo de nuevo.', confirmEmailRequired: 'Confirma tu direccion de correo antes de iniciar sesion.', orSeparator: 'o', magicLinkSwitch: 'Iniciar sesión con un enlace mágico', magicLinkBackToPassword: 'Usar una contraseña', magicLinkEmail: 'Correo electrónico', magicLinkEmailPlaceholder: 'tu@email.com', magicLinkSubmit: 'Enviar el enlace', magicLinkSent: 'Si existe una cuenta, te hemos enviado un enlace de acceso por correo.', magicLinkError: 'No se pudo enviar el enlace. Inténtalo de nuevo.', magicLinkExchanging: 'Iniciando sesión…', magicLinkExchangeFailed: 'Enlace no válido o ya usado.', magicLinkExpired: 'Enlace caducado. Solicita uno nuevo.',
   },
   register: {
     title: 'Crear una cuenta', subtitle: 'Identidad, idioma y seguridad', back: 'Volver', create: 'Crear', loading: 'Cargando...',

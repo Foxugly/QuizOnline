@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const NL: UiText = {
-  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
+  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden'},
   footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie'},
   home: {
@@ -28,7 +28,7 @@ export const NL: UiText = {
     username: 'Gebruiker', usernamePlaceholder: 'Uw gebruikersnaam', usernameError: 'Gebruikersnaam is verplicht (min. 3 tekens)',
     password: 'Wachtwoord', passwordPlaceholder: 'Uw wachtwoord', passwordError: 'Wachtwoord is verplicht (min. 4 tekens)',
     remember: 'Onthoud mij', forgotPassword: 'Wachtwoord vergeten?', submit: 'Aanmelden', noAccount: 'Nog geen account?',
-    createAccount: 'Account maken', invalidCredentials: 'Ongeldige gegevens. Probeer opnieuw.', confirmEmailRequired: 'Bevestig uw e-mailadres voordat u zich aanmeldt.', magicLinkSwitch: 'Aanmelden via een magische link', magicLinkBackToPassword: 'Een wachtwoord gebruiken', magicLinkEmail: 'E-mailadres', magicLinkEmailPlaceholder: 'uw@email.com', magicLinkSubmit: 'Link verzenden', magicLinkSent: 'Als er een account bestaat, is een aanmeldlink per e-mail verzonden.', magicLinkError: 'Kan de link niet verzenden. Probeer opnieuw.', magicLinkExchanging: 'Bezig met aanmelden…', magicLinkExchangeFailed: 'Ongeldige of al gebruikte link.', magicLinkExpired: 'Link verlopen. Vraag er een nieuwe aan.',
+    createAccount: 'Account maken', invalidCredentials: 'Ongeldige gegevens. Probeer opnieuw.', confirmEmailRequired: 'Bevestig uw e-mailadres voordat u zich aanmeldt.', orSeparator: 'of', magicLinkSwitch: 'Aanmelden via een magische link', magicLinkBackToPassword: 'Een wachtwoord gebruiken', magicLinkEmail: 'E-mailadres', magicLinkEmailPlaceholder: 'uw@email.com', magicLinkSubmit: 'Link verzenden', magicLinkSent: 'Als er een account bestaat, is een aanmeldlink per e-mail verzonden.', magicLinkError: 'Kan de link niet verzenden. Probeer opnieuw.', magicLinkExchanging: 'Bezig met aanmelden…', magicLinkExchangeFailed: 'Ongeldige of al gebruikte link.', magicLinkExpired: 'Link verlopen. Vraag er een nieuwe aan.',
   },
   register: {
     title: 'Account maken', subtitle: 'Identiteit, taal en beveiliging', back: 'Terug', create: 'Maken', loading: 'Laden...',

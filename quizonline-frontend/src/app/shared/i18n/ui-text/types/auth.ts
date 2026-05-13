@@ -1,3 +1,4 @@
+
 export type LoginUiText = {
   eyebrow: string;
   title: string;
@@ -15,6 +16,7 @@ export type LoginUiText = {
   createAccount: string;
   invalidCredentials: string;
   confirmEmailRequired: string;
+  orSeparator: string;
   magicLinkSwitch: string;
   magicLinkBackToPassword: string;
   magicLinkEmail: string;

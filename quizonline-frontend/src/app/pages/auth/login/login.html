@@ -80,9 +80,17 @@
           ></p-button>
         </form>
 
-        <button type="button" class="link login-page__toggle" (click)="toggleMagicLinkMode()">
-          {{ ui().login.magicLinkSwitch }}
-        </button>
+        <div class="login-page__divider"><span>{{ ui().login.orSeparator }}</span></div>
+
+        <p-button
+          type="button"
+          icon="pi pi-envelope"
+          [label]="ui().login.magicLinkSwitch"
+          severity="secondary"
+          [outlined]="true"
+          styleClass="login-submit"
+          (onClick)="toggleMagicLinkMode()"
+        ></p-button>
       } @else {
         <form class="login-form" (ngSubmit)="submitMagicLink()">
           <div class="field">
@@ -109,9 +117,17 @@
           ></p-button>
         </form>
 
-        <button type="button" class="link login-page__toggle" (click)="toggleMagicLinkMode()">
-          {{ ui().login.magicLinkBackToPassword }}
-        </button>
+        <div class="login-page__divider"><span>{{ ui().login.orSeparator }}</span></div>
+
+        <p-button
+          type="button"
+          icon="pi pi-key"
+          [label]="ui().login.magicLinkBackToPassword"
+          severity="secondary"
+          [outlined]="true"
+          styleClass="login-submit"
+          (onClick)="toggleMagicLinkMode()"
+        ></p-button>
       }
 
       <div class="login-card__footer">

@@ -38,7 +38,6 @@ type NavItem = {
 
 type AdminNavItem = {
   label: string;
-  icon: string;
   link: readonly string[];
 };
 
@@ -154,7 +153,7 @@ export class TopMenuComponent implements OnInit {
 
     if (this.currentUser?.is_superuser) {
       items.unshift({
-        label: 'Users',
+        label: this.ui().topmenu.users,
         link: ROUTES.user.list(),
       });
     }
@@ -234,24 +233,20 @@ export class TopMenuComponent implements OnInit {
     const items: AdminNavItem[] = [
       {
         label: this.ui().admin.stats.title,
-        icon: 'pi pi-chart-bar',
         link: ROUTES.admin.stats(),
       },
       {
         label: this.ui().admin.systemConfig.title,
-        icon: 'pi pi-server',
         link: ROUTES.admin.systemConfig(),
       },
       {
         label: this.ui().admin.mailTest.title,
-        icon: 'pi pi-send',
         link: ROUTES.admin.mailTest(),
       },
     ];
     if (this.userService.isSuperuser()) {
       items.push({
         label: this.ui().admin.languages.title,
-        icon: 'pi pi-language',
         link: ROUTES.admin.languages(),
       });
     }

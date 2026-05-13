@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const IT: UiText = {
-  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
+  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', users: 'Utenti', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
   userMenu: {preferences: 'Preferenze', changePassword: 'Cambia password', logout: 'Disconnetti', login: 'Accedi'},
   footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione'},
   home: {
@@ -28,7 +28,7 @@ export const IT: UiText = {
     username: 'Utente', usernamePlaceholder: 'Il tuo nome utente', usernameError: 'Nome utente obbligatorio (min. 3 caratteri)',
     password: 'Password', passwordPlaceholder: 'La tua password', passwordError: 'Password obbligatoria (min. 4 caratteri)',
     remember: 'Ricordami', forgotPassword: 'Password dimenticata?', submit: 'Accedi', noAccount: 'Nessun account?',
-    createAccount: 'Crea account', invalidCredentials: 'Credenziali non valide. Riprova.', confirmEmailRequired: 'Conferma il tuo indirizzo email prima di accedere.', magicLinkSwitch: 'Accedi con un link magico', magicLinkBackToPassword: 'Usa una password', magicLinkEmail: 'E-mail', magicLinkEmailPlaceholder: 'tua@email.com', magicLinkSubmit: 'Invia il link', magicLinkSent: 'Se un account esiste, ti è stato inviato un link di accesso per e-mail.', magicLinkError: 'Impossibile inviare il link. Riprova.', magicLinkExchanging: 'Accesso in corso…', magicLinkExchangeFailed: 'Link non valido o già usato.', magicLinkExpired: 'Link scaduto. Richiedine uno nuovo.',
+    createAccount: 'Crea account', invalidCredentials: 'Credenziali non valide. Riprova.', confirmEmailRequired: 'Conferma il tuo indirizzo email prima di accedere.', orSeparator: 'oppure', magicLinkSwitch: 'Accedi con un link magico', magicLinkBackToPassword: 'Usa una password', magicLinkEmail: 'E-mail', magicLinkEmailPlaceholder: 'tua@email.com', magicLinkSubmit: 'Invia il link', magicLinkSent: 'Se un account esiste, ti è stato inviato un link di accesso per e-mail.', magicLinkError: 'Impossibile inviare il link. Riprova.', magicLinkExchanging: 'Accesso in corso…', magicLinkExchangeFailed: 'Link non valido o già usato.', magicLinkExpired: 'Link scaduto. Richiedine uno nuovo.',
   },
   register: {
     title: 'Crea un account', subtitle: 'Identita, lingua e sicurezza', back: 'Indietro', create: 'Crea', loading: 'Caricamento...',

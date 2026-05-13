@@ -105,6 +105,25 @@
   width: 100%;
 }
 
+.login-page__divider {
+  align-items: center;
+  color: #94a3b8;
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login-page__divider::before,
+.login-page__divider::after {
+  background: rgba(148, 163, 184, 0.4);
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
 .login-card__footer {
   align-items: center;
   border-top: 1px solid rgba(226, 232, 240, 0.9);
