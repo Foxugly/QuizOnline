@@ -1,41 +1,56 @@
 <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
   <div class="meta-grid meta-grid--context">
-    <div class="meta-item">
+    <div class="meta-item meta-item--active">
       <label class="meta-label" for="active">{{ ui().domainForm.active }}</label>
       <div class="meta-value widget-center">
         <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
       </div>
     </div>
 
-    <div class="meta-item">
-      <label class="meta-label" for="public">{{ ui().domainForm.publicLabel }}</label>
+    <div class="meta-item meta-item--public">
+      <label class="meta-label meta-label--with-hint" for="public">
+        <span>{{ ui().domainForm.publicLabel }}</span>
+        <i class="pi pi-info-circle label-hint-icon"
+           [pTooltip]="ui().domainForm.publicHint"
+           tooltipPosition="top"></i>
+      </label>
       <div class="meta-value widget-center">
         <p-toggleswitch formControlName="public" inputId="public"></p-toggleswitch>
       </div>
-      <div class="meta-hint">{{ ui().domainForm.publicHint }}</div>
     </div>
 
-    <div class="meta-item">
-      <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
-      <div class="meta-value widget-center">
-        <p-select
-          [disabled]="ownerReadonly()"
-          [filter]="true"
-          [options]="ownerOptions()"
-          [showClear]="!ownerReadonly()"
-          formControlName="owner"
-          inputId="owner"
-          optionLabel="label"
-          optionValue="value"
-          [placeholder]="ownerPlaceholder()">
-        </p-select>
-        @if (ownerReadonly()) {
-          <span class="badge badge--soft">{{ ui().domainForm.readonly }}</span>
-        }
+    @if (showOwnerField()) {
+      <div class="meta-item meta-item--owner">
+        <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
+        <div class="meta-value owner-row widget-center">
+          <p-select
+            [disabled]="true"
+            [filter]="true"
+            [options]="ownerOptions()"
+            [showClear]="false"
+            formControlName="owner"
+            inputId="owner"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="ownerPlaceholder()">
+          </p-select>
+          @if (showOwnerEditAction()) {
+            <p-button
+              (onClick)="onEditOwner()"
+              icon="pi pi-pencil"
+              [pTooltip]="ownerEditTooltip()"
+              tooltipPosition="top"
+              severity="secondary"
+              size="small"
+              type="button"
+              variant="text">
+            </p-button>
+          }
+        </div>
       </div>
-    </div>
+    }
 
-    <div class="meta-item">
+    <div class="meta-item meta-item--lang">
       <label class="meta-label">{{ ui().domainForm.allowedLanguages }}</label>
       <div class="meta-value meta-value--center">
         <p-selectButton
@@ -102,7 +117,7 @@
 
                   @if (langGroup(code).get('name')?.touched && langGroup(code).get('name')?.invalid) {
                     <div class="meta-hint meta-hint--error">
-                      Le nom est requis.
+                      {{ ui().domainForm.titleRequired }}
                     </div>
                   }
                 </div>
@@ -120,41 +135,6 @@
       </p-tabpanels>
     </p-tabs>
   }
-
-  <div class="divider"></div>
-
-  <div class="card-head">
-    <h2 class="card-title">{{ ui().domainForm.managers }}</h2>
-  </div>
-
-  <div class="meta-grid">
-    <div class="meta-item meta-item--full">
-      <label class="meta-label" for="managers">{{ ui().domainForm.managers }}</label>
-      <div class="meta-value widget-center">
-        <p-picklist
-          (onMoveAllToSource)="onManagersChange()"
-          (onMoveAllToTarget)="onManagersChange()"
-          (onMoveToSource)="onManagersChange()"
-          (onMoveToTarget)="onManagersChange()"
-          [dragdrop]="true"
-          [filterBy]="'label'"
-          [showSourceControls]="false"
-          [showTargetControls]="false"
-          [sourceStyle]="{ height: '240px' }"
-          [source]="availableManagers()"
-          [targetStyle]="{ height: '240px' }"
-          [target]="selectedManagers()"
-          [sourceHeader]="ui().domainForm.available"
-          [targetHeader]="ui().domainForm.selected">
-          <ng-template let-item pTemplate="item">
-            <div class="pick-item">
-              <span class="pick-label">{{ item.label }}</span>
-            </div>
-          </ng-template>
-        </p-picklist>
-      </div>
-    </div>
-  </div>
 
   @if (submitError()) {
     <p-message [text]="submitError()!" severity="error"></p-message>

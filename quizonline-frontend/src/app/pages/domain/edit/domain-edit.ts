@@ -18,7 +18,7 @@ import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
-import {DomainEditApi} from '../../../services/domain/domain-edit-api';
+import {DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
 import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
@@ -30,8 +30,10 @@ import {
 } from '../../../shared/forms/localized-text-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {DomainAnalyticsTab} from '../../../components/domain-analytics-tab/domain-analytics-tab';
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
+import {DomainInvitationsTab} from '../../../components/domain-invitations-tab/domain-invitations-tab';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -40,6 +42,7 @@ import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainAuditLogReadDto} from '../../../api/generated/model/domain-audit-log-read';
 import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
+import {DomainJoinRequestBulkResultDto} from '../../../api/generated/model/domain-join-request-bulk-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
@@ -79,6 +82,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     TableModule,
     DomainAnalyticsTab,
     DomainEditorFormComponent,
+    DomainInvitationsTab,
     DomainMembersTab,
   ],
   templateUrl: './domain-edit.html',
@@ -87,6 +91,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
 })
 export class DomainEdit implements OnInit {
   readonly ui = inject(UiTextService).editor;
+  readonly adminUi = inject(UiTextService).ui;
   id!: number;
 
   loading = signal(true);
@@ -94,8 +99,11 @@ export class DomainEdit implements OnInit {
   translating = signal(false);
 
   domain = signal<DomainDetailDto | null>(null);
-  pendingRequests = signal<DomainJoinRequestReadDto[]>([]);
-  topTab = signal<'config' | 'members' | 'audit' | 'analytics'>('config');
+  joinRequests = signal<DomainJoinRequestReadDto[]>([]);
+  joinRequestsLoading = signal<boolean>(false);
+  joinRequestStatusFilter = signal<JoinRequestStatusFilter>('pending');
+  applyingBulk = signal<boolean>(false);
+  topTab = signal<'config' | 'invitations' | 'members' | 'audit' | 'analytics'>('config');
   readonly auditRows = signal<DomainAuditLogReadDto[]>([]);
   readonly auditLoading = signal<boolean>(false);
 
@@ -105,11 +113,8 @@ export class DomainEdit implements OnInit {
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
 
-  // users for owner/managers
+  // users for owner picker
   ownerOptions = signal<UserOption[]>([]);
-  managersOptions = signal<UserOption[]>([]);
-  availableManagers = signal<UserOption[]>([]);
-  selectedManagers = signal<UserOption[]>([]);
   canEditOwner = signal(false);
 
   // tabs (code-based)
@@ -163,6 +168,7 @@ export class DomainEdit implements OnInit {
   private languageService = inject(LanguageService);
   private translator = inject(TranslationService);
   private editApi = inject(DomainEditApi);
+  private toast = inject(AppToastService);
 
   readonly editText = inject(UiTextService).localized(getDomainEditUiText);
   readonly currentUserId = computed(() => this.userService.currentUser()?.id ?? null);
@@ -202,7 +208,9 @@ export class DomainEdit implements OnInit {
     }
     return (dto.managers ?? []).some(m => m.id === me.id);
   });
-  readonly pendingCount = computed(() => this.pendingRequests().length);
+  readonly pendingCount = computed(
+    () => this.joinRequests().filter((r) => r.status === 'pending').length,
+  );
 
   readonly inviteResults = signal<DomainInviteResultDto[] | null>(null);
   readonly inviting = signal<boolean>(false);
@@ -281,7 +289,7 @@ export class DomainEdit implements OnInit {
             || domain.owner?.id === me.id
             || (domain.managers ?? []).some(m => m.id === me.id));
         if (canMod) {
-          this.loadPendingRequests();
+          this.loadJoinRequests();
           this.loadInvitations();
           this.loadAdditionalInvitableDomains();
         }
@@ -300,16 +308,21 @@ export class DomainEdit implements OnInit {
         const activeLangs = (languages ?? []).filter(l => l.active);
         this.languages.set(activeLangs);
 
-        // 3) Build user options
+        // 3) Build user options. Managers cannot list the owner via the
+        // generic user endpoint, so make sure the readonly select still
+        // resolves the owner's username by injecting it from the DTO.
         const opts: UserOption[] = (users ?? [])
           .filter(u => typeof u.id === 'number')
           .map(u => ({label: u.username, value: u.id}));
+        const ownerRef = domain.owner;
+        if (ownerRef && typeof ownerRef.id === 'number'
+          && !opts.some(o => o.value === ownerRef.id)) {
+          opts.unshift({label: ownerRef.username, value: ownerRef.id});
+        }
 
         this.ownerOptions.set(opts);
-        this.managersOptions.set(opts);
 
         this.patchMetaFromDto(domain);
-        this.recomputePickList();
         const activeSet = new Set(activeLangs.map(l => String(l.code)));
         const initialCodes = Array.from(new Set(
           (domain.allowed_languages ?? [])
@@ -357,16 +370,13 @@ export class DomainEdit implements OnInit {
         this.prevCodes = new Set(next);
       });
 
-    // Managers -> sync picklist if form.managers changes
-    this.form.controls.managers.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.recomputePickList());
   }
 
   onTopTabChange(value: string | number | undefined): void {
     if (
       value === 'members'
       || value === 'config'
+      || value === 'invitations'
       || value === 'audit'
       || value === 'analytics'
     ) {
@@ -378,6 +388,112 @@ export class DomainEdit implements OnInit {
         this.loadAnalytics();
       }
     }
+  }
+
+  onJoinRequestStatusFilterChange(value: JoinRequestStatusFilter): void {
+    this.joinRequestStatusFilter.set(value);
+    this.loadJoinRequests();
+  }
+
+  onJoinRequestApprove(evt: {requestId: number}): void {
+    this.editApi.approveJoinRequest(this.id, evt.requestId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadJoinRequests();
+          this.refreshDomainSilently();
+        },
+        error: (err) => {
+          logApiError('domain.edit.join-request-approve', err);
+          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+        },
+      });
+  }
+
+  onJoinRequestReject(evt: {requestId: number; reason: string}): void {
+    this.editApi.rejectJoinRequest(this.id, evt.requestId, evt.reason)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadJoinRequests();
+          this.refreshDomainSilently();
+        },
+        error: (err) => {
+          logApiError('domain.edit.join-request-reject', err);
+          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+        },
+      });
+  }
+
+  onJoinRequestBulkApprove(evt: {requestIds: number[]}): void {
+    if (!evt.requestIds.length || this.applyingBulk()) {
+      return;
+    }
+    this.applyingBulk.set(true);
+    this.editApi.bulkApproveJoinRequests(this.id, evt.requestIds)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingBulk.set(false)),
+      )
+      .subscribe({
+        next: (result) => {
+          this.notifyBulkResult(result);
+          this.loadJoinRequests();
+          this.refreshDomainSilently();
+        },
+        error: (err) => {
+          logApiError('domain.edit.join-request-bulk-approve', err);
+          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+        },
+      });
+  }
+
+  onJoinRequestBulkReject(evt: {requestIds: number[]; reason: string}): void {
+    if (!evt.requestIds.length || this.applyingBulk()) {
+      return;
+    }
+    this.applyingBulk.set(true);
+    this.editApi.bulkRejectJoinRequests(this.id, evt.requestIds, evt.reason)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingBulk.set(false)),
+      )
+      .subscribe({
+        next: (result) => {
+          this.notifyBulkResult(result);
+          this.loadJoinRequests();
+          this.refreshDomainSilently();
+        },
+        error: (err) => {
+          logApiError('domain.edit.join-request-bulk-reject', err);
+          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+        },
+      });
+  }
+
+  private notifyBulkResult(result: DomainJoinRequestBulkResultDto): void {
+    const labels = this.adminUi().admin.joinRequests;
+    this.toast.add({
+      severity: result.skipped > 0 ? 'warn' : 'success',
+      summary: labels.bulkResultTitle,
+      detail: labels.bulkResultDetail(result.processed, result.skipped),
+    });
+  }
+
+  private refreshDomainSilently(): void {
+    this.domainService.detail(this.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.refresh-domain', err);
+          return of(null as DomainDetailDto | null);
+        }),
+      )
+      .subscribe((dto) => {
+        if (dto) {
+          this.domain.set(dto);
+        }
+      });
   }
 
   private loadAnalytics(): void {
@@ -571,17 +687,30 @@ export class DomainEdit implements OnInit {
     }
     this.transferring.set(true);
     this.transferError.set(null);
-    this.editApi.proposeTransfer(this.id, userId)
+    this.domainService.updatePartial(this.id, {owner: userId})
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.domainService.detail(this.id)),
         finalize(() => this.transferring.set(false)),
       )
       .subscribe({
-        next: () => {
-          // Stay on the page; the proposal is sent but ownership has not
-          // moved yet. Show a toast-like message and close.
+        next: (dto) => {
+          this.domain.set(dto);
+          // Keep the form's owner control in sync with the new value.
+          this.form.controls.owner.setValue(dto.owner?.id ?? null, {emitEvent: false});
+          // Recompute the local "can edit owner" flag: the previous owner
+          // may have just demoted themselves and must lose the edit icon
+          // on the next render.
+          const me = this.userService.currentUser();
+          this.canEditOwner.set(
+            !!me && (me.is_superuser || dto.owner?.id === me.id),
+          );
           this.transferDialogVisible.set(false);
-          this.submitError.set(this.editText().transfer.successMessage);
+          this.transferTargetId.set(null);
+          this.toast.add({
+            severity: 'success',
+            summary: this.editText().transfer.successMessage,
+          });
         },
         error: (err) => {
           logApiError('domain.edit.transfer', err);
@@ -591,9 +720,6 @@ export class DomainEdit implements OnInit {
             case 'already_owner':
               this.transferError.set(t.errorAlreadyOwner);
               return;
-            case 'future_owner_unreachable':
-              this.transferError.set(t.errorTargetUnreachable);
-              return;
             default:
               this.transferError.set(t.errorGeneric);
           }
@@ -601,16 +727,18 @@ export class DomainEdit implements OnInit {
       });
   }
 
-  private loadPendingRequests(): void {
-    this.editApi.listPendingJoinRequests(this.id)
+  private loadJoinRequests(): void {
+    this.joinRequestsLoading.set(true);
+    this.editApi.listJoinRequests(this.id, this.joinRequestStatusFilter())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
-          logApiError('domain.edit.load-pending-join-requests', err);
+          logApiError('domain.edit.load-join-requests', err);
           return of([] as DomainJoinRequestReadDto[]);
         }),
+        finalize(() => this.joinRequestsLoading.set(false)),
       )
-      .subscribe((rows) => this.pendingRequests.set(rows));
+      .subscribe((rows) => this.joinRequests.set(rows));
   }
 
   onTabValueChange(v: string | number | undefined): void {
@@ -619,27 +747,6 @@ export class DomainEdit implements OnInit {
 
   langGroup(code: string): FormGroup {
     return getLocalizedTextGroup(this.translationsGroup(), code);
-  }
-
-  onManagersPickListChange(): void {
-    const meId = this.userService.currentUser()?.id;
-
-    const ids = this.selectedManagers().map(o => o.value);
-    const fixedIds =
-      typeof meId === 'number' && !ids.includes(meId) ? [...ids, meId] : ids;
-
-    const current = this.form.controls.managers.value ?? [];
-    const currentSet = new Set(current);
-    const fixedSet = new Set(fixedIds);
-
-    const same =
-      currentSet.size === fixedSet.size &&
-      [...currentSet].every(v => fixedSet.has(v));
-
-    if (!same) {
-      this.form.controls.managers.setValue(fixedIds);
-      this.form.controls.managers.markAsDirty();
-    }
   }
 
   save(): void {
@@ -769,24 +876,4 @@ export class DomainEdit implements OnInit {
     };
   }
 
-  private ensureMeInManagers(emitEvent: boolean): number | null {
-    const meId = this.userService.currentUser()?.id;
-    if (typeof meId !== 'number') return null;
-
-    const current = this.form.controls.managers.value ?? [];
-    if (!current.includes(meId)) {
-      this.form.controls.managers.setValue([...current, meId], {emitEvent});
-    }
-    return meId;
-  }
-
-  private recomputePickList(): void {
-    this.ensureMeInManagers(false);
-
-    const all = this.managersOptions();
-    const selectedIds = new Set(this.form.controls.managers.value ?? []);
-
-    this.selectedManagers.set(all.filter(o => selectedIds.has(o.value)));
-    this.availableManagers.set(all.filter(o => !selectedIds.has(o.value)));
-  }
 }

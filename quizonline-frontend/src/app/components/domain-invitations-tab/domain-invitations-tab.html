@@ -1,0 +1,308 @@
+<section class="invitations-tab card form-card">
+  <div class="card-head">
+    <h2 class="card-title">
+      {{ text().members.pendingTitle }}
+      @if (canModerate() && pendingCount() > 0) {
+        <p-badge [value]="pendingCount() + ''" severity="warn" />
+      }
+    </h2>
+    <div class="invitations-tab__actions">
+      @if (canInvite()) {
+        <p-button
+          (click)="openInviteDialog()"
+          icon="pi pi-user-plus"
+          [label]="text().members.inviteButton"
+          severity="primary"
+          size="small"
+          type="button"
+          variant="outlined">
+        </p-button>
+      }
+    </div>
+  </div>
+
+  @if (canModerate()) {
+    <div class="invitations-tab__filter">
+      <p-selectButton
+        [options]="statusOptions()"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusFilterChange($event)"
+        optionLabel="label"
+        optionValue="value">
+      </p-selectButton>
+    </div>
+
+    @if (canBulk()) {
+      <app-bulk-actions
+        [options]="bulkActionOptions()"
+        [placeholder]="adminLabels().bulkPlaceholder"
+        [applyLabel]="adminLabels().bulkApply"
+        [count]="selectedCount()"
+        [countText]="adminLabels().bulkSelectedCount(selectedCount())"
+        [applying]="applyingBulk()"
+        (apply)="applyBulk($event)">
+      </app-bulk-actions>
+    }
+  }
+
+  <p-table
+    [value]="joinRequests()"
+    [loading]="joinRequestsLoading()"
+    [rows]="25"
+    [paginator]="joinRequests().length > 25"
+    [selection]="selectedRows()"
+    (selectionChange)="onSelectionChange($event)"
+    [selectionMode]="canBulk() ? 'multiple' : null"
+    dataKey="id"
+    styleClass="table"
+    size="small"
+    stripedRows>
+    <ng-template #header>
+      <tr>
+        @if (canBulk()) {
+          <th class="col-checkbox" style="width: 3rem"></th>
+        }
+        <th>{{ adminLabels().user }}</th>
+        <th>{{ adminLabels().email }}</th>
+        <th>{{ adminLabels().requestedAt }}</th>
+        <th>{{ adminLabels().status }}</th>
+        <th>{{ adminLabels().decidedBy }}</th>
+        <th>{{ adminLabels().decidedAt }}</th>
+        <th>{{ adminLabels().reason }}</th>
+        @if (canModerate()) {
+          <th class="col-actions">{{ adminLabels().actions }}</th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #body let-req>
+      <tr>
+        @if (canBulk()) {
+          <td class="col-checkbox">
+            <p-tableCheckbox [value]="req" [disabled]="!isPending(req)"></p-tableCheckbox>
+          </td>
+        }
+        <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
+        <td>{{ req.user_summary?.email || adminLabels().noReason }}</td>
+        <td>{{ req.created_at | date:'short' }}</td>
+        <td>
+          <p-tag [value]="statusLabel(req.status)" [severity]="statusSeverity(req.status)"></p-tag>
+        </td>
+        <td>{{ req.decided_by_summary?.username || adminLabels().noReason }}</td>
+        <td>{{ req.decided_at ? (req.decided_at | date:'short') : adminLabels().noReason }}</td>
+        <td>{{ req.reject_reason || adminLabels().noReason }}</td>
+        @if (canModerate()) {
+          <td class="col-actions">
+            @if (isPending(req)) {
+              <div class="row-actions">
+                <p-button
+                  (click)="approve(req)"
+                  icon="pi pi-check"
+                  [label]="adminLabels().approve"
+                  severity="success"
+                  size="small"
+                  type="button">
+                </p-button>
+                <p-button
+                  (click)="openRejectDialog(req)"
+                  icon="pi pi-times"
+                  [label]="adminLabels().reject"
+                  severity="danger"
+                  size="small"
+                  type="button">
+                </p-button>
+              </div>
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="(canBulk() ? 1 : 0) + (canModerate() ? 9 : 8)" class="text-center p-4">
+          {{ adminLabels().noRequests }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  @if (canInvite()) {
+    <div class="divider"></div>
+
+    <div class="card-head">
+      <h2 class="card-title">{{ text().members.invitationsTitle }}</h2>
+    </div>
+
+    @if (invitations().length > 0) {
+      <p-table
+        [value]="invitations()"
+        [paginator]="invitations().length > 10"
+        [rows]="10"
+        styleClass="table"
+        size="small"
+        stripedRows>
+        <ng-template #header>
+          <tr>
+            <th>{{ text().members.invitationsColEmail }}</th>
+            <th>{{ text().members.invitationsColSentAt }}</th>
+            <th>{{ text().members.invitationsColExpiresAt }}</th>
+            <th class="col-actions">{{ text().members.colActions }}</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-inv>
+          <tr>
+            <td>{{ inv.email }}</td>
+            <td>{{ inv.last_sent_at | date:'short' }}</td>
+            <td>{{ inv.expires_at | date:'short' }}</td>
+            <td class="col-actions">
+              <div class="row-actions">
+                <p-button
+                  (click)="onResendInvitation(inv)"
+                  icon="pi pi-refresh"
+                  [pTooltip]="text().members.invitationResend"
+                  severity="info"
+                  size="small"
+                  type="button">
+                </p-button>
+                <p-button
+                  (click)="confirmRevokeInvitation(inv)"
+                  icon="pi pi-ban"
+                  [pTooltip]="text().members.invitationRevoke"
+                  severity="danger"
+                  size="small"
+                  type="button">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    } @else {
+      <p class="muted">{{ text().members.invitationsEmpty }}</p>
+    }
+  }
+</section>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-dialog
+  [header]="adminLabels().rejectReason"
+  [(visible)]="rejectDialogVisible"
+  [modal]="true"
+  [style]="{ width: '30rem' }">
+  <textarea
+    pInputTextarea
+    [ngModel]="rejectReason()"
+    (ngModelChange)="rejectReason.set($event)"
+    [placeholder]="adminLabels().rejectReasonPlaceholder"
+    rows="4"
+    class="w-full">
+  </textarea>
+  <ng-template #footer>
+    <p-button [label]="adminLabels().reject" severity="danger" (onClick)="confirmReject()" type="button"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="adminLabels().bulkRejectHeader"
+  [(visible)]="bulkRejectDialogVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }">
+  <p class="muted">{{ adminLabels().bulkRejectMessage(pendingBulkIds().length) }}</p>
+  <textarea
+    pInputTextarea
+    [ngModel]="bulkRejectReason()"
+    (ngModelChange)="bulkRejectReason.set($event)"
+    [placeholder]="adminLabels().rejectReasonPlaceholder"
+    rows="4"
+    class="w-full">
+  </textarea>
+  <ng-template #footer>
+    <p-button
+      [label]="adminLabels().bulkCancel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="cancelBulkReject()"
+      type="button">
+    </p-button>
+    <p-button
+      [label]="adminLabels().bulkReject"
+      severity="danger"
+      [loading]="applyingBulk()"
+      (onClick)="confirmBulkReject()"
+      type="button">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="text().members.inviteDialogTitle"
+  [(visible)]="inviteDialogVisible"
+  [modal]="true"
+  [style]="{ width: 'min(48rem, 92vw)' }"
+  [breakpoints]="{ '768px': '94vw' }"
+  styleClass="invite-dialog"
+  (onHide)="closeInviteDialog()">
+  <div class="invite-dialog__body">
+    <p class="muted invite-dialog__intro">{{ text().members.inviteDialogHint }}</p>
+
+    <div class="invite-dialog__section">
+      <label class="invite-dialog__label" for="invite-emails">{{ text().members.inviteEmailsLabel }}</label>
+      <textarea
+        id="invite-emails"
+        pInputTextarea
+        [ngModel]="inviteInput()"
+        (ngModelChange)="inviteInput.set($event)"
+        [placeholder]="text().members.inviteEmailsPlaceholder"
+        rows="6"
+        class="invite-dialog__textarea w-full">
+      </textarea>
+    </div>
+
+    @if (additionalDomainOptions().length > 0) {
+      <div class="invite-dialog__section">
+        <label class="invite-dialog__label" for="invite-additional-domains">
+          {{ text().members.inviteAdditionalDomainsLabel }}
+        </label>
+        <p-multiselect
+          inputId="invite-additional-domains"
+          [options]="additionalDomainOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="selectedAdditionalDomainIds()"
+          (ngModelChange)="selectedAdditionalDomainIds.set($event)"
+          [placeholder]="text().members.inviteAdditionalDomainsPlaceholder"
+          [showClear]="true"
+          [filter]="true"
+          appendTo="body"
+          styleClass="w-full">
+        </p-multiselect>
+        <p class="muted invite-dialog__hint">{{ text().members.inviteAdditionalDomainsHint }}</p>
+      </div>
+    }
+
+    @if (inviteResults(); as results) {
+      <div class="invite-dialog__section invite-dialog__results-section">
+        <ul class="invite-dialog__results">
+          @for (r of results; track $index) {
+            <li [class.is-sent]="r.status === 'sent'"
+                [class.is-already]="r.status === 'already_member'"
+                [class.is-invalid]="r.status === 'invalid'"
+                [class.is-forbidden]="r.status === 'forbidden_domain'">
+              @switch (r.status) {
+                @case ('sent') { {{ text().members.inviteResultSent(r.email) }} }
+                @case ('already_member') { {{ text().members.inviteResultAlreadyMember(r.email) }} }
+                @case ('forbidden_domain') { {{ text().members.inviteResultForbidden(r.email) }} }
+                @default { {{ text().members.inviteResultInvalid(r.email) }} }
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button [label]="text().members.inviteCancel" severity="secondary" [text]="true" (onClick)="closeInviteDialog()" type="button"></p-button>
+    <p-button [label]="text().members.inviteSubmit" icon="pi pi-send" [loading]="inviting()" [disabled]="!inviteInput().trim() || inviting()" (onClick)="submitInvite()" type="button"></p-button>
+  </ng-template>
+</p-dialog>

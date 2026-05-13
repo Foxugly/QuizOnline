@@ -3,6 +3,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 export type DomainEditUiText = {
   tabs: {
     config: string;
+    invitations: string;
     members: string;
     audit: string;
     analytics: string;
@@ -119,6 +120,8 @@ const FR_ACTION_LABELS: Record<string, string> = {
   'join_request.reject': 'Demande refusée',
   'join_request.approve_via_email': 'Demande approuvée (mail)',
   'join_request.reject_via_email': 'Demande refusée (mail)',
+  'join_request.bulk_approve': 'Demandes approuvées en lot',
+  'join_request.bulk_reject': 'Demandes refusées en lot',
   'invite.bulk_send': 'Invitations envoyées',
   'invite.resend': 'Invitation renvoyée',
   'invite.revoke': 'Invitation révoquée',
@@ -137,6 +140,8 @@ const EN_ACTION_LABELS: Record<string, string> = {
   'join_request.reject': 'Request rejected',
   'join_request.approve_via_email': 'Request approved (email)',
   'join_request.reject_via_email': 'Request rejected (email)',
+  'join_request.bulk_approve': 'Bulk-approved requests',
+  'join_request.bulk_reject': 'Bulk-rejected requests',
   'invite.bulk_send': 'Invitations sent',
   'invite.resend': 'Invitation resent',
   'invite.revoke': 'Invitation revoked',
@@ -155,6 +160,8 @@ const NL_ACTION_LABELS: Record<string, string> = {
   'join_request.reject': 'Aanvraag afgewezen',
   'join_request.approve_via_email': 'Aanvraag goedgekeurd (e-mail)',
   'join_request.reject_via_email': 'Aanvraag afgewezen (e-mail)',
+  'join_request.bulk_approve': 'Aanvragen massaal goedgekeurd',
+  'join_request.bulk_reject': 'Aanvragen massaal afgewezen',
   'invite.bulk_send': 'Uitnodigingen verzonden',
   'invite.resend': 'Uitnodiging opnieuw verzonden',
   'invite.revoke': 'Uitnodiging ingetrokken',
@@ -173,6 +180,8 @@ const IT_ACTION_LABELS: Record<string, string> = {
   'join_request.reject': 'Richiesta rifiutata',
   'join_request.approve_via_email': 'Richiesta approvata (e-mail)',
   'join_request.reject_via_email': 'Richiesta rifiutata (e-mail)',
+  'join_request.bulk_approve': 'Richieste approvate in blocco',
+  'join_request.bulk_reject': 'Richieste rifiutate in blocco',
   'invite.bulk_send': 'Inviti inviati',
   'invite.resend': 'Invito reinviato',
   'invite.revoke': 'Invito revocato',
@@ -191,6 +200,8 @@ const ES_ACTION_LABELS: Record<string, string> = {
   'join_request.reject': 'Solicitud rechazada',
   'join_request.approve_via_email': 'Solicitud aprobada (correo)',
   'join_request.reject_via_email': 'Solicitud rechazada (correo)',
+  'join_request.bulk_approve': 'Solicitudes aprobadas en bloque',
+  'join_request.bulk_reject': 'Solicitudes rechazadas en bloque',
   'invite.bulk_send': 'Invitaciones enviadas',
   'invite.resend': 'Invitación reenviada',
   'invite.revoke': 'Invitación revocada',
@@ -201,7 +212,7 @@ const ES_ACTION_LABELS: Record<string, string> = {
 };
 
 const FR: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Membres', audit: 'Journal', analytics: 'Statistiques'},
+  tabs: {config: 'Configuration', invitations: 'Invitations & demandes', members: 'Membres', audit: 'Journal', analytics: 'Statistiques'},
   audit: {
     title: 'Journal des actions',
     empty: 'Aucune action enregistrée.',
@@ -302,22 +313,22 @@ const FR: DomainEditUiText = {
     },
   },
   transfer: {
-    button: 'Transférer la propriété',
-    dialogTitle: 'Transférer la propriété du domaine',
-    dialogHint: 'Choisis le nouveau propriétaire. Un e-mail lui sera envoyé : la propriété ne change pas tant qu\'il n\'a pas confirmé.',
+    button: 'Changer le propriétaire',
+    dialogTitle: 'Changer le propriétaire du domaine',
+    dialogHint: 'Choisis le nouveau propriétaire. Le changement est immédiat.',
     pickPlaceholder: 'Sélectionner un utilisateur',
-    submit: 'Envoyer la proposition',
-    sending: 'Envoi…',
+    submit: 'Enregistrer',
+    sending: 'Enregistrement…',
     cancel: 'Annuler',
-    successMessage: 'Proposition envoyée. Le futur propriétaire recevra un e-mail.',
+    successMessage: 'Propriété transférée.',
     errorAlreadyOwner: 'Cet utilisateur est déjà le propriétaire.',
-    errorTargetUnreachable: 'L\'utilisateur n\'a pas d\'adresse e-mail valide.',
-    errorGeneric: 'Impossible d\'envoyer la proposition.',
+    errorTargetUnreachable: 'L\'utilisateur n\'est pas accessible.',
+    errorGeneric: 'Impossible de changer le propriétaire.',
   },
 };
 
 const EN: DomainEditUiText = {
-  tabs: {config: 'Configuration', members: 'Members', audit: 'Activity', analytics: 'Analytics'},
+  tabs: {config: 'Configuration', invitations: 'Invitations & requests', members: 'Members', audit: 'Activity', analytics: 'Analytics'},
   audit: {
     title: 'Activity log',
     empty: 'No action recorded yet.',
@@ -418,22 +429,22 @@ const EN: DomainEditUiText = {
     },
   },
   transfer: {
-    button: 'Transfer ownership',
-    dialogTitle: 'Transfer domain ownership',
-    dialogHint: 'Pick the new owner. An email will be sent — ownership does not change until they confirm.',
+    button: 'Change the owner',
+    dialogTitle: 'Change the domain owner',
+    dialogHint: 'Pick the new owner. The change is instant.',
     pickPlaceholder: 'Select a user',
-    submit: 'Send proposal',
-    sending: 'Sending…',
+    submit: 'Save',
+    sending: 'Saving…',
     cancel: 'Cancel',
-    successMessage: 'Proposal sent. The future owner will receive an email.',
+    successMessage: 'Ownership transferred.',
     errorAlreadyOwner: 'This user is already the owner.',
-    errorTargetUnreachable: 'This user has no valid email address.',
-    errorGeneric: 'Unable to send the proposal.',
+    errorTargetUnreachable: 'This user is not reachable.',
+    errorGeneric: 'Unable to change the owner.',
   },
 };
 
 const NL: DomainEditUiText = {
-  tabs: {config: 'Configuratie', members: 'Leden', audit: 'Activiteit', analytics: 'Statistieken'},
+  tabs: {config: 'Configuratie', invitations: 'Uitnodigingen & aanvragen', members: 'Leden', audit: 'Activiteit', analytics: 'Statistieken'},
   audit: {
     title: 'Activiteitenlogboek',
     empty: 'Nog geen actie geregistreerd.',
@@ -534,22 +545,22 @@ const NL: DomainEditUiText = {
     },
   },
   transfer: {
-    button: 'Eigenaarschap overdragen',
-    dialogTitle: 'Domeineigenaarschap overdragen',
-    dialogHint: 'Kies de nieuwe eigenaar. Er wordt een e-mail verzonden — het eigenaarschap verandert pas na bevestiging.',
+    button: 'Eigenaar wijzigen',
+    dialogTitle: 'Eigenaar van het domein wijzigen',
+    dialogHint: 'Kies de nieuwe eigenaar. De wijziging is direct.',
     pickPlaceholder: 'Een gebruiker selecteren',
-    submit: 'Voorstel verzenden',
-    sending: 'Versturen…',
+    submit: 'Opslaan',
+    sending: 'Opslaan…',
     cancel: 'Annuleren',
-    successMessage: 'Voorstel verzonden. De toekomstige eigenaar ontvangt een e-mail.',
+    successMessage: 'Eigenaarschap overgedragen.',
     errorAlreadyOwner: 'Deze gebruiker is al eigenaar.',
-    errorTargetUnreachable: 'Deze gebruiker heeft geen geldig e-mailadres.',
-    errorGeneric: 'Kan het voorstel niet verzenden.',
+    errorTargetUnreachable: 'Deze gebruiker is niet bereikbaar.',
+    errorGeneric: 'Kan de eigenaar niet wijzigen.',
   },
 };
 
 const IT: DomainEditUiText = {
-  tabs: {config: 'Configurazione', members: 'Membri', audit: 'Attività', analytics: 'Statistiche'},
+  tabs: {config: 'Configurazione', invitations: 'Inviti e richieste', members: 'Membri', audit: 'Attività', analytics: 'Statistiche'},
   audit: {
     title: 'Registro attività',
     empty: 'Nessuna azione registrata.',
@@ -650,22 +661,22 @@ const IT: DomainEditUiText = {
     },
   },
   transfer: {
-    button: 'Trasferisci la proprietà',
-    dialogTitle: 'Trasferisci la proprietà del dominio',
-    dialogHint: 'Scegli il nuovo proprietario. Verrà inviata un\'e-mail: la proprietà non cambia finché non conferma.',
+    button: 'Cambia proprietario',
+    dialogTitle: 'Cambia il proprietario del dominio',
+    dialogHint: 'Scegli il nuovo proprietario. La modifica è immediata.',
     pickPlaceholder: 'Seleziona un utente',
-    submit: 'Invia la proposta',
-    sending: 'Invio in corso…',
+    submit: 'Salva',
+    sending: 'Salvataggio…',
     cancel: 'Annulla',
-    successMessage: 'Proposta inviata. Il futuro proprietario riceverà un\'e-mail.',
+    successMessage: 'Proprietà trasferita.',
     errorAlreadyOwner: 'Questo utente è già il proprietario.',
-    errorTargetUnreachable: 'Questo utente non ha un indirizzo e-mail valido.',
-    errorGeneric: 'Impossibile inviare la proposta.',
+    errorTargetUnreachable: 'Questo utente non è raggiungibile.',
+    errorGeneric: 'Impossibile cambiare il proprietario.',
   },
 };
 
 const ES: DomainEditUiText = {
-  tabs: {config: 'Configuración', members: 'Miembros', audit: 'Actividad', analytics: 'Estadísticas'},
+  tabs: {config: 'Configuración', invitations: 'Invitaciones y solicitudes', members: 'Miembros', audit: 'Actividad', analytics: 'Estadísticas'},
   audit: {
     title: 'Registro de actividad',
     empty: 'No hay acciones registradas.',
@@ -766,17 +777,17 @@ const ES: DomainEditUiText = {
     },
   },
   transfer: {
-    button: 'Transferir la propiedad',
-    dialogTitle: 'Transferir la propiedad del dominio',
-    dialogHint: 'Elige el nuevo propietario. Se enviará un correo: la propiedad no cambia hasta que confirme.',
+    button: 'Cambiar el propietario',
+    dialogTitle: 'Cambiar el propietario del dominio',
+    dialogHint: 'Elige el nuevo propietario. El cambio es inmediato.',
     pickPlaceholder: 'Selecciona un usuario',
-    submit: 'Enviar la propuesta',
-    sending: 'Enviando…',
+    submit: 'Guardar',
+    sending: 'Guardando…',
     cancel: 'Cancelar',
-    successMessage: 'Propuesta enviada. El futuro propietario recibirá un correo.',
+    successMessage: 'Propiedad transferida.',
     errorAlreadyOwner: 'Este usuario ya es el propietario.',
-    errorTargetUnreachable: 'Este usuario no tiene una dirección de correo válida.',
-    errorGeneric: 'No se puede enviar la propuesta.',
+    errorTargetUnreachable: 'Este usuario no es accesible.',
+    errorGeneric: 'No se puede cambiar el propietario.',
   },
 };
 

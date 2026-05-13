@@ -7,9 +7,12 @@ import {DomainAnalyticsDto} from '../../api/generated/model/domain-analytics';
 import {DomainAuditLogReadDto} from '../../api/generated/model/domain-audit-log-read';
 import {DomainInviteReadDto} from '../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../api/generated/model/domain-invite-result';
+import {DomainJoinRequestBulkResultDto} from '../../api/generated/model/domain-join-request-bulk-result';
 import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-request-read';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+
+export type JoinRequestStatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
 
 /**
  * Thin façade over the generated DomainApi that returns the shapes the
@@ -86,7 +89,15 @@ export class DomainEditApi {
    * a query-param branch in ``DomainJoinRequestViewSet.get_queryset``.
    */
   listPendingJoinRequests(domainId: number): Observable<DomainJoinRequestReadDto[]> {
-    const url = `${this.apiBaseUrl}/${domainId}/join-request/?status=pending`;
+    return this.listJoinRequests(domainId, 'pending');
+  }
+
+  listJoinRequests(
+    domainId: number,
+    filter: JoinRequestStatusFilter,
+  ): Observable<DomainJoinRequestReadDto[]> {
+    const qs = filter === 'all' ? '' : `?status=${filter}`;
+    const url = `${this.apiBaseUrl}/${domainId}/join-request/${qs}`;
     return this.http
       .get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(url)
       .pipe(
@@ -94,6 +105,48 @@ export class DomainEditApi {
           Array.isArray(response) ? response : (response?.results ?? []),
         ),
       );
+  }
+
+  approveJoinRequest(
+    domainId: number,
+    reqId: number,
+  ): Observable<DomainJoinRequestReadDto> {
+    return this.api.domainJoinRequestApproveCreate({domainId, reqId});
+  }
+
+  /**
+   * The generated client does not expose the ``reason`` body for the
+   * reject endpoint, so we hand-roll it like the legacy join-requests
+   * page does.
+   */
+  rejectJoinRequest(
+    domainId: number,
+    reqId: number,
+    reason: string,
+  ): Observable<DomainJoinRequestReadDto> {
+    const url = `${this.apiBaseUrl}/${domainId}/join-request/${reqId}/reject/`;
+    return this.http.post<DomainJoinRequestReadDto>(url, {reason});
+  }
+
+  bulkApproveJoinRequests(
+    domainId: number,
+    requestIds: number[],
+  ): Observable<DomainJoinRequestBulkResultDto> {
+    return this.api.domainJoinRequestBulkApproveCreate({
+      domainId,
+      domainJoinRequestBulkApproveRequestDto: {request_ids: requestIds},
+    });
+  }
+
+  bulkRejectJoinRequests(
+    domainId: number,
+    requestIds: number[],
+    reason: string,
+  ): Observable<DomainJoinRequestBulkResultDto> {
+    return this.api.domainJoinRequestBulkRejectCreate({
+      domainId,
+      domainJoinRequestBulkRejectRequestDto: {request_ids: requestIds, reason},
+    });
   }
 
   changeMemberRole(

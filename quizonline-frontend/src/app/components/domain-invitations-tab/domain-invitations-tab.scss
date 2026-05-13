@@ -1,0 +1,82 @@
+.invitations-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.invitations-tab__actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.invitations-tab__filter {
+  margin-bottom: 0.5rem;
+}
+
+.row-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.invite-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.invite-dialog__intro {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.invite-dialog__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.invite-dialog__label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.invite-dialog__textarea {
+  resize: vertical;
+}
+
+.invite-dialog__hint {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.invite-dialog__results-section {
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  padding-top: 0.85rem;
+}
+
+.invite-dialog__results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.invite-dialog__results .is-sent {
+  color: #166534;
+}
+
+.invite-dialog__results .is-already {
+  color: #64748b;
+}
+
+.invite-dialog__results .is-invalid,
+.invite-dialog__results .is-forbidden {
+  color: #b91c1c;
+}

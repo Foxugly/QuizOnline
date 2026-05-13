@@ -105,6 +105,15 @@
                 </p-button>
               }
 
+              <p-button
+                (click)="goEdit(d.id)"
+                icon="pi pi-pencil"
+                id="btn_edit_domain"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+
               @if (canModerateRow(d)) {
                 <p-button
                   (click)="goAnalytics(d.id)"
@@ -116,15 +125,6 @@
                   type="button">
                 </p-button>
               }
-
-              <p-button
-                (click)="goEdit(d.id)"
-                icon="pi pi-pencil"
-                id="btn_edit_domain"
-                severity="info"
-                size="small"
-                type="button">
-              </p-button>
 
               <p-button
                 (click)="goDelete(d.id)"

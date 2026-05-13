@@ -26,20 +26,17 @@
   } @else {
     <app-domain-editor-form
       [activeTab]="activeTab()"
-      [availableManagers]="availableManagers()"
       [form]="form"
       [langCodeOptions]="langCodeOptions()"
       [ownerOptions]="ownerOptions()"
       [ownerPlaceholder]="ui().domainForm.owner"
-      [ownerReadonly]="true"
-      [selectedManagers]="selectedManagers()"
+      [showOwnerField]="false"
       [submitError]="submitError()"
       [submitLabel]="ui().common.add"
       [tabCodes]="tabCodes()"
       [titleLabel]="ui().domainForm.titleLabel"
       [translating]="translating()"
       (cancel)="goList()"
-      (managersPickListChange)="onManagersPickListChange()"
       (submitForm)="submit()"
       (tabValueChange)="onTabValueChange($event)"
       (translateClick)="translateFrom($event)">

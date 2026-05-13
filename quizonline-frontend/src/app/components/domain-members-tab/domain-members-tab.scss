@@ -4,10 +4,15 @@
   gap: 0.4rem;
 }
 
-.members-tab__actions {
-  display: flex;
+.role-cell {
+  display: inline-flex;
+  align-items: center;
   gap: 0.4rem;
-  margin-left: auto;
+}
+
+.row-actions {
+  display: inline-flex;
+  gap: 0.35rem;
 }
 
 .invite-dialog__label {

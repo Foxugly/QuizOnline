@@ -85,6 +85,7 @@ export type EditorUiText = {
     questionList?: {title: string; subtitle: string; searchPlaceholder: string; newQuestion: string; titleCol: string; activeCol: string; modesCol: string; domainsCol: string; subjectsCol: string; actionsCol: string; practice: string; exam: string;};
     questionCreate: {title: string; subtitle: string;};
     questionEdit: {title: string; subtitle: string;};
+    questionView: {title: string;};
     quizQuick: {title: string; subtitle: string; submit: string;};
     quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
     userEdit: {title: string; subtitle: string;};
@@ -114,6 +115,7 @@ export type EditorUiText = {
     allowedLanguages: string;
     selectOneLanguage: string;
     titleLabel: string;
+    titleRequired: string;
     description: string;
     titlePlaceholder: string;
     parameters: string;
@@ -154,7 +156,9 @@ export type EditorUiText = {
     active: string;
     mode: string;
     practice: string;
+    practiceHint: string;
     exam: string;
+    examHint: string;
     content: string;
     title: string;
     titlePlaceholder: string;

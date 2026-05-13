@@ -8,14 +8,13 @@ import {CardModule} from 'primeng/card';
 import {EditorModule} from 'primeng/editor';
 import {InputTextModule} from 'primeng/inputtext';
 import {MessageModule} from 'primeng/message';
-import {PickListModule} from 'primeng/picklist';
 import {SelectModule} from 'primeng/select';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
-import {UserService} from '../../services/user/user';
 
 type UserOption = { label: string; value: number };
 type LangOption = { label: string; value: string };
@@ -35,27 +34,30 @@ type JoinPolicyOption = { label: string; value: JoinPolicyEnumDto };
     ToggleSwitchModule,
     SelectModule,
     SelectButtonModule,
-    PickListModule,
     MessageModule,
     CardModule,
+    TooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DomainEditorFormComponent {
-  private readonly userService = inject(UserService);
   readonly form = input.required<FormGroup>();
   readonly tabCodes = input<string[]>([]);
   readonly activeTab = input<string | undefined>(undefined);
   readonly langCodeOptions = input<LangOption[]>([]);
   readonly ownerOptions = input<UserOption[]>([]);
-  readonly availableManagers = input<UserOption[]>([]);
-  readonly selectedManagers = input<UserOption[]>([]);
   readonly translating = input(false);
   readonly submitError = input<string | null>(null);
-  readonly ownerReadonly = input(false);
-  readonly ownerPlaceholder = input('Choisir un owner');
-  readonly submitLabel = input('Enregistrer');
-  readonly titleLabel = input('Nom');
+  readonly ownerPlaceholder = input('');
+  /** When true, the whole owner row is rendered (read-only). Set to false in
+   *  /domain/create where the owner is implicitly the current user. */
+  readonly showOwnerField = input(true);
+  /** When true, an edit icon is rendered next to the read-only owner select.
+   *  Reserved to the current owner / superuser in /domain/edit. */
+  readonly showOwnerEditAction = input(false);
+  readonly ownerEditTooltip = input('');
+  readonly submitLabel = input('');
+  readonly titleLabel = input('');
   readonly ui = inject(UiTextService).editor;
 
   readonly joinPolicyOptions = computed<JoinPolicyOption[]>(() => {
@@ -69,9 +71,9 @@ export class DomainEditorFormComponent {
 
   readonly tabValueChange = output<string | number | undefined>();
   readonly translateClick = output<string>();
-  readonly managersPickListChange = output<void>();
   readonly submitForm = output<void>();
   readonly cancel = output<void>();
+  readonly editOwner = output<void>();
 
   submit(): void {
     this.submitForm.emit();
@@ -89,8 +91,8 @@ export class DomainEditorFormComponent {
     this.translateClick.emit(code);
   }
 
-  onManagersChange(): void {
-    this.managersPickListChange.emit();
+  onEditOwner(): void {
+    this.editOwner.emit();
   }
 
   langGroup(code: string): FormGroup {

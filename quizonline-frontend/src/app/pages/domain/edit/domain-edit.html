@@ -27,13 +27,16 @@
     <p-tabs [value]="topTab()" (valueChange)="onTopTabChange($event)">
       <p-tablist>
         <p-tab value="config">{{ editText().tabs.config }}</p-tab>
-        <p-tab value="members">
-          {{ editText().tabs.members }}
-          @if (canModerate() && pendingCount() > 0) {
-            <p-badge [value]="pendingCount() + ''" severity="warn"/>
-          }
-        </p-tab>
-        @if (canManageMembers()) {
+        @if (canInvite() || canModerate()) {
+          <p-tab value="invitations">
+            {{ editText().tabs.invitations }}
+            @if (canModerate() && pendingCount() > 0) {
+              <p-badge [value]="pendingCount() + ''" severity="warn"/>
+            }
+          </p-tab>
+        }
+        <p-tab value="members">{{ editText().tabs.members }}</p-tab>
+        @if (canModerate()) {
           <p-tab value="audit">{{ editText().tabs.audit }}</p-tab>
         }
         @if (canModerate()) {
@@ -45,21 +48,21 @@
         <p-tabpanel value="config">
           <app-domain-editor-form
             [activeTab]="activeTab()"
-            [availableManagers]="availableManagers()"
             [form]="form"
             [langCodeOptions]="langCodeOptions()"
             [ownerOptions]="ownerOptions()"
             [ownerPlaceholder]="ui().domainForm.owner"
-            [ownerReadonly]="!canEditOwner()"
-            [selectedManagers]="selectedManagers()"
+            [showOwnerField]="true"
+            [showOwnerEditAction]="canEditOwner()"
+            [ownerEditTooltip]="editText().transfer.button"
             [submitError]="submitError()"
             [submitLabel]="ui().common.save"
             [tabCodes]="tabCodes()"
             [titleLabel]="ui().domainForm.titleLabel"
             [translating]="translating()"
             (cancel)="goList()"
-            (managersPickListChange)="onManagersPickListChange()"
             (submitForm)="save()"
+            (editOwner)="openTransferDialog()"
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)">
           </app-domain-editor-form>
@@ -111,52 +114,45 @@
           </app-domain-analytics-tab>
         </p-tabpanel>
 
+        <p-tabpanel value="invitations">
+          <app-domain-invitations-tab
+            [text]="editText()"
+            [canInvite]="canInvite()"
+            [canModerate]="canModerate()"
+            [joinRequests]="joinRequests()"
+            [joinRequestsLoading]="joinRequestsLoading()"
+            [statusFilter]="joinRequestStatusFilter()"
+            [applyingBulk]="applyingBulk()"
+            [invitations]="invitations()"
+            [inviting]="inviting()"
+            [inviteResults]="inviteResults()"
+            [additionalDomainOptions]="additionalInvitableDomains()"
+            (statusFilterChange)="onJoinRequestStatusFilterChange($event)"
+            (approveRequest)="onJoinRequestApprove($event)"
+            (rejectRequest)="onJoinRequestReject($event)"
+            (bulkApproveRequests)="onJoinRequestBulkApprove($event)"
+            (bulkRejectRequests)="onJoinRequestBulkReject($event)"
+            (inviteRequest)="onInviteRequest($event)"
+            (inviteResend)="onInviteResend($event)"
+            (inviteRevoke)="onInviteRevoke($event)">
+          </app-domain-invitations-tab>
+        </p-tabpanel>
+
         <p-tabpanel value="members">
           @if (domain(); as d) {
             <app-domain-members-tab
               [domain]="d"
-              [pendingRequests]="pendingRequests()"
-              [canModerate]="canModerate()"
               [canManage]="canManageMembers()"
-              [canInvite]="canInvite()"
               [currentUserId]="currentUserId()"
               [text]="editText()"
-              [inviteResults]="inviteResults()"
-              [inviting]="inviting()"
-              [invitations]="invitations()"
-              [additionalDomainOptions]="additionalInvitableDomains()"
               (roleChange)="onMemberRoleChange($event)"
-              (removeMember)="onMemberRemove($event)"
-              (inviteRequest)="onInviteRequest($event)"
-              (inviteResend)="onInviteResend($event)"
-              (inviteRevoke)="onInviteRevoke($event)">
+              (removeMember)="onMemberRemove($event)">
             </app-domain-members-tab>
           }
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
 
-    @if (canManageMembers()) {
-      <section class="card form-card transfer-zone">
-        <div class="card-head">
-          <h2 class="card-title">
-            <i class="pi pi-arrow-right-arrow-left"></i>
-            {{ editText().transfer.button }}
-          </h2>
-        </div>
-        <p class="muted">{{ editText().transfer.dialogHint }}</p>
-        <div class="footer-actions">
-          <p-button
-            (onClick)="openTransferDialog()"
-            icon="pi pi-arrow-right-arrow-left"
-            [label]="editText().transfer.button"
-            severity="warn"
-            type="button"
-            variant="outlined">
-          </p-button>
-        </div>
-      </section>
-    }
   }
 </div>
 
@@ -164,8 +160,9 @@
   [header]="editText().transfer.dialogTitle"
   [(visible)]="transferDialogVisible"
   [modal]="true"
-  [style]="{ width: '32rem' }">
-  <p class="muted">{{ editText().transfer.dialogHint }}</p>
+  [style]="{ width: 'min(48rem, 92vw)' }"
+  [breakpoints]="{ '768px': '94vw' }">
+  <p class="muted transfer-dialog__hint">{{ editText().transfer.dialogHint }}</p>
   <p-select
     [options]="transferCandidates()"
     [(ngModel)]="transferTargetId"
@@ -174,7 +171,8 @@
     optionLabel="label"
     optionValue="value"
     [placeholder]="editText().transfer.pickPlaceholder"
-    class="w-full">
+    appendTo="body"
+    styleClass="transfer-dialog__select w-full">
   </p-select>
   @if (transferError(); as err) {
     <p-message severity="error" [closable]="false">{{ err }}</p-message>
@@ -189,7 +187,7 @@
     </p-button>
     <p-button
       [label]="transferring() ? editText().transfer.sending : editText().transfer.submit"
-      icon="pi pi-send"
+      icon="pi pi-check"
       [loading]="transferring()"
       [disabled]="!transferTargetId() || transferring()"
       (onClick)="submitTransfer()"

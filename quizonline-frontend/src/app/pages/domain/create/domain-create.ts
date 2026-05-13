@@ -57,10 +57,6 @@ export class DomainCreate implements OnInit {
   translating = signal(false);
 
   languages = signal<LanguageReadDto[]>([]);
-  managersOptions = signal<UserOption[]>([]);
-
-  availableManagers = signal<UserOption[]>([]);
-  selectedManagers = signal<UserOption[]>([]);
 
   tabCodes = signal<LangCode[]>([]);
   activeTab = signal<LangCode | undefined>(undefined);
@@ -143,7 +139,6 @@ export class DomainCreate implements OnInit {
             .filter(u => typeof u.id === 'number')
             .map(u => ({label: u.username, value: u.id}));
 
-          this.managersOptions.set(opts);
           this.ownerOptions.set(opts);
 
           //  3) Owner
@@ -171,8 +166,6 @@ export class DomainCreate implements OnInit {
           this.syncTranslationControls(initCodes.map(String));
           this.prevCodes = new Set(initCodes);
           this.activeTab.set(initCodes.length ? initCodes[0] : undefined);
-          // PickList initial
-          this.recomputePickList();
         },
         error: (err) => {
           logApiError('domain.create.load-initial', err);
@@ -202,11 +195,6 @@ export class DomainCreate implements OnInit {
         this.prevCodes = new Set(next);
       });
 
-    // Managers -> recompute picklist
-    this.form.controls.managers.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.recomputePickList());
-
   }
 
   onTabValueChange(v: string | number | undefined): void {
@@ -215,27 +203,6 @@ export class DomainCreate implements OnInit {
 
   langGroup(code: string): FormGroup {
     return getLocalizedTextGroup(this.translationsGroup(), code);
-  }
-
-  onManagersPickListChange(): void {
-    const meId = this.userService.currentUser()?.id;
-
-    const ids = this.selectedManagers().map(o => o.value);
-    const fixedIds =
-      typeof meId === 'number' && !ids.includes(meId) ? [...ids, meId] : ids;
-
-    const current = this.form.controls.managers.value ?? [];
-    const currentSet = new Set(current);
-    const fixedSet = new Set(fixedIds);
-
-    const same =
-      currentSet.size === fixedSet.size &&
-      [...currentSet].every(v => fixedSet.has(v));
-
-    if (!same) {
-      this.form.controls.managers.setValue(fixedIds);
-      this.form.controls.managers.markAsDirty();
-    }
   }
 
   async translateFrom(sourceLang: string): Promise<void> {
@@ -341,24 +308,6 @@ export class DomainCreate implements OnInit {
   private syncTranslationControls(codes: string[]): void {
     syncLocalizedTextControls(this.fb, this.translationsGroup(), codes);
   }
-
-  private recomputePickList(): void {
-    // sécurité : ensure current user in managers
-    const meId = this.userService.currentUser()?.id;
-    if (typeof meId === 'number') {
-      const current = this.form.controls.managers.value ?? [];
-      if (!current.includes(meId)) {
-        this.form.controls.managers.setValue([...current, meId], {emitEvent: false});
-      }
-    }
-
-    const all = this.managersOptions();
-    const selectedIds = new Set(this.form.controls.managers.value ?? []);
-
-    this.selectedManagers.set(all.filter(o => selectedIds.has(o.value)));
-    this.availableManagers.set(all.filter(o => !selectedIds.has(o.value)));
-  }
-
 
   private setOwnerFromCurrentUser(): void {
     const me = this.userService.currentUser();

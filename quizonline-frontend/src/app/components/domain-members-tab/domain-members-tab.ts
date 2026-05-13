@@ -1,21 +1,13 @@
-import {DatePipe, NgClass} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
+import {NgClass} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {DialogModule} from 'primeng/dialog';
-import {MultiSelectModule} from 'primeng/multiselect';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
-import {TextareaModule} from 'primeng/textarea';
 import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
-import {DomainInviteReadDto} from '../../api/generated/model/domain-invite-read';
-import {DomainInviteResultDto} from '../../api/generated/model/domain-invite-result';
-import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-request-read';
 import {UserSummaryDto} from '../../api/generated/model/user-summary';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
 
@@ -38,17 +30,11 @@ export type AdditionalDomainOption = {label: string; value: number};
 @Component({
   selector: 'app-domain-members-tab',
   imports: [
-    DatePipe,
-    FormsModule,
     NgClass,
-    RouterLink,
     ButtonModule,
     ConfirmDialogModule,
-    DialogModule,
-    MultiSelectModule,
     TableModule,
     TagModule,
-    TextareaModule,
     TooltipModule,
   ],
   providers: [ConfirmationService],
@@ -58,35 +44,15 @@ export type AdditionalDomainOption = {label: string; value: number};
 })
 export class DomainMembersTab {
   readonly domain = input.required<DomainDetailDto>();
-  readonly pendingRequests = input<DomainJoinRequestReadDto[]>([]);
-  readonly canModerate = input<boolean>(false);
   /** True iff the current user is the owner (or a superuser): only they can
    *  change roles and remove members from this tab. Managers see read-only. */
   readonly canManage = input<boolean>(false);
-  /** True iff the current user may send invitations (owner OR manager). */
-  readonly canInvite = input<boolean>(false);
   /** Current user id; used to forbid acting on oneself from the tab. */
   readonly currentUserId = input<number | null>(null);
   readonly text = input.required<DomainEditUiText>();
-  /** Latest invite-results to render (one row per address). Reset by the
-   *  host when a new invite dialog is opened. */
-  readonly inviteResults = input<DomainInviteResultDto[] | null>(null);
-  readonly inviting = input<boolean>(false);
-  /** Pending invitations to render below the moderation block. */
-  readonly invitations = input<DomainInviteReadDto[]>([]);
-  /** Other domains the current user may invite to (owner or manager,
-   *  excluding the current one). Empty array hides the multi-select. */
-  readonly additionalDomainOptions = input<AdditionalDomainOption[]>([]);
 
   readonly roleChange = output<MemberRoleChange>();
   readonly removeMember = output<MemberRemove>();
-  readonly inviteRequest = output<InviteRequest>();
-  readonly inviteResend = output<InviteResend>();
-  readonly inviteRevoke = output<InviteRevoke>();
-
-  readonly inviteDialogVisible = signal<boolean>(false);
-  readonly inviteInput = signal<string>('');
-  readonly selectedAdditionalDomainIds = signal<number[]>([]);
 
   private readonly confirmationService = inject(ConfirmationService);
 
@@ -180,67 +146,5 @@ export class DomainMembersTab {
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.removeMember.emit({userId: row.id}),
     });
-  }
-
-  openInviteDialog(): void {
-    this.inviteInput.set('');
-    this.selectedAdditionalDomainIds.set([]);
-    this.inviteDialogVisible.set(true);
-  }
-
-  closeInviteDialog(): void {
-    this.inviteDialogVisible.set(false);
-  }
-
-  submitInvite(): void {
-    const emails = this.parseEmails(this.inviteInput());
-    if (!emails.length || this.inviting()) {
-      return;
-    }
-    this.inviteRequest.emit({
-      emails,
-      additionalDomainIds: this.selectedAdditionalDomainIds(),
-    });
-  }
-
-  onResendInvitation(invite: DomainInviteReadDto): void {
-    if (!this.canInvite()) {
-      return;
-    }
-    this.inviteResend.emit({inviteId: invite.id});
-  }
-
-  confirmRevokeInvitation(invite: DomainInviteReadDto): void {
-    if (!this.canInvite()) {
-      return;
-    }
-    const labels = this.text().members;
-    this.confirmationService.confirm({
-      header: labels.invitationConfirmRevokeHeader,
-      message: labels.invitationConfirmRevokeMessage(invite.email),
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: labels.invitationConfirmRevokeAccept,
-      rejectLabel: labels.invitationConfirmRevokeCancel,
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.inviteRevoke.emit({inviteId: invite.id, email: invite.email}),
-    });
-  }
-
-  /** Split the textarea content on commas, semicolons, whitespace and newlines. */
-  private parseEmails(raw: string): string[] {
-    if (!raw) {
-      return [];
-    }
-    const seen = new Set<string>();
-    return raw
-      .split(/[,;\s\n]+/)
-      .map(s => s.trim().toLowerCase())
-      .filter(s => {
-        if (!s || seen.has(s)) {
-          return false;
-        }
-        seen.add(s);
-        return true;
-      });
   }
 }

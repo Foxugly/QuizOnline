@@ -1,10 +1,7 @@
-.transfer-zone {
-  margin-top: 1rem;
-  border-color: #fdba74;
-  background: #fff7ed;
+:host ::ng-deep .transfer-dialog__select.p-select {
+  width: 100%;
 }
 
-.transfer-zone .card-title i {
-  margin-right: 0.4rem;
-  color: #c2410c;
+.transfer-dialog__hint {
+  margin: 0 0 1rem;
 }

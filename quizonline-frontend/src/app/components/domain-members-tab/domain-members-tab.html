@@ -1,118 +1,5 @@
 <section class="members-tab card form-card">
   <div class="card-head">
-    <h2 class="card-title">{{ text().members.pendingTitle }}</h2>
-    <div class="members-tab__actions">
-      @if (canInvite()) {
-        <p-button
-          (click)="openInviteDialog()"
-          icon="pi pi-user-plus"
-          [label]="text().members.inviteButton"
-          severity="primary"
-          size="small"
-          type="button"
-          variant="outlined">
-        </p-button>
-      }
-      @if (canModerate()) {
-        <p-button
-          [routerLink]="['/domain', domain().id, 'join-requests']"
-          icon="pi pi-hammer"
-          [label]="text().members.pendingOpenModeration"
-          severity="warn"
-          size="small"
-          type="button"
-          variant="outlined">
-        </p-button>
-      }
-    </div>
-  </div>
-
-  @if (pendingRequests().length > 0) {
-    <p-table
-      [value]="pendingRequests()"
-      [paginator]="pendingRequests().length > 10"
-      [rows]="10"
-      styleClass="table"
-      size="small"
-      stripedRows>
-      <ng-template #header>
-        <tr>
-          <th>{{ text().members.colUser }}</th>
-          <th>{{ text().members.colEmail }}</th>
-          <th>{{ text().members.colRequestedAt }}</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-req>
-        <tr>
-          <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
-          <td>{{ req.user_summary?.email || '' }}</td>
-          <td>{{ req.created_at | date:'short' }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  } @else {
-    <p class="muted">{{ text().members.pendingNone }}</p>
-  }
-
-  @if (canInvite()) {
-    <div class="divider"></div>
-
-    <div class="card-head">
-      <h2 class="card-title">{{ text().members.invitationsTitle }}</h2>
-    </div>
-
-    @if (invitations().length > 0) {
-      <p-table
-        [value]="invitations()"
-        [paginator]="invitations().length > 10"
-        [rows]="10"
-        styleClass="table"
-        size="small"
-        stripedRows>
-        <ng-template #header>
-          <tr>
-            <th>{{ text().members.invitationsColEmail }}</th>
-            <th>{{ text().members.invitationsColSentAt }}</th>
-            <th>{{ text().members.invitationsColExpiresAt }}</th>
-            <th class="col-actions">{{ text().members.colActions }}</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-inv>
-          <tr>
-            <td>{{ inv.email }}</td>
-            <td>{{ inv.last_sent_at | date:'short' }}</td>
-            <td>{{ inv.expires_at | date:'short' }}</td>
-            <td class="col-actions">
-              <div class="row-actions">
-                <p-button
-                  (click)="onResendInvitation(inv)"
-                  icon="pi pi-refresh"
-                  [pTooltip]="text().members.invitationResend"
-                  severity="info"
-                  size="small"
-                  type="button">
-                </p-button>
-                <p-button
-                  (click)="confirmRevokeInvitation(inv)"
-                  icon="pi pi-ban"
-                  [pTooltip]="text().members.invitationRevoke"
-                  severity="danger"
-                  size="small"
-                  type="button">
-                </p-button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    } @else {
-      <p class="muted">{{ text().members.invitationsEmpty }}</p>
-    }
-  }
-
-  <div class="divider"></div>
-
-  <div class="card-head">
     <h2 class="card-title">{{ text().members.membersTitle }}</h2>
   </div>
 
@@ -139,35 +26,39 @@
           <td>{{ row.username }}</td>
           <td>{{ row.email || '—' }}</td>
           <td>
-            <p-tag
-              [value]="roleLabel(row.role)"
-              [ngClass]="'role-' + row.role"
-              [severity]="row.role === 'owner' ? 'success' : row.role === 'manager' ? 'info' : 'secondary'">
-            </p-tag>
+            <div class="role-cell">
+              <p-tag
+                [value]="roleLabel(row.role)"
+                [ngClass]="'role-' + row.role"
+                [severity]="row.role === 'owner' ? 'success' : row.role === 'manager' ? 'info' : 'secondary'">
+              </p-tag>
+              @if (canManage() && canActOnRow(row)) {
+                @if (row.role === 'member') {
+                  <p-button
+                    (click)="promote(row)"
+                    icon="pi pi-arrow-up"
+                    [pTooltip]="text().members.promote"
+                    severity="info"
+                    size="small"
+                    type="button">
+                  </p-button>
+                } @else if (row.role === 'manager') {
+                  <p-button
+                    (click)="demote(row)"
+                    icon="pi pi-arrow-down"
+                    [pTooltip]="text().members.demote"
+                    severity="secondary"
+                    size="small"
+                    type="button">
+                  </p-button>
+                }
+              }
+            </div>
           </td>
           @if (canManage()) {
             <td class="col-actions">
               @if (canActOnRow(row)) {
                 <div class="row-actions">
-                  @if (row.role === 'member') {
-                    <p-button
-                      (click)="promote(row)"
-                      icon="pi pi-arrow-up"
-                      [pTooltip]="text().members.promote"
-                      severity="info"
-                      size="small"
-                      type="button">
-                    </p-button>
-                  } @else if (row.role === 'manager') {
-                    <p-button
-                      (click)="demote(row)"
-                      icon="pi pi-arrow-down"
-                      [pTooltip]="text().members.demote"
-                      severity="secondary"
-                      size="small"
-                      type="button">
-                    </p-button>
-                  }
                   <p-button
                     (click)="confirmRemove(row)"
                     icon="pi pi-user-minus"
@@ -189,65 +80,3 @@
 </section>
 
 <p-confirmDialog></p-confirmDialog>
-
-<p-dialog
-  [header]="text().members.inviteDialogTitle"
-  [(visible)]="inviteDialogVisible"
-  [modal]="true"
-  [style]="{ width: '32rem' }"
-  (onHide)="closeInviteDialog()">
-  <p class="muted">{{ text().members.inviteDialogHint }}</p>
-
-  <label class="invite-dialog__label" for="invite-emails">{{ text().members.inviteEmailsLabel }}</label>
-  <textarea
-    id="invite-emails"
-    pInputTextarea
-    [ngModel]="inviteInput()"
-    (ngModelChange)="inviteInput.set($event)"
-    [placeholder]="text().members.inviteEmailsPlaceholder"
-    rows="5"
-    class="w-full">
-  </textarea>
-
-  @if (additionalDomainOptions().length > 0) {
-    <label class="invite-dialog__label" for="invite-additional-domains">
-      {{ text().members.inviteAdditionalDomainsLabel }}
-    </label>
-    <p-multiselect
-      inputId="invite-additional-domains"
-      [options]="additionalDomainOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="selectedAdditionalDomainIds()"
-      (ngModelChange)="selectedAdditionalDomainIds.set($event)"
-      [placeholder]="text().members.inviteAdditionalDomainsPlaceholder"
-      [showClear]="true"
-      [filter]="true"
-      styleClass="w-full">
-    </p-multiselect>
-    <p class="muted invite-dialog__hint">{{ text().members.inviteAdditionalDomainsHint }}</p>
-  }
-
-  @if (inviteResults(); as results) {
-    <ul class="invite-dialog__results">
-      @for (r of results; track $index) {
-        <li [class.is-sent]="r.status === 'sent'"
-            [class.is-already]="r.status === 'already_member'"
-            [class.is-invalid]="r.status === 'invalid'"
-            [class.is-forbidden]="r.status === 'forbidden_domain'">
-          @switch (r.status) {
-            @case ('sent') { {{ text().members.inviteResultSent(r.email) }} }
-            @case ('already_member') { {{ text().members.inviteResultAlreadyMember(r.email) }} }
-            @case ('forbidden_domain') { {{ text().members.inviteResultForbidden(r.email) }} }
-            @default { {{ text().members.inviteResultInvalid(r.email) }} }
-          }
-        </li>
-      }
-    </ul>
-  }
-
-  <ng-template #footer>
-    <p-button [label]="text().members.inviteCancel" severity="secondary" [text]="true" (onClick)="closeInviteDialog()" type="button"></p-button>
-    <p-button [label]="text().members.inviteSubmit" icon="pi pi-send" [loading]="inviting()" [disabled]="!inviteInput().trim() || inviting()" (onClick)="submitInvite()" type="button"></p-button>
-  </ng-template>
-</p-dialog>

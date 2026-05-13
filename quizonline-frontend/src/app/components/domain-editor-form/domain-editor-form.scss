@@ -3,7 +3,11 @@
 }
 
 .meta-grid--context {
-  grid-template-columns: minmax(100px, 0.5fr) minmax(200px, 1.5fr) minmax(200px, 2fr);
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 2fr)
+    minmax(0, 4fr);
   align-items: stretch;
   margin-bottom: 0.75rem;
 }
@@ -15,9 +19,40 @@
   min-height: 2.75rem;
 }
 
+.meta-grid--context > .meta-item--full {
+  grid-column: 1 / -1;
+}
+
 .badge--soft {
   font-size: 0.75rem;
   opacity: 0.7;
+}
+
+.owner-row {
+  align-items: center;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.meta-label--with-hint {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.label-hint-icon {
+  color: #94a3b8;
+  cursor: help;
+  font-size: 0.85rem;
+}
+
+.label-hint-icon:hover {
+  color: #0f766e;
+}
+
+.owner-row > p-select {
+  flex: 1;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
