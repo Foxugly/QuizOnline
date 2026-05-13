@@ -49,9 +49,10 @@ export class UserEditPage implements OnInit {
   });
 
   ngOnInit(): void {
+    const errors = this.ui().pages.userEdit.errors;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(id)) {
-      this.submitError.set('Invalid user id.');
+      this.submitError.set(errors.invalidId);
       return;
     }
     this.userId = id;
@@ -72,16 +73,17 @@ export class UserEditPage implements OnInit {
       },
       error: (err) => {
         logApiError('user.edit.load', err);
-        this.submitError.set(userFacingApiMessage(err, 'Unable to load the user.'));
+        this.submitError.set(userFacingApiMessage(err, errors.loadFailed));
       },
     });
   }
 
   save(): void {
+    const errors = this.ui().pages.userEdit.errors;
     this.submitError.set(null);
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.submitError.set('The form contains errors.');
+      this.submitError.set(errors.formInvalid);
       return;
     }
 
@@ -100,7 +102,7 @@ export class UserEditPage implements OnInit {
       next: () => void this.router.navigate(ROUTES.user.list()),
       error: (err) => {
         logApiError('user.edit.submit', err);
-        this.submitError.set(userFacingApiMessage(err, 'Unable to update the user.'));
+        this.submitError.set(userFacingApiMessage(err, errors.updateFailed));
       },
     });
   }

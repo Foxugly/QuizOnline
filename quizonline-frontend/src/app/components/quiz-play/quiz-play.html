@@ -1,9 +1,9 @@
 <div class="layout">
   <aside class="layout__left">
-    <p class="center">QUIZ TITLE</p>
-    <p class="center">USER</p>
-    <p class="center">MODE</p>
-    <p class="center">DURATION </p>
+    <p class="center">{{ editorUi().quizPlay.quizTitleLabel }}</p>
+    <p class="center">{{ editorUi().quizPlay.userLabel }}</p>
+    <p class="center">{{ editorUi().quizPlay.modeLabel }}</p>
+    <p class="center">{{ editorUi().quizPlay.durationLabel }}</p>
     <p class="center">09:59</p>
     <app-quiz-nav
       [items]="questionNavItems"
@@ -13,8 +13,7 @@
   </aside>
 
   <main class="layout__right">
-    <!-- ta question courante, etc. -->
-    Question actuelle : {{ currentQuestionIndex }}
+    {{ editorUi().quizPlay.currentQuestion(currentQuestionIndex) }}
 
     <!-- exemples de boutons de test -->
     <div class="layout__actions">

@@ -12,15 +12,15 @@
     stripedRows>
     <ng-template #header>
       <tr>
-        <th pSortableColumn="quiz_template_title">Titre <p-sortIcon field="quiz_template_title"></p-sortIcon></th>
-        <th pSortableColumn="status">Statut <p-sortIcon field="status"></p-sortIcon></th>
-        <th pSortableColumn="mode">Mode <p-sortIcon field="mode"></p-sortIcon></th>
-        <th pSortableColumn="max_questions">Questions <p-sortIcon field="max_questions"></p-sortIcon></th>
-        <th pSortableColumn="created_at">Cree le <p-sortIcon field="created_at"></p-sortIcon></th>
-        <th pSortableColumn="started_at">Demarre le <p-sortIcon field="started_at"></p-sortIcon></th>
-        <th pSortableColumn="ended_at">Termine le <p-sortIcon field="ended_at"></p-sortIcon></th>
-        <th pSortableColumn="earned_score">Note <p-sortIcon field="earned_score"></p-sortIcon></th>
-        <th style="width: 120px;">Actions</th>
+        <th pSortableColumn="quiz_template_title">{{ ui().quizSessionTable.colTitle }} <p-sortIcon field="quiz_template_title"></p-sortIcon></th>
+        <th pSortableColumn="status">{{ ui().quizSessionTable.colStatus }} <p-sortIcon field="status"></p-sortIcon></th>
+        <th pSortableColumn="mode">{{ ui().quizSessionTable.colMode }} <p-sortIcon field="mode"></p-sortIcon></th>
+        <th pSortableColumn="max_questions">{{ ui().quizSessionTable.colQuestions }} <p-sortIcon field="max_questions"></p-sortIcon></th>
+        <th pSortableColumn="created_at">{{ ui().quizSessionTable.colCreatedAt }} <p-sortIcon field="created_at"></p-sortIcon></th>
+        <th pSortableColumn="started_at">{{ ui().quizSessionTable.colStartedAt }} <p-sortIcon field="started_at"></p-sortIcon></th>
+        <th pSortableColumn="ended_at">{{ ui().quizSessionTable.colEndedAt }} <p-sortIcon field="ended_at"></p-sortIcon></th>
+        <th pSortableColumn="earned_score">{{ ui().quizSessionTable.colScore }} <p-sortIcon field="earned_score"></p-sortIcon></th>
+        <th style="width: 120px;">{{ ui().quizSessionTable.colActions }}</th>
       </tr>
     </ng-template>
     <ng-template #body let-quiz>
@@ -43,7 +43,7 @@
           <p-button
             (onClick)="viewQuiz.emit(quiz.id)"
             [icon]="quiz.status === 'answered' ? 'pi pi-eye' : 'pi pi-play'"
-            [label]="quiz.status === 'answered' ? 'Voir' : (quiz.status === 'in_progress' ? 'Continuer' : 'Commencer')"
+            [label]="actionLabel(quiz.status)"
             [severity]="quiz.status === 'answered' ? 'secondary' : 'primary'"
             size="small"
           ></p-button>
@@ -54,9 +54,9 @@
       <tr>
         <td class="empty-cell" colspan="9">
           @if (loading()) {
-            Chargement...
+            {{ ui().common.loading }}
           } @else {
-            Aucun quiz.
+            {{ ui().quizSessionTable.empty }}
           }
         </td>
       </tr>

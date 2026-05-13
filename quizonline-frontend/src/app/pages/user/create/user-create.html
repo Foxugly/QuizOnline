@@ -3,9 +3,11 @@
     [form]="form"
     [languageOptions]="languageOptions"
     [submitError]="submitError()"
-    submitLabel="Create"
-    title="Create user"
+    [submitLabel]="ui().common.create"
+    [cancelLabel]="ui().common.cancel"
+    [title]="ui().pages.userCreate.title"
     (cancel)="cancel()"
     (submitForm)="save()">
   </app-user-admin-form>
 </div>
+

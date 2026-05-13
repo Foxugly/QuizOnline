@@ -162,7 +162,7 @@ export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
     if (!url) return;
     const canonicalUrl = toCanonicalYoutubeUrl(url);
     if (!canonicalUrl) {
-      this.youtubeError.set('Le lien doit être une URL YouTube valide.');
+      this.youtubeError.set(this.editorUi().mediaSelector.invalidYoutubeUrl);
       return;
     }
 
@@ -227,27 +227,28 @@ export class MediaSelectorComponent implements ControlValueAccessor, OnDestroy {
   }
 
   getMediaTag(m: MediaSelectorValue): MediaTag {
+    const labels = this.editorUi().mediaSelector;
     if (m.file instanceof File && m.kind === 'image') {
-      return {icon: 'pi-image', label: 'Image locale', severity: 'info'};
+      return {icon: 'pi-image', label: labels.tagImageLocal, severity: 'info'};
     }
 
     if (m.file instanceof File && m.kind === 'video') {
-      return {icon: 'pi-video', label: 'Vidéo locale', severity: 'info'};
+      return {icon: 'pi-video', label: labels.tagVideoLocal, severity: 'info'};
     }
 
     if (typeof m.file === 'string' && m.kind === 'image') {
-      return {icon: 'pi-image', label: 'Image existante', severity: 'success'};
+      return {icon: 'pi-image', label: labels.tagImageExisting, severity: 'success'};
     }
 
     if (typeof m.file === 'string' && m.kind === 'video') {
-      return {icon: 'pi-video', label: 'Vidéo existante', severity: 'success'};
+      return {icon: 'pi-video', label: labels.tagVideoExisting, severity: 'success'};
     }
 
     if (m.external_url) {
-      return {icon: 'pi-youtube', label: 'Video YouTube', severity: 'warn'};
+      return {icon: 'pi-youtube', label: labels.tagYoutube, severity: 'warn'};
     }
 
-    return {icon: 'pi-question-circle', label: 'Inconnu', severity: null};
+    return {icon: 'pi-question-circle', label: labels.tagUnknown, severity: null};
   }
 
   // ---------- Génération d'URL pour miniature / lien ----------

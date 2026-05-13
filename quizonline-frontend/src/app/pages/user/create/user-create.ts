@@ -6,6 +6,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 
 const LANGUAGE_OPTIONS = [
@@ -28,6 +29,7 @@ export class UserCreatePage {
   private readonly router = inject(Router);
 
   readonly submitError = signal<string | null>(null);
+  readonly ui = inject(UiTextService).editor;
   readonly languageOptions = LANGUAGE_OPTIONS;
   readonly form = this.fb.group({
     username: this.fb.control('', [Validators.required]),
@@ -42,10 +44,11 @@ export class UserCreatePage {
   });
 
   save(): void {
+    const errors = this.ui().pages.userCreate.errors;
     this.submitError.set(null);
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.submitError.set('The form contains errors.');
+      this.submitError.set(errors.formInvalid);
       return;
     }
 
@@ -62,7 +65,7 @@ export class UserCreatePage {
       next: () => void this.router.navigate(ROUTES.user.list()),
       error: (err) => {
         logApiError('user.create.submit', err);
-        this.submitError.set(userFacingApiMessage(err, 'Unable to create the user.'));
+        this.submitError.set(userFacingApiMessage(err, errors.createFailed));
       },
     });
   }

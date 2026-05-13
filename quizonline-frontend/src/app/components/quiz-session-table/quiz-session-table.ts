@@ -5,6 +5,7 @@ import {TableModule} from 'primeng/table';
 import {UserQuizListItem} from '../../pages/quiz/list/quiz-list.models';
 import {UserService} from '../../services/user/user';
 import {formatLocalizedDateTime} from '../../shared/i18n/date-time';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-quiz-session-table',
@@ -19,15 +20,28 @@ export class QuizSessionTableComponent {
 
   readonly viewQuiz = output<number>();
   private readonly userService = inject(UserService);
+  readonly ui = inject(UiTextService).editor;
 
   statusLabel(status: UserQuizListItem['status']): string {
+    const labels = this.ui().quizSessionTable;
     if (status === 'answered') {
-      return 'Repondu';
+      return labels.statusAnswered;
     }
     if (status === 'in_progress') {
-      return 'En cours';
+      return labels.statusInProgress;
     }
-    return 'Non commence';
+    return labels.statusNotStarted;
+  }
+
+  actionLabel(status: UserQuizListItem['status']): string {
+    const labels = this.ui().quizSessionTable;
+    if (status === 'answered') {
+      return labels.actionView;
+    }
+    if (status === 'in_progress') {
+      return labels.actionContinue;
+    }
+    return labels.actionStart;
   }
 
   formatDateTime(value: string | null | undefined): string {

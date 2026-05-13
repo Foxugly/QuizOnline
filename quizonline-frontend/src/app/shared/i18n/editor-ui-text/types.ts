@@ -77,6 +77,53 @@ export type EditorUiText = {
     reportDialogBody: string;
     reportDialogPlaceholder: string;
   };
+  userAdminForm: {
+    badgeSuperuser: string;
+    usernameLabel: string;
+    isActiveLabel: string;
+    languageLabel: string;
+    nbDomainMaxLabel: string;
+    emailLabel: string;
+    emailConfirmedLabel: string;
+    firstNameLabel: string;
+    lastNameLabel: string;
+    passwordLabel: string;
+    passwordChangeRequiredLabel: string;
+  };
+  quizPlay: {
+    quizTitleLabel: string;
+    userLabel: string;
+    modeLabel: string;
+    durationLabel: string;
+    currentQuestion: (index: number) => string;
+  };
+  mediaSelector: {
+    tagImageLocal: string;
+    tagVideoLocal: string;
+    tagImageExisting: string;
+    tagVideoExisting: string;
+    tagYoutube: string;
+    tagUnknown: string;
+    invalidYoutubeUrl: string;
+  };
+  quizSessionTable: {
+    colTitle: string;
+    colStatus: string;
+    colMode: string;
+    colQuestions: string;
+    colCreatedAt: string;
+    colStartedAt: string;
+    colEndedAt: string;
+    colScore: string;
+    colActions: string;
+    statusAnswered: string;
+    statusInProgress: string;
+    statusNotStarted: string;
+    actionView: string;
+    actionContinue: string;
+    actionStart: string;
+    empty: string;
+  };
   pages: {
     domainCreate: {title: string; subtitle: string;};
     domainEdit: {title: string; subtitle: string;};
@@ -88,7 +135,23 @@ export type EditorUiText = {
     questionView: {title: string;};
     quizQuick: {title: string; subtitle: string; submit: string;};
     quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
-    userEdit: {title: string; subtitle: string;};
+    userEdit: {
+      title: string;
+      subtitle: string;
+      errors: {
+        invalidId: string;
+        formInvalid: string;
+        loadFailed: string;
+        updateFailed: string;
+      };
+    };
+    userCreate: {
+      title: string;
+      errors: {
+        formInvalid: string;
+        createFailed: string;
+      };
+    };
     userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};
     quizTemplateResults: {
       title: string;

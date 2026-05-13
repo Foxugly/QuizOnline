@@ -1,14 +1,14 @@
 <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
   <div class="card-head">
     <h2 class="card-title">{{ title() }}</h2>
-    <span class="badge">Superuser</span>
+    <span class="badge">{{ ui().userAdminForm.badgeSuperuser }}</span>
   </div>
 
   <!-- Username (visible when not disabled) -->
   @if (form().contains('username')) {
     <div class="meta-grid" style="grid-template-columns: 1fr;">
       <div class="meta-item">
-        <label class="meta-label" for="username">Username</label>
+        <label class="meta-label" for="username">{{ ui().userAdminForm.usernameLabel }}</label>
         <div class="meta-value">
           <input formControlName="username" id="username" pInputText />
         </div>
@@ -20,14 +20,14 @@
   @if (showFlags()) {
     <div class="meta-grid" style="grid-template-columns: 1fr 1fr 1fr;">
       <div class="meta-item">
-        <label class="meta-label" for="is_active">Active</label>
+        <label class="meta-label" for="is_active">{{ ui().userAdminForm.isActiveLabel }}</label>
         <div class="meta-value widget-center">
           <p-toggleswitch formControlName="is_active" inputId="is_active"></p-toggleswitch>
         </div>
       </div>
 
       <div class="meta-item">
-        <label class="meta-label" for="language">Language</label>
+        <label class="meta-label" for="language">{{ ui().userAdminForm.languageLabel }}</label>
         <div class="meta-value">
           <p-select
             [options]="languageOptions()"
@@ -40,7 +40,7 @@
       </div>
 
       <div class="meta-item">
-        <label class="meta-label" for="nb_domain_max">Nb domain max</label>
+        <label class="meta-label" for="nb_domain_max">{{ ui().userAdminForm.nbDomainMaxLabel }}</label>
         <div class="meta-value">
           <p-inputnumber [min]="0" formControlName="nb_domain_max" inputId="nb_domain_max"></p-inputnumber>
         </div>
@@ -49,7 +49,7 @@
   } @else {
     <div class="meta-grid" style="grid-template-columns: 1fr 1fr;">
       <div class="meta-item">
-        <label class="meta-label" for="language">Language</label>
+        <label class="meta-label" for="language">{{ ui().userAdminForm.languageLabel }}</label>
         <div class="meta-value">
           <p-select
             [options]="languageOptions()"
@@ -62,7 +62,7 @@
       </div>
 
       <div class="meta-item">
-        <label class="meta-label" for="nb_domain_max">Nb domain max</label>
+        <label class="meta-label" for="nb_domain_max">{{ ui().userAdminForm.nbDomainMaxLabel }}</label>
         <div class="meta-value">
           <p-inputnumber [min]="0" formControlName="nb_domain_max" inputId="nb_domain_max"></p-inputnumber>
         </div>
@@ -73,7 +73,7 @@
   <!-- Row 2: Email, Email confirmed, First name, Last name -->
   <div class="meta-grid" [style.grid-template-columns]="showFlags() && form().contains('email_confirmed') ? '1fr auto 1fr 1fr' : '1fr 1fr 1fr'">
     <div class="meta-item">
-      <label class="meta-label" for="email">Email</label>
+      <label class="meta-label" for="email">{{ ui().userAdminForm.emailLabel }}</label>
       <div class="meta-value">
         <input formControlName="email" id="email" pInputText type="email" />
       </div>
@@ -81,7 +81,7 @@
 
     @if (showFlags() && form().contains('email_confirmed')) {
       <div class="meta-item">
-        <label class="meta-label" for="email_confirmed">Email confirmed</label>
+        <label class="meta-label" for="email_confirmed">{{ ui().userAdminForm.emailConfirmedLabel }}</label>
         <div class="meta-value widget-center">
           <p-toggleswitch formControlName="email_confirmed" inputId="email_confirmed"></p-toggleswitch>
         </div>
@@ -89,14 +89,14 @@
     }
 
     <div class="meta-item">
-      <label class="meta-label" for="first_name">First name</label>
+      <label class="meta-label" for="first_name">{{ ui().userAdminForm.firstNameLabel }}</label>
       <div class="meta-value">
         <input formControlName="first_name" id="first_name" pInputText />
       </div>
     </div>
 
     <div class="meta-item">
-      <label class="meta-label" for="last_name">Last name</label>
+      <label class="meta-label" for="last_name">{{ ui().userAdminForm.lastNameLabel }}</label>
       <div class="meta-value">
         <input formControlName="last_name" id="last_name" pInputText />
       </div>
@@ -107,7 +107,7 @@
   @if (showPassword()) {
     <div class="meta-grid" [style.grid-template-columns]="showFlags() ? '1fr auto' : '1fr'">
       <div class="meta-item">
-        <label class="meta-label" for="password">Password</label>
+        <label class="meta-label" for="password">{{ ui().userAdminForm.passwordLabel }}</label>
         <div class="meta-value">
           <p-password [feedback]="false" formControlName="password" inputId="password" styleClass="w-full"></p-password>
         </div>
@@ -115,7 +115,7 @@
 
       @if (showFlags()) {
         <div class="meta-item">
-          <label class="meta-label" for="password_change_required">Password change required</label>
+          <label class="meta-label" for="password_change_required">{{ ui().userAdminForm.passwordChangeRequiredLabel }}</label>
           <div class="meta-value widget-center">
             <p-toggleswitch formControlName="password_change_required" inputId="password_change_required"></p-toggleswitch>
           </div>
