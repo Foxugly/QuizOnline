@@ -62,6 +62,10 @@ export class QuizQuestionComponent {
   readonly hasPrevious = input(false);
   readonly hasNext = input(false);
   readonly showFooter = input(true);
+  /** When true, the quiz-flow buttons (back to quiz / finish / next-finish)
+   *  render disabled because the component is embedded outside of an actual
+   *  quiz session (e.g. /question/:id/view preview). */
+  readonly disableQuizActions = input(false);
 
   readonly answeredToggled = output<void>();
   readonly flagToggled = output<boolean>();

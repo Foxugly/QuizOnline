@@ -6,6 +6,8 @@ export type QuestionImportUiText = {
   back: string;
   explanationTitle: string;
   explanation: string;
+  exampleTitle: string;
+  exampleDescription: string;
   exampleButton: string;
   uploadTitle: string;
   zipFileReady: string;
@@ -53,6 +55,8 @@ const FR: QuestionImportUiText = {
   back: 'Retour',
   explanationTitle: 'Format attendu',
   explanation: 'Le fichier doit être un objet JSON avec les clés "version", "domain", "subjects" et "questions".',
+  exampleTitle: 'Exemple de format',
+  exampleDescription: "Télécharge un fichier JSON d'exemple (un domaine, un sujet et une question multilingue). Adapte-le ensuite à tes données avant de l'importer.",
   exampleButton: "Télécharger l'exemple",
   uploadTitle: 'Fichier JSON ou ZIP',
   zipFileReady: 'Fichier ZIP prêt à importer (validation côté serveur).',
@@ -100,6 +104,8 @@ const EN: QuestionImportUiText = {
   back: 'Back',
   explanationTitle: 'Expected format',
   explanation: 'The file must be a JSON object with "version", "domain", "subjects", and "questions" keys.',
+  exampleTitle: 'Format example',
+  exampleDescription: 'Download a sample JSON file (one domain, one subject, and one multilingual question). Adapt it to your data before importing.',
   exampleButton: 'Download example',
   uploadTitle: 'JSON or ZIP file',
   zipFileReady: 'ZIP file ready to import (server-side validation).',
@@ -147,6 +153,8 @@ const NL: QuestionImportUiText = {
   back: 'Terug',
   explanationTitle: 'Verwacht formaat',
   explanation: 'Het bestand moet een JSON-object zijn met de sleutels "version", "domain", "subjects" en "questions".',
+  exampleTitle: 'Voorbeeldformaat',
+  exampleDescription: 'Download een voorbeeld-JSON-bestand (een domein, een onderwerp en een meertalige vraag). Pas het aan voordat je het importeert.',
   exampleButton: 'Voorbeeld downloaden',
   uploadTitle: 'JSON- of ZIP-bestand',
   zipFileReady: 'ZIP-bestand klaar om te importeren (servervalidatie).',
@@ -194,6 +202,8 @@ const IT: QuestionImportUiText = {
   back: 'Indietro',
   explanationTitle: 'Formato atteso',
   explanation: 'Il file deve essere un oggetto JSON con le chiavi "version", "domain", "subjects" e "questions".',
+  exampleTitle: 'Esempio di formato',
+  exampleDescription: 'Scarica un file JSON di esempio (un dominio, un subject e una domanda multilingue). Adattalo ai tuoi dati prima di importarlo.',
   exampleButton: 'Scarica esempio',
   uploadTitle: 'File JSON o ZIP',
   zipFileReady: 'File ZIP pronto per l\'importazione (validazione lato server).',
@@ -241,6 +251,8 @@ const ES: QuestionImportUiText = {
   back: 'Volver',
   explanationTitle: 'Formato esperado',
   explanation: 'El archivo debe ser un objeto JSON con las claves "version", "domain", "subjects" y "questions".',
+  exampleTitle: 'Ejemplo de formato',
+  exampleDescription: 'Descarga un archivo JSON de ejemplo (un dominio, un subject y una pregunta multilingüe). Adáptalo a tus datos antes de importarlo.',
   exampleButton: 'Descargar ejemplo',
   uploadTitle: 'Archivo JSON o ZIP',
   zipFileReady: 'Archivo ZIP listo para importar (validacion del servidor).',

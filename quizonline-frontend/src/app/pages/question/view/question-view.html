@@ -10,7 +10,7 @@
       ></p-button>
     </div>
 
-    <h1 class="header-title">Détail de la question</h1>
+    <h1 class="header-title">{{ editorUi().pages.questionView.title }}</h1>
 
     <div class="header-right">
       <p-button
@@ -24,7 +24,7 @@
 
 
   @if (loading()) {
-    <div class="question-detail__status">Chargement…</div>
+    <div class="question-detail__status">{{ editorUi().common.loading }}</div>
   } @else if (error()) {
     <div class="question-detail__status question-detail__status--error">
       {{ error() }}
@@ -33,6 +33,7 @@
     <app-quiz-question
       [quizNavItem]="quizNavItem()!"
       [showCorrectAnswers]="showCorrect"
+      [disableQuizActions]="true"
       displayMode="preview"
     ></app-quiz-question>
     <div class="question-detail__buttons">

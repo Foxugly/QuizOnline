@@ -146,6 +146,7 @@
           <div class="card-footer__group card-footer__group--center">
             <p-button
               (onClick)="onBackClick()"
+              [disabled]="disableQuizActions()"
               icon="pi pi-arrow-left"
               [label]="editorUi().quiz.backToQuiz"
               severity="secondary"
@@ -154,6 +155,7 @@
             @if (!readonlyMode()) {
               <p-button
                 (onClick)="onFinishClick()"
+                [disabled]="disableQuizActions()"
                 icon="pi pi-check"
                 [label]="editorUi().quiz.finishQuizButton"
                 severity="danger"
@@ -165,6 +167,7 @@
           <div class="card-footer__group card-footer__group--right">
             <p-button
               (onClick)="onNextClick()"
+              [disabled]="disableQuizActions()"
               icon="pi pi-chevron-right"
               iconPos="right"
               [label]="hasNext() ? editorUi().common.next : (readonlyMode() ? editorUi().quiz.finishReview : editorUi().common.finish)"

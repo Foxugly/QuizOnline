@@ -67,6 +67,15 @@
           <label class="mode-chip">
             <p-checkbox [binary]="true" formControlName="is_mode_exam"></p-checkbox>
             <span>{{ ui().questionForm.exam }}</span>
+            @if (examTooltip()) {
+              <p-button
+                icon="pi pi-info-circle"
+                [pTooltip]="examTooltipText()"
+                severity="secondary"
+                tooltipPosition="top"
+                type="button">
+              </p-button>
+            }
           </label>
         </div>
       </div>

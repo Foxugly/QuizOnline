@@ -68,14 +68,15 @@ export class QuestionEditorFormComponent {
   readonly translating = input(false);
   readonly saving = input(false);
   readonly deleting = input(false);
-  readonly submitLabel = input('Enregistrer');
-  readonly emptyLanguagesMessage = input('Aucune langue active sur ce domaine.');
+  readonly submitLabel = input('');
+  readonly emptyLanguagesMessage = input('');
   readonly submitError = input<string | null>(null);
   readonly practiceTooltip = input<string | null>(null);
+  readonly examTooltip = input<string | null>(null);
   readonly showDeleteAction = input(false);
   readonly showDuplicateAction = input(false);
-  readonly deleteLabel = input('Supprimer la question');
-  readonly duplicateLabel = input('Dupliquer');
+  readonly deleteLabel = input('');
+  readonly duplicateLabel = input('');
   readonly ui = inject(UiTextService).editor;
 
   readonly tabChanged = output<string | number | undefined>();
@@ -126,6 +127,10 @@ export class QuestionEditorFormComponent {
 
   practiceTooltipText(): string | undefined {
     return this.practiceTooltip() ?? undefined;
+  }
+
+  examTooltipText(): string | undefined {
+    return this.examTooltip() ?? undefined;
   }
 
   onAddOption(): void {
