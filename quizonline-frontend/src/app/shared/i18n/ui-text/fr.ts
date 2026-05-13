@@ -159,6 +159,14 @@ export const FR: UiText = {
       errorGeneric: 'Impossible de réinitialiser le mot de passe.',
     },
   },
+  confirmEmail: {
+    title: 'Confirmation d\'email',
+    subtitle: 'Validation de votre inscription',
+    inProgress: 'Confirmation en cours…',
+    successFallback: 'Adresse e-mail confirmée avec succès.',
+    errorFallback: 'Impossible de confirmer cette adresse e-mail.',
+    invalidLink: 'Lien de confirmation invalide ou incomplet.',
+  },
   preferences: {
     eyebrow: 'Mon compte',
     title: 'Préférences',

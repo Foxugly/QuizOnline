@@ -75,6 +75,14 @@ export const EN: UiText = {
       errorGeneric: 'Unable to reset the password.',
     },
   },
+  confirmEmail: {
+    title: 'Email confirmation',
+    subtitle: 'Validating your registration',
+    inProgress: 'Confirmation in progress…',
+    successFallback: 'Email address confirmed successfully.',
+    errorFallback: 'Unable to confirm this email address.',
+    invalidLink: 'Confirmation link is invalid or incomplete.',
+  },
   preferences: {
     eyebrow: 'My account', title: 'Preferences', subtitle: 'Manage your profile, interface language and current domain.',
     profileTitle: 'Profile', profileSubtitle: 'Personal information and display preferences.', summaryTitle: 'Summary',

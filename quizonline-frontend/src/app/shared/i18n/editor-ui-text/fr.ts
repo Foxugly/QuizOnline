@@ -176,6 +176,10 @@ export const FR: EditorUiText = {
         loadInitialFailed: 'Impossible de charger les données initiales.',
         loadDomainFailed: 'Impossible de charger le domaine sélectionné.',
         translationFailed: 'Erreur lors de la traduction.',
+        toastSummary: 'Erreur',
+        missingFields: 'Sélectionne un domaine et complète au minimum le titre dans chaque langue ainsi que toutes les réponses.',
+        missingCorrectAnswer: 'Il faut cocher au moins une réponse correcte.',
+        saveFailed: 'Erreur lors de l\'enregistrement de la question.',
       },
     },
     questionEdit: {

@@ -2,6 +2,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import type {AdminUiText} from './types/admin';
 import type {
   ChangePasswordUiText,
+  ConfirmEmailUiText,
   LoginUiText,
   RegisterPendingUiText,
   RegisterUiText,
@@ -25,6 +26,7 @@ export type UiText = {
   registerPending: RegisterPendingUiText;
   changePassword: ChangePasswordUiText;
   resetPassword: ResetPasswordUiText;
+  confirmEmail: ConfirmEmailUiText;
   preferences: PreferencesUiText;
   admin: AdminUiText;
 };

@@ -176,6 +176,10 @@ export type EditorUiText = {
         loadInitialFailed: string;
         loadDomainFailed: string;
         translationFailed: string;
+        toastSummary: string;
+        missingFields: string;
+        missingCorrectAnswer: string;
+        saveFailed: string;
       };
     };
     questionEdit: {

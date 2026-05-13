@@ -328,21 +328,20 @@ export class QuestionCreate implements OnInit {
   }
 
   async save(): Promise<void> {
+    const errors = this.ui().pages.questionCreate.errors;
     this.error.set(null);
     this.submitError.set(null);
 
     if (!isQuestionEditorFormValid(this.form, this.domainLangs(), {requireDomain: true})) {
-      const detail = this.getCreateValidationErrorText().missingFields;
-      this.error.set(detail);
-      this.showErrorToast(detail);
+      this.error.set(errors.missingFields);
+      this.showErrorToast(errors.missingFields);
       this.form.markAllAsTouched();
       return;
     }
 
     if (getQuestionCorrectCount(this.form) === 0) {
-      const detail = this.getCreateValidationErrorText().missingCorrectAnswer;
-      this.submitError.set(detail);
-      this.showErrorToast(detail);
+      this.submitError.set(errors.missingCorrectAnswer);
+      this.showErrorToast(errors.missingCorrectAnswer);
       return;
     }
 
@@ -359,9 +358,8 @@ export class QuestionCreate implements OnInit {
       this.goList();
     } catch (error) {
       console.error('Erreur creation question', error);
-      const detail = this.getCreateValidationErrorText().saveFailed;
-      this.submitError.set(detail);
-      this.showErrorToast(detail);
+      this.submitError.set(errors.saveFailed);
+      this.showErrorToast(errors.saveFailed);
     } finally {
       this.saving.set(false);
     }
@@ -469,54 +467,8 @@ export class QuestionCreate implements OnInit {
   private showErrorToast(detail: string): void {
     this.toast.add({
       severity: 'error',
-      summary: this.getCreateValidationErrorText().summary,
+      summary: this.ui().pages.questionCreate.errors.toastSummary,
       detail,
     });
-  }
-
-  private getCreateValidationErrorText(): {
-    summary: string;
-    missingFields: string;
-    missingCorrectAnswer: string;
-    saveFailed: string;
-  } {
-    switch (this.userService.currentLang) {
-      case LanguageEnumDto.Fr:
-        return {
-          summary: 'Erreur',
-          missingFields: 'Merci de selectionner un domaine et de completer au minimum le titre dans chaque langue et toutes les reponses.',
-          missingCorrectAnswer: 'Il faut cocher au moins une reponse correcte.',
-          saveFailed: "Erreur lors de l'enregistrement de la question.",
-        };
-      case LanguageEnumDto.Nl:
-        return {
-          summary: 'Fout',
-          missingFields: 'Kies een domein en vul minstens de titel in elke taal en alle antwoorden in.',
-          missingCorrectAnswer: 'Duid minstens een correct antwoord aan.',
-          saveFailed: 'Er is een fout opgetreden bij het opslaan van de vraag.',
-        };
-      case LanguageEnumDto.It:
-        return {
-          summary: 'Errore',
-          missingFields: 'Seleziona un dominio e compila almeno il titolo in ogni lingua e tutte le risposte.',
-          missingCorrectAnswer: 'Devi selezionare almeno una risposta corretta.',
-          saveFailed: 'Si e verificato un errore durante il salvataggio della domanda.',
-        };
-      case LanguageEnumDto.Es:
-        return {
-          summary: 'Error',
-          missingFields: 'Selecciona un dominio y completa al menos el titulo en cada idioma y todas las respuestas.',
-          missingCorrectAnswer: 'Debes marcar al menos una respuesta correcta.',
-          saveFailed: 'Se produjo un error al guardar la pregunta.',
-        };
-      case LanguageEnumDto.En:
-      default:
-        return {
-          summary: 'Error',
-          missingFields: 'Select a domain and fill in at least the title in each language and all answers.',
-          missingCorrectAnswer: 'Select at least one correct answer.',
-          saveFailed: 'An error occurred while saving the question.',
-        };
-    }
   }
 }

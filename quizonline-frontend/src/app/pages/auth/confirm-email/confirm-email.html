@@ -1,12 +1,12 @@
 <div class="container">
   <div class="container__card">
     <div class="card__brand">
-      <h1 class="brand__title">Confirmation d'email</h1>
-      <p class="brand__subtitle">Validation de votre inscription</p>
+      <h1 class="brand__title">{{ shellUi().confirmEmail.title }}</h1>
+      <p class="brand__subtitle">{{ shellUi().confirmEmail.subtitle }}</p>
     </div>
 
     @if (loading()) {
-      <p-message severity="info">Confirmation en cours...</p-message>
+      <p-message severity="info">{{ shellUi().confirmEmail.inProgress }}</p-message>
     }
 
     @if (successMessage()) {

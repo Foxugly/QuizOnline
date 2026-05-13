@@ -76,6 +76,15 @@ export type RegisterPendingUiText = {
   login: string;
 };
 
+export type ConfirmEmailUiText = {
+  title: string;
+  subtitle: string;
+  inProgress: string;
+  successFallback: string;
+  errorFallback: string;
+  invalidLink: string;
+};
+
 export type ResetPasswordUiText = {
   title: string;
   loading: string;

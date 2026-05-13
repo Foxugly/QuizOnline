@@ -78,6 +78,14 @@ export const ES: UiText = {
       errorGeneric: 'No se puede restablecer la contraseña.',
     },
   },
+  confirmEmail: {
+    title: 'Confirmación de correo',
+    subtitle: 'Validación de tu registro',
+    inProgress: 'Confirmación en curso…',
+    successFallback: 'Dirección de correo confirmada con éxito.',
+    errorFallback: 'No se puede confirmar esta dirección de correo.',
+    invalidLink: 'Enlace de confirmación no válido o incompleto.',
+  },
   preferences: {
     eyebrow: 'Mi cuenta', title: 'Preferencias', subtitle: 'Gestiona tu perfil, el idioma de la interfaz y el dominio actual.',
     profileTitle: 'Perfil', profileSubtitle: 'Informacion personal y preferencias de visualizacion.', summaryTitle: 'Resumen',

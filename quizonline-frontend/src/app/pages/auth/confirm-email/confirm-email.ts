@@ -26,6 +26,7 @@ export class ConfirmEmailPage {
   private readonly userService = inject(UserService);
 
   readonly ui = inject(UiTextService).editor;
+  readonly shellUi = inject(UiTextService).ui;
 
   readonly loading = signal(true);
   readonly successMessage = signal<string | null>(null);
@@ -33,12 +34,13 @@ export class ConfirmEmailPage {
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const labels = this.shellUi().confirmEmail;
       const uid = params.get('uid') ?? '';
       const token = params.get('token') ?? '';
 
       if (!uid || !token) {
         this.loading.set(false);
-        this.errorMessage.set('Lien de confirmation invalide ou incomplet.');
+        this.errorMessage.set(labels.invalidLink);
         return;
       }
 
@@ -53,10 +55,10 @@ export class ConfirmEmailPage {
         )
         .subscribe({
           next: (response) => {
-            this.successMessage.set(response.detail || 'Adresse email confirmee avec succes.');
+            this.successMessage.set(response.detail || labels.successFallback);
           },
           error: (err) => {
-            this.errorMessage.set(err?.error?.detail || 'Impossible de confirmer cette adresse email.');
+            this.errorMessage.set(err?.error?.detail || labels.errorFallback);
           },
         });
     });

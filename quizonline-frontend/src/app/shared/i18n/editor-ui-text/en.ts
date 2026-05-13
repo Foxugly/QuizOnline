@@ -176,6 +176,10 @@ export const EN: EditorUiText = {
         loadInitialFailed: 'Unable to load the initial data.',
         loadDomainFailed: 'Unable to load the selected domain.',
         translationFailed: 'Error while translating.',
+        toastSummary: 'Error',
+        missingFields: 'Select a domain and fill in at least the title in each language and every answer.',
+        missingCorrectAnswer: 'Select at least one correct answer.',
+        saveFailed: 'An error occurred while saving the question.',
       },
     },
     questionEdit: {

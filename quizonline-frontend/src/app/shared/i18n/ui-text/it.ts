@@ -78,6 +78,14 @@ export const IT: UiText = {
       errorGeneric: 'Impossibile reimpostare la password.',
     },
   },
+  confirmEmail: {
+    title: 'Conferma e-mail',
+    subtitle: 'Convalida della tua registrazione',
+    inProgress: 'Conferma in corso…',
+    successFallback: 'Indirizzo e-mail confermato con successo.',
+    errorFallback: 'Impossibile confermare questo indirizzo e-mail.',
+    invalidLink: 'Link di conferma non valido o incompleto.',
+  },
   preferences: {
     eyebrow: 'Il mio account', title: 'Preferenze', subtitle: 'Gestisci il tuo profilo, la lingua dell’interfaccia e il dominio corrente.',
     profileTitle: 'Profilo', profileSubtitle: 'Informazioni personali e preferenze di visualizzazione.', summaryTitle: 'Riepilogo',

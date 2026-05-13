@@ -78,6 +78,14 @@ export const NL: UiText = {
       errorGeneric: 'Kan het wachtwoord niet opnieuw instellen.',
     },
   },
+  confirmEmail: {
+    title: 'E-mailbevestiging',
+    subtitle: 'Bevestiging van uw registratie',
+    inProgress: 'Bevestiging bezig…',
+    successFallback: 'E-mailadres met succes bevestigd.',
+    errorFallback: 'Kan dit e-mailadres niet bevestigen.',
+    invalidLink: 'De bevestigingslink is ongeldig of onvolledig.',
+  },
   preferences: {
     eyebrow: 'Mijn account', title: 'Voorkeuren', subtitle: 'Beheer uw profiel, interfacetaal en huidig domein.', profileTitle: 'Profiel',
     profileSubtitle: 'Persoonlijke gegevens en weergavevoorkeuren.', summaryTitle: 'Overzicht', summarySubtitle: 'Snelle weergave van uw huidige account.',
