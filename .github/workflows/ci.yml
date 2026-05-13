@@ -163,6 +163,9 @@ jobs:
       - name: Run frontend typecheck
         run: npm run typecheck
 
+      - name: Run i18n completeness check
+        run: npm run check:i18n
+
       - name: Run unit tests
         run: npm test
 

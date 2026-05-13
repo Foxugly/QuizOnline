@@ -14,3 +14,10 @@ repos:
         entry: bash -c 'cd quizonline-frontend && npx --no-install tsc --noEmit -p tsconfig.app.json'
         pass_filenames: false
         files: ^quizonline-frontend/src/.*\.ts$
+
+      - id: i18n-check
+        name: i18n completeness check (FR/EN/NL/IT/ES)
+        language: system
+        entry: bash -c 'cd quizonline-frontend && npx --no-install tsx scripts/check-i18n.ts'
+        pass_filenames: false
+        files: ^quizonline-frontend/src/app/(shared/i18n/|.*\.i18n\.ts$)

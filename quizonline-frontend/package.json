@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "check:i18n": "tsx scripts/check-i18n.ts",
     "test": "ng test --watch=false",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
@@ -58,6 +59,7 @@
     "angular-eslint": "^21.3.1",
     "eslint": "^10.1.0",
     "jsdom": "^27.0.0",
+    "tsx": "^4.20.6",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.58.0",
     "vitest": "^4.1.4"
