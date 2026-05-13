@@ -1,6 +1,6 @@
 <section class="page">
   <div class="page__header">
-    <a [routerLink]="routes.quiz.alerts()" class="page__back">← Retour aux messages</a>
+    <a [routerLink]="routes.quiz.alerts()" class="page__back">{{ text().back }}</a>
   </div>
 
   @if (error()) {
@@ -11,7 +11,7 @@
 
   @if (loading()) {
     <p-card styleClass="panel">
-      <p>Chargement de la conversation...</p>
+      <p>{{ text().loadingConversation }}</p>
     </p-card>
   } @else if (thread(); as currentThread) {
     <p-card styleClass="panel">
@@ -20,7 +20,7 @@
           @if (currentThread.kind === 'question' && currentThread.question_order !== null) {
             <span class="thread-banner__topic">#{{ currentThread.question_order }}</span>
           } @else {
-            <span class="thread-banner__topic">Quiz</span>
+            <span class="thread-banner__topic">{{ text().quizBadge }}</span>
           }
           <strong class="thread-banner__title">{{ currentThread.question_title }}</strong>
           @if (counterpartUsername(currentThread)) {
@@ -32,9 +32,9 @@
           @if (currentThread.unread_count > 0) {
             <span class="thread-head__badge">{{ currentThread.unread_count }}</span>
           }
-          <p-tag [severity]="statusSeverity(currentThread)" [value]="currentThread.status === 'open' ? 'Ouverte' : 'Fermée'"></p-tag>
+          <p-tag [severity]="statusSeverity(currentThread)" [value]="currentThread.status === 'open' ? text().statusOpen : text().statusClosed"></p-tag>
           @if (currentThread.kind === 'question' && currentThread.can_manage && currentThread.question_id !== null) {
-            <a [routerLink]="routes.question.view(currentThread.question_id)" class="thread-banner__pill">Question #{{ currentThread.question_id }}</a>
+            <a [routerLink]="routes.question.view(currentThread.question_id)" class="thread-banner__pill">{{ text().questionLabel }} #{{ currentThread.question_id }}</a>
           }
         </div>
       </div>
@@ -45,10 +45,10 @@
         <article class="message" [class.message--mine]="message.is_mine">
           <header class="message__header">
             <div class="message__author-line">
-              <strong>{{ message.author_summary?.username || ('Utilisateur #' + message.author) }}</strong>
+              <strong>{{ message.author_summary?.username || (text().userFallback + ' #' + message.author) }}</strong>
               <span class="message__date">{{ formatMessageDate(message.created_at) }}</span>
               @if (message.is_unread) {
-                <span class="message__badge">Non lu</span>
+                <span class="message__badge">{{ text().unreadBadge }}</span>
               }
             </div>
           </header>
@@ -73,17 +73,17 @@
               (ngModelChange)="replyBody.set($event)"
               pInputTextarea
               rows="3"
-              placeholder="Écrire votre réponse..."
+              [placeholder]="text().replyPlaceholder"
             ></textarea>
           } @else if (currentThread.can_manage) {
-            <p class="reply-box__closed-note">Conversation fermée. Rouvrez-la pour répondre ou réautoriser les réponses.</p>
+            <p class="reply-box__closed-note">{{ text().conversationClosedNote }}</p>
           }
 
           <div class="reply-box__actions">
             @if (currentThread.can_manage) {
               <div class="reply-box__owner-actions">
                 <div class="reply-box__toggle">
-                  <span>Réponses utilisateur</span>
+                  <span>{{ text().reporterReplyToggle }}</span>
                   <p-toggleswitch
                     [disabled]="saving() || isClosed(currentThread)"
                     [ngModel]="currentThread.reporter_reply_allowed"

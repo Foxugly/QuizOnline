@@ -77,6 +77,8 @@ export const EN: EditorUiText = {
     reportDialogHeader: 'Report a question',
     reportDialogBody: 'Your message will be sent to the quiz creator with the current question and active language.',
     reportDialogPlaceholder: 'Describe the issue you encountered…',
+    noCopyToastSummary: 'Action blocked',
+    noCopyToastDetail: 'Copy is disabled during the quiz.',
   },
   userAdminForm: {
     badgeSuperuser: 'Superuser',

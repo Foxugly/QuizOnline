@@ -28,6 +28,7 @@ export class ResetPassword {
   private readonly userService = inject(UserService);
 
   readonly ui = inject(UiTextService).editor;
+  readonly shellUi = inject(UiTextService).ui;
 
   // State
   readonly submitted = signal(false);
@@ -43,6 +44,7 @@ export class ResetPassword {
   });
 
   onSubmit(): void {
+    const labels = this.shellUi().resetPassword;
     this.submitted.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
@@ -50,13 +52,13 @@ export class ResetPassword {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.submitError.set('Corrige les erreurs dans le formulaire.');
+      this.submitError.set(labels.formInvalid);
       return;
     }
 
     const email = this.form.controls.email.value.trim();
     if (!email) {
-      this.submitError.set("L'adresse e-mail est obligatoire.");
+      this.submitError.set(labels.emailRequired);
       return;
     }
 
@@ -70,14 +72,11 @@ export class ResetPassword {
       )
       .subscribe({
         next: () => {
-          // Message “safe” (ne révèle pas si l’email existe)
-          this.successMessage.set(
-            "Si un compte existe avec cette adresse, un email de réinitialisation a été envoyé.",
-          );
+          this.successMessage.set(labels.successMessage);
         },
         error: (err) => {
           console.error(err);
-          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer plus tard.');
+          this.errorMessage.set(labels.errorGeneric);
         },
       });
   }

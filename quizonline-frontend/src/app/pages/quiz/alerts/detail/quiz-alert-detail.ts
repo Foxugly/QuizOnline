@@ -21,6 +21,7 @@ import {
   formatQuizAlertMessageDate,
   isClosedThread,
 } from './quiz-alert-detail.helpers';
+import {getQuizAlertDetailUiText} from './quiz-alert-detail.i18n';
 
 @Component({
   selector: 'app-quiz-alert-detail',
@@ -40,6 +41,7 @@ import {
 })
 export class QuizAlertDetail implements OnInit {
   readonly editorUi = inject(UiTextService).editor;
+  readonly text = inject(UiTextService).localized(getQuizAlertDetailUiText);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly thread = signal<QuizAlertThreadDetailDto | null>(null);
@@ -57,9 +59,10 @@ export class QuizAlertDetail implements OnInit {
   }
 
   load(): void {
+    const errors = this.text().errors;
     const alertId = Number(this.route.snapshot.paramMap.get('alertId'));
     if (!alertId || Number.isNaN(alertId)) {
-      this.error.set('Identifiant de message invalide.');
+      this.error.set(errors.invalidMessageId);
       this.loading.set(false);
       return;
     }
@@ -78,7 +81,7 @@ export class QuizAlertDetail implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.alerts.detail', err);
-          this.error.set(userFacingApiMessage(err, 'Impossible de charger ce message.'));
+          this.error.set(userFacingApiMessage(err, errors.loadFailed));
           this.thread.set(null);
         },
       });
@@ -94,7 +97,7 @@ export class QuizAlertDetail implements OnInit {
     this.runThreadRequest(
       this.quizAlertService.postMessage(thread.id, body),
       'quiz.alerts.reply',
-      'Impossible d\'envoyer ce message.',
+      this.text().errors.sendFailed,
       () => {
         this.replyBody.set('');
         this.load();
@@ -111,7 +114,7 @@ export class QuizAlertDetail implements OnInit {
     this.runThreadRequest(
       this.quizAlertService.update(thread.id, {reporter_reply_allowed: allowed}),
       'quiz.alerts.update',
-      'Impossible de modifier cette conversation.',
+      this.text().errors.updateFailed,
       (updatedThread) => {
         this.thread.set(updatedThread);
       },
@@ -128,7 +131,7 @@ export class QuizAlertDetail implements OnInit {
     this.runThreadRequest(
       this.quizAlertService.close(thread.id),
       'quiz.alerts.close',
-      'Impossible de clôturer cette conversation.',
+      this.text().errors.closeFailed,
       (updatedThread) => {
         this.thread.set(updatedThread);
       },
@@ -144,7 +147,7 @@ export class QuizAlertDetail implements OnInit {
     this.runThreadRequest(
       this.quizAlertService.reopen(thread.id),
       'quiz.alerts.reopen',
-      'Impossible de rouvrir cette conversation.',
+      this.text().errors.reopenFailed,
       (updatedThread) => {
         this.thread.set(updatedThread);
       },
@@ -193,7 +196,7 @@ export class QuizAlertDetail implements OnInit {
       .trim();
 
     if (!sanitized) {
-      return 'Un nouveau quiz vous a été assigné :';
+      return this.text().assignmentIntroFallback;
     }
 
     if (sanitized.endsWith(':')) {

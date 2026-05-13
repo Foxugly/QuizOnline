@@ -1,17 +1,7 @@
 import {Directive, effect, HostListener, inject, input} from '@angular/core';
 
-import {UserService} from '../../services/user/user';
 import {AppToastService} from '../toast/app-toast.service';
-
-type ToastCopy = {summary: string; detail: string};
-
-const TOAST_COPY: Record<string, ToastCopy> = {
-  fr: {summary: 'Action bloquée', detail: 'Copie désactivée pendant le quiz.'},
-  en: {summary: 'Action blocked', detail: 'Copy is disabled during the quiz.'},
-  nl: {summary: 'Actie geblokkeerd', detail: 'Kopiëren is uitgeschakeld tijdens de quiz.'},
-  it: {summary: 'Azione bloccata', detail: 'Copia disattivata durante il quiz.'},
-  es: {summary: 'Acción bloqueada', detail: 'Copia desactivada durante el cuestionario.'},
-};
+import {UiTextService} from '../i18n/ui-text.service';
 
 const TOAST_THROTTLE_MS = 2500;
 
@@ -51,7 +41,7 @@ export class NoCopyDirective {
   readonly trackFocusLoss = input<boolean>(false);
 
   private readonly toast = inject(AppToastService);
-  private readonly userService = inject(UserService);
+  private readonly editorUi = inject(UiTextService).editor;
   private lastToastAt = 0;
 
   constructor() {
@@ -124,12 +114,11 @@ export class NoCopyDirective {
       return;
     }
     this.lastToastAt = now;
-    const lang = (this.userService.currentLang ?? 'en').toLowerCase();
-    const copy = TOAST_COPY[lang] ?? TOAST_COPY['en'];
+    const quiz = this.editorUi().quiz;
     this.toast.add({
       severity: 'warn',
-      summary: copy.summary,
-      detail: copy.detail,
+      summary: quiz.noCopyToastSummary,
+      detail: quiz.noCopyToastDetail,
       life: 2000,
     });
   }

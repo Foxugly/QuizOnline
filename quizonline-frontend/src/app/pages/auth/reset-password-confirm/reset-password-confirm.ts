@@ -29,6 +29,7 @@ export class ResetPasswordConfirmPage {
   private readonly userService = inject(UserService);
 
   readonly ui = inject(UiTextService).editor;
+  readonly shellUi = inject(UiTextService).ui;
 
   readonly submitted = signal(false);
   readonly isSubmitting = signal(false);
@@ -56,7 +57,7 @@ export class ResetPasswordConfirmPage {
       this.invalidLink.set(!this.uid || !this.token);
       this.successMessage.set(null);
       this.errorMessage.set(
-        !this.uid || !this.token ? 'Lien de réinitialisation invalide ou incomplet.' : null,
+        !this.uid || !this.token ? this.shellUi().resetPassword.confirm.linkInvalidOrIncomplete : null,
       );
     });
   }
@@ -95,7 +96,7 @@ export class ResetPasswordConfirmPage {
     this.errorMessage.set(null);
 
     if (this.invalidLink()) {
-      this.errorMessage.set('Lien de réinitialisation invalide ou expiré.');
+      this.errorMessage.set(this.shellUi().resetPassword.confirm.linkInvalidOrExpired);
       return;
     }
 
@@ -119,7 +120,7 @@ export class ResetPasswordConfirmPage {
       )
       .subscribe({
         next: () => {
-          this.successMessage.set('Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.');
+          this.successMessage.set(this.shellUi().resetPassword.confirm.successReset);
           this.form.reset();
           this.submitted.set(false);
         },
@@ -152,6 +153,6 @@ export class ResetPasswordConfirmPage {
       }
     }
 
-    return 'Impossible de réinitialiser le mot de passe.';
+    return this.shellUi().resetPassword.confirm.errorGeneric;
   }
 }

@@ -76,6 +76,29 @@ export type RegisterPendingUiText = {
   login: string;
 };
 
+export type ResetPasswordUiText = {
+  title: string;
+  loading: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  emailRequired: string;
+  emailInvalid: string;
+  emailHint: string;
+  successMessage: string;
+  errorGeneric: string;
+  formInvalid: string;
+  confirm: {
+    title: string;
+    subtitle: string;
+    confirmPassword: string;
+    backToLogin: string;
+    linkInvalidOrIncomplete: string;
+    linkInvalidOrExpired: string;
+    successReset: string;
+    errorGeneric: string;
+  };
+};
+
 export type ChangePasswordUiText = {
   title: string;
   subtitle: string;

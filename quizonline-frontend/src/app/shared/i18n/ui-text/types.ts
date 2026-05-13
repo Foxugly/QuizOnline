@@ -5,6 +5,7 @@ import type {
   LoginUiText,
   RegisterPendingUiText,
   RegisterUiText,
+  ResetPasswordUiText,
 } from './types/auth';
 import type {
   FooterUiText,
@@ -23,6 +24,7 @@ export type UiText = {
   register: RegisterUiText;
   registerPending: RegisterPendingUiText;
   changePassword: ChangePasswordUiText;
+  resetPassword: ResetPasswordUiText;
   preferences: PreferencesUiText;
   admin: AdminUiText;
 };

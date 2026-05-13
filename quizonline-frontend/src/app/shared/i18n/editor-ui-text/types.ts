@@ -76,6 +76,8 @@ export type EditorUiText = {
     reportDialogHeader: string;
     reportDialogBody: string;
     reportDialogPlaceholder: string;
+    noCopyToastSummary: string;
+    noCopyToastDetail: string;
   };
   userAdminForm: {
     badgeSuperuser: string;
