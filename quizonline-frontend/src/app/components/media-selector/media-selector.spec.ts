@@ -1,6 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {MediaSelectorComponent} from './media-selector';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 describe('MediaSelectorComponent', () => {
   let component: MediaSelectorComponent;
@@ -59,6 +60,9 @@ describe('MediaSelectorComponent', () => {
     component.addYoutubeLink();
 
     expect(component.items).toEqual([]);
-    expect(component.youtubeError()).toBe('Le lien doit être une URL YouTube valide.');
+    // The error message is now localized via UiTextService; assert against
+    // the current locale's value rather than a hardcoded French string.
+    const expectedError = TestBed.inject(UiTextService).editor().mediaSelector.invalidYoutubeUrl;
+    expect(component.youtubeError()).toBe(expectedError);
   });
 });
