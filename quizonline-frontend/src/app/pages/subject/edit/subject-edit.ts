@@ -138,7 +138,7 @@ export class SubjectEdit implements OnInit {
         next: () => this.goList(),
         error: (err) => {
           console.error('Erreur update subject', err);
-          this.submitError.set('Erreur lors de la sauvegarde.');
+          this.submitError.set(this.ui().pages.subjectEdit.errors.saveFailed);
         },
       });
   }
@@ -210,7 +210,7 @@ export class SubjectEdit implements OnInit {
       }
     } catch (e) {
       console.error(e);
-      this.submitError.set('Erreur lors de la traduction.');
+      this.submitError.set(this.ui().pages.subjectEdit.errors.translationFailed);
     } finally {
       this.translating.set(false);
     }
@@ -234,7 +234,7 @@ export class SubjectEdit implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
           console.error('Erreur chargement subject', err);
-          this.error.set('Impossible de charger le sujet.');
+          this.error.set(this.ui().pages.subjectEdit.errors.loadFailed);
           return EMPTY;
         }),
       )

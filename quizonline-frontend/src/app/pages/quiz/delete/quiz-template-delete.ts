@@ -27,10 +27,11 @@ export class QuizTemplateDelete implements OnInit {
   templateId = 0;
 
   ngOnInit(): void {
+    const errors = this.ui().pages.quizTemplateDelete.errors;
     const rawId = this.route.snapshot.paramMap.get('templateId');
     const templateId = Number(rawId);
     if (!Number.isFinite(templateId)) {
-      this.error.set('Identifiant de template invalide.');
+      this.error.set(errors.invalidId);
       return;
     }
 
@@ -39,7 +40,7 @@ export class QuizTemplateDelete implements OnInit {
       next: (template) => this.template.set(template),
       error: (error) => {
         console.error(error);
-        this.error.set('Impossible de charger le template.');
+        this.error.set(errors.loadFailed);
       },
     });
   }
@@ -49,11 +50,12 @@ export class QuizTemplateDelete implements OnInit {
   }
 
   confirm(): void {
+    const errors = this.ui().pages.quizTemplateDelete.errors;
     this.quizTemplateService.destroy(this.templateId).subscribe({
       next: () => this.quizService.goList(),
       error: (error) => {
         console.error(error);
-        this.error.set('Suppression impossible.');
+        this.error.set(errors.deleteFailed);
       },
     });
   }

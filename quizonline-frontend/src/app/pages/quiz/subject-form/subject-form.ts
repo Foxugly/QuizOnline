@@ -19,6 +19,7 @@ import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 type QuizSubjectFormModel = {
   title: string;
@@ -48,6 +49,7 @@ type QuizSubjectFormModel = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizSubjectForm implements OnInit {
+  readonly ui = inject(UiTextService).editor;
   loading = signal(false);
   error = signal<string | null>(null);
   domains = signal<DomainReadDto[]>([]);
@@ -172,23 +174,24 @@ export class QuizSubjectForm implements OnInit {
     }
 
     const rawValue = this.form.getRawValue() as QuizSubjectFormModel;
+    const errors = this.ui().pages.quizQuick.errors;
     if (!rawValue.title.trim()) {
-      this.error.set('Le titre du quiz est requis.');
+      this.error.set(errors.titleRequired);
       return;
     }
 
     if (!rawValue.domain_id) {
-      this.error.set('Le domaine est requis.');
+      this.error.set(errors.domainRequired);
       return;
     }
 
     if (!rawValue.subject_ids.length) {
-      this.error.set('Selectionne au moins un sujet.');
+      this.error.set(errors.subjectsRequired);
       return;
     }
 
     if (rawValue.max_questions < 1) {
-      this.error.set('Le nombre de questions doit etre superieur a zero.');
+      this.error.set(errors.questionCountInvalid);
       return;
     }
 
@@ -253,7 +256,7 @@ export class QuizSubjectForm implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.subject-form.load-domains', err);
-          this.error.set(userFacingApiMessage(err, 'Erreur lors du chargement des domaines.'));
+          this.error.set(userFacingApiMessage(err, this.ui().pages.quizQuick.errors.loadDomainsFailed));
         },
       });
 
@@ -269,7 +272,7 @@ export class QuizSubjectForm implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.subject-form.load-subjects', err);
-          this.error.set(userFacingApiMessage(err, 'Erreur lors du chargement des sujets.'));
+          this.error.set(userFacingApiMessage(err, this.ui().pages.quizQuick.errors.loadSubjectsFailed));
         },
       });
   }

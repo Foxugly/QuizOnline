@@ -96,8 +96,6 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizCreate implements OnInit {
-  readonly questionEmptyLanguagesMessage = "Ce domaine n'a pas de langues actives configurées.";
-  readonly questionPracticeTooltip = 'la question sera disponible dans le domaine choisi pour ce quiz.';
 
   loading = signal(true);
   questionsLoading = signal(false);
@@ -295,7 +293,7 @@ export class QuizCreate implements OnInit {
     const rawTemplateId = this.route.snapshot.paramMap.get('templateId');
     const templateId = rawTemplateId ? Number(rawTemplateId) : null;
     if (rawTemplateId && !Number.isFinite(templateId)) {
-      this.error.set('Identifiant de template invalide.');
+      this.error.set(this.editorUi().pages.quizCreate.errors.invalidTemplateId);
       this.loading.set(false);
       return;
     }
@@ -440,7 +438,7 @@ export class QuizCreate implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.error.set('Impossible de charger les donnees du template.');
+          this.error.set(this.editorUi().pages.quizCreate.errors.loadTemplateFailed);
         },
       });
   }
@@ -552,7 +550,7 @@ export class QuizCreate implements OnInit {
 
   openQuestionDialog(): void {
     if (!this.selectedDomainId()) {
-      this.submitError.set("Sélectionne d'abord un domaine pour composer le quiz.");
+      this.submitError.set(this.editorUi().pages.quizCreate.errors.domainRequiredFirst);
       return;
     }
 
@@ -660,7 +658,7 @@ export class QuizCreate implements OnInit {
       queueMicrotask(() => {
         this.submitError.set(this.formatApiError(error, 'Erreur lors de la creation du quiz.'));
       });
-      this.questionSubmitError.set('Erreur lors de la traduction de la question.');
+      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.translateQuestionFailed);
     } finally {
       this.questionTranslating.set(false);
     }
@@ -709,7 +707,7 @@ export class QuizCreate implements OnInit {
       }
     } catch (error) {
       console.error(error);
-      this.submitError.set('Erreur lors de la traduction du template.');
+      this.submitError.set(this.editorUi().pages.quizCreate.errors.translateTemplateFailed);
     } finally {
       this.quizTemplateTranslating.set(false);
       this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle());
@@ -728,7 +726,7 @@ export class QuizCreate implements OnInit {
     }
 
     if (getQuestionCorrectCount(this.questionForm) === 0) {
-      this.questionSubmitError.set('Il faut cocher au moins une réponse correcte.');
+      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.needOneCorrect);
       return;
     }
 
@@ -751,7 +749,7 @@ export class QuizCreate implements OnInit {
       this.closeQuestionDialog();
     } catch (error) {
       console.error(error);
-      this.questionSubmitError.set("Erreur lors de la création de la question.");
+      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.createQuestionFailed);
     } finally {
       this.questionSaving.set(false);
     }
@@ -762,7 +760,7 @@ export class QuizCreate implements OnInit {
     this.error.set(null);
 
     if (!this.canManageSelectedDomain()) {
-      this.submitError.set('La composition de quiz est reservee au owner ou aux gestionnaires du domaine.');
+      this.submitError.set(this.editorUi().pages.quizCreate.errors.notAuthorized);
       return;
     }
 
@@ -774,7 +772,7 @@ export class QuizCreate implements OnInit {
 
     if (!this.canSave()) {
       this.quizForm.markAllAsTouched();
-      this.submitError.set('Complete le quiz et ajoute au moins une question.');
+      this.submitError.set(this.editorUi().pages.quizCreate.errors.completeQuizRequired);
       return;
     }
 
@@ -857,7 +855,7 @@ export class QuizCreate implements OnInit {
     const hadSelection = this.selectedQuestions().length > 0;
     if (hadSelection && !this.preserveSelectionOnNextDomainChange) {
       this.selectedQuestions.set([]);
-      this.submitError.set('Le changement de domaine a reinitialise la composition du quiz.');
+      this.submitError.set(this.editorUi().pages.quizCreate.errors.domainChangeReset);
     }
     this.preserveSelectionOnNextDomainChange = false;
 
@@ -889,7 +887,7 @@ export class QuizCreate implements OnInit {
         },
         error: (error) => {
           console.error(error);
-          this.error.set('Impossible de charger les questions du domaine selectionne.');
+          this.error.set(this.editorUi().pages.quizCreate.errors.loadQuestionsFailed);
         },
       });
   }

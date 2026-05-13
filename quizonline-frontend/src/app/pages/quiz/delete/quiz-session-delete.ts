@@ -29,13 +29,14 @@ export class QuizSessionDeletePage implements OnInit {
   private templateId: number | null = null;
 
   ngOnInit(): void {
+    const errors = this.ui().pages.quizSessionDelete.errors;
     const rawQuizId = this.route.snapshot.paramMap.get('quizId');
     const rawTemplateId = this.route.snapshot.paramMap.get('templateId');
     const quizId = Number(rawQuizId);
     const templateId = rawTemplateId ? Number(rawTemplateId) : null;
 
     if (!Number.isFinite(quizId)) {
-      this.error.set('Identifiant de quiz invalide.');
+      this.error.set(errors.invalidId);
       return;
     }
 
@@ -46,7 +47,7 @@ export class QuizSessionDeletePage implements OnInit {
       next: (quiz) => this.quiz.set(quiz),
       error: (error) => {
         console.error(error);
-        this.error.set('Impossible de charger le quiz.');
+        this.error.set(errors.loadFailed);
       },
     });
   }
@@ -60,6 +61,7 @@ export class QuizSessionDeletePage implements OnInit {
   }
 
   confirm(): void {
+    const errors = this.ui().pages.quizSessionDelete.errors;
     this.error.set(null);
     this.loading.set(true);
 
@@ -68,7 +70,7 @@ export class QuizSessionDeletePage implements OnInit {
       error: (error) => {
         console.error(error);
         this.loading.set(false);
-        this.error.set('Suppression impossible.');
+        this.error.set(errors.deleteFailed);
       },
     });
   }

@@ -48,7 +48,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 })
 export class SubjectCreate implements OnInit {
   readonly ui = inject(UiTextService).editor;
-  readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues configurees.";
+  readonly emptyLanguagesMessage = computed(() => this.ui().pages.subjectCreate.emptyLanguagesMessage);
 
   // UI state
   loading = signal(false);
@@ -140,7 +140,7 @@ export class SubjectCreate implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.error.set('Impossible de charger les domaines.');
+          this.error.set(this.ui().pages.subjectCreate.errors.loadDomainsFailed);
         },
       });
 
@@ -161,7 +161,7 @@ export class SubjectCreate implements OnInit {
             finalize(() => this.loading.set(false)),
             catchError((err) => {
               console.error(err);
-              this.error.set('Impossible de charger le domaine sélectionné.');
+              this.error.set(this.ui().pages.subjectCreate.errors.loadDomainFailed);
               return EMPTY;
             }),
           )
@@ -238,7 +238,7 @@ export class SubjectCreate implements OnInit {
       }
     } catch (e) {
       console.error(e);
-      this.submitError.set('Erreur lors de la traduction.');
+      this.submitError.set(this.ui().pages.subjectCreate.errors.translationFailed);
     } finally {
       this.translating.set(false);
     }
@@ -255,7 +255,7 @@ export class SubjectCreate implements OnInit {
     this.submitError.set(null);
 
     if (!this.isValid()) {
-      this.error.set('Merci de remplir au minimum le champ "name" pour chaque langue.');
+      this.error.set(this.ui().pages.subjectCreate.errors.nameRequired);
       return;
     }
 
@@ -272,7 +272,7 @@ export class SubjectCreate implements OnInit {
         next: () => this.subjectService.goList(),
         error: (err) => {
           console.error(err);
-          this.submitError.set('Erreur lors de la création du sujet.');
+          this.submitError.set(this.ui().pages.subjectCreate.errors.createFailed);
         },
       });
   }

@@ -62,11 +62,14 @@ export class SubjectList implements OnInit {
   applyingBulk = signal(false);
   readonly selectedCount = computed(() => this.selectedRows().length);
 
-  readonly bulkActionOptions = computed<BulkActionOption[]>(() => [
-    {label: 'Rendre actif', value: 'activate', icon: 'pi pi-check-circle'},
-    {label: 'Rendre inactif', value: 'deactivate', icon: 'pi pi-times-circle'},
-    {label: 'Supprimer', value: 'delete', icon: 'pi pi-trash', danger: true},
-  ]);
+  readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
+    const labels = this.editorUi().bulkList;
+    return [
+      {label: labels.activate, value: 'activate', icon: 'pi pi-check-circle'},
+      {label: labels.deactivate, value: 'deactivate', icon: 'pi pi-times-circle'},
+      {label: labels.delete, value: 'delete', icon: 'pi pi-trash', danger: true},
+    ];
+  });
 
   rows = 10;
 
@@ -193,13 +196,13 @@ export class SubjectList implements OnInit {
     if (!ids.length) {
       return;
     }
-    const plural = ids.length > 1 ? 's' : '';
+    const labels = this.editorUi().bulkList;
     this.confirmationService.confirm({
-      header: 'Supprimer',
-      message: `Supprimer ${ids.length} sujet${plural} ? Cette action est irréversible.`,
+      header: labels.confirmDeleteHeader,
+      message: labels.confirmDeleteSubjects(ids.length),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Supprimer',
-      rejectLabel: 'Annuler',
+      acceptLabel: labels.confirmDeleteAccept,
+      rejectLabel: labels.confirmDeleteCancel,
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.runBulkDelete(ids),
     });

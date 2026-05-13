@@ -59,7 +59,7 @@ export class QuizQuickPage {
         error: (err: unknown) => {
           this.saving.set(false);
           logApiError('quiz.quick.generate', err);
-          this.success.set(userFacingApiMessage(err, 'Impossible de generer ce quiz.'));
+          this.success.set(userFacingApiMessage(err, this.ui().pages.quizQuick.errors.generateFailed));
         },
       });
   }

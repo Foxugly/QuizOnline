@@ -112,7 +112,7 @@ export class QuestionEdit implements OnInit {
 
         if (!nextId || Number.isNaN(nextId)) {
           this.loading.set(false);
-          this.error.set('Identifiant de question invalide.');
+          this.error.set(this.ui().pages.questionEdit.errors.invalidId);
           return;
         }
 
@@ -261,18 +261,19 @@ export class QuestionEdit implements OnInit {
       }
     } catch (error) {
       console.error(error);
-      this.submitError.set('Erreur lors de la traduction.');
+      this.submitError.set(this.ui().pages.questionEdit.errors.translationFailed);
     } finally {
       this.translating.set(false);
     }
   }
 
   async deleteQuestion(): Promise<void> {
+    const errors = this.ui().pages.questionEdit.errors;
     this.error.set(null);
     this.submitError.set(null);
     this.success.set(null);
 
-    const confirmed = window.confirm('Supprimer cette question ?');
+    const confirmed = window.confirm(errors.confirmDelete);
     if (!confirmed) {
       return;
     }
@@ -286,7 +287,7 @@ export class QuestionEdit implements OnInit {
       if (err?.error && typeof err.error === 'object') {
         this.submitError.set(JSON.stringify(err.error));
       } else {
-        this.submitError.set('Erreur lors de la suppression de la question.');
+        this.submitError.set(errors.deleteFailed);
       }
     } finally {
       this.deleting.set(false);
@@ -294,20 +295,19 @@ export class QuestionEdit implements OnInit {
   }
 
   async save(): Promise<void> {
+    const errors = this.ui().pages.questionEdit.errors;
     this.error.set(null);
     this.submitError.set(null);
     this.success.set(null);
 
     if (!isQuestionEditorFormValid(this.form, this.domainLangs())) {
-      this.submitError.set(
-        'Merci de completer le titre et toutes les reponses dans chaque langue du domaine.',
-      );
+      this.submitError.set(errors.formInvalid);
       this.form.markAllAsTouched();
       return;
     }
 
     if (getQuestionCorrectCount(this.form) === 0) {
-      this.submitError.set('Il faut cocher au moins une reponse correcte.');
+      this.submitError.set(errors.needOneCorrect);
       return;
     }
 
@@ -322,13 +322,13 @@ export class QuestionEdit implements OnInit {
 
       await firstValueFrom(this.questionService.updatePartial(this.id, payload));
 
-      this.success.set('Question mise a jour avec succes.');
+      this.success.set(errors.saveSuccess);
       this.goView(this.id);
     } catch (err: any) {
       if (err?.error && typeof err.error === 'object') {
         this.submitError.set(JSON.stringify(err.error));
       } else {
-        this.submitError.set("Erreur lors de l'enregistrement de la question.");
+        this.submitError.set(errors.saveFailed);
       }
     } finally {
       this.saving.set(false);
@@ -374,26 +374,25 @@ export class QuestionEdit implements OnInit {
           }
         },
         error: () => {
-          this.error.set('Impossible de charger la question.');
+          this.error.set(this.ui().pages.questionEdit.errors.loadFailed);
         },
       });
   }
 
   private async createDuplicateQuestion(): Promise<void> {
+    const errors = this.ui().pages.questionEdit.errors;
     this.error.set(null);
     this.submitError.set(null);
     this.success.set(null);
 
     if (!isQuestionEditorFormValid(this.form, this.domainLangs())) {
-      this.submitError.set(
-        'Merci de completer le titre et toutes les reponses dans chaque langue du domaine.',
-      );
+      this.submitError.set(errors.formInvalid);
       this.form.markAllAsTouched();
       return;
     }
 
     if (getQuestionCorrectCount(this.form) === 0) {
-      this.submitError.set('Il faut cocher au moins une reponse correcte.');
+      this.submitError.set(errors.needOneCorrect);
       return;
     }
 
@@ -428,7 +427,7 @@ export class QuestionEdit implements OnInit {
       if (err?.error && typeof err.error === 'object') {
         this.submitError.set(JSON.stringify(err.error));
       } else {
-        this.submitError.set('Erreur lors de la duplication de la question.');
+        this.submitError.set(this.ui().pages.questionEdit.errors.duplicateFailed);
       }
     } finally {
       this.saving.set(false);

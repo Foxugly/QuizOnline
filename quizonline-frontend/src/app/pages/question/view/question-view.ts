@@ -38,7 +38,7 @@ export class QuestionView implements OnInit {
       this.route.snapshot.paramMap.get('id')
     );
     if (!this.id || Number.isNaN(this.id)) {
-      this.error.set('Identifiant de question invalide.');
+      this.error.set(this.editorUi().pages.questionView.errors.invalidId);
       return;
     }
     this.loadQuestion();
@@ -78,7 +78,7 @@ export class QuestionView implements OnInit {
       },
       error: (err) => {
         console.error('Erreur chargement question', err);
-        this.error.set("Impossible de charger cette question.");
+        this.error.set(this.editorUi().pages.questionView.errors.loadFailed);
         this.loading.set(false);
       },
     });

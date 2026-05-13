@@ -27,9 +27,10 @@ export class UserDeletePage implements OnInit {
   readonly submitError = signal<string | null>(null);
 
   ngOnInit(): void {
+    const errors = this.ui().pages.userDelete.errors;
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(id)) {
-      this.submitError.set('Invalid user id.');
+      this.submitError.set(errors.invalidId);
       return;
     }
     this.userId.set(id);
@@ -38,18 +39,19 @@ export class UserDeletePage implements OnInit {
       next: (user) => this.username.set(user.username),
       error: (err) => {
         logApiError('user.delete.load', err);
-        this.submitError.set(userFacingApiMessage(err, 'Unable to load the user.'));
+        this.submitError.set(userFacingApiMessage(err, errors.loadFailed));
       },
     });
   }
 
   confirmDelete(): void {
+    const errors = this.ui().pages.userDelete.errors;
     this.submitError.set(null);
     this.userService.deleteAdmin(this.userId()).subscribe({
       next: () => void this.router.navigate(ROUTES.user.list()),
       error: (err) => {
         logApiError('user.delete.submit', err);
-        this.submitError.set(userFacingApiMessage(err, 'Unable to delete the user.'));
+        this.submitError.set(userFacingApiMessage(err, errors.deleteFailed));
       },
     });
   }

@@ -38,12 +38,13 @@ export class QuestionDelete implements OnInit {
   readonly ui = inject(UiTextService).editor;
 
   ngOnInit(): void {
+    const errors = this.ui().pages.questionDelete.errors;
     this.id = Number(
       this.route.snapshot.paramMap.get('questionId') ??
       this.route.snapshot.paramMap.get('id'),
     );
     if (!this.id || Number.isNaN(this.id)) {
-      this.submitError.set('Identifiant de question invalide.');
+      this.submitError.set(errors.invalidId);
       return;
     }
     this.loading.set(true);
@@ -58,7 +59,7 @@ export class QuestionDelete implements OnInit {
         next: (q) => this.question.set(q),
         error: (err) => {
           console.error(err);
-          this.submitError.set('Impossible de charger la question.');
+          this.submitError.set(errors.loadFailed);
         },
       });
   }
@@ -77,6 +78,7 @@ export class QuestionDelete implements OnInit {
   }
 
   confirm(): void {
+    const errors = this.ui().pages.questionDelete.errors;
     this.submitError.set(null);
     this.loading.set(true);
 
@@ -90,7 +92,7 @@ export class QuestionDelete implements OnInit {
         next: () => this.questionService.goList(),
         error: (err) => {
           console.error(err);
-          this.submitError.set('Erreur lors de la suppression.');
+          this.submitError.set(errors.deleteFailed);
         },
       });
   }

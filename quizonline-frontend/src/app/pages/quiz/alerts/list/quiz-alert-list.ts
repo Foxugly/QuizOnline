@@ -104,7 +104,7 @@ export class QuizAlertList implements OnInit {
         },
         error: (err: unknown) => {
           logApiError('quiz.alerts.list', err);
-          this.error.set(userFacingApiMessage(err, 'Impossible de charger les messages.'));
+          this.error.set(userFacingApiMessage(err, this.editorUi().pages.quizAlertList.errors.loadFailed));
           this.threads.set([]);
         },
       });

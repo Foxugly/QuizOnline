@@ -108,6 +108,17 @@ export type EditorUiText = {
     tagUnknown: string;
     invalidYoutubeUrl: string;
   };
+  bulkList: {
+    activate: string;
+    deactivate: string;
+    delete: string;
+    confirmDeleteHeader: string;
+    confirmDeleteAccept: string;
+    confirmDeleteCancel: string;
+    confirmDeleteUsers: (n: number) => string;
+    confirmDeleteSubjects: (n: number) => string;
+    confirmDeleteTemplates: (n: number) => string;
+  };
   quizSessionTable: {
     colTitle: string;
     colStatus: string;
@@ -129,14 +140,109 @@ export type EditorUiText = {
   pages: {
     domainCreate: {title: string; subtitle: string;};
     domainEdit: {title: string; subtitle: string;};
-    subjectCreate: {title: string; subtitle: string;};
-    subjectEdit: {title: string; subtitle: string; questionsTitle: string; addQuestion: string; noQuestions: string; titleCol: string; actionsCol: string;};
+    subjectCreate: {
+      title: string;
+      subtitle: string;
+      emptyLanguagesMessage: string;
+      errors: {
+        loadDomainsFailed: string;
+        loadDomainFailed: string;
+        nameRequired: string;
+        createFailed: string;
+        translationFailed: string;
+      };
+    };
+    subjectEdit: {
+      title: string;
+      subtitle: string;
+      questionsTitle: string;
+      addQuestion: string;
+      noQuestions: string;
+      titleCol: string;
+      actionsCol: string;
+      errors: {
+        saveFailed: string;
+        translationFailed: string;
+        loadFailed: string;
+      };
+    };
     questionList?: {title: string; subtitle: string; searchPlaceholder: string; newQuestion: string; titleCol: string; activeCol: string; modesCol: string; domainsCol: string; subjectsCol: string; actionsCol: string; practice: string; exam: string;};
-    questionCreate: {title: string; subtitle: string;};
-    questionEdit: {title: string; subtitle: string;};
-    questionView: {title: string;};
-    quizQuick: {title: string; subtitle: string; submit: string;};
-    quizCreate: {back: string; cancel: string; loading: string; createQuestionForTemplate: string; createQuestionForQuiz: string; createQuestion: string;};
+    questionCreate: {
+      title: string;
+      subtitle: string;
+      emptyLanguagesMessage: string;
+      practiceTooltipFallback: string;
+      errors: {
+        loadInitialFailed: string;
+        loadDomainFailed: string;
+        translationFailed: string;
+      };
+    };
+    questionEdit: {
+      title: string;
+      subtitle: string;
+      errors: {
+        invalidId: string;
+        translationFailed: string;
+        deleteFailed: string;
+        needOneCorrect: string;
+        formInvalid: string;
+        saveSuccess: string;
+        saveFailed: string;
+        loadFailed: string;
+        duplicateFailed: string;
+        confirmDelete: string;
+      };
+    };
+    questionView: {
+      title: string;
+      errors: {
+        invalidId: string;
+        loadFailed: string;
+      };
+    };
+    quizQuick: {
+      title: string;
+      subtitle: string;
+      submit: string;
+      errors: {
+        generateFailed: string;
+        titleRequired: string;
+        domainRequired: string;
+        subjectsRequired: string;
+        questionCountInvalid: string;
+        loadDomainsFailed: string;
+        loadSubjectsFailed: string;
+      };
+    };
+    quizCreate: {
+      back: string;
+      cancel: string;
+      loading: string;
+      createQuestionForTemplate: string;
+      createQuestionForQuiz: string;
+      createQuestion: string;
+      emptyLanguagesMessage: string;
+      practiceTooltipFallback: string;
+      errors: {
+        invalidTemplateId: string;
+        loadTemplateFailed: string;
+        domainRequiredFirst: string;
+        translateQuestionFailed: string;
+        translateTemplateFailed: string;
+        needOneCorrect: string;
+        createQuestionFailed: string;
+        notAuthorized: string;
+        completeQuizRequired: string;
+        domainChangeReset: string;
+        loadQuestionsFailed: string;
+      };
+    };
+    quizAlertList: {
+      errors: {
+        loadFailed: string;
+      };
+    };
     userEdit: {
       title: string;
       subtitle: string;
@@ -152,6 +258,34 @@ export type EditorUiText = {
       errors: {
         formInvalid: string;
         createFailed: string;
+      };
+    };
+    userDelete: {
+      errors: {
+        invalidId: string;
+        loadFailed: string;
+        deleteFailed: string;
+      };
+    };
+    quizTemplateDelete: {
+      errors: {
+        invalidId: string;
+        loadFailed: string;
+        deleteFailed: string;
+      };
+    };
+    quizSessionDelete: {
+      errors: {
+        invalidId: string;
+        loadFailed: string;
+        deleteFailed: string;
+      };
+    };
+    questionDelete: {
+      errors: {
+        invalidId: string;
+        loadFailed: string;
+        deleteFailed: string;
       };
     };
     userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};

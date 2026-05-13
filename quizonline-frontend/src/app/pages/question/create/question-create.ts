@@ -55,8 +55,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 })
 export class QuestionCreate implements OnInit {
   readonly ui = inject(UiTextService).editor;
-  readonly emptyLanguagesMessage = "Ce domaine n'a pas de langues actives configurees.";
-  readonly practiceTooltip = 'la question sera publique et selectionnable pour les quizzes generes.';
+  readonly emptyLanguagesMessage = computed(() => this.ui().pages.questionCreate.emptyLanguagesMessage);
 
   loading = signal(true);
   domainLoading = signal(false);
@@ -183,7 +182,7 @@ export class QuestionCreate implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.error.set('Impossible de charger les donnees initiales.');
+          this.error.set(this.ui().pages.questionCreate.errors.loadInitialFailed);
         },
       });
 
@@ -322,7 +321,7 @@ export class QuestionCreate implements OnInit {
       }
     } catch (error) {
       console.error(error);
-      this.submitError.set('Erreur lors de la traduction.');
+      this.submitError.set(this.ui().pages.questionCreate.errors.translationFailed);
     } finally {
       this.translating.set(false);
     }
@@ -426,7 +425,7 @@ export class QuestionCreate implements OnInit {
         },
         error: (error) => {
           console.error(error);
-          this.error.set('Impossible de charger le domaine selectionne.');
+          this.error.set(this.ui().pages.questionCreate.errors.loadDomainFailed);
         },
       });
   }

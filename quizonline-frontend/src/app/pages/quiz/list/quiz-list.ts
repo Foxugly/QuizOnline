@@ -90,6 +90,7 @@ export class QuizListPage implements OnInit {
 
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = inject(UiTextService).localized(getQuizListUiText);
+  readonly editorUi = inject(UiTextService).editor;
   readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
     const labels = this.uiText().bulk;
     return [
@@ -272,13 +273,13 @@ export class QuizListPage implements OnInit {
     if (!ids.length) {
       return;
     }
-    const plural = ids.length > 1 ? 's' : '';
+    const labels = this.editorUi().bulkList;
     this.confirmationService.confirm({
-      header: 'Supprimer',
-      message: `Supprimer ${ids.length} template${plural} ? Cette action est irréversible.`,
+      header: labels.confirmDeleteHeader,
+      message: labels.confirmDeleteTemplates(ids.length),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Supprimer',
-      rejectLabel: 'Annuler',
+      acceptLabel: labels.confirmDeleteAccept,
+      rejectLabel: labels.confirmDeleteCancel,
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.runBulkDelete(ids),
     });
