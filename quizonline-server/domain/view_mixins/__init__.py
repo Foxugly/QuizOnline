@@ -12,11 +12,13 @@ Re-exporting from this package keeps ``views.py`` imports tidy.
 from .analytics import DomainAnalyticsActionsMixin
 from .audit import DomainAuditActionsMixin
 from .invitations import DomainInvitationsActionsMixin
+from .members import DomainMembersActionsMixin
 from .transfer import DomainTransferActionsMixin
 
 __all__ = [
     "DomainAnalyticsActionsMixin",
     "DomainAuditActionsMixin",
     "DomainInvitationsActionsMixin",
+    "DomainMembersActionsMixin",
     "DomainTransferActionsMixin",
 ]
