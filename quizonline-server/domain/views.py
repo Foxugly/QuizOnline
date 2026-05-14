@@ -16,7 +16,6 @@ from rest_framework.views import APIView
 from config.tools import MyModelViewSet
 
 from core.mailers.domain_invite import send_domain_invite_email
-from core.mailers.domain_transfer import send_domain_transfer_email
 from core.mailers.domain_join import (
     send_join_request_created_email,
     send_join_request_approved_email,
@@ -55,7 +54,6 @@ from .serializers import (
     DomainInviteRequestSerializer,
     DomainInviteResultSerializer,
     DomainInviteStateSerializer,
-    DomainTransferRequestSerializer,
     DomainTransferStateSerializer,
     ModerationSummaryItemSerializer,
 )
@@ -67,7 +65,11 @@ from .services import (
     upsert_invite,
     users_who_can_approve,
 )
-from .view_mixins import DomainAnalyticsActionsMixin, DomainAuditActionsMixin
+from .view_mixins import (
+    DomainAnalyticsActionsMixin,
+    DomainAuditActionsMixin,
+    DomainTransferActionsMixin,
+)
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
@@ -309,6 +311,7 @@ class _DomainInviteThrottle(ScopedRateThrottle):
 class DomainViewSet(
     DomainAnalyticsActionsMixin,
     DomainAuditActionsMixin,
+    DomainTransferActionsMixin,
     MyModelViewSet,
 ):
     ordering = ["id"]
@@ -902,65 +905,6 @@ class DomainViewSet(
             metadata={"invite_id": invite.id, "email": invite.email, "remote_addr": _client_ip(request)},
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @extend_schema(
-        tags=["Domain"],
-        summary="Initier un transfert de propriété",
-        description=(
-            "Le propriétaire envoie une proposition de transfert au futur "
-            "propriétaire désigné par ``user_id``. Un e-mail signé est "
-            "envoyé : tant que le destinataire n'a pas cliqué le lien et "
-            "confirmé, la propriété ne change pas.\n\n"
-            "Refusé si l'appelant n'est pas le propriétaire actuel, ou si "
-            "la cible est elle-même déjà le propriétaire."
-        ),
-        request=DomainTransferRequestSerializer,
-        responses={
-            status.HTTP_202_ACCEPTED: OpenApiResponse(description="Transfer email queued."),
-            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
-            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
-        },
-    )
-    @action(detail=True, methods=["post"], url_path="transfer")
-    def transfer(self, request, *args, **kwargs):
-        domain = self.get_object()
-        # Owner-only: even managers cannot start a transfer. This is a
-        # higher-trust action than role changes (which we also gated to
-        # owner-only in Phase A).
-        is_superuser = bool(getattr(request.user, "is_superuser", False))
-        if not is_superuser and domain.owner_id != request.user.id:
-            return Response(
-                {"detail": "owner_only"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        serializer = DomainTransferRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        future_owner_id = serializer.validated_data["user_id"]
-
-        User = get_user_model()
-        future_owner = User.objects.filter(pk=future_owner_id).first()
-        if not future_owner or not future_owner.email:
-            return Response(
-                {"detail": "future_owner_unreachable"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        if future_owner.id == domain.owner_id:
-            return Response(
-                {"detail": "already_owner"},
-                status=status.HTTP_409_CONFLICT,
-            )
-
-        send_domain_transfer_email(
-            domain=domain, initiator=request.user, future_owner=future_owner,
-        )
-        record_audit(
-            domain=domain,
-            action="transfer.initiate",
-            actor=request.user,
-            target_user=future_owner,
-            metadata={"remote_addr": _client_ip(request)},
-        )
-        return Response(status=status.HTTP_202_ACCEPTED)
 
     @extend_schema(
         tags=["Domain"],
