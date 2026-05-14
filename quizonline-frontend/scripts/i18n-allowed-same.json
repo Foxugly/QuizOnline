@@ -146,5 +146,6 @@
   "pages/subject/list:columns.actions",
 
   "shell/ui-text:footer.privacyLink",
-  "pages/privacy:contactHeading"
+  "pages/privacy:contactHeading",
+  "editor-ui-text:common.errorTitle"
 ]

@@ -25,6 +25,8 @@ export type EditorUiText = {
     finish: string;
     quick: string;
     downloadPdf: string;
+    /** Generic "Error" used as a toast summary for unhappy paths. */
+    errorTitle: string;
   };
   quiz: {
     newTemplate: string;
