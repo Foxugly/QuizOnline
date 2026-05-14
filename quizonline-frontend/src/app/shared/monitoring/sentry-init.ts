@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/angular';
-
 import {environment} from '../../../environments/environment';
 
 type RuntimeSentryWindow = typeof globalThis & {
@@ -18,25 +16,30 @@ type RuntimeSentryWindow = typeof globalThis & {
  *   2. ``environment.sentryDsn`` — build-time. Empty by default in both
  *      environment.ts and environment.prod.ts so dev builds never report.
  *
- * If neither is set, this function is a no-op — the SDK is not initialised,
- * so an unconfigured Sentry org is harmless.
+ * If neither is set, the SDK is never even loaded — keeping the initial
+ * bundle small for users who run without monitoring. The dynamic import
+ * also means an unconfigured/forgotten Sentry org is harmless.
  */
-export function initSentry(): void {
+export async function initSentry(): Promise<void> {
   const w = globalThis as RuntimeSentryWindow;
   const dsn = (w.__QUIZONLINE_SENTRY_DSN ?? environment.sentryDsn ?? '').trim();
   if (!dsn) {
     return;
   }
 
+  // Dynamic import keeps ~50 kB of SDK code out of the initial bundle.
+  // The download happens in parallel with the Angular bootstrap, so the
+  // delay before Sentry is ready is one extra HTTP round-trip — fine for
+  // a frontend that only needs to capture user-facing errors (not the
+  // bundle's own initialisation crashes, which are routed to the console
+  // anyway).
+  const Sentry = await import('@sentry/angular');
+
   Sentry.init({
     dsn,
     environment: w.__QUIZONLINE_SENTRY_ENV ?? (environment.production ? 'production' : 'development'),
     release: w.__QUIZONLINE_SENTRY_RELEASE ?? environment.sentryRelease ?? '',
-    // Conservative perf sampling — opt in via runtime injection if needed.
     tracesSampleRate: 0.0,
-    // Capture browser-side errors only. Replay / session profiling are off by
-    // default to keep the bundle small and the Sentry tier cheap until the
-    // operator explicitly opts in.
     sendDefaultPii: false,
   });
 }

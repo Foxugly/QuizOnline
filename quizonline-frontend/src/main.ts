@@ -6,9 +6,11 @@ import {appConfig} from './app/app.config';
 import {initSentry} from './app/shared/monitoring/sentry-init';
 import {environment} from './environments/environment';
 
-// Initialise Sentry before bootstrapping so a crash in constructor /
-// first render still reaches the reporter. No-op when no DSN is set.
-initSentry();
+// Kick off Sentry init in parallel with bootstrap — the SDK lives in a
+// lazy chunk so the initial bundle stays small. Fire-and-forget: any
+// network/DSN issue is logged to the console without blocking the app.
+// No-op when no DSN is set.
+void initSentry();
 
 (window as any).__APP__ = {
   name: environment.appName,
