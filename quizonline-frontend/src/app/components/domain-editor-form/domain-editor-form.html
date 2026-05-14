@@ -50,6 +50,19 @@
       </div>
     }
 
+    <div class="meta-item meta-item--full">
+      <label class="meta-label" for="join_policy">{{ ui().domainForm.joinPolicy }}</label>
+      <div class="meta-value widget-center">
+        <p-select
+          [options]="joinPolicyOptions()"
+          formControlName="join_policy"
+          inputId="join_policy"
+          optionLabel="label"
+          optionValue="value">
+        </p-select>
+      </div>
+    </div>
+
     <div class="meta-item meta-item--lang">
       <label class="meta-label">{{ ui().domainForm.allowedLanguages }}</label>
       <div class="meta-value meta-value--center">
@@ -67,20 +80,6 @@
           {{ ui().domainForm.selectOneLanguage }}
         </div>
       }
-    </div>
-
-    <div class="meta-item meta-item--full">
-      <label class="meta-label" for="join_policy">{{ ui().domainForm.joinPolicy }}</label>
-      <div class="meta-value widget-center">
-        <p-select
-          [options]="joinPolicyOptions()"
-          formControlName="join_policy"
-          inputId="join_policy"
-          optionLabel="label"
-          optionValue="value">
-        </p-select>
-      </div>
-      <div class="meta-hint">{{ ui().domainForm.joinPolicyHint }}</div>
     </div>
   </div>
 
