@@ -21,6 +21,7 @@ import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {getSubjectFormUiText} from './subject-form.i18n';
 
 type QuizSubjectFormModel = {
   title: string;
@@ -51,6 +52,7 @@ type QuizSubjectFormModel = {
 })
 export class QuizSubjectForm implements OnInit {
   readonly ui = inject(UiTextService).editor;
+  readonly pageText = inject(UiTextService).localized(getSubjectFormUiText);
   loading = signal(false);
   error = signal<string | null>(null);
   domains = signal<DomainReadDto[]>([]);

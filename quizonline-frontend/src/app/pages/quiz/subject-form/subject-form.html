@@ -10,12 +10,12 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="quick-quiz-form">
     <div class="quick-quiz-row1">
       <div class="field">
-        <label for="title">Titre</label>
+        <label for="title">{{ pageText().title }}</label>
         <input formControlName="title" id="title" pInputText type="text" />
       </div>
 
       <div class="field">
-        <label for="domain">Domaine</label>
+        <label for="domain">{{ pageText().domain }}</label>
         <p-select
           formControlName="domain_id"
           [options]="domainOptions"
@@ -24,20 +24,20 @@
           appendTo="body"
           id="domain"
           [disabled]="true"
-          placeholder="Choisir un domaine">
+          [placeholder]="pageText().domainPlaceholder">
         </p-select>
       </div>
 
       <div class="field field--switch">
-        <label for="with-duration">Timer</label>
+        <label for="with-duration">{{ pageText().timer }}</label>
         <div class="timer-switch">
           <p-toggleswitch formControlName="with_duration" inputId="with-duration"></p-toggleswitch>
-          <span>{{ form.controls.with_duration.getRawValue() ? 'Active' : 'Desactive' }}</span>
+          <span>{{ form.controls.with_duration.getRawValue() ? pageText().timerActive : pageText().timerInactive }}</span>
         </div>
       </div>
 
       <div class="field field--stat">
-        <label for="timer">Duree</label>
+        <label for="timer">{{ pageText().duration }}</label>
         <p-inputNumber
           formControlName="duration"
           [max]="120"
@@ -45,7 +45,7 @@
           [showButtons]="true"
           [useGrouping]="false"
           inputId="timer"
-          suffix=" min"
+          [suffix]="pageText().durationSuffix"
         >
         </p-inputNumber>
       </div>
@@ -53,7 +53,7 @@
 
     <div class="quick-quiz-row2">
       <div class="field">
-        <label for="subjects">Sujets</label>
+        <label for="subjects">{{ pageText().subjects }}</label>
         <p-multiSelect
           formControlName="subject_ids"
           [options]="subjectOptions"
@@ -64,16 +64,16 @@
           optionValue="code"
           (onPanelHide)="onSubjectsPanelHide()"
           [panelStyle]="{ 'max-height': '250px', 'overflow-y': 'auto' }"
-          placeholder="Choisir un ou plusieurs sujets">
+          [placeholder]="pageText().subjectsPlaceholder">
         </p-multiSelect>
       </div>
 
       <div class="field field--stat">
         <label for="nbQuestions">
           @if (availableQuestionCount() > 0) {
-            Nombre de questions (max : {{ availableQuestionCount() }})
+            {{ pageText().questionCountWithMax(availableQuestionCount()) }}
           } @else {
-            Nombre de questions
+            {{ pageText().questionCount }}
           }
         </label>
         <p-inputNumber
