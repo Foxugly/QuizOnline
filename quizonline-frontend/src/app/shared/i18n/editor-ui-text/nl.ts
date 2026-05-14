@@ -57,7 +57,7 @@ export const NL: EditorUiText = {
   },
   userAdminForm: {badgeSuperuser: 'Superuser', usernameLabel: 'Gebruikersnaam', isActiveLabel: 'Actief', languageLabel: 'Taal', nbDomainMaxLabel: 'Max domeinen', emailLabel: 'E-mail', emailConfirmedLabel: 'E-mail bevestigd', firstNameLabel: 'Voornaam', lastNameLabel: 'Achternaam', passwordLabel: 'Wachtwoord', passwordChangeRequiredLabel: 'Wachtwoordwijziging vereist'},
   quizPlay: {quizTitleLabel: 'Quiz-titel', userLabel: 'Gebruiker', modeLabel: 'Modus', durationLabel: 'Duur', currentQuestion: (index) => `Huidige vraag: ${index}`},
-  mediaSelector: {tagImageLocal: 'Lokale afbeelding', tagVideoLocal: 'Lokale video', tagImageExisting: 'Bestaande afbeelding', tagVideoExisting: 'Bestaande video', tagYoutube: 'YouTube-video', tagUnknown: 'Onbekend', invalidYoutubeUrl: 'De link moet een geldige YouTube-URL zijn.'},
+  mediaSelector: {tagImageLocal: 'Lokale afbeelding', tagVideoLocal: 'Lokale video', tagImageExisting: 'Bestaande afbeelding', tagVideoExisting: 'Bestaande video', tagYoutube: 'YouTube-video', tagUnknown: 'Onbekend', invalidYoutubeUrl: 'De link moet een geldige YouTube-URL zijn.', imagePreviewAlt: 'Voorbeeldafbeelding'},
   bulkList: {activate: 'Activeren', deactivate: 'Deactiveren', delete: 'Verwijderen', confirmDeleteHeader: 'Verwijderen', confirmDeleteAccept: 'Verwijderen', confirmDeleteCancel: 'Annuleren', confirmDeleteUsers: (n) => `${n} gebruiker${n > 1 ? 's' : ''} verwijderen? Deze actie is onomkeerbaar.`, confirmDeleteSubjects: (n) => `${n} onderwerp${n > 1 ? 'en' : ''} verwijderen? Deze actie is onomkeerbaar.`, confirmDeleteTemplates: (n) => `${n} template${n > 1 ? 's' : ''} verwijderen? Deze actie is onomkeerbaar.`},
   quizSessionTable: {colTitle: 'Titel', colStatus: 'Status', colMode: 'Modus', colQuestions: 'Vragen', colCreatedAt: 'Aangemaakt op', colStartedAt: 'Gestart op', colEndedAt: 'Voltooid op', colScore: 'Score', colActions: 'Acties', statusAnswered: 'Beantwoord', statusInProgress: 'Bezig', statusNotStarted: 'Niet gestart', actionView: 'Bekijken', actionContinue: 'Doorgaan', actionStart: 'Starten', empty: 'Geen quiz.'},
   quiz: {newTemplate: 'Nieuw template', markAnswered: 'Markeer als beantwoord', toggleFlag: 'Markering omschakelen', alert: 'Melden', backToQuiz: 'Terug naar quiz', finishReview: 'Nakijken voltooien', startQuiz: 'Quiz starten', continueQuiz: 'Quiz voortzetten', viewCorrection: 'Correctie bekijken', quizFinished: 'Quiz voltooid', backToList: 'Terug naar lijst', questionLabel: 'Vraag', scoreAvailableOn: 'Score beschikbaar op', detailAvailableOn: 'Details beschikbaar op', statusReady: 'Klaar', statusInProgress: 'Bezig', statusFinished: 'Voltooid', modePractice: 'Oefening', modeExam: 'Examen', correctionLabel: 'Correctie', scoreLabel: 'Score', timerLabel: 'Duur', questionsLabel: 'Vragen', noTimeLimit: 'Geen tijdslimiet', createdOn: 'Aangemaakt op', startedOn: 'Gestart op', closedOn: 'Afgesloten op', correctAnswersOf: '{correct} juiste antwoorden van {total}', invalidQuizId: 'Ongeldige quiz-identifier.', loadFailed: 'Kan deze quiz niet laden.', startFailed: 'Kan deze quiz niet starten.', finishQuizButton: 'Quiz beëindigen', finishQuizConfirmHeader: 'Quiz beëindigen', finishQuizConfirmMessage: 'Deze actie is definitief. Doorgaan?', timeUp: 'De tijd is om.', timeUpAutoClose: 'De tijd is om. Automatisch afsluiten.', timeRemaining: 'Resterende tijd', autoClosingInProgress: 'Automatisch afsluiten…', reviewModeLabel: 'Modus', reviewModeValue: 'Nakijken', quizUnavailable: 'Deze quiz is niet meer beschikbaar.', saveAnswerFailed: 'Kan dit antwoord niet opslaan.', noQuestions: 'Deze quiz bevat geen vragen.', closeFailed: 'Kan deze quiz niet afsluiten.', alertSendFailed: 'Kan deze melding niet verzenden.', reportDialogHeader: 'Vraag melden', reportDialogBody: 'Je bericht wordt naar de quizmaker gestuurd met de huidige vraag en actieve taal.', reportDialogPlaceholder: 'Beschrijf het ondervonden probleem…', noCopyToastSummary: 'Actie geblokkeerd', noCopyToastDetail: 'Kopiëren is uitgeschakeld tijdens de quiz.'},
@@ -87,6 +87,7 @@ export const NL: EditorUiText = {
       noQuestions: 'Geen vraag.',
       titleCol: 'Titel',
       actionsCol: 'Acties',
+      emptyLanguagesMessage: 'Dit domein heeft geen taal geconfigureerd.',
       errors: {
         saveFailed: 'Fout bij het opslaan.',
         translationFailed: 'Fout bij het vertalen.',
@@ -113,6 +114,7 @@ export const NL: EditorUiText = {
       ...EN.pages.questionEdit,
       title: 'Vraag bewerken',
       subtitle: 'Context, vertalingen en antwoorden',
+      emptyLanguagesMessage: 'Geen actieve taal voor dit domein.',
       errors: {
         invalidId: 'Ongeldige vraag-id.',
         translationFailed: 'Fout bij het vertalen.',
@@ -129,6 +131,8 @@ export const NL: EditorUiText = {
     questionView: {
       ...EN.pages.questionView,
       title: 'Vraagdetails',
+      revealOn: 'Correcte antwoorden verbergen',
+      revealOff: 'Correcte antwoorden tonen',
       errors: {
         invalidId: 'Ongeldige vraag-id.',
         loadFailed: 'Kan deze vraag niet laden.',

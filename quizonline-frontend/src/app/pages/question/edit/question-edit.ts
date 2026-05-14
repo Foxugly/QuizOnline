@@ -50,7 +50,6 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
 export class QuestionEdit implements OnInit {
   readonly ui = inject(UiTextService).editor;
   id!: number;
-  readonly emptyLanguagesMessage = 'Aucune langue active sur ce domaine.';
 
   loading = signal(true);
   saving = signal(false);

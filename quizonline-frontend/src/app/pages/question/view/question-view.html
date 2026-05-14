@@ -40,8 +40,8 @@
       <p-toggleButton
         [(ngModel)]="showCorrect"
         [disabled]="!canRevealCorrect()"
-        onLabel="Masquer les bonnes réponses"
-        offLabel="Afficher les bonnes réponses"
+        [onLabel]="editorUi().pages.questionView.revealOn"
+        [offLabel]="editorUi().pages.questionView.revealOff"
         onIcon="pi pi-eye-slash"
         offIcon="pi pi-eye"
       ></p-toggleButton>

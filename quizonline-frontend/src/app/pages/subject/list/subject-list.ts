@@ -18,6 +18,7 @@ import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
+import {getSubjectListUiText} from './subject-list.i18n';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
@@ -52,6 +53,7 @@ export class SubjectList implements OnInit {
   private confirmationService = inject(ConfirmationService);
 
   readonly editorUi = inject(UiTextService).editor;
+  readonly pageText = inject(UiTextService).localized(getSubjectListUiText);
   subjects = signal<SubjectReadDto[]>([]);
   questionCounts = signal<Record<number, number>>({});
   q = signal('');

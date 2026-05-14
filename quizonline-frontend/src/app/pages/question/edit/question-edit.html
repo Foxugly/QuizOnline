@@ -32,13 +32,13 @@
   }
 
   @if (loading()) {
-    <div class="status-card">Chargement...</div>
+    <div class="status-card">{{ ui().common.loading }}</div>
   } @else if (question(); as q) {
     <app-question-editor-form
       [activeLang]="activeLang()"
       [domainReadonlyLabel]="getDomainLabel(q.domain)"
       [duplicateLabel]="ui().common.duplicate"
-      [emptyLanguagesMessage]="emptyLanguagesMessage"
+      [emptyLanguagesMessage]="ui().pages.questionEdit.emptyLanguagesMessage"
       [form]="form"
       [deleting]="deleting()"
       [saving]="saving()"

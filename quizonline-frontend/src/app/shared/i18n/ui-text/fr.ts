@@ -24,6 +24,7 @@ export const FR: UiText = {
     changePassword: 'Changer le mot de passe',
     logout: 'Déconnexion',
     login: 'Connexion',
+    userFallback: 'Utilisateur',
   },
   footer: {
     baseline: 'Plateforme de quiz et de gestion de contenu par domaine.',

@@ -108,6 +108,7 @@ export const EN: EditorUiText = {
     tagYoutube: 'YouTube video',
     tagUnknown: 'Unknown',
     invalidYoutubeUrl: 'The link must be a valid YouTube URL.',
+    imagePreviewAlt: 'Image preview',
   },
   bulkList: {
     activate: 'Activate',
@@ -161,6 +162,7 @@ export const EN: EditorUiText = {
       noQuestions: 'No question.',
       titleCol: 'Title',
       actionsCol: 'Actions',
+      emptyLanguagesMessage: 'This domain has no language configured.',
       errors: {
         saveFailed: 'Error while saving.',
         translationFailed: 'Error while translating.',
@@ -185,6 +187,7 @@ export const EN: EditorUiText = {
     questionEdit: {
       title: 'Edit question',
       subtitle: 'Context, translations and answers',
+      emptyLanguagesMessage: 'No active language on this domain.',
       errors: {
         invalidId: 'Invalid question id.',
         translationFailed: 'Error while translating.',
@@ -200,6 +203,8 @@ export const EN: EditorUiText = {
     },
     questionView: {
       title: 'Question details',
+      revealOn: 'Hide correct answers',
+      revealOff: 'Show correct answers',
       errors: {
         invalidId: 'Invalid question id.',
         loadFailed: 'Unable to load this question.',

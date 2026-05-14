@@ -140,5 +140,8 @@
   "pages/quiz/create:permanent",
   "pages/quiz/create:quizDescription",
   "pages/quiz/create:sectionStatus",
-  "pages/quiz/create:weekHeader"
+  "pages/quiz/create:weekHeader",
+
+  "pages/subject/list:columns.questions",
+  "pages/subject/list:columns.actions"
 ]

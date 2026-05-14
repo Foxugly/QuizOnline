@@ -3,7 +3,7 @@
     <div class="header-spacer"></div>
 
     <div class="header-center">
-      <h1 class="title">Sujets</h1>
+      <h1 class="title">{{ pageText().title }}</h1>
     </div>
 
     <div class="header-actions"></div>
@@ -13,10 +13,10 @@
     <div class="card-head">
       <app-bulk-actions
         [options]="bulkActionOptions()"
-        placeholder="Actions groupées…"
-        applyLabel="Appliquer"
+        [placeholder]="pageText().bulk.placeholder"
+        [applyLabel]="pageText().bulk.apply"
         [count]="selectedCount()"
-        [countText]="selectedCount() > 1 ? selectedCount() + ' sélectionnés' : selectedCount() + ' sélectionné'"
+        [countText]="pageText().bulk.selectedCount(selectedCount())"
         [applying]="applyingBulk()"
         (apply)="applyBulk($event)">
       </app-bulk-actions>
@@ -24,7 +24,7 @@
       <div class="card-actions">
         <input
           pInputText
-          placeholder="Rechercher..."
+          [placeholder]="pageText().searchPlaceholder"
           [ngModel]="q()"
           (ngModelChange)="q.set($event); load()"
         />
@@ -57,11 +57,11 @@
       <ng-template #header>
         <tr>
           <th class="col-checkbox" style="width: 3rem"></th>
-          <th pSortableColumn="name" style="text-align: center;">Nom <p-sortIcon field="name"></p-sortIcon></th>
-          <th pSortableColumn="active" style="text-align: center;">Actif <p-sortIcon field="active"></p-sortIcon></th>
-          <th pSortableColumn="domainName" style="text-align: center;">Domaine <p-sortIcon field="domainName"></p-sortIcon></th>
-          <th pSortableColumn="questionsCount" style="text-align: center;">Questions <p-sortIcon field="questionsCount"></p-sortIcon></th>
-          <th class="col-actions">Actions</th>
+          <th pSortableColumn="name" style="text-align: center;">{{ pageText().columns.name }} <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="active" style="text-align: center;">{{ pageText().columns.active }} <p-sortIcon field="active"></p-sortIcon></th>
+          <th pSortableColumn="domainName" style="text-align: center;">{{ pageText().columns.domain }} <p-sortIcon field="domainName"></p-sortIcon></th>
+          <th pSortableColumn="questionsCount" style="text-align: center;">{{ pageText().columns.questions }} <p-sortIcon field="questionsCount"></p-sortIcon></th>
+          <th class="col-actions">{{ pageText().columns.actions }}</th>
         </tr>
       </ng-template>
 

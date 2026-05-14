@@ -107,6 +107,7 @@ export type EditorUiText = {
     tagYoutube: string;
     tagUnknown: string;
     invalidYoutubeUrl: string;
+    imagePreviewAlt: string;
   };
   bulkList: {
     activate: string;
@@ -160,6 +161,7 @@ export type EditorUiText = {
       noQuestions: string;
       titleCol: string;
       actionsCol: string;
+      emptyLanguagesMessage: string;
       errors: {
         saveFailed: string;
         translationFailed: string;
@@ -185,6 +187,7 @@ export type EditorUiText = {
     questionEdit: {
       title: string;
       subtitle: string;
+      emptyLanguagesMessage: string;
       errors: {
         invalidId: string;
         translationFailed: string;
@@ -200,6 +203,8 @@ export type EditorUiText = {
     };
     questionView: {
       title: string;
+      revealOn: string;
+      revealOff: string;
       errors: {
         invalidId: string;
         loadFailed: string;

@@ -40,6 +40,10 @@ export type UserMenuUiText = {
   changePassword: string;
   logout: string;
   login: string;
+  /** Generic fallback rendered when the stored username is missing
+   *  (e.g. session restored from a refresh token whose USER_KEY was
+   *  evicted from local/session storage). */
+  userFallback: string;
 };
 
 export type FooterUiText = {

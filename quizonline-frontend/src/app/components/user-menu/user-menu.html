@@ -7,7 +7,7 @@
         (click)="toggleMenu($event)"
       >
         <i class="pi pi-user"></i>
-        <span>{{ auth.getUsername() }}</span>
+        <span>{{ auth.getUsername() || ui().userMenu.userFallback }}</span>
       </button>
 
       @if (open()) {

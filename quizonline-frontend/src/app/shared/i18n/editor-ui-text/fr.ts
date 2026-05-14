@@ -108,6 +108,7 @@ export const FR: EditorUiText = {
     tagYoutube: 'Vidéo YouTube',
     tagUnknown: 'Inconnu',
     invalidYoutubeUrl: 'Le lien doit être une URL YouTube valide.',
+    imagePreviewAlt: 'Aperçu de l\'image',
   },
   bulkList: {
     activate: 'Rendre actif',
@@ -161,6 +162,7 @@ export const FR: EditorUiText = {
       noQuestions: 'Aucune question.',
       titleCol: 'Titre',
       actionsCol: 'Actions',
+      emptyLanguagesMessage: 'Ce domaine n\'a pas de langues configurées.',
       errors: {
         saveFailed: 'Erreur lors de la sauvegarde.',
         translationFailed: 'Erreur lors de la traduction.',
@@ -185,6 +187,7 @@ export const FR: EditorUiText = {
     questionEdit: {
       title: 'Modifier une question',
       subtitle: 'Contexte, traductions et réponses',
+      emptyLanguagesMessage: 'Aucune langue active sur ce domaine.',
       errors: {
         invalidId: 'Identifiant de question invalide.',
         translationFailed: 'Erreur lors de la traduction.',
@@ -200,6 +203,8 @@ export const FR: EditorUiText = {
     },
     questionView: {
       title: 'Détail de la question',
+      revealOn: 'Masquer les bonnes réponses',
+      revealOff: 'Afficher les bonnes réponses',
       errors: {
         invalidId: 'Identifiant de question invalide.',
         loadFailed: 'Impossible de charger cette question.',

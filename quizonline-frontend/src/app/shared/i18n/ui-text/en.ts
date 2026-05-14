@@ -2,7 +2,7 @@ import type {UiText} from './types';
 
 export const EN: UiText = {
   topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', users: 'Users', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences', notificationsAria: 'Notifications'},
-  userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login'},
+  userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login', userFallback: 'User'},
   footer: {baseline: 'Quiz and domain content management platform.', version: 'Version'},
   home: {
     eyebrow: 'Quizzes, templates and review',

@@ -57,7 +57,7 @@ export const ES: EditorUiText = {
   },
   userAdminForm: {badgeSuperuser: 'Superusuario', usernameLabel: 'Usuario', isActiveLabel: 'Activo', languageLabel: 'Idioma', nbDomainMaxLabel: 'Dominios máx.', emailLabel: 'Correo', emailConfirmedLabel: 'Correo confirmado', firstNameLabel: 'Nombre', lastNameLabel: 'Apellido', passwordLabel: 'Contraseña', passwordChangeRequiredLabel: 'Cambio de contraseña requerido'},
   quizPlay: {quizTitleLabel: 'Título del cuestionario', userLabel: 'Usuario', modeLabel: 'Modo', durationLabel: 'Duración', currentQuestion: (index) => `Pregunta actual: ${index}`},
-  mediaSelector: {tagImageLocal: 'Imagen local', tagVideoLocal: 'Vídeo local', tagImageExisting: 'Imagen existente', tagVideoExisting: 'Vídeo existente', tagYoutube: 'Vídeo YouTube', tagUnknown: 'Desconocido', invalidYoutubeUrl: 'El enlace debe ser una URL de YouTube válida.'},
+  mediaSelector: {tagImageLocal: 'Imagen local', tagVideoLocal: 'Vídeo local', tagImageExisting: 'Imagen existente', tagVideoExisting: 'Vídeo existente', tagYoutube: 'Vídeo YouTube', tagUnknown: 'Desconocido', invalidYoutubeUrl: 'El enlace debe ser una URL de YouTube válida.', imagePreviewAlt: 'Vista previa de la imagen'},
   bulkList: {activate: 'Activar', deactivate: 'Desactivar', delete: 'Eliminar', confirmDeleteHeader: 'Eliminar', confirmDeleteAccept: 'Eliminar', confirmDeleteCancel: 'Cancelar', confirmDeleteUsers: (n) => `¿Eliminar ${n} usuario${n > 1 ? 's' : ''}? Esta acción es irreversible.`, confirmDeleteSubjects: (n) => `¿Eliminar ${n} tema${n > 1 ? 's' : ''}? Esta acción es irreversible.`, confirmDeleteTemplates: (n) => `¿Eliminar ${n} plantilla${n > 1 ? 's' : ''}? Esta acción es irreversible.`},
   quizSessionTable: {colTitle: 'Título', colStatus: 'Estado', colMode: 'Modo', colQuestions: 'Preguntas', colCreatedAt: 'Creado el', colStartedAt: 'Iniciado el', colEndedAt: 'Terminado el', colScore: 'Puntuación', colActions: 'Acciones', statusAnswered: 'Respondido', statusInProgress: 'En curso', statusNotStarted: 'No iniciado', actionView: 'Ver', actionContinue: 'Continuar', actionStart: 'Comenzar', empty: 'Sin quiz.'},
   quiz: {newTemplate: 'Nueva plantilla', markAnswered: 'Marcar como respondida', toggleFlag: 'Alternar marcador', alert: 'Reportar', backToQuiz: 'Volver al quiz', finishReview: 'Terminar revision', startQuiz: 'Iniciar el quiz', continueQuiz: 'Continuar el quiz', viewCorrection: 'Ver la correccion', quizFinished: 'Quiz finalizado', backToList: 'Volver a la lista', questionLabel: 'Pregunta', scoreAvailableOn: 'Puntuación disponible el', detailAvailableOn: 'Detalles disponibles el', statusReady: 'Listo', statusInProgress: 'En curso', statusFinished: 'Finalizado', modePractice: 'Práctica', modeExam: 'Examen', correctionLabel: 'Corrección', scoreLabel: 'Puntuación', timerLabel: 'Duración', questionsLabel: 'Preguntas', noTimeLimit: 'Sin límite', createdOn: 'Creado el', startedOn: 'Iniciado el', closedOn: 'Cerrado el', correctAnswersOf: '{correct} respuestas correctas de {total}', invalidQuizId: 'Identificador de quiz no válido.', loadFailed: 'No se puede cargar este quiz.', startFailed: 'No se puede iniciar este quiz.', finishQuizButton: 'Terminar el quiz', finishQuizConfirmHeader: 'Terminar el quiz', finishQuizConfirmMessage: 'Esta acción es definitiva. ¿Continuar?', timeUp: 'Se acabó el tiempo.', timeUpAutoClose: 'Se acabó el tiempo. Cerrando automáticamente.', timeRemaining: 'Tiempo restante', autoClosingInProgress: 'Cerrando automáticamente…', reviewModeLabel: 'Modo', reviewModeValue: 'Corrección', quizUnavailable: 'Este quiz ya no está disponible.', saveAnswerFailed: 'No se puede guardar esta respuesta.', noQuestions: 'Este quiz no tiene preguntas.', closeFailed: 'No se puede cerrar este quiz.', alertSendFailed: 'No se puede enviar esta alerta.', reportDialogHeader: 'Reportar una pregunta', reportDialogBody: 'Tu mensaje se enviará al creador del quiz con la pregunta actual y el idioma activo.', reportDialogPlaceholder: 'Describe el problema encontrado…', noCopyToastSummary: 'Acción bloqueada', noCopyToastDetail: 'Copia desactivada durante el cuestionario.'},
@@ -87,6 +87,7 @@ export const ES: EditorUiText = {
       noQuestions: 'Ninguna pregunta.',
       titleCol: 'Título',
       actionsCol: 'Acciones',
+      emptyLanguagesMessage: 'Este dominio no tiene idiomas configurados.',
       errors: {
         saveFailed: 'Error al guardar.',
         translationFailed: 'Error al traducir.',
@@ -113,6 +114,7 @@ export const ES: EditorUiText = {
       ...EN.pages.questionEdit,
       title: 'Editar pregunta',
       subtitle: 'Contexto, traducciones y respuestas',
+      emptyLanguagesMessage: 'Ningún idioma activo para este dominio.',
       errors: {
         invalidId: 'Id de pregunta no válido.',
         translationFailed: 'Error al traducir.',
@@ -129,6 +131,8 @@ export const ES: EditorUiText = {
     questionView: {
       ...EN.pages.questionView,
       title: 'Detalles de la pregunta',
+      revealOn: 'Ocultar respuestas correctas',
+      revealOff: 'Mostrar respuestas correctas',
       errors: {
         invalidId: 'Id de pregunta no válido.',
         loadFailed: 'No se puede cargar esta pregunta.',

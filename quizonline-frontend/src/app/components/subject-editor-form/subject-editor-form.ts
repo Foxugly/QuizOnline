@@ -44,8 +44,8 @@ export class SubjectEditorFormComponent {
   readonly showDomainSelect = input(false);
   readonly selectedDomainId = input<number>(0);
   readonly domainOptions = input<DomainOption[]>([]);
-  readonly emptyLanguagesMessage = input('Ce domaine n a pas de langues configurees.');
-  readonly submitLabel = input('Enregistrer');
+  readonly emptyLanguagesMessage = input.required<string>();
+  readonly submitLabel = input.required<string>();
   readonly ui = inject(UiTextService).editor;
 
   readonly tabChange = output<string | number | undefined>();

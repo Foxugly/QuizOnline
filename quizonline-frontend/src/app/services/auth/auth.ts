@@ -135,10 +135,13 @@ export class AuthService {
   }
 
   getUsername(): string {
+    // Returns the empty string when nothing is stored — the caller is
+    // responsible for the i18n fallback so the auth service stays
+    // language-agnostic. See user-menu.html for the rendered fallback.
     return (
       localStorage.getItem(this.USER_KEY) ??
       sessionStorage.getItem(this.USER_KEY) ??
-      'Utilisateur'
+      ''
     );
   }
 
