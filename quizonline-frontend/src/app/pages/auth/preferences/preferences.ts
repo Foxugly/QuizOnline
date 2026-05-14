@@ -22,6 +22,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
+import {runSave} from '../../../shared/forms/run-save';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
@@ -546,17 +547,6 @@ export class Preferences implements OnInit {
     return getLocalizedDomainName(domain, this.userService.currentLang);
   }
 
-  /**
-   * Shared boilerplate for every "I just mutated something on the server"
-   * call on this page. Sets ``saving`` for the duration, hooks
-   * ``takeUntilDestroyed`` so leaving the page cancels in-flight requests,
-   * shows a success/error toast, and (when ``bumpSavedAt`` is set) bumps
-   * the ``Enregistré à HH:MM`` indicator.
-   *
-   * Callers pass a fully-composed observable — anything that needs a
-   * ``switchMap`` to refresh related state should chain it before
-   * calling ``runSave``.
-   */
   private runSave<T>(
     source: Observable<T>,
     options: {
@@ -566,23 +556,11 @@ export class Preferences implements OnInit {
       bumpSavedAt?: boolean;
     },
   ): void {
-    this.saving.set(true);
-    source
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: (value) => {
-          options.onSuccess(value);
-          if (options.bumpSavedAt) {
-            this.lastSavedAt.set(new Date());
-          }
-          this.toast.add({severity: 'success', detail: options.successDetail});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, options.errorDetail);
-        },
-      });
+    runSave({
+      saving: this.saving,
+      lastSavedAt: this.lastSavedAt,
+      destroyRef: this.destroyRef,
+      toast: this.toast,
+    }, source, options);
   }
 }

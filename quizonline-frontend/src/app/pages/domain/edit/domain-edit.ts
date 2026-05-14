@@ -42,6 +42,7 @@ import {DomainMembersTab} from '../../../components/domain-members-tab/domain-me
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
+import {runSave} from '../../../shared/forms/run-save';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -219,24 +220,20 @@ export class DomainEdit implements OnInit {
     } else {
       next[kind] = false;
     }
-    this.savingDomainNotif.set(true);
-    this.domainService
+    const source = this.domainService
       .updatePartial(this.id, {notification_settings: next} as unknown as {notification_settings: object})
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.domainService.detail(this.id)),
-        finalize(() => this.savingDomainNotif.set(false)),
-      )
-      .subscribe({
-        next: (detail) => {
-          this.domain.set(detail);
-          this.lastSavedAt.set(new Date());
-        },
-        error: (err) => {
-          logApiError('domain.edit.notification-settings', err);
-          this.toast.addApiError(err, this.editText().errors.saveFailed);
-        },
-      });
+      .pipe(switchMap(() => this.domainService.detail(this.id)));
+    runSave({
+      saving: this.savingDomainNotif,
+      lastSavedAt: this.lastSavedAt,
+      destroyRef: this.destroyRef,
+      toast: this.toast,
+    }, source, {
+      onSuccess: (detail) => this.domain.set(detail),
+      errorDetail: this.editText().errors.saveFailed,
+      bumpSavedAt: true,
+      onError: (err) => logApiError('domain.edit.notification-settings', err),
+    });
   }
 
   domainKindLabel(kind: string): string {
