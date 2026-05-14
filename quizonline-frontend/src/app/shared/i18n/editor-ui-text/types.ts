@@ -240,6 +240,10 @@ export type EditorUiText = {
         completeQuizRequired: string;
         domainChangeReset: string;
         loadQuestionsFailed: string;
+        templateNotFound: string;
+        updateTemplateFailed: string;
+        createTemplateFailed: string;
+        createQuizFailed: string;
       };
     };
     quizAlertList: {

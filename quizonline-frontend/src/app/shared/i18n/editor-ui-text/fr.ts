@@ -240,6 +240,10 @@ export const FR: EditorUiText = {
         completeQuizRequired: 'Complète le quiz et ajoute au moins une question.',
         domainChangeReset: 'Le changement de domaine a réinitialisé la composition du quiz.',
         loadQuestionsFailed: 'Impossible de charger les questions du domaine sélectionné.',
+        templateNotFound: 'Template introuvable.',
+        updateTemplateFailed: 'Erreur lors de la mise à jour du template.',
+        createTemplateFailed: 'Erreur lors de la création du template.',
+        createQuizFailed: 'Erreur lors de la création du quiz.',
       },
     },
     quizAlertList: {

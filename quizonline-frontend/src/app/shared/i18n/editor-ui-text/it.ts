@@ -171,6 +171,10 @@ export const IT: EditorUiText = {
         completeQuizRequired: 'Completa il quiz e aggiungi almeno una domanda.',
         domainChangeReset: 'Il cambio di dominio ha azzerato la composizione del quiz.',
         loadQuestionsFailed: 'Impossibile caricare le domande del dominio selezionato.',
+        templateNotFound: 'Template non trovato.',
+        updateTemplateFailed: 'Errore durante l’aggiornamento del template.',
+        createTemplateFailed: 'Errore durante la creazione del template.',
+        createQuizFailed: 'Errore durante la creazione del quiz.',
       },
     },
     quizAlertList: {

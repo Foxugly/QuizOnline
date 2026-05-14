@@ -661,7 +661,7 @@ export class QuizCreate implements OnInit {
     } catch (error) {
       console.error(error);
       queueMicrotask(() => {
-        this.submitError.set(this.formatApiError(error, 'Erreur lors de la creation du quiz.'));
+        this.submitError.set(this.formatApiError(error, this.editorUi().pages.quizCreate.errors.createQuizFailed));
       });
       this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.translateQuestionFailed);
     } finally {
@@ -788,7 +788,7 @@ export class QuizCreate implements OnInit {
       if (this.isEditMode()) {
         const templateId = this.editingTemplateId();
         if (!templateId) {
-          throw new Error('Template introuvable.');
+          throw new Error(this.editorUi().pages.quizCreate.errors.templateNotFound);
         }
         const template = await firstValueFrom(
           this.quizTemplateService.update(templateId, this.buildQuizTemplatePayload()),
@@ -812,8 +812,8 @@ export class QuizCreate implements OnInit {
       console.error(error);
       this.submitError.set(
         this.isEditMode()
-          ? 'Erreur lors de la mise a jour du template.'
-          : 'Erreur lors de la creation du template.',
+          ? this.editorUi().pages.quizCreate.errors.updateTemplateFailed
+          : this.editorUi().pages.quizCreate.errors.createTemplateFailed,
       );
 
       if (quizTemplateId && !this.isEditMode()) {

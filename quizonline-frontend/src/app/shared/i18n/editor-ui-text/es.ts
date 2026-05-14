@@ -171,6 +171,10 @@ export const ES: EditorUiText = {
         completeQuizRequired: 'Completa el quiz y añade al menos una pregunta.',
         domainChangeReset: 'El cambio de dominio reinició la composición del quiz.',
         loadQuestionsFailed: 'No se pueden cargar las preguntas del dominio seleccionado.',
+        templateNotFound: 'Plantilla no encontrada.',
+        updateTemplateFailed: 'Error al actualizar la plantilla.',
+        createTemplateFailed: 'Error al crear la plantilla.',
+        createQuizFailed: 'Error al crear el cuestionario.',
       },
     },
     quizAlertList: {

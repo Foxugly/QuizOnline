@@ -9,6 +9,8 @@ import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuizQuestionComponent} from '../quiz-question/quiz-question';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {QuestionService} from '../../services/question/question';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {getQuestionPreviewDialogUiText} from './question-preview-dialog.i18n';
 
 @Component({
   selector: 'app-question-preview-dialog',
@@ -25,6 +27,8 @@ export class QuestionPreviewDialogComponent {
   readonly questionId = input<number | null>(null);
   readonly visible = input(false);
   readonly visibleChange = output<boolean>();
+
+  readonly pageText = inject(UiTextService).localized(getQuestionPreviewDialogUiText);
 
   loading = false;
   error: string | null = null;
@@ -71,7 +75,7 @@ export class QuestionPreviewDialogComponent {
 
   private loadQuestion(questionId: number | null): void {
     if (!questionId) {
-      this.error = "Question introuvable.";
+      this.error = this.pageText().notFound;
       this.question = null;
       this.loading = false;
       return;
@@ -94,7 +98,7 @@ export class QuestionPreviewDialogComponent {
         },
         error: (error) => {
           console.error(error);
-          this.error = "Impossible de charger l'aperçu de la question.";
+          this.error = this.pageText().loadFailed;
         },
       });
   }

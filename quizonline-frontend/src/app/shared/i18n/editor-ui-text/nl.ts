@@ -171,6 +171,10 @@ export const NL: EditorUiText = {
         completeQuizRequired: 'Maak de quiz compleet en voeg minstens één vraag toe.',
         domainChangeReset: 'De domeinwijziging heeft de quizsamenstelling gereset.',
         loadQuestionsFailed: 'Kan de vragen van het geselecteerde domein niet laden.',
+        templateNotFound: 'Template niet gevonden.',
+        updateTemplateFailed: 'Kan het template niet bijwerken.',
+        createTemplateFailed: 'Kan het template niet aanmaken.',
+        createQuizFailed: 'Kan de quiz niet aanmaken.',
       },
     },
     quizAlertList: {

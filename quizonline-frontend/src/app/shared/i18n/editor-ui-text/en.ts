@@ -240,6 +240,10 @@ export const EN: EditorUiText = {
         completeQuizRequired: 'Complete the quiz and add at least one question.',
         domainChangeReset: 'The domain change reset the quiz composition.',
         loadQuestionsFailed: 'Unable to load the questions for the selected domain.',
+        templateNotFound: 'Template not found.',
+        updateTemplateFailed: 'Failed to update the template.',
+        createTemplateFailed: 'Failed to create the template.',
+        createQuizFailed: 'Failed to create the quiz.',
       },
     },
     quizAlertList: {
