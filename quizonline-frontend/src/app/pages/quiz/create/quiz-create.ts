@@ -56,6 +56,7 @@ import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
+import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
@@ -92,6 +93,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
     TextareaModule,
     ToggleSwitchModule,
     DirtyGuardDirective,
+    SavedAtComponent,
   ],
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
@@ -104,6 +106,7 @@ export class QuizCreate implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
   submitError = signal<string | null>(null);
+  readonly lastSavedAt = signal<Date | null>(null);
 
   questionDialogVisible = signal(false);
   questionSaving = signal(false);
@@ -792,14 +795,19 @@ export class QuizCreate implements OnInit {
         );
         quizTemplateId = template.id;
         await this.syncTemplateQuestions(template.id);
+        this.lastSavedAt.set(new Date());
+        this.originalQuizQuestionIds.set(
+          this.selectedQuestions().map((q) => q.question.id),
+        );
+        this.quizForm.markAsPristine();
       } else {
         const template = await firstValueFrom(
           this.quizTemplateService.create(this.buildQuizTemplatePayload()),
         );
         quizTemplateId = template.id;
         await this.syncTemplateQuestions(template.id);
+        this.quizService.goList();
       }
-      this.quizService.goList();
     } catch (error) {
       console.error(error);
       this.submitError.set(

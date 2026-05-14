@@ -1,0 +1,12 @@
+.saved-at {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--p-green-600, #16a34a);
+  font-weight: 500;
+
+  i {
+    font-size: 0.95rem;
+  }
+}

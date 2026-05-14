@@ -15,6 +15,7 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
+import {SavedAtComponent} from '../../shared/components/saved-at/saved-at';
 
 type UserOption = { label: string; value: number };
 type LangOption = { label: string; value: string };
@@ -37,6 +38,7 @@ type JoinPolicyOption = { label: string; value: JoinPolicyEnumDto };
     MessageModule,
     CardModule,
     TooltipModule,
+    SavedAtComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -58,6 +60,7 @@ export class DomainEditorFormComponent {
   readonly ownerEditTooltip = input('');
   readonly submitLabel = input('');
   readonly titleLabel = input('');
+  readonly lastSavedAt = input<Date | null>(null);
   readonly ui = inject(UiTextService).editor;
 
   readonly joinPolicyOptions = computed<JoinPolicyOption[]>(() => {

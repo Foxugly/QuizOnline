@@ -40,6 +40,7 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {DomainInvitationsTab} from '../../../components/domain-invitations-tab/domain-invitations-tab';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
+import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
@@ -98,6 +99,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     EmptyStateComponent,
     RelativeDatePipe,
     DirtyGuardDirective,
+    SavedAtComponent,
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',
@@ -111,6 +113,7 @@ export class DomainEdit implements OnInit {
   loading = signal(true);
   submitError = signal<string | null>(null);
   translating = signal(false);
+  readonly lastSavedAt = signal<Date | null>(null);
 
   domain = signal<DomainDetailDto | null>(null);
   joinRequests = signal<DomainJoinRequestReadDto[]>([]);
@@ -225,7 +228,10 @@ export class DomainEdit implements OnInit {
         finalize(() => this.savingDomainNotif.set(false)),
       )
       .subscribe({
-        next: (detail) => this.domain.set(detail),
+        next: (detail) => {
+          this.domain.set(detail);
+          this.lastSavedAt.set(new Date());
+        },
         error: (err) => {
           logApiError('domain.edit.notification-settings', err);
           this.toast.addApiError(err, this.editText().errors.saveFailed);
@@ -1007,9 +1013,16 @@ export class DomainEdit implements OnInit {
     }
 
     this.domainService.update(this.id, payload)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap(() => this.domainService.detail(this.id)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: () => this.goList(),
+        next: (dto) => {
+          this.domain.set(dto);
+          this.lastSavedAt.set(new Date());
+          this.form.markAsPristine();
+        },
         error: (err) => {
           logApiError('domain.edit.submit', err);
           this.submitError.set(userFacingApiMessage(err, this.editText().errors.saveFailed));

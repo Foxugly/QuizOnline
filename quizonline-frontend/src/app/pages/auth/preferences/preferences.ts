@@ -20,6 +20,7 @@ import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
+import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
@@ -37,6 +38,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     ToggleSwitchModule,
     RelativeDatePipe,
     DirtyGuardDirective,
+    SavedAtComponent,
   ],
   templateUrl: './preferences.html',
   styleUrls: ['./preferences.scss'],
@@ -52,6 +54,7 @@ export class Preferences implements OnInit {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly lastSavedAt = signal<Date | null>(null);
   readonly availableDomains = signal<DomainReadDto[]>([]);
   readonly visibleDomains = signal<DomainReadDto[]>([]);
   readonly currentUser = signal<CustomUserReadDto | null>(null);
@@ -226,6 +229,7 @@ export class Preferences implements OnInit {
             last_name: updatedUser.last_name ?? '',
             language: updatedUser.language ?? LanguageEnumDto.En,
           });
+          this.lastSavedAt.set(new Date());
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
         error: (err) => {
@@ -503,6 +507,7 @@ export class Preferences implements OnInit {
       .subscribe({
         next: (updated) => {
           this.currentUser.set(updated);
+          this.lastSavedAt.set(new Date());
           this.toast.add({severity: 'success', detail: this.ui().preferences.notificationsSaved});
         },
         error: (err) => {

@@ -328,6 +328,8 @@
           type="button">
         </p-button>
 
+        <app-saved-at [at]="lastSavedAt()"></app-saved-at>
+
         <p-button
           [disabled]="!canSave()"
           [loading]="saving()"

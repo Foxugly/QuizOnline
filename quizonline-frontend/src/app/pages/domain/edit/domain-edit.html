@@ -89,6 +89,7 @@
             [tabCodes]="tabCodes()"
             [titleLabel]="ui().domainForm.titleLabel"
             [translating]="translating()"
+            [lastSavedAt]="lastSavedAt()"
             (cancel)="goList()"
             (submitForm)="save()"
             (editOwner)="openTransferDialog()"
@@ -113,6 +114,9 @@
                     </p-toggleswitch>
                   </div>
                 }
+              </div>
+              <div class="footer-actions">
+                <app-saved-at [at]="lastSavedAt()"></app-saved-at>
               </div>
             </div>
           </p-tabpanel>
