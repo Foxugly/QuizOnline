@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {finalize, forkJoin, of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
@@ -10,6 +10,7 @@ import {CardModule} from 'primeng/card';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
+import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
@@ -30,6 +31,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     DialogModule,
     InputTextModule,
     SelectModule,
+    TabsModule,
     ToggleSwitchModule,
   ],
   templateUrl: './preferences.html',
@@ -51,6 +53,24 @@ export class Preferences implements OnInit {
   readonly currentUser = signal<CustomUserReadDto | null>(null);
   readonly linkDialogVisible = signal(false);
   readonly selectedDomainIdsToLink = signal<number[]>([]);
+
+  /** Sub-tab routing — keeps the URL deep-linkable via ``?tab=...``
+   *  while letting the user navigate between Profile / Domains /
+   *  Notifications without scrolling through a monolithic page. */
+  readonly activeSection = signal<'profile' | 'domains' | 'notifications'>('profile');
+  private readonly route = inject(ActivatedRoute);
+
+  onSectionChange(value: string | number | undefined): void {
+    if (value === 'profile' || value === 'domains' || value === 'notifications') {
+      this.activeSection.set(value);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {tab: value === 'profile' ? null : value},
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+  }
 
   readonly form = this.fb.nonNullable.group({
     username: [{value: '', disabled: true}],
@@ -122,6 +142,15 @@ export class Preferences implements OnInit {
   }
 
   ngOnInit(): void {
+    // Deep-link support: ``/preferences?tab=notifications`` lands the
+    // user directly on the notif matrix. Subscribed once and forgotten
+    // — subsequent tab changes are driven by the user's clicks, not
+    // by the URL.
+    const initialTab = this.route.snapshot.queryParamMap.get('tab');
+    if (initialTab === 'domains' || initialTab === 'notifications') {
+      this.activeSection.set(initialTab);
+    }
+
     this.loading.set(true);
     forkJoin({
       me: this.userService.currentUserOrFetch(),

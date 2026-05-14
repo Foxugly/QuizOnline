@@ -122,6 +122,9 @@ export type PreferencesUiText = {
   pendingRequestsEmpty: string;
   pendingRequestsRequestedAt: string;
   pendingRequestsCancel: string;
+  tabProfile: string;
+  tabDomains: string;
+  tabNotifications: string;
   notificationsTitle: string;
   notificationsSubtitle: string;
   notificationKindJoinRequestCreated: string;

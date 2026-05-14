@@ -31,6 +31,7 @@
   "shell/ui-text:topmenu.notificationsAria",
   "shell/ui-text:notifications.bellTitle",
   "shell/ui-text:notifications.pageTitle",
+  "shell/ui-text:preferences.tabNotifications",
 
   "editor-ui-text:common.translateOthers",
   "editor-ui-text:common.translating",

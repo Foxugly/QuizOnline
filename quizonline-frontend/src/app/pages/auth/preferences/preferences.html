@@ -12,218 +12,234 @@
       </div>
     </section>
 
-    <div class="preferences-grid">
-      @if (loading()) {
-        <p-card class="panel panel--form">
-          <p class="state">{{ ui().preferences.loading }}</p>
-        </p-card>
-      } @else {
-        <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()">
-          <p-card class="panel panel--form">
-            <ng-template pTemplate="title">{{ ui().preferences.profileTitle }}</ng-template>
-            <ng-template pTemplate="subtitle">{{ ui().preferences.profileSubtitle }}</ng-template>
+    @if (loading()) {
+      <p-card class="panel panel--form">
+        <p class="state">{{ ui().preferences.loading }}</p>
+      </p-card>
+    } @else {
+      <p-tabs [value]="activeSection()" (valueChange)="onSectionChange($event)">
+        <p-tablist>
+          <p-tab value="profile">{{ ui().preferences.tabProfile }}</p-tab>
+          <p-tab value="domains">{{ ui().preferences.tabDomains }}</p-tab>
+          <p-tab value="notifications">{{ ui().preferences.tabNotifications }}</p-tab>
+        </p-tablist>
 
-            <div class="field-grid">
-              <div class="field">
-                <label for="username">{{ ui().preferences.username }}</label>
-                <input id="username" pInputText formControlName="username">
-              </div>
+        <p-tabpanels>
+          <p-tabpanel value="profile">
+            <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()">
+              <p-card class="panel panel--form">
+                <ng-template pTemplate="title">{{ ui().preferences.profileTitle }}</ng-template>
+                <ng-template pTemplate="subtitle">{{ ui().preferences.profileSubtitle }}</ng-template>
 
-              <div class="field">
-                <label for="email">{{ ui().preferences.email }}</label>
-                <input id="email" pInputText formControlName="email" type="email">
-              </div>
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="username">{{ ui().preferences.username }}</label>
+                    <input id="username" pInputText formControlName="username">
+                  </div>
 
-              <div class="field">
-                <label for="first_name">{{ ui().preferences.firstName }}</label>
-                <input id="first_name" pInputText formControlName="first_name">
-              </div>
+                  <div class="field">
+                    <label for="email">{{ ui().preferences.email }}</label>
+                    <input id="email" pInputText formControlName="email" type="email">
+                  </div>
 
-              <div class="field">
-                <label for="last_name">{{ ui().preferences.lastName }}</label>
-                <input id="last_name" pInputText formControlName="last_name">
-              </div>
+                  <div class="field">
+                    <label for="first_name">{{ ui().preferences.firstName }}</label>
+                    <input id="first_name" pInputText formControlName="first_name">
+                  </div>
 
-              <div class="field">
-                <label for="language">{{ ui().preferences.language }}</label>
-                <p-select
-                  inputId="language"
-                  [options]="languageOptions"
-                  formControlName="language"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="ui().preferences.chooseLanguage"
-                ></p-select>
-              </div>
-            </div>
+                  <div class="field">
+                    <label for="last_name">{{ ui().preferences.lastName }}</label>
+                    <input id="last_name" pInputText formControlName="last_name">
+                  </div>
 
-            <div class="actions">
-              <p-button
-                type="submit"
-                [label]="ui().preferences.save"
-                icon="pi pi-save"
-                [loading]="saving()"
-              ></p-button>
-              <p-button
-                type="button"
-                [label]="ui().preferences.changePassword"
-                icon="pi pi-lock"
-                severity="secondary"
-                [text]="true"
-                (onClick)="goChangePassword()"
-              ></p-button>
-            </div>
-          </p-card>
-
-          <p-card class="panel panel--summary">
-            <ng-template pTemplate="title">{{ ui().preferences.domainsTitle }}</ng-template>
-            <ng-template pTemplate="subtitle">{{ ui().preferences.domainsSubtitle }}</ng-template>
-
-            <div class="form form--stacked">
-              <div class="domain-toolbar">
-                <p-button
-                  type="button"
-                  [label]="ui().preferences.addDomain"
-                  icon="pi pi-plus"
-                  severity="secondary"
-                  [disabled]="saving()"
-                  (onClick)="openLinkDomainsDialog()"
-                ></p-button>
-              </div>
-
-              @if (pendingRequestEntries.length) {
-                <div class="domain-list">
-                  <p class="domain-list__title">{{ ui().preferences.pendingRequestsTitle }}</p>
-                  @for (req of pendingRequestEntries; track req.id) {
-                    <div class="domain-list__item">
-                      <div class="domain-list__content">
-                        <span class="domain-list__name">{{ req.name }}</span>
-                        <span class="domain-list__role">
-                          {{ ui().preferences.pendingRequestsRequestedAt }}
-                          {{ req.createdAt | date:'short' }}
-                        </span>
-                      </div>
-                      <div class="domain-list__actions">
-                        <p-button
-                          type="button"
-                          [label]="ui().preferences.pendingRequestsCancel"
-                          size="small"
-                          severity="danger"
-                          [text]="true"
-                          [disabled]="saving()"
-                          (onClick)="cancelPendingRequest(req.domainId, req.id)"
-                        ></p-button>
-                      </div>
-                    </div>
-                  }
+                  <div class="field">
+                    <label for="language">{{ ui().preferences.language }}</label>
+                    <p-select
+                      inputId="language"
+                      [options]="languageOptions"
+                      formControlName="language"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="ui().preferences.chooseLanguage"
+                    ></p-select>
+                  </div>
                 </div>
-              }
 
-              <div class="domain-list">
-                <p class="domain-list__title">{{ ui().preferences.linkedDomainsList }}</p>
-                @if (visibleDomainEntries.length) {
-                  @for (entry of visibleDomainEntries; track entry.id) {
-                    <div class="domain-list__item">
-                      <div class="domain-list__content">
-                        <span class="domain-list__name">{{ entry.name }}</span>
-                        <span class="domain-list__role">{{ entry.role }}</span>
-                        <span class="domain-list__owner">{{ ui().preferences.ownerLabel }} {{ entry.ownerName }}</span>
-                      </div>
-                      <div class="domain-list__actions">
-                        @if (entry.isCurrent) {
-                          <span class="domain-list__badge">{{ ui().preferences.currentBadge }}</span>
-                        } @else if (entry.canSetCurrent) {
-                          <p-button
-                            type="button"
-                            [label]="ui().preferences.setCurrent"
-                            size="small"
-                            [text]="true"
-                            [disabled]="saving()"
-                            (onClick)="setCurrentDomain(entry.id)"
-                          ></p-button>
-                        }
-                        @if (entry.canUnlink) {
-                          <p-button
-                            type="button"
-                            [label]="ui().preferences.unlinkDomain"
-                            size="small"
-                            severity="danger"
-                            [text]="true"
-                            [disabled]="saving()"
-                            (onClick)="unlinkDomain(entry.id)"
-                          ></p-button>
-                        }
-                        @if (entry.canDelete) {
-                          <p-button
-                            type="button"
-                            [label]="ui().preferences.deleteDomain"
-                            size="small"
-                            severity="danger"
-                            [outlined]="true"
-                            [disabled]="saving()"
-                            (onClick)="deleteOwnedDomain(entry.id)"
-                          ></p-button>
-                        }
-                      </div>
-                    </div>
-                  }
-                } @else {
-                  <p class="state">{{ ui().preferences.noDomain }}</p>
-                }
-              </div>
-            </div>
-          </p-card>
+                <div class="actions">
+                  <p-button
+                    type="submit"
+                    [label]="ui().preferences.save"
+                    icon="pi pi-save"
+                    [loading]="saving()"
+                  ></p-button>
+                  <p-button
+                    type="button"
+                    [label]="ui().preferences.changePassword"
+                    icon="pi pi-lock"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="goChangePassword()"
+                  ></p-button>
+                </div>
+              </p-card>
+            </form>
+          </p-tabpanel>
 
-          <p-card class="panel panel--summary">
-            <ng-template pTemplate="title">{{ ui().preferences.notificationsTitle }}</ng-template>
-            <ng-template pTemplate="subtitle">{{ ui().preferences.notificationsSubtitle }}</ng-template>
+          <p-tabpanel value="domains">
+            <p-card class="panel panel--summary">
+              <ng-template pTemplate="title">{{ ui().preferences.domainsTitle }}</ng-template>
+              <ng-template pTemplate="subtitle">{{ ui().preferences.domainsSubtitle }}</ng-template>
 
-            <div class="form form--stacked">
-              <div class="notif-prefs__header">
-                <span></span>
-                <span class="notif-prefs__col">{{ ui().preferences.notificationChannelEmail }}</span>
-                <span class="notif-prefs__col">{{ ui().preferences.notificationChannelWeb }}</span>
-              </div>
+              <div class="form form--stacked">
+                <div class="domain-toolbar">
+                  <p-button
+                    type="button"
+                    [label]="ui().preferences.addDomain"
+                    icon="pi pi-plus"
+                    severity="secondary"
+                    [disabled]="saving()"
+                    (onClick)="openLinkDomainsDialog()"
+                  ></p-button>
+                </div>
 
-              @for (role of ['user', 'manager', 'owner']; track role) {
-                @if (hasRole($any(role))) {
-                  <div class="notif-prefs__group">
-                    <h4 class="notif-prefs__group-title">{{ roleLabelFor($any(role)) }}</h4>
-                    @for (entry of notificationCatalog; track entry.kind) {
-                      @if (entry.role === role) {
-                        <div class="notif-prefs__row">
-                          <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
-                          <div class="notif-prefs__col">
-                            <!-- ``standalone: true`` is required because the
-                                 surrounding form uses ``[formGroup]`` for the
-                                 profile section; ngModel-bound toggles outside
-                                 the form group would otherwise trigger NG01350. -->
-                            <p-toggleswitch
-                              [ngModel]="isChannelEnabled(entry.kind, 'email')"
-                              (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
-                              [ngModelOptions]="{standalone: true}"
-                              [disabled]="saving()">
-                            </p-toggleswitch>
-                          </div>
-                          <div class="notif-prefs__col">
-                            <p-toggleswitch
-                              [ngModel]="isChannelEnabled(entry.kind, 'web')"
-                              (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
-                              [ngModelOptions]="{standalone: true}"
-                              [disabled]="saving()">
-                            </p-toggleswitch>
-                          </div>
+                @if (pendingRequestEntries.length) {
+                  <div class="domain-list">
+                    <p class="domain-list__title">{{ ui().preferences.pendingRequestsTitle }}</p>
+                    @for (req of pendingRequestEntries; track req.id) {
+                      <div class="domain-list__item">
+                        <div class="domain-list__content">
+                          <span class="domain-list__name">{{ req.name }}</span>
+                          <span class="domain-list__role">
+                            {{ ui().preferences.pendingRequestsRequestedAt }}
+                            {{ req.createdAt | date:'short' }}
+                          </span>
                         </div>
-                      }
+                        <div class="domain-list__actions">
+                          <p-button
+                            type="button"
+                            [label]="ui().preferences.pendingRequestsCancel"
+                            size="small"
+                            severity="danger"
+                            [text]="true"
+                            [disabled]="saving()"
+                            (onClick)="cancelPendingRequest(req.domainId, req.id)"
+                          ></p-button>
+                        </div>
+                      </div>
                     }
                   </div>
                 }
-              }
-            </div>
-          </p-card>
-        </form>
-      }
-    </div>
+
+                <div class="domain-list">
+                  <p class="domain-list__title">{{ ui().preferences.linkedDomainsList }}</p>
+                  @if (visibleDomainEntries.length) {
+                    @for (entry of visibleDomainEntries; track entry.id) {
+                      <div class="domain-list__item">
+                        <div class="domain-list__content">
+                          <span class="domain-list__name">{{ entry.name }}</span>
+                          <span class="domain-list__role">{{ entry.role }}</span>
+                          <span class="domain-list__owner">{{ ui().preferences.ownerLabel }} {{ entry.ownerName }}</span>
+                        </div>
+                        <div class="domain-list__actions">
+                          @if (entry.isCurrent) {
+                            <span class="domain-list__badge">{{ ui().preferences.currentBadge }}</span>
+                          } @else if (entry.canSetCurrent) {
+                            <p-button
+                              type="button"
+                              [label]="ui().preferences.setCurrent"
+                              size="small"
+                              [text]="true"
+                              [disabled]="saving()"
+                              (onClick)="setCurrentDomain(entry.id)"
+                            ></p-button>
+                          }
+                          @if (entry.canUnlink) {
+                            <p-button
+                              type="button"
+                              [label]="ui().preferences.unlinkDomain"
+                              size="small"
+                              severity="danger"
+                              [text]="true"
+                              [disabled]="saving()"
+                              (onClick)="unlinkDomain(entry.id)"
+                            ></p-button>
+                          }
+                          @if (entry.canDelete) {
+                            <p-button
+                              type="button"
+                              [label]="ui().preferences.deleteDomain"
+                              size="small"
+                              severity="danger"
+                              [outlined]="true"
+                              [disabled]="saving()"
+                              (onClick)="deleteOwnedDomain(entry.id)"
+                            ></p-button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <p class="state">{{ ui().preferences.noDomain }}</p>
+                  }
+                </div>
+              </div>
+            </p-card>
+          </p-tabpanel>
+
+          <p-tabpanel value="notifications">
+            <p-card class="panel panel--summary">
+              <ng-template pTemplate="title">{{ ui().preferences.notificationsTitle }}</ng-template>
+              <ng-template pTemplate="subtitle">{{ ui().preferences.notificationsSubtitle }}</ng-template>
+
+              <div class="form form--stacked">
+                @for (role of ['user', 'manager', 'owner']; track role) {
+                  @if (hasRole($any(role))) {
+                    <div class="notif-prefs__group">
+                      <h4 class="notif-prefs__group-title">{{ roleLabelFor($any(role)) }}</h4>
+
+                      <!-- Column headers repeated per group so the e-mail /
+                           cloche labels stay visible as the user scrolls
+                           between role sections. -->
+                      <div class="notif-prefs__header">
+                        <span></span>
+                        <span class="notif-prefs__col">{{ ui().preferences.notificationChannelEmail }}</span>
+                        <span class="notif-prefs__col">{{ ui().preferences.notificationChannelWeb }}</span>
+                      </div>
+
+                      @for (entry of notificationCatalog; track entry.kind) {
+                        @if (entry.role === role) {
+                          <div class="notif-prefs__row">
+                            <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
+                            <div class="notif-prefs__col">
+                              <p-toggleswitch
+                                [ngModel]="isChannelEnabled(entry.kind, 'email')"
+                                (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelEmail"
+                                [disabled]="saving()">
+                              </p-toggleswitch>
+                            </div>
+                            <div class="notif-prefs__col">
+                              <p-toggleswitch
+                                [ngModel]="isChannelEnabled(entry.kind, 'web')"
+                                (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelWeb"
+                                [disabled]="saving()">
+                              </p-toggleswitch>
+                            </div>
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            </p-card>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    }
   </div>
 </div>
 
