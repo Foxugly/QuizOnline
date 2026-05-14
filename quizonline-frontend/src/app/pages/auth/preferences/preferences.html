@@ -16,9 +16,6 @@
           <p-tabpanel value="profile">
             <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()">
               <p-card class="panel panel--form">
-                <ng-template pTemplate="title">{{ ui().preferences.profileTitle }}</ng-template>
-                <ng-template pTemplate="subtitle">{{ ui().preferences.profileSubtitle }}</ng-template>
-
                 <div class="field-grid">
                   <div class="field">
                     <label for="username">{{ ui().preferences.username }}</label>
@@ -75,9 +72,6 @@
 
           <p-tabpanel value="domains">
             <p-card class="panel panel--summary">
-              <ng-template pTemplate="title">{{ ui().preferences.domainsTitle }}</ng-template>
-              <ng-template pTemplate="subtitle">{{ ui().preferences.domainsSubtitle }}</ng-template>
-
               <div class="form form--stacked">
                 <div class="domain-toolbar">
                   <p-button
@@ -177,9 +171,6 @@
 
           <p-tabpanel value="notifications">
             <p-card class="panel panel--summary">
-              <ng-template pTemplate="title">{{ ui().preferences.notificationsTitle }}</ng-template>
-              <ng-template pTemplate="subtitle">{{ ui().preferences.notificationsSubtitle }}</ng-template>
-
               <div class="form form--stacked">
                 @for (role of ['user', 'manager', 'owner']; track role) {
                   @if (hasRole($any(role))) {

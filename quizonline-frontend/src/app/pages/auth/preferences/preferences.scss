@@ -5,6 +5,18 @@
 .preferences-shell {
   display: grid;
   gap: 1.5rem;
+
+  // Drop the gutter between the tablist text and the card content
+  // edge below — the active tab now lines up vertically with the
+  // first field/label inside its panel, no orphan indent.
+  ::ng-deep p-tabs > .p-tabs > .p-tablist {
+    padding-inline: 1.5rem;
+  }
+
+  ::ng-deep p-tabs > .p-tabs > .p-tabpanels {
+    padding: 0;
+    background: transparent;
+  }
 }
 
 .hero {
