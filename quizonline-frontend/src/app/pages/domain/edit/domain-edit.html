@@ -92,7 +92,7 @@
             [lastSavedAt]="lastSavedAt()"
             (cancel)="goList()"
             (submitForm)="save()"
-            (editOwner)="openTransferDialog()"
+            (editOwner)="transfer.open()"
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)">
           </app-domain-editor-form>
@@ -299,14 +299,14 @@
 
 <p-dialog
   [header]="editText().transfer.dialogTitle"
-  [(visible)]="transferDialogVisible"
+  [(visible)]="transfer.dialogVisible"
   [modal]="true"
   [style]="{ width: 'min(48rem, 92vw)' }"
   [breakpoints]="{ '768px': '94vw' }">
   <p class="muted transfer-dialog__hint">{{ editText().transfer.dialogHint }}</p>
   <p-select
-    [options]="transferCandidates()"
-    [(ngModel)]="transferTargetId"
+    [options]="transfer.candidates()"
+    [(ngModel)]="transfer.targetId"
     [filter]="true"
     [showClear]="true"
     optionLabel="label"
@@ -315,7 +315,7 @@
     appendTo="body"
     styleClass="transfer-dialog__select w-full">
   </p-select>
-  @if (transferError(); as err) {
+  @if (transfer.error(); as err) {
     <p-message severity="error" [closable]="false">{{ err }}</p-message>
   }
   <ng-template #footer>
@@ -323,15 +323,15 @@
       [label]="editText().transfer.cancel"
       severity="secondary"
       [text]="true"
-      (onClick)="closeTransferDialog()"
+      (onClick)="transfer.close()"
       type="button">
     </p-button>
     <p-button
-      [label]="transferring() ? editText().transfer.sending : editText().transfer.submit"
+      [label]="transfer.busy() ? editText().transfer.sending : editText().transfer.submit"
       icon="pi pi-check"
-      [loading]="transferring()"
-      [disabled]="!transferTargetId() || transferring()"
-      (onClick)="submitTransfer()"
+      [loading]="transfer.busy()"
+      [disabled]="!transfer.targetId() || transfer.busy()"
+      (onClick)="transfer.submit()"
       type="button">
     </p-button>
   </ng-template>

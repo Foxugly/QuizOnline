@@ -46,6 +46,7 @@ import {runSave} from '../../../shared/forms/run-save';
 import {DomainEditAuditController} from './domain-edit-audit.controller';
 import {DomainEditAnalyticsController} from './domain-edit-analytics.controller';
 import {DomainEditNotificationsController} from './domain-edit-notifications.controller';
+import {DomainEditTransferController} from './domain-edit-transfer.controller';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -110,6 +111,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     DomainEditAuditController,
     DomainEditAnalyticsController,
     DomainEditNotificationsController,
+    DomainEditTransferController,
   ],
 })
 export class DomainEdit implements OnInit {
@@ -118,6 +120,7 @@ export class DomainEdit implements OnInit {
   protected readonly audit = inject(DomainEditAuditController);
   protected readonly analytics = inject(DomainEditAnalyticsController);
   protected readonly notifications = inject(DomainEditNotificationsController);
+  protected readonly transfer = inject(DomainEditTransferController);
   id!: number;
 
   loading = signal(true);
@@ -244,18 +247,6 @@ export class DomainEdit implements OnInit {
    *  has a list to render. */
   readonly additionalInvitableDomains = signal<{label: string; value: number}[]>([]);
 
-  // Transfer-ownership dialog state.
-  readonly transferDialogVisible = signal<boolean>(false);
-  readonly transferTargetId = signal<number | null>(null);
-  readonly transferring = signal<boolean>(false);
-  readonly transferError = signal<string | null>(null);
-  /** Candidates for the future-owner select: every known user except
-   *  the current owner. The component already loads ``userService.list``
-   *  into ``ownerOptions`` on init, so we just filter it. */
-  readonly transferCandidates = computed(() => {
-    const ownerId = this.domain()?.owner?.id;
-    return this.ownerOptions().filter(o => o.value !== ownerId);
-  });
 
   ngOnInit(): void {
     const rawId = this.route.snapshot.paramMap.get('id');
@@ -273,6 +264,12 @@ export class DomainEdit implements OnInit {
       readDomain: () => this.domain(),
       writeDomain: (dto) => this.domain.set(dto),
       bumpSavedAt: () => this.lastSavedAt.set(new Date()),
+    });
+    this.transfer.bind({
+      domainId: this.id,
+      readDomain: () => this.domain(),
+      readOwnerOptions: () => this.ownerOptions(),
+      onTransferred: (dto) => this.onOwnerTransferred(dto),
     });
     this.loading.set(true);
     this.submitError.set(null);
@@ -676,63 +673,15 @@ export class DomainEdit implements OnInit {
       });
   }
 
-  openTransferDialog(): void {
-    this.transferTargetId.set(null);
-    this.transferError.set(null);
-    this.transferDialogVisible.set(true);
-  }
-
-  closeTransferDialog(): void {
-    this.transferDialogVisible.set(false);
-    this.transferTargetId.set(null);
-    this.transferError.set(null);
-  }
-
-  submitTransfer(): void {
-    const userId = this.transferTargetId();
-    if (!userId || this.transferring()) {
-      return;
-    }
-    this.transferring.set(true);
-    this.transferError.set(null);
-    this.domainService.updatePartial(this.id, {owner: userId})
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.domainService.detail(this.id)),
-        finalize(() => this.transferring.set(false)),
-      )
-      .subscribe({
-        next: (dto) => {
-          this.domain.set(dto);
-          // Keep the form's owner control in sync with the new value.
-          this.form.controls.owner.setValue(dto.owner?.id ?? null, {emitEvent: false});
-          // Recompute the local "can edit owner" flag: the previous owner
-          // may have just demoted themselves and must lose the edit icon
-          // on the next render.
-          const me = this.userService.currentUser();
-          this.canEditOwner.set(
-            !!me && (me.is_superuser || dto.owner?.id === me.id),
-          );
-          this.transferDialogVisible.set(false);
-          this.transferTargetId.set(null);
-          this.toast.add({
-            severity: 'success',
-            summary: this.editText().transfer.successMessage,
-          });
-        },
-        error: (err) => {
-          logApiError('domain.edit.transfer', err);
-          const detail = err?.error?.detail;
-          const t = this.editText().transfer;
-          switch (detail) {
-            case 'already_owner':
-              this.transferError.set(t.errorAlreadyOwner);
-              return;
-            default:
-              this.transferError.set(t.errorGeneric);
-          }
-        },
-      });
+  /** Hand-off used by ``DomainEditTransferController`` after a successful
+   * ownership transfer: mirror the refreshed DTO and recompute the local
+   * "can edit owner" flag (the previous owner may have just demoted
+   * themselves and must lose the edit icon on the next render). */
+  private onOwnerTransferred(dto: DomainDetailDto): void {
+    this.domain.set(dto);
+    this.form.controls.owner.setValue(dto.owner?.id ?? null, {emitEvent: false});
+    const me = this.userService.currentUser();
+    this.canEditOwner.set(!!me && (me.is_superuser || dto.owner?.id === me.id));
   }
 
   private loadJoinRequests(): void {
