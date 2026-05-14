@@ -86,6 +86,24 @@
                   ></p-button>
                 </div>
               </form>
+
+              <section class="danger-zone" aria-labelledby="danger-zone-title">
+                <h3 id="danger-zone-title" class="danger-zone__title">{{ ui().preferences.dangerZoneTitle }}</h3>
+                <div class="danger-zone__row">
+                  <div class="danger-zone__copy">
+                    <strong class="danger-zone__heading">{{ ui().preferences.deleteAccountTitle }}</strong>
+                    <p class="danger-zone__hint">{{ ui().preferences.deleteAccountDescription }}</p>
+                  </div>
+                  <p-button
+                    (onClick)="openDeleteAccountDialog()"
+                    icon="pi pi-trash"
+                    [label]="ui().preferences.deleteAccountCta"
+                    severity="danger"
+                    [outlined]="true"
+                    type="button">
+                  </p-button>
+                </div>
+              </section>
             </div>
           </p-tabpanel>
 
@@ -289,5 +307,49 @@
         (onClick)="linkSelectedDomains()"
       ></p-button>
     </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="ui().preferences.deleteConfirmHeader"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [visible]="deleteDialogVisible()"
+  [style]="{ width: 'min(32rem, 92vw)' }"
+  (visibleChange)="!$event && closeDeleteAccountDialog()">
+  @if (currentUser(); as me) {
+    <p>{{ ui().preferences.deleteConfirmMessage(me.username) }}</p>
+    <input
+      pInputText
+      type="text"
+      class="w-full"
+      [ngModel]="deleteConfirmInput()"
+      (ngModelChange)="deleteConfirmInput.set($event); deleteBlockMessage.set(null)"
+      [placeholder]="ui().preferences.deleteConfirmPlaceholder"
+      [disabled]="deleting()"
+      autocomplete="off">
+    @if (deleteBlockMessage(); as msg) {
+      <p-message severity="error" [closable]="false" class="delete-dialog__error">{{ msg }}</p-message>
+    }
+  }
+  <ng-template #footer>
+    <p-button
+      [label]="ui().preferences.deleteConfirmCancel"
+      severity="secondary"
+      [text]="true"
+      [disabled]="deleting()"
+      (onClick)="closeDeleteAccountDialog()"
+      type="button">
+    </p-button>
+    <p-button
+      [label]="ui().preferences.deleteConfirmAccept"
+      icon="pi pi-trash"
+      severity="danger"
+      [disabled]="!deleteConfirmReady() || deleting()"
+      [loading]="deleting()"
+      (onClick)="confirmDeleteAccount()"
+      type="button">
+    </p-button>
   </ng-template>
 </p-dialog>

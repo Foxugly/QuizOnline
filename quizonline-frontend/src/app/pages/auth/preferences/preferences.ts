@@ -9,12 +9,15 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
+import {MessageModule} from 'primeng/message';
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {UserApi} from '../../../api/generated/api/user.service';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {AuthService} from '../../../services/auth/auth';
 import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
@@ -35,6 +38,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     CardModule,
     DialogModule,
     InputTextModule,
+    MessageModule,
     SelectModule,
     TabsModule,
     ToggleSwitchModule,
@@ -62,6 +66,15 @@ export class Preferences implements OnInit {
   readonly currentUser = signal<CustomUserReadDto | null>(null);
   readonly linkDialogVisible = signal(false);
   readonly selectedDomainIdsToLink = signal<number[]>([]);
+
+  // --- Danger zone: account deletion ---
+  readonly deleteDialogVisible = signal(false);
+  readonly deleteConfirmInput = signal('');
+  readonly deleting = signal(false);
+  readonly deleteBlockMessage = signal<string | null>(null);
+
+  private readonly userApi = inject(UserApi);
+  private readonly auth = inject(AuthService);
 
   /** Sub-tab routing — keeps the URL deep-linkable via ``?tab=...``
    *  while letting the user navigate between Profile / Domains /
@@ -245,6 +258,64 @@ export class Preferences implements OnInit {
   closeLinkDomainsDialog(): void {
     this.linkDialogVisible.set(false);
     this.selectedDomainIdsToLink.set([]);
+  }
+
+  // --- Account deletion (GDPR right of erasure) ---------------------------
+
+  openDeleteAccountDialog(): void {
+    this.deleteConfirmInput.set('');
+    this.deleteBlockMessage.set(null);
+    this.deleteDialogVisible.set(true);
+  }
+
+  closeDeleteAccountDialog(): void {
+    if (this.deleting()) {
+      return;
+    }
+    this.deleteDialogVisible.set(false);
+    this.deleteConfirmInput.set('');
+    this.deleteBlockMessage.set(null);
+  }
+
+  /** Guard: only enable the destructive button once the user has typed
+   *  their own username exactly. Cheap accidental-click protection. */
+  readonly deleteConfirmReady = (): boolean => {
+    const me = this.currentUser();
+    return !!me && this.deleteConfirmInput().trim() === me.username;
+  };
+
+  confirmDeleteAccount(): void {
+    if (!this.deleteConfirmReady() || this.deleting()) {
+      return;
+    }
+    this.deleting.set(true);
+    this.deleteBlockMessage.set(null);
+    this.userApi.userMeDestroy()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deleting.set(false);
+          this.deleteDialogVisible.set(false);
+          this.toast.add({
+            severity: 'success',
+            detail: this.ui().preferences.deleteSuccess,
+          });
+          // Log out client-side and bounce home. The session/JWT is now
+          // tied to a deleted user; any subsequent API call will 401.
+          this.auth.logout();
+          void this.router.navigate(['/home']);
+        },
+        error: (err: unknown) => {
+          this.deleting.set(false);
+          const e = err as {error?: {detail?: string; owned_count?: number}; status?: number};
+          if (e?.status === 409 && e.error?.detail === 'owner_of_domains') {
+            const count = e.error.owned_count ?? 1;
+            this.deleteBlockMessage.set(this.ui().preferences.deleteOwnedDomainsBlock(count));
+            return;
+          }
+          this.toast.addApiError(err, this.ui().preferences.deleteError);
+        },
+      });
   }
 
   toggleDomainToLink(domainId: number): void {

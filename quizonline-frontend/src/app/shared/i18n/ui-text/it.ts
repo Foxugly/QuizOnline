@@ -119,6 +119,20 @@ export const IT: UiText = {
     notificationGroupManager: 'Come gestore',
     notificationGroupOwner: 'Come proprietario',
     notificationsSaved: 'Preferenze di notifica salvate.',
+    dangerZoneTitle: 'Zona di pericolo',
+    deleteAccountTitle: 'Elimina il mio account',
+    deleteAccountDescription: 'Elimina definitivamente il tuo account e tutti i tuoi dati personali. Irreversibile. Se possiedi ancora dei domini, trasferiscili o eliminali prima.',
+    deleteAccountCta: 'Elimina il mio account…',
+    deleteConfirmHeader: 'Conferma eliminazione',
+    deleteConfirmMessage: (username) => `Irreversibile. Per confermare, digita il tuo nome utente ("${username}") qui sotto.`,
+    deleteConfirmPlaceholder: 'Nome utente',
+    deleteConfirmAccept: 'Elimina definitivamente',
+    deleteConfirmCancel: 'Annulla',
+    deleteOwnedDomainsBlock: (count) => count <= 1
+      ? 'Possiedi ancora un dominio. Trasferiscilo o eliminalo prima di eliminare il tuo account.'
+      : `Possiedi ancora ${count} domini. Trasferiscili o eliminali prima di eliminare il tuo account.`,
+    deleteSuccess: 'Il tuo account è stato eliminato.',
+    deleteError: 'Impossibile eliminare l\'account.',
   },
   notifications: {
     bellTitle: 'Notifiche',

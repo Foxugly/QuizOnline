@@ -366,3 +366,50 @@
     justify-content: flex-start;
   }
 }
+
+.danger-zone {
+  margin-top: 1.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  background: #fef2f2;
+}
+
+.danger-zone__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #b91c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.danger-zone__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.danger-zone__copy {
+  flex: 1 1 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.danger-zone__heading {
+  color: #7f1d1d;
+}
+
+.danger-zone__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #7f1d1d;
+}
+
+.delete-dialog__error {
+  display: block;
+  margin-top: 0.75rem;
+}

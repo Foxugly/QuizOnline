@@ -246,6 +246,20 @@ export const FR: UiText = {
     notificationGroupManager: 'En tant que gestionnaire',
     notificationGroupOwner: 'En tant que propriétaire',
     notificationsSaved: 'Préférences de notification enregistrées.',
+    dangerZoneTitle: 'Zone de danger',
+    deleteAccountTitle: 'Supprimer mon compte',
+    deleteAccountDescription: 'Suppression définitive de votre compte et de toutes vos données personnelles. Action irréversible. Si vous possédez encore des domaines, transférez-les ou supprimez-les d\'abord.',
+    deleteAccountCta: 'Supprimer mon compte…',
+    deleteConfirmHeader: 'Confirmer la suppression',
+    deleteConfirmMessage: (username) => `Cette action est irréversible. Pour confirmer, tapez votre nom d\'utilisateur (« ${username} ») ci-dessous.`,
+    deleteConfirmPlaceholder: 'Nom d\'utilisateur',
+    deleteConfirmAccept: 'Supprimer définitivement',
+    deleteConfirmCancel: 'Annuler',
+    deleteOwnedDomainsBlock: (count) => count <= 1
+      ? 'Vous possédez encore un domaine. Transférez-le ou supprimez-le avant de supprimer votre compte.'
+      : `Vous possédez encore ${count} domaines. Transférez-les ou supprimez-les avant de supprimer votre compte.`,
+    deleteSuccess: 'Votre compte a été supprimé.',
+    deleteError: 'Impossible de supprimer le compte.',
   },
   notifications: {
     bellTitle: 'Notifications',

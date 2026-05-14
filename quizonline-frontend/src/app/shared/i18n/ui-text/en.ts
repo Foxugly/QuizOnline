@@ -116,6 +116,20 @@ export const EN: UiText = {
     notificationGroupManager: 'As a manager',
     notificationGroupOwner: 'As an owner',
     notificationsSaved: 'Notification preferences saved.',
+    dangerZoneTitle: 'Danger zone',
+    deleteAccountTitle: 'Delete my account',
+    deleteAccountDescription: 'Permanently delete your account and all your personal data. This cannot be undone. If you still own domains, transfer or delete them first.',
+    deleteAccountCta: 'Delete my account…',
+    deleteConfirmHeader: 'Confirm deletion',
+    deleteConfirmMessage: (username) => `This cannot be undone. To confirm, type your username ("${username}") below.`,
+    deleteConfirmPlaceholder: 'Username',
+    deleteConfirmAccept: 'Delete permanently',
+    deleteConfirmCancel: 'Cancel',
+    deleteOwnedDomainsBlock: (count) => count <= 1
+      ? 'You still own one domain. Transfer or delete it before deleting your account.'
+      : `You still own ${count} domains. Transfer or delete them before deleting your account.`,
+    deleteSuccess: 'Your account has been deleted.',
+    deleteError: 'Unable to delete the account.',
   },
   notifications: {
     bellTitle: 'Notifications',

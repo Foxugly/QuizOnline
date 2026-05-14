@@ -118,6 +118,20 @@ export const NL: UiText = {
     notificationGroupManager: 'Als beheerder',
     notificationGroupOwner: 'Als eigenaar',
     notificationsSaved: 'Meldingsvoorkeuren opgeslagen.',
+    dangerZoneTitle: 'Gevarenzone',
+    deleteAccountTitle: 'Mijn account verwijderen',
+    deleteAccountDescription: 'Verwijder uw account en al uw persoonsgegevens definitief. Onomkeerbaar. Als u nog domeinen bezit, draag ze eerst over of verwijder ze.',
+    deleteAccountCta: 'Mijn account verwijderen…',
+    deleteConfirmHeader: 'Verwijdering bevestigen',
+    deleteConfirmMessage: (username) => `Onomkeerbaar. Typ uw gebruikersnaam ("${username}") hieronder om te bevestigen.`,
+    deleteConfirmPlaceholder: 'Gebruikersnaam',
+    deleteConfirmAccept: 'Definitief verwijderen',
+    deleteConfirmCancel: 'Annuleren',
+    deleteOwnedDomainsBlock: (count) => count <= 1
+      ? 'U bezit nog een domein. Draag het over of verwijder het voordat u uw account verwijdert.'
+      : `U bezit nog ${count} domeinen. Draag ze over of verwijder ze voordat u uw account verwijdert.`,
+    deleteSuccess: 'Uw account is verwijderd.',
+    deleteError: 'Kan het account niet verwijderen.',
   },
   notifications: {
     bellTitle: 'Meldingen',

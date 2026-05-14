@@ -148,4 +148,18 @@ export type PreferencesUiText = {
   notificationGroupManager: string;
   notificationGroupOwner: string;
   notificationsSaved: string;
+  // --- Danger zone: self-service account deletion (GDPR right of erasure) ---
+  dangerZoneTitle: string;
+  deleteAccountTitle: string;
+  deleteAccountDescription: string;
+  deleteAccountCta: string;
+  deleteConfirmHeader: string;
+  deleteConfirmMessage: (username: string) => string;
+  deleteConfirmPlaceholder: string;
+  deleteConfirmAccept: string;
+  deleteConfirmCancel: string;
+  /** Server error when the user still owns ``n`` domain(s). */
+  deleteOwnedDomainsBlock: (count: number) => string;
+  deleteSuccess: string;
+  deleteError: string;
 };
