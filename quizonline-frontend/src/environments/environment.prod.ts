@@ -7,4 +7,9 @@ export const environment = {
   logoSvg: '/qna.svg',
   logoIco: '/favicon.ico',
   logoPng: '/qna.png',
+  // Empty by default. The operator injects ``window.__QUIZONLINE_SENTRY_DSN``
+  // at deploy time (or overwrites this file in the CI pipeline) to turn
+  // error monitoring on without changing app code.
+  sentryDsn: '',
+  sentryRelease: '',
 };

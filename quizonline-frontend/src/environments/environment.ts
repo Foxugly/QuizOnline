@@ -7,6 +7,10 @@ export const environment = {
   logoSvg : "/qna.svg",
   logoIco : "/favicon.ico",
   logoPng : "/qna.png",
+  // Error monitoring — empty in dev. Set via build-time replacement or
+  // the runtime ``window.__QUIZONLINE_SENTRY_DSN`` injection.
+  sentryDsn: '',
+  sentryRelease: '',
   //apiUserPath: 'user/',
   //apiUserPreferencesPath: 'user/me/',
   //apiSubjectPath: 'subject/',
