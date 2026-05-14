@@ -60,6 +60,54 @@ class TransferInitiateTests(TestCase):
         resp = self.client.post(self.URL.format(self.domain.id), {"user_id": self.owner.id}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
+    def test_pending_transfer_surfaces_in_detail(self):
+        """After the owner initiates a transfer the domain detail
+        endpoint should expose ``pending_transfer = {id, username}``
+        so the frontend can show "transfer in flight" on /edit."""
+        self.client.force_authenticate(self.owner)
+        # Detail before: no pending transfer.
+        before = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        self.assertEqual(before.status_code, status.HTTP_200_OK)
+        self.assertIsNone(before.data["pending_transfer"])
+
+        # Initiate.
+        self.client.post(
+            self.URL.format(self.domain.id),
+            {"user_id": self.future.id},
+            format="json",
+        )
+
+        after = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        self.assertEqual(after.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(after.data["pending_transfer"])
+        self.assertEqual(after.data["pending_transfer"]["id"], self.future.id)
+        self.assertEqual(after.data["pending_transfer"]["username"], self.future.username)
+
+    def test_pending_transfer_cleared_after_accept(self):
+        """Once the future owner has accepted, ``pending_transfer``
+        flips back to ``null`` even though the initiate audit row
+        is still on the table."""
+        from domain.models import DomainAuditLog
+        # Seed the initiate row directly (skip the email queueing).
+        DomainAuditLog.objects.create(
+            domain=self.domain,
+            actor=self.owner,
+            target_user=self.future,
+            action="transfer.initiate",
+            metadata={},
+        )
+        DomainAuditLog.objects.create(
+            domain=self.domain,
+            actor=self.future,
+            target_user=self.future,
+            action="transfer.accept",
+            metadata={},
+        )
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIsNone(resp.data["pending_transfer"])
+
     def test_future_owner_without_email_refused(self):
         self.future.email = ""
         self.future.save(update_fields=["email"])

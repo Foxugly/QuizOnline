@@ -380,6 +380,7 @@ class DomainPartialSerializer(DomainWriteSerializer):
 
 class DomainDetailSerializer(DomainReadSerializer):
     subjects = serializers.SerializerMethodField()
+    pending_transfer = serializers.SerializerMethodField()
 
     class Meta:
         model = Domain
@@ -396,12 +397,57 @@ class DomainDetailSerializer(DomainReadSerializer):
             "managers",
             "members",
             "notification_settings",
+            "pending_transfer",
             "created_at",
             "updated_at",
             "subjects"
         ]
         read_only_fields = fields
         extra_kwargs = {"owner": {"read_only": True}}
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_pending_transfer(self, obj: Domain) -> dict[str, int | str] | None:
+        """
+        Returns the future owner targeted by the most recent
+        ``transfer.initiate`` audit row when that transfer is still
+        within the token TTL **and** has not been accepted yet.
+        Used by the frontend to surface a "transfer in flight to X"
+        banner on /domain/{id}/edit so the owner can tell whether
+        their previous "transfer ownership" action is still
+        outstanding.
+        """
+        from datetime import timedelta
+        from django.utils import timezone
+        from domain.transfer_token import TRANSFER_TOKEN_TTL_SECONDS
+
+        cutoff = timezone.now() - timedelta(seconds=TRANSFER_TOKEN_TTL_SECONDS)
+        latest_initiate = (
+            DomainAuditLog.objects
+            .filter(
+                domain=obj,
+                action="transfer.initiate",
+                created_at__gte=cutoff,
+                target_user__isnull=False,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        if latest_initiate is None:
+            return None
+
+        accepted_after = (
+            DomainAuditLog.objects
+            .filter(
+                domain=obj,
+                action="transfer.accept",
+                created_at__gte=latest_initiate.created_at,
+            )
+            .exists()
+        )
+        if accepted_after:
+            return None
+
+        return _user_summary(latest_initiate.target_user)
 
     @extend_schema_field(SubjectReadSerializer(many=True))
     def get_subjects(self, obj: Domain) -> list[dict]:

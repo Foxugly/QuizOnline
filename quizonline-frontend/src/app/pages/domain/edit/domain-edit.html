@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page" [appDirtyGuard]="form.dirty && !loading()">
   <div class="header-line">
     <div class="header-line__left">
       <p-button
@@ -67,6 +67,14 @@
       <p-tabpanels class="builder-tabpanels">
         <p-tabpanel value="config">
           <div class="builder-pane">
+          @if (domain()?.pending_transfer; as pending) {
+            <p-message severity="info" [closable]="false">
+              <span>
+                <i class="pi pi-clock"></i>
+                {{ editText().transfer.pendingTo(pending.username) }}
+              </span>
+            </p-message>
+          }
           <app-domain-editor-form
             [activeTab]="activeTab()"
             [form]="form"

@@ -4591,6 +4591,11 @@ components:
           readOnly: true
         notification_settings:
           readOnly: true
+        pending_transfer:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -4616,6 +4621,7 @@ components:
       - notification_settings
       - owner
       - pending_join_requests_count
+      - pending_transfer
       - public
       - subjects
       - translations

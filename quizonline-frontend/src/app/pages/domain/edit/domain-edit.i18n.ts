@@ -128,6 +128,7 @@ export type DomainEditUiText = {
     errorAlreadyOwner: string;
     errorTargetUnreachable: string;
     errorGeneric: string;
+    pendingTo: (username: string) => string;
   };
 };
 
@@ -363,6 +364,7 @@ const FR: DomainEditUiText = {
     errorAlreadyOwner: 'Cet utilisateur est déjà le propriétaire.',
     errorTargetUnreachable: 'L\'utilisateur n\'est pas accessible.',
     errorGeneric: 'Impossible de changer le propriétaire.',
+    pendingTo: (username) => `Transfert de propriété en cours vers ${username} — le futur propriétaire doit confirmer via le lien reçu par e-mail.`,
   },
 };
 
@@ -498,6 +500,7 @@ const EN: DomainEditUiText = {
     errorAlreadyOwner: 'This user is already the owner.',
     errorTargetUnreachable: 'This user is not reachable.',
     errorGeneric: 'Unable to change the owner.',
+    pendingTo: (username) => `Ownership transfer in flight to ${username} — the future owner must confirm via the email link.`,
   },
 };
 
@@ -633,6 +636,7 @@ const NL: DomainEditUiText = {
     errorAlreadyOwner: 'Deze gebruiker is al eigenaar.',
     errorTargetUnreachable: 'Deze gebruiker is niet bereikbaar.',
     errorGeneric: 'Kan de eigenaar niet wijzigen.',
+    pendingTo: (username) => `Eigendomsoverdracht loopt naar ${username} — de toekomstige eigenaar moet bevestigen via de e-maillink.`,
   },
 };
 
@@ -768,6 +772,7 @@ const IT: DomainEditUiText = {
     errorAlreadyOwner: 'Questo utente è già il proprietario.',
     errorTargetUnreachable: 'Questo utente non è raggiungibile.',
     errorGeneric: 'Impossibile cambiare il proprietario.',
+    pendingTo: (username) => `Trasferimento di proprietà in corso verso ${username} — il futuro proprietario deve confermare tramite il link ricevuto via e-mail.`,
   },
 };
 
@@ -903,6 +908,7 @@ const ES: DomainEditUiText = {
     errorAlreadyOwner: 'Este usuario ya es el propietario.',
     errorTargetUnreachable: 'Este usuario no es accesible.',
     errorGeneric: 'No se puede cambiar el propietario.',
+    pendingTo: (username) => `Transferencia de propiedad en curso hacia ${username} — el futuro propietario debe confirmar mediante el enlace recibido por correo.`,
   },
 };
 
