@@ -194,9 +194,14 @@
                         <div class="notif-prefs__row">
                           <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
                           <div class="notif-prefs__col">
+                            <!-- ``standalone: true`` is required because the
+                                 surrounding form uses ``[formGroup]`` for the
+                                 profile section; ngModel-bound toggles outside
+                                 the form group would otherwise trigger NG01350. -->
                             <p-toggleswitch
                               [ngModel]="isChannelEnabled(entry.kind, 'email')"
                               (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
+                              [ngModelOptions]="{standalone: true}"
                               [disabled]="saving()">
                             </p-toggleswitch>
                           </div>
@@ -204,6 +209,7 @@
                             <p-toggleswitch
                               [ngModel]="isChannelEnabled(entry.kind, 'web')"
                               (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
+                              [ngModelOptions]="{standalone: true}"
                               [disabled]="saving()">
                             </p-toggleswitch>
                           </div>
