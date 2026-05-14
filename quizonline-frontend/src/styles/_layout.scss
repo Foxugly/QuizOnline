@@ -167,10 +167,20 @@ $page-max-width: 1440px;
 .builder-stack {
   display: grid;
   gap: 1.5rem;
+
+  // Grid children inherit min-width: auto, which means they expand
+  // to fit their intrinsic content. PrimeNG ``<p-tabs>`` with many
+  // labels has a wide intrinsic width — let the children shrink
+  // instead so the tab strip becomes horizontally scrollable inside
+  // a narrow card on mobile rather than blowing past the viewport.
+  & > * {
+    min-width: 0;
+  }
 }
 
 .builder-tabs {
   display: block;
+  min-width: 0;
 }
 
 .builder-tabs .p-tabpanel,
@@ -189,4 +199,30 @@ $page-max-width: 1440px;
 
 .tab-icon {
   margin-right: 0.4rem;
+}
+
+@media (max-width: 768px) {
+  // The builder shell otherwise pushes a horizontal scrollbar on
+  // narrow viewports because the inner forms (selectButton lineups,
+  // multi-column meta-grids) overflow the page. min-width: 0 on the
+  // flex/grid containers lets them shrink to the viewport width.
+  .page,
+  .builder-stack,
+  .card.form-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .card.form-card {
+    padding: 0.75rem;
+  }
+
+  // Tablist with many tabs becomes horizontally scrollable rather
+  // than wrapping (PrimeNG default), but its container must allow
+  // shrink + overflow to actually expose the scroll.
+  .builder-tabs ::ng-deep .p-tablist,
+  .builder-tabs .p-tablist {
+    min-width: 0;
+    overflow-x: auto;
+  }
 }

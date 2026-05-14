@@ -59,4 +59,12 @@
   .meta-grid--context {
     grid-template-columns: 1fr;
   }
+
+  // The 5-language selectButton row otherwise stretches edge-to-edge
+  // and pushes the page width past the viewport. Allow buttons to
+  // wrap onto a second line on small screens.
+  .lang-select.p-selectbutton,
+  .meta-grid--context :host ::ng-deep .p-selectbutton {
+    flex-wrap: wrap;
+  }
 }

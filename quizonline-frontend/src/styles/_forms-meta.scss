@@ -22,6 +22,13 @@
   gap: 0.75rem 1rem;
   padding-bottom: 1rem;
 
+  // Collapse to a single column on narrow viewports so the inner
+  // widgets (toggles / selects / select-button lineups) don't push
+  // the page horizontally beyond the screen.
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
   .meta-item {
     display: flex;
     flex-direction: column;
