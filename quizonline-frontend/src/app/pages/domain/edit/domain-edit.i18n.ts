@@ -17,6 +17,14 @@ export type DomainEditUiText = {
     colTarget: string;
     actionLabel: (action: string) => string;
     systemActor: string;
+    filterActionLabel: string;
+    filterActionPlaceholder: string;
+    filterActorLabel: string;
+    filterActorPlaceholder: string;
+    filterSinceLabel: string;
+    filterUntilLabel: string;
+    filterClear: string;
+    pageReport: string;
   };
   analytics: {
     title: string;
@@ -222,6 +230,14 @@ const FR: DomainEditUiText = {
     colTarget: 'Cible',
     actionLabel: (action) => FR_ACTION_LABELS[action] ?? action,
     systemActor: 'système',
+    filterActionLabel: 'Action',
+    filterActionPlaceholder: 'Toutes les actions',
+    filterActorLabel: 'Acteur',
+    filterActorPlaceholder: 'Nom d\'utilisateur ou e-mail',
+    filterSinceLabel: 'À partir du',
+    filterUntilLabel: 'Jusqu\'au',
+    filterClear: 'Effacer les filtres',
+    pageReport: 'Lignes {first} à {last} sur {totalRecords}',
   },
   errors: {
     invalidId: 'Identifiant invalide.',
@@ -338,6 +354,14 @@ const EN: DomainEditUiText = {
     colTarget: 'Target',
     actionLabel: (action) => EN_ACTION_LABELS[action] ?? action,
     systemActor: 'system',
+    filterActionLabel: 'Action',
+    filterActionPlaceholder: 'All actions',
+    filterActorLabel: 'Actor',
+    filterActorPlaceholder: 'Username or email',
+    filterSinceLabel: 'From',
+    filterUntilLabel: 'To',
+    filterClear: 'Clear filters',
+    pageReport: 'Rows {first} to {last} of {totalRecords}',
   },
   errors: {
     invalidId: 'Invalid identifier.',
@@ -454,6 +478,14 @@ const NL: DomainEditUiText = {
     colTarget: 'Doel',
     actionLabel: (action) => NL_ACTION_LABELS[action] ?? action,
     systemActor: 'systeem',
+    filterActionLabel: 'Actie',
+    filterActionPlaceholder: 'Alle acties',
+    filterActorLabel: 'Actor',
+    filterActorPlaceholder: 'Gebruikersnaam of e-mail',
+    filterSinceLabel: 'Vanaf',
+    filterUntilLabel: 'Tot',
+    filterClear: 'Filters wissen',
+    pageReport: 'Regels {first} tot {last} van {totalRecords}',
   },
   errors: {
     invalidId: 'Ongeldige identificatie.',
@@ -570,6 +602,14 @@ const IT: DomainEditUiText = {
     colTarget: 'Bersaglio',
     actionLabel: (action) => IT_ACTION_LABELS[action] ?? action,
     systemActor: 'sistema',
+    filterActionLabel: 'Azione',
+    filterActionPlaceholder: 'Tutte le azioni',
+    filterActorLabel: 'Attore',
+    filterActorPlaceholder: 'Nome utente o e-mail',
+    filterSinceLabel: 'Da',
+    filterUntilLabel: 'A',
+    filterClear: 'Cancella filtri',
+    pageReport: 'Righe da {first} a {last} di {totalRecords}',
   },
   errors: {
     invalidId: 'Identificatore non valido.',
@@ -686,6 +726,14 @@ const ES: DomainEditUiText = {
     colTarget: 'Objetivo',
     actionLabel: (action) => ES_ACTION_LABELS[action] ?? action,
     systemActor: 'sistema',
+    filterActionLabel: 'Acción',
+    filterActionPlaceholder: 'Todas las acciones',
+    filterActorLabel: 'Autor',
+    filterActorPlaceholder: 'Usuario o correo',
+    filterSinceLabel: 'Desde',
+    filterUntilLabel: 'Hasta',
+    filterClear: 'Borrar filtros',
+    pageReport: 'Filas {first} a {last} de {totalRecords}',
   },
   errors: {
     invalidId: 'Identificador no válido.',

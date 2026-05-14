@@ -5,3 +5,37 @@
 .transfer-dialog__hint {
   margin: 0 0 1rem;
 }
+
+.audit-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+  margin: 0.5rem 0 1rem;
+}
+
+.audit-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+
+  label {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color, #6c757d);
+    font-weight: 500;
+  }
+
+  input[type="date"],
+  input[pInputText] {
+    width: 100%;
+  }
+
+  ::ng-deep .p-select {
+    width: 100%;
+  }
+}
+
+.audit-filter--action {
+  align-self: end;
+}

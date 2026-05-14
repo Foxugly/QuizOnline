@@ -194,6 +194,78 @@ class AuditLogEndpointTests(TestCase):
         resp = self.client.get(self.URL.format(self.domain.id))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_filter_by_action_exact(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id), {"action": "member.promote"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        self.assertEqual([r["action"] for r in rows], ["member.promote"])
+
+    def test_filter_by_actor_username_substring(self):
+        # Add a second actor and a row for it
+        other_actor = User.objects.create_user(username="alice", password="p")
+        self.domain.members.add(other_actor)
+        DomainAuditLog.objects.create(
+            domain=self.domain, actor=other_actor, action="member.demote", metadata={},
+        )
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id), {"actor": "alic"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        self.assertEqual([r["actor_username"] for r in rows], ["alice"])
+
+    def test_filter_by_actor_email_substring(self):
+        other_actor = User.objects.create_user(
+            username="z", password="p", email="bob@example.com",
+        )
+        self.domain.members.add(other_actor)
+        DomainAuditLog.objects.create(
+            domain=self.domain, actor=other_actor, action="invite.bulk_send", metadata={},
+        )
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id), {"actor": "bob@"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        self.assertEqual({r["actor_username"] for r in rows}, {"z"})
+
+    def test_filter_by_date_range(self):
+        from datetime import timedelta
+        from django.utils import timezone as dj_tz
+        old_row = DomainAuditLog.objects.create(
+            domain=self.domain, actor=self.owner, action="member.demote", metadata={},
+        )
+        # Push the row back in time (auto_now_add does not respect overrides)
+        DomainAuditLog.objects.filter(pk=old_row.pk).update(
+            created_at=dj_tz.now() - timedelta(days=30),
+        )
+        self.client.force_authenticate(self.owner)
+        cutoff = (dj_tz.now() - timedelta(days=1)).date().isoformat()
+        resp = self.client.get(self.URL.format(self.domain.id), {"since": cutoff})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        self.assertNotIn("member.demote", [r["action"] for r in rows])
+
+    def test_invalid_since_is_ignored_rather_than_400(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id), {"since": "not-a-date"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        rows = resp.data.get("results", resp.data)
+        self.assertEqual(len(rows), 2)
+
+    def test_audit_actions_endpoint_returns_distinct_actions(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id) + "actions/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            resp.data.get("actions"),
+            ["invite.bulk_send", "member.promote"],
+        )
+
+    def test_audit_actions_endpoint_outsider_is_404(self):
+        self.client.force_authenticate(self.outsider)
+        resp = self.client.get(self.URL.format(self.domain.id) + "actions/")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class LeaveActionRecordAuditTests(TestCase):
     def setUp(self):

@@ -73,36 +73,106 @@
             <div class="card-head">
               <h2 class="card-title">{{ editText().audit.title }}</h2>
             </div>
-            @if (auditLoading()) {
-              <p class="muted">{{ ui().common.loading }}</p>
-            } @else if (auditRows().length > 0) {
-              <p-table
-                [value]="auditRows()"
-                [paginator]="auditRows().length > 25"
-                [rows]="25"
-                styleClass="table"
-                size="small"
-                stripedRows>
-                <ng-template #header>
-                  <tr>
-                    <th>{{ editText().audit.colWhen }}</th>
-                    <th>{{ editText().audit.colActor }}</th>
-                    <th>{{ editText().audit.colAction }}</th>
-                    <th>{{ editText().audit.colTarget }}</th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-row>
-                  <tr>
-                    <td>{{ row.created_at | date:'medium' }}</td>
-                    <td>{{ row.actor_username || editText().audit.systemActor }}</td>
-                    <td>{{ editText().audit.actionLabel(row.action) }}</td>
-                    <td>{{ row.target_username || '—' }}</td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            } @else {
-              <p class="muted">{{ editText().audit.empty }}</p>
-            }
+
+            <div class="audit-filters">
+              <div class="audit-filter">
+                <label for="audit-filter-action">{{ editText().audit.filterActionLabel }}</label>
+                <p-select
+                  inputId="audit-filter-action"
+                  [options]="auditActionOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  [ngModel]="auditFilterAction()"
+                  (ngModelChange)="auditFilterAction.set($event ?? '')"
+                  [showClear]="true"
+                  [placeholder]="editText().audit.filterActionPlaceholder"
+                  (onChange)="applyAuditFilters()"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <div class="audit-filter">
+                <label for="audit-filter-actor">{{ editText().audit.filterActorLabel }}</label>
+                <input
+                  id="audit-filter-actor"
+                  pInputText
+                  type="text"
+                  [ngModel]="auditFilterActor()"
+                  (ngModelChange)="auditFilterActor.set($event)"
+                  [placeholder]="editText().audit.filterActorPlaceholder"
+                  (keydown.enter)="applyAuditFilters()"
+                  (blur)="applyAuditFilters()">
+              </div>
+
+              <div class="audit-filter">
+                <label for="audit-filter-since">{{ editText().audit.filterSinceLabel }}</label>
+                <input
+                  id="audit-filter-since"
+                  type="date"
+                  [ngModel]="auditFilterSince()"
+                  (ngModelChange)="auditFilterSince.set($event ?? '')"
+                  (change)="applyAuditFilters()">
+              </div>
+
+              <div class="audit-filter">
+                <label for="audit-filter-until">{{ editText().audit.filterUntilLabel }}</label>
+                <input
+                  id="audit-filter-until"
+                  type="date"
+                  [ngModel]="auditFilterUntil()"
+                  (ngModelChange)="auditFilterUntil.set($event ?? '')"
+                  (change)="applyAuditFilters()">
+              </div>
+
+              <div class="audit-filter audit-filter--action">
+                <button
+                  pButton
+                  type="button"
+                  severity="secondary"
+                  [outlined]="true"
+                  size="small"
+                  [label]="editText().audit.filterClear"
+                  (click)="clearAuditFilters()">
+                </button>
+              </div>
+            </div>
+
+            <p-table
+              [value]="auditRows()"
+              [lazy]="true"
+              [paginator]="true"
+              [rows]="auditPageSize"
+              [totalRecords]="auditTotal()"
+              [loading]="auditLoading()"
+              [first]="(auditPage() - 1) * auditPageSize"
+              (onLazyLoad)="onAuditLazyLoad($event)"
+              [showCurrentPageReport]="true"
+              [currentPageReportTemplate]="editText().audit.pageReport"
+              styleClass="table"
+              size="small"
+              stripedRows>
+              <ng-template #header>
+                <tr>
+                  <th>{{ editText().audit.colWhen }}</th>
+                  <th>{{ editText().audit.colActor }}</th>
+                  <th>{{ editText().audit.colAction }}</th>
+                  <th>{{ editText().audit.colTarget }}</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr>
+                  <td>{{ row.created_at | date:'medium' }}</td>
+                  <td>{{ row.actor_username || editText().audit.systemActor }}</td>
+                  <td>{{ editText().audit.actionLabel(row.action) }}</td>
+                  <td>{{ row.target_username || '—' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="4" class="muted">{{ editText().audit.empty }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
           </section>
         </p-tabpanel>
 

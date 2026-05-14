@@ -13,7 +13,8 @@ import {BadgeModule} from 'primeng/badge';
 import {DialogModule} from 'primeng/dialog';
 import {SelectModule} from 'primeng/select';
 import {MessageModule} from 'primeng/message';
-import {TableModule} from 'primeng/table';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
 import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -80,6 +81,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     SelectModule,
     MessageModule,
     TableModule,
+    InputTextModule,
     DomainAnalyticsTab,
     DomainEditorFormComponent,
     DomainInvitationsTab,
@@ -106,6 +108,15 @@ export class DomainEdit implements OnInit {
   topTab = signal<'config' | 'invitations' | 'members' | 'audit' | 'analytics'>('config');
   readonly auditRows = signal<DomainAuditLogReadDto[]>([]);
   readonly auditLoading = signal<boolean>(false);
+  readonly auditTotal = signal<number>(0);
+  readonly auditPage = signal<number>(1);
+  readonly auditPageSize = 25;
+  readonly auditFilterAction = signal<string>('');
+  readonly auditFilterActor = signal<string>('');
+  readonly auditFilterSince = signal<string>('');
+  readonly auditFilterUntil = signal<string>('');
+  readonly auditActions = signal<string[]>([]);
+  private auditLoaded = false;
 
   readonly analytics = signal<DomainAnalyticsDto | null>(null);
   readonly analyticsLoading = signal<boolean>(false);
@@ -381,14 +392,43 @@ export class DomainEdit implements OnInit {
       || value === 'analytics'
     ) {
       this.topTab.set(value);
-      if (value === 'audit' && this.auditRows().length === 0) {
-        this.loadAuditLog();
+      if (value === 'audit' && !this.auditLoaded) {
+        this.auditLoaded = true;
+        this.loadAuditActions();
+        this.loadAuditLog({resetPage: true});
       }
       if (value === 'analytics' && this.analytics() === null) {
         this.loadAnalytics();
       }
     }
   }
+
+  applyAuditFilters(): void {
+    this.loadAuditLog({resetPage: true});
+  }
+
+  clearAuditFilters(): void {
+    this.auditFilterAction.set('');
+    this.auditFilterActor.set('');
+    this.auditFilterSince.set('');
+    this.auditFilterUntil.set('');
+    this.loadAuditLog({resetPage: true});
+  }
+
+  onAuditLazyLoad(event: TableLazyLoadEvent): void {
+    const first = event?.first ?? 0;
+    const rows = event?.rows ?? this.auditPageSize;
+    const page = Math.floor(first / rows) + 1;
+    if (page !== this.auditPage()) {
+      this.auditPage.set(page);
+      this.loadAuditLog({resetPage: false});
+    }
+  }
+
+  readonly auditActionOptions = computed<Array<{label: string; value: string}>>(() => {
+    const labelFn = this.editText().audit.actionLabel;
+    return this.auditActions().map((a) => ({label: labelFn(a), value: a}));
+  });
 
   onJoinRequestStatusFilterChange(value: JoinRequestStatusFilter): void {
     this.joinRequestStatusFilter.set(value);
@@ -510,18 +550,42 @@ export class DomainEdit implements OnInit {
       .subscribe((data) => this.analytics.set(data));
   }
 
-  private loadAuditLog(): void {
+  private loadAuditLog(opts: {resetPage?: boolean} = {}): void {
+    if (opts.resetPage) {
+      this.auditPage.set(1);
+    }
     this.auditLoading.set(true);
-    this.editApi.listAudit(this.id)
+    this.editApi.listAudit(this.id, {
+      page: this.auditPage(),
+      action: this.auditFilterAction() || undefined,
+      actor: this.auditFilterActor().trim() || undefined,
+      since: this.auditFilterSince() || undefined,
+      until: this.auditFilterUntil() || undefined,
+    })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
           logApiError('domain.edit.load-audit', err);
-          return of([] as DomainAuditLogReadDto[]);
+          return of({rows: [], total: 0});
         }),
         finalize(() => this.auditLoading.set(false)),
       )
-      .subscribe((rows) => this.auditRows.set(rows));
+      .subscribe((result) => {
+        this.auditRows.set(result.rows);
+        this.auditTotal.set(result.total);
+      });
+  }
+
+  private loadAuditActions(): void {
+    this.editApi.listAuditActions(this.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.load-audit-actions', err);
+          return of<string[]>([]);
+        }),
+      )
+      .subscribe((actions) => this.auditActions.set(actions));
   }
 
   onMemberRoleChange(evt: {userId: number; makeManager: boolean}): void {

@@ -91,6 +91,8 @@
   "pages/domain/edit:tabs.config",
   "pages/domain/edit:audit.colAction",
   "pages/domain/edit:audit.colActor",
+  "pages/domain/edit:audit.filterActionLabel",
+  "pages/domain/edit:audit.filterActorLabel",
   "pages/domain/edit:members.colActions",
   "pages/domain/edit:members.inviteEmailsPlaceholder",
   "pages/domain/edit:analytics.acceptRateUnknown",

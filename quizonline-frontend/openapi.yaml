@@ -373,11 +373,25 @@ paths:
   /api/domain/{domain_id}/audit/:
     get:
       operationId: domain_audit_list
-      description: Liste paginée des dernières actions administratives sur le domaine.
-        Réservée aux owner / managers / superusers (la queryset du viewset gère déjà
-        la confidentialité).
+      description: |-
+        Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).
+
+        Filtres optionnels (combinables) :
+        - ``action`` : nom exact de l'action (ex. ``member.promote``).
+        - ``actor`` : sous-chaîne, insensible à la casse, recherchée dans le ``username`` ou l'``email`` de l'acteur.
+        - ``since`` / ``until`` : ISO-8601 (date ou datetime) sur ``created_at``.
       summary: Journal d'audit d'un domaine
       parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+        description: Exact match on the action name.
+      - in: query
+        name: actor
+        schema:
+          type: string
+        description: Case-insensitive substring on the actor username or email.
       - in: path
         name: domain_id
         schema:
@@ -390,6 +404,18 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: since
+        schema:
+          type: string
+          format: date-time
+        description: ISO-8601 lower bound (inclusive) on created_at.
+      - in: query
+        name: until
+        schema:
+          type: string
+          format: date-time
+        description: ISO-8601 upper bound (inclusive) on created_at.
       tags:
       - Domain
       security:
@@ -400,6 +426,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedDomainAuditLogReadList'
+          description: ''
+  /api/domain/{domain_id}/audit/actions/:
+    get:
+      operationId: domain_audit_actions_retrieve
+      description: Liste triée et dédupliquée des valeurs ``action`` déjà enregistrées
+        sur ce domaine. Sert à alimenter le filtre « action » de la page d'audit sans
+        hardcoder la liste côté client.
+      summary: Actions distinctes journalisées sur un domaine
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
           description: ''
   /api/domain/{domain_id}/details/:
     get:

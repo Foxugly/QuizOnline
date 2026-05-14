@@ -14,6 +14,19 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export type JoinRequestStatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
 
+export interface AuditListParams {
+  page?: number;
+  action?: string;
+  actor?: string;
+  since?: string;
+  until?: string;
+}
+
+export interface AuditListResult {
+  rows: DomainAuditLogReadDto[];
+  total: number;
+}
+
 /**
  * Thin façade over the generated DomainApi that returns the shapes the
  * domain-edit page actually wants — pagination already unwrapped, void
@@ -26,9 +39,34 @@ export class DomainEditApi {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
-  listAudit(domainId: number): Observable<DomainAuditLogReadDto[]> {
-    return this.api.domainAuditList({domainId}).pipe(
-      map((page) => page?.results ?? []),
+  listAudit(domainId: number, params: AuditListParams = {}): Observable<AuditListResult> {
+    return this.api.domainAuditList({
+      domainId,
+      page: params.page,
+      action: params.action,
+      actor: params.actor,
+      since: params.since,
+      until: params.until,
+    }).pipe(
+      map((page) => ({
+        rows: page?.results ?? [],
+        total: page?.count ?? 0,
+      })),
+    );
+  }
+
+  /**
+   * Distinct list of ``action`` values ever recorded on this domain.
+   * Used to populate the filter dropdown without having to hardcode the
+   * full set client-side (which would drift as new audit actions are
+   * added in the backend).
+   */
+  listAuditActions(domainId: number): Observable<string[]> {
+    return this.api.domainAuditActionsRetrieve({domainId}).pipe(
+      map((res) => {
+        const actions = (res as {actions?: unknown})?.actions;
+        return Array.isArray(actions) ? actions.filter((a): a is string => typeof a === 'string') : [];
+      }),
     );
   }
 

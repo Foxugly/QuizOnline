@@ -74,11 +74,24 @@ export interface DomainAnalyticsRetrieveRequestParams {
     domainId: number;
 }
 
+export interface DomainAuditActionsRetrieveRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+}
+
 export interface DomainAuditListRequestParams {
     /** A unique integer value identifying this domain. */
     domainId: number;
+    /** Exact match on the action name. */
+    action?: string;
+    /** Case-insensitive substring on the actor username or email. */
+    actor?: string;
     /** A page number within the paginated result set. */
     page?: number;
+    /** ISO-8601 lower bound (inclusive) on created_at. */
+    since?: string;
+    /** ISO-8601 upper bound (inclusive) on created_at. */
+    until?: string;
 }
 
 export interface DomainCreateRequestParams {
@@ -293,8 +306,69 @@ export class DomainApi extends BaseService {
     }
 
     /**
+     * Actions distinctes journalisées sur un domaine
+     * Liste triée et dédupliquée des valeurs &#x60;&#x60;action&#x60;&#x60; déjà enregistrées sur ce domaine. Sert à alimenter le filtre « action » de la page d\&#39;audit sans hardcoder la liste côté client.
+     * @endpoint get /api/domain/{domain_id}/audit/actions/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainAuditActionsRetrieve(requestParameters: DomainAuditActionsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<{ [key: string]: any; }>;
+    public domainAuditActionsRetrieve(requestParameters: DomainAuditActionsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<{ [key: string]: any; }>>;
+    public domainAuditActionsRetrieve(requestParameters: DomainAuditActionsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<{ [key: string]: any; }>>;
+    public domainAuditActionsRetrieve(requestParameters: DomainAuditActionsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainAuditActionsRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/actions/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Journal d\&#39;audit d\&#39;un domaine
-     * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).
+     * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).  Filtres optionnels (combinables) : - &#x60;&#x60;action&#x60;&#x60; : nom exact de l\&#39;action (ex. &#x60;&#x60;member.promote&#x60;&#x60;). - &#x60;&#x60;actor&#x60;&#x60; : sous-chaîne, insensible à la casse, recherchée dans le &#x60;&#x60;username&#x60;&#x60; ou l\&#39;&#x60;&#x60;email&#x60;&#x60; de l\&#39;acteur. - &#x60;&#x60;since&#x60;&#x60; / &#x60;&#x60;until&#x60;&#x60; : ISO-8601 (date ou datetime) sur &#x60;&#x60;created_at&#x60;&#x60;.
      * @endpoint get /api/domain/{domain_id}/audit/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -309,14 +383,54 @@ export class DomainApi extends BaseService {
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainAuditList.');
         }
+        const action = requestParameters?.action;
+        const actor = requestParameters?.actor;
         const page = requestParameters?.page;
+        const since = requestParameters?.since;
+        const until = requestParameters?.until;
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
+            'action',
+            <any>action,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'actor',
+            <any>actor,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
             'page',
             <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'since',
+            <any>since,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'until',
+            <any>until,
             QueryParamStyle.Form,
             true,
         );
