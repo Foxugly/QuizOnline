@@ -163,7 +163,7 @@ export class QuizService {
     return this.http.get(`${this.apiBaseUrl}/quiz/${quizId}/export-pdf/`, {responseType: 'blob'});
   }
 
-  goSubject(): void {
+  goQuickQuiz(): void {
     this.router.navigate(['/quiz/quick']);
   }
 }

@@ -235,7 +235,7 @@ export class QuizListPage implements OnInit {
   }
 
   goNew(): void {
-    this.quizService.goSubject();
+    this.quizService.goQuickQuiz();
   }
 
   goCompose(): void {
