@@ -36,8 +36,18 @@ quizonline-frontend/coverage/
 quizonline-frontend/test-results/
 quizonline-frontend/playwright-report/
 .playwright-mcp/
-topbar-*.png
-topbar-*.jpeg
+
+# Smoke-test artefacts saved to the repo root by Playwright sessions and
+# ad-hoc markdown notes from past audits. Anchored to repo root so checked-in
+# screenshots under quizonline-frontend/src/assets/, docs/, etc. are unaffected.
+# CLAUDE.md and README.md are explicitly re-included as the only intended
+# root-level markdown.
+/*.png
+/*.jpeg
+/*.jpg
+/*.md
+!/CLAUDE.md
+!/README.md
 
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock
