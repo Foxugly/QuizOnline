@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.quiz-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d5dee8;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f4f8fb 0%, #ffffff 100%);
+}
+
+.quiz-countdown--danger {
+  border-color: #d14d4d;
+  background: linear-gradient(135deg, #fff4f1 0%, #ffffff 100%);
+}
+
+.quiz-countdown__label {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5f6b76;
+}
+
+.quiz-countdown__value {
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #1d2a35;
+  font-variant-numeric: tabular-nums;
+}
+
+.quiz-countdown__state {
+  margin: 0;
+  font-weight: 600;
+  color: #8a2f2f;
+}
+
+@media (max-width: 768px) {
+  .quiz-countdown {
+    width: 100%;
+  }
+}

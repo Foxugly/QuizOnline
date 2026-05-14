@@ -38,11 +38,10 @@
   background: linear-gradient(135deg, #f4f8fb 0%, #ffffff 100%);
 }
 
-.timer-banner--danger {
-  border-color: #d14d4d;
-  background: linear-gradient(135deg, #fff4f1 0%, #ffffff 100%);
-}
-
+// Styles below stay because the review-mode banner re-uses the
+// same class names with a static label. The danger / state
+// modifiers were removed alongside the inline ticking logic that
+// now lives in <app-quiz-countdown>.
 .timer-banner__label {
   margin: 0 0 0.25rem;
   font-size: 0.85rem;
@@ -55,12 +54,6 @@
   font-size: 1.75rem;
   line-height: 1;
   color: #1d2a35;
-}
-
-.timer-banner__state {
-  margin: 0;
-  font-weight: 600;
-  color: #8a2f2f;
 }
 
 /* 🔁 Responsive : en mobile, une seule colonne, plus de sticky */

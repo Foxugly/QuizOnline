@@ -1,15 +1,14 @@
 <div class="layout">
   <aside class="layout__left">
-    @if (hasTimer() && !reviewMode) {
-      <section class="timer-banner" [class.timer-banner--danger]="(remainingSeconds() ?? 0) <= 30">
-        <div>
-          <p class="timer-banner__label">{{ editorUi().quiz.timeRemaining }}</p>
-          <strong class="timer-banner__value">{{ formattedRemainingTime() }}</strong>
-        </div>
-        @if (autoClosing()) {
-          <p class="timer-banner__state">{{ editorUi().quiz.autoClosingInProgress }}</p>
-        }
-      </section>
+    @if (!reviewMode) {
+      <app-quiz-countdown
+        [endedAt]="quizSession()?.ended_at"
+        [active]="!!quizSession()?.active && !!quizSession()?.with_duration"
+        [labelRemaining]="editorUi().quiz.timeRemaining"
+        [autoClosing]="autoClosing()"
+        [labelAutoClosing]="editorUi().quiz.autoClosingInProgress"
+        (expired)="handleTimerExpired()">
+      </app-quiz-countdown>
     }
 
     @if (reviewMode) {

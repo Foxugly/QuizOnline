@@ -1,0 +1,13 @@
+@if (visible()) {
+  <section class="quiz-countdown" [class.quiz-countdown--danger]="danger()">
+    <div>
+      @if (labelRemaining()) {
+        <p class="quiz-countdown__label">{{ labelRemaining() }}</p>
+      }
+      <strong class="quiz-countdown__value">{{ display() }}</strong>
+    </div>
+    @if (autoClosing() && labelAutoClosing()) {
+      <p class="quiz-countdown__state">{{ labelAutoClosing() }}</p>
+    }
+  </section>
+}

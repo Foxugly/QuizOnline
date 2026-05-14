@@ -21,6 +21,7 @@ import {
   updateQuizNavItem,
 } from '../../../shared/quiz/quiz-session-state';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {QuizCountdownComponent} from '../../../shared/components/quiz-countdown/quiz-countdown';
 import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../services/user/user';
 
@@ -34,6 +35,7 @@ import {UserService} from '../../../services/user/user';
     ConfirmDialogModule,
     QuizQuestionComponent,
     QuizNav,
+    QuizCountdownComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './question-view.html',
@@ -50,7 +52,6 @@ export class QuizQuestionView implements OnInit {
   quizSession = signal<QuizDto | null>(null);
   quizNavItem = signal<QuizNavItem | null>(null);
   quizNavItems = signal<QuizNavItem[]>([]);
-  remainingSeconds = signal<number | null>(null);
   autoClosing = signal(false);
   reportDialogVisible = signal(false);
   reportMessage = signal('');
@@ -63,11 +64,6 @@ export class QuizQuestionView implements OnInit {
   private readonly quizAlertService = inject(QuizAlertService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmationService = inject(ConfirmationService);
-  private timerId: number | null = null;
-
-  constructor() {
-    this.destroyRef.onDestroy(() => this.clearTimer());
-  }
 
   ngOnInit(): void {
     this.quiz_id = Number(this.route.snapshot.paramMap.get('quiz_id'));
@@ -189,28 +185,6 @@ export class QuizQuestionView implements OnInit {
 
   protected hasQuestionPrev(index: number): boolean {
     return index > 1;
-  }
-
-  protected hasTimer(): boolean {
-    const session = this.quizSession();
-    return Boolean(session?.with_duration && session?.ended_at);
-  }
-
-  protected formattedRemainingTime(): string {
-    const totalSeconds = this.remainingSeconds();
-    if (totalSeconds == null) {
-      return '--:--';
-    }
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      return `${this.padTime(hours)}:${this.padTime(minutes)}:${this.padTime(seconds)}`;
-    }
-
-    return `${this.padTime(minutes)}:${this.padTime(seconds)}`;
   }
 
   private goQuestionNext(index: number): void {
@@ -337,7 +311,6 @@ export class QuizQuestionView implements OnInit {
 
           this.quizSession.set(session);
           this.quizNavItems.set(navItems);
-          this.syncTimer(session);
           this.changeQuestion(1);
         },
         error: (err: unknown) => {
@@ -347,48 +320,12 @@ export class QuizQuestionView implements OnInit {
       });
   }
 
-  private syncTimer(session: QuizDto): void {
-    this.clearTimer();
-
-    if (!session.with_duration || !session.ended_at || !session.active) {
-      this.remainingSeconds.set(null);
-      return;
-    }
-
-    this.updateRemainingSeconds(session.ended_at);
-    if ((this.remainingSeconds() ?? 0) <= 0) {
-      this.handleTimerExpired();
-      return;
-    }
-
-    this.timerId = window.setInterval(() => {
-      const currentSession = this.quizSession();
-      if (!currentSession?.ended_at) {
-        this.clearTimer();
-        return;
-      }
-
-      this.updateRemainingSeconds(currentSession.ended_at);
-      if ((this.remainingSeconds() ?? 0) <= 0) {
-        this.handleTimerExpired();
-      }
-    }, 1000);
-  }
-
-  private updateRemainingSeconds(endedAt: string): void {
-    const targetTime = new Date(endedAt).getTime();
-    if (Number.isNaN(targetTime)) {
-      this.remainingSeconds.set(null);
-      return;
-    }
-
-    const deltaMs = targetTime - Date.now();
-    this.remainingSeconds.set(Math.max(0, Math.ceil(deltaMs / 1000)));
-  }
-
-  private handleTimerExpired(): void {
-    this.clearTimer();
-    this.remainingSeconds.set(0);
+  /**
+   * Called by ``<app-quiz-countdown>`` when the deadline is crossed.
+   * Public on purpose so the template can bind it directly. The
+   * component owns the ticking logic and we just react here.
+   */
+  handleTimerExpired(): void {
     this.error.set(this.editorUi().quiz.timeUpAutoClose);
     this.closeQuizAndRedirect(true);
   }
@@ -399,7 +336,6 @@ export class QuizQuestionView implements OnInit {
     }
 
     this.autoClosing.set(true);
-    this.clearTimer();
 
     this.quizService
       .closeQuiz(this.quiz_id)
@@ -423,15 +359,6 @@ export class QuizQuestionView implements OnInit {
       });
   }
 
-  private clearTimer(): void {
-    if (this.timerId == null) {
-      return;
-    }
-
-    window.clearInterval(this.timerId);
-    this.timerId = null;
-  }
-
   private isAnswerLocked(): boolean {
     return this.reviewMode || this.autoClosing() || this.isTimedOut();
   }
@@ -443,10 +370,6 @@ export class QuizQuestionView implements OnInit {
     }
 
     return new Date(session.ended_at).getTime() <= Date.now();
-  }
-
-  private padTime(value: number): string {
-    return value.toString().padStart(2, '0');
   }
 
 }
