@@ -365,6 +365,62 @@ export class UserApi extends BaseService {
     }
 
     /**
+     * Supprimer son compte (droit à l\&#39;effacement RGPD)
+     * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
+     * @endpoint delete /api/user/me/
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public userMeDestroy(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public userMeDestroy(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public userMeDestroy(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public userMeDestroy(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/user/me/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Export GDPR : toutes les données du compte courant
      * Retourne un dump JSON de toutes les données personnelles associées au compte de l\&#39;utilisateur connecté. Couvre le profil, les domaines (owned / managed / membre), les demandes d\&#39;adhésion et les sessions de quiz. Pensé pour le droit d\&#39;accès / portabilité du RGPD : le frontend télécharge la réponse en &#x60;&#x60;application/json&#x60;&#x60; sous le nom &#x60;&#x60;quizonline-export-&lt;username&gt;.json&#x60;&#x60;.
      * @endpoint get /api/user/me/export/

@@ -318,6 +318,54 @@ class CustomUserViewSet(
         }
         return Response(payload, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        tags=["User"],
+        summary="Supprimer son compte (droit à l'effacement RGPD)",
+        description=(
+            "Supprime définitivement le compte de l'utilisateur connecté.\n\n"
+            "**Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur "
+            "possède encore au moins un domaine actif. Il doit d'abord "
+            "transférer la propriété (``POST /api/domain/{id}/transfer/``) "
+            "ou désactiver/supprimer le domaine. Cela évite de laisser "
+            "un domaine orphelin sans propriétaire.\n\n"
+            "**Effets en cascade** : tout le contenu créé par l'utilisateur "
+            "et lié par FK reste (questions / quiz / sujets ne perdent pas "
+            "leurs métadonnées de création). Les liens M2M (managers / "
+            "members) sont nettoyés automatiquement par Django."
+        ),
+        request=None,
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Account deleted."),
+            status.HTTP_409_CONFLICT: ErrorDetailSerializer,
+        },
+    )
+    @me.mapping.delete
+    def me_delete(self, request):
+        user = request.user
+        # ``Domain.owner`` is on_delete=PROTECT, so any owned row — active
+        # or not — blocks ``user.delete()``. Surface that as a clean 409
+        # with a count rather than letting the DB-level ProtectedError
+        # bubble up as a 500.
+        owned_count = Domain.objects.filter(owner=user).count()
+        if owned_count > 0:
+            return Response(
+                {
+                    "detail": "owner_of_domains",
+                    "owned_count": owned_count,
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+        # Capture the username before delete so the audit row keeps a
+        # human-readable trace even though the FK becomes NULL.
+        username = user.username
+        user_id = user.id
+        user.delete()
+        logger.info(
+            "user.self_delete",
+            extra={"user_id": user_id, "username": username},
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @extend_schema_view(
     get=extend_schema(

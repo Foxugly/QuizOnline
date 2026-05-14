@@ -3,6 +3,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
+from domain.models import Domain
+
 
 class CustomUserApiTests(APITestCase):
     @patch("customuser.services.send_registration_confirmation_email")
@@ -48,3 +50,45 @@ class CustomUserListTests(APITestCase):
         results = response.data["results"] if isinstance(response.data, dict) else response.data
         self.assertIsInstance(results, list)
         self.assertGreaterEqual(len(results), 1)
+
+
+class CustomUserDeleteSelfTests(APITestCase):
+    """Self-service GDPR account deletion via DELETE /api/user/me/."""
+
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="alice",
+            email="alice@example.com",
+            password="Pwd!2026Alice",
+        )
+        self.url = "/api/user/me/"
+
+    def test_anonymous_rejected(self):
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_self_delete_succeeds_when_no_owned_domain(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(CustomUser.objects.filter(pk=self.user.pk).exists())
+
+    def test_self_delete_refused_when_owning_active_domain(self):
+        Domain.objects.create(owner=self.user, active=True)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["detail"], "owner_of_domains")
+        self.assertEqual(response.data["owned_count"], 1)
+        self.assertTrue(CustomUser.objects.filter(pk=self.user.pk).exists())
+
+    def test_self_delete_refused_even_when_only_inactive_domain_owned(self):
+        # ``Domain.owner`` is PROTECT, so an inactive owned row still
+        # blocks deletion. Block at the API level with a clean 409
+        # instead of letting the DB raise ProtectedError → 500.
+        Domain.objects.create(owner=self.user, active=False)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.data["detail"], "owner_of_domains")
+        self.assertTrue(CustomUser.objects.filter(pk=self.user.pk).exists())

@@ -4079,6 +4079,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden
+    delete:
+      operationId: user_me_destroy
+      description: |-
+        Supprime définitivement le compte de l'utilisateur connecté.
+
+        **Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur possède encore au moins un domaine actif. Il doit d'abord transférer la propriété (``POST /api/domain/{id}/transfer/``) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.
+
+        **Effets en cascade** : tout le contenu créé par l'utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
+      summary: Supprimer son compte (droit à l'effacement RGPD)
+      tags:
+      - User
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Account deleted.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/user/me/current-domain/:
     post:
       operationId: user_me_current_domain_create
