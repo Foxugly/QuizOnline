@@ -140,3 +140,53 @@ $page-max-width: 1440px;
   justify-content: flex-end;
   padding: 0.75rem 0.25rem 0.25rem;
 }
+
+/* ------------------------------------------------------------------
+ * Builder layout
+ *
+ * Shared shell for "edit page with PrimeNG tabs" — quiz template,
+ * domain edit, preferences. The pattern is:
+ *
+ *   <div class="page">
+ *     <div class="header-line">… back / title / right …</div>
+ *     <div class="card form-card builder-stack">
+ *       <p-tabs class="builder-tabs">
+ *         <p-tablist>…</p-tablist>
+ *         <p-tabpanels class="builder-tabpanels">
+ *           <p-tabpanel><div class="builder-pane">…</div></p-tabpanel>
+ *         </p-tabpanels>
+ *       </p-tabs>
+ *       <div class="footer-actions">…</div>?
+ *     </div>
+ *   </div>
+ *
+ * The outer .card paints the rounded surface; .builder-tabpanels
+ * resets PrimeNG's own panel chrome so the body sits flush.
+ * .builder-pane gives breathing room without adding a second border.
+ * ----------------------------------------------------------------*/
+.builder-stack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.builder-tabs {
+  display: block;
+}
+
+.builder-tabs .p-tabpanel,
+.builder-tabs .p-tabpanels {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.builder-pane {
+  display: grid;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.tab-icon {
+  margin-right: 0.4rem;
+}

@@ -1,31 +1,7 @@
-.builder-stack {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.builder-tabs {
-  display: block;
-}
-
-:host ::ng-deep .builder-tabs .p-tabpanel,
-:host ::ng-deep .builder-tabs .p-tabpanels {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
-}
-
-// The form already wraps everything in a .card; the per-tab pane just
-// adds vertical breathing room without a second border / shadow.
-.builder-pane {
-  display: grid;
-  gap: 1rem;
-  padding: 0.25rem 0;
-}
-
-.tab-icon {
-  margin-right: 0.4rem;
-}
+// Builder shell classes (.builder-stack, .builder-tabs,
+// .builder-tabpanels, .builder-pane, .tab-icon) are now defined
+// globally in src/styles/_layout.scss so /preferences and
+// /domain/{id}/edit can share the same surface.
 
 .config-card {
   display: grid;

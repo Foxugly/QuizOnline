@@ -2,6 +2,29 @@
   width: 100%;
 }
 
+/*
+ * The five sub-views (editor form, invitations, members, audit table,
+ * analytics) all root themselves in their own ``.card`` / ``.form-card``
+ * because they were originally standalone pages. Now that they're
+ * nested inside the outer ``.card form-card builder-stack`` shell on
+ * /domain/{id}/edit, that inner card paints a redundant border on
+ * top of the outer one. Flatten the immediate-child card chrome
+ * while keeping its padding so the content still breathes.
+ */
+:host ::ng-deep .builder-pane > .card,
+:host ::ng-deep .builder-pane > form.card,
+:host ::ng-deep .builder-pane > .card.form-card,
+:host ::ng-deep .builder-pane > app-domain-editor-form > form.card,
+:host ::ng-deep .builder-pane > app-domain-invitations-tab > .card,
+:host ::ng-deep .builder-pane > app-domain-members-tab > .card,
+:host ::ng-deep .builder-pane > app-domain-analytics-tab > .card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
 .transfer-dialog__hint {
   margin: 0 0 1rem;
 }

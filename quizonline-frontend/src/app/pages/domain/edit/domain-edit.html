@@ -24,28 +24,43 @@
       <p class="muted">{{ ui().common.loading }}</p>
     </div>
   } @else {
-    <p-tabs [value]="topTab()" (valueChange)="onTopTabChange($event)">
+    <div class="card form-card builder-stack">
+    <p-tabs [value]="topTab()" (valueChange)="onTopTabChange($event)" class="builder-tabs">
       <p-tablist>
-        <p-tab value="config">{{ editText().tabs.config }}</p-tab>
+        <p-tab value="config">
+          <i class="pi pi-cog tab-icon"></i>
+          {{ editText().tabs.config }}
+        </p-tab>
         @if (canInvite() || canModerate()) {
           <p-tab value="invitations">
+            <i class="pi pi-envelope tab-icon"></i>
             {{ editText().tabs.invitations }}
             @if (canModerate() && pendingCount() > 0) {
               <p-badge [value]="pendingCount() + ''" severity="warn"/>
             }
           </p-tab>
         }
-        <p-tab value="members">{{ editText().tabs.members }}</p-tab>
+        <p-tab value="members">
+          <i class="pi pi-users tab-icon"></i>
+          {{ editText().tabs.members }}
+        </p-tab>
         @if (canModerate()) {
-          <p-tab value="audit">{{ editText().tabs.audit }}</p-tab>
+          <p-tab value="audit">
+            <i class="pi pi-history tab-icon"></i>
+            {{ editText().tabs.audit }}
+          </p-tab>
         }
         @if (canModerate()) {
-          <p-tab value="analytics">{{ editText().tabs.analytics }}</p-tab>
+          <p-tab value="analytics">
+            <i class="pi pi-chart-bar tab-icon"></i>
+            {{ editText().tabs.analytics }}
+          </p-tab>
         }
       </p-tablist>
 
-      <p-tabpanels>
+      <p-tabpanels class="builder-tabpanels">
         <p-tabpanel value="config">
+          <div class="builder-pane">
           <app-domain-editor-form
             [activeTab]="activeTab()"
             [form]="form"
@@ -91,14 +106,11 @@
               </div>
             </p-fieldset>
           }
+          </div>
         </p-tabpanel>
 
         <p-tabpanel value="audit">
-          <section class="card form-card">
-            <div class="card-head">
-              <h2 class="card-title">{{ editText().audit.title }}</h2>
-            </div>
-
+          <div class="builder-pane">
             <div class="audit-filters">
               <div class="audit-filter">
                 <label for="audit-filter-action">{{ editText().audit.filterActionLabel }}</label>
@@ -204,10 +216,11 @@
                 </tr>
               </ng-template>
             </p-table>
-          </section>
+          </div>
         </p-tabpanel>
 
         <p-tabpanel value="analytics">
+          <div class="builder-pane">
           <app-domain-analytics-tab
             [analytics]="analytics()"
             [loading]="analyticsLoading()"
@@ -217,9 +230,11 @@
             (rangeChange)="onAnalyticsRangeChange($event)"
             (exportCsv)="onAnalyticsExport()">
           </app-domain-analytics-tab>
+          </div>
         </p-tabpanel>
 
         <p-tabpanel value="invitations">
+          <div class="builder-pane">
           <app-domain-invitations-tab
             [text]="editText()"
             [canInvite]="canInvite()"
@@ -241,9 +256,11 @@
             (inviteResend)="onInviteResend($event)"
             (inviteRevoke)="onInviteRevoke($event)">
           </app-domain-invitations-tab>
+          </div>
         </p-tabpanel>
 
         <p-tabpanel value="members">
+          <div class="builder-pane">
           @if (domain(); as d) {
             <app-domain-members-tab
               [domain]="d"
@@ -254,9 +271,11 @@
               (removeMember)="onMemberRemove($event)">
             </app-domain-members-tab>
           }
+          </div>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+    </div>
 
   }
 </div>
