@@ -49,6 +49,7 @@ export type UserMenuUiText = {
 export type FooterUiText = {
   baseline: string;
   version: string;
+  privacyLink: string;
 };
 
 export type HomeUiText = {

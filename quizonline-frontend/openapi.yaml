@@ -4121,6 +4121,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden
+  /api/user/me/export/:
+    get:
+      operationId: user_me_export_retrieve
+      description: 'Retourne un dump JSON de toutes les données personnelles associées
+        au compte de l''utilisateur connecté. Couvre le profil, les domaines (owned
+        / managed / membre), les demandes d''adhésion et les sessions de quiz. Pensé
+        pour le droit d''accès / portabilité du RGPD : le frontend télécharge la réponse
+        en ``application/json`` sous le nom ``quizonline-export-<username>.json``.'
+      summary: 'Export GDPR : toutes les données du compte courant'
+      tags:
+      - User
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/user/me/join-requests/:
     get:
       operationId: user_me_join_requests_retrieve

@@ -1,4 +1,5 @@
 import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
+import {RouterLink} from '@angular/router';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 declare global {
@@ -17,7 +18,7 @@ declare global {
 
 @Component({
   selector: 'app-footer',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

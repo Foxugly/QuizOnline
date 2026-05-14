@@ -3,6 +3,7 @@ import logging
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from domain.models import Domain, DomainJoinRequest
 from domain.serializers import DomainJoinRequestReadSerializer
 from drf_spectacular.types import OpenApiTypes
@@ -244,6 +245,78 @@ class CustomUserViewSet(
             .order_by("-created_at")
         )
         return Response(DomainJoinRequestReadSerializer(qs, many=True).data)
+
+    @extend_schema(
+        tags=["User"],
+        summary="Export GDPR : toutes les données du compte courant",
+        description=(
+            "Retourne un dump JSON de toutes les données personnelles "
+            "associées au compte de l'utilisateur connecté. Couvre le "
+            "profil, les domaines (owned / managed / membre), les demandes "
+            "d'adhésion et les sessions de quiz. Pensé pour le droit "
+            "d'accès / portabilité du RGPD : le frontend télécharge la "
+            "réponse en ``application/json`` sous le nom "
+            "``quizonline-export-<username>.json``."
+        ),
+        responses={status.HTTP_200_OK: OpenApiTypes.OBJECT},
+    )
+    @action(detail=False, methods=["get"], url_path="me/export")
+    def me_export(self, request):
+        user = request.user
+        owned = list(
+            Domain.objects.filter(owner=user)
+            .values("id", "active", "public", "created_at")
+        )
+        managed = list(
+            Domain.objects.filter(managers=user)
+            .exclude(owner=user)
+            .values("id", "active", "public", "created_at")
+        )
+        member_of = list(
+            Domain.objects.filter(members=user)
+            .exclude(owner=user)
+            .exclude(managers=user)
+            .values("id", "active", "public", "created_at")
+        )
+        join_requests = list(
+            DomainJoinRequest.objects.filter(user=user)
+            .order_by("-created_at")
+            .values("id", "domain_id", "status", "created_at", "decided_at", "reason")
+        )
+        quizzes = list(
+            Quiz.objects.filter(user=user)
+            .order_by("-created_at")
+            .values(
+                "id", "quiz_template_id", "started_at", "ended_at",
+                "earned_score", "max_score", "max_questions", "created_at",
+            )
+        )
+
+        payload = {
+            "exported_at": timezone.now().isoformat(),
+            "profile": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "language": getattr(user, "language", ""),
+                "is_active": user.is_active,
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+                "date_joined": user.date_joined.isoformat() if user.date_joined else None,
+                "last_login": user.last_login.isoformat() if user.last_login else None,
+                "notification_prefs": getattr(user, "notification_prefs", {}) or {},
+            },
+            "domains": {
+                "owned": owned,
+                "managed": managed,
+                "member_of": member_of,
+            },
+            "join_requests": join_requests,
+            "quizzes": quizzes,
+        }
+        return Response(payload, status=status.HTTP_200_OK)
 
 
 @extend_schema_view(

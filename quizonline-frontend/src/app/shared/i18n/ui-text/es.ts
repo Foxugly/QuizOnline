@@ -3,7 +3,7 @@ import type {UiText} from './types';
 export const ES: UiText = {
   topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', users: 'Usuarios', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias', notificationsAria: 'Notificaciones'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contraseña', logout: 'Cerrar sesión', login: 'Iniciar sesión', userFallback: 'Usuario'},
-  footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
+  footer: {baseline: 'Plataforma de cuestionarios y gestión de contenido por dominio.', version: 'Versión', privacyLink: 'Privacidad'},
   home: {
     eyebrow: 'Cuestionarios, plantillas y revision',
     lead: 'Un unico espacio para crear cuestionarios, asignarlos, completarlos y revisar los resultados.',

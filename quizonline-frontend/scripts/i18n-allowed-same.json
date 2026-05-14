@@ -143,5 +143,8 @@
   "pages/quiz/create:weekHeader",
 
   "pages/subject/list:columns.questions",
-  "pages/subject/list:columns.actions"
+  "pages/subject/list:columns.actions",
+
+  "shell/ui-text:footer.privacyLink",
+  "pages/privacy:contactHeading"
 ]

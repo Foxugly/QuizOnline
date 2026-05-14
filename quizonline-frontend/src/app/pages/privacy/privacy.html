@@ -1,0 +1,39 @@
+<section class="page privacy">
+  <header class="privacy__header">
+    <h1 class="title">{{ pageText().title }}</h1>
+    <p class="privacy__meta">{{ pageText().lastUpdated(lastUpdatedDate) }}</p>
+  </header>
+
+  <p class="privacy__intro">{{ pageText().intro }}</p>
+
+  @for (section of pageText().sections; track section.heading) {
+    <section class="privacy__section">
+      <h2 class="privacy__section-title">{{ section.heading }}</h2>
+      <p class="privacy__section-body">{{ section.body }}</p>
+    </section>
+  }
+
+  <section class="privacy__section">
+    <h2 class="privacy__section-title">{{ pageText().rightsHeading }}</h2>
+    <p class="privacy__section-body">{{ pageText().rightsBody }}</p>
+
+    @if (auth.isLoggedIn()) {
+      <div class="privacy__cta">
+        <p-button
+          (onClick)="download()"
+          icon="pi pi-download"
+          [label]="pageText().exportCta"
+          [loading]="downloading()"
+          severity="primary"
+          type="button">
+        </p-button>
+        <p class="privacy__hint">{{ pageText().exportHint }}</p>
+      </div>
+    }
+  </section>
+
+  <section class="privacy__section">
+    <h2 class="privacy__section-title">{{ pageText().contactHeading }}</h2>
+    <p class="privacy__section-body">{{ pageText().contactBody(contactEmail) }}</p>
+  </section>
+</section>

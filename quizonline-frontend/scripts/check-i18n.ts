@@ -45,6 +45,7 @@ import {getTransferAcceptUiText} from '../src/app/pages/transfer-accept/transfer
 import {getSavedAtUiText} from '../src/app/shared/components/saved-at/saved-at.i18n';
 import {getQuestionPreviewDialogUiText} from '../src/app/components/question-preview-dialog/question-preview-dialog.i18n';
 import {getSubjectListUiText} from '../src/app/pages/subject/list/subject-list.i18n';
+import {getPrivacyUiText} from '../src/app/pages/privacy/privacy.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -71,6 +72,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'shared/saved-at', get: getSavedAtUiText as Getter},
   {name: 'components/question-preview-dialog', get: getQuestionPreviewDialogUiText as Getter},
   {name: 'pages/subject/list', get: getSubjectListUiText as Getter},
+  {name: 'pages/privacy', get: getPrivacyUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;
