@@ -40,6 +40,7 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {DomainInvitationsTab} from '../../../components/domain-invitations-tab/domain-invitations-tab';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
+import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -96,6 +97,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     DomainMembersTab,
     EmptyStateComponent,
     RelativeDatePipe,
+    DirtyGuardDirective,
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',

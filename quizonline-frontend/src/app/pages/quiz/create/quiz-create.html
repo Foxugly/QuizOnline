@@ -34,7 +34,8 @@
       </div>
     }
 
-    <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="card form-card builder-stack">
+    <form (ngSubmit)="saveQuiz()" [formGroup]="quizForm" class="card form-card builder-stack"
+          [appDirtyGuard]="quizForm.dirty && !saving()">
       <p-tabs [value]="activeEditorTab()" (valueChange)="setActiveEditorTab($event)" class="builder-tabs">
         <p-tablist>
           <p-tab value="texts">

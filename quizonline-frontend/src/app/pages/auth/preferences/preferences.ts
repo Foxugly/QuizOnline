@@ -18,6 +18,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
@@ -35,6 +36,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     TabsModule,
     ToggleSwitchModule,
     RelativeDatePipe,
+    DirtyGuardDirective,
   ],
   templateUrl: './preferences.html',
   styleUrls: ['./preferences.scss'],

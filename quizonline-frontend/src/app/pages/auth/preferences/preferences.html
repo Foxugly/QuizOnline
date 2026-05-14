@@ -32,7 +32,8 @@
         <p-tabpanels class="builder-tabpanels">
           <p-tabpanel value="profile">
             <div class="builder-pane">
-              <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()">
+              <form [formGroup]="form" class="preferences-form" (ngSubmit)="save()"
+                    [appDirtyGuard]="form.dirty && !saving()">
                 <div class="field-grid">
                   <div class="field">
                     <label for="username">{{ ui().preferences.username }}</label>

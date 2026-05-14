@@ -55,6 +55,7 @@ import {QuizTemplateService} from '../../../services/quiz-template/quiz-template
 import {SubjectService} from '../../../services/subject/subject';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
+import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
@@ -90,6 +91,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
     TabsModule,
     TextareaModule,
     ToggleSwitchModule,
+    DirtyGuardDirective,
   ],
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
