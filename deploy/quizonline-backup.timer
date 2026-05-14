@@ -1,0 +1,19 @@
+[Unit]
+Description=Daily QuizOnline database backup
+
+[Timer]
+# Run every day at 03:17 UTC. Off-peak for European users (≈ 04:17 CET
+# / 05:17 CEST), well before any morning health-check spikes.
+OnCalendar=*-*-* 03:17:00 UTC
+
+# If the host was down at the scheduled time, run as soon as it's back.
+Persistent=true
+
+# Small random jitter so multiple co-located hosts don't all hit S3 at
+# the same second when this is rolled out beyond a single VM.
+RandomizedDelaySec=2min
+
+Unit=quizonline-backup.service
+
+[Install]
+WantedBy=timers.target

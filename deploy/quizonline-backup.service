@@ -1,0 +1,30 @@
+[Unit]
+Description=QuizOnline database backup
+Documentation=file:///var/www/django_websites/QuizOnline/deploy/backup-db.sh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=django
+Group=www-data
+
+# Override these by editing the unit, or via systemctl edit quizonline-backup.service:
+# Environment="PROJECT_DIR=/var/www/django_websites/QuizOnline/quizonline-server"
+# Environment="BACKUP_DIR=/var/backups/quizonline"
+# Environment="RETENTION_DAYS=14"
+# Environment="S3_BUCKET=quizonline-prod-backups"
+
+ExecStart=/bin/bash /var/www/django_websites/QuizOnline/deploy/backup-db.sh
+StandardOutput=journal
+StandardError=journal
+
+# Hardening — the script only reads the .env and writes to BACKUP_DIR.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/quizonline
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
