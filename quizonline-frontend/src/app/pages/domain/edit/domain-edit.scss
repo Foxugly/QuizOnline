@@ -49,6 +49,16 @@
   }
 }
 
+.domain-notif-fieldset {
+  display: block;
+  margin-top: 1.5rem;
+}
+
+.domain-notif-fieldset__hint {
+  margin: 0 0 0.75rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
 .domain-notif__list {
   display: flex;
   flex-direction: column;

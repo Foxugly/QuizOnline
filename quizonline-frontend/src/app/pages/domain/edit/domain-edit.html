@@ -68,11 +68,14 @@
           </app-domain-editor-form>
 
           @if (canManageMembers()) {
-            <section class="card form-card domain-notif">
-              <div class="card-head">
-                <h2 class="card-title">{{ editText().notificationSettings.title }}</h2>
-                <p class="muted">{{ editText().notificationSettings.subtitle }}</p>
-              </div>
+            <p-fieldset
+              class="domain-notif-fieldset"
+              [toggleable]="true"
+              [collapsed]="true"
+              [legend]="editText().notificationSettings.title">
+              <p class="muted domain-notif-fieldset__hint">
+                {{ editText().notificationSettings.subtitle }}
+              </p>
               <div class="domain-notif__list">
                 @for (kind of domainNotificationKinds; track kind) {
                   <div class="domain-notif__row">
@@ -80,12 +83,13 @@
                     <p-toggleswitch
                       [ngModel]="isDomainKindEnabled(kind)"
                       (ngModelChange)="toggleDomainKind(kind, $event)"
+                      [attr.aria-label]="domainKindLabel(kind)"
                       [disabled]="savingDomainNotif()">
                     </p-toggleswitch>
                   </div>
                 }
               </div>
-            </section>
+            </p-fieldset>
           }
         </p-tabpanel>
 

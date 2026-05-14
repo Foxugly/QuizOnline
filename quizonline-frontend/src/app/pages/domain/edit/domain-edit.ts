@@ -16,6 +16,7 @@ import {MessageModule} from 'primeng/message';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {FieldsetModule} from 'primeng/fieldset';
 import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -86,6 +87,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     TableModule,
     InputTextModule,
     ToggleSwitchModule,
+    FieldsetModule,
     DomainAnalyticsTab,
     DomainEditorFormComponent,
     DomainInvitationsTab,

@@ -162,22 +162,30 @@ export class TopMenuComponent implements OnInit {
       });
     }
 
-    items.unshift({
-      label: this.ui().topmenu.features,
-      link: ['/features'],
+    // Marketing / discovery entries (Features, About) are noise for
+    // an authenticated user — they belong on the public side of the
+    // app where they help a visitor decide whether to sign up. We
+    // keep Donate either way: it's a CTA the user may want to act
+    // on regardless of their session.
+    if (!isAuthenticated) {
+      items.unshift({
+        label: this.ui().topmenu.features,
+        link: ['/features'],
+      });
+    }
+
+    items.push({
+      label: this.ui().topmenu.donate,
+      link: ['/donate'],
+      accent: true,
     });
 
-    items.push(
-      {
-        label: this.ui().topmenu.donate,
-        link: ['/donate'],
-        accent: true,
-      },
-      {
+    if (!isAuthenticated) {
+      items.push({
         label: this.ui().topmenu.about,
         link: ['/about'],
-      },
-    );
+      });
+    }
 
     return items;
   }
