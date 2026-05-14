@@ -5,6 +5,7 @@ import {FormGroup, Validators, NonNullableFormBuilder, ReactiveFormsModule} from
 import {ActivatedRoute} from '@angular/router';
 import {firstValueFrom, forkJoin, of} from 'rxjs';
 import {finalize} from 'rxjs/operators';
+import {QuizCreateCompositionController} from './quiz-create-composition.controller';
 import {QuizCreateTemplateTranslationsController} from './quiz-create-template-translations.controller';
 
 import {Translation} from 'primeng/api';
@@ -48,7 +49,7 @@ import {UserService} from '../../../services/user/user';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
-import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
+import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
 import {QuizCreateInlineQuestionController} from './quiz-create-inline-question.controller';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -85,7 +86,11 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizCreateInlineQuestionController, QuizCreateTemplateTranslationsController],
+  providers: [
+    QuizCreateInlineQuestionController,
+    QuizCreateTemplateTranslationsController,
+    QuizCreateCompositionController,
+  ],
 })
 export class QuizCreate implements OnInit {
 
@@ -105,10 +110,12 @@ export class QuizCreate implements OnInit {
   /** Per-language title/description tabs + translate-call orchestration. */
   protected readonly templateTranslations = inject(QuizCreateTemplateTranslationsController);
 
+  /** Working list of picked questions + ordering / weighting bookkeeping. */
+  protected readonly composition = inject(QuizCreateCompositionController);
+
   domains = signal<DomainReadDto[]>([]);
   subjects = signal<SubjectReadDto[]>([]);
   questions = signal<QuestionReadDto[]>([]);
-  selectedQuestions = signal<SelectedQuizQuestion[]>([]);
   search = signal('');
   selectedQuestionSubjectIds = signal<number[]>([]);
   activeEditorTab = signal<'texts' | 'configuration' | 'questions'>('texts');
@@ -116,7 +123,6 @@ export class QuizCreate implements OnInit {
   selectedDomainId = signal(0);
   quizFormValid = signal(false);
   editingTemplateId = signal<number | null>(null);
-  originalQuizQuestionIds = signal<number[]>([]);
   previewQuestionId = signal<number | null>(null);
 
   readonly isEditMode = computed(() => this.editingTemplateId() !== null);
@@ -199,7 +205,7 @@ export class QuizCreate implements OnInit {
   });
 
   readonly availableQuestions = computed(() => {
-    const selectedIds = new Set(this.selectedQuestions().map((entry) => entry.question.id));
+    const selectedIds = new Set(this.composition.selectedQuestions().map((entry) => entry.question.id));
     const term = this.search().trim().toLowerCase();
     const selectedSubjectIds = new Set(this.selectedQuestionSubjectIds());
 
@@ -234,7 +240,7 @@ export class QuizCreate implements OnInit {
     })),
   );
   readonly selectedQuestionCards = computed<SelectedQuestionCard[]>(() =>
-    this.selectedQuestions().map((item) => ({
+    this.composition.selectedQuestions().map((item) => ({
       item,
       questionId: item.question.id,
       title: this.getQuestionTitle(item.question),
@@ -248,7 +254,7 @@ export class QuizCreate implements OnInit {
       !!this.selectedDomainId() &&
       this.quizFormValid() &&
       this.templateTranslations.hasTitle() &&
-      this.selectedQuestions().length > 0;
+      this.composition.count() > 0;
   });
 
   readonly canManageSelectedDomain = computed(() => {
@@ -291,10 +297,14 @@ export class QuizCreate implements OnInit {
       selectedDomainId: () => this.selectedDomainId(),
       onQuestionCreated: (question) => {
         this.questions.update((questions) => [question, ...questions]);
-        this.addExistingQuestion(question);
+        this.composition.addExisting(question);
       },
       onPageError: (message) => this.submitError.set(message),
       domainRequiredFirstMessage: () => this.editorUi().pages.quizCreate.errors.domainRequiredFirst,
+    });
+
+    this.composition.bind({
+      onMutated: () => this.submitError.set(null),
     });
 
     this.templateTranslations.bind({
@@ -469,25 +479,6 @@ export class QuizCreate implements OnInit {
     }
   }
 
-  addExistingQuestion(question: QuestionReadDto): void {
-    this.selectedQuestions.update((items) => [
-      ...items,
-      {
-        question,
-        weight: 1,
-        sort_order: items.length + 1,
-      },
-    ]);
-    this.submitError.set(null);
-  }
-
-  removeSelectedQuestion(index: number): void {
-    this.selectedQuestions.update((items) => {
-      const next = items.filter((_, itemIndex) => itemIndex !== index);
-      return this.renumberSelectedQuestions(next);
-    });
-  }
-
   openQuestionPreview(question: SelectedQuestionRef): void {
     this.previewQuestionId.set(question.id);
   }
@@ -498,52 +489,6 @@ export class QuizCreate implements OnInit {
 
   closeQuestionPreview(): void {
     this.previewQuestionId.set(null);
-  }
-
-  moveSelectedQuestion(index: number, direction: -1 | 1): void {
-    this.selectedQuestions.update((items) => {
-      const targetIndex = index + direction;
-      if (targetIndex < 0 || targetIndex >= items.length) {
-        return items;
-      }
-
-      const next = [...items];
-      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
-      return this.renumberSelectedQuestions(next);
-    });
-  }
-
-  onWeightChange(index: number, event: Event): void {
-    const target = event.target as HTMLInputElement | null;
-    const parsed = Number(target?.value ?? 1);
-    const nextWeight = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
-
-    this.selectedQuestions.update((items) => items.map((item, itemIndex) => (
-      itemIndex === index
-        ? {...item, weight: nextWeight}
-        : item
-    )));
-  }
-
-  adjustWeight(index: number, delta: -1 | 1): void {
-    this.selectedQuestions.update((items) => items.map((item, itemIndex) => {
-      if (itemIndex !== index) {
-        return item;
-      }
-      return {
-        ...item,
-        weight: Math.max(1, item.weight + delta),
-      };
-    }));
-  }
-
-  setWeight(index: number, value: number): void {
-    const nextWeight = Number.isFinite(value) && value > 0 ? Math.floor(value) : 1;
-    this.selectedQuestions.update((items) => items.map((item, itemIndex) => (
-      itemIndex === index
-        ? {...item, weight: nextWeight}
-        : item
-    )));
   }
 
   async saveQuiz(): Promise<void> {
@@ -580,18 +525,15 @@ export class QuizCreate implements OnInit {
           this.quizTemplateService.update(templateId, this.buildQuizTemplatePayload()),
         );
         quizTemplateId = template.id;
-        await this.syncTemplateQuestions(template.id);
+        await this.composition.syncWithServer(template.id);
         this.lastSavedAt.set(new Date());
-        this.originalQuizQuestionIds.set(
-          this.selectedQuestions().map((q) => q.question.id),
-        );
         this.quizForm.markAsPristine();
       } else {
         const template = await firstValueFrom(
           this.quizTemplateService.create(this.buildQuizTemplatePayload()),
         );
         quizTemplateId = template.id;
-        await this.syncTemplateQuestions(template.id);
+        await this.composition.syncWithServer(template.id);
         this.quizService.goList();
       }
     } catch (error) {
@@ -648,9 +590,9 @@ export class QuizCreate implements OnInit {
     this.questions.set([]);
     this.selectedQuestionSubjectIds.set([]);
 
-    const hadSelection = this.selectedQuestions().length > 0;
+    const hadSelection = this.composition.count() > 0;
     if (hadSelection && !this.preserveSelectionOnNextDomainChange) {
-      this.selectedQuestions.set([]);
+      this.composition.clear();
       this.submitError.set(this.editorUi().pages.quizCreate.errors.domainChangeReset);
     }
     this.preserveSelectionOnNextDomainChange = false;
@@ -700,7 +642,7 @@ export class QuizCreate implements OnInit {
       description: localized.description,
       translations,
       mode: this.quizForm.controls.mode.value,
-      max_questions: this.selectedQuestions().length,
+      max_questions: this.composition.count(),
       permanent: this.quizForm.controls.permanent.value,
       started_at: this.toIsoDateTime(this.quizForm.controls.started_at.value),
       ended_at: this.toIsoDateTime(this.quizForm.controls.ended_at.value),
@@ -718,53 +660,8 @@ export class QuizCreate implements OnInit {
     } as QuizTemplateLocalizedWriteRequestDto;
   }
 
-  private async syncTemplateQuestions(templateId: number): Promise<void> {
-    const currentItems = [...this.selectedQuestions()];
-    const currentIds = new Set(
-      currentItems
-        .map((item) => item.quiz_question_id)
-        .filter((id): id is number => typeof id === 'number'),
-    );
-
-    for (const removedId of this.originalQuizQuestionIds().filter((id) => !currentIds.has(id))) {
-      await firstValueFrom(this.quizTemplateService.removeQuestion(templateId, removedId));
-    }
-
-    for (const item of currentItems) {
-      const payload = {
-        question_id: item.question.id,
-        sort_order: item.sort_order,
-        weight: item.weight,
-      };
-
-      if (item.quiz_question_id) {
-        await firstValueFrom(
-          this.quizTemplateService.updateQuestion(templateId, item.quiz_question_id, payload),
-        );
-      } else {
-        const created = await firstValueFrom(
-          this.quizTemplateService.addQuestion(templateId, payload),
-        );
-        item.quiz_question_id = created.id;
-      }
-    }
-
-    this.selectedQuestions.set(this.renumberSelectedQuestions(currentItems));
-    this.originalQuizQuestionIds.set(
-      currentItems
-        .map((item) => item.quiz_question_id)
-        .filter((id): id is number => typeof id === 'number'),
-    );
-  }
-
   private patchTemplate(template: QuizTemplateDto): void {
     const localizedTemplate = template as QuizTemplateLocalizedDto;
-    const selectedQuestions = (template.quiz_questions ?? []).map((quizQuestion) => ({
-      quiz_question_id: quizQuestion.id,
-      question: quizQuestion.question,
-      sort_order: quizQuestion.sort_order ?? 1,
-      weight: quizQuestion.weight ?? 1,
-    }));
     const domainId = Number(template.domain ?? 0);
     const isPermanent = template.permanent ?? true;
     const withDuration = template.with_duration ?? false;
@@ -772,8 +669,7 @@ export class QuizCreate implements OnInit {
     const detailVisibility = template.detail_visibility ?? VisibilityEnumDto.Immediate;
     const translations = localizedTemplate.translations ?? this.templateTranslations.buildFallback(template);
 
-    this.selectedQuestions.set(selectedQuestions);
-    this.originalQuizQuestionIds.set((template.quiz_questions ?? []).map((quizQuestion) => quizQuestion.id));
+    this.composition.hydrate(template);
 
     this.quizForm.patchValue({
       domain: domainId,
@@ -875,13 +771,6 @@ export class QuizCreate implements OnInit {
 
   private getUiText(lang: LanguageEnumDto) {
     return getQuizCreateUiText(lang);
-  }
-
-  private renumberSelectedQuestions(items: SelectedQuizQuestion[]): SelectedQuizQuestion[] {
-    return items.map((item, index) => ({
-      ...item,
-      sort_order: index + 1,
-    }));
   }
 
   private getDomainLabel(domain: DomainReadDto): string {

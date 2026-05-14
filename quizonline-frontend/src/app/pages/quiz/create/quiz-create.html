@@ -293,7 +293,7 @@
                 [selectedSubjectIds]="selectedQuestionSubjectIds()"
                 [subjectOptions]="subjectOptions()"
                 [texts]="uiText()"
-                (addQuestion)="addExistingQuestion($event)"
+                (addQuestion)="composition.addExisting($event)"
                 (createQuestion)="questionDialog.open()"
                 (previewQuestion)="openQuestionPreview($event)"
                 (searchChanged)="onSearchInput($event)"
@@ -303,11 +303,11 @@
               <app-quiz-template-composition
                 [items]="selectedQuestionCards()"
                 [texts]="uiText()"
-                (moveQuestion)="moveSelectedQuestion($event.index, $event.direction)"
+                (moveQuestion)="composition.move($event.index, $event.direction)"
                 (previewQuestion)="openQuestionPreviewById($event)"
-                (removeQuestion)="removeSelectedQuestion($event)"
-                (weightChanged)="onWeightChange($event.index, $event.event)"
-                (weightSet)="setWeight($event.index, $event.value)">
+                (removeQuestion)="composition.remove($event)"
+                (weightChanged)="composition.onWeightChange($event.index, $event.event)"
+                (weightSet)="composition.setWeight($event.index, $event.value)">
               </app-quiz-template-composition>
             </div>
           </p-tabpanel>
