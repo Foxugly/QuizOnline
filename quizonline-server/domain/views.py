@@ -19,21 +19,9 @@ from core.mailers.domain_join import (
     send_join_request_approved_email,
     send_join_request_rejected_email,
 )
-from .decision_token import (
-    DecisionTokenExpired,
-    DecisionTokenInvalid,
-    parse_decision_token,
-)
-from .invite_token import (
-    InviteTokenExpired,
-    InviteTokenInvalid,
-    parse_invite_token,
-)
-from .transfer_token import (
-    TransferTokenExpired,
-    TransferTokenInvalid,
-    parse_transfer_token,
-)
+from .decision_token import parse_decision_token
+from .invite_token import parse_invite_token
+from .transfer_token import parse_transfer_token
 from .models import Domain, DomainInvite, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
@@ -51,6 +39,7 @@ from .services import (
     record_audit,
     users_who_can_approve,
 )
+from .token_view_support import consume_signed_token, safe_domain_name
 from .view_mixins import (
     DomainAnalyticsActionsMixin,
     DomainAuditActionsMixin,
@@ -60,23 +49,11 @@ from .view_mixins import (
     JoinRequestCancelMixin,
     JoinRequestModerationMixin,
 )
+from .view_mixins._helpers import client_ip
 from config.tools import ErrorDetailSerializer
 from django.contrib.auth import get_user_model
 
 _logger = logging.getLogger(__name__)
-
-
-def _client_ip(request) -> str:
-    """
-    Best-effort client IP for audit logging. Honours ``X-Forwarded-For``
-    (left-most hop) when the request transits the nginx reverse proxy in
-    production; falls back to ``REMOTE_ADDR`` otherwise. Always returns a
-    string (empty if neither is available) so structured logs stay typed.
-    """
-    if request is None:
-        return ""
-    forwarded = (request.META.get("HTTP_X_FORWARDED_FOR") or "").split(",")[0].strip()
-    return forwarded or request.META.get("REMOTE_ADDR", "") or ""
 
 
 def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
@@ -612,25 +589,16 @@ class DomainJoinRequestDecideView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, token: str):
-        parsed = self._parse(token)
-        if isinstance(parsed, Response):
-            return parsed
-        return self._build_state_response(parsed, request.user)
+        payload, error = consume_signed_token(token, parse_decision_token)
+        if error is not None:
+            return error
+        return self._build_state_response(payload, request.user)
 
     def post(self, request, token: str):
-        parsed = self._parse(token)
-        if isinstance(parsed, Response):
-            return parsed
-        return self._execute(parsed, request.user, request=request)
-
-    @staticmethod
-    def _parse(token: str):
-        try:
-            return parse_decision_token(token)
-        except DecisionTokenExpired:
-            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
-        except DecisionTokenInvalid:
-            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        payload, error = consume_signed_token(token, parse_decision_token)
+        if error is not None:
+            return error
+        return self._execute(payload, request.user, request=request)
 
     @staticmethod
     def _authorize(user, payload, join_request) -> Response | None:
@@ -689,7 +657,7 @@ class DomainJoinRequestDecideView(APIView):
             audit_meta = {
                 "request_id": join_request.id,
                 "previous_status": previous_status,
-                "remote_addr": _client_ip(request) if request else None,
+                "remote_addr": client_ip(request) if request else None,
                 "user_agent": (request.META.get("HTTP_USER_AGENT", "") if request else ""),
                 "via": "email_link",
             }
@@ -801,21 +769,19 @@ class DomainInviteAcceptView(APIView):
         return self._respond(request, token, do_accept=True)
 
     def _respond(self, request, token: str, *, do_accept: bool) -> Response:
-        parsed = self._parse(token)
-        if isinstance(parsed, Response):
-            return parsed
-        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=parsed["domain_id"])
-        invited_email = parsed["email"]
+        payload, error = consume_signed_token(token, parse_invite_token)
+        if error is not None:
+            return error
+        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=payload["domain_id"])
+        invited_email = payload["email"]
 
         User = get_user_model()
-        inviter = User.objects.filter(pk=parsed["inviter_id"]).first()
+        inviter = User.objects.filter(pk=payload["inviter_id"]).first()
         inviter_username = inviter.username if inviter else ""
-
-        domain_name = domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}"
 
         base_payload = {
             "domain_id": domain.id,
-            "domain_name": domain_name,
+            "domain_name": safe_domain_name(domain),
             "inviter_username": inviter_username,
             "invited_email": invited_email,
         }
@@ -864,7 +830,7 @@ class DomainInviteAcceptView(APIView):
                         target_user=user,
                         metadata={
                             "invite_id": persisted_invite.id if persisted_invite else None,
-                            "remote_addr": _client_ip(request),
+                            "remote_addr": client_ip(request),
                         },
                     )
                 return Response({**base_payload, "state": "accepted"})
@@ -875,15 +841,6 @@ class DomainInviteAcceptView(APIView):
         if existing:
             return Response({**base_payload, "state": "login_required"})
         return Response({**base_payload, "state": "signup_required"})
-
-    @staticmethod
-    def _parse(token: str):
-        try:
-            return parse_invite_token(token)
-        except InviteTokenExpired:
-            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
-        except InviteTokenInvalid:
-            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema_view(
@@ -935,14 +892,15 @@ class DomainTransferAcceptView(APIView):
         return self._respond(request, token, do_transfer=True)
 
     def _respond(self, request, token: str, *, do_transfer: bool) -> Response:
-        parsed = self._parse(token)
-        if isinstance(parsed, Response):
-            return parsed
+        payload, error = consume_signed_token(token, parse_transfer_token)
+        if error is not None:
+            return error
 
-        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=parsed["domain_id"])
+        domain = drf_get_object_or_404(Domain.objects.filter(active=True), pk=payload["domain_id"])
         User = get_user_model()
-        initiator = User.objects.filter(pk=parsed["initiator_id"]).first()
-        future_owner = User.objects.filter(pk=parsed["future_owner_id"]).first()
+        initiator = User.objects.filter(pk=payload["initiator_id"]).first()
+        future_owner = User.objects.filter(pk=payload["future_owner_id"]).first()
+        domain_name = safe_domain_name(domain)
 
         # If the initiator is no longer the current owner the transfer
         # was either already consumed or revoked by an ownership change
@@ -951,7 +909,7 @@ class DomainTransferAcceptView(APIView):
         if initiator is None or future_owner is None or domain.owner_id != initiator.id:
             base = {
                 "domain_id": domain.id,
-                "domain_name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}",
+                "domain_name": domain_name,
                 "initiator_username": initiator.username if initiator else "",
                 "future_owner_username": future_owner.username if future_owner else "",
             }
@@ -959,7 +917,7 @@ class DomainTransferAcceptView(APIView):
 
         base_payload = {
             "domain_id": domain.id,
-            "domain_name": domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}",
+            "domain_name": domain_name,
             "initiator_username": initiator.username,
             "future_owner_username": future_owner.username,
         }
@@ -991,17 +949,8 @@ class DomainTransferAcceptView(APIView):
                 target_user=previous_owner,
                 metadata={
                     "previous_owner_id": previous_owner.id,
-                    "remote_addr": _client_ip(request),
+                    "remote_addr": client_ip(request),
                 },
             )
 
         return Response({**base_payload, "state": "transferred"})
-
-    @staticmethod
-    def _parse(token: str):
-        try:
-            return parse_transfer_token(token)
-        except TransferTokenExpired:
-            return Response({"detail": "token_expired"}, status=status.HTTP_410_GONE)
-        except TransferTokenInvalid:
-            return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
