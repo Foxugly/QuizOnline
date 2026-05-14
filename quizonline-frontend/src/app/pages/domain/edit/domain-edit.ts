@@ -37,6 +37,7 @@ import {DomainAnalyticsTab} from '../../../components/domain-analytics-tab/domai
 import {DomainEditorFormComponent} from '../../../components/domain-editor-form/domain-editor-form';
 import {DomainInvitationsTab} from '../../../components/domain-invitations-tab/domain-invitations-tab';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
+import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainAnalyticsDto} from '../../../api/generated/model/domain-analytics';
@@ -88,6 +89,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     DomainEditorFormComponent,
     DomainInvitationsTab,
     DomainMembersTab,
+    EmptyStateComponent,
   ],
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',

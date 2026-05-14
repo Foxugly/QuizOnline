@@ -130,6 +130,7 @@ export const NL: UiText = {
     filterAll: 'Alle',
     filterDeleted: 'Prullenbak',
     empty: 'Niets om weer te geven.',
+    emptyHint: 'U wordt hier op de hoogte gebracht zodra er iets gebeurt op een van uw domeinen of uitnodigingen.',
     actionMarkRead: 'Markeer als gelezen',
     actionDelete: 'Verwijderen',
     relative: (s) => {

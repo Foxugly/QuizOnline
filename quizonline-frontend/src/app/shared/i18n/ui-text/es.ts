@@ -131,6 +131,7 @@ export const ES: UiText = {
     filterAll: 'Todas',
     filterDeleted: 'Papelera',
     empty: 'Nada que mostrar.',
+    emptyHint: 'Recibirás una notificación aquí en cuanto ocurra algo en uno de tus dominios o invitaciones.',
     actionMarkRead: 'Marcar como leída',
     actionDelete: 'Eliminar',
     relative: (s) => {

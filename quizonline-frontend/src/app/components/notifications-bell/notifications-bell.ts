@@ -7,11 +7,12 @@ import {catchError} from 'rxjs/operators';
 
 import {NotificationReadDto} from '../../api/generated/model/notification-read';
 import {NotificationService} from '../../services/notification/notification.service';
+import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-notifications-bell',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, EmptyStateComponent],
   templateUrl: './notifications-bell.html',
   styleUrl: './notifications-bell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

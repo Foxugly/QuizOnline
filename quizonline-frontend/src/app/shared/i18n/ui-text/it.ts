@@ -131,6 +131,7 @@ export const IT: UiText = {
     filterAll: 'Tutte',
     filterDeleted: 'Cestino',
     empty: 'Niente da mostrare.',
+    emptyHint: 'Riceverai una notifica qui non appena succede qualcosa su uno dei tuoi domini o sui tuoi inviti.',
     actionMarkRead: 'Segna come letta',
     actionDelete: 'Elimina',
     relative: (s) => {

@@ -9,13 +9,15 @@ import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 
+import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
+
 import {NotificationReadDto} from '../../api/generated/model/notification-read';
 import {NotificationService, NotificationStatusFilter} from '../../services/notification/notification.service';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-notifications-page',
-  imports: [DatePipe, FormsModule, ButtonModule, SelectButtonModule, TableModule, TooltipModule],
+  imports: [DatePipe, FormsModule, ButtonModule, SelectButtonModule, TableModule, TooltipModule, EmptyStateComponent],
   templateUrl: './notifications.html',
   styleUrl: './notifications.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

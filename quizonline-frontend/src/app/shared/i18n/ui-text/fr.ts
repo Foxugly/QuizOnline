@@ -256,6 +256,7 @@ export const FR: UiText = {
     filterAll: 'Toutes',
     filterDeleted: 'Corbeille',
     empty: 'Rien à afficher.',
+    emptyHint: 'Tu seras notifié ici dès qu\'un événement se produit sur un de tes domaines ou tes invitations.',
     actionMarkRead: 'Marquer comme lue',
     actionDelete: 'Supprimer',
     relative: (s) => {

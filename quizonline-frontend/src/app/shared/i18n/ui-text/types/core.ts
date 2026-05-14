@@ -28,6 +28,7 @@ export type NotificationsUiText = {
   filterAll: string;
   filterDeleted: string;
   empty: string;
+  emptyHint: string;
   actionMarkRead: string;
   actionDelete: string;
   relative: (totalSeconds: number) => string;

@@ -1,0 +1,46 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--text-color-secondary, #6b7280);
+
+  &--compact {
+    padding: 1.25rem 0.5rem;
+    gap: 0.25rem;
+  }
+}
+
+.empty-state__icon {
+  font-size: 2.25rem;
+  color: var(--p-text-muted-color, #9ca3af);
+  opacity: 0.6;
+
+  .empty-state--compact & {
+    font-size: 1.5rem;
+  }
+}
+
+.empty-state__title {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color, #1f2937);
+
+  .empty-state--compact & {
+    font-size: 0.85rem;
+  }
+}
+
+.empty-state__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  max-width: 32rem;
+}
+
+.empty-state__cta {
+  margin-top: 0.5rem;
+}

@@ -24,7 +24,11 @@
     @if (loading()) {
       <div class="bell-popover__empty">…</div>
     } @else if (rows().length === 0) {
-      <div class="bell-popover__empty">{{ ui().notifications.bellEmpty }}</div>
+      <app-empty-state
+        icon="pi pi-inbox"
+        density="compact"
+        [title]="ui().notifications.bellEmpty">
+      </app-empty-state>
     } @else {
       <ul class="bell-popover__list">
         @for (row of rows(); track trackById($index, row)) {

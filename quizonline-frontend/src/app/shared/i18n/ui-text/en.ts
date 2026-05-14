@@ -128,6 +128,7 @@ export const EN: UiText = {
     filterAll: 'All',
     filterDeleted: 'Trash',
     empty: 'Nothing to show.',
+    emptyHint: 'You will be notified here as soon as something happens on one of your domains or invitations.',
     actionMarkRead: 'Mark as read',
     actionDelete: 'Delete',
     relative: (s) => {
