@@ -177,8 +177,8 @@ export class Preferences implements OnInit {
             language: currentUser.language ?? LanguageEnumDto.En,
           });
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.loadError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.loadError);
         },
       });
   }
@@ -226,8 +226,8 @@ export class Preferences implements OnInit {
           });
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }
@@ -283,8 +283,8 @@ export class Preferences implements OnInit {
           this.visibleDomains.set(visibleDomains ?? []);
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }
@@ -314,8 +314,8 @@ export class Preferences implements OnInit {
           this.availableDomains.set(availableDomains ?? []);
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }
@@ -337,8 +337,8 @@ export class Preferences implements OnInit {
           this.currentUser.set(profile);
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }
@@ -503,8 +503,8 @@ export class Preferences implements OnInit {
           this.currentUser.set(updated);
           this.toast.add({severity: 'success', detail: this.ui().preferences.notificationsSaved});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }
@@ -546,8 +546,8 @@ export class Preferences implements OnInit {
           this.availableDomains.set(availableDomains ?? []);
           this.toast.add({severity: 'success', detail: this.ui().preferences.deleteDomainSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.deleteDomainError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.deleteDomainError);
         },
       });
   }
@@ -574,8 +574,8 @@ export class Preferences implements OnInit {
           }
           this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
         },
-        error: () => {
-          this.toast.add({severity: 'error', detail: this.ui().preferences.saveError});
+        error: (err) => {
+          this.toast.addApiError(err, this.ui().preferences.saveError);
         },
       });
   }

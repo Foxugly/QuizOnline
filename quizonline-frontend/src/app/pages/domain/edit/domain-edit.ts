@@ -197,7 +197,7 @@ export class DomainEdit implements OnInit {
         next: (detail) => this.domain.set(detail),
         error: (err) => {
           logApiError('domain.edit.notification-settings', err);
-          this.toast.add({severity: 'error', summary: this.editText().errors.saveFailed});
+          this.toast.addApiError(err, this.editText().errors.saveFailed);
         },
       });
   }
@@ -554,7 +554,7 @@ export class DomainEdit implements OnInit {
         },
         error: (err) => {
           logApiError('domain.edit.join-request-approve', err);
-          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+          this.toast.addApiError(err, this.editText().members.actionFailed);
         },
       });
   }
@@ -569,7 +569,7 @@ export class DomainEdit implements OnInit {
         },
         error: (err) => {
           logApiError('domain.edit.join-request-reject', err);
-          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+          this.toast.addApiError(err, this.editText().members.actionFailed);
         },
       });
   }
@@ -592,7 +592,7 @@ export class DomainEdit implements OnInit {
         },
         error: (err) => {
           logApiError('domain.edit.join-request-bulk-approve', err);
-          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+          this.toast.addApiError(err, this.editText().members.actionFailed);
         },
       });
   }
@@ -615,7 +615,7 @@ export class DomainEdit implements OnInit {
         },
         error: (err) => {
           logApiError('domain.edit.join-request-bulk-reject', err);
-          this.toast.add({severity: 'error', summary: this.editText().members.actionFailed});
+          this.toast.addApiError(err, this.editText().members.actionFailed);
         },
       });
   }
@@ -675,7 +675,7 @@ export class DomainEdit implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
           logApiError('domain.edit.export-analytics', err);
-          this.toast.add({severity: 'error', summary: this.editText().analytics.exportError});
+          this.toast.addApiError(err, this.editText().analytics.exportError);
           return of<Blob | null>(null);
         }),
         finalize(() => this.analyticsExporting.set(false)),

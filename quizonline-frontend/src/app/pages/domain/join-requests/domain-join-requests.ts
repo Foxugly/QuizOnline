@@ -177,7 +177,7 @@ export class DomainJoinRequestsPage implements OnInit {
         },
         error: (err) => {
           logApiError('domain.join-requests.bulk-reject', err);
-          this.toast.add({severity: 'error', summary: this.t().bulkActionFailed});
+          this.toast.addApiError(err, this.t().bulkActionFailed);
         },
       });
   }
@@ -211,7 +211,7 @@ export class DomainJoinRequestsPage implements OnInit {
         },
         error: (err) => {
           logApiError('domain.join-requests.bulk-approve', err);
-          this.toast.add({severity: 'error', summary: this.t().bulkActionFailed});
+          this.toast.addApiError(err, this.t().bulkActionFailed);
         },
       });
   }
