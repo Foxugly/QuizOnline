@@ -19,6 +19,7 @@ only assert ``status == "ok"`` still flip when something breaks.
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 from django.core.cache import cache
@@ -26,6 +27,22 @@ from django.db import DatabaseError, connection
 from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_version() -> str:
+    """
+    Best-effort build/release identifier rendered in ``/health/`` so the
+    operator can confirm which build is actually running on a node.
+
+    Resolution order:
+      1. ``SENTRY_RELEASE`` — already used by the Sentry SDK and
+         typically set in CI/CD to the git SHA. Same source of truth.
+      2. ``APP_VERSION`` — explicit override if Sentry isn't configured.
+      3. ``"unknown"`` — never raise; the endpoint must remain cheap.
+    """
+    return (os.environ.get("SENTRY_RELEASE")
+            or os.environ.get("APP_VERSION")
+            or "unknown").strip() or "unknown"
 
 _CACHE_PROBE_KEY = "_healthcheck:probe"
 _CACHE_PROBE_VALUE = "1"
@@ -74,6 +91,7 @@ def health_check(request) -> JsonResponse:
     overall_ok = db_ok and cache_ok
     payload: dict[str, Any] = {
         "status": "ok" if overall_ok else "degraded",
+        "version": _resolve_version(),
         "checks": {
             "db": {"ok": db_ok, **({"error": db_err} if db_err else {})},
             "cache": {"ok": cache_ok, **({"error": cache_err} if cache_err else {})},

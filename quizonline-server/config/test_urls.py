@@ -16,6 +16,18 @@ class HealthCheckTests(TestCase):
         self.assertTrue(payload["checks"]["db"]["ok"])
         self.assertTrue(payload["checks"]["cache"]["ok"])
         self.assertIsInstance(payload["outbox_pending"], int)
+        # ``version`` is always present so operators can confirm which
+        # build is running. Defaults to "unknown" when no env-injected
+        # release tag is available (dev/local).
+        self.assertIn("version", payload)
+        self.assertIsInstance(payload["version"], str)
+
+    def test_health_check_surfaces_sentry_release_when_set(self):
+        with patch.dict("os.environ", {"SENTRY_RELEASE": "abc1234"}, clear=False):
+            response = self.client.get("/health/")
+        self.assertEqual(response.status_code, 200)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["version"], "abc1234")
 
     def test_health_check_degraded_when_db_fails(self):
         with patch("config.views_health._check_db", return_value=(False, "boom")):
