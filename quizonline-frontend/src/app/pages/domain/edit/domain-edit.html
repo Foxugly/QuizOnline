@@ -45,8 +45,8 @@
           <p-tab value="invitations">
             <i class="pi pi-envelope tab-icon"></i>
             {{ editText().tabs.invitations }}
-            @if (canModerate() && pendingCount() > 0) {
-              <p-badge [value]="pendingCount() + ''" severity="warn"/>
+            @if (canModerate() && joinRequestsCtrl.pendingCount() > 0) {
+              <p-badge [value]="joinRequestsCtrl.pendingCount() + ''" severity="warn"/>
             }
           </p-tab>
         }
@@ -256,22 +256,22 @@
             [text]="editText()"
             [canInvite]="canInvite()"
             [canModerate]="canModerate()"
-            [joinRequests]="joinRequests()"
-            [joinRequestsLoading]="joinRequestsLoading()"
-            [statusFilter]="joinRequestStatusFilter()"
-            [applyingBulk]="applyingBulk()"
-            [invitations]="invitations()"
-            [inviting]="inviting()"
-            [inviteResults]="inviteResults()"
-            [additionalDomainOptions]="additionalInvitableDomains()"
-            (statusFilterChange)="onJoinRequestStatusFilterChange($event)"
-            (approveRequest)="onJoinRequestApprove($event)"
-            (rejectRequest)="onJoinRequestReject($event)"
-            (bulkApproveRequests)="onJoinRequestBulkApprove($event)"
-            (bulkRejectRequests)="onJoinRequestBulkReject($event)"
-            (inviteRequest)="onInviteRequest($event)"
-            (inviteResend)="onInviteResend($event)"
-            (inviteRevoke)="onInviteRevoke($event)">
+            [joinRequests]="joinRequestsCtrl.rows()"
+            [joinRequestsLoading]="joinRequestsCtrl.loading()"
+            [statusFilter]="joinRequestsCtrl.statusFilter()"
+            [applyingBulk]="joinRequestsCtrl.applyingBulk()"
+            [invitations]="invitations.invitations()"
+            [inviting]="invitations.sending()"
+            [inviteResults]="invitations.results()"
+            [additionalDomainOptions]="invitations.additionalInvitableDomains()"
+            (statusFilterChange)="joinRequestsCtrl.onStatusFilterChange($event)"
+            (approveRequest)="joinRequestsCtrl.onApprove($event)"
+            (rejectRequest)="joinRequestsCtrl.onReject($event)"
+            (bulkApproveRequests)="joinRequestsCtrl.onBulkApprove($event)"
+            (bulkRejectRequests)="joinRequestsCtrl.onBulkReject($event)"
+            (inviteRequest)="invitations.onInviteRequest($event)"
+            (inviteResend)="invitations.onInviteResend($event)"
+            (inviteRevoke)="invitations.onInviteRevoke($event)">
           </app-domain-invitations-tab>
           </div>
         </p-tabpanel>

@@ -22,7 +22,7 @@ import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
-import {DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
+import {DomainEditApi} from '../../../services/domain/domain-edit-api';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
 import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
@@ -45,16 +45,14 @@ import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.direct
 import {runSave} from '../../../shared/forms/run-save';
 import {DomainEditAuditController} from './domain-edit-audit.controller';
 import {DomainEditAnalyticsController} from './domain-edit-analytics.controller';
+import {DomainEditInvitationsController} from './domain-edit-invitations.controller';
+import {DomainEditJoinRequestsController} from './domain-edit-join-requests.controller';
 import {DomainEditNotificationsController} from './domain-edit-notifications.controller';
 import {DomainEditTransferController} from './domain-edit-transfer.controller';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
-import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
-import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
-import {DomainJoinRequestBulkResultDto} from '../../../api/generated/model/domain-join-request-bulk-result';
-import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {DomainWriteRequestDto} from '../../../api/generated/model/domain-write-request';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -110,6 +108,8 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   providers: [
     DomainEditAuditController,
     DomainEditAnalyticsController,
+    DomainEditInvitationsController,
+    DomainEditJoinRequestsController,
     DomainEditNotificationsController,
     DomainEditTransferController,
   ],
@@ -119,6 +119,8 @@ export class DomainEdit implements OnInit {
   readonly adminUi = inject(UiTextService).ui;
   protected readonly audit = inject(DomainEditAuditController);
   protected readonly analytics = inject(DomainEditAnalyticsController);
+  protected readonly invitations = inject(DomainEditInvitationsController);
+  protected readonly joinRequestsCtrl = inject(DomainEditJoinRequestsController);
   protected readonly notifications = inject(DomainEditNotificationsController);
   protected readonly transfer = inject(DomainEditTransferController);
   id!: number;
@@ -129,10 +131,6 @@ export class DomainEdit implements OnInit {
   readonly lastSavedAt = signal<Date | null>(null);
 
   domain = signal<DomainDetailDto | null>(null);
-  joinRequests = signal<DomainJoinRequestReadDto[]>([]);
-  joinRequestsLoading = signal<boolean>(false);
-  joinRequestStatusFilter = signal<JoinRequestStatusFilter>('pending');
-  applyingBulk = signal<boolean>(false);
   topTab = signal<'config' | 'notifications' | 'members' | 'invitations' | 'audit' | 'analytics'>('config');
 
   // global languages (for selectButton options + code->id mapping)
@@ -233,19 +231,6 @@ export class DomainEdit implements OnInit {
     }
     return (dto.managers ?? []).some(m => m.id === me.id);
   });
-  readonly pendingCount = computed(
-    () => this.joinRequests().filter((r) => r.status === 'pending').length,
-  );
-
-  readonly inviteResults = signal<DomainInviteResultDto[] | null>(null);
-  readonly inviting = signal<boolean>(false);
-  readonly invitations = signal<DomainInviteReadDto[]>([]);
-
-  /** Other active domains the current user may invite to (owner OR
-   *  manager), excluding the one being edited. Loaded once at init and
-   *  passed to the members tab so the multi-domain invite multi-select
-   *  has a list to render. */
-  readonly additionalInvitableDomains = signal<{label: string; value: number}[]>([]);
 
 
   ngOnInit(): void {
@@ -270,6 +255,14 @@ export class DomainEdit implements OnInit {
       readDomain: () => this.domain(),
       readOwnerOptions: () => this.ownerOptions(),
       onTransferred: (dto) => this.onOwnerTransferred(dto),
+    });
+    this.invitations.bind({
+      domainId: this.id,
+      onError: (detail) => this.submitError.set(detail),
+    });
+    this.joinRequestsCtrl.bind({
+      domainId: this.id,
+      refreshDomain: () => this.refreshDomainSilently(),
     });
     this.loading.set(true);
     this.submitError.set(null);
@@ -316,9 +309,8 @@ export class DomainEdit implements OnInit {
             || domain.owner?.id === me.id
             || (domain.managers ?? []).some(m => m.id === me.id));
         if (canMod) {
-          this.loadJoinRequests();
-          this.loadInvitations();
-          this.loadAdditionalInvitableDomains();
+          this.joinRequestsCtrl.load();
+          this.invitations.loadAll();
         }
 
         // Deep-link from /domain/list : ``?tab=analytics`` opens the
@@ -423,96 +415,9 @@ export class DomainEdit implements OnInit {
     return this.audit.actions().map((a) => ({label: labelFn(a), value: a}));
   });
 
-  onJoinRequestStatusFilterChange(value: JoinRequestStatusFilter): void {
-    this.joinRequestStatusFilter.set(value);
-    this.loadJoinRequests();
-  }
-
-  onJoinRequestApprove(evt: {requestId: number}): void {
-    this.editApi.approveJoinRequest(this.id, evt.requestId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.loadJoinRequests();
-          this.refreshDomainSilently();
-        },
-        error: (err) => {
-          logApiError('domain.edit.join-request-approve', err);
-          this.toast.addApiError(err, this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  onJoinRequestReject(evt: {requestId: number; reason: string}): void {
-    this.editApi.rejectJoinRequest(this.id, evt.requestId, evt.reason)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.loadJoinRequests();
-          this.refreshDomainSilently();
-        },
-        error: (err) => {
-          logApiError('domain.edit.join-request-reject', err);
-          this.toast.addApiError(err, this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  onJoinRequestBulkApprove(evt: {requestIds: number[]}): void {
-    if (!evt.requestIds.length || this.applyingBulk()) {
-      return;
-    }
-    this.applyingBulk.set(true);
-    this.editApi.bulkApproveJoinRequests(this.id, evt.requestIds)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.applyingBulk.set(false)),
-      )
-      .subscribe({
-        next: (result) => {
-          this.notifyBulkResult(result);
-          this.loadJoinRequests();
-          this.refreshDomainSilently();
-        },
-        error: (err) => {
-          logApiError('domain.edit.join-request-bulk-approve', err);
-          this.toast.addApiError(err, this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  onJoinRequestBulkReject(evt: {requestIds: number[]; reason: string}): void {
-    if (!evt.requestIds.length || this.applyingBulk()) {
-      return;
-    }
-    this.applyingBulk.set(true);
-    this.editApi.bulkRejectJoinRequests(this.id, evt.requestIds, evt.reason)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.applyingBulk.set(false)),
-      )
-      .subscribe({
-        next: (result) => {
-          this.notifyBulkResult(result);
-          this.loadJoinRequests();
-          this.refreshDomainSilently();
-        },
-        error: (err) => {
-          logApiError('domain.edit.join-request-bulk-reject', err);
-          this.toast.addApiError(err, this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  private notifyBulkResult(result: DomainJoinRequestBulkResultDto): void {
-    const labels = this.adminUi().admin.joinRequests;
-    this.toast.add({
-      severity: result.skipped > 0 ? 'warn' : 'success',
-      summary: labels.bulkResultTitle,
-      detail: labels.bulkResultDetail(result.processed, result.skipped),
-    });
-  }
-
+  /** Hand-off used by the join-requests controller after an approve/reject
+   *  to keep the page's ``domain`` signal — and therefore the moderation
+   *  badge, the members list, etc. — in sync. */
   private refreshDomainSilently(): void {
     this.domainService.detail(this.id)
       .pipe(
@@ -544,120 +449,6 @@ export class DomainEdit implements OnInit {
       });
   }
 
-  onInviteRequest(evt: {emails: string[]; additionalDomainIds: number[]}): void {
-    if (!evt.emails.length || this.inviting()) {
-      return;
-    }
-    this.inviting.set(true);
-    this.inviteResults.set(null);
-    const language = this.userService.currentLang ?? LanguageEnumDto.Fr;
-    this.editApi.sendInvites(this.id, evt.emails, language, evt.additionalDomainIds)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.inviting.set(false)),
-      )
-      .subscribe({
-        next: (results) => {
-          this.inviteResults.set(results);
-          // Refresh the pending-invitations table so the new rows
-          // surface immediately under the members tab.
-          this.loadInvitations();
-        },
-        error: (err) => {
-          logApiError('domain.edit.invite', err);
-          this.submitError.set(this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  onInviteResend(evt: {inviteId: number}): void {
-    this.editApi.resendInvitation(this.id, evt.inviteId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.loadInvitations(),
-        error: (err) => {
-          logApiError('domain.edit.invite-resend', err);
-          this.submitError.set(this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  onInviteRevoke(evt: {inviteId: number}): void {
-    this.editApi.revokeInvitation(this.id, evt.inviteId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.loadInvitations(),
-        error: (err) => {
-          logApiError('domain.edit.invite-revoke', err);
-          this.submitError.set(this.editText().members.actionFailed);
-        },
-      });
-  }
-
-  private loadInvitations(): void {
-    this.editApi.listInvitations(this.id)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((err) => {
-          logApiError('domain.edit.load-invitations', err);
-          return of([] as DomainInviteReadDto[]);
-        }),
-      )
-      .subscribe((rows) => this.invitations.set(rows));
-  }
-
-  private loadAdditionalInvitableDomains(): void {
-    // Multi-domain invite: build the picker list once at init from the
-    // domains visible to the user (``DomainService.list``) and keep
-    // only those the user can actually invite to (owner OR manager),
-    // excluding the one currently being edited.
-    //
-    // The list is loaded once on ngOnInit and never refreshed during
-    // the page lifetime, so a manager added or removed elsewhere in
-    // the system between page-load and dialog-open will not surface
-    // until a full reload. This is acceptable because the server-side
-    // ``invite`` action re-screens every target id and returns
-    // ``forbidden_domain`` for any unauthorised pick; the worst case
-    // is one wasted HTTP round-trip, not a privilege bypass.
-    this.domainService.list()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((err) => {
-          logApiError('domain.edit.load-invitable-domains', err);
-          return of([]);
-        }),
-      )
-      .subscribe((domains) => {
-        const me = this.userService.currentUser();
-        if (!me) {
-          this.additionalInvitableDomains.set([]);
-          return;
-        }
-        const lang = this.userService.currentLang;
-        const options = (domains ?? [])
-          .filter((d) => {
-            if (d.id === this.id) {
-              return false;
-            }
-            if (d.active === false) {
-              return false;
-            }
-            if (me.is_superuser || d.owner?.id === me.id) {
-              return true;
-            }
-            return (d.managers ?? []).some((m) => m.id === me.id);
-          })
-          .map((d) => {
-            const tr = d.translations ?? {};
-            const entry = tr[lang] ?? tr['fr'] ?? tr['en'] ?? Object.values(tr)[0];
-            const name = entry?.name?.trim() || `Domain #${d.id}`;
-            return {label: name, value: d.id};
-          })
-          .sort((a, b) => a.label.localeCompare(b.label));
-        this.additionalInvitableDomains.set(options);
-      });
-  }
-
   onMemberRemove(evt: {userId: number}): void {
     this.editApi.removeMember(this.id, evt.userId)
       .pipe(
@@ -682,20 +473,6 @@ export class DomainEdit implements OnInit {
     this.form.controls.owner.setValue(dto.owner?.id ?? null, {emitEvent: false});
     const me = this.userService.currentUser();
     this.canEditOwner.set(!!me && (me.is_superuser || dto.owner?.id === me.id));
-  }
-
-  private loadJoinRequests(): void {
-    this.joinRequestsLoading.set(true);
-    this.editApi.listJoinRequests(this.id, this.joinRequestStatusFilter())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((err) => {
-          logApiError('domain.edit.load-join-requests', err);
-          return of([] as DomainJoinRequestReadDto[]);
-        }),
-        finalize(() => this.joinRequestsLoading.set(false)),
-      )
-      .subscribe((rows) => this.joinRequests.set(rows));
   }
 
   onTabValueChange(v: string | number | undefined): void {
