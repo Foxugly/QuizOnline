@@ -3,7 +3,7 @@ import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {finalize, forkJoin, of} from 'rxjs';
+import {finalize, forkJoin, Observable, of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
@@ -201,9 +201,7 @@ export class Preferences implements OnInit {
     }
 
     const raw = this.form.getRawValue();
-    this.saving.set(true);
-
-    this.userService.updateMeProfile({
+    const source = this.userService.updateMeProfile({
         email: raw.email || '',
         first_name: raw.first_name || '',
         last_name: raw.last_name || '',
@@ -212,30 +210,25 @@ export class Preferences implements OnInit {
       .pipe(switchMap((updatedUser) => forkJoin({
         profile: of(updatedUser),
         visibleDomains: this.domainService.list(),
-      })))
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: ({profile, visibleDomains}) => {
-          const updatedUser = Array.isArray(profile) ? profile[0] : profile;
-          this.currentUser.set(updatedUser);
-          this.visibleDomains.set(visibleDomains ?? []);
-          this.form.patchValue({
-            username: updatedUser.username ?? '',
-            email: updatedUser.email ?? '',
-            first_name: updatedUser.first_name ?? '',
-            last_name: updatedUser.last_name ?? '',
-            language: updatedUser.language ?? LanguageEnumDto.En,
-          });
-          this.lastSavedAt.set(new Date());
-          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+      })));
+
+    this.runSave(source, {
+      onSuccess: ({profile, visibleDomains}) => {
+        const updatedUser = Array.isArray(profile) ? profile[0] : profile;
+        this.currentUser.set(updatedUser);
+        this.visibleDomains.set(visibleDomains ?? []);
+        this.form.patchValue({
+          username: updatedUser.username ?? '',
+          email: updatedUser.email ?? '',
+          first_name: updatedUser.first_name ?? '',
+          last_name: updatedUser.last_name ?? '',
+          language: updatedUser.language ?? LanguageEnumDto.En,
+        });
+      },
+      successDetail: this.ui().preferences.saveSuccess,
+      errorDetail: this.ui().preferences.saveError,
+      bumpSavedAt: true,
+    });
   }
 
   goChangePassword(): void {
@@ -273,26 +266,20 @@ export class Preferences implements OnInit {
   }
 
   setCurrentDomain(domainId: number): void {
-    this.saving.set(true);
-    this.userService.setCurrentDomain(domainId)
-      .pipe(
-        switchMap((profile) => forkJoin({
-          profile: of(profile),
-          visibleDomains: this.domainService.list(),
-        })),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: ({profile, visibleDomains}) => {
-          this.currentUser.set(profile);
-          this.visibleDomains.set(visibleDomains ?? []);
-          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+    const source = this.userService.setCurrentDomain(domainId).pipe(
+      switchMap((profile) => forkJoin({
+        profile: of(profile),
+        visibleDomains: this.domainService.list(),
+      })),
+    );
+    this.runSave(source, {
+      onSuccess: ({profile, visibleDomains}) => {
+        this.currentUser.set(profile);
+        this.visibleDomains.set(visibleDomains ?? []);
+      },
+      successDetail: this.ui().preferences.saveSuccess,
+      errorDetail: this.ui().preferences.saveError,
+    });
   }
 
   /**
@@ -302,28 +289,22 @@ export class Preferences implements OnInit {
    * state immediately.
    */
   unlinkDomain(domainId: number): void {
-    this.saving.set(true);
-    this.domainService.leave(domainId)
-      .pipe(
-        switchMap(() => forkJoin({
-          profile: this.userService.getMe(),
-          visibleDomains: this.domainService.list(),
-          availableDomains: this.domainService.availableForLinking(),
-        })),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: ({profile, visibleDomains, availableDomains}) => {
-          this.currentUser.set(profile);
-          this.visibleDomains.set(visibleDomains ?? []);
-          this.availableDomains.set(availableDomains ?? []);
-          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+    const source = this.domainService.leave(domainId).pipe(
+      switchMap(() => forkJoin({
+        profile: this.userService.getMe(),
+        visibleDomains: this.domainService.list(),
+        availableDomains: this.domainService.availableForLinking(),
+      })),
+    );
+    this.runSave(source, {
+      onSuccess: ({profile, visibleDomains, availableDomains}) => {
+        this.currentUser.set(profile);
+        this.visibleDomains.set(visibleDomains ?? []);
+        this.availableDomains.set(availableDomains ?? []);
+      },
+      successDetail: this.ui().preferences.saveSuccess,
+      errorDetail: this.ui().preferences.saveError,
+    });
   }
 
   /**
@@ -331,22 +312,14 @@ export class Preferences implements OnInit {
    * the user profile so the pending list reflects the cancellation.
    */
   cancelPendingRequest(domainId: number, requestId: number): void {
-    this.saving.set(true);
-    this.domainService.cancelJoinRequest(domainId, requestId)
-      .pipe(
-        switchMap(() => this.userService.getMe()),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: (profile) => {
-          this.currentUser.set(profile);
-          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+    const source = this.domainService.cancelJoinRequest(domainId, requestId).pipe(
+      switchMap(() => this.userService.getMe()),
+    );
+    this.runSave(source, {
+      onSuccess: (profile) => this.currentUser.set(profile),
+      successDetail: this.ui().preferences.saveSuccess,
+      errorDetail: this.ui().preferences.saveError,
+    });
   }
 
   /**
@@ -498,22 +471,15 @@ export class Preferences implements OnInit {
     } else {
       delete next[kind];
     }
-    this.saving.set(true);
-    this.userService.updateMeProfile({notification_prefs: next as unknown as object} as unknown as Parameters<typeof this.userService.updateMeProfile>[0])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: (updated) => {
-          this.currentUser.set(updated);
-          this.lastSavedAt.set(new Date());
-          this.toast.add({severity: 'success', detail: this.ui().preferences.notificationsSaved});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+    const source = this.userService.updateMeProfile(
+      {notification_prefs: next as unknown as object} as unknown as Parameters<typeof this.userService.updateMeProfile>[0],
+    );
+    this.runSave(source, {
+      onSuccess: (updated) => this.currentUser.set(updated),
+      successDetail: this.ui().preferences.notificationsSaved,
+      errorDetail: this.ui().preferences.saveError,
+      bumpSavedAt: true,
+    });
   }
 
   /**
@@ -535,56 +501,44 @@ export class Preferences implements OnInit {
   }
 
   deleteOwnedDomain(domainId: number): void {
-    this.saving.set(true);
-    this.domainService.delete(domainId)
-      .pipe(
-        switchMap(() => forkJoin({
-          profile: this.userService.getMe(),
-          visibleDomains: this.domainService.list(),
-          availableDomains: this.domainService.availableForLinking(),
-        })),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: ({profile, visibleDomains, availableDomains}) => {
-          this.currentUser.set(profile);
-          this.visibleDomains.set(visibleDomains ?? []);
-          this.availableDomains.set(availableDomains ?? []);
-          this.toast.add({severity: 'success', detail: this.ui().preferences.deleteDomainSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.deleteDomainError);
-        },
-      });
+    const source = this.domainService.delete(domainId).pipe(
+      switchMap(() => forkJoin({
+        profile: this.userService.getMe(),
+        visibleDomains: this.domainService.list(),
+        availableDomains: this.domainService.availableForLinking(),
+      })),
+    );
+    this.runSave(source, {
+      onSuccess: ({profile, visibleDomains, availableDomains}) => {
+        this.currentUser.set(profile);
+        this.visibleDomains.set(visibleDomains ?? []);
+        this.availableDomains.set(availableDomains ?? []);
+      },
+      successDetail: this.ui().preferences.deleteDomainSuccess,
+      errorDetail: this.ui().preferences.deleteDomainError,
+    });
   }
 
   private persistLinkedDomains(managed_domain_ids: number[], closeDialog: boolean): void {
-    this.saving.set(true);
-    this.userService.updateMeProfile({managed_domain_ids})
-      .pipe(
-        switchMap((profile) => forkJoin({
-          profile: of(profile),
-          visibleDomains: this.domainService.list(),
-          availableDomains: this.domainService.availableForLinking(),
-        })),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.saving.set(false)),
-      )
-      .subscribe({
-        next: ({profile, visibleDomains, availableDomains}) => {
-          this.currentUser.set(profile);
-          this.visibleDomains.set(visibleDomains ?? []);
-          this.availableDomains.set(availableDomains ?? []);
-          if (closeDialog) {
-            this.closeLinkDomainsDialog();
-          }
-          this.toast.add({severity: 'success', detail: this.ui().preferences.saveSuccess});
-        },
-        error: (err) => {
-          this.toast.addApiError(err, this.ui().preferences.saveError);
-        },
-      });
+    const source = this.userService.updateMeProfile({managed_domain_ids}).pipe(
+      switchMap((profile) => forkJoin({
+        profile: of(profile),
+        visibleDomains: this.domainService.list(),
+        availableDomains: this.domainService.availableForLinking(),
+      })),
+    );
+    this.runSave(source, {
+      onSuccess: ({profile, visibleDomains, availableDomains}) => {
+        this.currentUser.set(profile);
+        this.visibleDomains.set(visibleDomains ?? []);
+        this.availableDomains.set(availableDomains ?? []);
+        if (closeDialog) {
+          this.closeLinkDomainsDialog();
+        }
+      },
+      successDetail: this.ui().preferences.saveSuccess,
+      errorDetail: this.ui().preferences.saveError,
+    });
   }
 
   private getDomainLabel(domain: DomainReadDto): string {
@@ -603,5 +557,45 @@ export class Preferences implements OnInit {
     }
 
     return `Domain #${domain.id}`;
+  }
+
+  /**
+   * Shared boilerplate for every "I just mutated something on the server"
+   * call on this page. Sets ``saving`` for the duration, hooks
+   * ``takeUntilDestroyed`` so leaving the page cancels in-flight requests,
+   * shows a success/error toast, and (when ``bumpSavedAt`` is set) bumps
+   * the ``Enregistré à HH:MM`` indicator.
+   *
+   * Callers pass a fully-composed observable — anything that needs a
+   * ``switchMap`` to refresh related state should chain it before
+   * calling ``runSave``.
+   */
+  private runSave<T>(
+    source: Observable<T>,
+    options: {
+      onSuccess: (value: T) => void;
+      successDetail: string;
+      errorDetail: string;
+      bumpSavedAt?: boolean;
+    },
+  ): void {
+    this.saving.set(true);
+    source
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
+      .subscribe({
+        next: (value) => {
+          options.onSuccess(value);
+          if (options.bumpSavedAt) {
+            this.lastSavedAt.set(new Date());
+          }
+          this.toast.add({severity: 'success', detail: options.successDetail});
+        },
+        error: (err) => {
+          this.toast.addApiError(err, options.errorDetail);
+        },
+      });
   }
 }
