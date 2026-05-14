@@ -71,6 +71,7 @@ class DomainSerializersTestCase(TestCase):
             "owner",
             "managers",
             "members",
+            "notification_settings",
             "created_at",
             "updated_at",
         }
