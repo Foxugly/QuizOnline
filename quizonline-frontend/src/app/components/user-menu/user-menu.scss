@@ -9,28 +9,27 @@
 
 .user-trigger {
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
+  background: transparent;
+  border: none;
   color: #f8fafc;
   cursor: pointer;
   display: inline-flex;
   gap: 0.5rem;
   min-height: 2.5rem;
-  padding: 0.55rem 0.9rem;
+  padding: 0.4rem 0.6rem;
 }
 
 .user-trigger:hover,
 .user-trigger:focus,
 .user-trigger:active {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
   color: inherit;
 }
 
 .user-menu__panel {
   position: absolute;
   top: calc(100% + 0.5rem);
-  right: 0;
+  left: 0;
   min-width: 15rem;
   padding: 0.4rem;
   border: 1px solid var(--surface-border, #d6d9e0);
@@ -48,10 +47,19 @@
   border-radius: 0.7rem;
   color: var(--text-color, #22304a);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font: inherit;
   justify-content: flex-start;
   padding: 0.7rem 0.8rem;
+  text-align: left;
   width: 100%;
+}
+
+.user-menu__item-icon {
+  width: 1rem;
+  color: var(--text-color-secondary, #6b7280);
 }
 
 .user-menu__item:hover {

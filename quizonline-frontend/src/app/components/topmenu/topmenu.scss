@@ -167,9 +167,8 @@
 
 .alert-link {
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
+  background: transparent;
+  border: none;
   box-shadow: none;
   color: #f8fafc;
   cursor: pointer;
@@ -177,13 +176,14 @@
   height: 2.5rem;
   justify-content: center;
   min-width: 2.5rem;
-  padding: 0 0.85rem;
+  padding: 0 0.5rem;
   position: relative;
   overflow: visible;
 }
 
 .alert-link:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
 }
 
 .topbar-menu {
@@ -230,7 +230,7 @@
 }
 
 .topbar-dropdown--admin {
-  min-width: 15rem;
+  min-width: 16rem;
 }
 
 .topbar-dropdown--domain {
@@ -265,17 +265,27 @@
   border-radius: 0.8rem;
   color: inherit;
   cursor: pointer;
-  display: grid;
+  display: flex;
   font: inherit;
   gap: 0.65rem;
-  grid-template-columns: 1rem 1fr;
   padding: 0.55rem 0.7rem;
   text-align: left;
+  white-space: nowrap;
   width: 100%;
+}
+
+.topbar-dropdown__item > span {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .topbar-dropdown__item:hover {
   background: rgba(34, 48, 74, 0.08);
+}
+
+.topbar-dropdown__item--current {
+  font-weight: 700;
+  background: rgba(34, 48, 74, 0.05);
 }
 
 .topbar-dropdown__spacer {
