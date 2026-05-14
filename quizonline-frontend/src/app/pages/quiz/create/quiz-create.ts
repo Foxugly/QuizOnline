@@ -36,7 +36,8 @@ import {QuizQuestionLibraryComponent} from '../../../components/quiz-question-li
 import {QuizTemplateCompositionComponent} from '../../../components/quiz-template-composition/quiz-template-composition';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
-import {DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainService} from '../../../services/domain/domain';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {
   addQuestionAnswerOption,
   buildQuestionCreatePayload,
@@ -1246,20 +1247,7 @@ export class QuizCreate implements OnInit {
   }
 
   private getDomainLabel(domain: DomainReadDto): string {
-    const translations = domain.translations as DomainTranslations | undefined;
-    const current = translations?.[this.currentLang()]?.name?.trim();
-    if (current) {
-      return current;
-    }
-
-    for (const fallback of [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl]) {
-      const value = translations?.[fallback]?.name?.trim();
-      if (value) {
-        return value;
-      }
-    }
-
-    return `Domain #${domain.id}`;
+    return getLocalizedDomainName(domain, this.currentLang());
   }
 
   private getSubjectLabel(

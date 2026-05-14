@@ -24,7 +24,8 @@ import {ROUTES} from '../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainService} from '../../../services/domain/domain';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 
 @Component({
   selector: 'app-register',
@@ -245,20 +246,6 @@ export class Register implements OnInit {
   }
 
   private getDomainLabel(domain: DomainReadDto): string {
-    const translations = domain.translations as DomainTranslations | undefined;
-    const lang = this.userService.currentLang;
-    const current = translations?.[lang]?.name?.trim();
-    if (current) {
-      return current;
-    }
-
-    for (const fallback of ['fr', 'en', 'nl']) {
-      const value = translations?.[fallback]?.name?.trim();
-      if (value) {
-        return value;
-      }
-    }
-
-    return `Domain #${domain.id}`;
+    return getLocalizedDomainName(domain, this.userService.currentLang);
   }
 }

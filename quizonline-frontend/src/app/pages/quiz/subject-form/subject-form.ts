@@ -13,7 +13,8 @@ import {SelectModule} from 'primeng/select';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
-import {DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainService} from '../../../services/domain/domain';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {QuizSubjectCreatePayload} from '../../../services/quiz/quiz';
 import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
@@ -278,8 +279,7 @@ export class QuizSubjectForm implements OnInit {
   }
 
   private getDomainLabel(domain: DomainReadDto, lang: string): string {
-    const translations = domain.translations as DomainTranslations | undefined;
-    return translations?.[lang]?.name?.trim() || `Domain #${domain.id}`;
+    return getLocalizedDomainName(domain, lang);
   }
 
   private syncSubjectControlState(domainId: number): void {

@@ -15,8 +15,9 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import {DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
@@ -542,21 +543,7 @@ export class Preferences implements OnInit {
   }
 
   private getDomainLabel(domain: DomainReadDto): string {
-    const translations = domain.translations as DomainTranslations | undefined;
-    const lang = this.userService.currentLang;
-    const current = translations?.[lang]?.name?.trim();
-    if (current) {
-      return current;
-    }
-
-    for (const fallback of [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl]) {
-      const value = translations?.[fallback]?.name?.trim();
-      if (value) {
-        return value;
-      }
-    }
-
-    return `Domain #${domain.id}`;
+    return getLocalizedDomainName(domain, this.userService.currentLang);
   }
 
   /**

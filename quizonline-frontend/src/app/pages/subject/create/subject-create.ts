@@ -19,7 +19,8 @@ import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectWriteRequestDto} from '../../../api/generated/model/subject-write-request';
-import {DomainOption, DomainService, DomainTranslations} from '../../../services/domain/domain';
+import {DomainOption, DomainService} from '../../../services/domain/domain';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {SubjectService, SubjectLangGroup} from '../../../services/subject/subject';
 import {isLangCode, LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
@@ -59,7 +60,6 @@ export class SubjectCreate implements OnInit {
 
   readonly isLocked = computed(() => this.loading() || this.translating());
 
-  private readonly domainMetaFallbacks: LanguageEnumDto[] = [LanguageEnumDto.Fr, LanguageEnumDto.En, LanguageEnumDto.Nl];
 
   // Domain list
   domains = signal<DomainReadDto[]>([]);
@@ -332,17 +332,7 @@ export class SubjectCreate implements OnInit {
   }
 
   private getDomainLabel(domain: Pick<DomainReadDto, 'id' | 'translations'>, lang: LanguageEnumDto): string {
-    const tr = domain.translations as DomainTranslations | undefined;
-
-    const inCurrent = tr?.[lang]?.name?.trim();
-    if (inCurrent) return inCurrent;
-
-    for (const fb of this.domainMetaFallbacks) {
-      const v = tr?.[fb]?.name?.trim();
-      if (v) return v;
-    }
-
-    return `Domain #${domain.id}`;
+    return getLocalizedDomainName(domain, lang);
   }
 
   private extractLangCodes(domain: Pick<DomainDetailDto, 'allowed_languages'>): LangCode[] {

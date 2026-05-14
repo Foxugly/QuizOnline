@@ -29,6 +29,7 @@ import {UserSummaryDto} from '../../../api/generated/model/user-summary';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getQuizListUiText} from './quiz-list.i18n';
 import {ROUTES} from '../../../app.routes-paths';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 
 type DomainReadWithMembers = DomainReadDto & {
   members?: UserSummaryDto[];
@@ -141,12 +142,7 @@ export class QuizListPage implements OnInit {
   });
 
   private localizedDomainName(domain: DomainReadDto, lang: string): string {
-    const translations = domain.translations ?? {};
-    const entry = (translations as Record<string, {name?: string}>)[lang]
-      ?? (translations as Record<string, {name?: string}>)['fr']
-      ?? (translations as Record<string, {name?: string}>)['en']
-      ?? Object.values(translations as Record<string, {name?: string}>)[0];
-    return entry?.name?.trim() || `#${domain.id}`;
+    return getLocalizedDomainName(domain, lang);
   }
 
   readonly filteredTemplates = computed(() => {
