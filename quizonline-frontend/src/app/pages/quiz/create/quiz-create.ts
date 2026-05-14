@@ -724,9 +724,7 @@ export class QuizCreate implements OnInit {
     this.questionSubmitError.set(null);
 
     if (!isQuestionEditorFormValid(this.questionForm, this.questionDialogLangs(), {requireDomain: true})) {
-      this.questionSubmitError.set(
-        'Complète le titre dans chaque langue et toutes les réponses avant de créer la question.',
-      );
+      this.questionSubmitError.set(this.editorUi().pages.questionCreate.errors.missingFields);
       this.questionForm.markAllAsTouched();
       return;
     }
