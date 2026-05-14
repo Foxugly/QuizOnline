@@ -46,9 +46,9 @@
       </tr>
     </ng-template>
     <ng-template #body let-row>
-      <tr [class.notifications-table__row--unread]="!row.read_at">
-        <td class="notifications-table__line">{{ lineFor(row) }}</td>
-        <td class="notifications-table__date" [attr.title]="row.created_at | date:'medium'">
+      <tr [class.notifications-table__row--unread]="!row.read_at" class="notifications-table__row">
+        <td class="notifications-table__line" (click)="openRow(row)">{{ lineFor(row) }}</td>
+        <td class="notifications-table__date" [attr.title]="row.created_at | date:'medium'" (click)="openRow(row)">
           {{ relativeFor(row.created_at) }}
         </td>
         <td class="notifications-table__actions">

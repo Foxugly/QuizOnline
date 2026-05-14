@@ -11,8 +11,11 @@ import {TooltipModule} from 'primeng/tooltip';
 
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 
+import {Router} from '@angular/router';
+
 import {NotificationReadDto} from '../../api/generated/model/notification-read';
 import {NotificationService, NotificationStatusFilter} from '../../services/notification/notification.service';
+import {notificationQueryFor, notificationRouteFor} from '../../services/notification/notification-routes';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
@@ -25,6 +28,7 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 export class NotificationsPage implements OnInit {
   private readonly notif = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly ui = inject(UiTextService).ui;
   readonly filter = signal<NotificationStatusFilter>('unread');
@@ -85,6 +89,17 @@ export class NotificationsPage implements OnInit {
         this.notif.refreshUnread();
         this.load();
       });
+  }
+
+  /** Click the line itself: marks read + navigates to the contextual
+   *  page when the kind has one. */
+  openRow(row: NotificationReadDto): void {
+    this.markRead(row);
+    const payload = (row.payload as Record<string, unknown>) ?? {};
+    const route = notificationRouteFor(row.kind, payload);
+    if (route) {
+      void this.router.navigate(route, {queryParams: notificationQueryFor(row.kind, payload)});
+    }
   }
 
   remove(row: NotificationReadDto): void {

@@ -1,12 +1,13 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, OnInit, computed, inject, signal} from '@angular/core';
 import {DatePipe} from '@angular/common';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
 import {NotificationReadDto} from '../../api/generated/model/notification-read';
 import {NotificationService} from '../../services/notification/notification.service';
+import {notificationQueryFor, notificationRouteFor} from '../../services/notification/notification-routes';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
@@ -21,6 +22,7 @@ export class NotificationsBellComponent implements OnInit {
   private readonly notif = inject(NotificationService);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   readonly ui = inject(UiTextService).ui;
   readonly unread = this.notif.unread;
@@ -87,6 +89,9 @@ export class NotificationsBellComponent implements OnInit {
 
   onItemClick(row: NotificationReadDto, event: Event): void {
     event.stopPropagation();
+    // Mark read (server-side) and close the popover. Navigation is
+    // best-effort — if the kind has no contextual route we still mark
+    // it read so the badge clears.
     if (!row.read_at) {
       this.notif.markRead(row.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -94,6 +99,12 @@ export class NotificationsBellComponent implements OnInit {
           this.notif.refreshUnread();
           this.rows.update((current) => current.filter((r) => r.id !== row.id));
         });
+    }
+    const payload = (row.payload as Record<string, unknown>) ?? {};
+    const route = notificationRouteFor(row.kind, payload);
+    if (route) {
+      this.open.set(false);
+      void this.router.navigate(route, {queryParams: notificationQueryFor(row.kind, payload)});
     }
   }
 
