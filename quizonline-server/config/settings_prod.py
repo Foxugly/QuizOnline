@@ -69,3 +69,33 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 # default-src 'self'; frame-src https://www.youtube-nocookie.com; img-src 'self' data:;
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])  # noqa: F405
 LOGGING = PROD_LOGGING  # noqa: F405
+
+# Error monitoring (Sentry). Opt-in: set ``SENTRY_DSN`` in the production
+# environment to enable. When the DSN is unset, the SDK never initialises
+# so a forgotten / unconfigured Sentry org is harmless.
+SENTRY_DSN = env("SENTRY_DSN", default="").strip()  # noqa: F405
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=env("SENTRY_ENVIRONMENT", default="production"),  # noqa: F405
+        release=env("SENTRY_RELEASE", default=""),  # noqa: F405
+        integrations=[
+            DjangoIntegration(),
+            CeleryIntegration(),
+            # ``INFO`` adds breadcrumbs from our structured logs;
+            # ``ERROR`` events get auto-captured as their own issues.
+            LoggingIntegration(level=None, event_level="ERROR"),
+        ],
+        # Conservative defaults — tune via env without redeploy. Defaults
+        # to performance traces off (sentry tier cost) and full PII off
+        # (GDPR safer; opt in via SENTRY_SEND_DEFAULT_PII=true once a
+        # processor is in place to scrub emails / tokens).
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),  # noqa: F405
+        profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE", default=0.0),  # noqa: F405
+        send_default_pii=env.bool("SENTRY_SEND_DEFAULT_PII", default=False),  # noqa: F405
+    )
