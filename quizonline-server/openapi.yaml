@@ -348,9 +348,10 @@ paths:
   /api/domain/{domain_id}/analytics/:
     get:
       operationId: domain_analytics_retrieve
-      description: Counts par statut, taux d'acceptation, délai médian de décision
-        et top des modérateurs. Accessible aux owner / managers du domaine (via la
-        queryset scope habituelle).
+      description: |-
+        Counts par statut, taux d'acceptation, délai médian de décision et top des modérateurs. Accessible aux owner / managers du domaine (via la queryset scope habituelle).
+
+        Le paramètre ``range`` (``7d``, ``30d``, ``90d`` ou ``all``, défaut ``all``) restreint les statistiques de décision (approuvées, refusées, taux, médiane, top) à la fenêtre demandée. ``pending_count`` et ``cancelled_count`` restent toujours des instantanés courants.
       summary: Statistiques de modération pour un domaine
       parameters:
       - in: path
@@ -359,6 +360,17 @@ paths:
           type: integer
         description: A unique integer value identifying this domain.
         required: true
+      - in: query
+        name: range
+        schema:
+          type: string
+          enum:
+          - 30d
+          - 7d
+          - 90d
+          - all
+        description: 'Time window for decision stats: 7d | 30d | 90d | all (default
+          all).'
       tags:
       - Domain
       security:
@@ -369,6 +381,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DomainAnalytics'
+          description: ''
+  /api/domain/{domain_id}/analytics/export/:
+    get:
+      operationId: domain_analytics_export_retrieve
+      description: Renvoie un CSV (UTF-8, en-tête sur la première ligne) résumant
+        les statistiques du domaine pour la fenêtre demandée. Honore le paramètre
+        ``range`` comme l'endpoint JSON. Idéal pour reporting hors-app.
+      summary: Export CSV des statistiques de modération
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      - in: query
+        name: range
+        schema:
+          type: string
+          enum:
+          - 30d
+          - 7d
+          - 90d
+          - all
+        description: 'Time window: 7d | 30d | 90d | all (default all).'
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
           description: ''
   /api/domain/{domain_id}/audit/:
     get:

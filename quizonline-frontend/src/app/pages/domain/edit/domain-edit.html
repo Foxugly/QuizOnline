@@ -180,7 +180,11 @@
           <app-domain-analytics-tab
             [analytics]="analytics()"
             [loading]="analyticsLoading()"
-            [text]="editText()">
+            [text]="editText()"
+            [range]="analyticsRange()"
+            [exporting]="analyticsExporting()"
+            (rangeChange)="onAnalyticsRangeChange($event)"
+            (exportCsv)="onAnalyticsExport()">
           </app-domain-analytics-tab>
         </p-tabpanel>
 

@@ -69,9 +69,18 @@ import { Configuration }                                     from '../configurat
 import { BaseService } from '../api.base.service';
 
 
+export interface DomainAnalyticsExportRetrieveRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+    /** Time window: 7d | 30d | 90d | all (default all). */
+    range?: '30d' | '7d' | '90d' | 'all';
+}
+
 export interface DomainAnalyticsRetrieveRequestParams {
     /** A unique integer value identifying this domain. */
     domainId: number;
+    /** Time window for decision stats: 7d | 30d | 90d | all (default all). */
+    range?: '30d' | '7d' | '90d' | 'all';
 }
 
 export interface DomainAuditActionsRetrieveRequestParams {
@@ -245,8 +254,71 @@ export class DomainApi extends BaseService {
     }
 
     /**
+     * Export CSV des statistiques de modération
+     * Renvoie un CSV (UTF-8, en-tête sur la première ligne) résumant les statistiques du domaine pour la fenêtre demandée. Honore le paramètre &#x60;&#x60;range&#x60;&#x60; comme l\&#39;endpoint JSON. Idéal pour reporting hors-app.
+     * @endpoint get /api/domain/{domain_id}/analytics/export/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainAnalyticsExportRetrieve(requestParameters: DomainAnalyticsExportRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Blob>;
+    public domainAnalyticsExportRetrieve(requestParameters: DomainAnalyticsExportRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Blob>>;
+    public domainAnalyticsExportRetrieve(requestParameters: DomainAnalyticsExportRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Blob>>;
+    public domainAnalyticsExportRetrieve(requestParameters: DomainAnalyticsExportRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainAnalyticsExportRetrieve.');
+        }
+        const range = requestParameters?.range;
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'range',
+            <any>range,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/export/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: "blob",
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Statistiques de modération pour un domaine
-     * Counts par statut, taux d\&#39;acceptation, délai médian de décision et top des modérateurs. Accessible aux owner / managers du domaine (via la queryset scope habituelle).
+     * Counts par statut, taux d\&#39;acceptation, délai médian de décision et top des modérateurs. Accessible aux owner / managers du domaine (via la queryset scope habituelle).  Le paramètre &#x60;&#x60;range&#x60;&#x60; (&#x60;&#x60;7d&#x60;&#x60;, &#x60;&#x60;30d&#x60;&#x60;, &#x60;&#x60;90d&#x60;&#x60; ou &#x60;&#x60;all&#x60;&#x60;, défaut &#x60;&#x60;all&#x60;&#x60;) restreint les statistiques de décision (approuvées, refusées, taux, médiane, top) à la fenêtre demandée. &#x60;&#x60;pending_count&#x60;&#x60; et &#x60;&#x60;cancelled_count&#x60;&#x60; restent toujours des instantanés courants.
      * @endpoint get /api/domain/{domain_id}/analytics/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -261,6 +333,18 @@ export class DomainApi extends BaseService {
         if (domainId === null || domainId === undefined) {
             throw new Error('Required parameter domainId was null or undefined when calling domainAnalyticsRetrieve.');
         }
+        const range = requestParameters?.range;
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'range',
+            <any>range,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -295,6 +379,7 @@ export class DomainApi extends BaseService {
         return this.httpClient.request<DomainAnalyticsDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

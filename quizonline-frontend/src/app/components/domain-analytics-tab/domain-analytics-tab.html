@@ -1,3 +1,28 @@
+<section class="analytics-toolbar">
+  <div class="analytics-toolbar__range">
+    <label class="analytics-toolbar__label">{{ labels().rangeLabel }}</label>
+    <p-selectbutton
+      [options]="rangeOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="range()"
+      (ngModelChange)="onRangeChange($event)"
+      [allowEmpty]="false">
+    </p-selectbutton>
+  </div>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    [outlined]="true"
+    size="small"
+    icon="pi pi-download"
+    [label]="labels().exportCsv"
+    [loading]="exporting()"
+    (click)="exportCsv.emit()">
+  </button>
+</section>
+
 @if (loading()) {
   <div class="analytics-loading">
     <p-progressspinner styleClass="w-3rem h-3rem" />

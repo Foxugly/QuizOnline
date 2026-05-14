@@ -14,6 +14,8 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 export type JoinRequestStatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
 
+export type AnalyticsRange = '7d' | '30d' | '90d' | 'all';
+
 export interface AuditListParams {
   page?: number;
   action?: string;
@@ -70,8 +72,17 @@ export class DomainEditApi {
     );
   }
 
-  getAnalytics(domainId: number): Observable<DomainAnalyticsDto> {
-    return this.api.domainAnalyticsRetrieve({domainId});
+  getAnalytics(domainId: number, range: AnalyticsRange = 'all'): Observable<DomainAnalyticsDto> {
+    return this.api.domainAnalyticsRetrieve({domainId, range});
+  }
+
+  /**
+   * Returns the analytics CSV export as a Blob so the caller can hand
+   * it to the browser via an anchor + ``download`` attribute. The
+   * generated client picks the right MIME from the OpenAPI response.
+   */
+  exportAnalyticsCsv(domainId: number, range: AnalyticsRange = 'all'): Observable<Blob> {
+    return this.api.domainAnalyticsExportRetrieve({domainId, range});
   }
 
   listInvitations(domainId: number): Observable<DomainInviteReadDto[]> {

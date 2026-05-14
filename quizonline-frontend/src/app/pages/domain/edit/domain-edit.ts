@@ -19,7 +19,7 @@ import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
-import {DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
+import {AnalyticsRange, DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
 import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
@@ -120,6 +120,8 @@ export class DomainEdit implements OnInit {
 
   readonly analytics = signal<DomainAnalyticsDto | null>(null);
   readonly analyticsLoading = signal<boolean>(false);
+  readonly analyticsRange = signal<AnalyticsRange>('all');
+  readonly analyticsExporting = signal<boolean>(false);
 
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
@@ -538,7 +540,7 @@ export class DomainEdit implements OnInit {
 
   private loadAnalytics(): void {
     this.analyticsLoading.set(true);
-    this.editApi.getAnalytics(this.id)
+    this.editApi.getAnalytics(this.id, this.analyticsRange())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
@@ -548,6 +550,42 @@ export class DomainEdit implements OnInit {
         finalize(() => this.analyticsLoading.set(false)),
       )
       .subscribe((data) => this.analytics.set(data));
+  }
+
+  onAnalyticsRangeChange(range: AnalyticsRange): void {
+    this.analyticsRange.set(range);
+    this.loadAnalytics();
+  }
+
+  onAnalyticsExport(): void {
+    if (this.analyticsExporting()) {
+      return;
+    }
+    this.analyticsExporting.set(true);
+    const range = this.analyticsRange();
+    this.editApi.exportAnalyticsCsv(this.id, range)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((err) => {
+          logApiError('domain.edit.export-analytics', err);
+          this.toast.add({severity: 'error', summary: this.editText().analytics.exportError});
+          return of<Blob | null>(null);
+        }),
+        finalize(() => this.analyticsExporting.set(false)),
+      )
+      .subscribe((blob) => {
+        if (!blob) {
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `domain-${this.id}-analytics-${range}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
   }
 
   private loadAuditLog(opts: {resetPage?: boolean} = {}): void {

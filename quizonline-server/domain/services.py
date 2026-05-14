@@ -132,12 +132,40 @@ def flip_pending_to_approved(domain, user, *, by) -> int:
     )
 
 
-def compute_join_request_analytics(domain) -> dict:
+ANALYTICS_RANGES: dict[str, int | None] = {
+    "7d": 7,
+    "30d": 30,
+    "90d": 90,
+    "all": None,
+}
+
+
+def resolve_analytics_range(value: str | None) -> tuple[str, "object | None"]:
+    """
+    Map a ``range=`` query-string value to ``(range_key, since_datetime)``.
+    Unknown / missing values fall back to ``"all"`` so a typo never
+    400's the analytics page.
+    """
+    key = (value or "").strip() or "all"
+    if key not in ANALYTICS_RANGES:
+        key = "all"
+    days = ANALYTICS_RANGES[key]
+    since = None if days is None else (timezone.now() - timedelta(days=days))
+    return key, since
+
+
+def compute_join_request_analytics(domain, since=None) -> dict:
     """
     Aggregate per-domain join-request analytics. Pure-Python on top of
     a handful of ORM ``count`` / ``aggregate`` calls so the function
     stays portable across SQLite (tests) and Postgres (prod) without a
     backend-specific ``percentile_cont``.
+
+    ``since`` is an optional cutoff datetime. When set, only requests
+    *decided* on or after that cutoff feed the decision-related stats
+    (approved / rejected / cancelled counts, accept rate, median time,
+    top deciders). ``pending_count`` is always the current snapshot —
+    a range filter on "pending" would just hide unresolved work.
 
     Returns::
 
@@ -156,12 +184,24 @@ def compute_join_request_analytics(domain) -> dict:
     from domain.models import DomainJoinRequest
 
     qs = DomainJoinRequest.objects.filter(domain=domain)
+    # ``pending_count`` and ``cancelled_count`` are *current* snapshots:
+    # range filters apply to "decision activity" (approved / rejected /
+    # the rate / the median / the top deciders) only. Hiding unresolved
+    # work or self-cancellations behind a 7-day cutoff would be more
+    # misleading than informative.
+    pending = qs.filter(status=DomainJoinRequest.STATUS_PENDING).count()
+    cancelled = qs.filter(status=DomainJoinRequest.STATUS_CANCELLED).count()
 
-    by_status = {row["status"]: row["c"] for row in qs.values("status").annotate(c=Count("id"))}
-    pending = by_status.get(DomainJoinRequest.STATUS_PENDING, 0)
+    decided_qs = qs.filter(decided_at__isnull=False)
+    if since is not None:
+        decided_qs = decided_qs.filter(decided_at__gte=since)
+
+    by_status = {
+        row["status"]: row["c"]
+        for row in decided_qs.values("status").annotate(c=Count("id"))
+    }
     approved = by_status.get(DomainJoinRequest.STATUS_APPROVED, 0)
     rejected = by_status.get(DomainJoinRequest.STATUS_REJECTED, 0)
-    cancelled = by_status.get(DomainJoinRequest.STATUS_CANCELLED, 0)
     total_decisions = approved + rejected
 
     accept_rate: float | None = None
@@ -169,14 +209,11 @@ def compute_join_request_analytics(domain) -> dict:
         accept_rate = round(approved * 100.0 / total_decisions, 1)
 
     # Median decision time: pull (decided_at - created_at) for every
-    # decided row and pick the middle value. Bounded by ~thousands of
-    # rows per domain in realistic deployments, so the Python loop
-    # is cheap and avoids vendor-specific SQL.
-    decided = (
-        qs.filter(decided_at__isnull=False)
-          .values_list("created_at", "decided_at")
-    )
-    deltas_seconds = sorted(int((d - c).total_seconds()) for c, d in decided if d > c)
+    # decided row in scope and pick the middle value. Bounded by
+    # ~thousands of rows per domain in realistic deployments, so the
+    # Python loop is cheap and avoids vendor-specific SQL.
+    decided_pairs = decided_qs.values_list("created_at", "decided_at")
+    deltas_seconds = sorted(int((d - c).total_seconds()) for c, d in decided_pairs if d > c)
     median_seconds: int | None = None
     if deltas_seconds:
         n = len(deltas_seconds)
@@ -185,7 +222,7 @@ def compute_join_request_analytics(domain) -> dict:
         )
 
     top_deciders_rows = (
-        qs.filter(decided_by__isnull=False)
+        decided_qs.filter(decided_by__isnull=False)
           .values("decided_by__username")
           .annotate(c=Count("id"))
           .order_by("-c")[:5]

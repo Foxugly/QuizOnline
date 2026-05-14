@@ -45,6 +45,13 @@ export type DomainEditUiText = {
     colDecisionCount: string;
     decisionsLabel: (n: number) => string;
     durationFormat: (totalSeconds: number) => string;
+    rangeLabel: string;
+    range7d: string;
+    range30d: string;
+    range90d: string;
+    rangeAll: string;
+    exportCsv: string;
+    exportError: string;
   };
   errors: {
     invalidId: string;
@@ -327,6 +334,13 @@ const FR: DomainEditUiText = {
       const remH = h % 24;
       return remH ? `${d} j ${remH} h` : `${d} j`;
     },
+    rangeLabel: 'Période',
+    range7d: '7 jours',
+    range30d: '30 jours',
+    range90d: '90 jours',
+    rangeAll: 'Tout',
+    exportCsv: 'Exporter en CSV',
+    exportError: 'L\'export CSV a échoué.',
   },
   transfer: {
     button: 'Changer le propriétaire',
@@ -451,6 +465,13 @@ const EN: DomainEditUiText = {
       const remH = h % 24;
       return remH ? `${d} d ${remH} h` : `${d} d`;
     },
+    rangeLabel: 'Range',
+    range7d: '7 days',
+    range30d: '30 days',
+    range90d: '90 days',
+    rangeAll: 'All',
+    exportCsv: 'Export as CSV',
+    exportError: 'CSV export failed.',
   },
   transfer: {
     button: 'Change the owner',
@@ -575,6 +596,13 @@ const NL: DomainEditUiText = {
       const remH = h % 24;
       return remH ? `${d} d ${remH} u` : `${d} d`;
     },
+    rangeLabel: 'Periode',
+    range7d: '7 dagen',
+    range30d: '30 dagen',
+    range90d: '90 dagen',
+    rangeAll: 'Alles',
+    exportCsv: 'Exporteren naar CSV',
+    exportError: 'CSV-export mislukt.',
   },
   transfer: {
     button: 'Eigenaar wijzigen',
@@ -699,6 +727,13 @@ const IT: DomainEditUiText = {
       const remH = h % 24;
       return remH ? `${d} g ${remH} h` : `${d} g`;
     },
+    rangeLabel: 'Periodo',
+    range7d: '7 giorni',
+    range30d: '30 giorni',
+    range90d: '90 giorni',
+    rangeAll: 'Tutto',
+    exportCsv: 'Esporta in CSV',
+    exportError: 'Esportazione CSV non riuscita.',
   },
   transfer: {
     button: 'Cambia proprietario',
@@ -823,6 +858,13 @@ const ES: DomainEditUiText = {
       const remH = h % 24;
       return remH ? `${d} d ${remH} h` : `${d} d`;
     },
+    rangeLabel: 'Período',
+    range7d: '7 días',
+    range30d: '30 días',
+    range90d: '90 días',
+    rangeAll: 'Todo',
+    exportCsv: 'Exportar a CSV',
+    exportError: 'La exportación CSV ha fallado.',
   },
   transfer: {
     button: 'Cambiar el propietario',

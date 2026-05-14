@@ -102,3 +102,93 @@ class AnalyticsEndpointTests(TestCase):
         self.client.force_authenticate(self.outsider)
         resp = self.client.get(self.URL.format(self.domain.id))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class AnalyticsRangeFilterTests(TestCase):
+    URL = "/api/domain/{}/analytics/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="p")
+        self.requester = User.objects.create_user(username="r", password="p")
+        self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
+        self.client = APIClient()
+        self.client.force_authenticate(self.owner)
+
+    def _decision_at(self, *, days_ago: int, status_value: str):
+        jr = DomainJoinRequest.objects.create(
+            domain=self.domain, user=self.requester, status=status_value,
+            decided_by=self.owner, decided_at=timezone.now(),
+        )
+        cutoff = timezone.now() - timedelta(days=days_ago)
+        DomainJoinRequest.objects.filter(pk=jr.pk).update(
+            created_at=cutoff - timedelta(seconds=30),
+            decided_at=cutoff,
+        )
+
+    def test_range_7d_excludes_older_decisions(self):
+        self._decision_at(days_ago=3, status_value=DomainJoinRequest.STATUS_APPROVED)
+        self._decision_at(days_ago=50, status_value=DomainJoinRequest.STATUS_APPROVED)
+        resp = self.client.get(self.URL.format(self.domain.id), {"range": "7d"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["approved_count"], 1)
+
+    def test_range_all_includes_everything(self):
+        self._decision_at(days_ago=3, status_value=DomainJoinRequest.STATUS_APPROVED)
+        self._decision_at(days_ago=50, status_value=DomainJoinRequest.STATUS_APPROVED)
+        resp = self.client.get(self.URL.format(self.domain.id), {"range": "all"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["approved_count"], 2)
+
+    def test_unknown_range_falls_back_to_all(self):
+        self._decision_at(days_ago=50, status_value=DomainJoinRequest.STATUS_APPROVED)
+        resp = self.client.get(self.URL.format(self.domain.id), {"range": "lol"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["approved_count"], 1)
+
+    def test_pending_count_not_affected_by_range(self):
+        DomainJoinRequest.objects.create(domain=self.domain, user=self.requester)
+        # Aged the row in the DB
+        DomainJoinRequest.objects.update(created_at=timezone.now() - timedelta(days=90))
+        resp = self.client.get(self.URL.format(self.domain.id), {"range": "7d"})
+        self.assertEqual(resp.data["pending_count"], 1)
+
+
+class AnalyticsCsvExportTests(TestCase):
+    URL = "/api/domain/{}/analytics/export/"
+
+    def setUp(self):
+        translation.activate("fr")
+        self.owner = User.objects.create_user(username="o", password="p")
+        self.outsider = User.objects.create_user(username="x", password="p")
+        self.requester = User.objects.create_user(username="r", password="p")
+        self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
+        DomainJoinRequest.objects.create(
+            domain=self.domain, user=self.requester,
+            status=DomainJoinRequest.STATUS_APPROVED,
+            decided_by=self.owner, decided_at=timezone.now(),
+        )
+        self.client = APIClient()
+
+    def test_owner_gets_csv_with_attachment(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn("text/csv", resp["Content-Type"])
+        self.assertIn("attachment", resp["Content-Disposition"])
+        body = resp.content.decode("utf-8")
+        self.assertIn("metric,value", body)
+        self.assertIn("approved_count,1", body)
+        self.assertIn("top_decider_username,decision_count", body)
+        self.assertIn(f"{self.owner.username},1", body)
+
+    def test_outsider_is_404(self):
+        self.client.force_authenticate(self.outsider)
+        resp = self.client.get(self.URL.format(self.domain.id))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_filename_carries_range(self):
+        self.client.force_authenticate(self.owner)
+        resp = self.client.get(self.URL.format(self.domain.id), {"range": "30d"})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn(f"domain-{self.domain.id}-analytics-30d.csv", resp["Content-Disposition"])
