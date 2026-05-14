@@ -22,7 +22,7 @@ import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
-import {AnalyticsRange, DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
+import {DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
 import {UserService} from '../../../services/user/user';
 import {LanguageService} from '../../../services/language/language';
 import {isLangCode, LangCode, TranslationService} from '../../../services/translation/translation';
@@ -44,10 +44,10 @@ import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {runSave} from '../../../shared/forms/run-save';
 import {DomainEditAuditController} from './domain-edit-audit.controller';
+import {DomainEditAnalyticsController} from './domain-edit-analytics.controller';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
-import {DomainAnalyticsDto} from '../../../api/generated/model/domain-analytics';
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainInviteReadDto} from '../../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../../api/generated/model/domain-invite-result';
@@ -105,12 +105,13 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
   templateUrl: './domain-edit.html',
   styleUrl: './domain-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DomainEditAuditController],
+  providers: [DomainEditAuditController, DomainEditAnalyticsController],
 })
 export class DomainEdit implements OnInit {
   readonly ui = inject(UiTextService).editor;
   readonly adminUi = inject(UiTextService).ui;
   protected readonly audit = inject(DomainEditAuditController);
+  protected readonly analytics = inject(DomainEditAnalyticsController);
   id!: number;
 
   loading = signal(true);
@@ -124,11 +125,6 @@ export class DomainEdit implements OnInit {
   joinRequestStatusFilter = signal<JoinRequestStatusFilter>('pending');
   applyingBulk = signal<boolean>(false);
   topTab = signal<'config' | 'notifications' | 'members' | 'invitations' | 'audit' | 'analytics'>('config');
-
-  readonly analytics = signal<DomainAnalyticsDto | null>(null);
-  readonly analyticsLoading = signal<boolean>(false);
-  readonly analyticsRange = signal<AnalyticsRange>('all');
-  readonly analyticsExporting = signal<boolean>(false);
 
   /**
    * Canonical kinds the domain owner can toggle on/off. The order here
@@ -365,6 +361,7 @@ export class DomainEdit implements OnInit {
     }
     this.id = id;
     this.audit.bind(this.id);
+    this.analytics.bind(this.id);
     this.loading.set(true);
     this.submitError.set(null);
 
@@ -422,7 +419,7 @@ export class DomainEdit implements OnInit {
         const requestedTab = this.route.snapshot.queryParamMap.get('tab');
         if (requestedTab === 'analytics' && canMod) {
           this.topTab.set('analytics');
-          this.loadAnalytics();
+          this.analytics.load();
         }
 
         // 2) Set global active languages
@@ -506,8 +503,8 @@ export class DomainEdit implements OnInit {
       if (value === 'audit') {
         this.audit.ensureLoaded();
       }
-      if (value === 'analytics' && this.analytics() === null) {
-        this.loadAnalytics();
+      if (value === 'analytics' && this.analytics.data() === null) {
+        this.analytics.load();
       }
     }
   }
@@ -620,56 +617,6 @@ export class DomainEdit implements OnInit {
         if (dto) {
           this.domain.set(dto);
         }
-      });
-  }
-
-  private loadAnalytics(): void {
-    this.analyticsLoading.set(true);
-    this.editApi.getAnalytics(this.id, this.analyticsRange())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((err) => {
-          logApiError('domain.edit.load-analytics', err);
-          return of(null);
-        }),
-        finalize(() => this.analyticsLoading.set(false)),
-      )
-      .subscribe((data) => this.analytics.set(data));
-  }
-
-  onAnalyticsRangeChange(range: AnalyticsRange): void {
-    this.analyticsRange.set(range);
-    this.loadAnalytics();
-  }
-
-  onAnalyticsExport(): void {
-    if (this.analyticsExporting()) {
-      return;
-    }
-    this.analyticsExporting.set(true);
-    const range = this.analyticsRange();
-    this.editApi.exportAnalyticsCsv(this.id, range)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((err) => {
-          logApiError('domain.edit.export-analytics', err);
-          this.toast.addApiError(err, this.editText().analytics.exportError);
-          return of<Blob | null>(null);
-        }),
-        finalize(() => this.analyticsExporting.set(false)),
-      )
-      .subscribe((blob) => {
-        if (!blob) {
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `domain-${this.id}-analytics-${range}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
       });
   }
 
