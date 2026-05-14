@@ -109,9 +109,10 @@
                       <div class="domain-list__item">
                         <div class="domain-list__content">
                           <span class="domain-list__name">{{ req.name }}</span>
-                          <span class="domain-list__role">
+                          <span class="domain-list__role"
+                                [attr.title]="req.createdAt | date:'medium'">
                             {{ ui().preferences.pendingRequestsRequestedAt }}
-                            {{ req.createdAt | date:'short' }}
+                            {{ req.createdAt | relativeDate }}
                           </span>
                         </div>
                         <div class="domain-list__actions">

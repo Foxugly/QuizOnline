@@ -64,12 +64,12 @@
         }
         <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
         <td>{{ req.user_summary?.email || t().noReason }}</td>
-        <td>{{ req.created_at | date:'short' }}</td>
+        <td [attr.title]="req.created_at | date:'medium'">{{ req.created_at | relativeDate }}</td>
         <td>
           <p-tag [value]="statusLabel(req.status)" [severity]="statusSeverity(req.status)" />
         </td>
         <td>{{ req.decided_by_summary?.username || t().noReason }}</td>
-        <td>{{ req.decided_at ? (req.decided_at | date:'short') : t().noReason }}</td>
+        <td [attr.title]="req.decided_at ? (req.decided_at | date:'medium') : null">{{ req.decided_at ? (req.decided_at | relativeDate) : t().noReason }}</td>
         <td>{{ req.reject_reason || t().noReason }}</td>
         <td>
           @if (isPending(req)) {

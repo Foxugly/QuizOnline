@@ -18,6 +18,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService, DomainTranslations} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 @Component({
@@ -33,6 +34,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     SelectModule,
     TabsModule,
     ToggleSwitchModule,
+    RelativeDatePipe,
   ],
   templateUrl: './preferences.html',
   styleUrls: ['./preferences.scss'],

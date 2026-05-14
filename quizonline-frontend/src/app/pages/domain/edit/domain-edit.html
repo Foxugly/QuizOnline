@@ -182,7 +182,7 @@
               </ng-template>
               <ng-template #body let-row>
                 <tr>
-                  <td>{{ row.created_at | date:'medium' }}</td>
+                  <td [attr.title]="row.created_at | date:'medium'">{{ row.created_at | relativeDate }}</td>
                   <td>{{ row.actor_username || editText().audit.systemActor }}</td>
                   <td>{{ editText().audit.actionLabel(row.action) }}</td>
                   <td>{{ row.target_username || '—' }}</td>

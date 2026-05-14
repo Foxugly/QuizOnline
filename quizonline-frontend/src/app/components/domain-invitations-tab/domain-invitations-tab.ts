@@ -21,6 +21,7 @@ import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-s
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {BulkActionsComponent, BulkActionOption} from '../../shared/components/bulk-actions/bulk-actions';
+import {RelativeDatePipe} from '../../shared/pipes/relative-date.pipe';
 
 import type {JoinRequestStatusFilter} from '../../services/domain/domain-edit-api';
 import type {
@@ -51,6 +52,7 @@ export type JoinRequestBulkReject = {requestIds: number[]; reason: string};
     TagModule,
     TextareaModule,
     TooltipModule,
+    RelativeDatePipe,
   ],
   providers: [ConfirmationService],
   templateUrl: './domain-invitations-tab.html',
