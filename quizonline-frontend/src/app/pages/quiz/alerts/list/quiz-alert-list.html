@@ -1,19 +1,19 @@
 <section class="page">
   <div class="page__header">
     <div>
-      <h1>Messages quiz</h1>
+      <h1>{{ pageText().title }}</h1>
     </div>
     <div class="page__tools">
       <input
         [ngModel]="search()"
         (ngModelChange)="search.set($event)"
         pInputText
-        placeholder="Rechercher dans les messages..."
+        [placeholder]="pageText().searchPlaceholder"
       >
       <p-select
         [ngModel]="statusFilter()"
         (ngModelChange)="statusFilter.set($event)"
-        [options]="statusOptions"
+        [options]="statusOptions()"
         styleClass="page__tools-select"
         optionLabel="label"
         optionValue="value"
@@ -21,7 +21,7 @@
       <p-select
         [ngModel]="readFilter()"
         (ngModelChange)="readFilter.set($event)"
-        [options]="readOptions"
+        [options]="readOptions()"
         styleClass="page__tools-select"
         optionLabel="label"
         optionValue="value"
@@ -38,7 +38,7 @@
 
   @if (loading()) {
     <p-card styleClass="alert-card">
-      <p>Chargement des messages...</p>
+      <p>{{ pageText().loading }}</p>
     </p-card>
   } @else if (!filteredThreads().length) {
     <app-empty-state
@@ -60,16 +60,16 @@
                 <span class="alert-card__dot" aria-hidden="true"></span>
               }
               @if (thread.kind === 'question' && thread.question_order !== null) {
-                <span class="alert-card__topic">#{{ thread.question_order }}</span>
+                <span class="alert-card__topic">{{ pageText().questionOrder(thread.question_order) }}</span>
               } @else {
-                <span class="alert-card__topic">Quiz</span>
+                <span class="alert-card__topic">{{ pageText().topicQuiz }}</span>
               }
               <strong class="alert-card__title">{{ thread.question_title }}</strong>
               @if (thread.counterpart_username) {
                 <span class="alert-card__pill">{{ thread.counterpart_username }}</span>
               }
               @if (thread.kind === 'question' && thread.question_id !== null) {
-                <span class="alert-card__pill">Question #{{ thread.question_id }}</span>
+                <span class="alert-card__pill">{{ pageText().questionPrefix(thread.question_id) }}</span>
               }
               <span class="alert-card__time">{{ formatThreadDate(thread.last_message_at) }}</span>
             </div>

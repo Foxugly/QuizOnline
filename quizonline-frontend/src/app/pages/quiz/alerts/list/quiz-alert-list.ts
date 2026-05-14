@@ -40,16 +40,22 @@ export class QuizAlertList implements OnInit {
   readonly readFilter = signal<AlertReadFilter>('all');
 
   protected readonly routes = ROUTES;
-  protected readonly statusOptions = [
-    {label: 'Tous', value: 'all'},
-    {label: 'Ouverts', value: 'open'},
-    {label: 'Fermés', value: 'closed'},
-  ];
-  protected readonly readOptions = [
-    {label: 'Tous', value: 'all'},
-    {label: 'Non lus', value: 'unread'},
-    {label: 'Lus', value: 'read'},
-  ];
+  protected readonly statusOptions = computed(() => {
+    const t = this.pageText().statusOptions;
+    return [
+      {label: t.all, value: 'all' as AlertStatusFilter},
+      {label: t.open, value: 'open' as AlertStatusFilter},
+      {label: t.closed, value: 'closed' as AlertStatusFilter},
+    ];
+  });
+  protected readonly readOptions = computed(() => {
+    const t = this.pageText().readOptions;
+    return [
+      {label: t.all, value: 'all' as AlertReadFilter},
+      {label: t.unread, value: 'unread' as AlertReadFilter},
+      {label: t.read, value: 'read' as AlertReadFilter},
+    ];
+  });
   private readonly quizAlertService = inject(QuizAlertService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
@@ -121,15 +127,17 @@ export class QuizAlertList implements OnInit {
   }
 
   statusLabel(thread: QuizAlertThreadListDto): string {
+    const t = this.pageText().status;
     if (thread.unread_count > 0) {
-      return 'Non lu';
+      return t.unread;
     }
-    return thread.status === 'open' ? 'Ouverte' : 'Fermée';
+    return thread.status === 'open' ? t.open : t.closed;
   }
 
   previewText(thread: QuizAlertThreadListDto): string {
+    const t = this.pageText();
     if (thread.kind !== 'assignment') {
-      return thread.last_message_preview || 'Aucun message.';
+      return thread.last_message_preview || t.noMessage;
     }
 
     const sanitized = (thread.last_message_preview || '')
@@ -138,11 +146,11 @@ export class QuizAlertList implements OnInit {
       .trim();
 
     if (!sanitized) {
-      return `Un nouveau quiz vous a été assigné : ${thread.quiz_template_title}`;
+      return t.assignmentPreview(thread.quiz_template_title);
     }
 
     const prefix = sanitized.endsWith('.') ? sanitized.slice(0, -1) : sanitized;
-    return `${prefix} : ${thread.quiz_template_title}`;
+    return t.assignmentPreviewWithIntro(prefix, thread.quiz_template_title);
   }
 
   formatThreadDate(value: string): string {
