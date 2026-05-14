@@ -103,14 +103,14 @@
           <p-tabpanel value="notifications">
             <div class="builder-pane">
               <div class="domain-notif__list">
-                @for (kind of domainNotificationKinds; track kind) {
+                @for (kind of notifications.KINDS; track kind) {
                   <div class="domain-notif__row">
-                    <span class="domain-notif__label">{{ domainKindLabel(kind) }}</span>
+                    <span class="domain-notif__label">{{ notifications.label(kind) }}</span>
                     <p-toggleswitch
-                      [ngModel]="isDomainKindEnabled(kind)"
-                      (ngModelChange)="toggleDomainKind(kind, $event)"
-                      [attr.aria-label]="domainKindLabel(kind)"
-                      [disabled]="savingDomainNotif()">
+                      [ngModel]="notifications.isEnabled(kind)"
+                      (ngModelChange)="notifications.toggle(kind, $event)"
+                      [attr.aria-label]="notifications.label(kind)"
+                      [disabled]="notifications.saving()">
                     </p-toggleswitch>
                   </div>
                 }
