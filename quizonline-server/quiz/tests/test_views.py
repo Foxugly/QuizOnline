@@ -566,7 +566,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         qs2 = MagicMock()
         qs2.exists.return_value = False
 
-        with patch("quiz.views.Question.objects.filter", side_effect=[qs1, qs2]):
+        with patch("quiz.view_mixins.template_generate.Question.objects.filter", side_effect=[qs1, qs2]):
             res = self.client.post(
                 url,
                 {"title": "GENX", "domain_id": self.domain.id, "subject_ids": [self.subj1.id]},

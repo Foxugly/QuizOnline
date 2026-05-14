@@ -1,5 +1,4 @@
 import logging
-import random
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
@@ -11,7 +10,6 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     OpenApiTypes,
 )
-from question.models import Question
 from customuser.throttling import QuizAnswerRateThrottle
 from rest_framework import status
 from rest_framework.decorators import action
@@ -37,7 +35,6 @@ from .querysets import (
     quiz_template_list_queryset,
     quiz_queryset_for_user,
     quiz_template_queryset,
-    template_sessions_queryset,
 )
 from .alerting import (
     alert_thread_queryset_for_user,
@@ -53,17 +50,15 @@ from .serializers import (
     QuizTemplateWriteSerializer,
     QuizTemplatePartialSerializer,
     QuizListSerializer,
-    QuizAssignmentListSerializer,
     QuizSerializer,
     QuizUpdateSerializer,
     QuizPartialUpdateSerializer,
     QuizQuestionAnswerSerializer,
     QuizQuestionReadSerializer,
-    QuizQuestionWriteSerializer,
     QuizQuestionPartialSerializer,
     QuizQuestionAnswerWriteSerializer,
     QuizQuestionAnswerPartialSerializer,
-    GenerateFromSubjectsInputSerializer,
+    QuizQuestionWriteSerializer,
     BulkCreateFromTemplateInputSerializer,
     CreateQuizInputSerializer,
     QuizAlertThreadListSerializer,
@@ -72,6 +67,11 @@ from .serializers import (
     QuizAlertThreadPartialSerializer,
     QuizAlertMessageSerializer,
     QuizAlertMessageCreateSerializer,
+)
+from .view_mixins import (
+    TemplateGenerateFromSubjectsMixin,
+    TemplateQuestionActionsMixin,
+    TemplateSessionsMixin,
 )
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,12 @@ def not_found_response():
         responses={204: OpenApiResponse(description="No Content")},
     ),
 )
-class QuizTemplateViewSet(MyModelViewSet):
+class QuizTemplateViewSet(
+    TemplateSessionsMixin,
+    TemplateGenerateFromSubjectsMixin,
+    TemplateQuestionActionsMixin,
+    MyModelViewSet,
+):
     queryset = quiz_template_queryset()
     serializer_class = QuizTemplateSerializer
     lookup_field = "pk"
@@ -179,25 +184,6 @@ class QuizTemplateViewSet(MyModelViewSet):
         if not user_can_access_template(request.user, instance):
             return not_found_response()
         serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @extend_schema(
-        tags=["QuizTemplate"],
-        summary="Lister les sessions envoyées pour un template",
-        responses={200: QuizAssignmentListSerializer(many=True)},
-    )
-    @action(detail=True, methods=["get"], url_path="sessions")
-    def sessions(self, request, *args, **kwargs):
-        quiz_template = self.get_object()
-        if not user_can_manage_template_assignments(request.user, quiz_template):
-            return not_found_response()
-
-        sessions = template_sessions_queryset(quiz_template)
-        serializer = QuizAssignmentListSerializer(
-            sessions,
-            many=True,
-            context=self.get_serializer_context(),
-        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -262,190 +248,6 @@ class QuizTemplateViewSet(MyModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # ==========================================================
-    # ACTIONS CUSTOM (je garde les tiennes, avec logging amélioré)
-    # ==========================================================
-    @extend_schema(
-        tags=["QuizTemplate"],
-        summary="Générer un template depuis des sujets",
-        request=GenerateFromSubjectsInputSerializer,
-        responses={
-            201: QuizTemplateSerializer,
-            400: OpenApiResponse(description="Input invalide / aucune question trouvée"),
-        },
-    )
-    @action(detail=False, methods=["post"], url_path="generate-from-subjects")
-    def generate_from_subjects(self, request, *args, **kwargs):
-        self._log_call(
-            method_name="generate_from_subjects",
-            endpoint="POST /api/quiz/template/generate-from-subjects/",
-            input_expected="body: {title, subject_ids[], max_questions?}",
-            output="201 + QuizTemplateSerializer | 400",
-        )
-        serializer = GenerateFromSubjectsInputSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        title = serializer.validated_data["title"]
-        domain_id = serializer.validated_data["domain_id"]
-        subject_ids = serializer.validated_data["subject_ids"]
-        max_questions = serializer.validated_data["max_questions"]
-        with_duration = serializer.validated_data["with_duration"]
-        duration = serializer.validated_data["duration"] or 10
-
-        ids = list(
-            Question.objects.filter(
-                subjects__id__in=subject_ids,
-                active=True,
-            )
-            .distinct()
-            .values_list("id", flat=True)
-        )
-        if not ids:
-            return Response({"detail": "Aucune question trouvée pour ces sujets."},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        n_questions = min(len(ids), max_questions)
-        picked_ids = random.sample(ids, n_questions)
-        questions_qs = Question.objects.filter(id__in=picked_ids)
-
-        if not questions_qs.exists():
-            logger.warning("generate_from_subjects: no questions found subject_ids=%s", subject_ids)
-            return Response({"detail": "Aucune question trouvée pour ces sujets."},
-                            status=status.HTTP_400_BAD_REQUEST, )
-
-        quiz_template = QuizTemplate.objects.create(
-            title=title,
-            domain_id=domain_id,
-            max_questions=n_questions,
-            permanent=True,
-            active=True,
-            with_duration=with_duration,
-            duration=duration,
-            created_by=request.user,
-            updated_by=request.user,
-            is_public=False,
-        )
-        quiz_questions = []
-        for index, question in enumerate(questions_qs, start=1):
-            quiz_questions.append(QuizQuestion(quiz=quiz_template, question=question, sort_order=index, weight=1, ))
-        QuizQuestion.objects.bulk_create(quiz_questions)
-        serializer = self.get_serializer(quiz_template)
-        logger.debug("generate_from_subjects: created quiz_template_id=%s nb_questions=%s", quiz_template.id,
-                    len(quiz_questions))
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # ----- Gestion des QuizQuestion pour un template -----
-    @extend_schema(
-        tags=["QuizTemplate"],
-        summary="Ajouter une question à un template",
-        request=QuizQuestionWriteSerializer,
-        responses={
-            201: QuizQuestionReadSerializer,
-            400: OpenApiResponse(description="Validation error"),
-            404: OpenApiResponse(description="Template introuvable"),
-        },
-    )
-    @action(detail=True, methods=["post"], url_path="question")
-    def add_question(self, request, pk=None, *args, **kwargs):
-        self._log_call(
-            method_name="add_question",
-            endpoint="POST /api/quiz/template/{qt_id}/question/",
-            input_expected="body: QuizQuestionSerializer fields (question_id, sort_order?, weight?)",
-            output="201 + QuizQuestionSerializer | 400 | 404",
-            extra={"pk": pk},
-        )
-        quiz_template = self.get_object()
-        serializer = QuizQuestionWriteSerializer(data=request.data, context={"quiz_template": quiz_template})
-        serializer.is_valid(raise_exception=True)
-        quizquestion = serializer.save()
-        out = QuizQuestionReadSerializer(
-            quizquestion,
-            context=self.get_serializer_context(),
-        )
-        logger.debug("add_question: created quizquestion_id=%s quiz_template_id=%s", quizquestion.id, quiz_template.id)
-        return Response(out.data, status=status.HTTP_201_CREATED)
-
-    @extend_schema(
-        tags=["QuizTemplate"],
-        summary="Mettre à jour une question (QuizQuestion) d’un template",
-        request=QuizQuestionWriteSerializer,
-        responses={
-            200: QuizQuestionReadSerializer,
-            400: OpenApiResponse(description="Validation error"),
-            404: OpenApiResponse(description="Template ou QuizQuestion introuvable"),
-        },
-        parameters=[
-            OpenApiParameter("quizquestion_id", OpenApiTypes.INT, OpenApiParameter.PATH),
-        ],
-    )
-    @action(detail=True, methods=["patch", "put"], url_path=r"question/(?P<qq_id>\d+)")
-    def update_question(self, request, pk=None, qq_id=None, *args, **kwargs):
-        self._log_call(
-            method_name="update_question",
-            endpoint="PUT/PATCH /api/quiz/template/{qt_id}/question/{qq_id}/",
-            input_expected="path pk + quizquestion_id + body (QuizQuestionSerializer)",
-            output="200 + QuizQuestionSerializer | 400 | 404",
-            extra={"qt_id": pk, "qq_id": qq_id},
-        )
-        quiz_template = self.get_object()
-        try:
-            quizquestion = quiz_template.quiz_questions.get(pk=qq_id)
-        except QuizQuestion.DoesNotExist:
-            return Response(
-                {"detail": "QuizQuestion introuvable pour ce template."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        serializer = QuizQuestionWriteSerializer(
-            quizquestion,
-            data=request.data,
-            partial=True,
-            context={"quiz_template": quiz_template},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        logger.debug("update_question: updated quizquestion_id=%s", quizquestion.id)
-        out = QuizQuestionReadSerializer(
-            quizquestion,
-            context=self.get_serializer_context(),
-        )
-        return Response(out.data, status=status.HTTP_200_OK)
-
-    @extend_schema(
-        tags=["QuizTemplate"],
-        summary="Supprimer une question (QuizQuestion) d’un template",
-        responses={
-            204: OpenApiResponse(description="No Content"),
-            404: OpenApiResponse(description="Template ou QuizQuestion introuvable"),
-        },
-        parameters=[
-            OpenApiParameter("qq_id", OpenApiTypes.INT, OpenApiParameter.PATH),
-        ],
-    )
-    @action(detail=True, methods=["delete"], url_path=r"question/(?P<qq_id>[^/.]+)")
-    def delete_question(self, request, pk=None, qq_id=None, *args, **kwargs):
-        self._log_call(
-            method_name="delete_question",
-            endpoint="DELETE /api/quiz/template/{qt_id}/question/{qq_id}/",
-            input_expected="path pk + quizquestion_id, body vide",
-            output="204 | 404",
-            extra={"pk": pk, "quizquestion_id": qq_id},
-        )
-        quiz_template = self.get_object()
-        try:
-            quizquestion = quiz_template.quiz_questions.get(pk=qq_id)
-        except QuizQuestion.DoesNotExist:
-            logger.warning("delete_question: quizquestion not found quiz_template_id=%s quizquestion_id=%s",
-                           quiz_template.id, qq_id)
-            return Response(
-                {"detail": "QuizQuestion introuvable pour ce template."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        quizquestion.delete()
-        logger.debug("delete_question: deleted quizquestion_id=%s", qq_id)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 # ---------- Quiz (sessions) ----------
 
