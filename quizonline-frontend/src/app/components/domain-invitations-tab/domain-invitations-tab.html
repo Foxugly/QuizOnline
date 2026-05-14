@@ -22,27 +22,30 @@
   </div>
 
   @if (canModerate()) {
-    <div class="invitations-tab__filter">
-      <p-selectButton
-        [options]="statusOptions()"
-        [ngModel]="statusFilter()"
-        (ngModelChange)="onStatusFilterChange($event)"
-        optionLabel="label"
-        optionValue="value">
-      </p-selectButton>
+    <div class="invitations-tab__toolbar">
+      <div class="invitations-tab__toolbar-left">
+        @if (canBulk()) {
+          <app-bulk-actions
+            [options]="bulkActionOptions()"
+            [placeholder]="adminLabels().bulkPlaceholder"
+            [applyLabel]="adminLabels().bulkApply"
+            [count]="selectedCount()"
+            [countText]="adminLabels().bulkSelectedCount(selectedCount())"
+            [applying]="applyingBulk()"
+            (apply)="applyBulk($event)">
+          </app-bulk-actions>
+        }
+      </div>
+      <div class="invitations-tab__toolbar-right">
+        <p-selectButton
+          [options]="statusOptions()"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="onStatusFilterChange($event)"
+          optionLabel="label"
+          optionValue="value">
+        </p-selectButton>
+      </div>
     </div>
-
-    @if (canBulk()) {
-      <app-bulk-actions
-        [options]="bulkActionOptions()"
-        [placeholder]="adminLabels().bulkPlaceholder"
-        [applyLabel]="adminLabels().bulkApply"
-        [count]="selectedCount()"
-        [countText]="adminLabels().bulkSelectedCount(selectedCount())"
-        [applying]="applyingBulk()"
-        (apply)="applyBulk($event)">
-      </app-bulk-actions>
-    }
   }
 
   <p-table
@@ -60,7 +63,9 @@
     <ng-template #header>
       <tr>
         @if (canBulk()) {
-          <th class="col-checkbox" style="width: 3rem"></th>
+          <th class="col-checkbox" style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
         }
         <th>{{ adminLabels().user }}</th>
         <th>{{ adminLabels().email }}</th>

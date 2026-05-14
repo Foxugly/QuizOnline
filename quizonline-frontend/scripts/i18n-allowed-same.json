@@ -94,6 +94,7 @@
   "pages/features:*.slug",
 
   "pages/domain/edit:tabs.config",
+  "pages/domain/edit:tabs.notifications",
   "pages/domain/edit:audit.colAction",
   "pages/domain/edit:audit.colActor",
   "pages/domain/edit:audit.filterActionLabel",

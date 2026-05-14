@@ -31,6 +31,16 @@
           <i class="pi pi-cog tab-icon"></i>
           {{ editText().tabs.config }}
         </p-tab>
+        @if (canManageMembers()) {
+          <p-tab value="notifications">
+            <i class="pi pi-bell tab-icon"></i>
+            {{ editText().tabs.notifications }}
+          </p-tab>
+        }
+        <p-tab value="members">
+          <i class="pi pi-users tab-icon"></i>
+          {{ editText().tabs.members }}
+        </p-tab>
         @if (canInvite() || canModerate()) {
           <p-tab value="invitations">
             <i class="pi pi-envelope tab-icon"></i>
@@ -40,10 +50,6 @@
             }
           </p-tab>
         }
-        <p-tab value="members">
-          <i class="pi pi-users tab-icon"></i>
-          {{ editText().tabs.members }}
-        </p-tab>
         @if (canModerate()) {
           <p-tab value="audit">
             <i class="pi pi-history tab-icon"></i>
@@ -81,16 +87,12 @@
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)">
           </app-domain-editor-form>
+          </div>
+        </p-tabpanel>
 
-          @if (canManageMembers()) {
-            <p-fieldset
-              class="domain-notif-fieldset"
-              [toggleable]="true"
-              [collapsed]="true"
-              [legend]="editText().notificationSettings.title">
-              <p class="muted domain-notif-fieldset__hint">
-                {{ editText().notificationSettings.subtitle }}
-              </p>
+        @if (canManageMembers()) {
+          <p-tabpanel value="notifications">
+            <div class="builder-pane">
               <div class="domain-notif__list">
                 @for (kind of domainNotificationKinds; track kind) {
                   <div class="domain-notif__row">
@@ -104,10 +106,9 @@
                   </div>
                 }
               </div>
-            </p-fieldset>
-          }
-          </div>
-        </p-tabpanel>
+            </div>
+          </p-tabpanel>
+        }
 
         <p-tabpanel value="audit">
           <div class="builder-pane">
@@ -143,22 +144,26 @@
 
               <div class="audit-filter">
                 <label for="audit-filter-since">{{ editText().audit.filterSinceLabel }}</label>
-                <input
-                  id="audit-filter-since"
-                  type="date"
-                  [ngModel]="auditFilterSince()"
-                  (ngModelChange)="auditFilterSince.set($event ?? '')"
-                  (change)="applyAuditFilters()">
+                <p-datepicker
+                  inputId="audit-filter-since"
+                  appendTo="body"
+                  dateFormat="yy-mm-dd"
+                  [showButtonBar]="true"
+                  [ngModel]="auditFilterSinceDate()"
+                  (ngModelChange)="onAuditDateChange('since', $event)">
+                </p-datepicker>
               </div>
 
               <div class="audit-filter">
                 <label for="audit-filter-until">{{ editText().audit.filterUntilLabel }}</label>
-                <input
-                  id="audit-filter-until"
-                  type="date"
-                  [ngModel]="auditFilterUntil()"
-                  (ngModelChange)="auditFilterUntil.set($event ?? '')"
-                  (change)="applyAuditFilters()">
+                <p-datepicker
+                  inputId="audit-filter-until"
+                  appendTo="body"
+                  dateFormat="yy-mm-dd"
+                  [showButtonBar]="true"
+                  [ngModel]="auditFilterUntilDate()"
+                  (ngModelChange)="onAuditDateChange('until', $event)">
+                </p-datepicker>
               </div>
 
               <div class="audit-filter audit-filter--action">

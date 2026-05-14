@@ -33,12 +33,13 @@
       @if (isAdmin) {
         <div #adminMenuRoot class="topbar-menu">
           <button class="nav__link nav__link--button" (click)="toggleAdminMenu($event)" type="button">
-            {{ ui().admin.menuLabel }}
+            <i class="pi pi-cog"></i> {{ ui().admin.menuLabel }}
           </button>
           @if (adminMenuOpen()) {
             <div class="topbar-dropdown topbar-dropdown--admin">
               @for (item of adminMenuItems; track item.label) {
                 <button class="topbar-dropdown__item" type="button" (click)="goAdmin(item)">
+                  <i [class]="item.icon + ' topbar-dropdown__item-icon'" aria-hidden="true"></i>
                   <span>{{ item.label }}</span>
                 </button>
               }

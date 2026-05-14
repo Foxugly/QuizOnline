@@ -55,10 +55,6 @@
           <p-tabpanel value="texts">
             <div class="builder-pane">
               <div class="translations-card" formGroupName="translations">
-                <div class="card-head card-head--with-badge">
-                  <h2 class="card-title">{{ uiText().translationsTitle }}</h2>
-                  <span class="badge">{{ quizTemplateLangs().length }} {{ uiText().languagesCount }}</span>
-                </div>
                 @if (quizTemplateLangs().length > 0) {
                   <p-tabs
                     (valueChange)="onQuizTemplateTabChange($event)"

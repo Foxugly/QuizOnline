@@ -279,6 +279,11 @@
   min-width: 0;
 }
 
+.topbar-dropdown__item-icon {
+  width: 1.1rem;
+  color: #64748b;
+}
+
 .topbar-dropdown__item:hover {
   background: rgba(34, 48, 74, 0.08);
 }

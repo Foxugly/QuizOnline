@@ -29,7 +29,7 @@
 .user-menu__panel {
   position: absolute;
   top: calc(100% + 0.5rem);
-  left: 0;
+  right: 0;
   min-width: 15rem;
   padding: 0.4rem;
   border: 1px solid var(--surface-border, #d6d9e0);

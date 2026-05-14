@@ -17,6 +17,7 @@ import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {FieldsetModule} from 'primeng/fieldset';
+import {DatePickerModule} from 'primeng/datepicker';
 import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -88,6 +89,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     InputTextModule,
     ToggleSwitchModule,
     FieldsetModule,
+    DatePickerModule,
     DomainAnalyticsTab,
     DomainEditorFormComponent,
     DomainInvitationsTab,
@@ -113,7 +115,7 @@ export class DomainEdit implements OnInit {
   joinRequestsLoading = signal<boolean>(false);
   joinRequestStatusFilter = signal<JoinRequestStatusFilter>('pending');
   applyingBulk = signal<boolean>(false);
-  topTab = signal<'config' | 'invitations' | 'members' | 'audit' | 'analytics'>('config');
+  topTab = signal<'config' | 'notifications' | 'members' | 'invitations' | 'audit' | 'analytics'>('config');
   readonly auditRows = signal<DomainAuditLogReadDto[]>([]);
   readonly auditLoading = signal<boolean>(false);
   readonly auditTotal = signal<number>(0);
@@ -123,8 +125,33 @@ export class DomainEdit implements OnInit {
   readonly auditFilterActor = signal<string>('');
   readonly auditFilterSince = signal<string>('');
   readonly auditFilterUntil = signal<string>('');
+  readonly auditFilterSinceDate = computed<Date | null>(() => this.parseDate(this.auditFilterSince()));
+  readonly auditFilterUntilDate = computed<Date | null>(() => this.parseDate(this.auditFilterUntil()));
   readonly auditActions = signal<string[]>([]);
   private auditLoaded = false;
+
+  private parseDate(iso: string): Date | null {
+    if (!iso) {
+      return null;
+    }
+    const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
+    if (!y || !m || !d) {
+      return null;
+    }
+    return new Date(y, m - 1, d);
+  }
+
+  onAuditDateChange(field: 'since' | 'until', value: Date | null): void {
+    const iso = value instanceof Date
+      ? `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`
+      : '';
+    if (field === 'since') {
+      this.auditFilterSince.set(iso);
+    } else {
+      this.auditFilterUntil.set(iso);
+    }
+    this.applyAuditFilters();
+  }
 
   readonly analytics = signal<DomainAnalyticsDto | null>(null);
   readonly analyticsLoading = signal<boolean>(false);
@@ -498,6 +525,7 @@ export class DomainEdit implements OnInit {
     if (
       value === 'members'
       || value === 'config'
+      || value === 'notifications'
       || value === 'invitations'
       || value === 'audit'
       || value === 'analytics'

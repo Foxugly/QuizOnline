@@ -1,8 +1,4 @@
 <section class="members-tab card form-card">
-  <div class="card-head">
-    <h2 class="card-title">{{ text().members.membersTitle }}</h2>
-  </div>
-
   @if (memberRows().length > 0) {
     <p-table
       [value]="memberRows()"

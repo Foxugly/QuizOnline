@@ -41,6 +41,7 @@ type NavItem = {
 type AdminNavItem = {
   label: string;
   link: readonly string[];
+  icon: string;
 };
 
 @Component({
@@ -246,20 +247,24 @@ export class TopMenuComponent implements OnInit {
       {
         label: this.ui().admin.stats.title,
         link: ROUTES.admin.stats(),
+        icon: 'pi pi-chart-bar',
       },
       {
         label: this.ui().admin.systemConfig.title,
         link: ROUTES.admin.systemConfig(),
+        icon: 'pi pi-server',
       },
       {
         label: this.ui().admin.mailTest.title,
         link: ROUTES.admin.mailTest(),
+        icon: 'pi pi-send',
       },
     ];
     if (this.userService.isSuperuser()) {
       items.push({
         label: this.ui().admin.languages.title,
         link: ROUTES.admin.languages(),
+        icon: 'pi pi-globe',
       });
     }
     return items;

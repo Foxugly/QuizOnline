@@ -3,6 +3,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 export type DomainEditUiText = {
   tabs: {
     config: string;
+    notifications: string;
     invitations: string;
     members: string;
     audit: string;
@@ -231,7 +232,7 @@ const ES_ACTION_LABELS: Record<string, string> = {
 };
 
 const FR: DomainEditUiText = {
-  tabs: {config: 'Configuration', invitations: 'Invitations & demandes', members: 'Membres', audit: 'Journal', analytics: 'Statistiques'},
+  tabs: {config: 'Configuration', notifications: 'Notifications', invitations: 'Invitations & demandes', members: 'Membres', audit: 'Journal', analytics: 'Statistiques'},
   audit: {
     title: 'Journal des actions',
     empty: 'Aucune action enregistrée.',
@@ -366,7 +367,7 @@ const FR: DomainEditUiText = {
 };
 
 const EN: DomainEditUiText = {
-  tabs: {config: 'Configuration', invitations: 'Invitations & requests', members: 'Members', audit: 'Activity', analytics: 'Analytics'},
+  tabs: {config: 'Configuration', notifications: 'Notifications', invitations: 'Invitations & requests', members: 'Members', audit: 'Activity', analytics: 'Analytics'},
   audit: {
     title: 'Activity log',
     empty: 'No action recorded yet.',
@@ -501,7 +502,7 @@ const EN: DomainEditUiText = {
 };
 
 const NL: DomainEditUiText = {
-  tabs: {config: 'Configuratie', invitations: 'Uitnodigingen & aanvragen', members: 'Leden', audit: 'Activiteit', analytics: 'Statistieken'},
+  tabs: {config: 'Configuratie', notifications: 'Meldingen', invitations: 'Uitnodigingen & aanvragen', members: 'Leden', audit: 'Activiteit', analytics: 'Statistieken'},
   audit: {
     title: 'Activiteitenlogboek',
     empty: 'Nog geen actie geregistreerd.',
@@ -636,7 +637,7 @@ const NL: DomainEditUiText = {
 };
 
 const IT: DomainEditUiText = {
-  tabs: {config: 'Configurazione', invitations: 'Inviti e richieste', members: 'Membri', audit: 'Attività', analytics: 'Statistiche'},
+  tabs: {config: 'Configurazione', notifications: 'Notifiche', invitations: 'Inviti e richieste', members: 'Membri', audit: 'Attività', analytics: 'Statistiche'},
   audit: {
     title: 'Registro attività',
     empty: 'Nessuna azione registrata.',
@@ -771,7 +772,7 @@ const IT: DomainEditUiText = {
 };
 
 const ES: DomainEditUiText = {
-  tabs: {config: 'Configuración', invitations: 'Invitaciones y solicitudes', members: 'Miembros', audit: 'Actividad', analytics: 'Estadísticas'},
+  tabs: {config: 'Configuración', notifications: 'Notificaciones', invitations: 'Invitaciones y solicitudes', members: 'Miembros', audit: 'Actividad', analytics: 'Estadísticas'},
   audit: {
     title: 'Registro de actividad',
     empty: 'No hay acciones registradas.',
