@@ -125,12 +125,38 @@ class QuizPoliciesTestCase(TestCase):
             ANSWER_CORRECTNESS_UNKNOWN,
         )
 
-    def test_staff_can_see_result_and_details_even_when_template_hides_them(self):
+    def test_staff_does_not_see_correctness_while_answering(self):
+        """A staff/superuser actually taking the quiz must not see
+        the green markers either while ``can_answer`` is True. The
+        admin shortcut only applies to closed quizzes (preview,
+        post-attempt review)."""
         quiz = self.make_quiz(self.make_template())
 
-        self.assertTrue(can_show_quiz_result(quiz=quiz, user=self.staff))
-        self.assertTrue(can_show_quiz_details(quiz=quiz, user=self.staff))
+        self.assertTrue(quiz.can_answer)
+        self.assertEqual(
+            answer_correctness_state(quiz=quiz, user=self.staff),
+            ANSWER_CORRECTNESS_UNKNOWN,
+        )
+
+    def test_staff_sees_correctness_after_quiz_is_closed(self):
+        quiz = self.make_quiz(
+            self.make_template(),
+            active=False,
+            ended_at=timezone.now(),
+        )
+
+        self.assertFalse(quiz.can_answer)
         self.assertEqual(
             answer_correctness_state(quiz=quiz, user=self.staff),
             ANSWER_CORRECTNESS_FULL,
         )
+
+    def test_staff_can_see_result_and_details_even_when_template_hides_them(self):
+        # Permission visibility for staff is independent of whether
+        # the quiz is still answerable — the result / details pages
+        # are open to them at all times. The correctness state is
+        # covered by the two staff-specific tests above.
+        quiz = self.make_quiz(self.make_template())
+
+        self.assertTrue(can_show_quiz_result(quiz=quiz, user=self.staff))
+        self.assertTrue(can_show_quiz_details(quiz=quiz, user=self.staff))
