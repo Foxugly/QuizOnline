@@ -251,7 +251,7 @@ export const FR: UiText = {
     deleteAccountDescription: 'Suppression définitive de votre compte et de toutes vos données personnelles. Action irréversible. Si vous possédez encore des domaines, transférez-les ou supprimez-les d\'abord.',
     deleteAccountCta: 'Supprimer mon compte…',
     deleteConfirmHeader: 'Confirmer la suppression',
-    deleteConfirmMessage: (username) => `Cette action est irréversible. Pour confirmer, tapez votre nom d\'utilisateur (« ${username} ») ci-dessous.`,
+    deleteConfirmMessage: (username) => `Cette action est irréversible. Pour confirmer, tapez votre nom d'utilisateur (« ${username} ») ci-dessous.`,
     deleteConfirmPlaceholder: 'Nom d\'utilisateur',
     deleteConfirmAccept: 'Supprimer définitivement',
     deleteConfirmCancel: 'Annuler',
