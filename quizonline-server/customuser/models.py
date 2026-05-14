@@ -221,3 +221,52 @@ class CustomUser(AbstractUser):
     @property
     def requires_password_change(self) -> bool:
         return self.must_change_password
+
+
+class Notification(models.Model):
+    """
+    Per-user in-app notification row. One row per (user, kind, payload),
+    independent of the email channel — the web channel is always emitted
+    while the email side is gated by ``CustomUser.notification_prefs``.
+
+    ``kind`` matches the constants in :mod:`customuser.notifications`
+    (``domain.join_request.created``, …). ``payload`` is a JSON blob
+    used by the frontend to render the human-readable line (domain
+    name, target user display name, reject reason, …) without
+    re-querying the database.
+
+    Soft-delete via ``deleted_at`` and soft-read via ``read_at`` so
+    we never lose history and ``unread_count`` is a simple
+    ``COUNT(*) WHERE read_at IS NULL AND deleted_at IS NULL``.
+    """
+
+    KIND_MAX_LENGTH = 64
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+    )
+    kind = models.CharField(max_length=KIND_MAX_LENGTH, db_index=True)
+    payload = models.JSONField(default=dict, blank=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "-created_at"], name="notif_user_ct_idx"),
+            models.Index(fields=["user", "read_at"], name="notif_user_read_idx"),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user_id}/{self.kind}@{self.created_at:%Y-%m-%dT%H:%M:%S}"
+
+    @property
+    def is_read(self) -> bool:
+        return self.read_at is not None
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None

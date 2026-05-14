@@ -17,6 +17,7 @@ export const FR: UiText = {
     linkedDomains: 'Domaines liés',
     noDomains: 'Aucun domaine',
     preferences: 'Préférences',
+    notificationsAria: 'Notifications',
   },
   userMenu: {
     preferences: 'Préférences',
@@ -231,6 +232,53 @@ export const FR: UiText = {
     notificationKindInviteReceived: 'Invitation à rejoindre un domaine',
     notificationKindTransferReceived: 'Proposition de transfert de propriété',
     notificationsSaved: 'Préférences de notification enregistrées.',
+  },
+  notifications: {
+    bellTitle: 'Notifications',
+    bellEmpty: 'Aucune notification.',
+    bellMarkAllRead: 'Tout marquer comme lu',
+    bellSeeAll: 'Voir toutes les notifications',
+    pageTitle: 'Notifications',
+    pageSubtitle: 'Retrouve ici tout ce qui se passe sur tes domaines et tes invitations.',
+    filterUnread: 'Non lues',
+    filterAll: 'Toutes',
+    filterDeleted: 'Corbeille',
+    empty: 'Rien à afficher.',
+    actionMarkRead: 'Marquer comme lue',
+    actionDelete: 'Supprimer',
+    relative: (s) => {
+      const sec = Math.max(0, Math.round(s));
+      if (sec < 60) return 'à l\'instant';
+      const m = Math.floor(sec / 60);
+      if (m < 60) return `il y a ${m} min`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `il y a ${h} h`;
+      const d = Math.floor(h / 24);
+      return `il y a ${d} j`;
+    },
+    kindLine: (kind, payload) => {
+      const dn = String((payload as {domain_name?: string})?.domain_name ?? '');
+      const ru = String((payload as {requester_username?: string})?.requester_username ?? '');
+      const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
+      const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
+      const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      switch (kind) {
+        case 'domain.join_request.created':
+          return `${ru || 'Un utilisateur'} a demandé à rejoindre "${dn}".`;
+        case 'domain.join_request.decided':
+          return oc === 'approved'
+            ? `Ta demande pour "${dn}" a été acceptée.`
+            : `Ta demande pour "${dn}" a été refusée.`;
+        case 'domain.join_request.expiry_warning':
+          return `Ta demande pour "${dn}" va expirer bientôt.`;
+        case 'domain.invite.received':
+          return `${iu || 'Quelqu\'un'} t'a invité à rejoindre "${dn}".`;
+        case 'domain.transfer.received':
+          return `${ii || 'Le propriétaire'} te propose le transfert de "${dn}".`;
+        default:
+          return kind;
+      }
+    },
   },
   admin: {
     menuLabel: 'Administration',

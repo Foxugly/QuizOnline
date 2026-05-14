@@ -28,6 +28,10 @@
 
   "shell/ui-text:admin.systemConfig.sections.*",
 
+  "shell/ui-text:topmenu.notificationsAria",
+  "shell/ui-text:notifications.bellTitle",
+  "shell/ui-text:notifications.pageTitle",
+
   "editor-ui-text:common.translateOthers",
   "editor-ui-text:common.translating",
   "editor-ui-text:quiz.questionLabel",

@@ -1637,6 +1637,120 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
+  /api/notification/:
+    get:
+      operationId: notification_list
+      description: |-
+        Renvoie les notifications de l'utilisateur courant, paginées et triées de la plus récente à la plus ancienne.
+
+        Filtre optionnel ``status`` :
+        - ``unread`` (défaut) : non lues et non supprimées
+        - ``all`` : non supprimées (lues + non lues)
+        - ``deleted`` : supprimées (corbeille)
+      summary: Lister les notifications de l'utilisateur
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - all
+          - deleted
+          - unread
+        description: unread | all | deleted (default unread).
+      tags:
+      - Notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationReadList'
+          description: ''
+  /api/notification/{id}/:
+    delete:
+      operationId: notification_destroy
+      description: Marque la ligne ``deleted_at = now`` — elle disparaît de la liste
+        unread/all mais reste accessible via ``?status=deleted``.
+      summary: Supprimer (soft) une notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notification
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Deleted.
+  /api/notification/{id}/read/:
+    post:
+      operationId: notification_read_create
+      description: Per-user notifications inbox.
+      summary: Marquer une notification comme lue
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationRead'
+          description: ''
+  /api/notification/read-all/:
+    post:
+      operationId: notification_read_all_create
+      description: Une seule requête UPDATE — ne touche pas les supprimées.
+      summary: Marquer toutes les notifications comme lues
+      tags:
+      - Notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/notification/unread-count/:
+    get:
+      operationId: notification_unread_count_retrieve
+      description: 'Endpoint léger pour le polling du badge dans le topmenu. Renvoie
+        ``{"unread": <int>}`` — pas de pagination, pas de serializer.'
+      summary: Compteur de notifications non lues
+      tags:
+      - Notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/question/:
     get:
       operationId: question_list
@@ -5380,6 +5494,39 @@ components:
       - id
       - name
       - pending_count
+    NotificationRead:
+      type: object
+      description: Shape returned by ``GET /api/notification/`` and friends.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kind:
+          type: string
+          readOnly: true
+        payload:
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - deleted_at
+      - id
+      - kind
+      - payload
+      - read_at
     PaginatedCustomUserReadList:
       type: object
       required:
@@ -5495,6 +5642,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LanguageRead'
+    PaginatedNotificationReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationRead'
     PaginatedQuestionReadList:
       type: object
       required:

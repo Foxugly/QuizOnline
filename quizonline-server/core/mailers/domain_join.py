@@ -57,8 +57,20 @@ def send_join_request_expiry_warning_email(*, join_request, days_left: int) -> N
     job; the row's ``expiry_warning_sent_at`` is bumped by the caller
     so we never re-fire on the same row.
     """
-    from customuser.notifications import KIND_JOIN_REQUEST_EXPIRY, notification_enabled
+    from customuser.notifications import (
+        KIND_JOIN_REQUEST_EXPIRY, emit_notification, notification_enabled,
+    )
     user = join_request.user
+    emit_notification(
+        user=user,
+        kind=KIND_JOIN_REQUEST_EXPIRY,
+        payload={
+            "domain_id": join_request.domain_id,
+            "domain_name": _domain_name_for(join_request.domain, user),
+            "days_left": days_left,
+            "join_request_id": join_request.id,
+        },
+    )
     if not getattr(user, "email", ""):
         return
     if not notification_enabled(user, KIND_JOIN_REQUEST_EXPIRY):
@@ -224,10 +236,24 @@ def _build_request_html(recipient, *, join_request, requester, domain) -> str:
 
 
 def send_join_request_created_email(*, join_request, recipients) -> None:
-    from customuser.notifications import KIND_JOIN_REQUEST_CREATED, notification_enabled
+    from customuser.notifications import (
+        KIND_JOIN_REQUEST_CREATED, emit_notification, notification_enabled,
+    )
     domain = join_request.domain
     requester = join_request.user
     for recipient in recipients:
+        emit_notification(
+            user=recipient,
+            kind=KIND_JOIN_REQUEST_CREATED,
+            payload={
+                "domain_id": domain.id,
+                "domain_name": _domain_name_for(domain, recipient),
+                "requester_id": getattr(requester, "id", None),
+                "requester_username": getattr(requester, "username", ""),
+                "requester_email": getattr(requester, "email", ""),
+                "join_request_id": join_request.id,
+            },
+        )
         if not getattr(recipient, "email", ""):
             continue
         if not notification_enabled(recipient, KIND_JOIN_REQUEST_CREATED):
@@ -245,9 +271,21 @@ def send_join_request_created_email(*, join_request, recipients) -> None:
 
 
 def send_join_request_approved_email(*, join_request) -> None:
-    from customuser.notifications import KIND_JOIN_REQUEST_DECIDED, notification_enabled
+    from customuser.notifications import (
+        KIND_JOIN_REQUEST_DECIDED, emit_notification, notification_enabled,
+    )
     domain = join_request.domain
     requester = join_request.user
+    emit_notification(
+        user=requester,
+        kind=KIND_JOIN_REQUEST_DECIDED,
+        payload={
+            "domain_id": domain.id,
+            "domain_name": _domain_name_for(domain, requester),
+            "outcome": "approved",
+            "join_request_id": join_request.id,
+        },
+    )
     if not requester.email:
         return
     if not notification_enabled(requester, KIND_JOIN_REQUEST_DECIDED):
@@ -276,10 +314,23 @@ def send_join_request_approved_email(*, join_request) -> None:
 
 
 def send_join_request_rejected_email(*, join_request) -> None:
-    from customuser.notifications import KIND_JOIN_REQUEST_DECIDED, notification_enabled
+    from customuser.notifications import (
+        KIND_JOIN_REQUEST_DECIDED, emit_notification, notification_enabled,
+    )
     domain = join_request.domain
     requester = join_request.user
     reason = (join_request.reject_reason or "").strip()
+    emit_notification(
+        user=requester,
+        kind=KIND_JOIN_REQUEST_DECIDED,
+        payload={
+            "domain_id": domain.id,
+            "domain_name": _domain_name_for(domain, requester),
+            "outcome": "rejected",
+            "reason": reason,
+            "join_request_id": join_request.id,
+        },
+    )
     if not requester.email:
         return
     if not notification_enabled(requester, KIND_JOIN_REQUEST_DECIDED):

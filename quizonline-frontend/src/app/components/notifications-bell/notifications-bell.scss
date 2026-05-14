@@ -1,0 +1,136 @@
+:host {
+  position: relative;
+  display: inline-flex;
+}
+
+.bell {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.bell__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--p-red-500, #e53935);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 16px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.bell-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 320px;
+  max-width: 380px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card, #fff);
+  color: var(--text-color, #1f2937);
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 0.6rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.bell-popover__head,
+.bell-popover__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-section, #f8fafc);
+  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+  font-size: 0.85rem;
+}
+
+.bell-popover__foot {
+  border-bottom: none;
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+  justify-content: center;
+}
+
+.bell-popover__title {
+  font-weight: 600;
+}
+
+.bell-popover__link {
+  background: transparent;
+  border: none;
+  color: var(--p-primary-color, #2563eb);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.bell-popover__empty {
+  padding: 1rem 0.75rem;
+  text-align: center;
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.85rem;
+}
+
+.bell-popover__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.bell-popover__item {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--surface-border, #f1f5f9);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--surface-hover, rgba(0, 0, 0, 0.04));
+  }
+}
+
+.bell-popover__line {
+  font-size: 0.9rem;
+}
+
+.bell-popover__date {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary, #6b7280);
+}

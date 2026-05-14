@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const ES: UiText = {
-  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', users: 'Usuarios', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias'},
+  topmenu: {quiz: 'Cuestionarios', domains: 'Dominios', subjects: 'Temas', questions: 'Preguntas', users: 'Usuarios', features: 'Funciones', donate: 'Donar', about: 'Acerca de', alertsAria: 'Mensajes', currentDomain: 'Dominio actual', ownedDomains: 'Mis dominios', managedDomains: 'Dominios que gestiono', linkedDomains: 'Dominios vinculados', noDomains: 'Ningun dominio', preferences: 'Preferencias', notificationsAria: 'Notificaciones'},
   userMenu: {preferences: 'Preferencias', changePassword: 'Cambiar contrasena', logout: 'Cerrar sesion', login: 'Iniciar sesion'},
   footer: {baseline: 'Plataforma de cuestionarios y gestion de contenido por dominio.', version: 'Version'},
   home: {
@@ -107,6 +107,53 @@ export const ES: UiText = {
     notificationKindInviteReceived: 'Invitación a unirse a un dominio',
     notificationKindTransferReceived: 'Propuesta de transferencia de propiedad',
     notificationsSaved: 'Preferencias de notificación guardadas.',
+  },
+  notifications: {
+    bellTitle: 'Notificaciones',
+    bellEmpty: 'Sin notificaciones.',
+    bellMarkAllRead: 'Marcar todo como leído',
+    bellSeeAll: 'Ver todas las notificaciones',
+    pageTitle: 'Notificaciones',
+    pageSubtitle: 'Todo lo que ocurre en tus dominios y tus invitaciones.',
+    filterUnread: 'No leídas',
+    filterAll: 'Todas',
+    filterDeleted: 'Papelera',
+    empty: 'Nada que mostrar.',
+    actionMarkRead: 'Marcar como leída',
+    actionDelete: 'Eliminar',
+    relative: (s) => {
+      const sec = Math.max(0, Math.round(s));
+      if (sec < 60) return 'ahora mismo';
+      const m = Math.floor(sec / 60);
+      if (m < 60) return `hace ${m} min`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `hace ${h} h`;
+      const d = Math.floor(h / 24);
+      return `hace ${d} d`;
+    },
+    kindLine: (kind, payload) => {
+      const dn = String((payload as {domain_name?: string})?.domain_name ?? '');
+      const ru = String((payload as {requester_username?: string})?.requester_username ?? '');
+      const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
+      const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
+      const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      switch (kind) {
+        case 'domain.join_request.created':
+          return `${ru || 'Un usuario'} ha solicitado unirse a "${dn}".`;
+        case 'domain.join_request.decided':
+          return oc === 'approved'
+            ? `Tu solicitud para "${dn}" ha sido aprobada.`
+            : `Tu solicitud para "${dn}" ha sido rechazada.`;
+        case 'domain.join_request.expiry_warning':
+          return `Tu solicitud para "${dn}" está por expirar.`;
+        case 'domain.invite.received':
+          return `${iu || 'Alguien'} te ha invitado a unirte a "${dn}".`;
+        case 'domain.transfer.received':
+          return `${ii || 'El propietario'} te propone la propiedad de "${dn}".`;
+        default:
+          return kind;
+      }
+    },
   },
   admin: {
     menuLabel: 'Administración',

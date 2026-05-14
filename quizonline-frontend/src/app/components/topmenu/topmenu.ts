@@ -12,6 +12,8 @@ import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
 import {ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
+import {NotificationService} from '../../services/notification/notification.service';
+import {NotificationsBellComponent} from '../notifications-bell/notifications-bell';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {DomainService, DomainTranslations} from '../../services/domain/domain';
 import {AuthService} from '../../services/auth/auth';
@@ -48,6 +50,7 @@ type AdminNavItem = {
     RouterLinkActive,
     LangSelectComponent,
     UserMenuComponent,
+    NotificationsBellComponent,
   ],
   templateUrl: './topmenu.html',
   styleUrl: './topmenu.scss',
@@ -64,6 +67,7 @@ export class TopMenuComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly domainService = inject(DomainService);
   private readonly quizAlertService = inject(QuizAlertService);
+  private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
@@ -346,12 +350,14 @@ export class TopMenuComponent implements OnInit {
     const me = this.userService.currentUser();
     if (me) {
       this.refreshUnreadCount();
+      this.notificationService.startPolling();
       this.refreshVisibleDomains();
       return;
     }
 
     if (!this.authService.authenticated) {
       this.quizAlertService.clearUnreadCount();
+      this.notificationService.stopPolling();
       this.visibleDomains.set([]);
       return;
     }
@@ -359,10 +365,12 @@ export class TopMenuComponent implements OnInit {
     this.userService.getMe().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.refreshUnreadCount();
+        this.notificationService.startPolling();
         this.refreshVisibleDomains();
       },
       error: () => {
         this.quizAlertService.clearUnreadCount();
+        this.notificationService.stopPolling();
         this.visibleDomains.set([]);
       },
     });

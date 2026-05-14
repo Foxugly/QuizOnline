@@ -1,0 +1,49 @@
+<button
+  type="button"
+  class="bell"
+  [attr.aria-label]="ui().topmenu.notificationsAria"
+  [attr.aria-expanded]="open()"
+  (click)="toggle($event)">
+  <i class="pi pi-bell"></i>
+  @if (unread() > 0) {
+    <span class="bell__badge">{{ unread() }}</span>
+  }
+</button>
+
+@if (open()) {
+  <div class="bell-popover" role="dialog" [attr.aria-label]="ui().notifications.bellTitle">
+    <header class="bell-popover__head">
+      <span class="bell-popover__title">{{ ui().notifications.bellTitle }}</span>
+      @if (unread() > 0) {
+        <button type="button" class="bell-popover__link" (click)="markAllRead($event)">
+          {{ ui().notifications.bellMarkAllRead }}
+        </button>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="bell-popover__empty">…</div>
+    } @else if (rows().length === 0) {
+      <div class="bell-popover__empty">{{ ui().notifications.bellEmpty }}</div>
+    } @else {
+      <ul class="bell-popover__list">
+        @for (row of rows(); track trackById($index, row)) {
+          <li class="bell-popover__item" (click)="onItemClick(row, $event)">
+            <span class="bell-popover__line">{{ lineFor(row) }}</span>
+            <span
+              class="bell-popover__date"
+              [attr.title]="row.created_at | date:'medium'">
+              {{ relativeFor()(row.created_at) }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+
+    <footer class="bell-popover__foot">
+      <a class="bell-popover__link" routerLink="/notifications" (click)="open.set(false)">
+        {{ ui().notifications.bellSeeAll }}
+      </a>
+    </footer>
+  </div>
+}

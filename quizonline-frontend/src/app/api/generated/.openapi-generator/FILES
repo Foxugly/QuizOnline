@@ -8,6 +8,7 @@ api/auth.service.ts
 api/domain.service.ts
 api/language.service.ts
 api/mail.service.ts
+api/notification.service.ts
 api/question.service.ts
 api/quiz-alert.service.ts
 api/quiz-answer.service.ts
@@ -87,11 +88,13 @@ model/media-asset.ts
 model/mode-enum.ts
 model/models.ts
 model/moderation-summary-item.ts
+model/notification-read.ts
 model/paginated-custom-user-read-list.ts
 model/paginated-domain-audit-log-read-list.ts
 model/paginated-domain-join-request-read-list.ts
 model/paginated-domain-read-list.ts
 model/paginated-language-read-list.ts
+model/paginated-notification-read-list.ts
 model/paginated-question-read-list.ts
 model/paginated-quiz-alert-thread-list-list.ts
 model/paginated-quiz-assignment-list-list.ts

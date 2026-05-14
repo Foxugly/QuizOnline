@@ -116,14 +116,33 @@ def send_domain_invite_email(*, email: str, domain, inviter, language: str = "en
     If a User row does exist for ``email`` and they have opted out of
     ``KIND_INVITE_RECEIVED``, the mail is silently dropped.
     """
-    from customuser.notifications import KIND_INVITE_RECEIVED, notification_enabled
+    from customuser.notifications import (
+        KIND_INVITE_RECEIVED, emit_notification, notification_enabled,
+    )
     from django.contrib.auth import get_user_model
     User = get_user_model()
     if not email:
         return
     existing = User.objects.filter(email__iexact=email).first()
-    if existing is not None and not notification_enabled(existing, KIND_INVITE_RECEIVED):
-        return
+    if existing is not None:
+        # Always drop a web notification on the recipient's bell. The
+        # email below is still subject to the per-kind opt-out so the
+        # user can mute mail while keeping the in-app trail.
+        emit_notification(
+            user=existing,
+            kind=KIND_INVITE_RECEIVED,
+            payload={
+                "domain_id": domain.id,
+                "domain_name": domain.safe_translation_getter(
+                    "name", language_code=getattr(existing, "language", language), any_language=True,
+                ) or f"Domain#{domain.pk}",
+                "inviter_id": getattr(inviter, "id", None),
+                "inviter_username": getattr(inviter, "username", ""),
+                "email": email,
+            },
+        )
+        if not notification_enabled(existing, KIND_INVITE_RECEIVED):
+            return
     copy = _invite_copy(user_language(type("_U", (), {"language": language})()))
     token = make_invite_token(domain_id=domain.id, email=email, inviter_id=inviter.id)
     accept_url = frontend_url(f"invite/accept/{token}")

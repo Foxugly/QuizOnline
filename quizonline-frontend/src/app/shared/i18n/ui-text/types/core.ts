@@ -14,6 +14,24 @@ export type TopMenuUiText = {
   linkedDomains: string;
   noDomains: string;
   preferences: string;
+  notificationsAria: string;
+};
+
+export type NotificationsUiText = {
+  bellTitle: string;
+  bellEmpty: string;
+  bellMarkAllRead: string;
+  bellSeeAll: string;
+  pageTitle: string;
+  pageSubtitle: string;
+  filterUnread: string;
+  filterAll: string;
+  filterDeleted: string;
+  empty: string;
+  actionMarkRead: string;
+  actionDelete: string;
+  relative: (totalSeconds: number) => string;
+  kindLine: (kind: string, payload: Record<string, unknown>) => string;
 };
 
 export type UserMenuUiText = {

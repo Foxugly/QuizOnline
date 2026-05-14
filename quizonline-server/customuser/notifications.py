@@ -47,6 +47,36 @@ def notification_enabled(user, kind: str) -> bool:
     return bool(prefs.get(kind, True))
 
 
+def emit_notification(*, user, kind: str, payload: dict | None = None):
+    """
+    Create one in-app ``Notification`` row for ``user`` and return it.
+
+    The web channel is **always emitted** regardless of
+    ``notification_prefs``: those preferences only gate email delivery
+    (the absence of an in-app trace would defeat the whole point of a
+    notifications inbox the user can review later).
+
+    No-op (returns ``None``) when ``user`` is anonymous or has no id
+    yet — invite flows hit this path because the invitee may not have
+    a CustomUser row at the time we try to notify.
+
+    Defensive on the model side: any unknown ``kind`` is accepted (the
+    canonical list lives in :data:`NOTIFICATION_KINDS`; new kinds must
+    be added there to be opt-out-able via prefs).
+    """
+    if user is None or not getattr(user, "id", None):
+        return None
+    # Avoid an import cycle: notifications.py is imported by mailers,
+    # which themselves are imported at app-load time on some paths.
+    from customuser.models import Notification
+
+    return Notification.objects.create(
+        user=user,
+        kind=kind[: Notification.KIND_MAX_LENGTH] if kind else "",
+        payload=payload or {},
+    )
+
+
 def normalize_prefs(raw) -> dict:
     """
     Coerce a user-provided payload into the canonical sparse-map shape:

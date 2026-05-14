@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const IT: UiText = {
-  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', users: 'Utenti', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze'},
+  topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', users: 'Utenti', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze', notificationsAria: 'Notifiche'},
   userMenu: {preferences: 'Preferenze', changePassword: 'Cambia password', logout: 'Disconnetti', login: 'Accedi'},
   footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione'},
   home: {
@@ -107,6 +107,53 @@ export const IT: UiText = {
     notificationKindInviteReceived: 'Invito a unirsi a un dominio',
     notificationKindTransferReceived: 'Proposta di trasferimento di proprietà',
     notificationsSaved: 'Preferenze di notifica salvate.',
+  },
+  notifications: {
+    bellTitle: 'Notifiche',
+    bellEmpty: 'Nessuna notifica.',
+    bellMarkAllRead: 'Segna tutto come letto',
+    bellSeeAll: 'Vedi tutte le notifiche',
+    pageTitle: 'Notifiche',
+    pageSubtitle: 'Tutto quello che succede sui tuoi domini e sui tuoi inviti.',
+    filterUnread: 'Non lette',
+    filterAll: 'Tutte',
+    filterDeleted: 'Cestino',
+    empty: 'Niente da mostrare.',
+    actionMarkRead: 'Segna come letta',
+    actionDelete: 'Elimina',
+    relative: (s) => {
+      const sec = Math.max(0, Math.round(s));
+      if (sec < 60) return 'adesso';
+      const m = Math.floor(sec / 60);
+      if (m < 60) return `${m} min fa`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h} h fa`;
+      const d = Math.floor(h / 24);
+      return `${d} g fa`;
+    },
+    kindLine: (kind, payload) => {
+      const dn = String((payload as {domain_name?: string})?.domain_name ?? '');
+      const ru = String((payload as {requester_username?: string})?.requester_username ?? '');
+      const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
+      const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
+      const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      switch (kind) {
+        case 'domain.join_request.created':
+          return `${ru || 'Un utente'} ha chiesto di unirsi a "${dn}".`;
+        case 'domain.join_request.decided':
+          return oc === 'approved'
+            ? `La tua richiesta per "${dn}" è stata approvata.`
+            : `La tua richiesta per "${dn}" è stata rifiutata.`;
+        case 'domain.join_request.expiry_warning':
+          return `La tua richiesta per "${dn}" sta per scadere.`;
+        case 'domain.invite.received':
+          return `${iu || 'Qualcuno'} ti ha invitato a "${dn}".`;
+        case 'domain.transfer.received':
+          return `${ii || 'Il proprietario'} ti propone il trasferimento di "${dn}".`;
+        default:
+          return kind;
+      }
+    },
   },
   admin: {
     menuLabel: 'Amministrazione',

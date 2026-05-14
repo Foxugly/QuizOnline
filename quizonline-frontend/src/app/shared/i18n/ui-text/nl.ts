@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const NL: UiText = {
-  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren'},
+  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren', notificationsAria: 'Meldingen'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden'},
   footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie'},
   home: {
@@ -106,6 +106,53 @@ export const NL: UiText = {
     notificationKindInviteReceived: 'Uitnodiging om een domein te vervoegen',
     notificationKindTransferReceived: 'Voorstel voor eigendomsoverdracht',
     notificationsSaved: 'Meldingsvoorkeuren opgeslagen.',
+  },
+  notifications: {
+    bellTitle: 'Meldingen',
+    bellEmpty: 'Geen meldingen.',
+    bellMarkAllRead: 'Alles als gelezen markeren',
+    bellSeeAll: 'Alle meldingen bekijken',
+    pageTitle: 'Meldingen',
+    pageSubtitle: 'Alles wat er op uw domeinen en uitnodigingen gebeurt.',
+    filterUnread: 'Ongelezen',
+    filterAll: 'Alle',
+    filterDeleted: 'Prullenbak',
+    empty: 'Niets om weer te geven.',
+    actionMarkRead: 'Markeer als gelezen',
+    actionDelete: 'Verwijderen',
+    relative: (s) => {
+      const sec = Math.max(0, Math.round(s));
+      if (sec < 60) return 'zojuist';
+      const m = Math.floor(sec / 60);
+      if (m < 60) return `${m} min geleden`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h} u geleden`;
+      const d = Math.floor(h / 24);
+      return `${d} d geleden`;
+    },
+    kindLine: (kind, payload) => {
+      const dn = String((payload as {domain_name?: string})?.domain_name ?? '');
+      const ru = String((payload as {requester_username?: string})?.requester_username ?? '');
+      const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
+      const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
+      const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      switch (kind) {
+        case 'domain.join_request.created':
+          return `${ru || 'Een gebruiker'} wil graag deelnemen aan "${dn}".`;
+        case 'domain.join_request.decided':
+          return oc === 'approved'
+            ? `Uw aanvraag voor "${dn}" is goedgekeurd.`
+            : `Uw aanvraag voor "${dn}" is afgewezen.`;
+        case 'domain.join_request.expiry_warning':
+          return `Uw aanvraag voor "${dn}" verloopt binnenkort.`;
+        case 'domain.invite.received':
+          return `${iu || 'Iemand'} heeft u uitgenodigd voor "${dn}".`;
+        case 'domain.transfer.received':
+          return `${ii || 'De eigenaar'} stelt u het eigendom van "${dn}" voor.`;
+        default:
+          return kind;
+      }
+    },
   },
   admin: {
     menuLabel: 'Administratie',

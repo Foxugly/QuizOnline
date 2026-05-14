@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const EN: UiText = {
-  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', users: 'Users', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences'},
+  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', users: 'Users', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences', notificationsAria: 'Notifications'},
   userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login'},
   footer: {baseline: 'Quiz and domain content management platform.', version: 'Version'},
   home: {
@@ -104,6 +104,53 @@ export const EN: UiText = {
     notificationKindInviteReceived: 'Invitation to join a domain',
     notificationKindTransferReceived: 'Ownership transfer proposal',
     notificationsSaved: 'Notification preferences saved.',
+  },
+  notifications: {
+    bellTitle: 'Notifications',
+    bellEmpty: 'No notification.',
+    bellMarkAllRead: 'Mark all as read',
+    bellSeeAll: 'See all notifications',
+    pageTitle: 'Notifications',
+    pageSubtitle: 'Everything that happens on your domains and your invitations.',
+    filterUnread: 'Unread',
+    filterAll: 'All',
+    filterDeleted: 'Trash',
+    empty: 'Nothing to show.',
+    actionMarkRead: 'Mark as read',
+    actionDelete: 'Delete',
+    relative: (s) => {
+      const sec = Math.max(0, Math.round(s));
+      if (sec < 60) return 'just now';
+      const m = Math.floor(sec / 60);
+      if (m < 60) return `${m} min ago`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h} h ago`;
+      const d = Math.floor(h / 24);
+      return `${d} d ago`;
+    },
+    kindLine: (kind, payload) => {
+      const dn = String((payload as {domain_name?: string})?.domain_name ?? '');
+      const ru = String((payload as {requester_username?: string})?.requester_username ?? '');
+      const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
+      const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
+      const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      switch (kind) {
+        case 'domain.join_request.created':
+          return `${ru || 'A user'} requested to join "${dn}".`;
+        case 'domain.join_request.decided':
+          return oc === 'approved'
+            ? `Your request on "${dn}" was approved.`
+            : `Your request on "${dn}" was rejected.`;
+        case 'domain.join_request.expiry_warning':
+          return `Your request on "${dn}" is about to expire.`;
+        case 'domain.invite.received':
+          return `${iu || 'Someone'} invited you to join "${dn}".`;
+        case 'domain.transfer.received':
+          return `${ii || 'The owner'} is offering you ownership of "${dn}".`;
+        default:
+          return kind;
+      }
+    },
   },
   admin: {
     menuLabel: 'Administration',

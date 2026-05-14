@@ -15,6 +15,7 @@ urlpatterns = [
     path("question/", include(("question.api_urls", "question"), namespace="question-api")),
     path("quiz/", include(("quiz.api_urls", "quiz"), namespace="quiz-api")),
     path("user/", include(("customuser.api_urls", "user"), namespace="user-api")),
+    path("notification/", include(("customuser.notification_urls", "notification"), namespace="notification-api")),
     path("domain/", include(("domain.api_urls", "domain"), namespace="domain-api")),
     path("lang/", include(("language.api_urls", "lang"), namespace="lang-api")),
     path("translate/", include(("translation.api_urls", "translation"), namespace="translate-api")),

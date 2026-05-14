@@ -24,6 +24,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'notifications',
+    loadComponent: () => import('./pages/notifications/notifications').then((m) => m.NotificationsPage),
+    canActivate: [authGuard],
+  },
+  {
     path: 'reset-password',
     loadComponent: () => import('./pages/auth/reset-password/reset-password').then((m) => m.ResetPassword),
   },

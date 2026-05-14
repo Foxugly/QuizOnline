@@ -1,0 +1,53 @@
+.notifications-page {
+  max-width: 960px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero__title {
+  margin: 0 0 0.25rem;
+}
+
+.hero__subtitle {
+  margin: 0;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.notifications-toolbar {
+  margin-bottom: 1rem;
+}
+
+.notifications-table__row--unread {
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.notifications-table__line {
+  font-size: 0.95rem;
+}
+
+.notifications-table__date {
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  width: 8rem;
+}
+
+.notifications-table__actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  width: 6rem;
+}
+
+.muted {
+  color: var(--text-color-secondary, #6b7280);
+}

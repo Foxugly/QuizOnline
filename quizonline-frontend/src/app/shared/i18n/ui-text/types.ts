@@ -11,6 +11,7 @@ import type {
 import type {
   FooterUiText,
   HomeUiText,
+  NotificationsUiText,
   PreferencesUiText,
   TopMenuUiText,
   UserMenuUiText,
@@ -28,6 +29,7 @@ export type UiText = {
   resetPassword: ResetPasswordUiText;
   confirmEmail: ConfirmEmailUiText;
   preferences: PreferencesUiText;
+  notifications: NotificationsUiText;
   admin: AdminUiText;
 };
 
