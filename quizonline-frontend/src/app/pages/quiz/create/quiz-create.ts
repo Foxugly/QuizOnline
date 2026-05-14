@@ -38,18 +38,6 @@ import {QuestionPreviewDialogComponent} from '../../../components/question-previ
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {DomainService} from '../../../services/domain/domain';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
-import {
-  addQuestionAnswerOption,
-  buildQuestionCreatePayload,
-  createQuestionEditorForm,
-  ensureQuestionTranslationControls,
-  getQuestionCorrectCount,
-  getQuestionTrGroup,
-  isEmptyQuestionHtml,
-  isQuestionEditorFormValid,
-  QuestionEditorForm,
-  uploadQuestionEditorMediaAssets,
-} from '../../../services/question/question-editor-form';
 import {QuestionService} from '../../../services/question/question';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
@@ -61,6 +49,7 @@ import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {QuestionLibraryCard, SelectedQuestionCard, SelectedQuestionRef, SelectedQuizQuestion} from './quiz-template-builder.models';
 import {getQuizCreateUiText} from './quiz-create.i18n';
+import {QuizCreateInlineQuestionController} from './quiz-create-inline-question.controller';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 type QuizTemplateTranslationValue = {
@@ -99,6 +88,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [QuizCreateInlineQuestionController],
 })
 export class QuizCreate implements OnInit {
 
@@ -109,12 +99,12 @@ export class QuizCreate implements OnInit {
   submitError = signal<string | null>(null);
   readonly lastSavedAt = signal<Date | null>(null);
 
-  questionDialogVisible = signal(false);
-  questionSaving = signal(false);
-  questionTranslating = signal(false);
-  questionSubmitError = signal<string | null>(null);
-  questionDialogLangs = signal<LangCode[]>([]);
-  questionDialogActiveLang = signal<LangCode | null>(null);
+  /**
+   * Inline "create a new question" dialog state + form. Owned by a
+   * component-scoped controller so its lifetime is tied to this page.
+   */
+  protected readonly questionDialog = inject(QuizCreateInlineQuestionController);
+
   quizTemplateLangs = signal<LangCode[]>([]);
   quizTemplateActiveLang = signal<LangCode | null>(null);
   quizTemplateTranslating = signal(false);
@@ -153,10 +143,6 @@ export class QuizCreate implements OnInit {
     result_available_at: [null as Date | null],
     detail_visibility: [VisibilityEnumDto.Immediate as VisibilityEnumDto, Validators.required],
     detail_available_at: [null as Date | null],
-  });
-
-  questionForm: QuestionEditorForm = createQuestionEditorForm(inject(NonNullableFormBuilder), {
-    domainDisabled: true,
   });
 
   private readonly fb = inject(NonNullableFormBuilder);
@@ -305,6 +291,17 @@ export class QuizCreate implements OnInit {
     }
     this.editingTemplateId.set(templateId);
 
+    this.questionDialog.bind({
+      selectedDomain: () => this.selectedDomain(),
+      selectedDomainId: () => this.selectedDomainId(),
+      onQuestionCreated: (question) => {
+        this.questions.update((questions) => [question, ...questions]);
+        this.addExistingQuestion(question);
+      },
+      onPageError: (message) => this.submitError.set(message),
+      domainRequiredFirstMessage: () => this.editorUi().pages.quizCreate.errors.domainRequiredFirst,
+    });
+
     effect(() => {
       const nextLang = this.userService.lang() as LanguageEnumDto;
       this.currentLang.set(nextLang);
@@ -313,9 +310,7 @@ export class QuizCreate implements OnInit {
       if (this.quizTemplateLangs().includes(nextLang as LangCode)) {
         this.quizTemplateActiveLang.set(nextLang as LangCode);
       }
-      if (this.questionDialogLangs().includes(nextLang as LangCode)) {
-        this.questionDialogActiveLang.set(nextLang as LangCode);
-      }
+      this.questionDialog.syncActiveLang(nextLang as LangCode);
 
       const localized = this.selectQuizTemplateTranslation(this.collectQuizTemplateTranslations());
       this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
@@ -554,122 +549,6 @@ export class QuizCreate implements OnInit {
     )));
   }
 
-  openQuestionDialog(): void {
-    if (!this.selectedDomainId()) {
-      this.submitError.set(this.editorUi().pages.quizCreate.errors.domainRequiredFirst);
-      return;
-    }
-
-    this.questionSubmitError.set(null);
-    this.resetQuestionDialog();
-    this.questionDialogVisible.set(true);
-  }
-
-  closeQuestionDialog(): void {
-    this.questionDialogVisible.set(false);
-  }
-
-  onQuestionDialogTabChange(value: string | number | undefined): void {
-    if (value === undefined || value === null) {
-      return;
-    }
-    this.questionDialogActiveLang.set(String(value) as LangCode);
-  }
-
-  addQuestionOption(): void {
-    addQuestionAnswerOption(this.fb, this.questionForm, this.questionDialogLangs());
-  }
-
-  removeQuestionOption(index: number): void {
-    if (this.questionForm.controls.answer_options.length <= 2) {
-      return;
-    }
-
-    this.questionForm.controls.answer_options.removeAt(index);
-    for (const lang of this.questionDialogLangs()) {
-      const answers = (getQuestionTrGroup(this.questionForm, lang).controls.answer_options);
-      answers.removeAt(index);
-    }
-
-    this.questionForm.controls.answer_options.controls.forEach((control, controlIndex) => {
-      control.get('sort_order')?.setValue(controlIndex + 1);
-    });
-  }
-
-  async translateNewQuestion(): Promise<void> {
-    const sourceLang = this.questionDialogActiveLang();
-    if (!sourceLang) {
-      return;
-    }
-
-    this.questionTranslating.set(true);
-    this.questionSubmitError.set(null);
-
-    try {
-      const sourceGroup = getQuestionTrGroup(this.questionForm, sourceLang);
-      const sourceTitle = sourceGroup.controls["title"].value ?? '';
-      const sourceDescription = sourceGroup.controls["description"].value ?? '';
-      const sourceExplanation = sourceGroup.controls.explanation.value ?? '';
-
-      for (const targetLang of this.questionDialogLangs()) {
-        if (targetLang === sourceLang) {
-          continue;
-        }
-
-        const targetGroup = getQuestionTrGroup(this.questionForm, targetLang);
-        const items: TranslateBatchItem[] = [];
-
-        if (!(targetGroup.controls["title"].value ?? '').trim()) {
-          items.push({key: 'title', text: sourceTitle, format: 'text'});
-        }
-        if (isEmptyQuestionHtml(targetGroup.controls["description"].value ?? '')) {
-          items.push({key: 'description', text: sourceDescription, format: 'html'});
-        }
-        if (isEmptyQuestionHtml(targetGroup.controls.explanation.value ?? '')) {
-          items.push({key: 'explanation', text: sourceExplanation, format: 'html'});
-        }
-
-        for (let index = 0; index < this.questionForm.controls.answer_options.length; index += 1) {
-          const control = targetGroup.controls.answer_options.at(index).controls.content;
-          if (!(control.value ?? '').trim()) {
-            const sourceContent = sourceGroup.controls.answer_options.at(index).controls.content.value ?? '';
-            items.push({key: `ans_${index}`, text: sourceContent, format: 'html'});
-          }
-        }
-
-        if (!items.length) {
-          continue;
-        }
-
-        const translated = await this.translationService.translateBatch(sourceLang, targetLang, items);
-        if (translated['title'] !== undefined) {
-          targetGroup.controls["title"].setValue(translated['title']);
-        }
-        if (translated['description'] !== undefined) {
-          targetGroup.controls["description"].setValue(translated['description']);
-        }
-        if (translated['explanation'] !== undefined) {
-          targetGroup.controls.explanation.setValue(translated['explanation']);
-        }
-
-        for (let index = 0; index < this.questionForm.controls.answer_options.length; index += 1) {
-          const key = `ans_${index}`;
-          if (translated[key] !== undefined) {
-            targetGroup.controls.answer_options.at(index).controls.content.setValue(translated[key]);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      queueMicrotask(() => {
-        this.submitError.set(this.formatApiError(error, this.editorUi().pages.quizCreate.errors.createQuizFailed));
-      });
-      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.translateQuestionFailed);
-    } finally {
-      this.questionTranslating.set(false);
-    }
-  }
-
   async translateQuizTemplate(): Promise<void> {
     const sourceLang = this.quizTemplateActiveLang();
     const sourceGroup = sourceLang ? this.quizTemplateTranslationGroup(sourceLang) : null;
@@ -717,45 +596,6 @@ export class QuizCreate implements OnInit {
     } finally {
       this.quizTemplateTranslating.set(false);
       this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle());
-    }
-  }
-
-  async saveNewQuestion(): Promise<void> {
-    this.questionSubmitError.set(null);
-
-    if (!isQuestionEditorFormValid(this.questionForm, this.questionDialogLangs(), {requireDomain: true})) {
-      this.questionSubmitError.set(this.editorUi().pages.questionCreate.errors.missingFields);
-      this.questionForm.markAllAsTouched();
-      return;
-    }
-
-    if (getQuestionCorrectCount(this.questionForm) === 0) {
-      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.needOneCorrect);
-      return;
-    }
-
-    this.questionSaving.set(true);
-
-    try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.questionForm.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionCreatePayload(
-        this.questionForm,
-        this.questionDialogLangs(),
-        mediaAssetIds,
-      );
-
-      const createdQuestion = await firstValueFrom(this.questionService.create(payload));
-      this.questions.update((questions) => [createdQuestion, ...questions]);
-      this.addExistingQuestion(createdQuestion);
-      this.closeQuestionDialog();
-    } catch (error) {
-      console.error(error);
-      this.questionSubmitError.set(this.editorUi().pages.quizCreate.errors.createQuestionFailed);
-    } finally {
-      this.questionSaving.set(false);
     }
   }
 
@@ -870,8 +710,7 @@ export class QuizCreate implements OnInit {
 
     if (!domainId) {
       this.configureQuizTemplateTranslations([LanguageEnumDto.Fr as LangCode]);
-      this.questionDialogLangs.set([]);
-      this.questionDialogActiveLang.set(null);
+      this.questionDialog.clear();
       return;
     }
 
@@ -879,7 +718,7 @@ export class QuizCreate implements OnInit {
       this.resolveDomainLanguages(this.domains().find((domain) => domain.id === domainId) ?? null),
       this.collectQuizTemplateTranslations(),
     );
-    this.resetQuestionDialog();
+    this.questionDialog.reset();
     this.questionsLoading.set(true);
     this.questionService.list({
       domainId,
@@ -1044,31 +883,6 @@ export class QuizCreate implements OnInit {
     this.onDomainSelected(domainId);
   }
 
-  private resetQuestionDialog(): void {
-    const domain = this.selectedDomain();
-    const domainId = this.selectedDomainId();
-
-    this.questionForm = createQuestionEditorForm(this.fb, {domainDisabled: true});
-    this.questionForm.controls.domain.setValue(domainId);
-    this.questionForm.controls.domain.disable({emitEvent: false});
-    this.questionForm.controls.active.setValue(true);
-    this.questionForm.controls.is_mode_practice.setValue(true);
-    this.questionForm.controls.is_mode_exam.setValue(false);
-
-    const langs = (domain?.allowed_languages ?? [])
-      .filter((language) => !!language.active)
-      .map((language) => language.code)
-      .filter((code): code is LangCode => !!code);
-
-    const resolvedLangs = langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
-    this.questionDialogLangs.set(resolvedLangs);
-    this.questionDialogActiveLang.set(resolvedLangs[0] ?? null);
-
-    ensureQuestionTranslationControls(this.fb, this.questionForm, resolvedLangs);
-    addQuestionAnswerOption(this.fb, this.questionForm, resolvedLangs);
-    addQuestionAnswerOption(this.fb, this.questionForm, resolvedLangs);
-  }
-
   private configureQuizTemplateTranslations(
     langs: LangCode[],
     seed: QuizTemplateTranslations = {},
@@ -1158,44 +972,6 @@ export class QuizCreate implements OnInit {
       .map((language) => language.code)
       .filter((code): code is LangCode => !!code);
     return langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
-  }
-  private formatApiError(error: unknown, fallback = 'Erreur inconnue.'): string {
-    if (error instanceof Error && error.message) {
-      return error.message;
-    }
-
-    const apiError = error as {
-      error?: unknown;
-      message?: string;
-    };
-
-    if (typeof apiError?.error === 'string' && apiError.error.trim()) {
-      return apiError.error;
-    }
-
-    if (apiError?.error && typeof apiError.error === 'object') {
-      const details = Object.entries(apiError.error as Record<string, unknown>)
-        .map(([key, value]) => {
-          if (Array.isArray(value)) {
-            return `${key}: ${value.join(', ')}`;
-          }
-          if (value && typeof value === 'object') {
-            return `${key}: ${JSON.stringify(value)}`;
-          }
-          return `${key}: ${String(value)}`;
-        })
-        .join(' | ');
-
-      if (details) {
-        return details;
-      }
-    }
-
-    if (apiError?.message) {
-      return apiError.message;
-    }
-
-    return fallback;
   }
 
   private toIsoDateTime(value: Date | string | null): string | null {

@@ -294,7 +294,7 @@
                 [subjectOptions]="subjectOptions()"
                 [texts]="uiText()"
                 (addQuestion)="addExistingQuestion($event)"
-                (createQuestion)="openQuestionDialog()"
+                (createQuestion)="questionDialog.open()"
                 (previewQuestion)="openQuestionPreview($event)"
                 (searchChanged)="onSearchInput($event)"
                 (selectedSubjectIdsChange)="onQuestionSubjectFilterChange($event)">
@@ -345,30 +345,30 @@
 <p-dialog
   [modal]="true"
   [style]="{ width: '90vw', maxWidth: '1100px' }"
-  [visible]="questionDialogVisible()"
+  [visible]="questionDialog.visible()"
   [header]="isEditMode() ? editorUi().pages.quizCreate.createQuestionForTemplate : editorUi().pages.quizCreate.createQuestionForQuiz"
-  (visibleChange)="questionDialogVisible.set($event)">
+  (visibleChange)="questionDialog.setVisible($event)">
   <app-question-editor-form
-    [activeLang]="questionDialogActiveLang()"
+    [activeLang]="questionDialog.activeLang()"
     [domainReadonlyLabel]="selectedDomainLabel()"
     [emptyLanguagesMessage]="editorUi().pages.quizCreate.emptyLanguagesMessage"
-    [form]="questionForm"
+    [form]="questionDialog.form"
     [practiceTooltip]="editorUi().questionForm.practiceHint"
     [examTooltip]="editorUi().questionForm.examHint"
-    [saving]="questionSaving()"
+    [saving]="questionDialog.saving()"
     [showDomainSelect]="false"
     [showTranslateAction]="true"
     [subjectOptions]="subjectOptions()"
-    [submitError]="questionSubmitError()"
+    [submitError]="questionDialog.submitError()"
     [submitLabel]="editorUi().pages.quizCreate.createQuestion"
-    [tabCodes]="questionDialogLangs()"
-    [translating]="questionTranslating()"
-    (addOptionClicked)="addQuestionOption()"
-    (cancelClicked)="closeQuestionDialog()"
-    (removeOptionClicked)="removeQuestionOption($event)"
-    (submitted)="saveNewQuestion()"
-    (tabChanged)="onQuestionDialogTabChange($event)"
-    (translateActive)="translateNewQuestion()">
+    [tabCodes]="questionDialog.langs()"
+    [translating]="questionDialog.translating()"
+    (addOptionClicked)="questionDialog.addOption()"
+    (cancelClicked)="questionDialog.close()"
+    (removeOptionClicked)="questionDialog.removeOption($event)"
+    (submitted)="questionDialog.save()"
+    (tabChanged)="questionDialog.onTabChange($event)"
+    (translateActive)="questionDialog.translate()">
   </app-question-editor-form>
 </p-dialog>
 
