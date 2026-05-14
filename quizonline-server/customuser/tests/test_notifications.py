@@ -46,23 +46,29 @@ class NotificationEnabledTests(TestCase):
 
 
 class NormalizePrefsTests(TestCase):
+    """``normalize_prefs`` now stores ``{kind: {channel: False}}``.
+
+    Legacy boolean ``False`` is accepted and translated to
+    ``{email: False}`` so older clients / DB rows keep working.
+    """
+
     def test_drops_unknown_keys(self):
         raw = {"bogus.kind": False, KIND_INVITE_RECEIVED: False}
         result = normalize_prefs(raw)
-        self.assertEqual(result, {KIND_INVITE_RECEIVED: False})
+        self.assertEqual(result, {KIND_INVITE_RECEIVED: {"email": False}})
 
     def test_drops_true_values_to_keep_map_sparse(self):
         raw = {KIND_INVITE_RECEIVED: True, KIND_JOIN_REQUEST_DECIDED: False}
         result = normalize_prefs(raw)
         # True is the default; do not persist it.
         self.assertNotIn(KIND_INVITE_RECEIVED, result)
-        self.assertEqual(result[KIND_JOIN_REQUEST_DECIDED], False)
+        self.assertEqual(result[KIND_JOIN_REQUEST_DECIDED], {"email": False})
 
     def test_non_bool_values_are_ignored(self):
         raw = {KIND_INVITE_RECEIVED: "yes", KIND_JOIN_REQUEST_CREATED: False}
         result = normalize_prefs(raw)
-        # Only the explicit False entry survives.
-        self.assertEqual(result, {KIND_JOIN_REQUEST_CREATED: False})
+        # Only the explicit False entry survives, translated to the new shape.
+        self.assertEqual(result, {KIND_JOIN_REQUEST_CREATED: {"email": False}})
 
     def test_non_dict_returns_empty(self):
         self.assertEqual(normalize_prefs([1, 2, 3]), {})

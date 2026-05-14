@@ -124,15 +124,26 @@ def _build_quiz_assignment_html(quiz) -> str:
 
 
 def send_quiz_assignment_email(quiz) -> None:
+    from customuser.notifications import KIND_QUIZ_ASSIGNMENT, notify
     user = getattr(quiz, "user", None)
     template = getattr(quiz, "quiz_template", None)
     if not user or not template:
         return
-    send_user_email(
+    notify(
         user=user,
-        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["assignment_subject"],
-        body_builder=lambda _u: _build_quiz_assignment_body(quiz),
-        html_builder=lambda _u: _build_quiz_assignment_html(quiz),
+        kind=KIND_QUIZ_ASSIGNMENT,
+        payload={
+            "quiz_id": getattr(quiz, "id", None),
+            "template_id": getattr(template, "id", None),
+            "template_title": getattr(template, "title", ""),
+        },
+        domain=getattr(template, "domain", None),
+        email_callable=lambda: send_user_email(
+            user=user,
+            subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["assignment_subject"],
+            body_builder=lambda _u: _build_quiz_assignment_body(quiz),
+            html_builder=lambda _u: _build_quiz_assignment_html(quiz),
+        ),
     )
 
 
@@ -164,16 +175,29 @@ def _build_quiz_completed_html(quiz) -> str:
 
 
 def send_quiz_completed_email(quiz) -> None:
+    from customuser.notifications import KIND_QUIZ_COMPLETED, notify
     template = getattr(quiz, "quiz_template", None)
     creator = getattr(template, "created_by", None) if template else None
     user = getattr(quiz, "user", None)
     if not creator or not user or creator.id == user.id:
         return
-    send_user_email(
+    notify(
         user=creator,
-        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["completed_subject"],
-        body_builder=lambda _u: _build_quiz_completed_body(quiz),
-        html_builder=lambda _u: _build_quiz_completed_html(quiz),
+        kind=KIND_QUIZ_COMPLETED,
+        payload={
+            "quiz_id": getattr(quiz, "id", None),
+            "template_id": getattr(template, "id", None),
+            "template_title": getattr(template, "title", ""),
+            "user_id": getattr(user, "id", None),
+            "user_username": getattr(user, "username", ""),
+        },
+        domain=getattr(template, "domain", None),
+        email_callable=lambda: send_user_email(
+            user=creator,
+            subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["completed_subject"],
+            body_builder=lambda _u: _build_quiz_completed_body(quiz),
+            html_builder=lambda _u: _build_quiz_completed_html(quiz),
+        ),
     )
 
 
@@ -210,26 +234,48 @@ def _build_visibility_html(quiz, *, scope: str) -> str:
 
 
 def send_result_available_email(quiz) -> None:
+    from customuser.notifications import KIND_QUIZ_RESULT_AVAILABLE, notify
     user = getattr(quiz, "user", None)
     template = getattr(quiz, "quiz_template", None)
     if not user or not template:
         return
-    send_user_email(
+    notify(
         user=user,
-        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["result_available_subject"],
-        body_builder=lambda _u: _build_visibility_body(quiz, scope="result"),
-        html_builder=lambda _u: _build_visibility_html(quiz, scope="result"),
+        kind=KIND_QUIZ_RESULT_AVAILABLE,
+        payload={
+            "quiz_id": getattr(quiz, "id", None),
+            "template_id": getattr(template, "id", None),
+            "template_title": getattr(template, "title", ""),
+        },
+        domain=getattr(template, "domain", None),
+        email_callable=lambda: send_user_email(
+            user=user,
+            subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["result_available_subject"],
+            body_builder=lambda _u: _build_visibility_body(quiz, scope="result"),
+            html_builder=lambda _u: _build_visibility_html(quiz, scope="result"),
+        ),
     )
 
 
 def send_detail_available_email(quiz) -> None:
+    from customuser.notifications import KIND_QUIZ_DETAIL_AVAILABLE, notify
     user = getattr(quiz, "user", None)
     template = getattr(quiz, "quiz_template", None)
     if not user or not template:
         return
-    send_user_email(
+    notify(
         user=user,
-        subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["detail_available_subject"],
-        body_builder=lambda _u: _build_visibility_body(quiz, scope="detail"),
-        html_builder=lambda _u: _build_visibility_html(quiz, scope="detail"),
+        kind=KIND_QUIZ_DETAIL_AVAILABLE,
+        payload={
+            "quiz_id": getattr(quiz, "id", None),
+            "template_id": getattr(template, "id", None),
+            "template_title": getattr(template, "title", ""),
+        },
+        domain=getattr(template, "domain", None),
+        email_callable=lambda: send_user_email(
+            user=user,
+            subject_builder=lambda u: _quiz_copy(getattr(u, "language", None))["detail_available_subject"],
+            body_builder=lambda _u: _build_visibility_body(quiz, scope="detail"),
+            html_builder=lambda _u: _build_visibility_html(quiz, scope="detail"),
+        ),
     )

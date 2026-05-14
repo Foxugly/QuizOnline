@@ -80,23 +80,7 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
     Bound to ``future_owner.email`` — the accept endpoint will refuse
     any other authenticated user.
     """
-    from customuser.notifications import (
-        KIND_TRANSFER_RECEIVED, emit_notification, notification_enabled,
-    )
-    emit_notification(
-        user=future_owner,
-        kind=KIND_TRANSFER_RECEIVED,
-        payload={
-            "domain_id": domain.id,
-            "domain_name": _domain_name_for(domain),
-            "initiator_id": getattr(initiator, "id", None),
-            "initiator_username": getattr(initiator, "username", ""),
-        },
-    )
-    if not getattr(future_owner, "email", ""):
-        return
-    if not notification_enabled(future_owner, KIND_TRANSFER_RECEIVED):
-        return
+    from customuser.notifications import KIND_TRANSFER_RECEIVED, notify
     token = make_transfer_token(
         domain_id=domain.id,
         future_owner_id=future_owner.id,
@@ -105,7 +89,6 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
     accept_url = frontend_url(f"transfer/accept/{token}")
     domain_name = _domain_name_for(domain)
     initiator_name = getattr(initiator, "get_display_name", lambda: initiator.username)()
-
     copy = _transfer_copy(user_language(future_owner))
     subject = copy["subject"]
     body = (
@@ -131,4 +114,18 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
             {"type": "text", "content": copy["no_action_note"]},
         ],
     )
-    queue_email(subject=subject, body=body, recipients=[future_owner.email], html_body=html)
+
+    notify(
+        user=future_owner,
+        kind=KIND_TRANSFER_RECEIVED,
+        payload={
+            "domain_id": domain.id,
+            "domain_name": domain_name,
+            "initiator_id": getattr(initiator, "id", None),
+            "initiator_username": getattr(initiator, "username", ""),
+        },
+        domain=domain,
+        email_callable=lambda: queue_email(
+            subject=subject, body=body, recipients=[future_owner.email], html_body=html,
+        ),
+    )

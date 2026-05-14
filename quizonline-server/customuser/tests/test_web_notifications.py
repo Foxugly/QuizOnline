@@ -412,3 +412,108 @@ class MailerEmitsWebNotificationTests(TestCase):
                 user=future_owner, kind=KIND_TRANSFER_RECEIVED,
             ).exists()
         )
+
+    def test_domain_settings_can_mute_web_for_invite(self):
+        # Owner toggles "web off" for invitations on this domain.
+        self.domain.notification_settings = {
+            KIND_INVITE_RECEIVED: {"web": False},
+        }
+        self.domain.save(update_fields=["notification_settings"])
+        from core.mailers.domain_invite import send_domain_invite_email
+        send_domain_invite_email(
+            email=self.requester.email, domain=self.domain, inviter=self.owner,
+            language="fr",
+        )
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.requester, kind=KIND_INVITE_RECEIVED,
+            ).exists()
+        )
+
+    def test_user_can_mute_web_independently_of_email(self):
+        from core.mailers.domain_join import send_join_request_approved_email
+        self.requester.notification_prefs = {
+            "domain.join_request.decided": {"web": False},
+        }
+        self.requester.save(update_fields=["notification_prefs"])
+        jr = DomainJoinRequest.objects.create(
+            domain=self.domain, user=self.requester,
+            status=DomainJoinRequest.STATUS_APPROVED,
+        )
+        send_join_request_approved_email(join_request=jr)
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.requester, kind="domain.join_request.decided",
+            ).exists()
+        )
+
+
+class QuizMailerEmitsWebNotificationTests(TestCase):
+    """The 4 quiz mailers should now also produce in-app rows."""
+
+    def setUp(self):
+        from quiz.models import QuizTemplate, Quiz
+        self.creator = User.objects.create_user(
+            username="creator", password="p", email="c@x.test",
+        )
+        self.assignee = User.objects.create_user(
+            username="assignee", password="p", email="a@x.test",
+        )
+        self.domain = Domain.objects.create(
+            owner=self.creator, name="D", active=True,
+        )
+        self.template = QuizTemplate.objects.create(
+            title="T", created_by=self.creator, domain=self.domain,
+        )
+        self.quiz = Quiz.objects.create(
+            quiz_template=self.template, user=self.assignee,
+        )
+
+    def test_quiz_assignment_emits_web(self):
+        from core.mailers.quiz import send_quiz_assignment_email
+        send_quiz_assignment_email(self.quiz)
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.assignee, kind="quiz.assignment",
+                payload__template_title="T",
+            ).exists()
+        )
+
+    def test_quiz_completed_emits_web_to_creator(self):
+        from core.mailers.quiz import send_quiz_completed_email
+        send_quiz_completed_email(self.quiz)
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.creator, kind="quiz.completed",
+                payload__user_username="assignee",
+            ).exists()
+        )
+
+    def test_result_available_emits_web(self):
+        from core.mailers.quiz import send_result_available_email
+        send_result_available_email(self.quiz)
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.assignee, kind="quiz.result_available",
+            ).exists()
+        )
+
+    def test_detail_available_emits_web(self):
+        from core.mailers.quiz import send_detail_available_email
+        send_detail_available_email(self.quiz)
+        self.assertTrue(
+            Notification.objects.filter(
+                user=self.assignee, kind="quiz.detail_available",
+            ).exists()
+        )
+
+    def test_domain_can_mute_quiz_assignment_web(self):
+        from core.mailers.quiz import send_quiz_assignment_email
+        self.domain.notification_settings = {"quiz.assignment": {"web": False}}
+        self.domain.save(update_fields=["notification_settings"])
+        send_quiz_assignment_email(self.quiz)
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.assignee, kind="quiz.assignment",
+            ).exists()
+        )
