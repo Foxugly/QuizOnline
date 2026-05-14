@@ -21,7 +21,8 @@ from domain.services import compute_join_request_analytics, resolve_analytics_ra
 
 
 class DomainAnalyticsActionsMixin:
-    """Adds the ``analytics`` and ``analytics/export`` endpoints to ``DomainViewSet``."""
+    # See ``audit.py`` for why this mixin intentionally has no class
+    # docstring (drf-spectacular fallback rules).
 
     @extend_schema(
         tags=["Domain"],

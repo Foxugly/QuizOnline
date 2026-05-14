@@ -24,7 +24,8 @@ from ._helpers import client_ip
 
 
 class DomainTransferActionsMixin:
-    """Adds the ``transfer`` endpoint to ``DomainViewSet``."""
+    # See ``audit.py`` for why this mixin intentionally has no class
+    # docstring (drf-spectacular fallback rules).
 
     @extend_schema(
         tags=["Domain"],

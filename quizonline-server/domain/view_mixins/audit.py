@@ -56,7 +56,11 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
 
 
 class DomainAuditActionsMixin:
-    """Adds the ``audit`` and ``audit/actions`` endpoints to ``DomainViewSet``."""
+    # No class docstring on purpose: drf-spectacular falls back to the
+    # host view's class docstring when an ``@action`` has no explicit
+    # ``description``, so a mixin docstring would leak into the OpenAPI
+    # description of every action that doesn't set its own. See the
+    # module docstring above for the actual purpose of this mixin.
 
     @extend_schema(
         tags=["Domain"],

@@ -78,7 +78,8 @@ class _DomainInviteThrottle(ScopedRateThrottle):
 
 
 class DomainInvitationsActionsMixin:
-    """Adds the four invitation endpoints to ``DomainViewSet``."""
+    # See ``audit.py`` for why this mixin intentionally has no class
+    # docstring (drf-spectacular fallback rules).
 
     @extend_schema(
         tags=["Domain"],

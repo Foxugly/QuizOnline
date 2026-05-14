@@ -38,7 +38,8 @@ from ._helpers import client_ip
 
 
 class DomainMembersActionsMixin:
-    """Adds the ``member-role``, ``moderation-summary`` and ``leave`` endpoints."""
+    # See ``audit.py`` for why this mixin intentionally has no class
+    # docstring (drf-spectacular fallback rules).
 
     @extend_schema(
         tags=["Domain"],
