@@ -132,11 +132,11 @@
                   [options]="auditActionOptions()"
                   optionLabel="label"
                   optionValue="value"
-                  [ngModel]="auditFilterAction()"
-                  (ngModelChange)="auditFilterAction.set($event ?? '')"
+                  [ngModel]="audit.filterAction()"
+                  (ngModelChange)="audit.filterAction.set($event ?? '')"
                   [showClear]="true"
                   [placeholder]="editText().audit.filterActionPlaceholder"
-                  (onChange)="applyAuditFilters()"
+                  (onChange)="audit.apply()"
                   appendTo="body">
                 </p-select>
               </div>
@@ -147,11 +147,11 @@
                   id="audit-filter-actor"
                   pInputText
                   type="text"
-                  [ngModel]="auditFilterActor()"
-                  (ngModelChange)="auditFilterActor.set($event)"
+                  [ngModel]="audit.filterActor()"
+                  (ngModelChange)="audit.filterActor.set($event)"
                   [placeholder]="editText().audit.filterActorPlaceholder"
-                  (keydown.enter)="applyAuditFilters()"
-                  (blur)="applyAuditFilters()">
+                  (keydown.enter)="audit.apply()"
+                  (blur)="audit.apply()">
               </div>
 
               <div class="audit-filter">
@@ -161,8 +161,8 @@
                   appendTo="body"
                   dateFormat="yy-mm-dd"
                   [showButtonBar]="true"
-                  [ngModel]="auditFilterSinceDate()"
-                  (ngModelChange)="onAuditDateChange('since', $event)">
+                  [ngModel]="audit.filterSinceDate()"
+                  (ngModelChange)="audit.onDateChange('since', $event)">
                 </p-datepicker>
               </div>
 
@@ -173,8 +173,8 @@
                   appendTo="body"
                   dateFormat="yy-mm-dd"
                   [showButtonBar]="true"
-                  [ngModel]="auditFilterUntilDate()"
-                  (ngModelChange)="onAuditDateChange('until', $event)">
+                  [ngModel]="audit.filterUntilDate()"
+                  (ngModelChange)="audit.onDateChange('until', $event)">
                 </p-datepicker>
               </div>
 
@@ -186,20 +186,20 @@
                   [outlined]="true"
                   size="small"
                   [label]="editText().audit.filterClear"
-                  (click)="clearAuditFilters()">
+                  (click)="audit.clear()">
                 </button>
               </div>
             </div>
 
             <p-table
-              [value]="auditRows()"
+              [value]="audit.rows()"
               [lazy]="true"
               [paginator]="true"
-              [rows]="auditPageSize"
-              [totalRecords]="auditTotal()"
-              [loading]="auditLoading()"
-              [first]="(auditPage() - 1) * auditPageSize"
-              (onLazyLoad)="onAuditLazyLoad($event)"
+              [rows]="audit.pageSize"
+              [totalRecords]="audit.total()"
+              [loading]="audit.loading()"
+              [first]="(audit.page() - 1) * audit.pageSize"
+              (onLazyLoad)="audit.onLazyLoad($event)"
               [showCurrentPageReport]="true"
               [currentPageReportTemplate]="editText().audit.pageReport"
               styleClass="table"
