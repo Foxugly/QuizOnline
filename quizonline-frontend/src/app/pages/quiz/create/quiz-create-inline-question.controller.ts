@@ -35,9 +35,10 @@ export interface InlineQuestionDialogBinding {
   /**
    * Surface a top-of-page error (e.g. translation API failure). Kept
    * separate from the dialog-local submit error because the message
-   * targets a banner the dialog cannot host itself.
+   * targets a banner the dialog cannot host itself. Passing ``null``
+   * clears the banner.
    */
-  readonly onPageError: (message: string) => void;
+  readonly onPageError: (message: string | null) => void;
   /** Localised label for "domain required first" page-level error. */
   readonly domainRequiredFirstMessage: () => string;
 }

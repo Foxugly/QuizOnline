@@ -5,6 +5,7 @@ import {FormGroup, Validators, NonNullableFormBuilder, ReactiveFormsModule} from
 import {ActivatedRoute} from '@angular/router';
 import {firstValueFrom, forkJoin, of} from 'rxjs';
 import {finalize} from 'rxjs/operators';
+import {QuizCreateTemplateTranslationsController} from './quiz-create-template-translations.controller';
 
 import {Translation} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -42,7 +43,7 @@ import {QuestionService} from '../../../services/question/question';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 import {SubjectService} from '../../../services/subject/subject';
-import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
+import {LangCode} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
@@ -52,12 +53,8 @@ import {getQuizCreateUiText} from './quiz-create.i18n';
 import {QuizCreateInlineQuestionController} from './quiz-create-inline-question.controller';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
-type QuizTemplateTranslationValue = {
-  title: string;
-  description: string;
-};
+import {QuizTemplateTranslations} from './quiz-create-template-translations.controller';
 
-type QuizTemplateTranslations = Record<string, QuizTemplateTranslationValue>;
 type QuizTemplateLocalizedDto = QuizTemplateDto & {translations?: QuizTemplateTranslations};
 type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {translations?: QuizTemplateTranslations};
 
@@ -88,7 +85,7 @@ type QuizTemplateLocalizedWriteRequestDto = QuizTemplateWriteRequestDto & {trans
   templateUrl: './quiz-create.html',
   styleUrl: './quiz-create.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [QuizCreateInlineQuestionController],
+  providers: [QuizCreateInlineQuestionController, QuizCreateTemplateTranslationsController],
 })
 export class QuizCreate implements OnInit {
 
@@ -105,9 +102,8 @@ export class QuizCreate implements OnInit {
    */
   protected readonly questionDialog = inject(QuizCreateInlineQuestionController);
 
-  quizTemplateLangs = signal<LangCode[]>([]);
-  quizTemplateActiveLang = signal<LangCode | null>(null);
-  quizTemplateTranslating = signal(false);
+  /** Per-language title/description tabs + translate-call orchestration. */
+  protected readonly templateTranslations = inject(QuizCreateTemplateTranslationsController);
 
   domains = signal<DomainReadDto[]>([]);
   subjects = signal<SubjectReadDto[]>([]);
@@ -155,7 +151,6 @@ export class QuizCreate implements OnInit {
   private readonly questionService = inject(QuestionService);
   private readonly quizTemplateService = inject(QuizTemplateService);
   private readonly quizService = inject(QuizService);
-  private readonly translationService = inject(TranslationService);
   private readonly userService = inject(UserService);
   private preserveSelectionOnNextDomainChange = false;
 
@@ -252,7 +247,7 @@ export class QuizCreate implements OnInit {
       !this.saving() &&
       !!this.selectedDomainId() &&
       this.quizFormValid() &&
-      this.hasQuizTemplateTitle() &&
+      this.templateTranslations.hasTitle() &&
       this.selectedQuestions().length > 0;
   });
 
@@ -302,17 +297,26 @@ export class QuizCreate implements OnInit {
       domainRequiredFirstMessage: () => this.editorUi().pages.quizCreate.errors.domainRequiredFirst,
     });
 
+    this.templateTranslations.bind({
+      getTranslationsGroup: () => this.quizForm.controls.translations as FormGroup,
+      currentLang: () => this.currentLang(),
+      onLocalizedSync: ({title, description}) => {
+        this.quizForm.controls.title.setValue(title, {emitEvent: false});
+        this.quizForm.controls.description.setValue(description, {emitEvent: false});
+      },
+      onPageError: (message) => this.submitError.set(message),
+      onTranslationsChanged: () => this.quizFormValid.set(this.quizForm.valid && this.templateTranslations.hasTitle()),
+    });
+
     effect(() => {
       const nextLang = this.userService.lang() as LanguageEnumDto;
       this.currentLang.set(nextLang);
       this.applyDatePickerLocale(nextLang);
 
-      if (this.quizTemplateLangs().includes(nextLang as LangCode)) {
-        this.quizTemplateActiveLang.set(nextLang as LangCode);
-      }
+      this.templateTranslations.syncActiveLang(nextLang as LangCode);
       this.questionDialog.syncActiveLang(nextLang as LangCode);
 
-      const localized = this.selectQuizTemplateTranslation(this.collectQuizTemplateTranslations());
+      const localized = this.templateTranslations.selectActive();
       this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
       this.quizForm.controls.description.setValue(localized.description, {emitEvent: false});
     }, {injector: this.injector});
@@ -403,10 +407,10 @@ export class QuizCreate implements OnInit {
 
     this.quizForm.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle()));
+      .subscribe(() => this.quizFormValid.set(this.quizForm.valid && this.templateTranslations.hasTitle()));
 
     this.selectedDomainId.set(Number(this.quizForm.controls.domain.value ?? 0));
-    this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle());
+    this.quizFormValid.set(this.quizForm.valid && this.templateTranslations.hasTitle());
 
     this.loading.set(true);
     forkJoin({
@@ -463,13 +467,6 @@ export class QuizCreate implements OnInit {
     } else {
       this.activeEditorTab.set('texts');
     }
-  }
-
-  onQuizTemplateTabChange(value: string | number | undefined): void {
-    if (value === undefined || value === null) {
-      return;
-    }
-    this.quizTemplateActiveLang.set(String(value) as LangCode);
   }
 
   addExistingQuestion(question: QuestionReadDto): void {
@@ -549,56 +546,6 @@ export class QuizCreate implements OnInit {
     )));
   }
 
-  async translateQuizTemplate(): Promise<void> {
-    const sourceLang = this.quizTemplateActiveLang();
-    const sourceGroup = sourceLang ? this.quizTemplateTranslationGroup(sourceLang) : null;
-    if (!sourceLang || !sourceGroup) {
-      return;
-    }
-
-    this.quizTemplateTranslating.set(true);
-    this.submitError.set(null);
-
-    try {
-      for (const targetLang of this.quizTemplateLangs()) {
-        if (targetLang === sourceLang) {
-          continue;
-        }
-
-        const targetGroup = this.quizTemplateTranslationGroup(targetLang);
-        if (!targetGroup) {
-          continue;
-        }
-
-        const items: TranslateBatchItem[] = [];
-        if (!(targetGroup.controls["title"].value ?? '').trim()) {
-          items.push({key: 'title', text: sourceGroup.controls["title"].value ?? '', format: 'text'});
-        }
-        if (!(targetGroup.controls["description"].value ?? '').trim()) {
-          items.push({key: 'description', text: sourceGroup.controls["description"].value ?? '', format: 'text'});
-        }
-
-        if (!items.length) {
-          continue;
-        }
-
-        const translated = await this.translationService.translateBatch(sourceLang, targetLang, items);
-        if (translated["title"] !== undefined) {
-          targetGroup.controls["title"].setValue(translated["title"]);
-        }
-        if (translated["description"] !== undefined) {
-          targetGroup.controls["description"].setValue(translated["description"]);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      this.submitError.set(this.editorUi().pages.quizCreate.errors.translateTemplateFailed);
-    } finally {
-      this.quizTemplateTranslating.set(false);
-      this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle());
-    }
-  }
-
   async saveQuiz(): Promise<void> {
     this.submitError.set(null);
     this.error.set(null);
@@ -608,7 +555,7 @@ export class QuizCreate implements OnInit {
       return;
     }
 
-    if (!this.hasQuizTemplateTitle()) {
+    if (!this.templateTranslations.hasTitle()) {
       this.quizForm.markAllAsTouched();
       this.submitError.set(this.uiText().translationRequired);
       return;
@@ -709,14 +656,14 @@ export class QuizCreate implements OnInit {
     this.preserveSelectionOnNextDomainChange = false;
 
     if (!domainId) {
-      this.configureQuizTemplateTranslations([LanguageEnumDto.Fr as LangCode]);
+      this.templateTranslations.configure([LanguageEnumDto.Fr as LangCode]);
       this.questionDialog.clear();
       return;
     }
 
-    this.configureQuizTemplateTranslations(
+    this.templateTranslations.configure(
       this.resolveDomainLanguages(this.domains().find((domain) => domain.id === domainId) ?? null),
-      this.collectQuizTemplateTranslations(),
+      this.templateTranslations.collect(),
     );
     this.questionDialog.reset();
     this.questionsLoading.set(true);
@@ -741,8 +688,8 @@ export class QuizCreate implements OnInit {
   }
 
   private buildQuizTemplatePayload(): QuizTemplateWriteRequestDto {
-    const translations = this.collectQuizTemplateTranslations();
-    const localized = this.selectQuizTemplateTranslation(translations);
+    const translations = this.templateTranslations.collect();
+    const localized = this.templateTranslations.selectActive(translations);
 
     this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
     this.quizForm.controls.description.setValue(localized.description, {emitEvent: false});
@@ -823,7 +770,7 @@ export class QuizCreate implements OnInit {
     const withDuration = template.with_duration ?? false;
     const resultVisibility = template.result_visibility ?? VisibilityEnumDto.Immediate;
     const detailVisibility = template.detail_visibility ?? VisibilityEnumDto.Immediate;
-    const translations = localizedTemplate.translations ?? this.buildFallbackTemplateTranslations(template);
+    const translations = localizedTemplate.translations ?? this.templateTranslations.buildFallback(template);
 
     this.selectedQuestions.set(selectedQuestions);
     this.originalQuizQuestionIds.set((template.quiz_questions ?? []).map((quizQuestion) => quizQuestion.id));
@@ -874,96 +821,13 @@ export class QuizCreate implements OnInit {
     }
 
     this.selectedDomainId.set(domainId);
-    this.configureQuizTemplateTranslations(
+    this.templateTranslations.configure(
       this.resolveDomainLanguages(this.domains().find((domain) => domain.id === domainId) ?? null),
       translations,
     );
-    this.quizFormValid.set(this.quizForm.valid && this.hasQuizTemplateTitle());
+    this.quizFormValid.set(this.quizForm.valid && this.templateTranslations.hasTitle());
     this.preserveSelectionOnNextDomainChange = true;
     this.onDomainSelected(domainId);
-  }
-
-  private configureQuizTemplateTranslations(
-    langs: LangCode[],
-    seed: QuizTemplateTranslations = {},
-  ): void {
-    const resolvedLangs = langs.length ? langs : [LanguageEnumDto.Fr as LangCode];
-    const translationsGroup = this.quizTranslationsGroup();
-    const existing = this.collectQuizTemplateTranslations();
-
-    Object.keys(translationsGroup.controls).forEach((code) => translationsGroup.removeControl(code));
-
-    for (const lang of resolvedLangs) {
-      const value = seed[lang] ?? existing[lang] ?? {title: '', description: ''};
-      translationsGroup.addControl(lang, this.fb.group({
-        title: [value.title ?? ''],
-        description: [value.description ?? ''],
-      }));
-    }
-
-    const active = resolvedLangs.includes(this.currentLang() as LangCode)
-      ? this.currentLang() as LangCode
-      : resolvedLangs[0] ?? null;
-    this.quizTemplateLangs.set(resolvedLangs);
-    this.quizTemplateActiveLang.set(active);
-
-    const localized = this.selectQuizTemplateTranslation(this.collectQuizTemplateTranslations());
-    this.quizForm.controls.title.setValue(localized.title, {emitEvent: false});
-    this.quizForm.controls.description.setValue(localized.description, {emitEvent: false});
-  }
-
-  private quizTranslationsGroup(): FormGroup {
-    return this.quizForm.controls.translations as FormGroup;
-  }
-
-  private quizTemplateTranslationGroup(lang: string): FormGroup | null {
-    const group = this.quizTranslationsGroup().get(lang);
-    return group instanceof FormGroup ? group : null;
-  }
-
-  private collectQuizTemplateTranslations(): QuizTemplateTranslations {
-    const raw = this.quizTranslationsGroup().getRawValue() as Record<string, QuizTemplateTranslationValue>;
-    const translations: QuizTemplateTranslations = {};
-    for (const [lang, value] of Object.entries(raw ?? {})) {
-      translations[lang] = {
-        title: value?.title?.trim() ?? '',
-        description: value?.description?.trim() ?? '',
-      };
-    }
-    return translations;
-  }
-
-  private selectQuizTemplateTranslation(translations: QuizTemplateTranslations): QuizTemplateTranslationValue {
-    const current = translations[this.currentLang()];
-    if (current?.title?.trim()) {
-      return current;
-    }
-    for (const lang of this.quizTemplateLangs()) {
-      const value = translations[lang];
-      if (value?.title?.trim()) {
-        return value;
-      }
-    }
-    for (const value of Object.values(translations)) {
-      if (value?.title?.trim()) {
-        return value;
-      }
-    }
-    return {title: '', description: ''};
-  }
-
-  private hasQuizTemplateTitle(): boolean {
-    return Object.values(this.collectQuizTemplateTranslations()).some((value) => !!value.title.trim());
-  }
-
-  private buildFallbackTemplateTranslations(template: QuizTemplateDto): QuizTemplateTranslations {
-    const lang = (this.currentLang() || LanguageEnumDto.Fr) as LangCode;
-    return {
-      [lang]: {
-        title: template.title ?? '',
-        description: template.description ?? '',
-      },
-    };
   }
 
   private resolveDomainLanguages(domain: DomainReadDto | null): LangCode[] {

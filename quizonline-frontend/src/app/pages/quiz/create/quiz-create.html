@@ -56,21 +56,21 @@
           <p-tabpanel value="texts">
             <div class="builder-pane">
               <div class="translations-card" formGroupName="translations">
-                @if (quizTemplateLangs().length > 0) {
+                @if (templateTranslations.langs().length > 0) {
                   <p-tabs
-                    (valueChange)="onQuizTemplateTabChange($event)"
-                    [value]="quizTemplateActiveLang() ?? undefined"
+                    (valueChange)="templateTranslations.onTabChange($event)"
+                    [value]="templateTranslations.activeLang() ?? undefined"
                     class="translations-tabs">
 
                     <p-tablist>
-                      @for (lang of quizTemplateLangs(); track lang) {
+                      @for (lang of templateTranslations.langs(); track lang) {
                         <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
                       }
                       <div class="tablist-actions">
                         <p-button
-                          (onClick)="translateQuizTemplate()"
-                          [disabled]="quizTemplateTranslating()"
-                          [loading]="quizTemplateTranslating()"
+                          (onClick)="templateTranslations.translate()"
+                          [disabled]="templateTranslations.translating()"
+                          [loading]="templateTranslations.translating()"
                           icon="pi pi-language"
                           [label]="uiText().translateOthers"
                           severity="info"
@@ -81,7 +81,7 @@
                     </p-tablist>
 
                     <p-tabpanels>
-                      @for (lang of quizTemplateLangs(); track lang) {
+                      @for (lang of templateTranslations.langs(); track lang) {
                         <p-tabpanel [value]="lang">
                           <div class="meta-grid" style="grid-template-columns: 1fr;" [formGroupName]="lang">
                             <div class="meta-item meta-item--full">
@@ -99,7 +99,7 @@
                             </div>
                           </div>
 
-                          @if (quizTemplateTranslating()) {
+                          @if (templateTranslations.translating()) {
                             <div class="inline-status">
                               <i class="pi pi-spin pi-spinner"></i>
                               <span>{{ uiText().translating }}</span>
