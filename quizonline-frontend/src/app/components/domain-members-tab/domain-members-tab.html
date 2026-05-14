@@ -71,7 +71,11 @@
       </ng-template>
     </p-table>
   } @else {
-    <p class="muted">{{ text().members.membersNone }}</p>
+    <app-empty-state
+      icon="pi pi-users"
+      density="compact"
+      [title]="text().members.membersNone">
+    </app-empty-state>
   }
 </section>
 

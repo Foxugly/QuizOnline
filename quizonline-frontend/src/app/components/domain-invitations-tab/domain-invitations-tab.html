@@ -123,8 +123,12 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td [attr.colspan]="(canBulk() ? 1 : 0) + (canModerate() ? 9 : 8)" class="text-center p-4">
-          {{ adminLabels().noRequests }}
+        <td [attr.colspan]="(canBulk() ? 1 : 0) + (canModerate() ? 9 : 8)">
+          <app-empty-state
+            icon="pi pi-inbox"
+            density="compact"
+            [title]="adminLabels().noRequests">
+          </app-empty-state>
         </td>
       </tr>
     </ng-template>
@@ -182,7 +186,11 @@
         </ng-template>
       </p-table>
     } @else {
-      <p class="muted">{{ text().members.invitationsEmpty }}</p>
+      <app-empty-state
+        icon="pi pi-envelope"
+        density="compact"
+        [title]="text().members.invitationsEmpty">
+      </app-empty-state>
     }
   }
 </section>

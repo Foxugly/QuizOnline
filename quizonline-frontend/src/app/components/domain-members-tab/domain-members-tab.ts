@@ -10,6 +10,7 @@ import {ConfirmationService} from 'primeng/api';
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
 import {UserSummaryDto} from '../../api/generated/model/user-summary';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
+import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 
 type MemberRow = {
   id: number;
@@ -36,6 +37,7 @@ export type AdditionalDomainOption = {label: string; value: number};
     TableModule,
     TagModule,
     TooltipModule,
+    EmptyStateComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './domain-members-tab.html',

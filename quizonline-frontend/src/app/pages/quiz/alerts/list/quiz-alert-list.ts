@@ -15,20 +15,23 @@ import {QuizAlertService, QuizAlertThreadListDto} from '../../../../services/qui
 import {UserService} from '../../../../services/user/user';
 import {ROUTES} from '../../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
+import {EmptyStateComponent} from '../../../../shared/components/empty-state/empty-state';
 import {formatLocalizedDateTime} from '../../../../shared/i18n/date-time';
+import {getQuizAlertListUiText} from './quiz-alert-list.i18n';
 
 type AlertStatusFilter = 'all' | 'open' | 'closed';
 type AlertReadFilter = 'all' | 'unread' | 'read';
 
 @Component({
   selector: 'app-quiz-alert-list',
-  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, InputTextModule, SelectModule, TagModule, EmptyStateComponent],
   templateUrl: './quiz-alert-list.html',
   styleUrl: './quiz-alert-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizAlertList implements OnInit {
   readonly editorUi = inject(UiTextService).editor;
+  readonly pageText = inject(UiTextService).localized(getQuizAlertListUiText);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly threads = signal<QuizAlertThreadListDto[]>([]);

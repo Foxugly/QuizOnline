@@ -41,9 +41,11 @@
       <p>Chargement des messages...</p>
     </p-card>
   } @else if (!filteredThreads().length) {
-    <p-card styleClass="alert-card">
-      <p>Aucun message ne correspond au filtre.</p>
-    </p-card>
+    <app-empty-state
+      icon="pi pi-envelope"
+      [title]="pageText().empty.title"
+      [hint]="pageText().empty.hint">
+    </app-empty-state>
   } @else {
     <div class="alert-list">
       @for (thread of filteredThreads(); track thread.id) {
