@@ -1504,11 +1504,15 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self._auth(self.u1)
         res = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data["answer_correctness_state"], "full")
+        # Quiz is still answerable here (active + started_at set), so
+        # the correction must stay hidden regardless of practice mode.
+        # The i18n behaviour we're testing is independent of that.
+        self.assertEqual(res.data["answer_correctness_state"], "unknown")
         question_payload = res.data["questions"][0]["question"]
         self.assertEqual(question_payload["translations"]["en"]["title"], "Question EN")
         self.assertEqual(question_payload["answer_options"][0]["content"], "Answer EN")
         self.assertIn("is_correct", question_payload["answer_options"][0])
+        self.assertIsNone(question_payload["answer_options"][0]["is_correct"])
 
     def test_quiz_retrieve_returns_unknown_correctness_for_running_exam(self):
         qt_exam = QuizTemplate.objects.create(

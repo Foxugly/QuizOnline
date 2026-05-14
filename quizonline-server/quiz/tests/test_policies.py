@@ -63,9 +63,31 @@ class QuizPoliciesTestCase(TestCase):
         self.assertTrue(is_quiz_admin(self.staff))
         self.assertTrue(is_quiz_admin(superuser))
 
-    def test_practice_quiz_returns_full_correctness_for_regular_user(self):
+    def test_practice_quiz_hides_correctness_while_answering(self):
+        """While the practice quiz is still answerable, the green/red
+        markers must stay hidden — otherwise the correct answer is
+        visible before the user picks one, defeating the whole point
+        of practice."""
         quiz = self.make_quiz(self.make_template(mode=QuizTemplate.MODE_PRACTICE))
 
+        self.assertTrue(quiz.can_answer)
+        self.assertEqual(
+            answer_correctness_state(quiz=quiz, user=self.owner),
+            ANSWER_CORRECTNESS_UNKNOWN,
+        )
+
+    def test_closed_practice_quiz_reveals_correctness(self):
+        """Once the practice attempt is closed (deactivated by the
+        submit flow, or the window has elapsed), the correction
+        becomes visible — that's the learning payoff of practice
+        mode."""
+        quiz = self.make_quiz(
+            self.make_template(mode=QuizTemplate.MODE_PRACTICE),
+            active=False,
+            ended_at=timezone.now(),
+        )
+
+        self.assertFalse(quiz.can_answer)
         self.assertEqual(
             answer_correctness_state(quiz=quiz, user=self.owner),
             ANSWER_CORRECTNESS_FULL,
