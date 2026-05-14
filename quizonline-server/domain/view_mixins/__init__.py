@@ -9,8 +9,10 @@ its own ``@action`` methods, helpers and OpenAPI schemas. The main
 Re-exporting from this package keeps ``views.py`` imports tidy.
 """
 
+from .analytics import DomainAnalyticsActionsMixin
 from .audit import DomainAuditActionsMixin
 
 __all__ = [
+    "DomainAnalyticsActionsMixin",
     "DomainAuditActionsMixin",
 ]
