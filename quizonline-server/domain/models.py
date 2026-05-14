@@ -64,6 +64,13 @@ class Domain(AuditMixin, TranslatableModel):
         related_name="linked_domains",
     )
 
+    # Per-kind, per-channel notification gates owned by the *domain*.
+    # Shape: ``{kind: {"email": bool, "web": bool}}``. Missing keys or
+    # channels default to ``True`` (enabled). The user side
+    # (``CustomUser.notification_prefs``) is intersected with this at
+    # emission time — either side saying False mutes the channel.
+    notification_settings = models.JSONField(default=dict, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -187,6 +187,136 @@ class NotificationApiSoftDeleteTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
 
+class TwoChannelResolutionTests(TestCase):
+    """Resolve the (domain × user × kind × channel) intersection."""
+
+    def setUp(self):
+        from customuser.notifications import channel_enabled, notify
+        self.channel_enabled = channel_enabled
+        self.notify = notify
+        self.user = User.objects.create_user(
+            username="u", password="p", email="u@x.test",
+        )
+        self.owner = User.objects.create_user(username="o", password="p")
+        self.domain = Domain.objects.create(
+            owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
+        )
+
+    def test_default_both_channels_enabled(self):
+        self.assertTrue(self.channel_enabled(user=self.user, kind="x", channel="email"))
+        self.assertTrue(self.channel_enabled(user=self.user, kind="x", channel="web"))
+
+    def test_user_can_mute_web_independently(self):
+        self.user.notification_prefs = {"x": {"web": False}}
+        self.user.save(update_fields=["notification_prefs"])
+        self.assertTrue(self.channel_enabled(user=self.user, kind="x", channel="email"))
+        self.assertFalse(self.channel_enabled(user=self.user, kind="x", channel="web"))
+
+    def test_user_can_mute_email_independently(self):
+        self.user.notification_prefs = {"x": {"email": False}}
+        self.user.save(update_fields=["notification_prefs"])
+        self.assertFalse(self.channel_enabled(user=self.user, kind="x", channel="email"))
+        self.assertTrue(self.channel_enabled(user=self.user, kind="x", channel="web"))
+
+    def test_domain_mutes_for_everyone(self):
+        self.domain.notification_settings = {"x": {"web": False}}
+        self.domain.save(update_fields=["notification_settings"])
+        self.assertFalse(self.channel_enabled(
+            user=self.user, kind="x", channel="web", domain=self.domain,
+        ))
+
+    def test_legacy_bool_false_means_email_off(self):
+        # ``notification_enabled`` was the legacy gate, still asks "is
+        # the email channel on at the user level?".
+        from customuser.notifications import notification_enabled
+        self.user.notification_prefs = {"x": False}
+        self.user.save(update_fields=["notification_prefs"])
+        self.assertFalse(notification_enabled(self.user, "x"))
+
+    def test_notify_fires_both_channels_by_default(self):
+        called = {"mail": 0}
+        result = self.notify(
+            user=self.user,
+            kind="domain.invite.received",
+            payload={"x": 1},
+            domain=self.domain,
+            email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
+        )
+        self.assertEqual(result, {"web": True, "email": True})
+        self.assertEqual(called["mail"], 1)
+        self.assertTrue(
+            Notification.objects.filter(user=self.user, kind="domain.invite.received").exists()
+        )
+
+    def test_notify_drops_web_when_user_muted_it(self):
+        called = {"mail": 0}
+        self.user.notification_prefs = {"domain.invite.received": {"web": False}}
+        self.user.save(update_fields=["notification_prefs"])
+        result = self.notify(
+            user=self.user,
+            kind="domain.invite.received",
+            email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
+        )
+        self.assertEqual(result, {"web": False, "email": True})
+        self.assertEqual(called["mail"], 1)
+        self.assertFalse(Notification.objects.filter(user=self.user).exists())
+
+    def test_notify_drops_email_when_domain_muted_it(self):
+        called = {"mail": 0}
+        self.domain.notification_settings = {
+            "domain.invite.received": {"email": False},
+        }
+        self.domain.save(update_fields=["notification_settings"])
+        result = self.notify(
+            user=self.user,
+            kind="domain.invite.received",
+            domain=self.domain,
+            email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
+        )
+        self.assertEqual(result, {"web": True, "email": False})
+        self.assertEqual(called["mail"], 0)
+
+    def test_notify_no_email_when_user_has_no_address(self):
+        called = {"mail": 0}
+        self.user.email = ""
+        self.user.save(update_fields=["email"])
+        result = self.notify(
+            user=self.user,
+            kind="x",
+            email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
+        )
+        self.assertEqual(result, {"web": True, "email": False})
+        self.assertEqual(called["mail"], 0)
+
+
+class NormalizePrefsTwoChannelTests(TestCase):
+    def test_accepts_new_shape(self):
+        from customuser.notifications import normalize_prefs
+        out = normalize_prefs({
+            "domain.invite.received": {"email": False, "web": True},
+            "domain.transfer.received": {"email": False, "web": False},
+        })
+        # ``True`` values are stripped (sparse), only False persisted.
+        self.assertEqual(out["domain.invite.received"], {"email": False})
+        self.assertEqual(out["domain.transfer.received"], {"email": False, "web": False})
+
+    def test_back_compat_with_legacy_bool(self):
+        from customuser.notifications import normalize_prefs
+        out = normalize_prefs({"domain.invite.received": False})
+        self.assertEqual(out["domain.invite.received"], {"email": False})
+
+    def test_unknown_kinds_are_dropped(self):
+        from customuser.notifications import normalize_prefs
+        out = normalize_prefs({"made.up.kind": {"email": False}})
+        self.assertEqual(out, {})
+
+    def test_garbage_inputs(self):
+        from customuser.notifications import normalize_prefs
+        self.assertEqual(normalize_prefs("nope"), {})
+        self.assertEqual(normalize_prefs(None), {})
+        self.assertEqual(normalize_prefs({"x": "nonsense"}), {})
+
+
 class MailerEmitsWebNotificationTests(TestCase):
     """The 5 mailers must always drop a Notification row."""
 
