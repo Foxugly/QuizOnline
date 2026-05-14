@@ -179,19 +179,39 @@
             <ng-template pTemplate="subtitle">{{ ui().preferences.notificationsSubtitle }}</ng-template>
 
             <div class="form form--stacked">
-              @for (kind of notificationKinds; track kind) {
-                <div class="domain-list__item">
-                  <div class="domain-list__content">
-                    <span class="domain-list__name">{{ notificationKindLabel(kind) }}</span>
+              <div class="notif-prefs__header">
+                <span></span>
+                <span class="notif-prefs__col">{{ ui().preferences.notificationChannelEmail }}</span>
+                <span class="notif-prefs__col">{{ ui().preferences.notificationChannelWeb }}</span>
+              </div>
+
+              @for (role of ['user', 'manager', 'owner']; track role) {
+                @if (hasRole($any(role))) {
+                  <div class="notif-prefs__group">
+                    <h4 class="notif-prefs__group-title">{{ roleLabelFor($any(role)) }}</h4>
+                    @for (entry of notificationCatalog; track entry.kind) {
+                      @if (entry.role === role) {
+                        <div class="notif-prefs__row">
+                          <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
+                          <div class="notif-prefs__col">
+                            <p-toggleswitch
+                              [ngModel]="isChannelEnabled(entry.kind, 'email')"
+                              (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
+                              [disabled]="saving()">
+                            </p-toggleswitch>
+                          </div>
+                          <div class="notif-prefs__col">
+                            <p-toggleswitch
+                              [ngModel]="isChannelEnabled(entry.kind, 'web')"
+                              (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
+                              [disabled]="saving()">
+                            </p-toggleswitch>
+                          </div>
+                        </div>
+                      }
+                    }
                   </div>
-                  <div class="domain-list__actions">
-                    <p-toggleswitch
-                      [ngModel]="isNotificationEnabled(kind)"
-                      (ngModelChange)="toggleNotification(kind, $event)"
-                      [disabled]="saving()">
-                    </p-toggleswitch>
-                  </div>
-                </div>
+                }
               }
             </div>
           </p-card>

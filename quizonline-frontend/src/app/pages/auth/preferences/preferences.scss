@@ -174,6 +174,47 @@
   margin: 0;
 }
 
+.notif-prefs__header,
+.notif-prefs__row {
+  display: grid;
+  grid-template-columns: 1fr 5rem 5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.notif-prefs__header {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-color-secondary, #6b7280);
+  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.notif-prefs__col {
+  text-align: center;
+}
+
+.notif-prefs__row {
+  border-bottom: 1px solid var(--surface-border, #f1f5f9);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.notif-prefs__group-title {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.notif-prefs__label {
+  min-width: 0;
+}
+
 .domain-list__item {
   align-items: center;
   background: rgba(248, 250, 252, 0.9);

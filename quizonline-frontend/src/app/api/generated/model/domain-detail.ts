@@ -26,6 +26,7 @@ export interface DomainDetailDto {
     readonly owner: UserSummaryDto;
     readonly managers: Array<UserSummaryDto>;
     readonly members: Array<UserSummaryDto>;
+    readonly notification_settings: any | null;
     readonly created_at: string;
     readonly updated_at: string;
     readonly subjects: Array<SubjectReadDto>;

@@ -105,6 +105,15 @@ export const NL: UiText = {
     notificationKindJoinRequestExpiry: 'Waarschuwing voor de automatische annulering van een openstaande aanvraag',
     notificationKindInviteReceived: 'Uitnodiging om een domein te vervoegen',
     notificationKindTransferReceived: 'Voorstel voor eigendomsoverdracht',
+    notificationKindQuizAssignment: 'Een quiz is mij toegewezen',
+    notificationKindQuizCompleted: 'Een gebruiker heeft een van mijn quizzen voltooid',
+    notificationKindQuizResultAvailable: 'Mijn score op een quiz is beschikbaar',
+    notificationKindQuizDetailAvailable: 'De gedetailleerde correctie van een quiz is beschikbaar',
+    notificationChannelEmail: 'E-mail',
+    notificationChannelWeb: 'Bel',
+    notificationGroupUser: 'Mijn meldingen',
+    notificationGroupManager: 'Als beheerder',
+    notificationGroupOwner: 'Als eigenaar',
     notificationsSaved: 'Meldingsvoorkeuren opgeslagen.',
   },
   notifications: {
@@ -149,6 +158,14 @@ export const NL: UiText = {
           return `${iu || 'Iemand'} heeft u uitgenodigd voor "${dn}".`;
         case 'domain.transfer.received':
           return `${ii || 'De eigenaar'} stelt u het eigendom van "${dn}" voor.`;
+        case 'quiz.assignment':
+          return `Een nieuwe quiz "${String((payload as {template_title?: string})?.template_title ?? '')}" is aan u toegewezen.`;
+        case 'quiz.completed':
+          return `${String((payload as {user_username?: string})?.user_username ?? 'Een gebruiker')} heeft zojuist "${String((payload as {template_title?: string})?.template_title ?? '')}" voltooid.`;
+        case 'quiz.result_available':
+          return `Uw score op "${String((payload as {template_title?: string})?.template_title ?? '')}" is beschikbaar.`;
+        case 'quiz.detail_available':
+          return `De gedetailleerde correctie van "${String((payload as {template_title?: string})?.template_title ?? '')}" is beschikbaar.`;
         default:
           return kind;
       }

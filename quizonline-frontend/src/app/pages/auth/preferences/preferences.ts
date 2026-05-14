@@ -332,20 +332,58 @@ export class Preferences implements OnInit {
   /**
    * Canonical notification kinds — keep in sync with
    * ``customuser/notifications.py NOTIFICATION_KINDS``.
+   *
+   * Each entry pairs the wire-format kind string with a role
+   * (``user`` | ``manager`` | ``owner``). The UI uses the role to
+   * filter out toggles that do not apply to the current user (a
+   * simple user never receives ``domain.transfer.received``, no
+   * point asking them about it).
    */
-  readonly notificationKinds = [
-    'domain.join_request.created',
-    'domain.join_request.decided',
-    'domain.join_request.expiry_warning',
-    'domain.invite.received',
-    'domain.transfer.received',
-  ] as const;
+  readonly notificationCatalog = [
+    {kind: 'domain.join_request.created', role: 'manager' as const},
+    {kind: 'domain.join_request.decided', role: 'user' as const},
+    {kind: 'domain.join_request.expiry_warning', role: 'user' as const},
+    {kind: 'domain.invite.received', role: 'user' as const},
+    {kind: 'domain.transfer.received', role: 'owner' as const},
+    {kind: 'quiz.assignment', role: 'user' as const},
+    {kind: 'quiz.completed', role: 'owner' as const},
+    {kind: 'quiz.result_available', role: 'user' as const},
+    {kind: 'quiz.detail_available', role: 'user' as const},
+  ];
 
-  /** Whether the given kind is currently enabled for the user (default: yes). */
-  isNotificationEnabled(kind: string): boolean {
+  /** True iff the current user holds at least one role of that kind. */
+  hasRole(role: 'user' | 'manager' | 'owner'): boolean {
+    const me = this.currentUser();
+    if (!me) {
+      return false;
+    }
+    if (role === 'user') {
+      return true;
+    }
+    if (role === 'owner') {
+      return (me.owned_domain_ids ?? []).length > 0 || me.is_superuser === true;
+    }
+    return (
+      (me.managed_domain_ids ?? []).length > 0
+      || (me.owned_domain_ids ?? []).length > 0
+      || me.is_superuser === true
+    );
+  }
+
+  /** Channel-level pref read with both-channels-on as the default. */
+  isChannelEnabled(kind: string, channel: 'email' | 'web'): boolean {
     const me = this.currentUser();
     const prefs = (me?.notification_prefs as Record<string, unknown> | null | undefined) ?? {};
-    return prefs[kind] !== false;
+    const entry = prefs[kind];
+    if (entry === false) {
+      // Legacy boolean shape, only the email channel was muted.
+      return channel === 'web';
+    }
+    if (entry && typeof entry === 'object') {
+      const map = entry as Record<string, unknown>;
+      return map[channel] !== false;
+    }
+    return true;
   }
 
   /** Localised label for a notification kind. */
@@ -362,26 +400,66 @@ export class Preferences implements OnInit {
         return t.notificationKindInviteReceived;
       case 'domain.transfer.received':
         return t.notificationKindTransferReceived;
+      case 'quiz.assignment':
+        return t.notificationKindQuizAssignment;
+      case 'quiz.completed':
+        return t.notificationKindQuizCompleted;
+      case 'quiz.result_available':
+        return t.notificationKindQuizResultAvailable;
+      case 'quiz.detail_available':
+        return t.notificationKindQuizDetailAvailable;
       default:
         return kind;
     }
   }
 
-  /** Toggle one notification kind and persist via the profile update endpoint. */
-  toggleNotification(kind: string, enabled: boolean): void {
+  /** Localised label for a role grouping header. */
+  roleLabelFor(role: 'user' | 'manager' | 'owner'): string {
+    const t = this.ui().preferences;
+    if (role === 'owner') return t.notificationGroupOwner;
+    if (role === 'manager') return t.notificationGroupManager;
+    return t.notificationGroupUser;
+  }
+
+  /**
+   * Flip one channel for one kind and persist. The other channel is
+   * preserved. Either channel staying at ``true`` is encoded by the
+   * absence of that channel from the persisted dict (sparse format).
+   */
+  toggleChannel(kind: string, channel: 'email' | 'web', enabled: boolean): void {
     const me = this.currentUser();
     if (!me) {
       return;
     }
-    const next: Record<string, boolean> = {
-      ...((me.notification_prefs as Record<string, boolean> | null) ?? {}),
-    };
+    const next: Record<string, Record<string, boolean>> = {};
+    const current = (me.notification_prefs as Record<string, unknown> | null) ?? {};
+    // Carry over any other channel mute the user already has, in the
+    // new shape. Legacy ``false`` is treated as ``{email: false}``.
+    for (const [k, v] of Object.entries(current)) {
+      if (v === false) {
+        next[k] = {email: false};
+      } else if (v && typeof v === 'object') {
+        const channelMap: Record<string, boolean> = {};
+        for (const ch of ['email', 'web'] as const) {
+          if ((v as Record<string, unknown>)[ch] === false) {
+            channelMap[ch] = false;
+          }
+        }
+        if (Object.keys(channelMap).length > 0) {
+          next[k] = channelMap;
+        }
+      }
+    }
+    const entry: Record<string, boolean> = {...(next[kind] ?? {})};
     if (enabled) {
-      // Sparse map: missing key = enabled. Strip the explicit-false
-      // entry instead of writing True.
-      delete next[kind];
+      delete entry[channel];
     } else {
-      next[kind] = false;
+      entry[channel] = false;
+    }
+    if (Object.keys(entry).length > 0) {
+      next[kind] = entry;
+    } else {
+      delete next[kind];
     }
     this.saving.set(true);
     this.userService.updateMeProfile({notification_prefs: next as unknown as object} as unknown as Parameters<typeof this.userService.updateMeProfile>[0])

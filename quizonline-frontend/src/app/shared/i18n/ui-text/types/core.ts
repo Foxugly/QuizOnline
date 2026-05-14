@@ -129,5 +129,14 @@ export type PreferencesUiText = {
   notificationKindJoinRequestExpiry: string;
   notificationKindInviteReceived: string;
   notificationKindTransferReceived: string;
+  notificationKindQuizAssignment: string;
+  notificationKindQuizCompleted: string;
+  notificationKindQuizResultAvailable: string;
+  notificationKindQuizDetailAvailable: string;
+  notificationChannelEmail: string;
+  notificationChannelWeb: string;
+  notificationGroupUser: string;
+  notificationGroupManager: string;
+  notificationGroupOwner: string;
   notificationsSaved: string;
 };

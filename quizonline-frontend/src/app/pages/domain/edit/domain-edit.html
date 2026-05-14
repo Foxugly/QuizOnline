@@ -66,6 +66,27 @@
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)">
           </app-domain-editor-form>
+
+          @if (canManageMembers()) {
+            <section class="card form-card domain-notif">
+              <div class="card-head">
+                <h2 class="card-title">{{ editText().notificationSettings.title }}</h2>
+                <p class="muted">{{ editText().notificationSettings.subtitle }}</p>
+              </div>
+              <div class="domain-notif__list">
+                @for (kind of domainNotificationKinds; track kind) {
+                  <div class="domain-notif__row">
+                    <span class="domain-notif__label">{{ domainKindLabel(kind) }}</span>
+                    <p-toggleswitch
+                      [ngModel]="isDomainKindEnabled(kind)"
+                      (ngModelChange)="toggleDomainKind(kind, $event)"
+                      [disabled]="savingDomainNotif()">
+                    </p-toggleswitch>
+                  </div>
+                }
+              </div>
+            </section>
+          }
         </p-tabpanel>
 
         <p-tabpanel value="audit">

@@ -231,6 +231,15 @@ export const FR: UiText = {
     notificationKindJoinRequestExpiry: 'Avertissement avant l\'annulation automatique d\'une demande en attente',
     notificationKindInviteReceived: 'Invitation à rejoindre un domaine',
     notificationKindTransferReceived: 'Proposition de transfert de propriété',
+    notificationKindQuizAssignment: 'Un quiz vient de m\'être assigné',
+    notificationKindQuizCompleted: 'Un utilisateur a terminé un de mes quiz',
+    notificationKindQuizResultAvailable: 'Mon score sur un quiz est disponible',
+    notificationKindQuizDetailAvailable: 'La correction détaillée d\'un quiz est disponible',
+    notificationChannelEmail: 'E-mail',
+    notificationChannelWeb: 'Cloche',
+    notificationGroupUser: 'Mes notifications',
+    notificationGroupManager: 'En tant que gestionnaire',
+    notificationGroupOwner: 'En tant que propriétaire',
     notificationsSaved: 'Préférences de notification enregistrées.',
   },
   notifications: {
@@ -262,6 +271,8 @@ export const FR: UiText = {
       const iu = String((payload as {inviter_username?: string})?.inviter_username ?? '');
       const ii = String((payload as {initiator_username?: string})?.initiator_username ?? '');
       const oc = String((payload as {outcome?: string})?.outcome ?? '');
+      const tt = String((payload as {template_title?: string})?.template_title ?? '');
+      const uu = String((payload as {user_username?: string})?.user_username ?? '');
       switch (kind) {
         case 'domain.join_request.created':
           return `${ru || 'Un utilisateur'} a demandé à rejoindre "${dn}".`;
@@ -275,6 +286,14 @@ export const FR: UiText = {
           return `${iu || 'Quelqu\'un'} t'a invité à rejoindre "${dn}".`;
         case 'domain.transfer.received':
           return `${ii || 'Le propriétaire'} te propose le transfert de "${dn}".`;
+        case 'quiz.assignment':
+          return `Un nouveau quiz "${tt}" t'a été assigné.`;
+        case 'quiz.completed':
+          return `${uu || 'Un utilisateur'} vient de terminer "${tt}".`;
+        case 'quiz.result_available':
+          return `Ton score sur "${tt}" est disponible.`;
+        case 'quiz.detail_available':
+          return `La correction détaillée de "${tt}" est disponible.`;
         default:
           return kind;
       }

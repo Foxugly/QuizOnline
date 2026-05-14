@@ -47,6 +47,7 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "owner",
             "managers",
             "members",
+            "notification_settings",
             "created_at",
             "updated_at",
         ]
@@ -122,6 +123,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
     )
     managers = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=True)
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    notification_settings = serializers.JSONField(required=False)
 
     class Meta:
         model = Domain
@@ -133,6 +135,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "join_policy",
             "owner",
             "managers",
+            "notification_settings",
         ]
         # read_only_fields = ["id"]
 
@@ -171,6 +174,23 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             )
 
         return unique_languages
+
+    def validate_notification_settings(self, value):
+        """
+        Owner-only field. Normalise the payload to the canonical
+        ``{kind: {channel: False}}`` sparse shape so the database
+        never holds invalid combinations and the frontend cannot
+        smuggle unexpected keys in.
+        """
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if self.instance is not None and not getattr(user, "is_superuser", False):
+            if self.instance.owner_id != getattr(user, "id", None):
+                raise DRFPermissionDenied(
+                    "Only the domain owner can change notification settings.",
+                )
+        from customuser.notifications import normalize_domain_settings
+        return normalize_domain_settings(value)
 
     def validate_join_policy(self, value):
         request = self.context.get("request")
@@ -375,6 +395,7 @@ class DomainDetailSerializer(DomainReadSerializer):
             "owner",
             "managers",
             "members",
+            "notification_settings",
             "created_at",
             "updated_at",
             "subjects"

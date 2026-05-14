@@ -17,6 +17,7 @@ export interface DomainWriteDto {
     join_policy?: JoinPolicyEnumDto;
     owner?: number;
     managers: Array<number>;
+    notification_settings?: any | null;
 }
 
 

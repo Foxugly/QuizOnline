@@ -218,10 +218,27 @@ class TwoChannelResolutionTests(TestCase):
         self.assertFalse(self.channel_enabled(user=self.user, kind="x", channel="email"))
         self.assertTrue(self.channel_enabled(user=self.user, kind="x", channel="web"))
 
-    def test_domain_mutes_for_everyone(self):
-        self.domain.notification_settings = {"x": {"web": False}}
+    def test_domain_off_mutes_all_channels(self):
+        """Domain-level on/off: if the domain says off, both email and
+        web are muted regardless of the user's pref."""
+        self.domain.notification_settings = {"x": False}
         self.domain.save(update_fields=["notification_settings"])
         self.assertFalse(self.channel_enabled(
+            user=self.user, kind="x", channel="email", domain=self.domain,
+        ))
+        self.assertFalse(self.channel_enabled(
+            user=self.user, kind="x", channel="web", domain=self.domain,
+        ))
+
+    def test_domain_on_lets_user_pick_channels(self):
+        """Conversely, when the domain says on, the user's channel
+        choice is honoured even if they only want one of the two."""
+        self.user.notification_prefs = {"x": {"email": False}}
+        self.user.save(update_fields=["notification_prefs"])
+        self.assertFalse(self.channel_enabled(
+            user=self.user, kind="x", channel="email", domain=self.domain,
+        ))
+        self.assertTrue(self.channel_enabled(
             user=self.user, kind="x", channel="web", domain=self.domain,
         ))
 
@@ -261,11 +278,10 @@ class TwoChannelResolutionTests(TestCase):
         self.assertEqual(called["mail"], 1)
         self.assertFalse(Notification.objects.filter(user=self.user).exists())
 
-    def test_notify_drops_email_when_domain_muted_it(self):
+    def test_notify_drops_everything_when_domain_off(self):
+        """When the domain mutes the kind, both channels are dropped."""
         called = {"mail": 0}
-        self.domain.notification_settings = {
-            "domain.invite.received": {"email": False},
-        }
+        self.domain.notification_settings = {"domain.invite.received": False}
         self.domain.save(update_fields=["notification_settings"])
         result = self.notify(
             user=self.user,
@@ -273,8 +289,27 @@ class TwoChannelResolutionTests(TestCase):
             domain=self.domain,
             email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
         )
-        self.assertEqual(result, {"web": True, "email": False})
+        self.assertEqual(result, {"web": False, "email": False})
         self.assertEqual(called["mail"], 0)
+
+    def test_notify_resolves_conflict_in_favour_of_user_choice(self):
+        """The classic conflict case: user wants email-only, regardless
+        of what the domain prefers — the domain only gates whether the
+        event is communicated, not how."""
+        called = {"mail": 0}
+        # Domain is on (default).
+        self.user.notification_prefs = {
+            "domain.invite.received": {"web": False},
+        }
+        self.user.save(update_fields=["notification_prefs"])
+        result = self.notify(
+            user=self.user,
+            kind="domain.invite.received",
+            domain=self.domain,
+            email_callable=lambda: called.__setitem__("mail", called["mail"] + 1),
+        )
+        self.assertEqual(result, {"web": False, "email": True})
+        self.assertEqual(called["mail"], 1)
 
     def test_notify_no_email_when_user_has_no_address(self):
         called = {"mail": 0}
@@ -413,13 +448,13 @@ class MailerEmitsWebNotificationTests(TestCase):
             ).exists()
         )
 
-    def test_domain_settings_can_mute_web_for_invite(self):
-        # Owner toggles "web off" for invitations on this domain.
-        self.domain.notification_settings = {
-            KIND_INVITE_RECEIVED: {"web": False},
-        }
+    def test_domain_off_drops_everything_for_invite(self):
+        # Owner turns invitations off entirely for this domain.
+        self.domain.notification_settings = {KIND_INVITE_RECEIVED: False}
         self.domain.save(update_fields=["notification_settings"])
         from core.mailers.domain_invite import send_domain_invite_email
+        from core.models import OutboundEmail
+        OutboundEmail.objects.all().delete()
         send_domain_invite_email(
             email=self.requester.email, domain=self.domain, inviter=self.owner,
             language="fr",
@@ -429,6 +464,7 @@ class MailerEmitsWebNotificationTests(TestCase):
                 user=self.requester, kind=KIND_INVITE_RECEIVED,
             ).exists()
         )
+        self.assertEqual(OutboundEmail.objects.count(), 0)
 
     def test_user_can_mute_web_independently_of_email(self):
         from core.mailers.domain_join import send_join_request_approved_email
@@ -507,9 +543,13 @@ class QuizMailerEmitsWebNotificationTests(TestCase):
             ).exists()
         )
 
-    def test_domain_can_mute_quiz_assignment_web(self):
+    def test_domain_off_silences_quiz_assignment(self):
+        """Owner toggles off quiz.assignment for the whole domain →
+        neither bell nor email is fired."""
         from core.mailers.quiz import send_quiz_assignment_email
-        self.domain.notification_settings = {"quiz.assignment": {"web": False}}
+        from core.models import OutboundEmail
+        OutboundEmail.objects.all().delete()
+        self.domain.notification_settings = {"quiz.assignment": False}
         self.domain.save(update_fields=["notification_settings"])
         send_quiz_assignment_email(self.quiz)
         self.assertFalse(
@@ -517,3 +557,4 @@ class QuizMailerEmitsWebNotificationTests(TestCase):
                 user=self.assignee, kind="quiz.assignment",
             ).exists()
         )
+        self.assertEqual(OutboundEmail.objects.count(), 0)

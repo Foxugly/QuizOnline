@@ -123,19 +123,51 @@ def normalize_prefs(raw) -> dict:
 
 def normalize_domain_settings(raw) -> dict:
     """
-    Same as :func:`normalize_prefs` but for ``Domain.notification_settings``.
-    Domain settings have never had a legacy shape — this is mostly a
-    type-safety pass so the frontend can't smuggle ``{web: "no"}`` into
-    the JSON column.
+    Domain-level settings are one boolean per kind: "do we communicate
+    on this event at all?". ``False`` mutes the whole event for the
+    domain (no email, no web, no anything). ``True`` (or missing) lets
+    the user-level prefs decide which channels to deliver on.
+
+    A previous in-flight design experimented with a per-channel dict
+    here; this function still tolerates that shape so any stale row
+    folds gracefully — an event was "off" iff *both* channels had
+    been explicitly set to False (otherwise the user was meant to
+    receive something through *some* channel).
     """
     if not isinstance(raw, dict):
         return {}
-    out: dict[str, dict[str, bool]] = {}
+    out: dict[str, bool] = {}
     for kind in NOTIFICATION_KINDS:
-        channel_map = _coerce_channel_map(raw.get(kind))
-        if channel_map:
-            out[kind] = channel_map
+        value = raw.get(kind)
+        if value is False:
+            out[kind] = False
+        elif isinstance(value, dict):
+            email_off = value.get(CHANNEL_EMAIL) is False
+            web_off = value.get(CHANNEL_WEB) is False
+            if email_off and web_off:
+                out[kind] = False
+        # True / missing == on (kind emitted by the domain).
     return out
+
+
+def domain_emits(domain, kind: str) -> bool:
+    """
+    True iff ``domain`` allows ``kind`` to be communicated at all.
+    Missing domain or missing key == True (on by default).
+    """
+    if domain is None:
+        return True
+    settings_blob = getattr(domain, "notification_settings", None) or {}
+    value = settings_blob.get(kind)
+    if value is False:
+        return False
+    # Legacy per-channel blob: treat "all channels off" as "kind off".
+    if isinstance(value, dict):
+        email_off = value.get(CHANNEL_EMAIL) is False
+        web_off = value.get(CHANNEL_WEB) is False
+        if email_off and web_off:
+            return False
+    return True
 
 
 # ---------------------------------------------------------------------
@@ -149,20 +181,18 @@ def _channel_enabled_for_user(user, kind: str, channel: str) -> bool:
     return _coerce_channel_map(prefs.get(kind)).get(channel, True)
 
 
-def _channel_enabled_for_domain(domain, kind: str, channel: str) -> bool:
-    if domain is None:
-        return True
-    settings_blob = getattr(domain, "notification_settings", None) or {}
-    return _coerce_channel_map(settings_blob.get(kind)).get(channel, True)
-
-
 def channel_enabled(*, user, kind: str, channel: str, domain=None) -> bool:
     """
-    True iff the (domain × user) intersection allows ``channel`` for
-    ``kind``. Missing maps == on by default; either side saying False
-    mutes the channel.
+    True iff the kind is allowed to flow via ``channel`` for this
+    ``(domain, user)`` pair.
+
+    Resolution: the domain decides *whether the event is communicated
+    at all* (one bool per kind); if it says "off", no channel fires.
+    If it says "on", the user picks which channels they receive on
+    via their per-channel prefs. This split avoids the empty-intersection
+    silence trap where domain and user want different channels.
     """
-    if not _channel_enabled_for_domain(domain, kind, channel):
+    if not domain_emits(domain, kind):
         return False
     return _channel_enabled_for_user(user, kind, channel)
 

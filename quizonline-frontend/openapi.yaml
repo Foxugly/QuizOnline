@@ -4589,6 +4589,8 @@ components:
           items:
             $ref: '#/components/schemas/UserSummary'
           readOnly: true
+        notification_settings:
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -4611,6 +4613,7 @@ components:
       - managers
       - members
       - my_join_request_status
+      - notification_settings
       - owner
       - pending_join_requests_count
       - public
@@ -4967,6 +4970,8 @@ components:
           items:
             $ref: '#/components/schemas/UserSummary'
           readOnly: true
+        notification_settings:
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -4984,6 +4989,7 @@ components:
       - managers
       - members
       - my_join_request_status
+      - notification_settings
       - owner
       - pending_join_requests_count
       - public
@@ -5051,6 +5057,7 @@ components:
           type: array
           items:
             type: integer
+        notification_settings: {}
       required:
       - allowed_languages
       - managers
@@ -5078,6 +5085,7 @@ components:
           type: array
           items:
             type: integer
+        notification_settings: {}
       required:
       - allowed_languages
       - managers
@@ -6004,6 +6012,7 @@ components:
           type: array
           items:
             type: integer
+        notification_settings: {}
     PatchedLanguagePartialRequest:
       type: object
       properties:

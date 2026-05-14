@@ -19,6 +19,7 @@ export interface DomainWriteRequestDto {
     join_policy?: JoinPolicyEnumDto;
     owner?: number;
     managers: Array<number>;
+    notification_settings?: any | null;
 }
 
 

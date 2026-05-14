@@ -61,6 +61,10 @@ export type DomainEditUiText = {
     saveFailed: string;
     translationFailed: string;
   };
+  notificationSettings: {
+    title: string;
+    subtitle: string;
+  };
   members: {
     pendingTitle: string;
     pendingNone: string;
@@ -254,6 +258,10 @@ const FR: DomainEditUiText = {
     saveFailed: 'Erreur lors de l\'enregistrement.',
     translationFailed: 'Erreur lors de la traduction.',
   },
+  notificationSettings: {
+    title: 'Notifications du domaine',
+    subtitle: 'Choisis pour quels événements ce domaine communique avec ses membres. Les canaux (e-mail / cloche) sont ensuite choisis par chaque utilisateur dans ses préférences.',
+  },
   members: {
     pendingTitle: 'Demandes en attente',
     pendingNone: 'Aucune demande en attente.',
@@ -384,6 +392,10 @@ const EN: DomainEditUiText = {
     needOneLanguage: 'Select at least one valid language.',
     saveFailed: 'Error while saving.',
     translationFailed: 'Error while translating.',
+  },
+  notificationSettings: {
+    title: 'Domain notifications',
+    subtitle: 'Choose which events this domain communicates to its members. Each user then picks their preferred channel (email / bell) in their own preferences.',
   },
   members: {
     pendingTitle: 'Pending requests',
@@ -516,6 +528,10 @@ const NL: DomainEditUiText = {
     saveFailed: 'Fout bij het opslaan.',
     translationFailed: 'Fout bij het vertalen.',
   },
+  notificationSettings: {
+    title: 'Domeinmeldingen',
+    subtitle: 'Kies voor welke gebeurtenissen dit domein communiceert met zijn leden. Elke gebruiker kiest vervolgens zelf het kanaal (e-mail / bel) in zijn voorkeuren.',
+  },
   members: {
     pendingTitle: 'Openstaande aanvragen',
     pendingNone: 'Geen openstaande aanvraag.',
@@ -647,6 +663,10 @@ const IT: DomainEditUiText = {
     saveFailed: 'Errore durante il salvataggio.',
     translationFailed: 'Errore durante la traduzione.',
   },
+  notificationSettings: {
+    title: 'Notifiche del dominio',
+    subtitle: 'Scegli per quali eventi questo dominio comunica con i suoi membri. Ogni utente sceglie poi il canale preferito (e-mail / campanella) nelle proprie preferenze.',
+  },
   members: {
     pendingTitle: 'Richieste in attesa',
     pendingNone: 'Nessuna richiesta in attesa.',
@@ -777,6 +797,10 @@ const ES: DomainEditUiText = {
     needOneLanguage: 'Selecciona al menos un idioma válido.',
     saveFailed: 'Error al guardar.',
     translationFailed: 'Error al traducir.',
+  },
+  notificationSettings: {
+    title: 'Notificaciones del dominio',
+    subtitle: 'Elige sobre qué eventos comunica este dominio a sus miembros. Cada usuario elige luego su canal preferido (correo / campana) en sus preferencias.',
   },
   members: {
     pendingTitle: 'Solicitudes pendientes',

@@ -106,6 +106,15 @@ export const IT: UiText = {
     notificationKindJoinRequestExpiry: 'Avviso prima dell\'annullamento automatico di una richiesta in sospeso',
     notificationKindInviteReceived: 'Invito a unirsi a un dominio',
     notificationKindTransferReceived: 'Proposta di trasferimento di proprietà',
+    notificationKindQuizAssignment: 'Un quiz mi è stato assegnato',
+    notificationKindQuizCompleted: 'Un utente ha completato un mio quiz',
+    notificationKindQuizResultAvailable: 'Il mio punteggio su un quiz è disponibile',
+    notificationKindQuizDetailAvailable: 'La correzione dettagliata di un quiz è disponibile',
+    notificationChannelEmail: 'E-mail',
+    notificationChannelWeb: 'Campanella',
+    notificationGroupUser: 'Le mie notifiche',
+    notificationGroupManager: 'Come gestore',
+    notificationGroupOwner: 'Come proprietario',
     notificationsSaved: 'Preferenze di notifica salvate.',
   },
   notifications: {
@@ -150,6 +159,14 @@ export const IT: UiText = {
           return `${iu || 'Qualcuno'} ti ha invitato a "${dn}".`;
         case 'domain.transfer.received':
           return `${ii || 'Il proprietario'} ti propone il trasferimento di "${dn}".`;
+        case 'quiz.assignment':
+          return `Un nuovo quiz "${String((payload as {template_title?: string})?.template_title ?? '')}" ti è stato assegnato.`;
+        case 'quiz.completed':
+          return `${String((payload as {user_username?: string})?.user_username ?? 'Un utente')} ha appena completato "${String((payload as {template_title?: string})?.template_title ?? '')}".`;
+        case 'quiz.result_available':
+          return `Il tuo punteggio su "${String((payload as {template_title?: string})?.template_title ?? '')}" è disponibile.`;
+        case 'quiz.detail_available':
+          return `La correzione dettagliata di "${String((payload as {template_title?: string})?.template_title ?? '')}" è disponibile.`;
         default:
           return kind;
       }

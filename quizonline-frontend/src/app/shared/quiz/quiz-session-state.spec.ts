@@ -34,6 +34,7 @@ describe('quiz session state helpers', () => {
     join_policy: JoinPolicyEnumDto.Auto,
     pending_join_requests_count: null,
     my_join_request_status: null,
+    notification_settings: {},
   };
 
   const questions: QuizQuestionReadDto[] = [

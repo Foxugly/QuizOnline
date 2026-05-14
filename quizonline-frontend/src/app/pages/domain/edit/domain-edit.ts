@@ -15,6 +15,7 @@ import {SelectModule} from 'primeng/select';
 import {MessageModule} from 'primeng/message';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -82,6 +83,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     MessageModule,
     TableModule,
     InputTextModule,
+    ToggleSwitchModule,
     DomainAnalyticsTab,
     DomainEditorFormComponent,
     DomainInvitationsTab,
@@ -122,6 +124,107 @@ export class DomainEdit implements OnInit {
   readonly analyticsLoading = signal<boolean>(false);
   readonly analyticsRange = signal<AnalyticsRange>('all');
   readonly analyticsExporting = signal<boolean>(false);
+
+  /**
+   * Canonical kinds the domain owner can toggle on/off. The order here
+   * drives the rendering order in the Config tab section.
+   */
+  readonly domainNotificationKinds = [
+    'domain.join_request.created',
+    'domain.join_request.decided',
+    'domain.join_request.expiry_warning',
+    'domain.invite.received',
+    'domain.transfer.received',
+    'quiz.assignment',
+    'quiz.completed',
+    'quiz.result_available',
+    'quiz.detail_available',
+  ] as const;
+  readonly savingDomainNotif = signal<boolean>(false);
+
+  isDomainKindEnabled(kind: string): boolean {
+    const dto = this.domain();
+    const settings = (dto?.notification_settings as Record<string, unknown> | null | undefined) ?? {};
+    const value = settings[kind];
+    if (value === false) {
+      return false;
+    }
+    // Legacy per-channel blob: "off" only if both channels were False.
+    if (value && typeof value === 'object') {
+      const map = value as Record<string, unknown>;
+      if (map['email'] === false && map['web'] === false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  toggleDomainKind(kind: string, enabled: boolean): void {
+    const dto = this.domain();
+    if (!dto) {
+      return;
+    }
+    const current = (dto.notification_settings as Record<string, unknown> | null) ?? {};
+    const next: Record<string, boolean> = {};
+    for (const [k, v] of Object.entries(current)) {
+      if (v === false) {
+        next[k] = false;
+      } else if (v && typeof v === 'object') {
+        const map = v as Record<string, unknown>;
+        if (map['email'] === false && map['web'] === false) {
+          next[k] = false;
+        }
+      }
+    }
+    if (enabled) {
+      delete next[kind];
+    } else {
+      next[kind] = false;
+    }
+    this.savingDomainNotif.set(true);
+    this.domainService
+      .updatePartial(this.id, {notification_settings: next} as unknown as {notification_settings: object})
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.domainService.detail(this.id)),
+        finalize(() => this.savingDomainNotif.set(false)),
+      )
+      .subscribe({
+        next: (detail) => this.domain.set(detail),
+        error: (err) => {
+          logApiError('domain.edit.notification-settings', err);
+          this.toast.add({severity: 'error', summary: this.editText().errors.saveFailed});
+        },
+      });
+  }
+
+  domainKindLabel(kind: string): string {
+    // Reuse the same labels surfaced in /preferences — single source
+    // of truth for "what does this kind mean to a human".
+    const p = this.adminUi().preferences;
+    switch (kind) {
+      case 'domain.join_request.created':
+        return p.notificationKindJoinRequestCreated;
+      case 'domain.join_request.decided':
+        return p.notificationKindJoinRequestDecided;
+      case 'domain.join_request.expiry_warning':
+        return p.notificationKindJoinRequestExpiry;
+      case 'domain.invite.received':
+        return p.notificationKindInviteReceived;
+      case 'domain.transfer.received':
+        return p.notificationKindTransferReceived;
+      case 'quiz.assignment':
+        return p.notificationKindQuizAssignment;
+      case 'quiz.completed':
+        return p.notificationKindQuizCompleted;
+      case 'quiz.result_available':
+        return p.notificationKindQuizResultAvailable;
+      case 'quiz.detail_available':
+        return p.notificationKindQuizDetailAvailable;
+      default:
+        return kind;
+    }
+  }
 
   // global languages (for selectButton options + code->id mapping)
   languages = signal<LanguageReadDto[]>([]);
