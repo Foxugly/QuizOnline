@@ -114,18 +114,6 @@
                 type="button">
               </p-button>
 
-              @if (canModerateRow(d)) {
-                <p-button
-                  (click)="goAnalytics(d.id)"
-                  icon="pi pi-chart-bar"
-                  id="btn_domain_analytics"
-                  [pTooltip]="uiText().analyticsTooltip"
-                  severity="secondary"
-                  size="small"
-                  type="button">
-                </p-button>
-              }
-
               <p-button
                 (click)="goDelete(d.id)"
                 icon="pi pi-trash"
