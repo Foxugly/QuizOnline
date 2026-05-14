@@ -9,7 +9,6 @@
       type="button"
       severity="secondary"
       [outlined]="true"
-      size="small"
       [label]="ui().notifications.bellMarkAllRead"
       (click)="markAllRead()"
       [disabled]="filter() !== 'unread' || rows().length === 0">

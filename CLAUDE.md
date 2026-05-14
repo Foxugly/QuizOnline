@@ -15,6 +15,12 @@ Monorepo with two main modules:
 - Component I/O: `input()` / `output()` functions, not decorators
 - Do NOT add `standalone: true` (it is the default in Angular 21)
 - Layout pattern: meta-grid pattern for responsive layouts
+- **Button sizing**:
+  - `size="small"` only for actions inside a table row or tightly coupled to a list (row actions, inline list-item buttons, table toolbar buttons such as "Clear filters" / "Export CSV" that live in the same card as the table).
+  - Default (no `size`) for page-level primary/secondary actions: page hero CTAs, form submit/cancel, dialog footer, page toolbar primary actions.
+  - Never `size="large"`.
+- **Empty states**: use `<app-empty-state>` (under `shared/components/empty-state/`) with `density="compact"` inside table empty rows and dropdowns, default density on page sections.
+- **Dates in tables**: prefer `| relativeDate` over `| date:'short'` / `'medium'`. Keep the absolute date one hover away via `[attr.title]="value | date:'medium'"`. Keep `| date:` for genuinely future timestamps (e.g. `expires_at`) and for recap pages where exact dates matter.
 
 ## i18n
 
