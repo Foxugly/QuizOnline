@@ -57,3 +57,72 @@
   border: 0;
   box-shadow: none;
 }
+
+.quiz-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 0.5rem;
+}
+
+.quiz-welcome__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.quiz-welcome__icon {
+  font-size: 2.2rem;
+  color: var(--p-primary-500, #6366f1);
+  opacity: 0.85;
+}
+
+.quiz-welcome__title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 650;
+  color: var(--text-color, #1f2937);
+}
+
+.quiz-welcome__hint {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-color-secondary, #6b7280);
+  max-width: 42rem;
+}
+
+.quiz-welcome__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.quiz-welcome__step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 0.75rem;
+  background: var(--surface-card, #ffffff);
+  align-items: flex-start;
+}
+
+.quiz-welcome__step-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color, #1f2937);
+}
+
+.quiz-welcome__step-hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-color-secondary, #6b7280);
+  flex: 1;
+}

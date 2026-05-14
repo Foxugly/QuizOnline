@@ -69,6 +69,19 @@ export type QuizListUiText = {
     createError: string;
     pendingApprovalBanner: (domains: string) => string;
   };
+  welcome: {
+    title: string;
+    hint: string;
+    stepSubjectTitle: string;
+    stepSubjectHint: string;
+    stepQuestionTitle: string;
+    stepQuestionHint: string;
+    stepQuizTitle: string;
+    stepQuizHint: string;
+    ctaSubject: string;
+    ctaQuestion: string;
+    ctaQuiz: string;
+  };
 };
 
 const FR: QuizListUiText = {
@@ -136,6 +149,19 @@ const FR: QuizListUiText = {
     resultsError: 'Impossible de charger les résultats.',
     createError: 'Impossible de créer ce quiz.',
     pendingApprovalBanner: (domains: string) => `En attente de validation pour : ${domains}. Les quiz de ces domaines apparaîtront une fois votre accès approuvé.`,
+  },
+  welcome: {
+    title: 'Bienvenue, composons votre premier quiz',
+    hint: 'Trois étapes pour démarrer. Vous pouvez les enchaîner ou y revenir plus tard.',
+    stepSubjectTitle: '1. Créer un sujet',
+    stepSubjectHint: 'Regroupez vos questions par thème — un sujet par chapitre, par compétence, etc.',
+    stepQuestionTitle: '2. Ajouter une question',
+    stepQuestionHint: 'Texte, image ou vidéo. Plusieurs réponses possibles, et une explication facultative.',
+    stepQuizTitle: '3. Composer un quiz',
+    stepQuizHint: 'Sélectionnez vos questions, ajustez l’ordre et la pondération, puis activez le quiz.',
+    ctaSubject: 'Créer un sujet',
+    ctaQuestion: 'Ajouter une question',
+    ctaQuiz: 'Composer un quiz',
   },
 };
 
@@ -205,6 +231,19 @@ const EN: QuizListUiText = {
     createError: 'Unable to create this quiz.',
     pendingApprovalBanner: (domains: string) => `Pending approval for: ${domains}. Quizzes from these domains will appear once your access is approved.`,
   },
+  welcome: {
+    title: "Welcome — let's build your first quiz",
+    hint: 'Three steps to get started. Walk through them in one go, or come back later.',
+    stepSubjectTitle: '1. Create a subject',
+    stepSubjectHint: 'Group your questions by topic — one subject per chapter, per skill, …',
+    stepQuestionTitle: '2. Add a question',
+    stepQuestionHint: 'Text, image or video. Multiple answers welcome, optional explanation.',
+    stepQuizTitle: '3. Compose a quiz',
+    stepQuizHint: 'Pick your questions, tune the order and weights, then activate the quiz.',
+    ctaSubject: 'Create a subject',
+    ctaQuestion: 'Add a question',
+    ctaQuiz: 'Compose a quiz',
+  },
 };
 
 const NL: QuizListUiText = {
@@ -272,6 +311,19 @@ const NL: QuizListUiText = {
     resultsError: 'Kan resultaten niet laden.',
     createError: 'Kan deze quiz niet maken.',
     pendingApprovalBanner: (domains: string) => `In afwachting van goedkeuring voor: ${domains}. Quizzen uit deze domeinen verschijnen zodra je toegang is goedgekeurd.`,
+  },
+  welcome: {
+    title: 'Welkom — laten we je eerste quiz bouwen',
+    hint: 'Drie stappen om te starten. Doorloop ze in een keer of kom later terug.',
+    stepSubjectTitle: '1. Maak een onderwerp aan',
+    stepSubjectHint: 'Groepeer je vragen per thema — een onderwerp per hoofdstuk, per vaardigheid, …',
+    stepQuestionTitle: '2. Voeg een vraag toe',
+    stepQuestionHint: 'Tekst, afbeelding of video. Meerdere antwoorden mogelijk, optionele toelichting.',
+    stepQuizTitle: '3. Stel een quiz samen',
+    stepQuizHint: 'Kies je vragen, pas volgorde en gewicht aan, activeer dan de quiz.',
+    ctaSubject: 'Onderwerp maken',
+    ctaQuestion: 'Vraag toevoegen',
+    ctaQuiz: 'Quiz samenstellen',
   },
 };
 
@@ -341,6 +393,19 @@ const IT: QuizListUiText = {
     createError: 'Impossibile creare questo quiz.',
     pendingApprovalBanner: (domains: string) => `In attesa di approvazione per: ${domains}. I quiz di questi domini appariranno una volta che il tuo accesso sarà approvato.`,
   },
+  welcome: {
+    title: 'Benvenuto — costruiamo il tuo primo quiz',
+    hint: 'Tre passaggi per iniziare. Falli di seguito o torna più tardi.',
+    stepSubjectTitle: '1. Crea una materia',
+    stepSubjectHint: 'Raggruppa le tue domande per tema — una materia per capitolo, per competenza, …',
+    stepQuestionTitle: '2. Aggiungi una domanda',
+    stepQuestionHint: 'Testo, immagine o video. Più risposte possibili, spiegazione facoltativa.',
+    stepQuizTitle: '3. Componi un quiz',
+    stepQuizHint: 'Scegli le domande, regola ordine e pesi, poi attiva il quiz.',
+    ctaSubject: 'Crea una materia',
+    ctaQuestion: 'Aggiungi una domanda',
+    ctaQuiz: 'Componi un quiz',
+  },
 };
 
 const ES: QuizListUiText = {
@@ -408,6 +473,19 @@ const ES: QuizListUiText = {
     resultsError: 'No se pueden cargar los resultados.',
     createError: 'No se puede crear este cuestionario.',
     pendingApprovalBanner: (domains: string) => `Pendiente de aprobación para: ${domains}. Los cuestionarios de estos dominios aparecerán una vez aprobado tu acceso.`,
+  },
+  welcome: {
+    title: 'Bienvenido — construyamos tu primer cuestionario',
+    hint: 'Tres pasos para empezar. Hazlos seguidos o vuelve más tarde.',
+    stepSubjectTitle: '1. Crea un tema',
+    stepSubjectHint: 'Agrupa tus preguntas por tema — un tema por capítulo, por competencia, …',
+    stepQuestionTitle: '2. Añade una pregunta',
+    stepQuestionHint: 'Texto, imagen o vídeo. Múltiples respuestas posibles, explicación opcional.',
+    stepQuizTitle: '3. Compón un cuestionario',
+    stepQuizHint: 'Elige tus preguntas, ajusta el orden y los pesos, luego activa el cuestionario.',
+    ctaSubject: 'Crear un tema',
+    ctaQuestion: 'Añadir una pregunta',
+    ctaQuiz: 'Componer un cuestionario',
   },
 };
 

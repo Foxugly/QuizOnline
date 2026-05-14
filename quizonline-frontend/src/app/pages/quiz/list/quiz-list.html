@@ -64,30 +64,80 @@
 
       <p-tabpanels class="quiz-tabpanels">
         <p-tabpanel value="templates">
-          <div class="quiz-bulk-row">
-            <app-bulk-actions
-              [options]="bulkActionOptions()"
-              [placeholder]="uiText().bulk.placeholder"
-              [applyLabel]="uiText().bulk.apply"
-              [count]="selectedCount()"
-              [countText]="uiText().bulk.selectedCount(selectedCount())"
-              [applying]="applyingBulk()"
-              (apply)="applyBulk($event)">
-            </app-bulk-actions>
-          </div>
-          <app-quiz-template-table
-            [templates]="filteredTemplates()"
-            [loading]="loading()"
-            [creatingTemplateId]="creatingTemplateId()"
-            [uiText]="uiText()"
-            [selection]="selectedTemplates()"
-            (selectionChange)="onTemplatesSelectionChange($event)"
-            (createFromTemplate)="createFromTemplate($event)"
-            (openAssign)="openAssignDialog($event)"
-            (openResults)="goResults($event.id)"
-            (edit)="goEditTemplate($event)"
-            (remove)="goDeleteTemplate($event)"
-          ></app-quiz-template-table>
+          @if (showWelcomePanel()) {
+            <section class="quiz-welcome" aria-labelledby="quiz-welcome-title">
+              <header class="quiz-welcome__header">
+                <i class="pi pi-sparkles quiz-welcome__icon" aria-hidden="true"></i>
+                <h2 id="quiz-welcome-title" class="quiz-welcome__title">{{ uiText().welcome.title }}</h2>
+                <p class="quiz-welcome__hint">{{ uiText().welcome.hint }}</p>
+              </header>
+              <ol class="quiz-welcome__steps">
+                <li class="quiz-welcome__step">
+                  <h3 class="quiz-welcome__step-title">{{ uiText().welcome.stepSubjectTitle }}</h3>
+                  <p class="quiz-welcome__step-hint">{{ uiText().welcome.stepSubjectHint }}</p>
+                  <p-button
+                    (onClick)="goCreateSubject()"
+                    icon="pi pi-plus"
+                    [label]="uiText().welcome.ctaSubject"
+                    severity="primary"
+                    size="small"
+                    type="button">
+                  </p-button>
+                </li>
+                <li class="quiz-welcome__step">
+                  <h3 class="quiz-welcome__step-title">{{ uiText().welcome.stepQuestionTitle }}</h3>
+                  <p class="quiz-welcome__step-hint">{{ uiText().welcome.stepQuestionHint }}</p>
+                  <p-button
+                    (onClick)="goCreateQuestion()"
+                    icon="pi pi-plus"
+                    [label]="uiText().welcome.ctaQuestion"
+                    severity="secondary"
+                    size="small"
+                    [outlined]="true"
+                    type="button">
+                  </p-button>
+                </li>
+                <li class="quiz-welcome__step">
+                  <h3 class="quiz-welcome__step-title">{{ uiText().welcome.stepQuizTitle }}</h3>
+                  <p class="quiz-welcome__step-hint">{{ uiText().welcome.stepQuizHint }}</p>
+                  <p-button
+                    (onClick)="goCompose()"
+                    icon="pi pi-plus"
+                    [label]="uiText().welcome.ctaQuiz"
+                    severity="secondary"
+                    size="small"
+                    [outlined]="true"
+                    type="button">
+                  </p-button>
+                </li>
+              </ol>
+            </section>
+          } @else {
+            <div class="quiz-bulk-row">
+              <app-bulk-actions
+                [options]="bulkActionOptions()"
+                [placeholder]="uiText().bulk.placeholder"
+                [applyLabel]="uiText().bulk.apply"
+                [count]="selectedCount()"
+                [countText]="uiText().bulk.selectedCount(selectedCount())"
+                [applying]="applyingBulk()"
+                (apply)="applyBulk($event)">
+              </app-bulk-actions>
+            </div>
+            <app-quiz-template-table
+              [templates]="filteredTemplates()"
+              [loading]="loading()"
+              [creatingTemplateId]="creatingTemplateId()"
+              [uiText]="uiText()"
+              [selection]="selectedTemplates()"
+              (selectionChange)="onTemplatesSelectionChange($event)"
+              (createFromTemplate)="createFromTemplate($event)"
+              (openAssign)="openAssignDialog($event)"
+              (openResults)="goResults($event.id)"
+              (edit)="goEditTemplate($event)"
+              (remove)="goDeleteTemplate($event)"
+            ></app-quiz-template-table>
+          }
         </p-tabpanel>
 
         <p-tabpanel value="sessions">

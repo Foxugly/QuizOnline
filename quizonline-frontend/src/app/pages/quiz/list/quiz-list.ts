@@ -88,6 +88,19 @@ export class QuizListPage implements OnInit {
   readonly canComposeTemplate = computed(() => this.domains().some((domain) => this.canManageDomain(domain)));
   readonly canCreateQuickTemplate = computed(() => this.domains().length > 0);
 
+  /**
+   * Onboarding empty state — shown on the Templates tab when the user
+   * manages at least one domain but has no template yet, and isn't
+   * narrowing the list with a search query. Hides as soon as the first
+   * template appears or the user starts typing.
+   */
+  readonly showWelcomePanel = computed(() =>
+    this.canComposeTemplate()
+    && !this.loading()
+    && this.templates().length === 0
+    && !this.q().trim(),
+  );
+
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   readonly uiText = inject(UiTextService).localized(getQuizListUiText);
   readonly editorUi = inject(UiTextService).editor;
@@ -227,6 +240,15 @@ export class QuizListPage implements OnInit {
 
   goCompose(): void {
     this.quizService.goCompose();
+  }
+
+  /** Welcome panel CTAs. */
+  goCreateSubject(): void {
+    void this.router.navigate(['/subject/add']);
+  }
+
+  goCreateQuestion(): void {
+    void this.router.navigate(['/question/add']);
   }
 
   onTemplatesSelectionChange(rows: QuizTemplateListItem[]): void {
