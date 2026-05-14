@@ -65,19 +65,6 @@ export const NL: EditorUiText = {
     ...EN.pages,
     domainCreate: {title: 'Domein maken', subtitle: 'Vertalingen, status en toegang'},
     domainEdit: {title: 'Domein bewerken', subtitle: 'Vertalingen, status en toegang'},
-    subjectCreate: {
-      ...EN.pages.subjectCreate,
-      title: 'Onderwerp maken',
-      subtitle: 'Domeinkeuze en vertalingen',
-      emptyLanguagesMessage: 'Dit domein heeft geen geconfigureerde talen.',
-      errors: {
-        loadDomainsFailed: 'Kan de domeinen niet laden.',
-        loadDomainFailed: 'Kan het geselecteerde domein niet laden.',
-        nameRequired: 'Vul minstens het veld "naam" voor elke taal in.',
-        createFailed: 'Fout bij het maken van het onderwerp.',
-        translationFailed: 'Fout bij het vertalen.',
-      },
-    },
     subjectEdit: {
       ...EN.pages.subjectEdit,
       title: 'Onderwerp bewerken',

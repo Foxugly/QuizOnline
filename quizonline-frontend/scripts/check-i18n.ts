@@ -47,6 +47,7 @@ import {getQuestionPreviewDialogUiText} from '../src/app/components/question-pre
 import {getSubjectListUiText} from '../src/app/pages/subject/list/subject-list.i18n';
 import {getPrivacyUiText} from '../src/app/pages/privacy/privacy.i18n';
 import {getSubjectFormUiText} from '../src/app/pages/quiz/subject-form/subject-form.i18n';
+import {getSubjectCreateUiText} from '../src/app/pages/subject/create/subject-create.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -75,6 +76,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/subject/list', get: getSubjectListUiText as Getter},
   {name: 'pages/privacy', get: getPrivacyUiText as Getter},
   {name: 'pages/quiz/subject-form', get: getSubjectFormUiText as Getter},
+  {name: 'pages/subject/create', get: getSubjectCreateUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;

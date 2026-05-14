@@ -32,6 +32,7 @@ import {
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
+import {getSubjectCreateUiText} from './subject-create.i18n';
 
 
 @Component({
@@ -49,7 +50,8 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 })
 export class SubjectCreate implements OnInit {
   readonly ui = inject(UiTextService).editor;
-  readonly emptyLanguagesMessage = computed(() => this.ui().pages.subjectCreate.emptyLanguagesMessage);
+  readonly pageText = inject(UiTextService).localized(getSubjectCreateUiText);
+  readonly emptyLanguagesMessage = computed(() => this.pageText().emptyLanguagesMessage);
 
   // UI state
   loading = signal(false);
@@ -111,8 +113,8 @@ export class SubjectCreate implements OnInit {
 
       this.lastToastMessage = detail;
       // ``submitError`` / ``error`` are already populated with the
-      // user-language string via ``editorUi().pages.subjectCreate.errors``
-      // — no need to re-translate here.
+      // user-language string via ``pageText().toast.*`` — no need to
+      // re-translate here.
       this.toast.add({
         severity: 'error',
         summary: this.ui().common.errorTitle,
@@ -143,7 +145,7 @@ export class SubjectCreate implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.error.set(this.ui().pages.subjectCreate.errors.loadDomainsFailed);
+          this.error.set(this.pageText().toast.loadDomainsFailed);
         },
       });
 
@@ -164,7 +166,7 @@ export class SubjectCreate implements OnInit {
             finalize(() => this.loading.set(false)),
             catchError((err) => {
               console.error(err);
-              this.error.set(this.ui().pages.subjectCreate.errors.loadDomainFailed);
+              this.error.set(this.pageText().toast.loadDomainFailed);
               return EMPTY;
             }),
           )
@@ -241,7 +243,7 @@ export class SubjectCreate implements OnInit {
       }
     } catch (e) {
       console.error(e);
-      this.submitError.set(this.ui().pages.subjectCreate.errors.translationFailed);
+      this.submitError.set(this.pageText().toast.translationFailed);
     } finally {
       this.translating.set(false);
     }
@@ -258,7 +260,7 @@ export class SubjectCreate implements OnInit {
     this.submitError.set(null);
 
     if (!this.isValid()) {
-      this.error.set(this.ui().pages.subjectCreate.errors.nameRequired);
+      this.error.set(this.pageText().toast.nameRequired);
       return;
     }
 
@@ -275,7 +277,7 @@ export class SubjectCreate implements OnInit {
         next: () => this.subjectService.goList(),
         error: (err) => {
           console.error(err);
-          this.submitError.set(this.ui().pages.subjectCreate.errors.createFailed);
+          this.submitError.set(this.pageText().toast.createFailed);
         },
       });
   }

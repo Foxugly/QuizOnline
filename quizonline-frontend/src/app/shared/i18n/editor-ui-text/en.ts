@@ -143,18 +143,6 @@ export const EN: EditorUiText = {
   pages: {
     domainCreate: {title: 'Create domain', subtitle: 'Translations, status and access'},
     domainEdit: {title: 'Edit domain', subtitle: 'Translations, status and access'},
-    subjectCreate: {
-      title: 'Create subject',
-      subtitle: 'Domain selection and translations',
-      emptyLanguagesMessage: 'This domain has no configured languages.',
-      errors: {
-        loadDomainsFailed: 'Unable to load the domains.',
-        loadDomainFailed: 'Unable to load the selected domain.',
-        nameRequired: 'Please fill in at least the "name" field for each language.',
-        createFailed: 'Error while creating the subject.',
-        translationFailed: 'Error while translating.',
-      },
-    },
     subjectEdit: {
       title: 'Edit subject',
       subtitle: 'Translations and content',

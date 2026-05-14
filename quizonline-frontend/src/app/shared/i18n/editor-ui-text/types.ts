@@ -143,18 +143,6 @@ export type EditorUiText = {
   pages: {
     domainCreate: {title: string; subtitle: string;};
     domainEdit: {title: string; subtitle: string;};
-    subjectCreate: {
-      title: string;
-      subtitle: string;
-      emptyLanguagesMessage: string;
-      errors: {
-        loadDomainsFailed: string;
-        loadDomainFailed: string;
-        nameRequired: string;
-        createFailed: string;
-        translationFailed: string;
-      };
-    };
     subjectEdit: {
       title: string;
       subtitle: string;

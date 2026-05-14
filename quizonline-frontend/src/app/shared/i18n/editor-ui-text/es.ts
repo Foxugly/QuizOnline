@@ -65,19 +65,6 @@ export const ES: EditorUiText = {
     ...EN.pages,
     domainCreate: {title: 'Crear dominio', subtitle: 'Traducciones, estado y acceso'},
     domainEdit: {title: 'Editar dominio', subtitle: 'Traducciones, estado y acceso'},
-    subjectCreate: {
-      ...EN.pages.subjectCreate,
-      title: 'Crear tema',
-      subtitle: 'Elección del dominio y traducciones',
-      emptyLanguagesMessage: 'Este dominio no tiene idiomas configurados.',
-      errors: {
-        loadDomainsFailed: 'No se pueden cargar los dominios.',
-        loadDomainFailed: 'No se puede cargar el dominio seleccionado.',
-        nameRequired: 'Rellena al menos el campo "nombre" para cada idioma.',
-        createFailed: 'Error al crear el tema.',
-        translationFailed: 'Error al traducir.',
-      },
-    },
     subjectEdit: {
       ...EN.pages.subjectEdit,
       title: 'Editar tema',
