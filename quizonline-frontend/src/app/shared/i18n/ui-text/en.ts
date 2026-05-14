@@ -318,5 +318,8 @@ export const EN: UiText = {
         : `${processed} request(s) processed.`,
     },
   },
+  a11y: {
+    skipToContent: 'Skip to main content',
+  },
 };
 

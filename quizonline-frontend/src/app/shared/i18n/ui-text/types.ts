@@ -31,5 +31,10 @@ export type UiText = {
   preferences: PreferencesUiText;
   notifications: NotificationsUiText;
   admin: AdminUiText;
+  a11y: A11yUiText;
+};
+
+export type A11yUiText = {
+  skipToContent: string;
 };
 

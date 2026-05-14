@@ -321,5 +321,8 @@ export const ES: UiText = {
         : `${processed} solicitud(es) procesada(s).`,
     },
   },
+  a11y: {
+    skipToContent: 'Saltar al contenido principal',
+  },
 };
 

@@ -321,5 +321,8 @@ export const IT: UiText = {
         : `${processed} richiesta/e elaborata/e.`,
     },
   },
+  a11y: {
+    skipToContent: 'Vai al contenuto principale',
+  },
 };
 

@@ -458,5 +458,8 @@ export const FR: UiText = {
         : `${processed} demande(s) traitée(s).`,
     },
   },
+  a11y: {
+    skipToContent: 'Aller au contenu principal',
+  },
 };
 

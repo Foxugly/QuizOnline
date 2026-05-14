@@ -25,4 +25,32 @@
   max-width: 1440px;
   padding: var(--s-6, 24px);
   width: 100%;
+
+  // The skip link drops keyboard focus on <main>, which then needs to be
+  // focusable but should not show the default browser focus ring around
+  // the entire page body.
+  &:focus { outline: none; }
+}
+
+// Visually-hidden until focused; revealed at the top-left when a keyboard
+// user tabs into the page. Lets them jump over the topmenu directly to
+// the page content.
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 0 0 0.5rem 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 120ms ease-out;
+
+  &:focus {
+    top: 0;
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+  }
 }

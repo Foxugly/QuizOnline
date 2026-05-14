@@ -320,5 +320,8 @@ export const NL: UiText = {
         : `${processed} aanvra(a)g(en) verwerkt.`,
     },
   },
+  a11y: {
+    skipToContent: 'Naar hoofdinhoud',
+  },
 };
 

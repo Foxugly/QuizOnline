@@ -9,6 +9,7 @@ import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
+import {UiTextService} from './shared/i18n/ui-text.service';
 import {AppToastOutletComponent} from './components/app-toast-outlet/app-toast-outlet';
 
 @Component({
@@ -27,6 +28,7 @@ import {AppToastOutletComponent} from './components/app-toast-outlet/app-toast-o
 export class App implements OnInit {
   status = inject(BackendStatusService);
   backendDown = computed(() => this.status.backendUp() === false);
+  readonly ui = inject(UiTextService).ui;
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
