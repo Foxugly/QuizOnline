@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from config.tools import ErrorDetailSerializer
 from core.models import OutboundEmail
 from core.serializers import TestEmailRequestSerializer, TestEmailResponseSerializer
-from core.mailers._common import send_plaintext_email
+from core.mailers._common import queue_email
 
 
 @extend_schema_view(
@@ -53,7 +53,7 @@ class TestEmailView(APIView):
                 body=body,
             ).values_list("id", flat=True)
         )
-        send_plaintext_email(subject, body, [to])
+        queue_email(subject, body, [to])
         outbound = (
             OutboundEmail.objects
             .exclude(id__in=existing_ids)

@@ -116,14 +116,6 @@ def queue_email(subject: str, body: str, recipients: list[str], html_body: str =
     logger.info("email.enqueued", extra={"subject": subject, "recipients": to})
 
 
-def queue_plaintext_email(subject: str, body: str, recipients: list[str]) -> None:
-    queue_email(subject, body, recipients)
-
-
-def send_plaintext_email(subject: str, body: str, recipients: list[str]) -> None:
-    queue_plaintext_email(subject, body, recipients)
-
-
 def send_user_email(*, user, subject_builder, body_builder, html_builder=None) -> None:
     email = getattr(user, "email", "")
     if not email:
@@ -135,7 +127,3 @@ def send_user_email(*, user, subject_builder, body_builder, html_builder=None) -
         html_body = html_builder(user) if html_builder else ""
 
     queue_email(subject, body, [email], html_body)
-
-
-def send_user_plaintext_email(*, user, subject_builder, body_builder) -> None:
-    send_user_email(user=user, subject_builder=subject_builder, body_builder=body_builder)
