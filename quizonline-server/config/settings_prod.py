@@ -70,9 +70,15 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])  # noqa: F405
 LOGGING = PROD_LOGGING  # noqa: F405
 
-# Error monitoring (Sentry). Opt-in: set ``SENTRY_DSN`` in the production
-# environment to enable. When the DSN is unset, the SDK never initialises
-# so a forgotten / unconfigured Sentry org is harmless.
+# Error monitoring — Sentry-protocol ingest. Opt-in: set ``SENTRY_DSN``
+# to enable. When the DSN is unset, the SDK never initialises so a
+# forgotten / unconfigured endpoint is harmless.
+#
+# The DSN can point at any Sentry-compatible ingest:
+#   - Sentry (sentry.io) — Developer plan is free up to 5k errors/month.
+#   - GlitchTip Cloud (app.glitchtip.com) — open-source, free tier
+#     1k events/month, fully Sentry-SDK compatible.
+#   - Self-hosted GlitchTip — single docker-compose, no recurring cost.
 SENTRY_DSN = env("SENTRY_DSN", default="").strip()  # noqa: F405
 if SENTRY_DSN:
     import sentry_sdk

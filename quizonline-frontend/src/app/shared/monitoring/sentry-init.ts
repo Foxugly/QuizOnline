@@ -7,18 +7,25 @@ type RuntimeSentryWindow = typeof globalThis & {
 };
 
 /**
- * Opt-in Sentry initialiser.
+ * Opt-in Sentry-compatible error reporter.
+ *
+ * The DSN can point at any Sentry-protocol ingest endpoint:
+ *   - Sentry (sentry.io) — Developer plan is free up to 5k errors/month.
+ *   - GlitchTip Cloud (app.glitchtip.com) — open-source, fully Sentry-SDK
+ *     compatible, free tier 1k events/month.
+ *   - Self-hosted GlitchTip — single docker-compose, no recurring cost.
  *
  * Resolution order for the DSN:
  *   1. ``window.__QUIZONLINE_SENTRY_DSN`` — runtime-injected via the
  *      deployment template (same pattern as ``__QUIZONLINE_API_BASE_URL``).
- *      Lets you rotate the DSN without rebuilding the Angular bundle.
+ *      Lets you rotate the DSN — or swap provider — without rebuilding
+ *      the Angular bundle.
  *   2. ``environment.sentryDsn`` — build-time. Empty by default in both
  *      environment.ts and environment.prod.ts so dev builds never report.
  *
  * If neither is set, the SDK is never even loaded — keeping the initial
  * bundle small for users who run without monitoring. The dynamic import
- * also means an unconfigured/forgotten Sentry org is harmless.
+ * also means an unconfigured/forgotten reporting endpoint is harmless.
  */
 export async function initSentry(): Promise<void> {
   const w = globalThis as RuntimeSentryWindow;
