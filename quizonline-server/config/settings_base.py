@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+import sentry_sdk
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +59,11 @@ env = environ.Env(
     THROTTLE_DOMAIN_INVITE_FANOUT=(str, "5/hour"),
     THROTTLE_MAGIC_LINK_REQUEST=(str, "3/hour"),
     THROTTLE_MAGIC_LINK_EXCHANGE=(str, "30/min"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_RELEASE=(str, ""),
+    SENTRY_ENVIRONMENT=(str, "production"),
+    SENTRY_TRACES_SAMPLE_RATE=(float, 0.05),
+    SENTRY_PROFILES_SAMPLE_RATE=(float, 0.0),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))
@@ -65,6 +71,19 @@ environ.Env.read_env(str(ENV_FILE))
 SECRET_KEY = env("SECRET_KEY")
 _jwt_signing_key = env("JWT_SIGNING_KEY")
 JWT_SIGNING_KEY = _jwt_signing_key if _jwt_signing_key else SECRET_KEY
+
+SENTRY_DSN = env("SENTRY_DSN")
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=env("SENTRY_ENVIRONMENT"),
+        release=env("SENTRY_RELEASE") or None,
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE"),
+        profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE"),
+        send_default_pii=False,
+    )
+
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 NAME_APP = "QuizOnline"
