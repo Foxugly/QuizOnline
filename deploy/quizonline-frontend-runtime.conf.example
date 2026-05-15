@@ -1,0 +1,36 @@
+# QuizOnline — frontend runtime configuration for nginx
+#
+# Drop this file at:
+#   /etc/nginx/snippets/quizonline-frontend-runtime.conf
+#
+# Then reload nginx so the new values take effect on the next /index.html
+# request — no frontend rebuild required:
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# The three ``set`` directives below feed sub_filter substitutions in the
+# main nginx.conf, which splice a tiny inline <script> into the served
+# index.html. The Angular bundle reads those globals in sentry-init.ts
+# and forwards them to the Sentry SDK ``Sentry.init({...})`` call.
+#
+# DSN endpoint
+# ------------
+# Any Sentry-protocol ingest works — same SDK, same wire format:
+#   - Sentry (sentry.io): Developer plan is free up to 5k errors/month.
+#   - GlitchTip Cloud (app.glitchtip.com): open-source, free 1k/month.
+#   - Self-hosted GlitchTip: one docker-compose, no recurring cost.
+#
+# Release tag
+# -----------
+# Set ``$sentry_release`` to the same string the backend uses
+# (``SENTRY_RELEASE`` in the django .env) so issues are grouped by
+# release across the two SDKs. Bumping it on every deploy lets Sentry
+# show regressions per release in the issue stream.
+#
+# Environment
+# -----------
+# ``$sentry_env`` is what shows up under "Environment" in the Sentry UI.
+# Typical values: ``production`` / ``staging`` / ``preprod``.
+
+set $sentry_dsn "https://YOUR_DSN@app.glitchtip.com/YOUR_PROJECT_ID";
+set $sentry_env "production";
+set $sentry_release "quizonline-1.0.0";
