@@ -81,7 +81,7 @@ if SENTRY_DSN:
         release=env("SENTRY_RELEASE") or None,
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE"),
         profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE"),
-        send_default_pii=False,
+        send_default_pii=True,
     )
 
 DEBUG = env("DEBUG")
