@@ -21,11 +21,23 @@ RemainAfterExit=yes
 # credentials on disk.
 User=root
 
-# Hardening — the script only needs to read AWS APIs and write to
-# /run/quizonline. Block everything else.
+# Create /run/quizonline BEFORE ExecStart so the namespace setup
+# below has something to mount. RuntimeDirectoryPreserve=yes keeps
+# it alive after the oneshot returns, so downstream gunicorn /
+# celery (which read /run/quizonline/.env via EnvironmentFile=)
+# still see the file once env-fetch has finished. Default mode is
+# 0755 root:root; the script chmods/chowns the .env file inside.
+RuntimeDirectory=quizonline
+RuntimeDirectoryPreserve=yes
+
+# Hardening — /run/quizonline is the only writable path the script
+# needs and RuntimeDirectory= above makes it implicitly RW even
+# under ProtectSystem=strict, so no ReadWritePaths= is needed
+# (and ReadWritePaths= would have failed: it requires the path
+# to already exist at namespace setup, but on a fresh boot it
+# doesn't until RuntimeDirectory creates it).
 PrivateTmp=yes
 ProtectSystem=strict
-ReadWritePaths=/run/quizonline
 ProtectHome=yes
 NoNewPrivileges=yes
 RestrictSUIDSGID=yes
