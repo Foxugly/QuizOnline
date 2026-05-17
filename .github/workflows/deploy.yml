@@ -71,6 +71,8 @@ jobs:
           {
             "commands": [
               "sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
+              "cp /var/www/django_websites/QuizOnline/deploy/quizonline-env-fetch.service /etc/systemd/system/quizonline-env-fetch.service",
+              "systemctl daemon-reload",
               "sudo -u django bash /var/www/django_websites/QuizOnline/deploy/ssm-deploy.sh $SHA $BUCKET"
             ],
             "executionTimeout": ["900"]

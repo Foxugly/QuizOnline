@@ -94,8 +94,14 @@ SVC_UPDATED=0
 # /etc/systemd/system/, so trying to install elsewhere just trips
 # the password prompt. See quizonline-env-fetch.service for the
 # rationale.
+#
+# quizonline-env-fetch.service ITSELF is also not in the loop below
+# because the django sudoers whitelist enumerates specific service
+# filenames (the OG 3), not a glob. The unit is installed by the
+# SSM workflow as root, before this script runs. See
+# .github/workflows/deploy.yml.
 
-for svc in quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
+for svc in quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
   SRC="$DEPLOY_DIR/$svc.service"
   DST="/etc/systemd/system/$svc.service"
 
