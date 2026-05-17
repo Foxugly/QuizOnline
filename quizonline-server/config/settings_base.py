@@ -120,6 +120,9 @@ INSTALLED_APPS = [
     "domain.apps.DomainConfig",
     "language.apps.LanguageConfig",
     "translation.apps.TranslationConfig",
+    "lms_catalog.apps.LmsCatalogConfig",
+    "lms_assessment.apps.LmsAssessmentConfig",
+    "lms_enrollment.apps.LmsEnrollmentConfig",
 ]
 
 MIDDLEWARE = [
