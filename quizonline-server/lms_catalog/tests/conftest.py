@@ -3,7 +3,8 @@ import pytest
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
-from lms_catalog.models import Course, Section
+from lms_catalog.models import Course, Lesson, Section
+from quiz.models import QuizTemplate
 
 
 @pytest.fixture
@@ -43,3 +44,16 @@ def course(db, domain, fr_lang):
 @pytest.fixture
 def section(db, course):
     return Section.objects.create(course=course, order=0)
+
+
+@pytest.fixture
+def lesson(db, course):
+    s = Section.objects.create(course=course, order=0)
+    return Lesson.objects.create(section=s, slug="l1", order=0)
+
+
+@pytest.fixture
+def quiz_template(db, domain, owner):
+    qt = QuizTemplate(domain=domain, title="Q1", created_by=owner)
+    qt.save()
+    return qt
