@@ -87,7 +87,25 @@ fi
 # ── 4. Sync service files ────────────────────────────────────────────────────
 echo "[4/7] Syncing systemd service files..."
 SVC_UPDATED=0
-for svc in quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
+
+# Also sync the env-fetch helper script — the env-fetch.service unit
+# ExecStart points at /usr/local/bin/quizonline-fetch-env.sh so the
+# two must move together. Sync first so the service can find it the
+# moment systemd daemon-reload picks up the unit.
+FETCH_SRC="$DEPLOY_DIR/fetch-env-from-ssm.sh"
+FETCH_DST="/usr/local/bin/quizonline-fetch-env.sh"
+if [ -f "$FETCH_SRC" ]; then
+  if [ -f "$FETCH_DST" ] && cmp -s "$FETCH_SRC" "$FETCH_DST"; then
+    echo "  OK: quizonline-fetch-env.sh (no change)"
+  else
+    sudo install -m 0755 "$FETCH_SRC" "$FETCH_DST"
+    echo "  Updated: quizonline-fetch-env.sh"
+  fi
+else
+  echo "  WARN: fetch-env-from-ssm.sh missing in deploy/, skipping"
+fi
+
+for svc in quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
   SRC="$DEPLOY_DIR/$svc.service"
   DST="/etc/systemd/system/$svc.service"
 
