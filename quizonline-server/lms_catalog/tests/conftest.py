@@ -3,7 +3,7 @@ import pytest
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
-from lms_catalog.models import Course
+from lms_catalog.models import Course, Section
 
 
 @pytest.fixture
@@ -38,3 +38,8 @@ def course(db, domain, fr_lang):
     c.title = "C1"
     c.save()
     return c
+
+
+@pytest.fixture
+def section(db, course):
+    return Section.objects.create(course=course, order=0)
