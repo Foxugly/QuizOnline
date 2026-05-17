@@ -59,6 +59,26 @@ git pull --ff-only
 
 # ── 2. Backend ───────────────────────────────────────────────────────────────
 echo "[2/7] Updating backend..."
+
+# Pre-flight: refuse to deploy with a world-readable or wrongly-owned
+# .env. A loosened mode is almost always a backup-restore or
+# deploy-script bug — fail loud, do not silently roll forward over a
+# leaking-permission window. See deploy/SECRETS-ROTATION.md for the
+# fix procedure.
+ENV_FILE="$BACKEND_DIR/.env"
+if [ ! -f "$ENV_FILE" ]; then
+  warn ".env missing at $ENV_FILE — backend cannot boot without it"
+  exit 1
+fi
+ENV_PERMS=$(stat -c '%a' "$ENV_FILE")
+ENV_OWNER=$(stat -c '%U:%G' "$ENV_FILE")
+if [ "$ENV_PERMS" != "600" ] || [ "$ENV_OWNER" != "django:www-data" ]; then
+  warn ".env perms/owner wrong: $ENV_PERMS $ENV_OWNER (expected: 600 django:www-data)"
+  echo "      Fix: sudo chmod 600 $ENV_FILE && sudo chown django:www-data $ENV_FILE"
+  exit 1
+fi
+ok ".env perms OK ($ENV_PERMS $ENV_OWNER)"
+
 "$PIP" install -r "$BACKEND_DIR/requirements.txt" -q
 cd "$BACKEND_DIR"
 "$PYTHON" manage.py migrate --noinput
