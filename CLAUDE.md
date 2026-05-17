@@ -53,14 +53,14 @@ Production-grade moderation, invitations and observability on every `Domain`:
 
 ## Deployment
 
-- AWS EC2 with the repo checked out at `/var/www/django_websites/QuizOnline/`
-- Django runs as user `django`, group `www-data`; gunicorn binds 127.0.0.1:8000
-- Reverse proxy: **nginx** (the `deploy/apache.conf` template is kept for parity but the live server runs nginx)
-- Live config template in `deploy/nginx.conf` — drop in `/etc/nginx/sites-available/quizonline`; locations `/`, `/api/`, `/admin/`, `/static/`, `/media/` plus the cache + security headers
-- CI builds the frontend bundle (not on EC2 — memory-limited), GitHub Actions triggers Deploy on push to `main`
-- `deploy/redeploy.sh` handles git pull, pip install, migrate, collectstatic, optional frontend build (`--skip-frontend`), service restart, health checks
-- systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`
-- Frontend bundle is served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
+- AWS EC2 in **eu-west-1**, repo at `/var/www/django_websites/QuizOnline/`
+- App user `django`, group `www-data`; gunicorn binds 127.0.0.1:8000
+- Reverse proxy: **nginx** (the `deploy/apache.conf` template is kept for parity but unused)
+- **CI → Deploy pipeline** (GitHub Actions on push to `main`): assumes the `quizonline-deploy` IAM role via OIDC (no long-lived SSH key in GH Secrets), builds the Angular bundle on the runner, uploads it to S3 (`quizonline-deploy/builds/<sha>.tar.gz`), then fires `aws ssm send-command` against the EC2 instance. On the box, `deploy/ssm-deploy.sh` runs `redeploy.sh --skip-frontend` (backend update + service restart), atomically swaps the bundle, reloads nginx, and keeps the previous bundle at `browser.prev/` for a one-step rollback
+- systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`, `quizonline-backup.service`+`.timer`
+- Frontend bundle served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
+- **Full operator runbook** (day-to-day deploy, manual deploy, 3-level rollback, AWS resources inventory, bootstrap a fresh EC2): **`deploy/README.md`**
+- **Per-credential rotation procedures + EBS encryption check**: **`deploy/SECRETS-ROTATION.md`**
 
 ## OpenAPI sync
 
