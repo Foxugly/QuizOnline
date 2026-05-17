@@ -1,6 +1,7 @@
 [Unit]
 Description=QuizOnline Django (gunicorn)
-After=network.target
+After=network.target quizonline-env-fetch.service
+Requires=quizonline-env-fetch.service
 
 [Service]
 Type=simple
@@ -8,7 +9,12 @@ User=django
 Group=www-data
 WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 
-EnvironmentFile=/var/www/django_websites/QuizOnline/quizonline-server/.env
+# Single source of truth: a tmpfs file written at boot by
+# quizonline-env-fetch.service from AWS SSM Parameter Store. The
+# Requires= above means a restart of this unit triggers a fresh
+# fetch — so ``aws ssm put-parameter --overwrite ... && systemctl
+# restart quizonline-gunicorn`` is the entire secret-rotation flow.
+EnvironmentFile=/run/quizonline/.env
 Environment="PYTHONUNBUFFERED=1"
 
 ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/gunicorn \

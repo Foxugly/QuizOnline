@@ -1,6 +1,7 @@
 [Unit]
 Description=Celery Worker QuizOnline
-After=network.target
+After=network.target quizonline-env-fetch.service
+Requires=quizonline-env-fetch.service
 
 [Service]
 Type=simple
@@ -8,7 +9,9 @@ User=django
 Group=www-data
 WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 
-EnvironmentFile=/var/www/django_websites/QuizOnline/quizonline-server/.env
+# Secrets come from /run/quizonline/.env (tmpfs), populated at boot
+# from AWS SSM Parameter Store. See quizonline-env-fetch.service.
+EnvironmentFile=/run/quizonline/.env
 Environment="PYTHONUNBUFFERED=1"
 
 ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/celery \
