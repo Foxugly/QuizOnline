@@ -61,3 +61,67 @@ def reorder_sections(*, course: Course, section_ids_in_order: list[int]) -> list
 @transaction.atomic
 def reorder_lessons(*, section: Section, lesson_ids_in_order: list[int]) -> list[Lesson]:
     return _two_phase_reorder(Lesson, models.Q(section=section), lesson_ids_in_order)
+
+
+def _unique_clone_slug(base_slug: str) -> str:
+    candidate = f"{base_slug}-copy"
+    n = 1
+    while Course.objects.filter(slug=candidate).exists():
+        n += 1
+        candidate = f"{base_slug}-copy-{n}"
+    return candidate
+
+
+@transaction.atomic
+def clone_course(*, source: Course, by_user, target_domain=None) -> Course:
+    new_domain = target_domain or source.domain
+    new = Course.objects.create(
+        domain=new_domain,
+        slug=_unique_clone_slug(source.slug),
+        language=source.language,
+        level=source.level,
+        estimated_duration=source.estimated_duration,
+        enrollment_mode=source.enrollment_mode,
+        cover_image=source.cover_image,
+        is_published=False,
+        created_by=by_user,
+        updated_by=by_user,
+    )
+    for tr in source.translations.all():
+        new.set_current_language(tr.language_code)
+        new.title = tr.title + " (copy)"
+        new.description = tr.description
+        new.learning_objectives = tr.learning_objectives
+        new.save()
+
+    for old_section in source.sections.all():
+        new_section = Section.objects.create(
+            course=new, order=old_section.order, is_published=old_section.is_published,
+        )
+        for tr in old_section.translations.all():
+            new_section.set_current_language(tr.language_code)
+            new_section.title = tr.title
+            new_section.description = tr.description
+            new_section.save()
+        for old_lesson in old_section.lessons.all():
+            new_lesson = Lesson.objects.create(
+                section=new_section, slug=old_lesson.slug, order=old_lesson.order,
+                is_preview=old_lesson.is_preview, is_published=old_lesson.is_published,
+                estimated_duration=old_lesson.estimated_duration,
+            )
+            for tr in old_lesson.translations.all():
+                new_lesson.set_current_language(tr.language_code)
+                new_lesson.title = tr.title
+                new_lesson.short_description = tr.short_description
+                new_lesson.save()
+            for old_block in old_lesson.blocks.all():
+                fields = {f.name: getattr(old_block, f.name) for f in ContentBlock._meta.concrete_fields if f.name != "id"}
+                fields["lesson"] = new_lesson
+                new_block = ContentBlock.objects.create(**fields)
+                for tr in old_block.translations.all():
+                    new_block.set_current_language(tr.language_code)
+                    new_block.title = tr.title
+                    new_block.rich_text = tr.rich_text
+                    new_block.callout_text = tr.callout_text
+                    new_block.save()
+    return new
