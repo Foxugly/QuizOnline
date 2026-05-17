@@ -1,0 +1,39 @@
+[Unit]
+Description=QuizOnline — fetch secrets from SSM Parameter Store
+# Network has to be up (AWS API call) and clock has to be sane
+# (SigV4 signatures rely on it). network-online.target is the
+# canonical "we can talk to remote hosts" signal on systemd.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Type=oneshot + RemainAfterExit=yes makes this unit a *barrier*:
+# Requires=quizonline-env-fetch.service on a downstream unit means
+# the downstream waits for this to exit successfully, and the unit
+# stays "active" thereafter so the dependency edge holds for the
+# whole boot, not just the moment the script returns.
+Type=oneshot
+RemainAfterExit=yes
+
+# Runs as root because it has to chmod/chown /run/quizonline/.env
+# to django:www-data afterwards. The IAM identity used for the SSM
+# call comes from the EC2 instance role via IMDS, not from any
+# credentials on disk.
+User=root
+
+# Hardening — the script only needs to read AWS APIs and write to
+# /run/quizonline. Block everything else.
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/run/quizonline
+ProtectHome=yes
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+
+ExecStart=/usr/local/bin/quizonline-fetch-env.sh
+
+# Don't drown the journal if the script churns through retries.
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target
