@@ -60,24 +60,13 @@ git pull --ff-only
 # ── 2. Backend ───────────────────────────────────────────────────────────────
 echo "[2/7] Updating backend..."
 
-# Pre-flight: refuse to deploy with a world-readable or wrongly-owned
-# .env. A loosened mode is almost always a backup-restore or
-# deploy-script bug — fail loud, do not silently roll forward over a
-# leaking-permission window. See deploy/SECRETS-ROTATION.md for the
-# fix procedure.
-ENV_FILE="$BACKEND_DIR/.env"
-if [ ! -f "$ENV_FILE" ]; then
-  warn ".env missing at $ENV_FILE — backend cannot boot without it"
-  exit 1
-fi
-ENV_PERMS=$(stat -c '%a' "$ENV_FILE")
-ENV_OWNER=$(stat -c '%U:%G' "$ENV_FILE")
-if [ "$ENV_PERMS" != "600" ] || [ "$ENV_OWNER" != "django:www-data" ]; then
-  warn ".env perms/owner wrong: $ENV_PERMS $ENV_OWNER (expected: 600 django:www-data)"
-  echo "      Fix: sudo chmod 600 $ENV_FILE && sudo chown django:www-data $ENV_FILE"
-  exit 1
-fi
-ok ".env perms OK ($ENV_PERMS $ENV_OWNER)"
+# Note: the legacy ``.env`` perms guard that used to live here is gone
+# along with Option B (SSM Parameter Store + tmpfs ``/run/quizonline/
+# .env`` populated at boot by quizonline-env-fetch.service). The
+# runtime env file's perms are now controlled by the fetch script
+# itself (it chmod 640 / chown django:www-data on every boot), so
+# the guard was protecting an artefact that no longer drives the
+# services. See deploy/SECRETS-ROTATION.md for the new rotation flow.
 
 "$PIP" install -r "$BACKEND_DIR/requirements.txt" -q
 cd "$BACKEND_DIR"
