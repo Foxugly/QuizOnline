@@ -22,8 +22,8 @@ to rotate, and the post-rotation verification.
 | 6 | `DEEPL_AUTH_KEY` | `.env` + DeepL portal | gunicorn | Low — third-party translation quota burnt |
 | 7 | `SENTRY_DSN` (backend) | `.env` + Sentry/GlitchTip | gunicorn | Low — spam to your ingest, quota burnt |
 | 8 | `SENTRY_DSN` (frontend) | `/etc/nginx/snippets/quizonline-frontend-runtime.conf` + Sentry | nginx reload | Low — same as #7 |
-| 9 | `EC2_SSH_KEY` (GitHub Secret) | GH repo secrets + EC2 `authorized_keys` | none | Critical — shell access to prod |
-| 10 | AWS IAM `quizonline-deploy` (post-OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy, can't read `.env` |
+| 9 | Personal SSH key on EC2 | `~/.ssh/authorized_keys` on EC2 (operator's `.pem` / `.ppk` on laptop) | none | High — shell access to prod. **Historical: this key was previously also stored as the GH Secret `EC2_SSH_KEY`; see notes in section 9.** |
+| 10 | AWS IAM `quizonline-deploy` (OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy + write to S3, can't read `.env` |
 
 ---
 
@@ -266,53 +266,86 @@ attempt does it) and check it lands in Sentry.
 
 ---
 
-## 9. `EC2_SSH_KEY` (GitHub Actions secret)
+## 9. Personal SSH key on EC2
 
-**What breaks if leaked.** Shell access to prod as the deploy user.
-Game over — assume `.env` is leaked too and rotate the lot.
+**Current state.** The `~/.ssh/authorized_keys` of the `ubuntu` user
+holds one ssh-rsa pubkey. The matching private key (`.pem` / `.ppk`)
+lives on the operator's laptop only. The GitHub Actions secret
+`EC2_SSH_KEY` was removed during the OIDC migration (May 2026), so
+this key no longer grants any automated access — only personal.
 
-**Rotation.**
+**What breaks if leaked.** Shell access to prod as the `ubuntu`
+user (which has passwordless sudo to `django`). Assume `.env` is
+leaked too and rotate the lot.
+
+**Historical note — outstanding hygiene item.** This pubkey was
+historically shared between the operator and the old SSH-based
+deploy workflow. Until rotated, the private key that was once stored
+in `EC2_SSH_KEY` remains a theoretical compromise vector (any
+historical exfiltration via a malicious workflow run would still be
+usable today). Probability is low (would have left CI log traces),
+but the clean fix is to rotate the key when convenient:
 
 ```bash
-# Local: generate a fresh keypair
-ssh-keygen -t ed25519 -C "github-actions-quizonline" -f ~/.ssh/qol_deploy -N ""
+# Local: generate a fresh, operator-only keypair
+ssh-keygen -t ed25519 -C "renaud@laptop" -f ~/.ssh/qol_personal -N ""
 
-# On EC2: install the new public key, remove the old one
+# On EC2: append the new pubkey, do NOT delete the old one yet
+echo "<paste new pubkey>" | sudo tee -a /home/ubuntu/.ssh/authorized_keys
+
+# Verify the new key works (separate SSH session) BEFORE removing the old
+ssh -i ~/.ssh/qol_personal ubuntu@<EC2_IP> 'echo ok'
+
+# Once the new key is confirmed, drop the old line
 sudo $EDITOR /home/ubuntu/.ssh/authorized_keys
-# → paste new pubkey, delete old line
 
-# GitHub repo: Settings → Secrets and variables → Actions → EC2_SSH_KEY
-# → "Update" with contents of ~/.ssh/qol_deploy (the *private* key)
+# Re-verify
+ssh -i ~/.ssh/qol_personal ubuntu@<EC2_IP> 'echo ok'
 ```
 
-**Verify.** Trigger a manual deploy via "Run workflow" in the Actions
-tab and watch it succeed.
+**Verify.** A second SSH session with the new key MUST succeed
+*before* you remove the old key — otherwise a typo in the new
+pubkey locks you out and you fall back to SSM Session Manager
+(`aws ssm start-session --target <instance-id>` — see
+[`README.md`](README.md)) to recover.
 
-> **Note.** Once Tier 2 (OIDC) is in place this entire secret goes
-> away. The new threat is the IAM role's trust policy — see #10.
+**Alternative.** Removing SSH entirely and relying only on AWS SSM
+Session Manager closes this surface for good. Requires nothing
+beyond what's already deployed.
 
 ---
 
-## 10. AWS IAM role `quizonline-deploy` (post-OIDC)
+## 10. AWS IAM role `quizonline-deploy` (OIDC)
 
-**What breaks if compromised.** GitHub Actions can `ssm:SendCommand`
-on the EC2 instance. The attacker can trigger a deploy of arbitrary
-content (so they can poison the frontend bundle if they also control
-the S3 bucket), but they cannot SSH in and cannot `cat .env`.
+**What breaks if compromised.** GitHub Actions can `s3:PutObject` on
+`quizonline-deploy/builds/*` and `ssm:SendCommand` on the EC2
+instance. The attacker can trigger a deploy of arbitrary frontend
+content (if they also push a malicious commit to main, or upload a
+tampered bundle and call SendCommand to install it). They cannot
+SSH in, cannot read `.env`, and cannot exfiltrate data beyond what
+the existing `ssm-deploy.sh` does.
 
-**Rotation = tighten the trust policy.**
+**Rotation = tighten the trust policy condition.**
 
 ```text
 1. AWS console → IAM → Roles → quizonline-deploy → Trust relationships
-2. Confirm the Condition still scopes to:
-     token.actions.githubusercontent.com:sub = "repo:Foxugly/QuizOnline:ref:refs/heads/main"
-3. If the repo was forked or migrated, update the sub claim
-4. If you suspect compromise: detach the policy, then re-attach with
-   the same trust + a NotBefore condition that excludes the suspect
-   window. Old tokens become unusable immediately.
+2. The Condition.StringEquals block should read:
+     token.actions.githubusercontent.com:aud = "sts.amazonaws.com"
+     token.actions.githubusercontent.com:sub = "repo:Foxugly/QuizOnline:environment:production"
+3. If the repo is forked / migrated / renamed, update the sub claim
+   accordingly (org and repo names are case-sensitive).
+4. If you suspect compromise: detach the inline DeployViaSSM policy
+   to immediately break the role's effective permissions, investigate
+   via CloudTrail (Service = sts.amazonaws.com, EventName =
+   AssumeRoleWithWebIdentity for the role), then re-attach. Existing
+   tokens have a 15-minute TTL so the window of exposure is bounded.
 ```
 
-No app restart needed — the role is consulted at each Actions run.
+**Verify.** Trigger a manual deploy:
+``gh workflow run Deploy --repo Foxugly/QuizOnline``. Watch for the
+"Configure AWS credentials (OIDC)" step succeeding.
+
+No app restart needed — the role is consulted on every Actions run.
 
 ---
 
