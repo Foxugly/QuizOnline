@@ -14,16 +14,49 @@ to rotate, and the post-rotation verification.
 
 | # | Secret | Lives in | Restart needed | Severity if leaked |
 |---|--------|----------|----------------|--------------------|
-| 1 | `SECRET_KEY` | `.env` | gunicorn | High — all sessions invalidated, signed URLs broken |
-| 2 | `JWT_SIGNING_KEY` | `.env` | gunicorn | High — all active JWTs invalidated, mass re-login |
-| 3 | `DATABASE_URL` (password segment) | `.env` + postgres | gunicorn + celery | Critical — read/write of all app data |
-| 4 | `EMAIL_HOST_PASSWORD` | `.env` + Office 365 | gunicorn | Critical — phishing from your own domain |
-| 5 | `MS_GRAPH_CLIENT_SECRET` | `.env` + Azure AD | gunicorn | Critical — same as #4 plus Graph API access |
-| 6 | `DEEPL_AUTH_KEY` | `.env` + DeepL portal | gunicorn | Low — third-party translation quota burnt |
-| 7 | `SENTRY_DSN` (backend) | `.env` + Sentry/GlitchTip | gunicorn | Low — spam to your ingest, quota burnt |
+| 1 | `SECRET_KEY` | SSM `/quizonline/prod/SECRET_KEY` | gunicorn | High — all sessions invalidated, signed URLs broken |
+| 2 | `JWT_SIGNING_KEY` | SSM `/quizonline/prod/JWT_SIGNING_KEY` | gunicorn | High — all active JWTs invalidated, mass re-login |
+| 3 | `DATABASE_URL` (password segment) | SSM `/quizonline/prod/DATABASE_URL` + postgres | gunicorn + celery + celery-beat | Critical — read/write of all app data |
+| 4 | `EMAIL_HOST_PASSWORD` | SSM `/quizonline/prod/EMAIL_HOST_PASSWORD` + Office 365 | gunicorn + celery | Critical — phishing from your own domain |
+| 5 | `MS_GRAPH_CLIENT_SECRET` | SSM `/quizonline/prod/MS_GRAPH_CLIENT_SECRET` + Azure AD | gunicorn + celery | Critical — same as #4 plus Graph API access |
+| 6 | `DEEPL_AUTH_KEY` | SSM `/quizonline/prod/DEEPL_AUTH_KEY` + DeepL portal | gunicorn | Low — third-party translation quota burnt |
+| 7 | `SENTRY_DSN` (backend) | SSM `/quizonline/prod/SENTRY_DSN` + Sentry/GlitchTip | gunicorn + celery + celery-beat | Low — spam to your ingest, quota burnt |
 | 8 | `SENTRY_DSN` (frontend) | `/etc/nginx/snippets/quizonline-frontend-runtime.conf` + Sentry | nginx reload | Low — same as #7 |
 | 9 | Personal SSH key on EC2 | `~/.ssh/authorized_keys` on EC2 (operator's `.pem` / `.ppk` on laptop) | none | High — shell access to prod. **Historical: this key was previously also stored as the GH Secret `EC2_SSH_KEY`; see notes in section 9.** |
-| 10 | AWS IAM `quizonline-deploy` (OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy + write to S3, can't read `.env` |
+| 10 | AWS IAM `quizonline-deploy` (OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy + write to S3, can't read SSM Parameter Store |
+
+---
+
+## How rotation works (since Option B / SSM Parameter Store)
+
+Sections 1-7 all describe secrets that live in AWS SSM Parameter
+Store at ``/quizonline/prod/<KEY>`` (region ``eu-west-1``). The
+EC2 instance pulls the full set into the tmpfs file
+``/run/quizonline/.env`` at every boot via
+``quizonline-env-fetch.service``, which is a ``Requires=`` dependency
+of the three application services. A ``systemctl restart`` of any
+app service therefore re-triggers the fetch *before* the service
+boots — so the canonical rotation pattern is:
+
+```bash
+# 1. Put the new value
+aws ssm put-parameter --region eu-west-1 \
+  --name /quizonline/prod/<KEY> \
+  --value "<new-value>" \
+  --type SecureString --overwrite
+
+# 2. Restart whichever services consume that secret
+sudo systemctl restart quizonline-gunicorn
+# (add quizonline-celery quizonline-celery-beat for secrets read by
+# the worker / beat: DATABASE_URL, EMAIL_*, MS_GRAPH_*, SENTRY_DSN)
+```
+
+No SSH editor session, no perms-drift to worry about (the fetch
+script writes ``0640 django:www-data`` deterministically), and
+each rotation is logged in CloudTrail (`EventName =
+PutParameter`). Below, only the **provider-side** preparation
+(generate a new value, rotate at Office 365 / Azure AD / DeepL …)
+is spelled out per secret — the SSM + restart half is identical.
 
 ---
 
@@ -34,20 +67,15 @@ password-reset tokens, the legacy `signing` framework, and several
 internal CSRF helpers. Anyone with the value can forge sessions and
 password-reset URLs.
 
-**Rotation.**
+**Prepare a new value.**
 
 ```bash
-# Generate
-python -c 'import secrets; print(secrets.token_urlsafe(64))'
-
-# Update .env on EC2
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace SECRET_KEY=...
-
-# Restart only the Django process — celery doesn't read SECRET_KEY for
-# crypto, just for general settings import.
-sudo systemctl restart quizonline-gunicorn
+python3 -c 'import secrets; print(secrets.token_urlsafe(64))'
 ```
+
+Then apply via the pattern above on `/quizonline/prod/SECRET_KEY`
+and restart `quizonline-gunicorn` only — celery doesn't read it for
+crypto, just for settings import.
 
 **Verify.**
 
@@ -67,14 +95,14 @@ password-reset emails sent before rotation become invalid.
 **What breaks if leaked.** All issued JWT access + refresh tokens
 become forgeable. An attacker can mint a token for any user id.
 
-**Rotation.**
+**Prepare a new value.**
 
 ```bash
-python -c 'import secrets; print(secrets.token_urlsafe(64))'
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace JWT_SIGNING_KEY=...
-sudo systemctl restart quizonline-gunicorn
+python3 -c 'import secrets; print(secrets.token_urlsafe(64))'
 ```
+
+Apply via the pattern on `/quizonline/prod/JWT_SIGNING_KEY` and
+restart `quizonline-gunicorn`.
 
 **Verify.** A logged-in browser will get 401 on the next API call and
 be redirected to login. That's the expected post-rotation behaviour.
@@ -90,20 +118,19 @@ tokens also break — full re-authentication required.
 is reachable. With SQLite the URL holds only a path (no rotation
 needed); the steps below assume Postgres.
 
-**Rotation.**
+**Provider-side prep.**
 
 ```bash
-# 1. Generate
-NEW_PW=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
+NEW_PW=$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')
 echo "$NEW_PW"   # copy
-
-# 2. Update postgres
 sudo -u postgres psql -c "ALTER USER quizonline WITH PASSWORD '$NEW_PW';"
+```
 
-# 3. Update .env (preserve URL shape: postgres://user:NEW_PW@host:port/db)
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
+Then put the full URL (`postgres://quizonline:$NEW_PW@host:port/db`)
+on `/quizonline/prod/DATABASE_URL` and restart **all three** services
+since each holds a DB connection pool:
 
-# 4. Restart everything that holds a DB connection pool
+```bash
 sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
 ```
 
@@ -126,19 +153,16 @@ sudo -u django bash -c '
 sends mail from `DEFAULT_FROM_EMAIL` — phishing under your domain's
 trust.
 
-**Rotation (Office 365).**
+**Provider-side prep (Office 365).**
 
 ```text
 1. Office 365 admin → Users → active users → select the SMTP mailbox
 2. Reset password (set a generated value, copy it)
-3. Update .env, restart gunicorn:
 ```
 
-```bash
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace EMAIL_HOST_PASSWORD=...
-sudo systemctl restart quizonline-gunicorn
-```
+Then apply via the pattern on `/quizonline/prod/EMAIL_HOST_PASSWORD`
+and restart `quizonline-gunicorn` + `quizonline-celery` (the worker
+sends queued mail).
 
 **Verify.**
 
@@ -161,20 +185,17 @@ gunicorn restarts. Queued Celery email tasks retry automatically.
 app — read/send mail, list users, plus any other Graph permission you
 granted the app.
 
-**Rotation (Azure AD).**
+**Provider-side prep (Azure AD).**
 
 ```text
 1. Azure portal → App registrations → QuizOnline → Certificates & secrets
 2. New client secret (24-month expiry, descriptive name)
 3. Copy the Value (NOT the Secret ID — that's the public reference)
-4. Delete the old secret entry once #3-#5 below are done
+4. Delete the old secret entry once the new one is verified
 ```
 
-```bash
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace MS_GRAPH_CLIENT_SECRET=...
-sudo systemctl restart quizonline-gunicorn
-```
+Then apply via the pattern on `/quizonline/prod/MS_GRAPH_CLIENT_SECRET`
+and restart `quizonline-gunicorn` + `quizonline-celery`.
 
 **Verify.** Same `sendtestemail` as section 4 if you use Graph for
 outbound mail; otherwise hit whichever Graph-backed endpoint your
@@ -190,18 +211,16 @@ deployment uses.
 translations. With the free tier the cost is zero; with the Pro tier
 they can rack up your bill.
 
-**Rotation.**
+**Provider-side prep.**
 
 ```text
 1. DeepL portal → Account → Authentication Key → Regenerate
 2. Copy the new key
 ```
 
-```bash
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace DEEPL_AUTH_KEY=...
-sudo systemctl restart quizonline-gunicorn
-```
+Then apply via the pattern on `/quizonline/prod/DEEPL_AUTH_KEY` and
+restart `quizonline-gunicorn` (DeepL is called from the request path,
+not from celery).
 
 **Verify.** Edit a question → press the "Translate" button in the SPA
 → check the target-language tab populates.
@@ -214,19 +233,17 @@ sudo systemctl restart quizonline-gunicorn
 with garbage events, exhausting your monthly quota and burying real
 errors.
 
-**Rotation.**
+**Provider-side prep.**
 
 ```text
 1. Sentry/GlitchTip → Project Settings → Client Keys (DSN)
 2. Create new DSN, copy
-3. Disable / delete the old DSN
+3. Disable / delete the old DSN once the new one is verified live
 ```
 
-```bash
-sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-# → replace SENTRY_DSN=...
-sudo systemctl restart quizonline-gunicorn
-```
+Then apply via the pattern on `/quizonline/prod/SENTRY_DSN` and
+restart `quizonline-gunicorn` + `quizonline-celery` + `quizonline-celery-beat`
+(all three send events).
 
 **Verify.**
 
@@ -372,16 +389,22 @@ If `Encrypted=false` for the root volume:
 
 ---
 
-## .env file integrity
+## Runtime .env integrity (`/run/quizonline/.env`)
 
-The `redeploy.sh` pre-flight blocks any deploy when `.env` is not
-`600 django:www-data`. If a deploy fails with that error:
+`quizonline-env-fetch.service` writes the runtime env file with
+deterministic perms (`0640 django:www-data`) on every boot —
+permissions cannot drift in practice. If you ever need to inspect:
 
 ```bash
-sudo chmod 600 /var/www/django_websites/QuizOnline/quizonline-server/.env
-sudo chown django:www-data /var/www/django_websites/QuizOnline/quizonline-server/.env
+sudo stat -c '%a %U:%G %n' /run/quizonline/.env
+# expect: 640 django:www-data /run/quizonline/.env
+
+# Re-trigger the fetch without rebooting:
+sudo systemctl restart quizonline-env-fetch.service quizonline-gunicorn
 ```
 
-Investigate **why** the perms drifted before re-running — a chmod
-loosening is almost always a deploy-script or backup-restore bug, not
-random rot.
+If the fetch service fails (CloudTrail will show the failed
+`GetParametersByPath`), the **previous** tmpfs file is preserved
+intact (the script bails before the atomic rename) and gunicorn keeps
+running on the last-known-good config. Investigate via
+`sudo journalctl -u quizonline-env-fetch -n 50`.
