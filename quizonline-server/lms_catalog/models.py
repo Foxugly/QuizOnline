@@ -1,9 +1,17 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
 from config.models import AuditMixin
+
+from .querysets import (
+    ContentBlockQuerySet,
+    CourseQuerySet,
+    LessonQuerySet,
+    SectionQuerySet,
+)
 
 
 class Course(AuditMixin, TranslatableModel):
@@ -52,6 +60,8 @@ class Course(AuditMixin, TranslatableModel):
         learning_objectives=models.TextField(_("learning objectives"), blank=True),
     )
 
+    objects = TranslatableManager.from_queryset(CourseQuerySet)()
+
     class Meta:
         ordering = ["-published_at", "-created_at"]
         indexes = [
@@ -86,6 +96,8 @@ class Section(TranslatableModel):
         description=models.TextField(_("description"), blank=True),
     )
 
+    objects = TranslatableManager.from_queryset(SectionQuerySet)()
+
     class Meta:
         ordering = ["course", "order"]
         constraints = [
@@ -108,6 +120,8 @@ class Lesson(TranslatableModel):
         title=models.CharField(_("title"), max_length=200),
         short_description=models.TextField(_("short description"), blank=True),
     )
+
+    objects = TranslatableManager.from_queryset(LessonQuerySet)()
 
     class Meta:
         ordering = ["section", "order"]
@@ -168,6 +182,8 @@ class ContentBlock(TranslatableModel):
         rich_text=models.TextField(_("rich text"), blank=True),
         callout_text=models.TextField(_("callout text"), blank=True),
     )
+
+    objects = TranslatableManager.from_queryset(ContentBlockQuerySet)()
 
     class Meta:
         ordering = ["lesson", "order"]
