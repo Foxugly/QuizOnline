@@ -88,25 +88,12 @@ fi
 echo "[4/7] Syncing systemd service files..."
 SVC_UPDATED=0
 
-# Also sync the env-fetch helper script — the env-fetch.service unit
-# ExecStart points at /usr/local/bin/quizonline-fetch-env.sh so the
-# two must move together. Sync first so the service can find it the
-# moment systemd daemon-reload picks up the unit. The exec bit comes
-# from the git index (deploy/fetch-env-from-ssm.sh is tracked with
-# mode 100755), so a plain ``sudo cp`` is enough — no chmod / install
-# needed (and ``install`` isn't in the django sudoers whitelist).
-FETCH_SRC="$DEPLOY_DIR/fetch-env-from-ssm.sh"
-FETCH_DST="/usr/local/bin/quizonline-fetch-env.sh"
-if [ -f "$FETCH_SRC" ]; then
-  if [ -f "$FETCH_DST" ] && cmp -s "$FETCH_SRC" "$FETCH_DST"; then
-    echo "  OK: quizonline-fetch-env.sh (no change)"
-  else
-    sudo cp "$FETCH_SRC" "$FETCH_DST"
-    echo "  Updated: quizonline-fetch-env.sh"
-  fi
-else
-  echo "  WARN: fetch-env-from-ssm.sh missing in deploy/, skipping"
-fi
+# No need to copy the env-fetch script anywhere — the systemd unit's
+# ExecStart= points straight at deploy/fetch-env-from-ssm.sh in this
+# git checkout. The django sudoers only allows ``cp`` into
+# /etc/systemd/system/, so trying to install elsewhere just trips
+# the password prompt. See quizonline-env-fetch.service for the
+# rationale.
 
 for svc in quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
   SRC="$DEPLOY_DIR/$svc.service"

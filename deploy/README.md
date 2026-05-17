@@ -71,10 +71,12 @@ Repository layout on EC2:
 └── .env                                     ← 640 django:www-data, written
                                                 at boot by env-fetch from
                                                 SSM /quizonline/prod/*
-
-/usr/local/bin/quizonline-fetch-env.sh       ← installed from
-                                                deploy/fetch-env-from-ssm.sh
 ```
+
+The env-fetch service's `ExecStart=` points straight at
+`deploy/fetch-env-from-ssm.sh` in the git checkout — no copy into
+`/usr/local/bin/`, which would need sudoers rules the django user
+doesn't have.
 
 ---
 
@@ -226,8 +228,10 @@ SSM Parameter Store at `/quizonline/prod/*`. There is no persistent
 `.env` on disk:
 
 1. At boot, `quizonline-env-fetch.service` (oneshot, before the app
-   services) invokes `/usr/local/bin/quizonline-fetch-env.sh`, which
-   calls `aws ssm get-parameters-by-path --recursive --with-decryption`
+   services) invokes
+   `/var/www/django_websites/QuizOnline/deploy/fetch-env-from-ssm.sh`
+   straight from the git checkout, which calls
+   `aws ssm get-parameters-by-path --recursive --with-decryption`
    and writes the result to `/run/quizonline/.env` (tmpfs, mode
    `640 django:www-data`).
 2. gunicorn / celery / celery-beat declare `Requires=quizonline-env-fetch.service`
@@ -376,10 +380,10 @@ ever rebuild:
    `SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_HOST_PASSWORD`,
    `MS_GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY` and `SENTRY_DSN` upload
    as `SecureString`; the rest as plain `String`.
-6. **Env-fetch script + systemd units**:
+6. **systemd units** (the env-fetch unit runs the helper straight from
+   the git checkout — no `/usr/local/bin/` install needed):
    ```bash
    # On EC2:
-   sudo install -m 0755 deploy/fetch-env-from-ssm.sh /usr/local/bin/quizonline-fetch-env.sh
    sudo cp deploy/quizonline-*.service deploy/quizonline-*.timer /etc/systemd/system/
    sudo systemctl daemon-reload
    sudo systemctl enable --now quizonline-env-fetch.service
