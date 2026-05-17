@@ -74,3 +74,23 @@ class Course(AuditMixin, TranslatableModel):
                 raise ValidationError({
                     "language": _("Course primary language must be one of the domain's allowed languages."),
                 })
+
+
+class Section(TranslatableModel):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="sections")
+    order = models.PositiveIntegerField(default=0, db_index=True)
+    is_published = models.BooleanField(default=False)
+
+    translations = TranslatedFields(
+        title=models.CharField(_("title"), max_length=200),
+        description=models.TextField(_("description"), blank=True),
+    )
+
+    class Meta:
+        ordering = ["course", "order"]
+        constraints = [
+            models.UniqueConstraint(fields=["course", "order"], name="uniq_section_order_per_course"),
+        ]
+
+    def __str__(self) -> str:
+        return self.safe_translation_getter("title", any_language=True) or f"Section #{self.pk}"

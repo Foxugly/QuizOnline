@@ -3,6 +3,7 @@ import pytest
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
+from lms_catalog.models import Course
 
 
 @pytest.fixture
@@ -28,3 +29,12 @@ def domain(db, owner, fr_lang):
     d.save()
     d.allowed_languages.add(fr_lang)
     return d
+
+
+@pytest.fixture
+def course(db, domain, fr_lang):
+    c = Course(domain=domain, slug="c1", language=fr_lang, level=Course.LEVEL_BEGINNER)
+    c.set_current_language("fr")
+    c.title = "C1"
+    c.save()
+    return c
