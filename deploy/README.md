@@ -216,7 +216,7 @@ All in **eu-west-1** unless noted.
 | IAM role | `quizonline-deploy` | Assumed by GitHub Actions via OIDC. Trust policy scoped to `repo:Foxugly/QuizOnline:environment:production`. Inline policy `DeployViaSSM` grants `s3:PutObject` on `builds/*`, `ssm:SendCommand` on the EC2 instance + AWS-RunShellScript document, and `ssm:GetCommandInvocation` (resource `*` because command-id is dynamic). |
 | IAM role | `quizonline-ec2` | EC2 instance role. Managed policies `AmazonSSMManagedInstanceCore` (+ `CloudWatchAgentServerPolicy`, dormant). Inline `S3ReadDeployBundles` grants `s3:GetObject` on `arn:aws:s3:::quizonline-deploy/builds/*` (SSM-invoked deploy scripts pull bundles). Inline `ReadAppConfigFromSSM` grants `ssm:GetParameter[s][ByPath]` on `arn:aws:ssm:eu-west-1:<ACCOUNT>:parameter/quizonline/prod[/*]` (boot-time env fetch). KMS decrypt on `alias/aws/ssm` is implicit when reading SecureString with the default key. |
 | S3 bucket | `quizonline-deploy` | Private, versioning on. Lifecycle `expire-old-builds`: current versions 14d, noncurrent 7d, incomplete multipart 7d. Bundles named `builds/<sha>.tar.gz`. |
-| SSM Parameter Store | `/quizonline/prod/*` | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_*`, `MS_GRAPH_*`, `DEEPL_AUTH_KEY`, `SENTRY_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `systemctl restart`. |
+| SSM Parameter Store | `/quizonline/prod/*` | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_*`, `MS_GRAPH_*`, `DEEPL_AUTH_KEY`, `SENTRY_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `sudo systemctl restart quizonline-env-fetch <app-unit>` (see [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)). |
 | EC2 instance | (see AWS console — region eu-west-1) | t-class or larger. Ubuntu 24.04 LTS. SSM agent via snap, AWS CLI v2 from official installer. |
 
 ---
@@ -235,12 +235,15 @@ SSM Parameter Store at `/quizonline/prod/*`. There is no persistent
    and writes the result to `/run/quizonline/.env` (tmpfs, mode
    `640 django:www-data`).
 2. gunicorn / celery / celery-beat declare `Requires=quizonline-env-fetch.service`
-   and `EnvironmentFile=/run/quizonline/.env`. A restart of any of
-   them re-triggers the env-fetch automatically.
+   and `EnvironmentFile=/run/quizonline/.env`. The `Requires=` makes
+   env-fetch a startup *dependency* but **does not re-run** it on a
+   bare service restart (env-fetch is oneshot + RemainAfterExit=yes,
+   systemd sees it already active and skips it).
 3. Rotation = `aws ssm put-parameter --overwrite --name … --value …`
-   followed by `sudo systemctl restart quizonline-gunicorn` (and
-   whichever celery units consume that secret — see the per-secret
-   restart column in [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)).
+   followed by an *explicit* restart of env-fetch alongside the app
+   service(s): `sudo systemctl restart quizonline-env-fetch quizonline-gunicorn`
+   (add celery / celery-beat for secrets they consume — see the
+   per-secret restart column in [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)).
 
 Properties this gives us:
 
@@ -299,10 +302,12 @@ Unit files in [`deploy/`](.), synced into `/etc/systemd/system/` by
 | `quizonline-celery-beat.service` | Celery beat scheduler | `/run/quizonline/.env` |
 | `quizonline-backup.service` + `.timer` | Daily DB backup | inline `Environment=` |
 
-The three app units declare `Requires=quizonline-env-fetch.service`,
-so a `systemctl restart` of any of them re-triggers the SSM fetch
-first — secret rotation is `aws ssm put-parameter --overwrite` plus
-the restart, no manual env file touch.
+The three app units declare `Requires=quizonline-env-fetch.service`
+for boot ordering. Secret rotation is `aws ssm put-parameter
+--overwrite` plus `systemctl restart quizonline-env-fetch <app>` —
+env-fetch must be in the restart command (it's a oneshot with
+`RemainAfterExit=yes`, so `Requires=` alone doesn't re-run it on a
+bare app restart).
 
 All app processes run as `User=django, Group=www-data`. Gunicorn-access
 / gunicorn-error logs live under `/var/log/quizonline/`. Celery and

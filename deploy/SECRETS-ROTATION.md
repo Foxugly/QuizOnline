@@ -12,8 +12,8 @@ to rotate, and the post-rotation verification.
 
 ## At a glance
 
-| # | Secret | Lives in | Restart needed | Severity if leaked |
-|---|--------|----------|----------------|--------------------|
+| # | Secret | Lives in | Restart needed (always prefixed with `env-fetch`) | Severity if leaked |
+|---|--------|----------|---------------------------------------------------|--------------------|
 | 1 | `SECRET_KEY` | SSM `/quizonline/prod/SECRET_KEY` | gunicorn | High — all sessions invalidated, signed URLs broken |
 | 2 | `JWT_SIGNING_KEY` | SSM `/quizonline/prod/JWT_SIGNING_KEY` | gunicorn | High — all active JWTs invalidated, mass re-login |
 | 3 | `DATABASE_URL` (password segment) | SSM `/quizonline/prod/DATABASE_URL` + postgres | gunicorn + celery + celery-beat | Critical — read/write of all app data |
@@ -33,10 +33,9 @@ Sections 1-7 all describe secrets that live in AWS SSM Parameter
 Store at ``/quizonline/prod/<KEY>`` (region ``eu-west-1``). The
 EC2 instance pulls the full set into the tmpfs file
 ``/run/quizonline/.env`` at every boot via
-``quizonline-env-fetch.service``, which is a ``Requires=`` dependency
-of the three application services. A ``systemctl restart`` of any
-app service therefore re-triggers the fetch *before* the service
-boots — so the canonical rotation pattern is:
+``quizonline-env-fetch.service``, which is a ``Requires=``
+dependency of the three application services. The canonical
+rotation pattern is:
 
 ```bash
 # 1. Put the new value
@@ -45,11 +44,22 @@ aws ssm put-parameter --region eu-west-1 \
   --value "<new-value>" \
   --type SecureString --overwrite
 
-# 2. Restart whichever services consume that secret
-sudo systemctl restart quizonline-gunicorn
+# 2. Restart env-fetch AND whichever services consume that secret —
+#    both in one call, systemd resolves the dep order.
+sudo systemctl restart quizonline-env-fetch quizonline-gunicorn
 # (add quizonline-celery quizonline-celery-beat for secrets read by
 # the worker / beat: DATABASE_URL, EMAIL_*, MS_GRAPH_*, SENTRY_DSN)
 ```
+
+> **Important.** ``quizonline-env-fetch.service`` is a oneshot with
+> ``RemainAfterExit=yes`` — once it has run successfully at boot it
+> stays "active (exited)". A bare ``systemctl restart
+> quizonline-gunicorn`` finds env-fetch already active, considers
+> the ``Requires=`` dep satisfied, and **does not re-run** the
+> fetch. gunicorn would then boot with the OLD value from the
+> tmpfs. The explicit ``restart quizonline-env-fetch …`` forces
+> systemd to re-execute the script, write the fresh value into
+> ``/run/quizonline/.env``, and only then start gunicorn.
 
 No SSH editor session, no perms-drift to worry about (the fetch
 script writes ``0640 django:www-data`` deterministically), and
@@ -74,8 +84,10 @@ python3 -c 'import secrets; print(secrets.token_urlsafe(64))'
 ```
 
 Then apply via the pattern above on `/quizonline/prod/SECRET_KEY`
-and restart `quizonline-gunicorn` only — celery doesn't read it for
-crypto, just for settings import.
+and restart `quizonline-env-fetch quizonline-gunicorn` only —
+celery doesn't read it for crypto, just for settings import. (See
+the "Important" note in the preamble — env-fetch MUST be in the
+restart command for the new value to land in /run/quizonline/.env.)
 
 **Verify.**
 
@@ -102,7 +114,7 @@ python3 -c 'import secrets; print(secrets.token_urlsafe(64))'
 ```
 
 Apply via the pattern on `/quizonline/prod/JWT_SIGNING_KEY` and
-restart `quizonline-gunicorn`.
+restart `quizonline-env-fetch quizonline-gunicorn`.
 
 **Verify.** A logged-in browser will get 401 on the next API call and
 be redirected to login. That's the expected post-rotation behaviour.
@@ -127,11 +139,11 @@ sudo -u postgres psql -c "ALTER USER quizonline WITH PASSWORD '$NEW_PW';"
 ```
 
 Then put the full URL (`postgres://quizonline:$NEW_PW@host:port/db`)
-on `/quizonline/prod/DATABASE_URL` and restart **all three** services
-since each holds a DB connection pool:
+on `/quizonline/prod/DATABASE_URL` and restart env-fetch + **all
+three** app services (each holds its own DB pool):
 
 ```bash
-sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
+sudo systemctl restart quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat
 ```
 
 **Verify.**
@@ -161,8 +173,8 @@ trust.
 ```
 
 Then apply via the pattern on `/quizonline/prod/EMAIL_HOST_PASSWORD`
-and restart `quizonline-gunicorn` + `quizonline-celery` (the worker
-sends queued mail).
+and restart `quizonline-env-fetch quizonline-gunicorn quizonline-celery`
+(the worker sends queued mail).
 
 **Verify.**
 
@@ -195,7 +207,7 @@ granted the app.
 ```
 
 Then apply via the pattern on `/quizonline/prod/MS_GRAPH_CLIENT_SECRET`
-and restart `quizonline-gunicorn` + `quizonline-celery`.
+and restart `quizonline-env-fetch quizonline-gunicorn quizonline-celery`.
 
 **Verify.** Same `sendtestemail` as section 4 if you use Graph for
 outbound mail; otherwise hit whichever Graph-backed endpoint your
@@ -219,8 +231,8 @@ they can rack up your bill.
 ```
 
 Then apply via the pattern on `/quizonline/prod/DEEPL_AUTH_KEY` and
-restart `quizonline-gunicorn` (DeepL is called from the request path,
-not from celery).
+restart `quizonline-env-fetch quizonline-gunicorn` (DeepL is called
+from the request path, not from celery).
 
 **Verify.** Edit a question → press the "Translate" button in the SPA
 → check the target-language tab populates.
@@ -242,8 +254,8 @@ errors.
 ```
 
 Then apply via the pattern on `/quizonline/prod/SENTRY_DSN` and
-restart `quizonline-gunicorn` + `quizonline-celery` + `quizonline-celery-beat`
-(all three send events).
+restart `quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat`
+(all three app units send events).
 
 **Verify.**
 

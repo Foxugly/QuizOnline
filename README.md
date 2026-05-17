@@ -221,22 +221,17 @@ En production, prévoir au minimum :
 - stockage média adapté si plusieurs instances
 - cohérence entre limites d upload Django et reverse proxy
 
-Guide détaillé : [`docs/deployment.md`](./docs/deployment.md)
+Guide opérateur complet : [`deploy/README.md`](./deploy/README.md) (bootstrap EC2, deploy quotidien, rollback, inventaire AWS) + [`deploy/SECRETS-ROTATION.md`](./deploy/SECRETS-ROTATION.md) (rotation des credentials).
 
-## Deploy automatise
+## Deploy automatisé
 
-Le deploiement est automatise via GitHub Actions :
-
-- CI : `.github/workflows/ci.yml` (tests backend + frontend)
-- Deploy : `.github/workflows/deploy.yml` (build frontend, SCP vers EC2, SSH deploy)
-- Script serveur : `deploy/redeploy.sh` — pull, update backend, sync services, restart, health checks
-- Secrets GitHub requis : `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`
-- Le frontend est builde en CI (pas sur l EC2) car la memoire de l instance est limitee
+GitHub Actions sur push `main`. CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) puis Deploy ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)) — assume un rôle IAM AWS via OIDC, upload le bundle Angular vers S3, déclenche `redeploy.sh` sur EC2 via SSM RunCommand. Pas de clé SSH long-durée. Secrets backend stockés dans SSM Parameter Store et chargés au boot dans un tmpfs `/run/quizonline/.env`. Détails complets dans [`deploy/README.md`](./deploy/README.md).
 
 ## Documentation complémentaire
 
 - structure du dépôt : [`docs/repository-structure.md`](./docs/repository-structure.md)
-- déploiement : [`docs/deployment.md`](./docs/deployment.md)
+- déploiement + rollback : [`deploy/README.md`](./deploy/README.md)
+- rotation des credentials : [`deploy/SECRETS-ROTATION.md`](./deploy/SECRETS-ROTATION.md)
 - checklist acceptance / production : [`docs/acceptance-checklist.md`](./docs/acceptance-checklist.md)
 
 ## Principes du projet
