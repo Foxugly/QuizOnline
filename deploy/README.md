@@ -42,6 +42,11 @@ from scratch, a hotfix has to skip CI, a build has to roll back.
                                       ┌────────▼─────────┐
                                       │  EC2 instance    │
                                       │  • SSM agent     │
+                                      │  • env-fetch ◄───┼── SSM Parameter
+                                      │    (boot oneshot)│   Store /quizonline/
+                                      │  • /run/         │   prod/* (SecureString)
+                                      │    quizonline/   │
+                                      │    .env (tmpfs)  │
                                       │  • django user   │
                                       │  • nginx (443)   │
                                       │  • gunicorn:8000 │
@@ -55,13 +60,20 @@ Repository layout on EC2:
 ```
 /var/www/django_websites/QuizOnline/        ← git checkout
 ├── quizonline-server/                       ← Django app
-│   ├── .env                                 ← 600 django:www-data
 │   └── .venv/                               ← Python venv
 ├── quizonline-frontend/
 │   └── dist/quizonline-frontend/
 │       ├── browser/                         ← live bundle (served by nginx)
 │       └── browser.prev/                    ← previous bundle (rollback target)
 └── deploy/                                  ← this directory
+
+/run/quizonline/                             ← tmpfs (per-boot)
+└── .env                                     ← 640 django:www-data, written
+                                                at boot by env-fetch from
+                                                SSM /quizonline/prod/*
+
+/usr/local/bin/quizonline-fetch-env.sh       ← installed from
+                                                deploy/fetch-env-from-ssm.sh
 ```
 
 ---
@@ -200,9 +212,52 @@ All in **eu-west-1** unless noted.
 |----------|------------|---------|
 | OIDC provider | `arn:aws:iam::<ACCOUNT>:oidc-provider/token.actions.githubusercontent.com` | Lets GitHub Actions mint short-lived AWS tokens (audience `sts.amazonaws.com`). Global, one per account. |
 | IAM role | `quizonline-deploy` | Assumed by GitHub Actions via OIDC. Trust policy scoped to `repo:Foxugly/QuizOnline:environment:production`. Inline policy `DeployViaSSM` grants `s3:PutObject` on `builds/*`, `ssm:SendCommand` on the EC2 instance + AWS-RunShellScript document, and `ssm:GetCommandInvocation` (resource `*` because command-id is dynamic). |
-| IAM role | `quizonline-ec2` | EC2 instance role. Managed policies `AmazonSSMManagedInstanceCore` (+ `CloudWatchAgentServerPolicy`, dormant). Inline `S3ReadDeployBundles` grants `s3:GetObject` on `arn:aws:s3:::quizonline-deploy/builds/*` so SSM-invoked scripts can pull bundles. |
+| IAM role | `quizonline-ec2` | EC2 instance role. Managed policies `AmazonSSMManagedInstanceCore` (+ `CloudWatchAgentServerPolicy`, dormant). Inline `S3ReadDeployBundles` grants `s3:GetObject` on `arn:aws:s3:::quizonline-deploy/builds/*` (SSM-invoked deploy scripts pull bundles). Inline `ReadAppConfigFromSSM` grants `ssm:GetParameter[s][ByPath]` on `arn:aws:ssm:eu-west-1:<ACCOUNT>:parameter/quizonline/prod[/*]` (boot-time env fetch). KMS decrypt on `alias/aws/ssm` is implicit when reading SecureString with the default key. |
 | S3 bucket | `quizonline-deploy` | Private, versioning on. Lifecycle `expire-old-builds`: current versions 14d, noncurrent 7d, incomplete multipart 7d. Bundles named `builds/<sha>.tar.gz`. |
+| SSM Parameter Store | `/quizonline/prod/*` | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_*`, `MS_GRAPH_*`, `DEEPL_AUTH_KEY`, `SENTRY_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `systemctl restart`. |
 | EC2 instance | (see AWS console — region eu-west-1) | t-class or larger. Ubuntu 24.04 LTS. SSM agent via snap, AWS CLI v2 from official installer. |
+
+---
+
+## Secrets at runtime (Option B — SSM Parameter Store)
+
+All backend env vars (real secrets and plain config alike) live in
+SSM Parameter Store at `/quizonline/prod/*`. There is no persistent
+`.env` on disk:
+
+1. At boot, `quizonline-env-fetch.service` (oneshot, before the app
+   services) invokes `/usr/local/bin/quizonline-fetch-env.sh`, which
+   calls `aws ssm get-parameters-by-path --recursive --with-decryption`
+   and writes the result to `/run/quizonline/.env` (tmpfs, mode
+   `640 django:www-data`).
+2. gunicorn / celery / celery-beat declare `Requires=quizonline-env-fetch.service`
+   and `EnvironmentFile=/run/quizonline/.env`. A restart of any of
+   them re-triggers the env-fetch automatically.
+3. Rotation = `aws ssm put-parameter --overwrite --name … --value …`
+   followed by `sudo systemctl restart quizonline-gunicorn` (and
+   whichever celery units consume that secret — see the per-secret
+   restart column in [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)).
+
+Properties this gives us:
+
+- **No plaintext secret on EBS.** Snapshots, backups and full-disk
+  forensics never see `.env` content.
+- **No perms drift.** The fetch script writes deterministic perms
+  on every boot.
+- **CloudTrail audit.** Every `PutParameter` / `GetParametersByPath`
+  is logged with caller identity and source IP.
+- **Multi-environment ready.** A future staging EC2 would scope its
+  instance role to `/quizonline/staging/*` and read from there
+  without touching prod.
+
+If SSM is unreachable at boot the fetch service fails, gunicorn's
+`Requires=` chain blocks its start, and the box doesn't silently
+serve traffic with stale config — `systemctl status quizonline-gunicorn`
+points straight at the env-fetch failure.
+
+The local script that seeds SSM from a `.env` file is
+[`seed-parameter-store.sh`](seed-parameter-store.sh) (idempotent,
+`--dry-run` available, future staging via `--prefix`).
 
 ---
 
@@ -234,14 +289,21 @@ Unit files in [`deploy/`](.), synced into `/etc/systemd/system/` by
 
 | Unit | Role | EnvironmentFile |
 |------|------|-----------------|
-| `quizonline-gunicorn.service` | Django HTTP via gunicorn, binds 127.0.0.1:8000 | `quizonline-server/.env` |
-| `quizonline-celery.service` | Celery worker (email outbox, async tasks) | `quizonline-server/.env` |
-| `quizonline-celery-beat.service` | Celery beat scheduler | `quizonline-server/.env` |
+| `quizonline-env-fetch.service` | Boot-time oneshot: pull env vars from SSM Parameter Store into `/run/quizonline/.env`. Barrier for the three app units below. | none — runs `aws ssm` directly |
+| `quizonline-gunicorn.service` | Django HTTP via gunicorn, binds 127.0.0.1:8000 | `/run/quizonline/.env` |
+| `quizonline-celery.service` | Celery worker (email outbox, async tasks) | `/run/quizonline/.env` |
+| `quizonline-celery-beat.service` | Celery beat scheduler | `/run/quizonline/.env` |
 | `quizonline-backup.service` + `.timer` | Daily DB backup | inline `Environment=` |
 
-All run as `User=django, Group=www-data`. Gunicorn-access /
-gunicorn-error logs live under `/var/log/quizonline/`. Celery logs
-go to journald — `journalctl -u quizonline-celery`.
+The three app units declare `Requires=quizonline-env-fetch.service`,
+so a `systemctl restart` of any of them re-triggers the SSM fetch
+first — secret rotation is `aws ssm put-parameter --overwrite` plus
+the restart, no manual env file touch.
+
+All app processes run as `User=django, Group=www-data`. Gunicorn-access
+/ gunicorn-error logs live under `/var/log/quizonline/`. Celery and
+env-fetch logs go to journald — `journalctl -u quizonline-celery`,
+`journalctl -u quizonline-env-fetch`.
 
 Reverse proxy is **nginx** (the `apache.conf` template is kept for
 parity but unused on the live box). Live config lives at
@@ -302,19 +364,27 @@ ever rebuild:
    sudo -u django python3 -m venv .venv
    sudo -u django .venv/bin/pip install -r requirements.txt
    ```
-5. **`.env`** from [`env.production.example`](env.production.example):
+5. **Seed SSM Parameter Store** from a local `.env`:
    ```bash
-   sudo -u django cp /var/www/django_websites/QuizOnline/deploy/env.production.example \
-       /var/www/django_websites/QuizOnline/quizonline-server/.env
-   sudo -u django $EDITOR /var/www/django_websites/QuizOnline/quizonline-server/.env
-   sudo chmod 600 /var/www/django_websites/QuizOnline/quizonline-server/.env
+   # Local laptop (or wherever you have AWS creds with ssm:PutParameter):
+   cp deploy/env.production.example ./prod.env
+   $EDITOR ./prod.env           # fill in real values
+   bash deploy/seed-parameter-store.sh --dry-run ./prod.env   # review
+   bash deploy/seed-parameter-store.sh ./prod.env             # upload
+   shred -u ./prod.env          # don't leave it on disk
    ```
-   The pre-flight guard in `redeploy.sh` refuses to deploy unless
-   perms are `600 django:www-data`.
-6. **systemd units**:
+   `SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_HOST_PASSWORD`,
+   `MS_GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY` and `SENTRY_DSN` upload
+   as `SecureString`; the rest as plain `String`.
+6. **Env-fetch script + systemd units**:
    ```bash
+   # On EC2:
+   sudo install -m 0755 deploy/fetch-env-from-ssm.sh /usr/local/bin/quizonline-fetch-env.sh
    sudo cp deploy/quizonline-*.service deploy/quizonline-*.timer /etc/systemd/system/
    sudo systemctl daemon-reload
+   sudo systemctl enable --now quizonline-env-fetch.service
+   # Verify the tmpfs .env was created:
+   sudo stat -c '%a %U:%G %n' /run/quizonline/.env   # expect 640 django:www-data
    sudo systemctl enable --now quizonline-gunicorn quizonline-celery quizonline-celery-beat
    sudo systemctl enable --now quizonline-backup.timer
    ```
