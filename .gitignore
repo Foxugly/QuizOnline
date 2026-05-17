@@ -49,5 +49,16 @@ quizonline-frontend/playwright-report/
 !/CLAUDE.md
 !/README.md
 
+# ── Secrets / credentials that operators might stage at repo root ─────────────
+# Defensive — covers ad-hoc files like prod.env / staging.env used as input
+# to deploy/seed-parameter-store.{sh,ps1}, and stray AWS access-key dumps /
+# SSH key exports. These should NEVER be committed; this catch-all means a
+# tired ``git add .`` doesn't end the day on a leak.
+/*.env
+AWS*
+*.pem
+*.ppk
+/*.csv
+
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock

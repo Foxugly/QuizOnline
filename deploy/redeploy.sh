@@ -91,14 +91,17 @@ SVC_UPDATED=0
 # Also sync the env-fetch helper script — the env-fetch.service unit
 # ExecStart points at /usr/local/bin/quizonline-fetch-env.sh so the
 # two must move together. Sync first so the service can find it the
-# moment systemd daemon-reload picks up the unit.
+# moment systemd daemon-reload picks up the unit. The exec bit comes
+# from the git index (deploy/fetch-env-from-ssm.sh is tracked with
+# mode 100755), so a plain ``sudo cp`` is enough — no chmod / install
+# needed (and ``install`` isn't in the django sudoers whitelist).
 FETCH_SRC="$DEPLOY_DIR/fetch-env-from-ssm.sh"
 FETCH_DST="/usr/local/bin/quizonline-fetch-env.sh"
 if [ -f "$FETCH_SRC" ]; then
   if [ -f "$FETCH_DST" ] && cmp -s "$FETCH_SRC" "$FETCH_DST"; then
     echo "  OK: quizonline-fetch-env.sh (no change)"
   else
-    sudo install -m 0755 "$FETCH_SRC" "$FETCH_DST"
+    sudo cp "$FETCH_SRC" "$FETCH_DST"
     echo "  Updated: quizonline-fetch-env.sh"
   fi
 else
