@@ -1,1 +1,59 @@
-<h1>{{ ui().pageTitle }}</h1>
+<section class="page">
+  <header class="page__header">
+    <h1>{{ ui().pageTitle }}</h1>
+  </header>
+
+  <p-table
+    [value]="viewRows()"
+    dataKey="id"
+    [paginator]="viewRows().length > 10"
+    [rows]="10"
+    [rowHover]="true"
+    styleClass="p-datatable-sm">
+    <ng-template #header>
+      <tr>
+        <th>{{ ui().colNumber }}</th>
+        <th>{{ ui().colCourse }}</th>
+        <th>{{ ui().colIssuedAt }}</th>
+        <th class="cell-actions">{{ ui().colActions }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.certificateNumber }}</td>
+        <td>{{ row.courseTitle }}</td>
+        <td>{{ row.issuedAt | date:'medium' }}</td>
+        <td class="cell-actions">
+          <p-button
+            [routerLink]="row.viewHref"
+            [label]="ui().viewButton"
+            size="small"
+            severity="secondary"
+            [outlined]="true" />
+          @if (row.pdfUrl) {
+            <a
+              class="p-button p-button-sm p-button-secondary"
+              [href]="row.pdfUrl"
+              target="_blank"
+              rel="noopener noreferrer">
+              <i class="pi pi-download"></i>
+              <span>{{ ui().downloadButton }}</span>
+            </a>
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="empty-cell">
+          <h3>{{ ui().emptyTitle }}</h3>
+          <p>{{ ui().emptyMessage }}</p>
+          <p-button
+            [routerLink]="catalogHref"
+            [label]="ui().exploreButton"
+            severity="primary" />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

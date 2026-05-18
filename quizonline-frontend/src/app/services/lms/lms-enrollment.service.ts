@@ -43,6 +43,10 @@ export class LmsEnrollmentService {
     return this.http.get<unknown>(`${this.baseUrl}/certificate/`);
   }
 
+  certificate(id: number): Observable<unknown> {
+    return this.http.get<unknown>(`${this.baseUrl}/certificate/${id}/`);
+  }
+
   verify(token: string): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/verify/${encodeURIComponent(token)}/`);
   }

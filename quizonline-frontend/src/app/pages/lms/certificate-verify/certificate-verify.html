@@ -1,1 +1,64 @@
-<h1>{{ ui().pageTitle }}</h1>
+<section class="verify-page">
+  @if (loading()) {
+    <p class="verify-page__loading">{{ ui().loadingMessage }}</p>
+  } @else if (error() || !result()) {
+    <p-card>
+      <header class="verify-header">
+        <h1>{{ ui().invalidHeading }}</h1>
+        <p-tag [value]="ui().invalidBadge" severity="danger" />
+      </header>
+      <p>{{ ui().genericInvalidMessage }}</p>
+    </p-card>
+  } @else if (result(); as r) {
+    @if (r.valid) {
+      <p-card>
+        <header class="verify-header">
+          <h1>{{ ui().validHeading }}</h1>
+          <p-tag [value]="ui().validBadge" severity="success" />
+        </header>
+        <dl class="verify-grid">
+          <dt>{{ ui().issuedToLabel }}</dt>
+          <dd>{{ r.user_display_name }}</dd>
+
+          <dt>{{ ui().courseLabel }}</dt>
+          <dd>{{ r.course_title }}</dd>
+
+          <dt>{{ ui().issuedOnLabel }}</dt>
+          <dd>{{ r.issued_at | date:'medium' }}</dd>
+
+          <dt>{{ ui().certificateNumberLabel }}</dt>
+          <dd>{{ r.certificate_number }}</dd>
+        </dl>
+      </p-card>
+    } @else if (r.revoked) {
+      <p-card>
+        <header class="verify-header">
+          <h1>{{ ui().revokedHeading }}</h1>
+          <p-tag [value]="ui().revokedBadge" severity="danger" />
+        </header>
+        <dl class="verify-grid">
+          <dt>{{ ui().issuedToLabel }}</dt>
+          <dd>{{ r.user_display_name }}</dd>
+
+          <dt>{{ ui().courseLabel }}</dt>
+          <dd>{{ r.course_title }}</dd>
+
+          <dt>{{ ui().issuedOnLabel }}</dt>
+          <dd>{{ r.issued_at | date:'medium' }}</dd>
+
+          <dt>{{ ui().certificateNumberLabel }}</dt>
+          <dd>{{ r.certificate_number }}</dd>
+        </dl>
+        <p class="verify-page__hint">{{ ui().revokedMessage }}</p>
+      </p-card>
+    } @else {
+      <p-card>
+        <header class="verify-header">
+          <h1>{{ ui().invalidHeading }}</h1>
+          <p-tag [value]="ui().invalidBadge" severity="danger" />
+        </header>
+        <p>{{ ui().genericInvalidMessage }}</p>
+      </p-card>
+    }
+  }
+</section>
