@@ -1,0 +1,91 @@
+/**
+ * Info tab — the form pieces lean on the global ``meta-grid`` /
+ * ``meta-item`` / ``footer-actions`` / ``editor-compact`` classes already
+ * defined in ``_forms-meta.scss``. The only tab-local styling is the
+ * cover-image control (preview + filename row + upload button), which
+ * does not appear anywhere else in the app yet.
+ */
+.info-tab {
+  .footer-actions {
+    margin-top: 1rem;
+  }
+
+  .lang-panel {
+    padding-top: 0.75rem;
+  }
+}
+
+.cover-image-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cover-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--surface-section, #f9fafb);
+}
+
+.cover-preview__img {
+  display: block;
+  max-width: 12rem;
+  max-height: 8rem;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  background: var(--surface-card, #fff);
+}
+
+.cover-preview__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.cover-preview__label {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.cover-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cover-picker__input {
+  /* Hidden native input — triggered programmatically via the upload p-button. */
+  display: none;
+}
+
+.cover-picker__selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.cover-picker__filename {
+  word-break: break-all;
+}
+
+.cover-picker__empty {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.inline-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary, #6b7280);
+}

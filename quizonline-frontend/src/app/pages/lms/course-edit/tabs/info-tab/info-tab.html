@@ -1,4 +1,204 @@
-<section class="tab-section">
-  <h2>{{ ui().heading }}</h2>
-  <p class="placeholder">{{ ui().placeholder(courseId()) }}</p>
+<section class="tab-section info-tab">
+  @if (!course()) {
+    <p-card>
+      <p class="muted">{{ editorText().common.loading }}</p>
+    </p-card>
+  } @else {
+    <p-card>
+      <form (ngSubmit)="submit()" [formGroup]="form">
+        <div class="meta-grid">
+          <div class="meta-item">
+            <label class="meta-label" for="course-info-level">{{ pageText().fields.level }}</label>
+            <div class="meta-value">
+              <p-select
+                inputId="course-info-level"
+                formControlName="level"
+                [options]="levelChoices()"
+                optionLabel="label"
+                optionValue="value">
+              </p-select>
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <label class="meta-label" for="course-info-enrollment">{{ pageText().fields.enrollmentMode }}</label>
+            <div class="meta-value">
+              <p-select
+                inputId="course-info-enrollment"
+                formControlName="enrollment_mode"
+                [options]="enrollmentChoices()"
+                optionLabel="label"
+                optionValue="value">
+              </p-select>
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <label class="meta-label" for="course-info-duration">{{ pageText().fields.estimatedDuration }}</label>
+            <div class="meta-value">
+              <p-inputNumber
+                inputId="course-info-duration"
+                formControlName="estimated_duration"
+                [min]="0"
+                [showButtons]="true"
+                buttonLayout="horizontal"
+                spinnerMode="horizontal"
+                decrementButtonClass="p-button-secondary"
+                incrementButtonClass="p-button-secondary"
+                decrementButtonIcon="pi pi-minus"
+                incrementButtonIcon="pi pi-plus">
+              </p-inputNumber>
+            </div>
+            <div class="meta-hint">{{ pageText().fields.estimatedDurationHint }}</div>
+          </div>
+
+          <div class="meta-item meta-item--full">
+            <label class="meta-label">{{ pageText().fields.coverImage }}</label>
+            <div class="meta-value cover-image-control">
+              @if (currentCoverUrl(); as url) {
+                <div class="cover-preview">
+                  <img [src]="url" [alt]="pageText().currentCoverLabel" class="cover-preview__img" />
+                  <div class="cover-preview__meta">
+                    <span class="cover-preview__label">{{ pageText().currentCoverLabel }}</span>
+                    <p-button
+                      type="button"
+                      icon="pi pi-times"
+                      severity="danger"
+                      [outlined]="true"
+                      [label]="pageText().removeCoverButton"
+                      (onClick)="removeCurrentCover()">
+                    </p-button>
+                  </div>
+                </div>
+              }
+
+              <div class="cover-picker">
+                <input
+                  #fileInput
+                  type="file"
+                  accept="image/*"
+                  class="cover-picker__input"
+                  (change)="onFileSelected($event)" />
+                <p-button
+                  type="button"
+                  icon="pi pi-upload"
+                  severity="secondary"
+                  [outlined]="true"
+                  [label]="pageText().uploadButton"
+                  (onClick)="fileInput.click()">
+                </p-button>
+
+                @if (coverImageFile(); as file) {
+                  <div class="cover-picker__selected">
+                    <i class="pi pi-image"></i>
+                    <span class="cover-picker__filename">{{ pageText().selectedFileLabel }}: {{ file.name }} ({{ formatFileSize(file.size) }})</span>
+                    <p-button
+                      type="button"
+                      icon="pi pi-times"
+                      severity="secondary"
+                      [text]="true"
+                      [label]="pageText().clearSelectionButton"
+                      (onClick)="clearSelectedFile()">
+                    </p-button>
+                  </div>
+                } @else {
+                  <span class="cover-picker__empty">{{ pageText().noFileSelected }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p-tabs
+          (valueChange)="onTabChange($event)"
+          [value]="activeTab() ?? undefined"
+          class="tabs tabs--tight">
+          <p-tablist>
+            @for (code of availableLangs(); track code) {
+              <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+            }
+            <div class="tablist-actions">
+              <p-button
+                (onClick)="translateFromActiveTab()"
+                [disabled]="translating() || !activeTab()"
+                [loading]="translating()"
+                icon="pi pi-language"
+                [label]="pageText().translateButton"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+            </div>
+          </p-tablist>
+
+          <p-tabpanels class="tabpanels-tight" [formGroupName]="'translations'">
+            @for (code of availableLangs(); track code) {
+              <p-tabpanel [value]="code">
+                <div [formGroupName]="code" class="lang-panel">
+                  <div class="meta-grid">
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.title }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <input
+                          formControlName="title"
+                          pInputText
+                          [placeholder]="pageText().fields.titlePlaceholder" />
+                      </div>
+                      @if (code === primaryLang() && langGroup(code).controls.title.touched && !langGroup(code).controls.title.value.trim()) {
+                        <div class="meta-hint meta-hint--error">{{ pageText().errors.titleRequired }}</div>
+                      }
+                    </div>
+
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.description }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <p-editor class="editor-compact" formControlName="description"></p-editor>
+                      </div>
+                    </div>
+
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.learningObjectives }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <p-editor class="editor-compact" formControlName="learning_objectives"></p-editor>
+                      </div>
+                      <div class="meta-hint">{{ pageText().fields.learningObjectivesHint }}</div>
+                    </div>
+                  </div>
+
+                  @if (translating()) {
+                    <div class="inline-status">
+                      <i class="pi pi-spin pi-spinner"></i>
+                      <span>{{ editorText().common.translating }}</span>
+                    </div>
+                  }
+                </div>
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+
+        @if (submitError()) {
+          <p-message severity="error" [text]="submitError()!"></p-message>
+        }
+
+        <div class="footer-actions">
+          <p-button
+            (onClick)="cancel()"
+            icon="pi pi-times"
+            [label]="pageText().cancelButton"
+            severity="secondary"
+            variant="outlined"
+            type="button">
+          </p-button>
+          <p-button
+            icon="pi pi-save"
+            [label]="pageText().saveButton"
+            [disabled]="saving() || availableLangs().length === 0"
+            [loading]="saving()"
+            type="submit">
+          </p-button>
+        </div>
+      </form>
+    </p-card>
+  }
 </section>
