@@ -28,6 +28,15 @@ export class LmsCatalogService {
     return this.http.get<{count: number; results: unknown[]}>(`${this.baseUrl}/course/`, {params: httpParams});
   }
 
+  /**
+   * Create a new LMS course. ``payload`` is forwarded as-is so the caller
+   * decides between sending JSON (no cover image) or ``FormData`` (with
+   * upload) — the backend ``CourseWriteSerializer`` accepts both.
+   */
+  create(payload: unknown): Observable<{id: number; slug: string}> {
+    return this.http.post<{id: number; slug: string}>(`${this.baseUrl}/course/`, payload);
+  }
+
   detailBySlug(slug: string): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/course/by-slug/${encodeURIComponent(slug)}/`);
   }
