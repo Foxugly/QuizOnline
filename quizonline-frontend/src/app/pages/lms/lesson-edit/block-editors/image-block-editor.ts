@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
@@ -10,6 +10,7 @@ import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
 import {LmsUploadService} from '../../../../services/lms/lms-upload.service';
 
+import {BlockTranslateButton} from './block-translate-button';
 import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 
 /**
@@ -26,13 +27,20 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-image-block-editor',
-  imports: [FormsModule, InputTextModule, TabsModule],
+  imports: [FormsModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
-    <p-tabs [value]="availableLangs()[0]">
+    <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
         @for (lang of availableLangs(); track lang) {
           <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
         }
+        <div class="tablist-actions">
+          <app-block-translate-button
+            [block]="block()"
+            [availableLangs]="availableLangs()"
+            [activeLang]="activeLang()"
+            (changed)="changed.emit($event)" />
+        </div>
       </p-tablist>
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
@@ -68,6 +76,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
     .upload-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; align-items: center; }
     .current-url { font-size: 0.85rem; color: var(--text-color-secondary, #6b7280); word-break: break-all; }
     label { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; width: 100%; }
+    .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -82,11 +91,14 @@ export class ImageBlockEditor implements OnInit, OnDestroy {
   changed = output<Partial<ContentBlock>>();
 
   protected readonly uploading = signal(false);
+  protected readonly activeLang = signal<string>('');
+  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
 
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
+    this.activeLang.set(this.firstLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));

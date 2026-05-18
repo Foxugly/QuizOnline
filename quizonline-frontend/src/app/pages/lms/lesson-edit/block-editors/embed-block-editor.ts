@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
@@ -7,6 +7,7 @@ import {Subject, Subscription, debounceTime} from 'rxjs';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
 
+import {BlockTranslateButton} from './block-translate-button';
 import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 
 /**
@@ -18,13 +19,20 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-embed-block-editor',
-  imports: [FormsModule, InputTextModule, TabsModule],
+  imports: [FormsModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
-    <p-tabs [value]="availableLangs()[0]">
+    <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
         @for (lang of availableLangs(); track lang) {
           <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
         }
+        <div class="tablist-actions">
+          <app-block-translate-button
+            [block]="block()"
+            [availableLangs]="availableLangs()"
+            [activeLang]="activeLang()"
+            (changed)="changed.emit($event)" />
+        </div>
       </p-tablist>
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
@@ -50,6 +58,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
   styles: [`
     :host { display: block; }
     label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; margin-top: 0.5rem; }
+    .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -60,10 +69,14 @@ export class EmbedBlockEditor implements OnInit, OnDestroy {
   availableLangs = input<string[]>(['fr', 'en']);
   changed = output<Partial<ContentBlock>>();
 
+  protected readonly activeLang = signal<string>('');
+  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
+
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
+    this.activeLang.set(this.firstLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));
