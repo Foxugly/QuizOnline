@@ -70,7 +70,11 @@ import {EmbedBlockRenderer} from '../../../pages/lms/lesson-view/block-renderers
       min-width: 0;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      scroll-margin-top: 1rem;
+      /* Clears the sticky global topbar (~60 px) plus a small breathing
+       * gap. Lower values caused the block's first 40-50 px to land
+       * behind the topbar, so the anchor scroll looked like it landed
+       * too low (only the bottom of the block visible). */
+      scroll-margin-top: 5rem;
     }
     .block-card > * { max-width: 100%; }
 
