@@ -1,6 +1,27 @@
 <div class="lms-catalog">
-  <div class="catalog-header">
+  <header class="catalog-header">
     <h1>{{ ui().pageTitle }}</h1>
+  </header>
+
+  <div class="catalog-toolbar">
+    <div class="filters">
+      <input
+        pInputText
+        type="search"
+        [placeholder]="ui().searchPlaceholder"
+        [ngModel]="search()"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <p-select
+        [options]="levelOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="levelFilter()"
+        (ngModelChange)="onLevelChange($event)"
+        [placeholder]="ui().filterByLevelLabel"
+        [showClear]="true"
+      />
+    </div>
     @if (canCreateCourse()) {
       <p-button
         [routerLink]="createCourseHref"
@@ -11,50 +32,34 @@
     }
   </div>
 
-  <div class="filters">
-    <input
-      pInputText
-      type="search"
-      [placeholder]="ui().searchPlaceholder"
-      [ngModel]="search()"
-      (ngModelChange)="onSearchChange($event)"
-    />
-    <p-select
-      [options]="levelOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="levelFilter()"
-      (ngModelChange)="onLevelChange($event)"
-      [placeholder]="ui().filterByLevelLabel"
-      [showClear]="true"
-    />
-  </div>
-
-  <p-dataview [value]="cards()" layout="grid">
-    <ng-template #grid let-items>
-      <div class="grid-wrapper">
-        @for (course of items; track course.id) {
-          <p-card class="course-card">
-            <ng-template #title>{{ course.title }}</ng-template>
-            <ng-template #subtitle>
-              <div class="card-subtitle">
-                <p-tag [value]="course.enrollmentLabel" />
-                <span class="level">{{ course.levelLabel }}</span>
-              </div>
-            </ng-template>
-            <div class="course-card__description" [innerHTML]="course.description"></div>
-            <ng-template #footer>
-              <p-button [routerLink]="course.href" [label]="ui().viewButton" />
-            </ng-template>
-          </p-card>
-        }
-      </div>
-    </ng-template>
-    <ng-template #empty>
-      <div class="empty-state">
-        <h3>{{ ui().emptyTitle }}</h3>
-        <p>{{ ui().emptyMessage }}</p>
-      </div>
-    </ng-template>
-  </p-dataview>
+  @if (cards().length === 0) {
+    <div class="empty-state">
+      <h3>{{ ui().emptyTitle }}</h3>
+      <p>{{ ui().emptyMessage }}</p>
+    </div>
+  } @else {
+    <div class="grid-wrapper">
+      @for (course of cards(); track course.id) {
+        <article class="course-card">
+          <header class="course-card__head">
+            <h3 class="course-card__title">{{ course.title }}</h3>
+            <div class="course-card__meta">
+              <p-tag [value]="course.enrollmentLabel" />
+              <span class="course-card__level">{{ course.levelLabel }}</span>
+            </div>
+          </header>
+          <div class="course-card__description" [innerHTML]="course.description"></div>
+          <footer class="course-card__foot">
+            <p-button
+              [routerLink]="course.href"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [label]="ui().viewButton"
+              severity="primary"
+              [outlined]="true" />
+          </footer>
+        </article>
+      }
+    </div>
+  }
 </div>

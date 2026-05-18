@@ -2,22 +2,26 @@
   padding: 1rem;
 
   .catalog-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
     margin-bottom: 1rem;
+    text-align: center;
 
     h1 {
       margin: 0;
     }
   }
 
+  .catalog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
   .filters {
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
     flex-wrap: wrap;
     align-items: center;
   }
@@ -28,15 +32,53 @@
     gap: 1rem;
   }
 
+  /* Plain card (we ditched p-card to keep full control of background +
+   * footer and to make sure the "Voir" button is rendered exactly once
+   * inside the footer slot — the previous p-card + multiple
+   * <ng-template> setup occasionally produced a duplicate render). */
   .course-card {
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--p-surface-border, rgba(148, 163, 184, 0.32));
+    border-radius: 12px;
+    background: transparent;
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+
+    &:hover {
+      border-color: var(--p-primary-color, #3b82f6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
   }
 
-  // Description is rendered as sanitized HTML (rich-text from the
-  // course editor). Clamp to 3 lines with ellipsis so a long body
-  // does not blow up the card grid layout. Inner block elements
-  // (e.g. <p>) get their default margins stripped so the clamp
-  // measures actual text rows, not paragraph spacing.
+  .course-card__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .course-card__title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+
+  .course-card__meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .course-card__level {
+    color: var(--text-color-secondary, #6b7280);
+    font-size: 0.875rem;
+  }
+
+  /* Description is sanitized HTML produced by the rich-text editor.
+   * Clamp to 3 lines so a long body does not blow up the grid. */
   .course-card__description {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -44,26 +86,16 @@
     line-clamp: 3;
     overflow: hidden;
     color: var(--text-color, inherit);
+    min-height: 3.6em;
 
-    :first-child {
-      margin-top: 0;
-    }
-
-    :last-child {
-      margin-bottom: 0;
-    }
+    :first-child { margin-top: 0; }
+    :last-child  { margin-bottom: 0; }
   }
 
-  .card-subtitle {
+  .course-card__foot {
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-
-    .level {
-      color: var(--text-color-secondary, #6b7280);
-      font-size: 0.875rem;
-    }
+    justify-content: flex-end;
+    margin-top: auto;
   }
 
   .empty-state {
@@ -71,8 +103,6 @@
     padding: 3rem 1rem;
     color: var(--text-color-secondary, #6b7280);
 
-    h3 {
-      margin: 0 0 0.5rem;
-    }
+    h3 { margin: 0 0 0.5rem; }
   }
 }

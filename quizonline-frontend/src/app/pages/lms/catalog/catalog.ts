@@ -3,8 +3,6 @@ import {FormsModule} from '@angular/forms';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {DataViewModule} from 'primeng/dataview';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
@@ -49,8 +47,6 @@ interface CatalogCardVm {
     FormsModule,
     RouterLink,
     ButtonModule,
-    CardModule,
-    DataViewModule,
     InputTextModule,
     SelectModule,
     TagModule,
