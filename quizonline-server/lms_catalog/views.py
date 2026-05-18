@@ -20,6 +20,8 @@ from .serializers import (
 )
 from .services import (
     clone_course,
+    export_course_to_dict,
+    import_course_from_dict,
     publish_course,
     reorder_blocks,
     reorder_lessons,
@@ -171,6 +173,49 @@ class CourseViewSet(viewsets.ModelViewSet):
         new = clone_course(source=source, by_user=request.user)
         return Response(
             CourseDetailSerializer(new, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=True, methods=["get"], url_path="export")
+    def export_json(self, request, pk=None):
+        """Return the full course (structure + translations) as a
+        JSON-serialisable dict the operator can save and re-import.
+        Instructor-gated so a learner doesn't end up exfiltrating
+        unpublished course content. Media + quiz FKs are dropped by
+        the exporter — see ``export_course_to_dict``."""
+        course = self.get_object()
+        if not is_lms_instructor(request.user, course):
+            raise PermissionDenied()
+        return Response(export_course_to_dict(course=course))
+
+    @action(detail=False, methods=["post"], url_path="import")
+    def import_json(self, request):
+        """Re-create a course from an export payload into a
+        caller-specified domain (or the caller's current domain when
+        ``target_domain_id`` is absent). The caller must be an
+        instructor of the target domain — the same gate that protects
+        manual create."""
+        from domain.models import Domain
+        from .permissions import _can_create  # reuse the create-permission logic
+
+        payload = request.data.get("payload")
+        target_domain_id = request.data.get("target_domain_id")
+        if target_domain_id is None:
+            user_domain = getattr(request.user, "current_domain_id", None)
+            target_domain_id = user_domain
+        target_domain = Domain.objects.filter(pk=target_domain_id).first()
+        if not target_domain:
+            return Response({"detail": "Unknown target domain."}, status=status.HTTP_400_BAD_REQUEST)
+        if not _can_create(request.user, {"domain": target_domain_id}):
+            raise PermissionDenied()
+        try:
+            new_course = import_course_from_dict(
+                payload=payload, target_domain=target_domain, by_user=request.user,
+            )
+        except Exception as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            CourseDetailSerializer(new_course, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )
 
