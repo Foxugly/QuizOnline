@@ -23,6 +23,42 @@
   gap: 1rem;
 }
 
+/* Every block sits in a uniform frame so the page reads as a stack of
+ * "cards". Inner block decoration (callout accent, quiz accent border,
+ * code background) lives INSIDE the card; the outer frame is what
+ * gives the whole lesson its rhythm and prevents content overflow. */
+.block-card {
+  border: 1px solid var(--p-surface-border, #e5e7eb);
+  border-radius: 10px;
+  background: var(--p-surface-0, #fff);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;          /* clip oversized children at the rounded corners */
+  min-width: 0;              /* allow flex children to shrink below their content width */
+
+  /* Generic text-overflow safety net for arbitrary author content. */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  > * {
+    max-width: 100%;
+  }
+}
+
+/* Quiz already has its own accent stripe — drop the redundant outer
+ * shadow so the card frame doesn't compete with its left border. */
+.block-card[data-block-type="quiz"] {
+  padding: 0;
+}
+
+.block-card[data-block-type="callout"] {
+  padding: 0;
+}
+
+.block-card[data-block-type="code"] {
+  padding: 0;
+}
+
 .lesson-footer {
   margin-top: 1.5rem;
   display: flex;
@@ -34,9 +70,12 @@
   background: var(--p-surface-100, #f9fafb);
   padding: 0.75rem 1rem;
   margin: 0;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 
   p {
     margin: 0.25rem 0 0;
+    overflow-wrap: break-word;
   }
 }
 
@@ -49,6 +88,10 @@
   border-radius: 6px;
   text-decoration: none;
   color: inherit;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:hover {
     background: var(--p-surface-100, #f3f4f6);
@@ -60,9 +103,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border: 1px solid var(--p-surface-border, #e5e7eb);
   border-left: 4px solid var(--p-primary-color, #3b82f6);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--p-surface-50, #fafafa);
 
   &--unconfigured {
@@ -118,22 +160,47 @@
   font-style: italic;
 }
 
+/* Author-supplied rich text — clamp inline media inside the card. */
+.rich-text {
+  overflow-wrap: break-word;
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0.5rem 0;
+  }
+  a {
+    word-break: break-word;
+  }
+  pre {
+    overflow-x: auto;
+  }
+}
+
 pre {
   background: var(--p-surface-100, #f3f4f6);
-  padding: 0.75rem;
-  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
   overflow-x: auto;
   margin: 0;
+  max-width: 100%;
+  white-space: pre;
 }
 
 iframe {
   width: 100%;
   aspect-ratio: 16 / 9;
   border: 0;
+  display: block;
 }
 
 video {
   width: 100%;
+  height: auto;
+  display: block;
 }
 
 img {
