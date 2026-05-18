@@ -20,3 +20,4 @@ requests==2.33.1
 ruff==0.15.10
 reportlab
 sentry-sdk[django,celery]==2.45.0
+nh3==0.2.18

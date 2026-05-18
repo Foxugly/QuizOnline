@@ -94,9 +94,12 @@ class ContentBlockSerializer(serializers.ModelSerializer):
         return instance
 
     def _apply_translations(self, instance, tr_dict):
+        from .sanitizer import sanitize_rich_text
         course = instance.lesson.section.course
         tr_dict = _filter_allowed_lang_codes(tr_dict, course)
         for lang, fields in tr_dict.items():
+            if "rich_text" in fields:
+                fields["rich_text"] = sanitize_rich_text(fields["rich_text"])
             instance.set_current_language(lang)
             for k, v in fields.items():
                 setattr(instance, k, v)

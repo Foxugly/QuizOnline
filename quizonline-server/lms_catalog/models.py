@@ -236,3 +236,13 @@ class ContentBlock(TranslatableModel):
                 raise ValidationError({
                     "quiz_template": _("Quiz must belong to the same domain as the course."),
                 })
+
+    def save(self, *args, **kwargs):
+        if self.block_type == self.TYPE_RICH_TEXT and self.pk is not None:
+            from .sanitizer import sanitize_rich_text
+            for tr in list(self.translations.all()):
+                cleaned = sanitize_rich_text(tr.rich_text or "")
+                if cleaned != tr.rich_text:
+                    tr.rich_text = cleaned
+                    tr.save(update_fields=["rich_text"])
+        super().save(*args, **kwargs)
