@@ -5,7 +5,7 @@ import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-dr
 import {ButtonModule} from 'primeng/button';
 import {Subscription} from 'rxjs';
 
-import {LMS_CATALOG, LMS_COURSE_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
+import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
@@ -133,15 +133,6 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
 
   /** True when the route resolved to a valid lesson id. */
   protected readonly hasLesson = computed(() => this.lessonId() > 0);
-
-  /** Public lesson-view route — drives the top-right "view as learner"
-   *  eye button so an author can jump from the editor to the rendered
-   *  learner experience in one click. ``null`` while the route id is
-   *  still being parsed. */
-  protected readonly viewHref = computed<string | null>(() => {
-    const id = this.lessonId();
-    return id > 0 ? LMS_LESSON_VIEW(id) : null;
-  });
 
   /** Toggle between the per-type editors and the in-page learner
    *  preview. The preview reuses the lesson-view block renderers so

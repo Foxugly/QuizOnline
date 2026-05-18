@@ -13,15 +13,6 @@
     [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
     [label]="previewMode() ? ui().editModeButton : ui().previewButton"
     (onClick)="togglePreview()" />
-  @if (viewHref(); as href) {
-    <p-button slot="right"
-      type="button"
-      severity="secondary"
-      [outlined]="true"
-      icon="pi pi-external-link"
-      [routerLink]="href"
-      [label]="ui().viewAsLearnerButton" />
-  }
 </app-page-header>
 
 @if (blocks().length === 0) {
