@@ -68,4 +68,32 @@ export class LmsCatalogService {
   reorderBlocks(lessonId: number, ids: number[]): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/block/reorder/`, {ids});
   }
+
+  // -- Section CRUD --------------------------------------------------------
+
+  createSection(payload: unknown): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/section/`, payload);
+  }
+
+  updateSection(id: number, payload: unknown): Observable<unknown> {
+    return this.http.patch<unknown>(`${this.baseUrl}/section/${id}/`, payload);
+  }
+
+  deleteSection(id: number): Observable<unknown> {
+    return this.http.delete<unknown>(`${this.baseUrl}/section/${id}/`);
+  }
+
+  // -- Lesson CRUD ---------------------------------------------------------
+
+  createLesson(payload: unknown): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/lesson/`, payload);
+  }
+
+  updateLesson(id: number, payload: unknown): Observable<unknown> {
+    return this.http.patch<unknown>(`${this.baseUrl}/lesson/${id}/`, payload);
+  }
+
+  deleteLesson(id: number): Observable<unknown> {
+    return this.http.delete<unknown>(`${this.baseUrl}/lesson/${id}/`);
+  }
 }
