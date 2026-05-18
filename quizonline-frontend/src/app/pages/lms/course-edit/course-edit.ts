@@ -57,7 +57,10 @@ export class LmsCourseEdit implements OnInit, OnDestroy {
   private readonly toast = inject(AppToastService);
   private readonly confirmer = inject(ConfirmationService);
 
-  protected readonly ui = inject(UiTextService).localized(getLmsCourseEditUiText);
+  private readonly uiSvc = inject(UiTextService);
+  protected readonly ui = this.uiSvc.localized(getLmsCourseEditUiText);
+  /** Editor-scoped UI dictionary, used for ``common.back`` on the header back button. */
+  protected readonly editorUi = this.uiSvc.editor;
   protected readonly courseId = signal<number>(0);
   protected readonly course = signal<CourseDetailDto | null>(null);
   protected readonly loading = signal<boolean>(false);
@@ -207,6 +210,11 @@ export class LmsCourseEdit implements OnInit, OnDestroy {
         this.toast.addApiError(err, fallback);
       },
     });
+  }
+
+  /** Navigate back to the LMS catalog list (same destination as the cancel flow on course-create). */
+  protected back(): void {
+    this.router.navigateByUrl(LMS_CATALOG);
   }
 
   protected togglePublish(): void {
