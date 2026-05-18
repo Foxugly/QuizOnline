@@ -23,10 +23,13 @@ RemainAfterExit=yes
 # ``systemctl reload nginx`` at the end needs root.
 User=root
 
-# Hardening — the script only writes to /etc/nginx/snippets/ and
-# /tmp (via mktemp); everything else is read-only.
+# Hardening — the script writes to /etc/nginx/snippets/ and needs
+# /run accessible for ``nginx -t`` (probes /run/nginx.pid) and the
+# subsequent ``systemctl reload nginx``. ProtectSystem=full leaves
+# /usr /boot /efi /etc read-only but keeps /run writable — exactly
+# what we need.
 PrivateTmp=yes
-ProtectSystem=strict
+ProtectSystem=full
 ReadWritePaths=/etc/nginx/snippets
 ProtectHome=yes
 NoNewPrivileges=yes
