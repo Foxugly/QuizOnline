@@ -27,6 +27,17 @@ import {CalloutBlockEditor} from './block-editors/callout-block-editor';
 import {CodeBlockEditor} from './block-editors/code-block-editor';
 import {EmbedBlockEditor} from './block-editors/embed-block-editor';
 
+// Block renderers reused from the learner-facing lesson-view so the
+// in-page "Preview" toggle shows exactly what the learner sees.
+import {RichTextBlockRenderer} from '../lesson-view/block-renderers/rich-text-block-renderer';
+import {ImageBlockRenderer} from '../lesson-view/block-renderers/image-block-renderer';
+import {VideoBlockRenderer} from '../lesson-view/block-renderers/video-block-renderer';
+import {FileBlockRenderer} from '../lesson-view/block-renderers/file-block-renderer';
+import {QuizBlockRenderer} from '../lesson-view/block-renderers/quiz-block-renderer';
+import {CalloutBlockRenderer} from '../lesson-view/block-renderers/callout-block-renderer';
+import {CodeBlockRenderer} from '../lesson-view/block-renderers/code-block-renderer';
+import {EmbedBlockRenderer} from '../lesson-view/block-renderers/embed-block-renderer';
+
 /**
  * Shape consumed from ``GET /api/lms/lesson/{id}/``. Mirrors the
  * subset of the lesson serializer the editor cares about: the
@@ -67,6 +78,14 @@ interface LessonDetailDto {
     CalloutBlockEditor,
     CodeBlockEditor,
     EmbedBlockEditor,
+    RichTextBlockRenderer,
+    ImageBlockRenderer,
+    VideoBlockRenderer,
+    FileBlockRenderer,
+    QuizBlockRenderer,
+    CalloutBlockRenderer,
+    CodeBlockRenderer,
+    EmbedBlockRenderer,
   ],
   templateUrl: './lesson-edit.html',
   styleUrl: './lesson-edit.scss',
@@ -125,6 +144,15 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
     const id = this.lessonId();
     return id > 0 ? LMS_LESSON_VIEW(id) : null;
   });
+
+  /** Toggle between the per-type editors and the in-page learner
+   *  preview. The preview reuses the lesson-view block renderers so
+   *  the author sees the exact same render the apprenant gets,
+   *  without a route change or a tab. */
+  protected readonly previewMode = signal(false);
+  protected togglePreview(): void {
+    this.previewMode.update((v) => !v);
+  }
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
   private routeSub: Subscription | null = null;

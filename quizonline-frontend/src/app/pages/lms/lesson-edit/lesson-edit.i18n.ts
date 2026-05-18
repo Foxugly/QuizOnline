@@ -22,6 +22,10 @@ export interface LmsLessonEditUiText {
   emptyHint: string;
   /** Label for the top-right "view as learner" eye button. */
   viewAsLearnerButton: string;
+  /** Toggle label that swaps the editor for the in-page learner preview. */
+  previewButton: string;
+  /** Toggle label shown when the preview is active (switches back to edit mode). */
+  editModeButton: string;
 }
 
 export function getLmsLessonEditUiText(
@@ -45,6 +49,8 @@ export function getLmsLessonEditUiText(
         emptyTitle: 'Leçon vide',
         emptyHint: 'Ajoutez un premier bloc à l\'aide de la barre ci-dessous.',
         viewAsLearnerButton: 'Aperçu apprenant',
+        previewButton: 'Aperçu',
+        editModeButton: 'Édition',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -63,6 +69,8 @@ export function getLmsLessonEditUiText(
         emptyTitle: 'Lege les',
         emptyHint: 'Voeg een eerste blok toe via de balk hieronder.',
         viewAsLearnerButton: 'Cursist-weergave',
+        previewButton: 'Voorbeeld',
+        editModeButton: 'Bewerken',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -81,6 +89,8 @@ export function getLmsLessonEditUiText(
         emptyTitle: 'Lezione vuota',
         emptyHint: 'Aggiungi un primo blocco usando la barra qui sotto.',
         viewAsLearnerButton: 'Anteprima studente',
+        previewButton: 'Anteprima',
+        editModeButton: 'Modifica',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -99,6 +109,8 @@ export function getLmsLessonEditUiText(
         emptyTitle: 'Lección vacía',
         emptyHint: 'Añade un primer bloque desde la barra de abajo.',
         viewAsLearnerButton: 'Vista del estudiante',
+        previewButton: 'Vista previa',
+        editModeButton: 'Editar',
       };
     default:
       return {
@@ -116,6 +128,8 @@ export function getLmsLessonEditUiText(
         emptyTitle: 'Empty lesson',
         emptyHint: 'Add a first block from the bar below.',
         viewAsLearnerButton: 'View as learner',
+        previewButton: 'Preview',
+        editModeButton: 'Edit',
       };
   }
 }

@@ -6,12 +6,19 @@
     icon="pi pi-arrow-left"
     [label]="editorUi().common.back"
     (onClick)="back()" />
+  <p-button slot="right"
+    type="button"
+    severity="secondary"
+    [outlined]="!previewMode()"
+    [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
+    [label]="previewMode() ? ui().editModeButton : ui().previewButton"
+    (onClick)="togglePreview()" />
   @if (viewHref(); as href) {
     <p-button slot="right"
       type="button"
       severity="secondary"
       [outlined]="true"
-      icon="pi pi-eye"
+      icon="pi pi-external-link"
       [routerLink]="href"
       [label]="ui().viewAsLearnerButton" />
   }
@@ -26,53 +33,68 @@
 
 <div cdkDropList (cdkDropListDropped)="onDrop($event)" class="block-list">
   @for (block of blocks(); track block.id) {
-    <div cdkDrag class="block-card">
-      <div class="block-header">
-        <p-button icon="pi pi-arrows-v" severity="secondary" cdkDragHandle />
-        <span class="block-label">
-          <i [class]="blockIcons[block.block_type]"></i>
-          {{ common().blockTypeLabels[block.block_type] }}
-        </span>
-        <app-saved-indicator [savedAt]="savedAtFor(block.id)" />
-        <p-button icon="pi pi-trash" severity="danger" size="small"
-                  (onClick)="deleteBlock(block.id)"
-                  [attr.aria-label]="ui().deleteBlockAria" />
-      </div>
+    <div cdkDrag class="block-card" [cdkDragDisabled]="previewMode()">
+      @if (!previewMode()) {
+        <div class="block-header">
+          <p-button icon="pi pi-arrows-v" severity="secondary" cdkDragHandle />
+          <span class="block-label">
+            <i [class]="blockIcons[block.block_type]"></i>
+            {{ common().blockTypeLabels[block.block_type] }}
+          </span>
+          <app-saved-indicator [savedAt]="savedAtFor(block.id)" />
+          <p-button icon="pi pi-trash" severity="danger" size="small"
+                    (onClick)="deleteBlock(block.id)"
+                    [attr.aria-label]="ui().deleteBlockAria" />
+        </div>
+      }
 
-      <div class="block-body">
-        @switch (block.block_type) {
-          @case ('rich_text') {
-            <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                        (changed)="onBlockChanged(block.id, $event)" />
+      <div class="block-body" [class.block-body--preview]="previewMode()">
+        @if (previewMode()) {
+          @switch (block.block_type) {
+            @case ('rich_text') { <app-block-rich-text [block]="block" /> }
+            @case ('image')     { <app-block-image [block]="block" /> }
+            @case ('video')     { <app-block-video [block]="block" /> }
+            @case ('file')      { <app-block-file [block]="block" /> }
+            @case ('quiz')      { <app-block-quiz [block]="block" /> }
+            @case ('callout')   { <app-block-callout [block]="block" /> }
+            @case ('code')      { <app-block-code [block]="block" /> }
+            @case ('embed')     { <app-block-embed [block]="block" /> }
           }
-          @case ('image') {
-            <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('video') {
-            <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('file') {
-            <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('quiz') {
-            <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   [domainId]="domainId() || null"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('callout') {
-            <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+        } @else {
+          @switch (block.block_type) {
+            @case ('rich_text') {
+              <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                          (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('image') {
+              <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
                                       (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('code') {
-            <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('embed') {
-            <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('video') {
+              <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('file') {
+              <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('quiz') {
+              <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     [domainId]="domainId() || null"
+                                     (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('callout') {
+              <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                        (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('code') {
+              <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     (changed)="onBlockChanged(block.id, $event)" />
+            }
+            @case ('embed') {
+              <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      (changed)="onBlockChanged(block.id, $event)" />
+            }
           }
         }
       </div>
@@ -80,10 +102,12 @@
   }
 </div>
 
-<div class="add-block-bar" [attr.aria-label]="ui().addBlockBarLabel">
-  <span class="hint">{{ ui().addBlockHint }}</span>
-  @for (t of blockTypes; track t.value) {
-    <p-button [label]="common().blockTypeLabels[t.value]" [icon]="blockIcons[t.value]"
-              severity="secondary" (onClick)="addBlock(t.value)" />
-  }
-</div>
+@if (!previewMode()) {
+  <div class="add-block-bar" [attr.aria-label]="ui().addBlockBarLabel">
+    <span class="hint">{{ ui().addBlockHint }}</span>
+    @for (t of blockTypes; track t.value) {
+      <p-button [label]="common().blockTypeLabels[t.value]" [icon]="blockIcons[t.value]"
+                severity="secondary" (onClick)="addBlock(t.value)" />
+    }
+  </div>
+}
