@@ -5926,12 +5926,22 @@ components:
       - translations
     CourseEnrollment:
       type: object
+      description: |-
+        Read-only enrollment row. ``user`` stays as an int FK for write-side
+        compatibility; ``user_detail`` carries the username/email/display-name
+        needed by the instructor-facing enrollment table without a chatty extra
+        request per row.
       properties:
         id:
           type: integer
           readOnly: true
         user:
           type: integer
+          readOnly: true
+        user_detail:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
           readOnly: true
         course:
           type: integer
@@ -5955,8 +5965,14 @@ components:
       - id
       - status
       - user
+      - user_detail
     CourseEnrollmentRequest:
       type: object
+      description: |-
+        Read-only enrollment row. ``user`` stays as an int FK for write-side
+        compatibility; ``user_detail`` carries the username/email/display-name
+        needed by the instructor-facing enrollment table without a chatty extra
+        request per row.
       properties:
         course:
           type: integer

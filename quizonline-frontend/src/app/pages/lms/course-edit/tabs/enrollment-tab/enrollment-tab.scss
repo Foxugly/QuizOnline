@@ -1,0 +1,32 @@
+.enrollment-tab {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 1.25rem;
+
+    h2 {
+      margin: 0;
+    }
+
+    .muted {
+      margin: 0.25rem 0 0;
+      color: var(--text-color-secondary, #6c757d);
+    }
+  }
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 12rem;
+  }
+}

@@ -8,11 +8,16 @@
  * Do not edit the class manually.
  */
 import { CourseEnrollmentStatusEnumDto } from './course-enrollment-status-enum';
+import { UserSummaryDto } from './user-summary';
 
 
+/**
+ * Read-only enrollment row. ``user`` stays as an int FK for write-side compatibility; ``user_detail`` carries the username/email/display-name needed by the instructor-facing enrollment table without a chatty extra request per row.
+ */
 export interface CourseEnrollmentDto { 
     readonly id: number;
     readonly user: number;
+    readonly user_detail: UserSummaryDto | null;
     course: number;
     readonly status: CourseEnrollmentStatusEnumDto;
     readonly enrolled_at: string;

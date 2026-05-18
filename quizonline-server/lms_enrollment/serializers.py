@@ -1,4 +1,7 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+
+from config.serializers import UserSummarySerializer
 
 from .models import Certificate, CourseEnrollment, CourseProgress, LessonProgress
 
@@ -15,11 +18,50 @@ def _localized_course_title(course, lang: str) -> str:
     return course.safe_translation_getter("title", language_code=lang, any_language=True) or course.slug
 
 
+def _enrollment_user_summary(user) -> dict:
+    """Compact read-only user descriptor used by the enrollment list. Mirrors
+    ``UserSummarySerializer`` so the generated OpenAPI client picks up a typed
+    object instead of an opaque dict."""
+    return {
+        "id": user.id,
+        "username": user.username,
+        "first_name": user.first_name or "",
+        "last_name": user.last_name or "",
+        "email": user.email or "",
+    }
+
+
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
+    """Read-only enrollment row. ``user`` stays as an int FK for write-side
+    compatibility; ``user_detail`` carries the username/email/display-name
+    needed by the instructor-facing enrollment table without a chatty extra
+    request per row."""
+
+    user_detail = serializers.SerializerMethodField()
+
     class Meta:
         model = CourseEnrollment
-        fields = ["id", "user", "course", "status", "enrolled_at", "completed_at"]
-        read_only_fields = ["id", "user", "enrolled_at", "completed_at", "status"]
+        fields = [
+            "id",
+            "user",
+            "user_detail",
+            "course",
+            "status",
+            "enrolled_at",
+            "completed_at",
+        ]
+        read_only_fields = [
+            "id",
+            "user",
+            "user_detail",
+            "enrolled_at",
+            "completed_at",
+            "status",
+        ]
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_user_detail(self, obj) -> dict | None:
+        return _enrollment_user_summary(obj.user) if obj.user_id else None
 
 
 class LessonProgressSerializer(serializers.ModelSerializer):
