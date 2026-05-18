@@ -7187,6 +7187,9 @@ components:
         course_slug:
           type: string
           readOnly: true
+        domain_id:
+          type: integer
+          readOnly: true
         slug:
           type: string
           maxLength: 220
@@ -7258,6 +7261,7 @@ components:
       - can_manage
       - course_id
       - course_slug
+      - domain_id
       - id
       - next_lesson
       - prev_lesson

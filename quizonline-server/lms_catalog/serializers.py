@@ -155,6 +155,10 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     # Slug of the parent course — the public lesson-view back button
     # uses ``/lms/course/{slug}`` rather than the id-based edit route.
     course_slug = serializers.SerializerMethodField()
+    # Domain id of the parent course — surfaced so the lesson-edit
+    # shell can filter quiz-template pickers (and any future
+    # domain-scoped affordance) without a second round-trip.
+    domain_id = serializers.SerializerMethodField()
     # True when the calling user is allowed to edit the parent course
     # (superuser, owner, or manager). Drives the lesson-view "Edit"
     # affordance — kept consistent with the same flag on the course
@@ -170,13 +174,13 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = [
-            "id", "section", "course_id", "course_slug", "slug", "order",
-            "is_preview", "is_published", "estimated_duration",
+            "id", "section", "course_id", "course_slug", "domain_id",
+            "slug", "order", "is_preview", "is_published", "estimated_duration",
             "translations", "blocks", "available_lang_codes", "can_manage",
             "prev_lesson", "next_lesson",
         ]
         read_only_fields = [
-            "id", "blocks", "course_id", "course_slug", "can_manage",
+            "id", "blocks", "course_id", "course_slug", "domain_id", "can_manage",
             "prev_lesson", "next_lesson",
         ]
 
@@ -190,6 +194,10 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField())
     def get_course_slug(self, obj) -> str:
         return obj.section.course.slug
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_domain_id(self, obj) -> int:
+        return obj.section.course.domain_id
 
     @extend_schema_field(serializers.BooleanField())
     def get_can_manage(self, obj) -> bool:

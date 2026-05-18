@@ -39,6 +39,7 @@ interface LessonDetailDto {
   blocks?: ContentBlock[];
   available_lang_codes?: string[];
   course_id?: number;
+  domain_id?: number;
 }
 
 /**
@@ -92,6 +93,10 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
    * — in that case ``back()`` falls back to the LMS catalog.
    */
   protected readonly courseId = signal(0);
+  /** Domain id of the parent course — drives the quiz-block-editor
+   *  template picker so authors only see templates from the right
+   *  domain. ``0`` while loading. */
+  protected readonly domainId = signal(0);
 
   protected readonly blockIcons = BLOCK_ICONS;
   protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
@@ -152,6 +157,11 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
             ? lesson.course_id
             : 0;
         this.courseId.set(parsedCourseId);
+        const parsedDomainId =
+          typeof lesson.domain_id === 'number' && Number.isFinite(lesson.domain_id) && lesson.domain_id > 0
+            ? lesson.domain_id
+            : 0;
+        this.domainId.set(parsedDomainId);
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-edit.load', err);

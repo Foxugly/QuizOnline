@@ -16,6 +16,7 @@ export interface LessonDetailDto {
     section: number;
     readonly course_id: number;
     readonly course_slug: string;
+    readonly domain_id: number;
     slug: string;
     order?: number;
     is_preview?: boolean;

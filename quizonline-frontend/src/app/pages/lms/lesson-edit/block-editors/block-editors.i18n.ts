@@ -36,6 +36,8 @@ export interface LmsBlockEditorsUiText {
   uploadErrorToast: string;
   /** Placeholder for a TODO editor that has no controls yet. */
   todoPlaceholder: string;
+  /** Placeholder shown in the quiz-template autocomplete picker. */
+  quizTemplatePlaceholder: string;
   /** Inline button label on the language tabs row of translatable editors. */
   translateButton: string;
   /** Success toast emitted by the inline per-block translate button. */
@@ -65,6 +67,7 @@ export function getLmsBlockEditorsUiText(
         uploadSuccessToast: 'Fichier envoyé.',
         uploadErrorToast: 'Impossible d\'envoyer le fichier.',
         todoPlaceholder: 'Éditeur à implémenter prochainement.',
+        quizTemplatePlaceholder: 'Rechercher un quiz…',
         translateButton: 'Traduire',
         translateSuccessToast: 'Traduction appliquée.',
         translateErrorToast: 'Échec de la traduction automatique.',
@@ -86,6 +89,7 @@ export function getLmsBlockEditorsUiText(
         uploadSuccessToast: 'Bestand verzonden.',
         uploadErrorToast: 'Kan het bestand niet uploaden.',
         todoPlaceholder: 'Editor volgt binnenkort.',
+        quizTemplatePlaceholder: 'Een quiz zoeken…',
         translateButton: 'Vertalen',
         translateSuccessToast: 'Vertaling toegepast.',
         translateErrorToast: 'Automatische vertaling mislukt.',
@@ -107,6 +111,7 @@ export function getLmsBlockEditorsUiText(
         uploadSuccessToast: 'File caricato.',
         uploadErrorToast: 'Impossibile caricare il file.',
         todoPlaceholder: 'Editor in arrivo a breve.',
+        quizTemplatePlaceholder: 'Cerca un quiz…',
         translateButton: 'Traduci',
         translateSuccessToast: 'Traduzione applicata.',
         translateErrorToast: 'Traduzione automatica non riuscita.',
@@ -128,6 +133,7 @@ export function getLmsBlockEditorsUiText(
         uploadSuccessToast: 'Archivo enviado.',
         uploadErrorToast: 'No se pudo enviar el archivo.',
         todoPlaceholder: 'Editor próximamente.',
+        quizTemplatePlaceholder: 'Buscar un quiz…',
         translateButton: 'Traducir',
         translateSuccessToast: 'Traducción aplicada.',
         translateErrorToast: 'La traducción automática falló.',
@@ -148,6 +154,7 @@ export function getLmsBlockEditorsUiText(
         uploadSuccessToast: 'File uploaded.',
         uploadErrorToast: 'Could not upload the file.',
         todoPlaceholder: 'Editor coming soon.',
+        quizTemplatePlaceholder: 'Search for a quiz…',
         translateButton: 'Translate',
         translateSuccessToast: 'Translation applied.',
         translateErrorToast: 'Automatic translation failed.',

@@ -58,6 +58,7 @@
           }
           @case ('quiz') {
             <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   [domainId]="domainId() || null"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('callout') {
