@@ -29,12 +29,11 @@ import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
 
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
-import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {EnrollmentModeEnumDto} from '../../../api/generated/model/enrollment-mode-enum';
 import {LevelEnumDto} from '../../../api/generated/model/level-enum';
 
 import {LMS_CATALOG, LMS_COURSE_DETAIL} from '../../../app.routes-paths';
-import {DomainOption, DomainService} from '../../../services/domain/domain';
+import {DomainService} from '../../../services/domain/domain';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
 import {
   LangCode,
@@ -45,7 +44,6 @@ import {
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
-import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
@@ -59,8 +57,20 @@ type CourseLangGroup = FormGroup<{
   learning_objectives: FormControl<string>;
 }>;
 
-/** Snake-case slug constraint mirrored from Django's slug validator. */
-const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+/**
+ * Inline slugify helper used at submit time to derive a slug from the
+ * effective-language title. Mirrors the backend ``slug`` validator pattern
+ * ``^[a-z0-9]+(?:-[a-z0-9]+)*$`` and the ``max_length=80`` constraint.
+ */
+function slugify(input: string): string {
+  return input
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
 
 @Component({
   selector: 'app-lms-course-create',
@@ -104,22 +114,38 @@ export class LmsCourseCreate implements OnInit {
   protected readonly saving = signal(false);
   protected readonly submitError = signal<string | null>(null);
 
-  /** Full domain list filtered to those the user can manage (owner or manager / superuser). */
-  protected readonly manageableDomains = signal<DomainReadDto[]>([]);
-  /** Allowed languages of the currently selected domain, sourced from the domain detail endpoint. */
-  protected readonly domainLangs = signal<LangCode[]>([]);
+  /** Resolved domain detail (the user's ``current_domain``). Null until loaded or if absent. */
+  protected readonly currentDomain = signal<DomainDetailDto | null>(null);
+
+  /** Allowed languages of the resolved domain. */
+  protected readonly domainLangs = computed<LangCode[]>(() => {
+    const domain = this.currentDomain();
+    if (!domain) {
+      return [];
+    }
+    return (domain.allowed_languages ?? [])
+      .filter((l) => l.active)
+      .map((l) => l.code)
+      .filter(isLangCode);
+  });
+
+  /**
+   * Effective language for the course: the user's UI language if it is
+   * among the domain's allowed languages, otherwise the first allowed code.
+   */
+  protected readonly effectiveLang = computed<LangCode | undefined>(() => {
+    const codes = this.domainLangs();
+    if (codes.length === 0) {
+      return undefined;
+    }
+    const userLang = this.userService.lang() as LangCode;
+    return codes.includes(userLang) ? userLang : codes[0];
+  });
+
   protected readonly activeTab = signal<LangCode | undefined>(undefined);
 
-  /** Helper for ``DomainReadDto`` resolution: derived per-locale name. */
-  protected readonly currentLang = this.userService.lang;
-
-  protected readonly domainOptions = computed<DomainOption[]>(() => {
-    const lang = this.currentLang();
-    return this.manageableDomains().map((d) => ({
-      id: d.id,
-      name: getLocalizedDomainName(d, lang),
-    }));
-  });
+  /** Tracks whether the resolved current domain is manageable by the user (false also means "blocked"). */
+  protected readonly notManageable = signal(false);
 
   /** ``LevelEnumDto`` options resolved against the shared LMS dictionary. */
   protected readonly levelChoices = computed(() => {
@@ -140,19 +166,10 @@ export class LmsCourseCreate implements OnInit {
     ];
   });
 
-  protected readonly primaryLanguageOptions = computed(() =>
-    this.domainLangs().map((code) => ({value: code, label: code.toUpperCase()})),
-  );
-
   // ---- Form ---------------------------------------------------------------
 
   protected readonly form = this.fb.group({
-    domain: this.fb.control<number | null>(null, {validators: [Validators.required]}),
-    slug: this.fb.control<string>('', {
-      validators: [Validators.required, Validators.pattern(SLUG_PATTERN), Validators.maxLength(80)],
-    }),
     level: this.fb.control<LevelEnumDto>(LevelEnumDto.Beginner, {validators: [Validators.required]}),
-    language_code: this.fb.control<string>('', {validators: [Validators.required]}),
     enrollment_mode: this.fb.control<EnrollmentModeEnumDto>(EnrollmentModeEnumDto.Open, {
       validators: [Validators.required],
     }),
@@ -179,21 +196,40 @@ export class LmsCourseCreate implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDomains();
+    const currentDomainId = this.userService.currentUser()?.current_domain ?? null;
+    if (!currentDomainId || currentDomainId <= 0) {
+      this.loading.set(false);
+      this.notManageable.set(true);
+      this.submitError.set(this.pageText().errors.noCurrentDomain);
+      return;
+    }
 
-    // React to domain change: fetch the domain detail to know its allowed
-    // languages, rebuild the translation tabs, and pick a sensible default
-    // primary language.
-    this.form.controls.domain.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((id) => {
-        this.resetDomainState();
-        if (typeof id !== 'number' || id <= 0) {
+    this.domainService
+      .detail(currentDomainId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+        catchError((err) => {
+          logApiError('lms.course-create.load-domain-detail', err);
+          this.submitError.set(userFacingApiMessage(err, this.pageText().errors.loadFailed));
+          this.notManageable.set(true);
+          return EMPTY;
+        }),
+      )
+      .subscribe((domain: DomainDetailDto) => {
+        if (!this.canManage(domain)) {
+          this.notManageable.set(true);
+          this.submitError.set(this.pageText().errors.notInstructorOfCurrentDomain);
           return;
         }
-        this.loadDomainDetail(id);
+        this.currentDomain.set(domain);
+        const codes = this.domainLangs();
+        this.syncTranslationControls(codes);
+        const primary = this.effectiveLang();
+        if (primary) {
+          this.activeTab.set(primary);
+        }
       });
-
   }
 
   // ---- Public template API ------------------------------------------------
@@ -290,34 +326,48 @@ export class LmsCourseCreate implements OnInit {
 
   protected submit(): void {
     this.submitError.set(null);
+
+    // Re-check domain + manageability invariants.
+    const domain = this.currentDomain();
+    if (!domain) {
+      this.submitError.set(this.pageText().errors.noCurrentDomain);
+      return;
+    }
+    if (!this.canManage(domain)) {
+      this.submitError.set(this.pageText().errors.notInstructorOfCurrentDomain);
+      return;
+    }
+
+    const primary = this.effectiveLang();
+    const codes = this.domainLangs();
+    if (!primary || codes.length === 0) {
+      this.submitError.set(this.pageText().errors.formInvalid);
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.submitError.set(this.pageText().errors.formInvalid);
       return;
     }
 
-    const codes = this.domainLangs();
-    if (!codes.length) {
-      this.submitError.set(this.pageText().errors.formInvalid);
-      return;
-    }
-
-    const primary = this.form.controls.language_code.value;
-    if (!primary || !codes.includes(primary as LangCode)) {
-      this.submitError.set(this.pageText().errors.missingPrimaryLanguage);
-      return;
-    }
-
-    // Backend ``CourseWriteSerializer`` runs ``full_clean()`` which requires a
-    // non-empty ``title`` for the primary language. Surface this as a
-    // friendlier error than the generic validation message.
+    // Title in the effective-language tab is mandatory (backend ``full_clean``).
     const primaryGroup = this.langGroup(primary);
-    if (!(primaryGroup.controls.title.value ?? '').trim()) {
+    const primaryTitle = (primaryGroup.controls.title.value ?? '').trim();
+    if (!primaryTitle) {
       this.submitError.set(this.pageText().errors.titleRequired);
       return;
     }
 
-    const payload = this.buildPayload(codes);
+    // Auto-derive slug from the effective-language title.
+    let slug = slugify(primaryTitle);
+    if (!slug) {
+      // Fallback for titles that slugify to an empty string (e.g. fully
+      // non-Latin scripts or pure punctuation). Backend will accept it.
+      slug = `course-${Date.now().toString(36)}`;
+    }
+
+    const payload = this.buildPayload(domain.id, slug, primary, codes);
 
     this.saving.set(true);
     this.catalog
@@ -358,7 +408,7 @@ export class LmsCourseCreate implements OnInit {
 
   private createCourseLangGroup(): CourseLangGroup {
     return this.fb.group({
-      title: this.fb.control('', [Validators.required, Validators.maxLength(200)]),
+      title: this.fb.control('', [Validators.maxLength(200)]),
       description: this.fb.control(''),
       learning_objectives: this.fb.control(''),
     }) as CourseLangGroup;
@@ -379,84 +429,7 @@ export class LmsCourseCreate implements OnInit {
     }
   }
 
-  private resetDomainState(): void {
-    this.domainLangs.set([]);
-    this.activeTab.set(undefined);
-    this.form.controls.language_code.setValue('', {emitEvent: false});
-    const tg = this.translationsGroup();
-    for (const key of Object.keys(tg.controls)) {
-      tg.removeControl(key);
-    }
-  }
-
-  private loadDomains(): void {
-    this.loading.set(true);
-    this.domainService
-      .list()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false)),
-        catchError((err) => {
-          logApiError('lms.course-create.load-domains', err);
-          this.submitError.set(userFacingApiMessage(err, this.pageText().errors.loadFailed));
-          return EMPTY;
-        }),
-      )
-      .subscribe((domains) => {
-        const manageable = (domains ?? []).filter((d) => this.canManage(d));
-        this.manageableDomains.set(manageable);
-
-        // Preselect a sensible default: the user's ``current_domain`` if
-        // they can manage it, otherwise the first manageable domain.
-        const currentDomainId = this.userService.currentUser()?.current_domain ?? 0;
-        const preferred =
-          (currentDomainId > 0 && manageable.find((d) => d.id === currentDomainId)) ||
-          manageable[0];
-        if (preferred) {
-          this.form.controls.domain.setValue(preferred.id);
-        } else {
-          // No manageable domain: surface a clear error and disable submit.
-          this.submitError.set(this.pageText().errors.notInstructorOfAnyDomain);
-        }
-      });
-  }
-
-  private loadDomainDetail(id: number): void {
-    this.loading.set(true);
-    this.domainService
-      .detail(id)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false)),
-        catchError((err) => {
-          logApiError('lms.course-create.load-domain-detail', err);
-          this.submitError.set(userFacingApiMessage(err, this.pageText().errors.loadFailed));
-          return EMPTY;
-        }),
-      )
-      .subscribe((domain: DomainDetailDto) => {
-        const codes = this.extractLangCodes(domain);
-        this.domainLangs.set(codes);
-        this.syncTranslationControls(codes);
-
-        // Pick the primary language: user lang if allowed, else first code.
-        const userLang = this.userService.currentLang;
-        const primary = codes.includes(userLang as LangCode) ? (userLang as LangCode) : codes[0];
-        if (primary) {
-          this.form.controls.language_code.setValue(primary);
-          this.activeTab.set(primary);
-        }
-      });
-  }
-
-  private extractLangCodes(domain: Pick<DomainDetailDto, 'allowed_languages'>): LangCode[] {
-    return (domain.allowed_languages ?? [])
-      .filter((l) => l.active)
-      .map((l) => l.code)
-      .filter(isLangCode);
-  }
-
-  private canManage(domain: DomainReadDto): boolean {
+  private canManage(domain: Pick<DomainDetailDto, 'owner' | 'managers'>): boolean {
     const me = this.userService.currentUser();
     if (!me) {
       return false;
@@ -467,7 +440,12 @@ export class LmsCourseCreate implements OnInit {
     return domain.owner?.id === me.id || (domain.managers ?? []).some((u) => u.id === me.id);
   }
 
-  private buildPayload(codes: readonly LangCode[]): Record<string, unknown> {
+  private buildPayload(
+    domainId: number,
+    slug: string,
+    languageCode: LangCode,
+    codes: readonly LangCode[],
+  ): Record<string, unknown> {
     const v = this.form.getRawValue();
     const translations: Record<string, Record<string, string>> = {};
     for (const code of codes) {
@@ -479,13 +457,12 @@ export class LmsCourseCreate implements OnInit {
       };
     }
     return {
-      domain: v.domain,
-      slug: (v.slug ?? '').trim(),
+      domain: domainId,
+      slug,
       level: v.level,
-      language_code: v.language_code,
+      language_code: languageCode,
       enrollment_mode: v.enrollment_mode,
       translations,
     };
   }
-
 }

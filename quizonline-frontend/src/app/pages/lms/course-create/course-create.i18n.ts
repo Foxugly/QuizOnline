@@ -8,25 +8,18 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
  */
 export interface LmsCourseCreateUiText {
   pageTitle: string;
-  subtitle: string;
-  settingsCardTitle: string;
-  translationsCardTitle: string;
-  domainLabel: string;
-  domainPlaceholder: string;
-  slugLabel: string;
-  slugPlaceholder: string;
-  slugHint: string;
-  levelLabel: string;
-  primaryLanguageLabel: string;
-  primaryLanguageHint: string;
-  enrollmentModeLabel: string;
-  titleLabel: string;
-  titlePlaceholder: string;
-  descriptionLabel: string;
-  learningObjectivesLabel: string;
-  learningObjectivesHint: string;
-  emptyLanguagesMessage: string;
-  submitLabel: string;
+  fields: {
+    level: string;
+    enrollmentMode: string;
+    title: string;
+    titlePlaceholder: string;
+    description: string;
+    learningObjectives: string;
+    learningObjectivesHint: string;
+  };
+  translateButton: string;
+  cancelButton: string;
+  submitButton: string;
   toastSuccessSummary: string;
   toastSuccessDetail: string;
   toastErrorSummary: string;
@@ -36,10 +29,9 @@ export interface LmsCourseCreateUiText {
     formInvalid: string;
     saveFailed: string;
     translationFailed: string;
-    notInstructorOfAnyDomain: string;
-    slugInvalid: string;
     titleRequired: string;
-    missingPrimaryLanguage: string;
+    noCurrentDomain: string;
+    notInstructorOfCurrentDomain: string;
   };
 }
 
@@ -51,25 +43,18 @@ export function getLmsCourseCreateUiText(
     case 'fr':
       return {
         pageTitle: 'Créer un cours',
-        subtitle: 'Renseignez les informations du cours puis ajoutez les sections et les leçons plus tard.',
-        settingsCardTitle: 'Paramètres',
-        translationsCardTitle: 'Traductions',
-        domainLabel: 'Domaine',
-        domainPlaceholder: 'Choisissez un domaine',
-        slugLabel: 'Identifiant (slug)',
-        slugPlaceholder: 'mon-cours-introductif',
-        slugHint: 'Minuscules, chiffres et tirets uniquement.',
-        levelLabel: 'Niveau',
-        primaryLanguageLabel: 'Langue principale',
-        primaryLanguageHint: 'Langue de référence utilisée lors de la traduction automatique.',
-        enrollmentModeLabel: 'Mode d’inscription',
-        titleLabel: 'Titre',
-        titlePlaceholder: 'Titre du cours',
-        descriptionLabel: 'Description',
-        learningObjectivesLabel: 'Objectifs pédagogiques',
-        learningObjectivesHint: 'Liste de compétences ou résultats attendus à la fin du cours.',
-        emptyLanguagesMessage: 'Le domaine sélectionné n’a aucune langue active.',
-        submitLabel: 'Créer le cours',
+        fields: {
+          level: 'Niveau',
+          enrollmentMode: 'Mode d’inscription',
+          title: 'Titre',
+          titlePlaceholder: 'Titre du cours',
+          description: 'Description',
+          learningObjectives: 'Objectifs pédagogiques',
+          learningObjectivesHint: 'Liste de compétences ou résultats attendus à la fin du cours.',
+        },
+        translateButton: 'Traduire depuis cet onglet',
+        cancelButton: 'Annuler',
+        submitButton: 'Créer le cours',
         toastSuccessSummary: 'Cours créé',
         toastSuccessDetail: 'Vous pouvez maintenant ajouter des sections et des leçons.',
         toastErrorSummary: 'Erreur',
@@ -79,35 +64,27 @@ export function getLmsCourseCreateUiText(
           formInvalid: 'Le formulaire contient des erreurs.',
           saveFailed: 'Erreur backend lors de la création du cours.',
           translationFailed: 'Erreur lors de la traduction.',
-          notInstructorOfAnyDomain: 'Vous n’êtes propriétaire ou gestionnaire d’aucun domaine.',
-          slugInvalid: 'Le slug doit contenir uniquement des minuscules, chiffres et tirets.',
           titleRequired: 'Un titre est requis dans la langue principale.',
-          missingPrimaryLanguage: 'Sélectionnez une langue principale parmi les langues autorisées.',
+          noCurrentDomain: 'Aucun domaine courant sélectionné — choisissez-en un dans le menu en haut à droite avant de créer un cours.',
+          notInstructorOfCurrentDomain: 'Vous n’êtes pas instructeur du domaine courant — sélectionnez un domaine que vous pouvez gérer dans le menu en haut à droite.',
         },
       };
     case LanguageEnumDto.Nl:
     case 'nl':
       return {
         pageTitle: 'Cursus aanmaken',
-        subtitle: 'Vul de cursusgegevens in en voeg later secties en lessen toe.',
-        settingsCardTitle: 'Instellingen',
-        translationsCardTitle: 'Vertalingen',
-        domainLabel: 'Domein',
-        domainPlaceholder: 'Kies een domein',
-        slugLabel: 'Identificator (slug)',
-        slugPlaceholder: 'mijn-introcursus',
-        slugHint: 'Alleen kleine letters, cijfers en streepjes.',
-        levelLabel: 'Niveau',
-        primaryLanguageLabel: 'Hoofdtaal',
-        primaryLanguageHint: 'Referentietaal voor automatische vertalingen.',
-        enrollmentModeLabel: 'Inschrijvingsmodus',
-        titleLabel: 'Titel',
-        titlePlaceholder: 'Cursustitel',
-        descriptionLabel: 'Beschrijving',
-        learningObjectivesLabel: 'Leerdoelen',
-        learningObjectivesHint: 'Vaardigheden of resultaten die studenten aan het einde behalen.',
-        emptyLanguagesMessage: 'Het geselecteerde domein heeft geen actieve talen.',
-        submitLabel: 'Cursus aanmaken',
+        fields: {
+          level: 'Niveau',
+          enrollmentMode: 'Inschrijvingsmodus',
+          title: 'Titel',
+          titlePlaceholder: 'Cursustitel',
+          description: 'Beschrijving',
+          learningObjectives: 'Leerdoelen',
+          learningObjectivesHint: 'Vaardigheden of resultaten die studenten aan het einde behalen.',
+        },
+        translateButton: 'Vertalen vanuit dit tabblad',
+        cancelButton: 'Annuleren',
+        submitButton: 'Cursus aanmaken',
         toastSuccessSummary: 'Cursus aangemaakt',
         toastSuccessDetail: 'U kunt nu secties en lessen toevoegen.',
         toastErrorSummary: 'Fout',
@@ -117,35 +94,27 @@ export function getLmsCourseCreateUiText(
           formInvalid: 'Het formulier bevat fouten.',
           saveFailed: 'Backend-fout bij het aanmaken van de cursus.',
           translationFailed: 'Fout bij het vertalen.',
-          notInstructorOfAnyDomain: 'U bent geen eigenaar of beheerder van een domein.',
-          slugInvalid: 'De slug mag alleen kleine letters, cijfers en streepjes bevatten.',
           titleRequired: 'Een titel is vereist in de hoofdtaal.',
-          missingPrimaryLanguage: 'Kies een hoofdtaal uit de toegestane talen.',
+          noCurrentDomain: 'Geen huidig domein geselecteerd — kies er een in het menu rechtsboven voordat u een cursus aanmaakt.',
+          notInstructorOfCurrentDomain: 'U bent geen instructeur van het huidige domein — kies een domein dat u kunt beheren in het menu rechtsboven.',
         },
       };
     case LanguageEnumDto.It:
     case 'it':
       return {
         pageTitle: 'Crea un corso',
-        subtitle: 'Compila le informazioni del corso e aggiungi sezioni e lezioni in seguito.',
-        settingsCardTitle: 'Impostazioni',
-        translationsCardTitle: 'Traduzioni',
-        domainLabel: 'Dominio',
-        domainPlaceholder: 'Scegli un dominio',
-        slugLabel: 'Identificatore (slug)',
-        slugPlaceholder: 'mio-corso-introduttivo',
-        slugHint: 'Solo lettere minuscole, cifre e trattini.',
-        levelLabel: 'Livello',
-        primaryLanguageLabel: 'Lingua principale',
-        primaryLanguageHint: 'Lingua di riferimento per la traduzione automatica.',
-        enrollmentModeLabel: 'Modalità di iscrizione',
-        titleLabel: 'Titolo',
-        titlePlaceholder: 'Titolo del corso',
-        descriptionLabel: 'Descrizione',
-        learningObjectivesLabel: 'Obiettivi formativi',
-        learningObjectivesHint: 'Competenze o risultati attesi al termine del corso.',
-        emptyLanguagesMessage: 'Il dominio selezionato non ha lingue attive.',
-        submitLabel: 'Crea corso',
+        fields: {
+          level: 'Livello',
+          enrollmentMode: 'Modalità di iscrizione',
+          title: 'Titolo',
+          titlePlaceholder: 'Titolo del corso',
+          description: 'Descrizione',
+          learningObjectives: 'Obiettivi formativi',
+          learningObjectivesHint: 'Competenze o risultati attesi al termine del corso.',
+        },
+        translateButton: 'Traduci da questa scheda',
+        cancelButton: 'Annulla',
+        submitButton: 'Crea corso',
         toastSuccessSummary: 'Corso creato',
         toastSuccessDetail: 'Ora puoi aggiungere sezioni e lezioni.',
         toastErrorSummary: 'Errore',
@@ -155,35 +124,27 @@ export function getLmsCourseCreateUiText(
           formInvalid: 'Il modulo contiene errori.',
           saveFailed: 'Errore del backend durante la creazione del corso.',
           translationFailed: 'Errore durante la traduzione.',
-          notInstructorOfAnyDomain: 'Non sei proprietario o gestore di alcun dominio.',
-          slugInvalid: 'Lo slug può contenere solo lettere minuscole, cifre e trattini.',
           titleRequired: 'Un titolo è obbligatorio nella lingua principale.',
-          missingPrimaryLanguage: 'Scegli una lingua principale tra le lingue consentite.',
+          noCurrentDomain: 'Nessun dominio corrente selezionato — sceglierne uno dal menu in alto a destra prima di creare un corso.',
+          notInstructorOfCurrentDomain: 'Non sei istruttore del dominio corrente — seleziona un dominio che puoi gestire dal menu in alto a destra.',
         },
       };
     case LanguageEnumDto.Es:
     case 'es':
       return {
         pageTitle: 'Crear un curso',
-        subtitle: 'Complete la información del curso y agregue secciones y lecciones más tarde.',
-        settingsCardTitle: 'Ajustes',
-        translationsCardTitle: 'Traducciones',
-        domainLabel: 'Dominio',
-        domainPlaceholder: 'Elija un dominio',
-        slugLabel: 'Identificador (slug)',
-        slugPlaceholder: 'mi-curso-introductorio',
-        slugHint: 'Solo letras minúsculas, cifras y guiones.',
-        levelLabel: 'Nivel',
-        primaryLanguageLabel: 'Idioma principal',
-        primaryLanguageHint: 'Idioma de referencia para la traducción automática.',
-        enrollmentModeLabel: 'Modo de inscripción',
-        titleLabel: 'Título',
-        titlePlaceholder: 'Título del curso',
-        descriptionLabel: 'Descripción',
-        learningObjectivesLabel: 'Objetivos de aprendizaje',
-        learningObjectivesHint: 'Competencias o resultados que se esperan al finalizar el curso.',
-        emptyLanguagesMessage: 'El dominio seleccionado no tiene idiomas activos.',
-        submitLabel: 'Crear curso',
+        fields: {
+          level: 'Nivel',
+          enrollmentMode: 'Modo de inscripción',
+          title: 'Título',
+          titlePlaceholder: 'Título del curso',
+          description: 'Descripción',
+          learningObjectives: 'Objetivos de aprendizaje',
+          learningObjectivesHint: 'Competencias o resultados que se esperan al finalizar el curso.',
+        },
+        translateButton: 'Traducir desde esta pestaña',
+        cancelButton: 'Cancelar',
+        submitButton: 'Crear curso',
         toastSuccessSummary: 'Curso creado',
         toastSuccessDetail: 'Ahora puede añadir secciones y lecciones.',
         toastErrorSummary: 'Error',
@@ -193,34 +154,26 @@ export function getLmsCourseCreateUiText(
           formInvalid: 'El formulario contiene errores.',
           saveFailed: 'Error del backend al crear el curso.',
           translationFailed: 'Error durante la traducción.',
-          notInstructorOfAnyDomain: 'No es propietario ni gestor de ningún dominio.',
-          slugInvalid: 'El slug solo puede contener letras minúsculas, cifras y guiones.',
           titleRequired: 'Se requiere un título en el idioma principal.',
-          missingPrimaryLanguage: 'Seleccione un idioma principal entre los idiomas permitidos.',
+          noCurrentDomain: 'No hay dominio actual seleccionado — elija uno en el menú superior derecho antes de crear un curso.',
+          notInstructorOfCurrentDomain: 'No es instructor del dominio actual — seleccione un dominio que pueda gestionar en el menú superior derecho.',
         },
       };
     default:
       return {
         pageTitle: 'Create a course',
-        subtitle: 'Fill in the course information; sections and lessons can be added later.',
-        settingsCardTitle: 'Settings',
-        translationsCardTitle: 'Translations',
-        domainLabel: 'Domain',
-        domainPlaceholder: 'Choose a domain',
-        slugLabel: 'Identifier (slug)',
-        slugPlaceholder: 'my-intro-course',
-        slugHint: 'Lowercase letters, digits and dashes only.',
-        levelLabel: 'Level',
-        primaryLanguageLabel: 'Primary language',
-        primaryLanguageHint: 'Reference language used by the auto-translation helper.',
-        enrollmentModeLabel: 'Enrollment mode',
-        titleLabel: 'Title',
-        titlePlaceholder: 'Course title',
-        descriptionLabel: 'Description',
-        learningObjectivesLabel: 'Learning objectives',
-        learningObjectivesHint: 'Skills or outcomes learners will achieve by the end of the course.',
-        emptyLanguagesMessage: 'The selected domain has no active language.',
-        submitLabel: 'Create course',
+        fields: {
+          level: 'Level',
+          enrollmentMode: 'Enrollment mode',
+          title: 'Title',
+          titlePlaceholder: 'Course title',
+          description: 'Description',
+          learningObjectives: 'Learning objectives',
+          learningObjectivesHint: 'Skills or outcomes learners will achieve by the end of the course.',
+        },
+        translateButton: 'Translate from this tab',
+        cancelButton: 'Cancel',
+        submitButton: 'Create course',
         toastSuccessSummary: 'Course created',
         toastSuccessDetail: 'You can now add sections and lessons.',
         toastErrorSummary: 'Error',
@@ -230,10 +183,9 @@ export function getLmsCourseCreateUiText(
           formInvalid: 'The form contains errors.',
           saveFailed: 'Backend error while creating the course.',
           translationFailed: 'Error while translating.',
-          notInstructorOfAnyDomain: 'You are not the owner or manager of any domain.',
-          slugInvalid: 'The slug may only contain lowercase letters, digits and dashes.',
           titleRequired: 'A title is required in the primary language.',
-          missingPrimaryLanguage: 'Pick a primary language from the allowed languages.',
+          noCurrentDomain: 'No current domain selected — pick one from the top-right menu before creating a course.',
+          notInstructorOfCurrentDomain: 'You are not an instructor of the current domain — pick a domain you can manage from the top-right menu.',
         },
       };
   }

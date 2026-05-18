@@ -19,13 +19,15 @@
     <div class="header-line__right"></div>
   </div>
 
-  @if (loading() && manageableDomains().length === 0) {
-    <div class="card">
+  @if (loading()) {
+    <p-card>
       <p class="muted">{{ ui().common.loading }}</p>
-    </div>
-  } @else if (manageableDomains().length === 0) {
-    <div class="card">
-      <p-message severity="warn" [text]="pageText().errors.notInstructorOfAnyDomain"></p-message>
+    </p-card>
+  } @else if (notManageable()) {
+    <p-card>
+      @if (submitError()) {
+        <p-message severity="warn" [text]="submitError()!"></p-message>
+      }
       <div class="footer-actions">
         <p-button
           (onClick)="cancel()"
@@ -36,50 +38,13 @@
           type="button">
         </p-button>
       </div>
-    </div>
+    </p-card>
   } @else {
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="card form-card">
-        <div class="card-head">
-          <h2 class="card-title">{{ pageText().settingsCardTitle }}</h2>
-        </div>
-
-        <p class="muted">{{ pageText().subtitle }}</p>
-
+    <p-card>
+      <form (ngSubmit)="submit()" [formGroup]="form">
         <div class="meta-grid">
-          <div class="meta-item meta-item--full">
-            <label class="meta-label" for="course-domain">{{ pageText().domainLabel }}</label>
-            <div class="meta-value">
-              <p-select
-                inputId="course-domain"
-                formControlName="domain"
-                [options]="domainOptions()"
-                [filter]="true"
-                optionLabel="name"
-                optionValue="id"
-                [placeholder]="pageText().domainPlaceholder">
-              </p-select>
-            </div>
-          </div>
-
-          <div class="meta-item meta-item--full">
-            <label class="meta-label" for="course-slug">{{ pageText().slugLabel }}</label>
-            <div class="meta-value">
-              <input
-                id="course-slug"
-                formControlName="slug"
-                pInputText
-                [placeholder]="pageText().slugPlaceholder" />
-            </div>
-            @if (form.controls.slug.touched && form.controls.slug.errors?.['pattern']) {
-              <div class="meta-hint meta-hint--error">{{ pageText().errors.slugInvalid }}</div>
-            } @else {
-              <div class="meta-hint">{{ pageText().slugHint }}</div>
-            }
-          </div>
-
           <div class="meta-item">
-            <label class="meta-label" for="course-level">{{ pageText().levelLabel }}</label>
+            <label class="meta-label" for="course-level">{{ pageText().fields.level }}</label>
             <div class="meta-value">
               <p-select
                 inputId="course-level"
@@ -92,7 +57,7 @@
           </div>
 
           <div class="meta-item">
-            <label class="meta-label" for="course-enrollment">{{ pageText().enrollmentModeLabel }}</label>
+            <label class="meta-label" for="course-enrollment">{{ pageText().fields.enrollmentMode }}</label>
             <div class="meta-value">
               <p-select
                 inputId="course-enrollment"
@@ -103,124 +68,98 @@
               </p-select>
             </div>
           </div>
-
-          <div class="meta-item meta-item--full">
-            <label class="meta-label" for="course-primary-lang">{{ pageText().primaryLanguageLabel }}</label>
-            <div class="meta-value">
-              <p-select
-                inputId="course-primary-lang"
-                formControlName="language_code"
-                [options]="primaryLanguageOptions()"
-                optionLabel="label"
-                optionValue="value">
-              </p-select>
-            </div>
-            <div class="meta-hint">{{ pageText().primaryLanguageHint }}</div>
-          </div>
         </div>
-      </div>
 
-      @if (domainLangs().length > 0) {
-        <div class="card form-card">
-          <div class="card-head">
-            <h2 class="card-title">{{ pageText().translationsCardTitle }}</h2>
-          </div>
+        <p-tabs
+          (valueChange)="onTabChange($event)"
+          [value]="activeTab() ?? undefined"
+          class="tabs tabs--tight">
+          <p-tablist>
+            @for (code of domainLangs(); track code) {
+              <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+            }
+            <div class="tablist-actions">
+              <p-button
+                (onClick)="translateFromActiveTab()"
+                [disabled]="translating() || !activeTab()"
+                [loading]="translating()"
+                icon="pi pi-language"
+                [label]="pageText().translateButton"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+            </div>
+          </p-tablist>
 
-          <p-tabs
-            (valueChange)="onTabChange($event)"
-            [value]="activeTab() ?? undefined"
-            class="tabs tabs--tight">
-            <p-tablist>
-              @for (code of domainLangs(); track code) {
-                <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
-              }
-              <div class="tablist-actions">
-                <p-button
-                  (click)="translateFromActiveTab()"
-                  [disabled]="translating() || !activeTab()"
-                  [loading]="translating()"
-                  icon="pi pi-language"
-                  [label]="ui().common.translateOthers"
-                  severity="info"
-                  size="small"
-                  type="button">
-                </p-button>
-              </div>
-            </p-tablist>
-
-            <p-tabpanels class="tabpanels-tight">
-              @for (code of domainLangs(); track code) {
-                <p-tabpanel [value]="code">
-                  <div [formGroup]="langGroup(code)" class="lang-panel">
-                    <div class="meta-grid">
-                      <div class="meta-item meta-item--full">
-                        <label class="meta-label">{{ pageText().titleLabel }} ({{ code.toUpperCase() }})</label>
-                        <div class="meta-value">
-                          <input
-                            formControlName="title"
-                            pInputText
-                            [placeholder]="pageText().titlePlaceholder" />
-                        </div>
-                        @if (langGroup(code).controls.title.touched && langGroup(code).controls.title.invalid) {
-                          <div class="meta-hint meta-hint--error">{{ pageText().errors.titleRequired }}</div>
-                        }
+          <p-tabpanels class="tabpanels-tight" [formGroupName]="'translations'">
+            @for (code of domainLangs(); track code) {
+              <p-tabpanel [value]="code">
+                <div [formGroupName]="code" class="lang-panel">
+                  <div class="meta-grid">
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.title }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <input
+                          formControlName="title"
+                          pInputText
+                          [placeholder]="pageText().fields.titlePlaceholder" />
                       </div>
+                      @if (code === effectiveLang() && langGroup(code).controls.title.touched && !langGroup(code).controls.title.value.trim()) {
+                        <div class="meta-hint meta-hint--error">{{ pageText().errors.titleRequired }}</div>
+                      }
+                    </div>
 
-                      <div class="meta-item meta-item--full">
-                        <label class="meta-label">{{ pageText().descriptionLabel }} ({{ code.toUpperCase() }})</label>
-                        <div class="meta-value">
-                          <p-editor class="editor-compact" formControlName="description"></p-editor>
-                        </div>
-                      </div>
-
-                      <div class="meta-item meta-item--full">
-                        <label class="meta-label">{{ pageText().learningObjectivesLabel }} ({{ code.toUpperCase() }})</label>
-                        <div class="meta-value">
-                          <p-editor class="editor-compact" formControlName="learning_objectives"></p-editor>
-                        </div>
-                        <div class="meta-hint">{{ pageText().learningObjectivesHint }}</div>
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.description }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <p-editor class="editor-compact" formControlName="description"></p-editor>
                       </div>
                     </div>
 
-                    @if (translating()) {
-                      <div class="inline-status">
-                        <i class="pi pi-spin pi-spinner"></i>
-                        <span>{{ ui().common.translating }}</span>
+                    <div class="meta-item meta-item--full">
+                      <label class="meta-label">{{ pageText().fields.learningObjectives }} ({{ code.toUpperCase() }})</label>
+                      <div class="meta-value">
+                        <p-editor class="editor-compact" formControlName="learning_objectives"></p-editor>
                       </div>
-                    }
+                      <div class="meta-hint">{{ pageText().fields.learningObjectivesHint }}</div>
+                    </div>
                   </div>
-                </p-tabpanel>
-              }
-            </p-tabpanels>
-          </p-tabs>
-        </div>
-      } @else {
-        <div class="card">
-          <p-message severity="info" [text]="pageText().emptyLanguagesMessage"></p-message>
-        </div>
-      }
 
-      @if (submitError()) {
-        <p-message severity="error" [text]="submitError()!"></p-message>
-      }
+                  @if (translating()) {
+                    <div class="inline-status">
+                      <i class="pi pi-spin pi-spinner"></i>
+                      <span>{{ ui().common.translating }}</span>
+                    </div>
+                  }
+                </div>
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
 
-      <div class="footer-actions">
-        <p-button
-          (onClick)="cancel()"
-          icon="pi pi-times"
-          [label]="ui().common.cancel"
-          severity="secondary"
-          variant="outlined"
-          type="button">
-        </p-button>
-        <p-button
-          icon="pi pi-save"
-          [label]="pageText().submitLabel"
-          [disabled]="saving() || domainLangs().length === 0"
-          [loading]="saving()"
-          type="submit">
-        </p-button>
-      </div>
-    </form>
+        @if (submitError()) {
+          <p-message severity="error" [text]="submitError()!"></p-message>
+        }
+
+        <div class="footer-actions">
+          <p-button
+            (onClick)="cancel()"
+            icon="pi pi-times"
+            [label]="pageText().cancelButton"
+            severity="secondary"
+            variant="outlined"
+            type="button">
+          </p-button>
+          <p-button
+            icon="pi pi-save"
+            [label]="pageText().submitButton"
+            [disabled]="saving() || domainLangs().length === 0"
+            [loading]="saving()"
+            type="submit">
+          </p-button>
+        </div>
+      </form>
+    </p-card>
   }
 </div>
