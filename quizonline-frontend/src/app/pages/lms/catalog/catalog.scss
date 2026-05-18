@@ -63,6 +63,50 @@
     flex-wrap: wrap;
   }
 
+  .course-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    font-size: 0.78rem;
+    color: var(--text-color-secondary, #6b7280);
+
+    .pi { margin-right: 0.2rem; }
+  }
+
+  /* Lightweight progress strip rendered above the card footer when the
+   * caller is enrolled. Custom bar instead of <p-progressBar> so it
+   * matches the card's compact typography. */
+  .course-card__progress {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--p-surface-100, #f3f4f6);
+    overflow: hidden;
+    margin-top: -0.25rem;
+  }
+
+  .course-card__progress-bar {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--p-primary-color, #3b82f6), var(--p-primary-400, #60a5fa));
+    border-radius: 999px;
+    transition: width 240ms ease;
+  }
+
+  .course-card__progress-pct {
+    position: absolute;
+    right: 0.25rem;
+    top: -1.1rem;
+    font-size: 0.72rem;
+    color: var(--text-color-secondary, #6b7280);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .course-card--enrolled {
+    border-color: var(--p-primary-color, #3b82f6);
+    background: linear-gradient(180deg, var(--p-surface-0, #fff) 0%, var(--p-primary-50, #eff6ff) 100%);
+  }
+
   .course-card__level {
     color: var(--text-color-secondary, #6b7280);
     font-size: 0.875rem;

@@ -49,23 +49,51 @@
   } @else {
     <div class="grid-wrapper">
       @for (course of cards(); track course.id) {
-        <article class="course-card">
+        <article class="course-card" [class.course-card--enrolled]="course.isEnrolled">
           <header class="course-card__head">
             <h3 class="course-card__title">{{ course.title }}</h3>
             <div class="course-card__meta">
               <p-tag [value]="course.enrollmentLabel" />
               <span class="course-card__level">{{ course.levelLabel }}</span>
+              @if (course.isEnrolled) {
+                <p-tag [value]="ui().enrolledBadge" severity="success" icon="pi pi-check" />
+              }
             </div>
+            @if (course.lessonCountLabel || course.durationLabel) {
+              <div class="course-card__stats">
+                @if (course.lessonCountLabel) {
+                  <span><i class="pi pi-list"></i> {{ course.lessonCountLabel }}</span>
+                }
+                @if (course.durationLabel) {
+                  <span><i class="pi pi-clock"></i> {{ course.durationLabel }}</span>
+                }
+              </div>
+            }
           </header>
           <div class="course-card__description" [innerHTML]="course.description"></div>
+          @if (course.isEnrolled) {
+            <div class="course-card__progress" [attr.aria-label]="course.progressPercent + '%'">
+              <div class="course-card__progress-bar" [style.width.%]="course.progressPercent"></div>
+              <span class="course-card__progress-pct">{{ course.progressPercent }} %</span>
+            </div>
+          }
           <footer class="course-card__foot">
-            <p-button
-              [routerLink]="course.href"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              [label]="ui().viewButton"
-              severity="primary"
-              [outlined]="true" />
+            @if (course.continueHref; as continueHref) {
+              <p-button
+                [routerLink]="continueHref"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                [label]="ui().continueButton"
+                severity="primary" />
+            } @else {
+              <p-button
+                [routerLink]="course.href"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                [label]="ui().viewButton"
+                severity="primary"
+                [outlined]="true" />
+            }
           </footer>
         </article>
       }

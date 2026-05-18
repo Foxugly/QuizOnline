@@ -11,6 +11,14 @@ export interface LmsCatalogUiText {
   enrollmentBadge: Record<'open' | 'approval' | 'invite', string>;
   viewButton: string;
   createCourseButton: string;
+  /** Card meta: lesson count, e.g. "12 lessons". */
+  lessonCount: (n: number) => string;
+  /** Card meta: total duration formatted as "Xh Ym" or "Y min". */
+  duration: (minutes: number) => string;
+  /** Badge surfaced on the card when the caller is already enrolled. */
+  enrolledBadge: string;
+  /** Continue-learning CTA label shown instead of "View" once enrolled. */
+  continueButton: string;
 }
 
 export function getLmsCatalogUiText(
@@ -30,6 +38,10 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
         viewButton: 'Voir',
         createCourseButton: 'Créer un cours',
+        lessonCount: (n) => `${n} leçon${n > 1 ? 's' : ''}`,
+        duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
+        enrolledBadge: 'Inscrit',
+        continueButton: 'Reprendre',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -44,6 +56,10 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
         viewButton: 'Bekijken',
         createCourseButton: 'Cursus aanmaken',
+        lessonCount: (n) => `${n} les${n > 1 ? 'sen' : ''}`,
+        duration: (m) => m >= 60 ? `${Math.floor(m / 60)} u ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
+        enrolledBadge: 'Ingeschreven',
+        continueButton: 'Hervatten',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -58,6 +74,10 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
         viewButton: 'Visualizza',
         createCourseButton: 'Crea un corso',
+        lessonCount: (n) => `${n} lezion${n > 1 ? 'i' : 'e'}`,
+        duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
+        enrolledBadge: 'Iscritto',
+        continueButton: 'Riprendi',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -72,6 +92,10 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
         viewButton: 'Ver',
         createCourseButton: 'Crear un curso',
+        lessonCount: (n) => `${n} lección${n > 1 ? 'es' : ''}`,
+        duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
+        enrolledBadge: 'Inscrito',
+        continueButton: 'Reanudar',
       };
     default:
       return {
@@ -85,6 +109,10 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
         viewButton: 'View',
         createCourseButton: 'Create a course',
+        lessonCount: (n) => `${n} lesson${n > 1 ? 's' : ''}`,
+        duration: (m) => m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 > 0 ? (m % 60) + 'min' : ''}`.trim() : `${m} min`,
+        enrolledBadge: 'Enrolled',
+        continueButton: 'Continue',
       };
   }
 }

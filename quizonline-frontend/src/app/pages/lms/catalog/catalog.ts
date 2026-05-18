@@ -1,13 +1,15 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {RouterLink} from '@angular/router';
+import {Subject, debounceTime} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_COURSE_DETAIL, LMS_COURSE_NEW} from '../../../app.routes-paths';
+import {LMS_COURSE_DETAIL, LMS_COURSE_NEW, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -28,6 +30,13 @@ interface CatalogCourseRow {
   level: 'beginner' | 'intermediate' | 'advanced';
   enrollment_mode: 'open' | 'approval' | 'invite';
   translations?: TranslationsMap;
+  lesson_count?: number;
+  total_duration_minutes?: number;
+  my_enrollment?: {
+    status: 'active' | 'pending' | 'completed' | 'cancelled';
+    progress_percent: number;
+    next_lesson_id: number | null;
+  } | null;
 }
 
 /** View-model rendered by the template. Pre-resolves all localized strings and href.
@@ -41,6 +50,14 @@ interface CatalogCardVm {
   title: string;
   description: SafeHtml;
   href: string;
+  /** Resume-on lesson route when the caller is enrolled and has a
+   *  next-uncompleted lesson; ``null`` otherwise (the card just routes
+   *  to the course detail). */
+  continueHref: string | null;
+  lessonCountLabel: string | null;
+  durationLabel: string | null;
+  isEnrolled: boolean;
+  progressPercent: number;
 }
 
 @Component({
@@ -58,12 +75,16 @@ interface CatalogCardVm {
   styleUrl: './catalog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LmsCatalog {
+export class LmsCatalog implements OnInit {
   private readonly catalog = inject(LmsCatalogService);
   private readonly domainService = inject(DomainService);
   private readonly uiSvc = inject(UiTextService);
   private readonly userService = inject(UserService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
+  /** Search-input keystrokes funnel through this 300 ms debounce so we
+   *  never hammer the backend mid-typing. */
+  private readonly searchInput$ = new Subject<string>();
 
   protected readonly ui = this.uiSvc.localized(getLmsCatalogUiText);
   protected readonly common = this.uiSvc.localized(getLmsCommonUiText);
@@ -103,24 +124,46 @@ export class LmsCatalog {
 
   protected readonly cards = computed<CatalogCardVm[]>(() => {
     const lang = this.currentLang();
+    const ui = this.ui();
     const levelLabels = this.common().levelLabels;
-    const enrollmentLabels = this.ui().enrollmentBadge;
-    return this.courses().map((c) => ({
-      id: c.id,
-      slug: c.slug,
-      levelLabel: levelLabels[c.level] ?? '',
-      enrollmentLabel: enrollmentLabels[c.enrollment_mode] ?? '',
-      title: pickTranslation(c.translations, lang, 'title'),
-      description: this.sanitizer.bypassSecurityTrustHtml(
-        pickTranslation(c.translations, lang, 'description') ?? '',
-      ),
-      href: LMS_COURSE_DETAIL(c.slug),
-    }));
+    const enrollmentLabels = ui.enrollmentBadge;
+    return this.courses().map((c) => {
+      const me = c.my_enrollment ?? null;
+      const enrolled = !!me && me.status !== 'cancelled';
+      const nextLessonId = me?.next_lesson_id ?? null;
+      return {
+        id: c.id,
+        slug: c.slug,
+        levelLabel: levelLabels[c.level] ?? '',
+        enrollmentLabel: enrollmentLabels[c.enrollment_mode] ?? '',
+        title: pickTranslation(c.translations, lang, 'title'),
+        description: this.sanitizer.bypassSecurityTrustHtml(
+          pickTranslation(c.translations, lang, 'description') ?? '',
+        ),
+        href: LMS_COURSE_DETAIL(c.slug),
+        continueHref: enrolled && nextLessonId ? LMS_LESSON_VIEW(nextLessonId) : null,
+        lessonCountLabel: typeof c.lesson_count === 'number' && c.lesson_count > 0
+          ? ui.lessonCount(c.lesson_count) : null,
+        durationLabel: typeof c.total_duration_minutes === 'number' && c.total_duration_minutes > 0
+          ? ui.duration(c.total_duration_minutes) : null,
+        isEnrolled: enrolled,
+        progressPercent: me?.progress_percent ?? 0,
+      };
+    });
   });
 
   constructor() {
     this.refresh();
     this.loadManageableDomains();
+  }
+
+  ngOnInit(): void {
+    this.searchInput$
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.search.set(value);
+        this.refresh();
+      });
   }
 
   private loadManageableDomains(): void {
@@ -150,8 +193,7 @@ export class LmsCatalog {
   }
 
   protected onSearchChange(value: string): void {
-    this.search.set(value);
-    this.refresh();
+    this.searchInput$.next(value);
   }
 
   protected onLevelChange(value: string | null): void {
