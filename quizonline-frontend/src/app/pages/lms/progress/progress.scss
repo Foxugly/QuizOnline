@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.page__header {
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 2rem 1rem;
+
+  h3 {
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    margin: 0 0 1rem;
+    color: var(--text-color-secondary, #6b7280);
+  }
+}
