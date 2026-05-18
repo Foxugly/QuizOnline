@@ -18,9 +18,12 @@ export const FR: UiText = {
     noDomains: 'Aucun domaine',
     preferences: 'Préférences',
     notificationsAria: 'Notifications',
-    lmsCatalog: 'Formations',
     lmsMyProgress: 'Ma progression',
     lmsMyCertificates: 'Mes certificats',
+    coursesMenu: 'Cours',
+    coursesMenuFormations: 'Formations',
+    quizMenu: 'Quiz',
+    quizMenuLabel: 'Quiz',
   },
   userMenu: {
     preferences: 'Préférences',
