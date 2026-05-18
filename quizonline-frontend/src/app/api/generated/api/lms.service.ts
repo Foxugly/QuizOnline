@@ -133,6 +133,11 @@ export interface LmsCourseAnalyticsRetrieveRequestParams {
     courseId: number;
 }
 
+export interface LmsCourseAuditLogRetrieveRequestParams {
+    /** A unique integer value identifying this course. */
+    id: number;
+}
+
 export interface LmsCourseBySlugRetrieveRequestParams {
     slug: string;
 }
@@ -1076,6 +1081,66 @@ export class LmsApi extends BaseService {
     }
 
     /**
+     * Read-only audit trail of administrative actions on the course (publish / unpublish / clone / …). Instructor-gated so a learner never gets to see who took which decision when.
+     * @endpoint get /api/lms/course/{id}/audit-log/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseAuditLogRetrieve(requestParameters: LmsCourseAuditLogRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CourseDetailDto>;
+    public lmsCourseAuditLogRetrieve(requestParameters: LmsCourseAuditLogRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CourseDetailDto>>;
+    public lmsCourseAuditLogRetrieve(requestParameters: LmsCourseAuditLogRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CourseDetailDto>>;
+    public lmsCourseAuditLogRetrieve(requestParameters: LmsCourseAuditLogRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const id = requestParameters?.id;
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling lmsCourseAuditLogRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit-log/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CourseDetailDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * @endpoint get /api/lms/course/by-slug/{slug}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1397,7 +1462,7 @@ export class LmsApi extends BaseService {
     }
 
     /**
-     * Override the default list flow to pre-aggregate the cards\&#39; meta (lesson count, total duration) on the DB side and to bulk-fetch the caller\&#39;s enrollment / progress / lesson- completion state in a fixed number of queries — irrespective of the number of courses returned. Without this, the previous &#x60;&#x60;SerializerMethodField&#x60;&#x60; pattern issued ~5 queries per course, producing a quadratic blow-up on multi-course domains.
+     * Override the default list flow to pre-aggregate the cards\&#39; meta (lesson count, total duration) on the DB side and to bulk-fetch the caller\&#39;s enrollment / progress / lesson- completion state in a fixed number of queries — irrespective of the number of courses returned. Without this, the previous &#x60;&#x60;SerializerMethodField&#x60;&#x60; pattern issued ~5 queries per course, producing a quadratic blow-up on multi-course domains.  Ordering is pinned to &#x60;&#x60;(-published_at, -created_at, -id)&#x60;&#x60; so paginator slicing is deterministic — without an explicit secondary tie-breaker DRF emits an &#x60;&#x60;UnorderedObjectList&#x60;&#x60; warning and consecutive pages may shuffle rows on courses that share the same publish timestamp.
      * @endpoint get /api/lms/course/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

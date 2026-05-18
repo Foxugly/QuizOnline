@@ -6,7 +6,20 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from .models import ContentBlock, Course, Lesson, Section
+from .models import ContentBlock, Course, CourseAuditLog, Lesson, Section
+
+
+def record_course_audit(*, course: Course, actor, action: str, metadata: dict | None = None) -> None:
+    """Append a row to ``CourseAuditLog``. Fire-and-forget: a logging
+    failure must never break the underlying course mutation, so callers
+    can drop this in after the canonical ``save()`` without worrying
+    about transactional propagation."""
+    CourseAuditLog.objects.create(
+        course=course,
+        actor=actor if (actor and getattr(actor, "is_authenticated", False)) else None,
+        action=action[:CourseAuditLog.ACTION_MAX_LENGTH],
+        metadata=metadata or {},
+    )
 
 
 def allowed_lang_codes_for_course(course: Course) -> set[str]:
@@ -25,6 +38,7 @@ def publish_course(*, course: Course, by_user) -> Course:
     course.published_at = timezone.now()
     course.updated_by = by_user
     course.save(update_fields=["is_published", "published_at", "updated_by"])
+    record_course_audit(course=course, actor=by_user, action="course.publish")
     return course
 
 
@@ -33,6 +47,7 @@ def unpublish_course(*, course: Course, by_user) -> Course:
     course.is_published = False
     course.updated_by = by_user
     course.save(update_fields=["is_published", "updated_by"])
+    record_course_audit(course=course, actor=by_user, action="course.unpublish")
     return course
 
 
@@ -124,4 +139,8 @@ def clone_course(*, source: Course, by_user, target_domain=None) -> Course:
                     new_block.rich_text = tr.rich_text
                     new_block.callout_text = tr.callout_text
                     new_block.save()
+    record_course_audit(
+        course=new, actor=by_user, action="course.clone",
+        metadata={"source_course_id": source.id, "source_slug": source.slug},
+    )
     return new

@@ -144,6 +144,48 @@
   font-style: italic;
 }
 
+/* Recent activity — append-only list of audit rows under the
+ * KPI panel. Compact 3-column row: action (verb), actor, when. */
+.analytics-audit {
+  margin-top: 1.5rem;
+}
+
+.analytics-audit__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.analytics-audit__row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 6px;
+  background: var(--surface-card, #fff);
+  font-size: 0.88rem;
+}
+
+.analytics-audit__action {
+  font-weight: 500;
+}
+
+.analytics-audit__actor {
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.8rem;
+}
+
+.analytics-audit__date {
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .analytics-error {
   display: flex;
   flex-direction: column;

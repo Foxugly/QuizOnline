@@ -28,6 +28,13 @@ export interface LmsCourseEditAnalyticsTabUiText {
   };
   trendHeading: string;
   trendSubtitle: string;
+  auditHeading: string;
+  auditEmpty: string;
+  /** Localized action labels — back-end actions are free-form strings
+   *  like ``course.publish`` / ``course.unpublish`` / ``course.clone``;
+   *  the resolver below maps them to a learner-friendly verb and a
+   *  fallback (the raw key) for any future action not listed here. */
+  auditAction: (rawAction: string) => string;
   kpiHints: {
     pctOfTotal: (pct: number) => string;
     neverYet: string;
@@ -64,6 +71,13 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inscriptions sur 30 jours',
         trendSubtitle: 'Nombre de nouvelles inscriptions par jour, fenêtre glissante.',
+        auditHeading: 'Activité récente',
+        auditEmpty: 'Aucune action enregistrée pour le moment.',
+        auditAction: (a) => ({
+          'course.publish': 'Publication',
+          'course.unpublish': 'Dépublication',
+          'course.clone': 'Duplication',
+        }[a] ?? a),
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % du total`,
           neverYet: '—',
@@ -96,6 +110,13 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inschrijvingen over 30 dagen',
         trendSubtitle: 'Aantal nieuwe inschrijvingen per dag, voortschrijdend venster.',
+        auditHeading: 'Recente activiteit',
+        auditEmpty: 'Nog geen geregistreerde actie.',
+        auditAction: (a) => ({
+          'course.publish': 'Publicatie',
+          'course.unpublish': 'Depublicatie',
+          'course.clone': 'Duplicatie',
+        }[a] ?? a),
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % van het totaal`,
           neverYet: '—',
@@ -128,6 +149,13 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Iscrizioni a 30 giorni',
         trendSubtitle: 'Numero di nuove iscrizioni al giorno, finestra mobile.',
+        auditHeading: 'Attività recente',
+        auditEmpty: 'Nessuna azione registrata al momento.',
+        auditAction: (a) => ({
+          'course.publish': 'Pubblicazione',
+          'course.unpublish': 'Annullamento pubblicazione',
+          'course.clone': 'Duplicazione',
+        }[a] ?? a),
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % del totale`,
           neverYet: '—',
@@ -160,6 +188,13 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inscripciones a 30 días',
         trendSubtitle: 'Número de nuevas inscripciones por día, ventana deslizante.',
+        auditHeading: 'Actividad reciente',
+        auditEmpty: 'Aún no hay acción registrada.',
+        auditAction: (a) => ({
+          'course.publish': 'Publicación',
+          'course.unpublish': 'Anular publicación',
+          'course.clone': 'Duplicación',
+        }[a] ?? a),
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % del total`,
           neverYet: '—',
@@ -190,6 +225,13 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Enrollments over 30 days',
         trendSubtitle: 'Number of new enrollments per day, rolling window.',
+        auditHeading: 'Recent activity',
+        auditEmpty: 'No action recorded yet.',
+        auditAction: (a) => ({
+          'course.publish': 'Published',
+          'course.unpublish': 'Unpublished',
+          'course.clone': 'Cloned',
+        }[a] ?? a),
         kpiHints: {
           pctOfTotal: (pct) => `${pct}% of total`,
           neverYet: '—',

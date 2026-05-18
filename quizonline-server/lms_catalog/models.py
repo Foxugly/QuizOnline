@@ -86,6 +86,44 @@ class Course(AuditMixin, TranslatableModel):
                 })
 
 
+class CourseAuditLog(models.Model):
+    """Append-only audit trail of meaningful actions on a course.
+
+    Same shape as ``domain.DomainAuditLog`` so the operator stays in
+    familiar territory: ``action`` is a free-form string
+    (``"course.publish"``, ``"course.unpublish"``, ``"course.clone"``,
+    ``"course.delete"``, …) and ``metadata`` is a JSON blob with the
+    per-action context. Adding an audit-worthy action does not require
+    a migration.
+
+    The ``(course, -created_at)`` index supports the common
+    "show me the last N actions on this course" query that backs the
+    audit-log tab in ``/lms/course/{id}/edit``.
+    """
+    from django.conf import settings as _settings
+
+    ACTION_MAX_LENGTH = 64
+
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="audit_logs",
+    )
+    actor = models.ForeignKey(
+        _settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="emitted_course_audit_logs",
+    )
+    action = models.CharField(max_length=ACTION_MAX_LENGTH, db_index=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["course", "-created_at"], name="course_audit_course_ct_idx"),
+        ]
+        ordering = ["-created_at"]
+
+
 class Section(TranslatableModel):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="sections")
     order = models.PositiveIntegerField(default=0, db_index=True)

@@ -124,5 +124,27 @@
         <p class="analytics-trend__empty">{{ ui().kpiHints.neverYet }}</p>
       }
     </section>
+
+    <section class="analytics-audit">
+      <header class="analytics-trend__head">
+        <h3>{{ ui().auditHeading }}</h3>
+      </header>
+      @if (auditEntries().length === 0) {
+        <p class="analytics-trend__empty">{{ ui().auditEmpty }}</p>
+      } @else {
+        <ul class="analytics-audit__list">
+          @for (entry of auditEntries(); track entry.id) {
+            <li class="analytics-audit__row">
+              <span class="analytics-audit__action">{{ ui().auditAction(entry.action) }}</span>
+              <span class="analytics-audit__actor">{{ entry.actor_username || '—' }}</span>
+              <span class="analytics-audit__date"
+                    [attr.title]="entry.created_at | date:'medium'">
+                {{ entry.created_at | relativeDate }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
   }
 </section>

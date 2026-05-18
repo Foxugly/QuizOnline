@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from language.models import Language
 
-from .models import ContentBlock, Course, Lesson, Section
+from .models import ContentBlock, Course, CourseAuditLog, Lesson, Section
 
 
 @extend_schema_field({
@@ -391,6 +391,25 @@ def _derive_unique_course_slug(language, translations: dict | None) -> str:
         candidate = f"{base}-{n}"
         n += 1
     return candidate[:220]
+
+
+class CourseAuditLogSerializer(serializers.ModelSerializer):
+    """Read-only audit row exposed by ``/api/lms/course/{id}/audit-log/``.
+
+    ``actor_username`` resolves the FK once at serializer time so the
+    consumer doesn't have to do its own lookup — frontends typically
+    just want "who did it" rendered as a name, not a foreign key id.
+    """
+    actor_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseAuditLog
+        fields = ["id", "action", "actor", "actor_username", "metadata", "created_at"]
+        read_only_fields = fields
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_actor_username(self, obj) -> str | None:
+        return obj.actor.username if obj.actor_id else None
 
 
 class CourseListSerializer(serializers.ModelSerializer):

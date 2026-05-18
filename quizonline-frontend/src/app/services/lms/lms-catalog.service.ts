@@ -4,6 +4,18 @@ import {Observable} from 'rxjs';
 
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
+/** Read-only row exposed by ``GET /api/lms/course/{id}/audit-log/``.
+ *  Mirrors the ``CourseAuditLogSerializer`` shape — kept here as a
+ *  local type rather than going through the generated OpenAPI client
+ *  to match the rest of this service. */
+export interface CourseAuditEntryDto {
+  id: number;
+  action: string;
+  actor_username: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
 /**
  * Thin wrapper around the LMS catalog REST endpoints. Falls back to direct
  * ``HttpClient`` calls instead of the generated client because the generated
@@ -46,6 +58,12 @@ export class LmsCatalogService {
 
   detailById(id: number): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/course/${id}/`);
+  }
+
+  /** Read-only audit log for a course — instructor-gated server-side.
+   *  Returns the last 100 rows ordered newest-first. */
+  courseAuditLog(id: number): Observable<CourseAuditEntryDto[]> {
+    return this.http.get<CourseAuditEntryDto[]>(`${this.baseUrl}/course/${id}/audit-log/`);
   }
 
   publish(id: number): Observable<unknown> {

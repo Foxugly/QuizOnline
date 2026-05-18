@@ -5,10 +5,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
-from .models import ContentBlock, Course, Lesson, Section
-from .permissions import IsLmsInstructorOrReadOnly
+from rest_framework.exceptions import PermissionDenied
+
+from .models import ContentBlock, Course, CourseAuditLog, Lesson, Section
+from .permissions import IsLmsInstructorOrReadOnly, is_lms_instructor
 from .serializers import (
     ContentBlockSerializer,
+    CourseAuditLogSerializer,
     CourseDetailSerializer,
     CourseListSerializer,
     CourseWriteSerializer,
@@ -170,6 +173,17 @@ class CourseViewSet(viewsets.ModelViewSet):
             CourseDetailSerializer(new, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=True, methods=["get"], url_path="audit-log")
+    def audit_log(self, request, pk=None):
+        """Read-only audit trail of administrative actions on the
+        course (publish / unpublish / clone / …). Instructor-gated so
+        a learner never gets to see who took which decision when."""
+        course = self.get_object()
+        if not is_lms_instructor(request.user, course):
+            raise PermissionDenied()
+        rows = CourseAuditLog.objects.filter(course=course).select_related("actor")[:100]
+        return Response(CourseAuditLogSerializer(rows, many=True).data)
 
     @action(detail=True, methods=["post"], url_path="section/reorder")
     def reorder_sections_action(self, request, pk=None):

@@ -16,6 +16,7 @@ import {SkeletonModule} from 'primeng/skeleton';
 import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
 
 import {CourseAnalyticsDto, LmsEnrollmentService} from '../../../../../services/lms/lms-enrollment.service';
+import {CourseAuditEntryDto, LmsCatalogService} from '../../../../../services/lms/lms-catalog.service';
 import {logApiError} from '../../../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../../../../shared/i18n/ui-text.service';
@@ -50,6 +51,7 @@ interface TrendBarVm {
 })
 export class LmsCourseEditAnalyticsTab {
   private readonly enrollmentService = inject(LmsEnrollmentService);
+  private readonly catalogService = inject(LmsCatalogService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly ui = inject(UiTextService).localized(getLmsCourseEditAnalyticsTabUiText);
 
@@ -61,6 +63,9 @@ export class LmsCourseEditAnalyticsTab {
   protected readonly loading = signal<boolean>(false);
   protected readonly error = signal<boolean>(false);
   protected readonly analytics = signal<CourseAnalyticsDto | null>(null);
+  /** Append-only audit trail loaded alongside the KPIs. Empty list is
+   *  rendered as a "no activity yet" hint — never blocks the panel. */
+  protected readonly auditEntries = signal<CourseAuditEntryDto[]>([]);
 
   /** Whether the parent course gates enrollments behind moderator
    *  approval — the ``pending`` KPI is only meaningful in that mode
@@ -120,11 +125,25 @@ export class LmsCourseEditAnalyticsTab {
       const id = this.courseId();
       if (id > 0) {
         this.load(id);
+        this.loadAudit(id);
       } else {
         this.analytics.set(null);
+        this.auditEntries.set([]);
         this.error.set(false);
       }
     });
+  }
+
+  private loadAudit(courseId: number): void {
+    this.catalogService.courseAuditLog(courseId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rows) => this.auditEntries.set(rows ?? []),
+        error: (err: unknown) => {
+          logApiError('lms.course-edit.audit-log.load', err);
+          this.auditEntries.set([]);
+        },
+      });
   }
 
   protected retry(): void {

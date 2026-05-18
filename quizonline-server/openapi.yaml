@@ -1828,6 +1828,12 @@ paths:
         of the number of courses returned. Without this, the previous
         ``SerializerMethodField`` pattern issued ~5 queries per course,
         producing a quadratic blow-up on multi-course domains.
+
+        Ordering is pinned to ``(-published_at, -created_at, -id)``
+        so paginator slicing is deterministic — without an explicit
+        secondary tie-breaker DRF emits an ``UnorderedObjectList``
+        warning and consecutive pages may shuffle rows on courses
+        that share the same publish timestamp.
       parameters:
       - name: ordering
         required: false
@@ -2041,6 +2047,31 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/lms/course/{id}/audit-log/:
+    get:
+      operationId: lms_course_audit_log_retrieve
+      description: |-
+        Read-only audit trail of administrative actions on the
+        course (publish / unpublish / clone / …). Instructor-gated so
+        a learner never gets to see who took which decision when.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
   /api/lms/course/{id}/clone/:
     post:
       operationId: lms_course_clone_create
