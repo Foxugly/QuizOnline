@@ -161,5 +161,8 @@
 
   "pages/lms/course-edit:tabStructure",
   "pages/lms/course-edit/structure-tab:sectionDialog.descriptionField",
-  "pages/lms/course-edit/structure-tab:sectionAria"
+  "pages/lms/course-edit/structure-tab:sectionAria",
+  "pages/lms/course-edit/info-tab:fields.description",
+  "pages/lms/course-edit/info-tab:enrollmentLabels.open",
+  "pages/lms/course-edit/info-tab:toasts.errorSummary"
 ]
