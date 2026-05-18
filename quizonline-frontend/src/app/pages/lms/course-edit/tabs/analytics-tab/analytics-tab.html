@@ -1,4 +1,95 @@
-<section class="tab-section">
-  <h2>{{ ui().heading }}</h2>
-  <p class="placeholder">{{ ui().placeholder(courseId()) }}</p>
+<section class="tab-section analytics-tab">
+  <header class="analytics-tab__header">
+    <h2>{{ ui().heading }}</h2>
+    <p class="analytics-tab__subtitle">{{ ui().subtitle }}</p>
+  </header>
+
+  @if (loading()) {
+    <ul class="analytics-counters" aria-busy="true">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <li class="analytics-counters__skeleton">
+          <p-skeleton width="60%" height="0.85rem" styleClass="mb-2" />
+          <p-skeleton width="40%" height="1.6rem" />
+        </li>
+      }
+    </ul>
+  } @else if (error()) {
+    <div class="analytics-error">
+      <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      <p>{{ ui().errors.loadFailed }}</p>
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-refresh"
+        [label]="ui().retryButton"
+        (onClick)="retry()">
+      </p-button>
+    </div>
+  } @else if (!hasData()) {
+    <app-empty-state
+      density="default"
+      icon="pi pi-chart-bar"
+      [title]="ui().emptyTitle"
+      [hint]="ui().emptyMessage" />
+  } @else {
+    <ul class="analytics-counters">
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.total }}</span>
+        <span class="analytics-counters__value">{{ snapshot().total }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.active }}</span>
+        <span class="analytics-counters__value">{{ snapshot().active }}</span>
+        @if (activeHint(); as hint) {
+          <span class="analytics-counters__hint">{{ hint }}</span>
+        }
+      </li>
+      @if (showPendingKpi()) {
+        <li>
+          <span class="analytics-counters__label">{{ ui().kpi.pending }}</span>
+          <span class="analytics-counters__value">{{ snapshot().pending }}</span>
+        </li>
+      }
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.completed }}</span>
+        <span class="analytics-counters__value">{{ snapshot().completed }}</span>
+        @if (completedHint(); as hint) {
+          <span class="analytics-counters__hint">{{ hint }}</span>
+        }
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.cancelled }}</span>
+        <span class="analytics-counters__value">{{ snapshot().cancelled }}</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.completionRate }}</span>
+        <span class="analytics-counters__value">{{ snapshot().completionRatePct }} %</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.lastEnrollment }}</span>
+        @if (snapshot().lastEnrolledAt; as ts) {
+          <span
+            class="analytics-counters__value"
+            [attr.title]="ts | date:'medium'">{{ ts | relativeDate }}</span>
+        } @else {
+          <span class="analytics-counters__value analytics-counters__value--muted">
+            {{ ui().kpiHints.neverYet }}
+          </span>
+        }
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.lastCompletion }}</span>
+        @if (snapshot().lastCompletedAt; as ts) {
+          <span
+            class="analytics-counters__value"
+            [attr.title]="ts | date:'medium'">{{ ts | relativeDate }}</span>
+        } @else {
+          <span class="analytics-counters__value analytics-counters__value--muted">
+            {{ ui().kpiHints.neverYet }}
+          </span>
+        }
+      </li>
+    </ul>
+  }
 </section>

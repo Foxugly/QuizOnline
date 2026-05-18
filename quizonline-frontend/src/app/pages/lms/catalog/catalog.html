@@ -42,7 +42,7 @@
                 <span class="level">{{ course.levelLabel }}</span>
               </div>
             </ng-template>
-            <p>{{ course.description }}</p>
+            <div class="course-card__description" [innerHTML]="course.description"></div>
             <ng-template #footer>
               <p-button [routerLink]="course.href" [label]="ui().viewButton" />
             </ng-template>

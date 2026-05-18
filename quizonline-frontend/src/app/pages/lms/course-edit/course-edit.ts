@@ -1,10 +1,13 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
+import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TabsModule} from 'primeng/tabs';
 import {TagModule} from 'primeng/tag';
 
+import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {CourseDetailDto} from '../../../api/generated/model/course-detail';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -34,6 +37,7 @@ import {LmsCourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
   selector: 'app-lms-course-edit',
   imports: [
     ButtonModule,
+    ConfirmDialogModule,
     TabsModule,
     TagModule,
     LmsCourseEditInfoTab,
@@ -41,20 +45,25 @@ import {LmsCourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     LmsCourseEditEnrollmentTab,
     LmsCourseEditAnalyticsTab,
   ],
+  providers: [ConfirmationService],
   templateUrl: './course-edit.html',
   styleUrl: './course-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LmsCourseEdit implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly catalog = inject(LmsCatalogService);
   private readonly toast = inject(AppToastService);
+  private readonly confirmer = inject(ConfirmationService);
 
   protected readonly ui = inject(UiTextService).localized(getLmsCourseEditUiText);
   protected readonly courseId = signal<number>(0);
   protected readonly course = signal<CourseDetailDto | null>(null);
   protected readonly loading = signal<boolean>(false);
   protected readonly publishing = signal<boolean>(false);
+  protected readonly cloning = signal<boolean>(false);
+  protected readonly deleting = signal<boolean>(false);
 
   /** True when the course is published — drives the publish/unpublish toggle. */
   protected readonly isPublished = computed(() => this.course()?.is_published === true);
@@ -100,6 +109,102 @@ export class LmsCourseEdit implements OnInit, OnDestroy {
         logApiError('lms.course-edit.load', err);
         this.toast.addApiError(err, this.ui().loadErrorToast);
         this.loading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Open a confirm dialog before duplicating the course. On accept,
+   * call the backend ``clone`` endpoint and route the user to the
+   * editor of the freshly-created copy so they can rename / tweak it.
+   */
+  protected confirmClone(): void {
+    const id = this.courseId();
+    if (id <= 0 || this.cloning() || this.deleting()) {
+      return;
+    }
+    const labels = this.ui();
+    this.confirmer.confirm({
+      header: labels.confirmCloneTitle,
+      message: labels.confirmCloneMessage,
+      icon: 'pi pi-copy',
+      acceptLabel: labels.confirmCloneAccept,
+      rejectLabel: labels.confirmCloneReject,
+      accept: () => this.cloneCourse(),
+    });
+  }
+
+  /**
+   * Open a confirm dialog before permanently deleting the course.
+   * Message spells out the full cascade (sections / lessons / blocks /
+   * enrollments / progress) so course authors cannot mistake this for
+   * a soft-delete or an "unpublish".
+   */
+  protected confirmDelete(): void {
+    const id = this.courseId();
+    if (id <= 0 || this.cloning() || this.deleting()) {
+      return;
+    }
+    const labels = this.ui();
+    this.confirmer.confirm({
+      header: labels.confirmDeleteTitle,
+      message: labels.confirmDeleteMessage,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: labels.confirmDeleteAccept,
+      rejectLabel: labels.confirmDeleteReject,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteCourse(),
+    });
+  }
+
+  private cloneCourse(): void {
+    const id = this.courseId();
+    if (id <= 0) {
+      return;
+    }
+    this.cloning.set(true);
+    this.catalog.clone(id).subscribe({
+      next: (created) => {
+        this.cloning.set(false);
+        const newId = (created as {id?: number} | null)?.id;
+        this.toast.add({severity: 'success', summary: this.ui().cloneSuccessToast});
+        if (typeof newId === 'number' && newId > 0) {
+          this.router.navigateByUrl(LMS_COURSE_EDIT(newId));
+        }
+      },
+      error: (err: unknown) => {
+        this.cloning.set(false);
+        logApiError('lms.course-edit.clone', err);
+        this.toast.addApiError(err, this.ui().cloneErrorToast);
+      },
+    });
+  }
+
+  private deleteCourse(): void {
+    const id = this.courseId();
+    if (id <= 0) {
+      return;
+    }
+    this.deleting.set(true);
+    this.catalog.deleteCourse(id).subscribe({
+      next: () => {
+        this.deleting.set(false);
+        this.toast.add({severity: 'success', summary: this.ui().deleteSuccessToast});
+        this.router.navigateByUrl(LMS_CATALOG);
+      },
+      error: (err: unknown) => {
+        this.deleting.set(false);
+        logApiError('lms.course-edit.delete', err);
+        // ``Certificate.course`` is ``on_delete=PROTECT`` so a course
+        // that already issued certificates cannot be deleted. The
+        // backend surfaces a ProtectedError → 4xx; we map that case
+        // to a more useful fallback than the generic delete error.
+        const status = (err as {status?: number} | null)?.status;
+        const fallback =
+          status === 409 || status === 400 || status === 403
+            ? this.ui().deleteProtectedToast
+            : this.ui().deleteErrorToast;
+        this.toast.addApiError(err, fallback);
       },
     });
   }

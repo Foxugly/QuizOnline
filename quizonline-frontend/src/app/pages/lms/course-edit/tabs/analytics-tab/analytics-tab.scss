@@ -1,0 +1,88 @@
+// Look & feel mirrors components/domain-analytics-tab so the KPI panel
+// reads the same across the app. Auto-fit grid collapses to one
+// column on narrow viewports (no explicit breakpoint needed thanks to
+// ``minmax(12rem, 1fr)``).
+
+.analytics-tab {
+  padding: 1rem 0;
+}
+
+.analytics-tab__header {
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0 0 0.25rem;
+  }
+}
+
+.analytics-tab__subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
+}
+
+.analytics-counters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+
+  li {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.5rem;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+.analytics-counters__label {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.analytics-counters__value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.analytics-counters__value--muted {
+  color: var(--text-color-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.analytics-counters__hint {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.analytics-counters__skeleton {
+  // Match the height of a real KPI tile so the swap from skeleton to
+  // value does not visually jump the layout.
+  min-height: 4.5rem;
+}
+
+.analytics-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-color-secondary);
+
+  .pi-exclamation-triangle {
+    font-size: 1.75rem;
+    color: var(--p-button-warn-color, #d97706);
+  }
+
+  p {
+    margin: 0;
+  }
+}

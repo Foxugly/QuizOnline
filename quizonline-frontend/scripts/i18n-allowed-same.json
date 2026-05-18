@@ -164,5 +164,6 @@
   "pages/lms/course-edit/structure-tab:sectionAria",
   "pages/lms/course-edit/info-tab:fields.description",
   "pages/lms/course-edit/info-tab:enrollmentLabels.open",
-  "pages/lms/course-edit/info-tab:toasts.errorSummary"
+  "pages/lms/course-edit/info-tab:toasts.errorSummary",
+  "pages/lms/course-edit/analytics-tab:kpiHints.neverYet"
 ]
