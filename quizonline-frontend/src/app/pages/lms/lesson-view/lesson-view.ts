@@ -156,6 +156,27 @@ export class LmsLessonView implements OnInit, OnDestroy {
     this.routeSub = null;
   }
 
+  /**
+   * Scroll to the target ``#block-<id>`` anchor on the current page.
+   *
+   * Plain ``<a href="#block-1">`` would be intercepted by the Angular
+   * Router as a navigation to ``/#block-1`` — the router treats the
+   * empty path as the root route, so the user got teleported to the
+   * home page. Handling the click manually keeps the navigation
+   * SPA-local and gives us smooth scrolling for free.
+   */
+  protected scrollToBlock(event: MouseEvent, anchor: string): void {
+    event.preventDefault();
+    const target = document.getElementById(anchor);
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({behavior: 'smooth', block: 'start'});
+    // Keep the URL fragment in sync so the back/forward stack works
+    // and the user can copy a deep-link to a specific block.
+    history.replaceState(history.state, '', `#${anchor}`);
+  }
+
   protected completeLesson(): void {
     const current = this.lesson();
     if (!current || this.completing()) {

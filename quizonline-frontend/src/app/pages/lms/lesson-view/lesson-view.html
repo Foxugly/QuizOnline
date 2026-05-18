@@ -35,7 +35,9 @@
         <ol class="lesson-outline__list">
           @for (item of outline(); track item.id; let i = $index) {
             <li>
-              <a class="lesson-outline__link" [href]="'#' + item.anchor">
+              <a class="lesson-outline__link"
+                 [href]="'#' + item.anchor"
+                 (click)="scrollToBlock($event, item.anchor)">
                 <span class="lesson-outline__index">{{ i + 1 }}</span>
                 <i [class]="item.icon"></i>
                 <span class="lesson-outline__label">{{ item.label }}</span>
