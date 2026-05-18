@@ -371,7 +371,8 @@ ever rebuild:
    sudo apt update && sudo apt install -y \
        git python3-venv python3-pip nodejs npm \
        nginx postgresql-client redis-tools \
-       certbot python3-certbot-dns-route53
+       certbot python3-certbot-dns-route53 \
+       gettext
    sudo snap install amazon-ssm-agent --classic
    curl -L https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
    unzip -q /tmp/awscliv2.zip -d /tmp && sudo /tmp/aws/install
