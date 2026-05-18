@@ -219,7 +219,12 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
   }
 
   protected addBlock(type: BlockType): void {
-    const order = this.blocks().length;
+    // Pick max(existing order) + 1 rather than ``blocks.length`` so a
+    // sparse server-side ordering (left behind by a delete in the
+    // middle) cannot collide with the UNIQUE(lesson, order) constraint
+    // — that would surface as a 400 from the next POST.
+    const existing = this.blocks().map((b) => b.order);
+    const order = existing.length > 0 ? Math.max(...existing) + 1 : 0;
     this.http.post(`${this.apiBaseUrl}/block/`, {
       lesson: this.lessonId(),
       block_type: type,
