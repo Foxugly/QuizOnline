@@ -32,6 +32,28 @@
     height: 100%;
   }
 
+  // Description is rendered as sanitized HTML (rich-text from the
+  // course editor). Clamp to 3 lines with ellipsis so a long body
+  // does not blow up the card grid layout. Inner block elements
+  // (e.g. <p>) get their default margins stripped so the clamp
+  // measures actual text rows, not paragraph spacing.
+  .course-card__description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    color: var(--text-color, inherit);
+
+    :first-child {
+      margin-top: 0;
+    }
+
+    :last-child {
+      margin-bottom: 0;
+    }
+  }
+
   .card-subtitle {
     display: flex;
     gap: 0.5rem;

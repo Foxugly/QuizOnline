@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
@@ -29,14 +30,16 @@ interface CatalogCourseRow {
   translations?: TranslationsMap;
 }
 
-/** View-model rendered by the template. Pre-resolves all localized strings and href. */
+/** View-model rendered by the template. Pre-resolves all localized strings and href.
+ *  ``description`` is HTML produced by the rich-text editor; backend sanitizes
+ *  via nh3 on write, so we can trust it for ``[innerHTML]`` rendering. */
 interface CatalogCardVm {
   id: number;
   slug: string;
   levelLabel: string;
   enrollmentLabel: string;
   title: string;
-  description: string;
+  description: SafeHtml;
   href: string;
 }
 
@@ -61,6 +64,7 @@ export class LmsCatalog {
   private readonly domainService = inject(DomainService);
   private readonly uiSvc = inject(UiTextService);
   private readonly userService = inject(UserService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly ui = this.uiSvc.localized(getLmsCatalogUiText);
   protected readonly common = this.uiSvc.localized(getLmsCommonUiText);
@@ -93,7 +97,9 @@ export class LmsCatalog {
       levelLabel: levelLabels[c.level] ?? '',
       enrollmentLabel: enrollmentLabels[c.enrollment_mode] ?? '',
       title: pickTranslation(c.translations, lang, 'title'),
-      description: pickTranslation(c.translations, lang, 'description'),
+      description: this.sanitizer.bypassSecurityTrustHtml(
+        pickTranslation(c.translations, lang, 'description') ?? '',
+      ),
       href: LMS_COURSE_DETAIL(c.slug),
     }));
   });
