@@ -1,5 +1,6 @@
-import {ChangeDetectionStrategy, Component, inject, input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
 
+import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
 import {UiTextService} from '../../../../../shared/i18n/ui-text.service';
 
 import {getLmsCourseEditInfoTabUiText} from './info-tab.i18n';
@@ -19,4 +20,6 @@ export class LmsCourseEditInfoTab {
   protected readonly ui = inject(UiTextService).localized(getLmsCourseEditInfoTabUiText);
 
   courseId = input.required<number>();
+  readonly course = input<CourseDetailDto | null>(null);
+  readonly changed = output<void>();
 }
