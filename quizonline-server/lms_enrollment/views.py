@@ -1,12 +1,19 @@
+from datetime import timedelta
+from statistics import median
+
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.http import FileResponse
 from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 
 from lms_catalog.models import Course, Lesson
+from lms_catalog.permissions import is_lms_instructor
 
 from .models import Certificate, CourseEnrollment, CourseProgress
 from .permissions import IsEnrollmentOwnerOrInstructor
@@ -160,6 +167,115 @@ class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
 
 class _LmsVerifyThrottle(AnonRateThrottle):
     scope = "lms_cert_verify"
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def course_analytics(request, course_id: int):
+    """Aggregated analytics for a course's instructor dashboard.
+
+    Returns a single, pre-aggregated payload so the frontend "Analytics"
+    tab can render KPIs and a small trend chart without doing math in
+    Angular. Restricted to instructors of the course (superuser /
+    Domain owner / Domain manager) — non-instructors get a 403.
+
+    Payload shape::
+
+        {
+          "enrollment_counts": {
+            "total": int, "active": int, "pending": int,
+            "completed": int, "cancelled": int,
+          },
+          "completion_rate_pct": int,    # completed / (active + completed)
+          "last_enrolled_at": str | null,
+          "last_completed_at": str | null,
+          "median_progress_pct": int,    # median CourseProgress.progress_percent
+                                         # across non-cancelled enrollments;
+                                         # 0 when nobody has progress yet
+          "certificates_issued": int,    # certificates with revoked_at IS NULL
+          "enrollment_trend_30d": [
+            {"date": "YYYY-MM-DD", "count": int},  # one entry per day, 30 entries
+          ],
+        }
+    """
+    course = Course.objects.filter(pk=course_id).first()
+    if not course:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if not is_lms_instructor(request.user, course):
+        raise PermissionDenied()
+
+    enrollments = CourseEnrollment.objects.filter(course=course)
+    status_counts = dict(
+        enrollments.values_list("status").annotate(n=Count("id"))
+    )
+    total = sum(status_counts.values())
+    active = status_counts.get(CourseEnrollment.STATUS_ACTIVE, 0)
+    pending = status_counts.get(CourseEnrollment.STATUS_PENDING, 0)
+    completed = status_counts.get(CourseEnrollment.STATUS_COMPLETED, 0)
+    cancelled = status_counts.get(CourseEnrollment.STATUS_CANCELLED, 0)
+    denom = active + completed
+    completion_rate_pct = round((completed / denom) * 100) if denom > 0 else 0
+
+    last_enrolled = enrollments.order_by("-enrolled_at").values_list(
+        "enrolled_at", flat=True
+    ).first()
+    last_completed = (
+        enrollments.exclude(completed_at__isnull=True)
+        .order_by("-completed_at")
+        .values_list("completed_at", flat=True)
+        .first()
+    )
+
+    # Median progress across enrollees who have engaged at all (any
+    # CourseProgress row with non-zero progress). Excluded users with
+    # cancelled enrollments — they distort the metric downward without
+    # reflecting real learner behaviour.
+    active_user_ids = list(
+        enrollments.exclude(status=CourseEnrollment.STATUS_CANCELLED)
+        .values_list("user_id", flat=True)
+    )
+    progress_values = list(
+        CourseProgress.objects.filter(
+            course=course, user_id__in=active_user_ids
+        ).values_list("progress_percent", flat=True)
+    )
+    median_progress_pct = int(median(progress_values)) if progress_values else 0
+
+    certificates_issued = Certificate.objects.filter(
+        course=course, revoked_at__isnull=True
+    ).count()
+
+    # 30-day enrollment trend (one bucket per day, including zeros).
+    today = timezone.localdate()
+    earliest = today - timedelta(days=29)
+    trend_rows = dict(
+        enrollments.filter(enrolled_at__date__gte=earliest)
+        .annotate(day=TruncDate("enrolled_at"))
+        .values_list("day")
+        .annotate(n=Count("id"))
+    )
+    enrollment_trend_30d = []
+    for i in range(30):
+        day = earliest + timedelta(days=i)
+        enrollment_trend_30d.append(
+            {"date": day.isoformat(), "count": trend_rows.get(day, 0)}
+        )
+
+    return Response({
+        "enrollment_counts": {
+            "total": total,
+            "active": active,
+            "pending": pending,
+            "completed": completed,
+            "cancelled": cancelled,
+        },
+        "completion_rate_pct": completion_rate_pct,
+        "last_enrolled_at": last_enrolled.isoformat() if last_enrolled else None,
+        "last_completed_at": last_completed.isoformat() if last_completed else None,
+        "median_progress_pct": median_progress_pct,
+        "certificates_issued": certificates_issued,
+        "enrollment_trend_30d": enrollment_trend_30d,
+    })
 
 
 @api_view(["GET"])

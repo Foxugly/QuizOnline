@@ -129,6 +129,10 @@ export interface LmsCertificateRevokeCreateRequestParams {
     id: string;
 }
 
+export interface LmsCourseAnalyticsRetrieveRequestParams {
+    courseId: number;
+}
+
 export interface LmsCourseBySlugRetrieveRequestParams {
     slug: string;
 }
@@ -992,6 +996,65 @@ export class LmsApi extends BaseService {
         let localVarPath = `/api/lms/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/revoke/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Aggregated analytics for a course\&#39;s instructor dashboard.  Returns a single, pre-aggregated payload so the frontend \&quot;Analytics\&quot; tab can render KPIs and a small trend chart without doing math in Angular. Restricted to instructors of the course (superuser / Domain owner / Domain manager) — non-instructors get a 403.  Payload shape::      {       \&quot;enrollment_counts\&quot;: {         \&quot;total\&quot;: int, \&quot;active\&quot;: int, \&quot;pending\&quot;: int,         \&quot;completed\&quot;: int, \&quot;cancelled\&quot;: int,       },       \&quot;completion_rate_pct\&quot;: int,    # completed / (active + completed)       \&quot;last_enrolled_at\&quot;: str | null,       \&quot;last_completed_at\&quot;: str | null,       \&quot;median_progress_pct\&quot;: int,    # median CourseProgress.progress_percent                                      # across non-cancelled enrollments;                                      # 0 when nobody has progress yet       \&quot;certificates_issued\&quot;: int,    # certificates with revoked_at IS NULL       \&quot;enrollment_trend_30d\&quot;: [         {\&quot;date\&quot;: \&quot;YYYY-MM-DD\&quot;, \&quot;count\&quot;: int},  # one entry per day, 30 entries       ],     }
+     * @endpoint get /api/lms/course/{course_id}/analytics/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseAnalyticsRetrieve(requestParameters: LmsCourseAnalyticsRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseAnalyticsRetrieve(requestParameters: LmsCourseAnalyticsRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseAnalyticsRetrieve(requestParameters: LmsCourseAnalyticsRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseAnalyticsRetrieve(requestParameters: LmsCourseAnalyticsRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const courseId = requestParameters?.courseId;
+        if (courseId === null || courseId === undefined) {
+            throw new Error('Required parameter courseId was null or undefined when calling lmsCourseAnalyticsRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

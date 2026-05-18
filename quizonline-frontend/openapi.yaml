@@ -1875,6 +1875,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseWrite'
           description: ''
+  /api/lms/course/{course_id}/analytics/:
+    get:
+      operationId: lms_course_analytics_retrieve
+      description: |-
+        Aggregated analytics for a course's instructor dashboard.
+
+        Returns a single, pre-aggregated payload so the frontend "Analytics"
+        tab can render KPIs and a small trend chart without doing math in
+        Angular. Restricted to instructors of the course (superuser /
+        Domain owner / Domain manager) — non-instructors get a 403.
+
+        Payload shape::
+
+            {
+              "enrollment_counts": {
+                "total": int, "active": int, "pending": int,
+                "completed": int, "cancelled": int,
+              },
+              "completion_rate_pct": int,    # completed / (active + completed)
+              "last_enrolled_at": str | null,
+              "last_completed_at": str | null,
+              "median_progress_pct": int,    # median CourseProgress.progress_percent
+                                             # across non-cancelled enrollments;
+                                             # 0 when nobody has progress yet
+              "certificates_issued": int,    # certificates with revoked_at IS NULL
+              "enrollment_trend_30d": [
+                {"date": "YYYY-MM-DD", "count": int},  # one entry per day, 30 entries
+              ],
+            }
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/lms/course/{course_id}/enroll/:
     post:
       operationId: lms_course_enroll_create
