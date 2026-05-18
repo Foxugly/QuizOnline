@@ -21,7 +21,7 @@ to rotate, and the post-rotation verification.
 | 5 | `MS_GRAPH_CLIENT_SECRET` | SSM `/quizonline/prod/MS_GRAPH_CLIENT_SECRET` + Azure AD | gunicorn + celery | Critical — same as #4 plus Graph API access |
 | 6 | `DEEPL_AUTH_KEY` | SSM `/quizonline/prod/DEEPL_AUTH_KEY` + DeepL portal | gunicorn | Low — third-party translation quota burnt |
 | 7 | `SENTRY_DSN` (backend) | SSM `/quizonline/prod/SENTRY_DSN` + Sentry/GlitchTip | gunicorn + celery + celery-beat | Low — spam to your ingest, quota burnt |
-| 8 | `SENTRY_DSN` (frontend) | `/etc/nginx/snippets/quizonline-frontend-runtime.conf` + Sentry | nginx reload | Low — same as #7 |
+| 8 | `SENTRY_FRONTEND_DSN` (frontend) | SSM `/quizonline/prod/SENTRY_FRONTEND_DSN` + Sentry | `systemctl restart quizonline-frontend-runtime-fetch` | Low — same as #7 |
 | 9 | Personal SSH key on EC2 | `~/.ssh/authorized_keys` on EC2 (operator's `.pem` / `.ppk` on laptop) | none | High — shell access to prod. **Historical: this key was previously also stored as the GH Secret `EC2_SSH_KEY`; see notes in section 9.** |
 | 10 | AWS IAM `quizonline-deploy` (OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy + write to S3, can't read SSM Parameter Store |
 
@@ -269,29 +269,52 @@ sudo -u django bash -c '
 
 ---
 
-## 8. `SENTRY_DSN` (frontend)
+## 8. `SENTRY_FRONTEND_DSN` (frontend)
 
 **What breaks if leaked.** Same as #7 but the DSN is already in every
 page's HTML, so it's not really a "secret" — leaking it widens the
 quota-abuse surface without exposing new data.
 
-**Rotation.**
+**Rotation.** The frontend DSN now lives in SSM at
+`/quizonline/prod/SENTRY_FRONTEND_DSN` (SecureString). The nginx
+snippet is auto-generated at boot and after every CI deploy by
+`quizonline-frontend-runtime-fetch.service`.
 
 ```bash
-sudo $EDITOR /etc/nginx/snippets/quizonline-frontend-runtime.conf
-# → update set $sentry_dsn "...";
-sudo nginx -t && sudo systemctl reload nginx
+# 1. Update SSM (from your laptop or any box with the right IAM)
+aws ssm put-parameter --overwrite \
+  --region eu-west-1 \
+  --name /quizonline/prod/SENTRY_FRONTEND_DSN \
+  --type SecureString \
+  --value 'https://NEW_DSN@oXXXX.ingest.de.sentry.io/YYYY'
+
+# 2. Trigger the fetch on the box (via SSM Session Manager)
+sudo systemctl restart quizonline-frontend-runtime-fetch.service
+
+# (alternatively, the next CI deploy will pick it up automatically)
 ```
+
+The service rewrites `/etc/nginx/snippets/quizonline-frontend-runtime.conf`
+from the current SSM values, runs `nginx -t` as a guard, then
+`systemctl reload nginx`. Idempotent — if the snippet is unchanged
+(same DSN), no reload happens.
 
 **Verify.**
 
 ```bash
 curl -s https://quizonline.foxugly.com/ | grep -o '__QUIZONLINE_SENTRY_DSN="[^"]*"'
 # expect the new DSN value
+
+sudo journalctl -u quizonline-frontend-runtime-fetch.service -n 20
+# expect: "$OUT_FILE updated" + "nginx reloaded"
 ```
 
 Trigger a `console.error` in the SPA (any wrong-credentials login
 attempt does it) and check it lands in Sentry.
+
+The sibling parameters `SENTRY_FRONTEND_ENV` and
+`SENTRY_FRONTEND_RELEASE` rotate the same way — same SSM
+`put-parameter`, same `systemctl restart`.
 
 ---
 

@@ -436,10 +436,12 @@ ever rebuild:
    shred -u ./prod.env          # don't leave it on disk
    ```
    `SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_HOST_PASSWORD`,
-   `MS_GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY` and `SENTRY_DSN` upload
-   as `SecureString`; the rest as plain `String`.
-6. **systemd units** (the env-fetch unit runs the helper straight from
-   the git checkout — no `/usr/local/bin/` install needed):
+   `MS_GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY`, `SENTRY_DSN` and
+   `SENTRY_FRONTEND_DSN` upload as `SecureString`; the rest as
+   plain `String`.
+6. **systemd units** (the env-fetch + frontend-runtime-fetch units
+   run their helpers straight from the git checkout — no
+   `/usr/local/bin/` install needed):
    ```bash
    # On EC2:
    sudo cp deploy/quizonline-*.service deploy/quizonline-*.timer /etc/systemd/system/
@@ -449,6 +451,9 @@ ever rebuild:
    sudo stat -c '%a %U:%G %n' /run/quizonline/.env   # expect 640 django:www-data
    sudo systemctl enable --now quizonline-gunicorn quizonline-celery quizonline-celery-beat
    sudo systemctl enable --now quizonline-backup.timer
+   sudo systemctl enable --now quizonline-frontend-runtime-fetch.service
+   # Verify the snippet was generated:
+   sudo cat /etc/nginx/snippets/quizonline-frontend-runtime.conf
    ```
 7. **nginx + TLS**:
    ```bash
@@ -457,11 +462,7 @@ ever rebuild:
    sudo certbot --nginx -d quizonline.foxugly.com   # or DNS-01 if wildcard
    sudo nginx -t && sudo systemctl reload nginx
    ```
-8. **(optional) Frontend Sentry**: drop
-   [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example)
-   at `/etc/nginx/snippets/quizonline-frontend-runtime.conf`,
-   replace placeholders, `nginx -t && systemctl reload nginx`.
-9. **First deploy**: `gh workflow run Deploy --repo Foxugly/QuizOnline`.
+8. **First deploy**: `gh workflow run Deploy --repo Foxugly/QuizOnline`.
 
 The AWS-side prereqs (IAM roles, OIDC provider, S3 bucket) are
 expected to already exist — those are account-level, not
@@ -476,5 +477,8 @@ instance-level.
 - [`env.production.example`](env.production.example) — reference
   `.env` shape for the backend.
 - [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example) —
-  nginx snippet for the frontend Sentry DSN.
+  nginx snippet for the frontend Sentry DSN. Kept for documentation;
+  the live snippet at `/etc/nginx/snippets/quizonline-frontend-runtime.conf`
+  is now auto-generated from SSM by
+  `quizonline-frontend-runtime-fetch.service`.
 - `apache.conf` — legacy Apache template, kept for parity. Not used.
