@@ -15,6 +15,13 @@ from .models import (
     CourseProgress,
     LessonProgress,
 )
+from .notifications import (
+    notify_certificate_issued_on_commit,
+    notify_course_completed_on_commit,
+    notify_enrollment_approved_on_commit,
+    notify_enrollment_created_on_commit,
+    notify_enrollment_rejected_on_commit,
+)
 
 
 def _is_instructor(user, course: Course) -> bool:
@@ -50,6 +57,7 @@ def enroll_user_to_course(*, user, course: Course, requested_by=None) -> CourseE
         status=status,
         created_by=requested_by or user,
     )
+    notify_enrollment_created_on_commit(enrollment)
     _ensure_course_progress(user, course)
     return enrollment
 
@@ -63,6 +71,7 @@ def approve_enrollment(*, enrollment: CourseEnrollment, decided_by) -> CourseEnr
     enrollment.status = CourseEnrollment.STATUS_ACTIVE
     enrollment.updated_by = decided_by
     enrollment.save(update_fields=["status", "updated_by"])
+    notify_enrollment_approved_on_commit(enrollment)
     return enrollment
 
 
@@ -77,6 +86,7 @@ def reject_enrollment(
     enrollment.status = CourseEnrollment.STATUS_CANCELLED
     enrollment.updated_by = decided_by
     enrollment.save(update_fields=["status", "updated_by"])
+    notify_enrollment_rejected_on_commit(enrollment)
     return enrollment
 
 
@@ -162,6 +172,7 @@ def calculate_course_progress(*, user, course: Course) -> CourseProgress:
             status=CourseEnrollment.STATUS_COMPLETED,
             completed_at=timezone.now(),
         )
+        notify_course_completed_on_commit(user=user, course=course)
     return cp
 
 
@@ -211,6 +222,7 @@ def issue_certificate_if_eligible(*, user, course: Course) -> Certificate | None
         certificate_number=_generate_certificate_number(),
         verification_token=secrets.token_urlsafe(32),
     )
+    notify_certificate_issued_on_commit(cert)
     from .tasks import render_certificate_pdf
     transaction.on_commit(lambda: render_certificate_pdf.delay(cert.id))
     return cert
