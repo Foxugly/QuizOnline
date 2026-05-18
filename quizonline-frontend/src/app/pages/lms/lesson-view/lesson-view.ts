@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, computed, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subscription} from 'rxjs';
@@ -76,13 +76,20 @@ interface BlockOutlineItem {
   styleUrl: './lesson-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LmsLessonView implements OnInit, OnDestroy {
+export class LmsLessonView implements OnInit, OnDestroy, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly enrollment = inject(LmsEnrollmentService);
   private readonly userService = inject(UserService);
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
+  private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly zone = inject(NgZone);
+
+  /** Anchor id of the block currently in the viewport — drives the
+   *  highlighted entry in the left outline (scroll-spy). */
+  protected readonly activeAnchor = signal<string | null>(null);
+  private observer: IntersectionObserver | null = null;
 
   protected readonly ui = this.uiSvc.localized(getLmsLessonViewUiText);
   /** Shared "Back" label — same source as every other LMS page. */
@@ -175,9 +182,70 @@ export class LmsLessonView implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    // Re-wire the IntersectionObserver whenever the rendered block list
+    // changes (a new lesson loads, or the user reaches the page on
+    // first paint with the blocks already cached). The observer runs
+    // outside Angular's zone to avoid kicking off a CD pass on every
+    // pixel scrolled — we only touch the ``activeAnchor`` signal
+    // (which schedules its own CD via signal reactivity).
+    effect(() => {
+      // Track the blocks signal so the effect re-runs when they change.
+      this.blocks();
+      // Defer until the DOM has rendered the new ``[id]="block-X"`` cards.
+      queueMicrotask(() => this.rewireScrollSpy());
+    });
+  }
+
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.routeSub = null;
+    this.observer?.disconnect();
+    this.observer = null;
+  }
+
+  /** Tear down the previous observer and register a fresh one against
+   *  the currently-rendered block cards. ``rootMargin`` shifts the
+   *  intersection window so a card counts as "active" when its top
+   *  enters the upper third of the viewport — feels natural even on
+   *  long content blocks. */
+  private rewireScrollSpy(): void {
+    this.observer?.disconnect();
+    const cards = this.hostElement.nativeElement.querySelectorAll<HTMLElement>('.block-card');
+    if (cards.length === 0) {
+      this.observer = null;
+      this.activeAnchor.set(null);
+      return;
+    }
+    const visibility = new Map<string, number>();
+    this.zone.runOutsideAngular(() => {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const id = entry.target.id;
+            if (!id) {
+              continue;
+            }
+            visibility.set(id, entry.intersectionRatio);
+          }
+          // Pick the most-visible card; ties resolve by document order
+          // since ``IntersectionObserver`` keeps insertion order.
+          let bestId: string | null = null;
+          let bestRatio = 0;
+          for (const [id, ratio] of visibility) {
+            if (ratio > bestRatio) {
+              bestRatio = ratio;
+              bestId = id;
+            }
+          }
+          if (bestId !== this.activeAnchor()) {
+            this.zone.run(() => this.activeAnchor.set(bestId));
+          }
+        },
+        {threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '-30% 0px -40% 0px'},
+      );
+      cards.forEach((c: HTMLElement) => this.observer!.observe(c));
+    });
   }
 
   /** Absolute href for a block anchor — combines the current
@@ -223,6 +291,15 @@ export class LmsLessonView implements OnInit, OnDestroy {
       next: () => {
         this.lesson.update((l) => (l ? {...l, completed: true} : l));
         this.toast.add({severity: 'success', summary: this.ui().lessonCompletedToast});
+        // Nudge the learner toward the next step: smooth-scroll the
+        // footer into view so the "Next lesson" CTA is visible without
+        // a hunt. Skipped at the course boundary (no next lesson).
+        if (this.nextLesson()) {
+          queueMicrotask(() => {
+            const footer = this.hostElement.nativeElement.querySelector<HTMLElement>('.lesson-footer');
+            footer?.scrollIntoView({behavior: 'smooth', block: 'center'});
+          });
+        }
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-view.complete', err);

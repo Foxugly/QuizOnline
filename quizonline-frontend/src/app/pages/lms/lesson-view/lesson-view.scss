@@ -81,10 +81,23 @@
   text-decoration: none;
   color: inherit;
   font-size: 0.9rem;
-  transition: background-color 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease;
 
   &:hover {
     background: var(--p-surface-100, #f3f4f6);
+  }
+
+  /* Active outline entry — driven by the scroll-spy
+   * ``IntersectionObserver`` in the host component. */
+  &--active {
+    background: var(--p-primary-50, #eff6ff);
+    color: var(--p-primary-color, #3b82f6);
+    font-weight: 600;
+
+    .lesson-outline__index {
+      background: var(--p-primary-color, #3b82f6);
+      color: #fff;
+    }
   }
 }
 
@@ -196,6 +209,18 @@
   @media (max-width: 720px) {
     justify-self: stretch;
   }
+
+  /* Pulse the "next lesson" button right after the user marks the
+   * current one complete — a soft nudge toward continuing. The
+   * animation stops on its own after two cycles. */
+  &--pulse ::ng-deep .p-button {
+    animation: lesson-next-pulse 1.4s ease-in-out 2;
+  }
+}
+
+@keyframes lesson-next-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
 }
 
 .callout {
