@@ -1,12 +1,15 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
+import {SelectButtonModule} from 'primeng/selectbutton';
 import {InputTextModule} from 'primeng/inputtext';
-import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
 import {Subject, Subscription, debounceTime} from 'rxjs';
 
+import {UserService} from '../../../../services/user/user';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
+import {pickDefaultLang} from '../../../../shared/lms/default-lang';
 import {VideoProvider, getLmsCommonUiText} from '../../../../shared/lms/lms-common.i18n';
 
 import {BlockTranslateButton} from './block-translate-button';
@@ -18,12 +21,16 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
  * Translatable: a per-language ``title`` (caption / aria-label).
  * Non-translatable: the canonical ``video_url`` and the
  * ``video_provider`` (``youtube`` / ``vimeo`` / ``upload``). The
- * provider drop-down sources its labels from the shared LMS common
- * dictionary so labels stay consistent with the renderer.
+ * provider is picked via a segmented control (one PrimeNG
+ * ``p-selectButton`` row) rather than a dropdown so the three options
+ * stay visible at a glance. The URL field auto-detects the provider
+ * (YouTube / Vimeo host match) so the segment toggles itself as the
+ * author types. When a valid YouTube / Vimeo URL is set, a preview
+ * iframe is shown below for instant feedback.
  */
 @Component({
   selector: 'app-video-block-editor',
-  imports: [FormsModule, InputTextModule, SelectModule, TabsModule, BlockTranslateButton],
+  imports: [FormsModule, InputTextModule, SelectButtonModule, TabsModule, BlockTranslateButton],
   template: `
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
@@ -41,7 +48,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
           <p-tabpanel [value]="lang">
-            <label>
+            <label class="field">
               {{ ui().fieldTitle }}
               <input pInputText type="text"
                      [ngModel]="titleFor(lang)"
@@ -52,33 +59,43 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       </p-tabpanels>
     </p-tabs>
 
-    <div class="field-row">
-      <label>
-        {{ ui().fieldVideoUrl }}
-        <input pInputText type="url"
-               [ngModel]="block().video_url"
-               (ngModelChange)="onUrlChange($event)" />
-      </label>
+    <label class="field">
+      {{ ui().fieldVideoUrl }}
+      <input pInputText type="url" placeholder="https://www.youtube.com/watch?v=…"
+             [ngModel]="block().video_url"
+             (ngModelChange)="onUrlChange($event)" />
+    </label>
 
-      <label>
-        {{ ui().fieldVideoProvider }}
-        <p-select [options]="providerOptions()"
-                  [ngModel]="block().video_provider || null"
-                  optionLabel="label"
-                  optionValue="value"
-                  (ngModelChange)="onProviderChange($event)" />
-      </label>
+    <div class="field">
+      <span>{{ ui().fieldVideoProvider }}</span>
+      <p-selectButton [options]="providerOptions()"
+                      [ngModel]="block().video_provider || null"
+                      optionLabel="label"
+                      optionValue="value"
+                      [allowEmpty]="false"
+                      (ngModelChange)="onProviderChange($event)" />
     </div>
+
+    @if (previewUrl(); as preview) {
+      <div class="preview">
+        <iframe [src]="preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen referrerpolicy="strict-origin-when-cross-origin"
+                [title]="ui().fieldVideoUrl"></iframe>
+      </div>
+    }
   `,
   styles: [`
     :host { display: block; }
-    .field-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; }
-    label { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; min-width: 240px; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; margin-top: 0.65rem; }
+    .preview { margin-top: 0.75rem; border: 1px solid var(--p-surface-border, #e5e7eb); border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 540px; }
+    .preview iframe { width: 100%; height: 100%; border: 0; display: block; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VideoBlockEditor implements OnInit, OnDestroy {
+  private readonly user = inject(UserService);
+  private readonly sanitizer = inject(DomSanitizer);
   protected readonly ui = inject(UiTextService).localized(getLmsBlockEditorsUiText);
   protected readonly common = inject(UiTextService).localized(getLmsCommonUiText);
 
@@ -87,7 +104,7 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
   changed = output<Partial<ContentBlock>>();
 
   protected readonly activeLang = signal<string>('');
-  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
+  private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
   protected readonly providerOptions = computed(() => {
     const labels = this.common().videoProviderLabels;
@@ -97,11 +114,31 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
     }));
   });
 
+  /** Sanitized embed URL for the live preview. Returns ``null`` when no
+   *  recognisable YouTube / Vimeo id can be extracted from the current
+   *  ``video_url`` (or when the provider is ``upload``). */
+  protected readonly previewUrl = computed<SafeResourceUrl | null>(() => {
+    const url = (this.block().video_url ?? '').trim();
+    if (!url) {
+      return null;
+    }
+    const provider = this.block().video_provider || detectProvider(url);
+    let embed: string | null = null;
+    if (provider === 'youtube') {
+      const id = extractYouTubeId(url);
+      embed = id ? `https://www.youtube.com/embed/${id}` : null;
+    } else if (provider === 'vimeo') {
+      const id = extractVimeoId(url);
+      embed = id ? `https://player.vimeo.com/video/${id}` : null;
+    }
+    return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
+  });
+
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
-    this.activeLang.set(this.firstLang());
+    this.activeLang.set(this.defaultLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));
@@ -123,10 +160,50 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
   }
 
   protected onUrlChange(value: string | null | undefined): void {
-    this.debouncer$.next({video_url: value ?? ''});
+    const url = value ?? '';
+    const patch: Partial<ContentBlock> = {video_url: url};
+    // Auto-detect provider when the URL matches a known host. Never
+    // downgrade an explicit upload-mode pick; only set a provider when
+    // we recognise the URL, leaving manual overrides untouched.
+    const detected = detectProvider(url);
+    if (detected && this.block().video_provider !== detected) {
+      patch.video_provider = detected;
+    }
+    this.debouncer$.next(patch);
   }
 
   protected onProviderChange(value: VideoProvider | '' | null | undefined): void {
     this.debouncer$.next({video_provider: value ?? ''});
   }
+}
+
+function detectProvider(url: string): VideoProvider | null {
+  if (/(?:youtube\.com|youtu\.be)/i.test(url)) {
+    return 'youtube';
+  }
+  if (/vimeo\.com/i.test(url)) {
+    return 'vimeo';
+  }
+  return null;
+}
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /[?&]v=([\w-]{6,})/,
+    /youtu\.be\/([\w-]{6,})/,
+    /youtube\.com\/embed\/([\w-]{6,})/,
+    /youtube\.com\/shorts\/([\w-]{6,})/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m && m[1]) {
+      return m[1];
+    }
+  }
+  return null;
+}
+
+function extractVimeoId(url: string): string | null {
+  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m ? m[1] : null;
 }

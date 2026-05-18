@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {Subject, Subscription, debounceTime} from 'rxjs';
@@ -8,7 +9,9 @@ import {logApiError} from '../../../../shared/api/api-errors';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
+import {pickDefaultLang} from '../../../../shared/lms/default-lang';
 import {LmsUploadService} from '../../../../services/lms/lms-upload.service';
+import {UserService} from '../../../../services/user/user';
 
 import {BlockTranslateButton} from './block-translate-button';
 import {getLmsBlockEditorsUiText} from './block-editors.i18n';
@@ -16,18 +19,17 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 /**
  * Editor for the ``image`` ContentBlock.
  *
- * Translatable: per-language ``title`` shown as the image caption by
- * the renderer. Non-translatable: the underlying ``image`` URL, which
- * is replaced via :class:`LmsUploadService.uploadImageForBlock` when
- * the author picks a new file. We use a plain ``<input type="file">``
- * rather than ``<p-fileupload>`` so the upload pipeline stays under
- * our control (the service issues a multipart PATCH against the
- * ContentBlock endpoint, and the response is folded back into the
- * shell's local state via the ``changed`` output).
+ * Translatable: per-language ``title`` shown as the image caption.
+ * Non-translatable: the underlying ``image`` URL, replaced via
+ * :class:`LmsUploadService.uploadImageForBlock`. The picker is now a
+ * ``<p-fileupload customUpload>`` so authors get drag-and-drop, a
+ * thumbnail preview, and explicit size feedback — the actual upload
+ * still flows through our service so the multipart payload, error
+ * mapping, and toast remain consistent with the rest of the LMS.
  */
 @Component({
   selector: 'app-image-block-editor',
-  imports: [FormsModule, InputTextModule, TabsModule, BlockTranslateButton],
+  imports: [FormsModule, FileUploadModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
@@ -45,7 +47,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
           <p-tabpanel [value]="lang">
-            <label>
+            <label class="field">
               {{ ui().fieldTitle }}
               <input pInputText type="text"
                      [ngModel]="titleFor(lang)"
@@ -56,26 +58,34 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       </p-tabpanels>
     </p-tabs>
 
-    <div class="upload-row">
-      <label class="file-picker">
-        <span>{{ ui().chooseFile }}</span>
-        <input type="file" accept="image/*"
-               [disabled]="uploading()"
-               (change)="onFileSelected($event)" />
-      </label>
+    <div class="upload-area">
+      @if (block().image; as url) {
+        <figure class="preview">
+          <img [src]="url" [alt]="ui().fieldTitle" />
+          <figcaption>{{ ui().currentFileLabel }}</figcaption>
+        </figure>
+      }
+      <p-fileupload
+        mode="basic"
+        accept="image/*"
+        [auto]="true"
+        [customUpload]="true"
+        [chooseLabel]="ui().chooseFile"
+        [disabled]="uploading()"
+        (uploadHandler)="onUpload($event)" />
       @if (uploading()) {
         <span class="muted">{{ ui().uploading }}</span>
-      }
-      @if (block().image; as url) {
-        <span class="current-url"><strong>{{ ui().currentFileLabel }}:</strong> {{ url }}</span>
       }
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .upload-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; align-items: center; }
-    .current-url { font-size: 0.85rem; color: var(--text-color-secondary, #6b7280); word-break: break-all; }
-    label { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; width: 100%; }
+    .field { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; width: 100%; margin-top: 0.5rem; }
+    .upload-area { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 0.75rem; }
+    .preview { margin: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+    .preview img { max-width: 180px; max-height: 110px; border-radius: 8px; border: 1px solid var(--p-surface-border, #e5e7eb); object-fit: cover; }
+    .preview figcaption { font-size: 0.75rem; color: var(--text-color-secondary, #6b7280); }
+    .muted { color: var(--text-color-secondary, #6b7280); font-size: 0.85rem; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,6 +93,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 export class ImageBlockEditor implements OnInit, OnDestroy {
   private readonly uploads = inject(LmsUploadService);
   private readonly toast = inject(AppToastService);
+  private readonly user = inject(UserService);
 
   protected readonly ui = inject(UiTextService).localized(getLmsBlockEditorsUiText);
 
@@ -92,13 +103,13 @@ export class ImageBlockEditor implements OnInit, OnDestroy {
 
   protected readonly uploading = signal(false);
   protected readonly activeLang = signal<string>('');
-  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
+  private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
-    this.activeLang.set(this.firstLang());
+    this.activeLang.set(this.defaultLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));
@@ -119,9 +130,8 @@ export class ImageBlockEditor implements OnInit, OnDestroy {
     this.debouncer$.next({translations: tr});
   }
 
-  protected onFileSelected(event: Event): void {
-    const inputEl = event.target as HTMLInputElement;
-    const file = inputEl.files?.[0];
+  protected onUpload(event: FileUploadHandlerEvent): void {
+    const file = event.files?.[0];
     if (!file) {
       return;
     }
@@ -141,7 +151,5 @@ export class ImageBlockEditor implements OnInit, OnDestroy {
       },
       complete: () => this.uploading.set(false),
     });
-    // Reset the input so picking the same file again still triggers ``change``.
-    inputEl.value = '';
   }
 }

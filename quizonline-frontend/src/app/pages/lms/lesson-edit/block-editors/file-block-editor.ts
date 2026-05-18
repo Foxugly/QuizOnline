@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {Subject, Subscription, debounceTime} from 'rxjs';
@@ -8,23 +9,24 @@ import {logApiError} from '../../../../shared/api/api-errors';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
+import {pickDefaultLang} from '../../../../shared/lms/default-lang';
 import {LmsUploadService} from '../../../../services/lms/lms-upload.service';
+import {UserService} from '../../../../services/user/user';
 
 import {BlockTranslateButton} from './block-translate-button';
 import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 
 /**
- * Editor for the ``file`` ContentBlock (generic downloadable asset).
+ * Editor for the ``file`` ContentBlock.
  *
- * Translatable: per-language ``title`` shown as the link label by the
- * renderer. Non-translatable: the stored ``file`` URL, replaced via
- * :class:`LmsUploadService.uploadFileForBlock`. Same plain-input
- * upload approach as the image editor — see that file for the
- * rationale.
+ * Translatable: per-language ``title`` shown as the link label. The
+ * upload picker is a ``<p-fileupload customUpload>`` that defers the
+ * actual multipart PATCH to :class:`LmsUploadService.uploadFileForBlock`
+ * so error mapping and toasts stay consistent across editors.
  */
 @Component({
   selector: 'app-file-block-editor',
-  imports: [FormsModule, InputTextModule, TabsModule, BlockTranslateButton],
+  imports: [FormsModule, FileUploadModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
@@ -42,7 +44,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
           <p-tabpanel [value]="lang">
-            <label>
+            <label class="field">
               {{ ui().fieldTitle }}
               <input pInputText type="text"
                      [ngModel]="titleFor(lang)"
@@ -53,26 +55,35 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
       </p-tabpanels>
     </p-tabs>
 
-    <div class="upload-row">
-      <label class="file-picker">
-        <span>{{ ui().chooseFile }}</span>
-        <input type="file"
-               [disabled]="uploading()"
-               (change)="onFileSelected($event)" />
-      </label>
+    <div class="upload-area">
+      @if (block().file; as url) {
+        <a class="current-file" [href]="url" target="_blank" rel="noopener noreferrer">
+          <i class="pi pi-file"></i>
+          <span class="current-file__name">{{ fileNameFromUrl(url) }}</span>
+          <span class="current-file__hint">({{ ui().currentFileLabel }})</span>
+        </a>
+      }
+      <p-fileupload
+        mode="basic"
+        [auto]="true"
+        [customUpload]="true"
+        [chooseLabel]="ui().chooseFile"
+        [disabled]="uploading()"
+        (uploadHandler)="onUpload($event)" />
       @if (uploading()) {
         <span class="muted">{{ ui().uploading }}</span>
-      }
-      @if (block().file; as url) {
-        <span class="current-url"><strong>{{ ui().currentFileLabel }}:</strong> {{ url }}</span>
       }
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .upload-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; align-items: center; }
-    .current-url { font-size: 0.85rem; color: var(--text-color-secondary, #6b7280); word-break: break-all; }
-    label { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; width: 100%; }
+    .field { display: inline-flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; width: 100%; margin-top: 0.5rem; }
+    .upload-area { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 0.75rem; }
+    .current-file { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.7rem; border: 1px solid var(--p-surface-border, #e5e7eb); border-radius: 8px; color: inherit; text-decoration: none; }
+    .current-file:hover { background: var(--p-surface-100, #f3f4f6); }
+    .current-file__name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 18rem; }
+    .current-file__hint { font-size: 0.75rem; color: var(--text-color-secondary, #6b7280); }
+    .muted { color: var(--text-color-secondary, #6b7280); font-size: 0.85rem; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +91,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
 export class FileBlockEditor implements OnInit, OnDestroy {
   private readonly uploads = inject(LmsUploadService);
   private readonly toast = inject(AppToastService);
+  private readonly user = inject(UserService);
 
   protected readonly ui = inject(UiTextService).localized(getLmsBlockEditorsUiText);
 
@@ -89,13 +101,13 @@ export class FileBlockEditor implements OnInit, OnDestroy {
 
   protected readonly uploading = signal(false);
   protected readonly activeLang = signal<string>('');
-  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
+  private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
-    this.activeLang.set(this.firstLang());
+    this.activeLang.set(this.defaultLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));
@@ -116,9 +128,21 @@ export class FileBlockEditor implements OnInit, OnDestroy {
     this.debouncer$.next({translations: tr});
   }
 
-  protected onFileSelected(event: Event): void {
-    const inputEl = event.target as HTMLInputElement;
-    const file = inputEl.files?.[0];
+  /** Extract a human-readable name from the stored file URL — the
+   *  trailing path segment with any query string stripped. */
+  protected fileNameFromUrl(url: string): string {
+    try {
+      const u = new URL(url, window.location.origin);
+      const seg = u.pathname.split('/').filter(Boolean).pop() ?? '';
+      return decodeURIComponent(seg) || url;
+    } catch {
+      const stripped = url.split('?')[0] ?? url;
+      return stripped.split('/').filter(Boolean).pop() ?? url;
+    }
+  }
+
+  protected onUpload(event: FileUploadHandlerEvent): void {
+    const file = event.files?.[0];
     if (!file) {
       return;
     }
@@ -138,6 +162,5 @@ export class FileBlockEditor implements OnInit, OnDestroy {
       },
       complete: () => this.uploading.set(false),
     });
-    inputEl.value = '';
   }
 }
