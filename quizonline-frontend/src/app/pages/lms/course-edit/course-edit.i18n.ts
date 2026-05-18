@@ -24,6 +24,9 @@ export interface LmsCourseEditUiText {
   loadErrorToast: string;
   loadingMessage: string;
   cloneButton: string;
+  exportButton: string;
+  exportSuccessToast: string;
+  exportErrorToast: string;
   deleteButton: string;
   confirmCloneTitle: string;
   confirmCloneMessage: string;
@@ -63,6 +66,9 @@ export function getLmsCourseEditUiText(
         loadErrorToast: 'Impossible de charger le cours.',
         loadingMessage: 'Chargement…',
         cloneButton: 'Dupliquer',
+        exportButton: 'Exporter (JSON)',
+        exportSuccessToast: 'Cours exporté.',
+        exportErrorToast: 'Échec de l\'export.',
         deleteButton: 'Supprimer',
         confirmCloneTitle: 'Dupliquer ce cours ?',
         confirmCloneMessage:
@@ -100,6 +106,9 @@ export function getLmsCourseEditUiText(
         loadErrorToast: 'Cursus kon niet worden geladen.',
         loadingMessage: 'Laden…',
         cloneButton: 'Dupliceren',
+        exportButton: 'Exporteren (JSON)',
+        exportSuccessToast: 'Cursus geëxporteerd.',
+        exportErrorToast: 'Export mislukt.',
         deleteButton: 'Verwijderen',
         confirmCloneTitle: 'Deze cursus dupliceren?',
         confirmCloneMessage:
@@ -137,6 +146,9 @@ export function getLmsCourseEditUiText(
         loadErrorToast: 'Impossibile caricare il corso.',
         loadingMessage: 'Caricamento…',
         cloneButton: 'Duplica',
+        exportButton: 'Esporta (JSON)',
+        exportSuccessToast: 'Corso esportato.',
+        exportErrorToast: 'Esportazione non riuscita.',
         deleteButton: 'Elimina',
         confirmCloneTitle: 'Duplicare questo corso?',
         confirmCloneMessage:
@@ -174,6 +186,9 @@ export function getLmsCourseEditUiText(
         loadErrorToast: 'No se pudo cargar el curso.',
         loadingMessage: 'Cargando…',
         cloneButton: 'Duplicar',
+        exportButton: 'Exportar (JSON)',
+        exportSuccessToast: 'Curso exportado.',
+        exportErrorToast: 'La exportación falló.',
         deleteButton: 'Eliminar',
         confirmCloneTitle: '¿Duplicar este curso?',
         confirmCloneMessage:
@@ -210,6 +225,9 @@ export function getLmsCourseEditUiText(
         loadErrorToast: 'Could not load course.',
         loadingMessage: 'Loading…',
         cloneButton: 'Duplicate',
+        exportButton: 'Export (JSON)',
+        exportSuccessToast: 'Course exported.',
+        exportErrorToast: 'Export failed.',
         deleteButton: 'Delete',
         confirmCloneTitle: 'Duplicate this course?',
         confirmCloneMessage:

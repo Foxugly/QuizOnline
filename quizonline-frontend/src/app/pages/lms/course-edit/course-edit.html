@@ -54,6 +54,15 @@
       </p-button>
       <p-button
         type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-download"
+        [label]="ui().exportButton"
+        [disabled]="cloning() || deleting() || publishing() || loading()"
+        (onClick)="exportCourse()">
+      </p-button>
+      <p-button
+        type="button"
         severity="danger"
         [outlined]="true"
         icon="pi pi-trash"

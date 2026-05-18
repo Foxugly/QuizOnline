@@ -160,6 +160,35 @@ export class LmsCourseEdit implements OnInit, OnDestroy {
     });
   }
 
+  /** Download the course as a JSON file the operator can save and
+   *  re-import later (same domain or another). The browser drives the
+   *  download via a temporary blob URL — no extra dependency. */
+  protected exportCourse(): void {
+    const id = this.courseId();
+    const slug = this.course()?.slug ?? `course-${id}`;
+    if (id <= 0) {
+      return;
+    }
+    this.catalog.exportCourse(id).subscribe({
+      next: (payload) => {
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${slug}-export.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.toast.add({severity: 'success', summary: this.ui().exportSuccessToast});
+      },
+      error: (err: unknown) => {
+        logApiError('lms.course-edit.export', err);
+        this.toast.addApiError(err, this.ui().exportErrorToast);
+      },
+    });
+  }
+
   private cloneCourse(): void {
     const id = this.courseId();
     if (id <= 0) {

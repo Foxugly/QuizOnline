@@ -66,6 +66,23 @@ export class LmsCatalogService {
     return this.http.get<CourseAuditEntryDto[]>(`${this.baseUrl}/course/${id}/audit-log/`);
   }
 
+  /** Instructor-gated export — returns the course as a portable JSON
+   *  dict ready to be saved by the operator and re-imported. */
+  exportCourse(id: number): Observable<unknown> {
+    return this.http.get<unknown>(`${this.baseUrl}/course/${id}/export/`);
+  }
+
+  /** Re-create a course from an export payload into the target
+   *  domain. ``target_domain_id`` is optional — falls back to the
+   *  caller's current domain server-side. */
+  importCourse(payload: unknown, targetDomainId?: number): Observable<{id: number; slug: string}> {
+    const body: Record<string, unknown> = {payload};
+    if (typeof targetDomainId === 'number') {
+      body['target_domain_id'] = targetDomainId;
+    }
+    return this.http.post<{id: number; slug: string}>(`${this.baseUrl}/course/import/`, body);
+  }
+
   publish(id: number): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/course/${id}/publish/`, {});
   }
