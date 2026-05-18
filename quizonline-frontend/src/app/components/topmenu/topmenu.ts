@@ -9,7 +9,7 @@ import {UserService} from '../../services/user/user';
 import {LangSelectComponent} from '../lang-select/lang-select';
 import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
-import {ROUTES} from '../../app.routes-paths';
+import {LMS_CATALOG, LMS_ME_CERTIFICATES, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
 import {NotificationService} from '../../services/notification/notification.service';
 import {NotificationsBellComponent} from '../notifications-bell/notifications-bell';
@@ -132,6 +132,23 @@ export class TopMenuComponent implements OnInit {
         label: this.ui().topmenu.quiz,
         link: ROUTES.quiz.list(),
       });
+      // LMS — surfaced to every authenticated learner. Catalog is the
+      // entry point; "My progress" and "My certificates" deep-link into
+      // the user's personal LMS data.
+      items.push(
+        {
+          label: this.ui().topmenu.lmsCatalog,
+          link: [LMS_CATALOG] as const,
+        },
+        {
+          label: this.ui().topmenu.lmsMyProgress,
+          link: [LMS_ME_PROGRESS] as const,
+        },
+        {
+          label: this.ui().topmenu.lmsMyCertificates,
+          link: [LMS_ME_CERTIFICATES] as const,
+        },
+      );
     }
 
     if (this.canManageCurrentDomain) {

@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const NL: UiText = {
-  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren', notificationsAria: 'Meldingen'},
+  topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren', notificationsAria: 'Meldingen', lmsCatalog: 'Cursussen', lmsMyProgress: 'Mijn voortgang', lmsMyCertificates: 'Mijn certificaten'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden', userFallback: 'Gebruiker'},
   footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie', privacyLink: 'Privacy'},
   home: {
