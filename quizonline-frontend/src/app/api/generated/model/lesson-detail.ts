@@ -13,6 +13,7 @@ import { ContentBlockDto } from './content-block';
 export interface LessonDetailDto { 
     readonly id: number;
     section: number;
+    readonly course_id: number;
     slug: string;
     order?: number;
     is_preview?: boolean;
