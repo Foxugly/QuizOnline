@@ -32,9 +32,33 @@ class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser:
-            return CourseEnrollment.objects.all().select_related("user", "course")
-        return CourseEnrollment.objects.filter(user=user).select_related("course")
+        course_filter = self.request.query_params.get("course")
+        status_filter = self.request.query_params.get("status")
+
+        base = CourseEnrollment.objects.select_related("user", "course")
+
+        if course_filter:
+            try:
+                course_id = int(course_filter)
+            except (TypeError, ValueError):
+                return base.none()
+            # Instructor of that course → see all its enrollments.
+            from lms_catalog.models import Course
+            from lms_catalog.permissions import is_lms_instructor
+            course = Course.objects.filter(pk=course_id).first()
+            if course and is_lms_instructor(user, course):
+                qs = base.filter(course=course)
+            else:
+                # Otherwise: only the user's own enrollments scoped to that course.
+                qs = base.filter(user=user, course_id=course_id)
+        elif user.is_superuser:
+            qs = base.all()
+        else:
+            qs = base.filter(user=user)
+
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+        return qs.order_by("-enrolled_at", "-id")
 
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
