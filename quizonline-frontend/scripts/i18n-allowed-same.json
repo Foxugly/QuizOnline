@@ -155,7 +155,7 @@
   "pages/quiz/subject-form:durationSuffix",
 
   "pages/lms/catalog:enrollmentBadge.open",
-  "pages/lms/course-create:descriptionLabel",
+  "pages/lms/course-create:fields.description",
   "pages/lms/course-create:enrollmentLabels.open",
   "pages/lms/course-create:toastErrorSummary"
 ]
