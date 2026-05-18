@@ -4,10 +4,10 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
  * Per-language UI text for the single-certificate detail page.
  *
  * Renders the certificate the caller owns (``GET /api/lms/certificate/{id}/``)
- * with its number, course, issue date and a PDF download. The verify
- * link is not yet rendered — ``verification_token`` is not part of
- * ``CertificateSerializer`` today, so the page emits it only when the
- * backend exposes it. See the backend follow-up note in the task.
+ * with its number, course, issue date and a PDF download. The
+ * verification token is exposed by the backend, so the public verify
+ * link is rendered as well. The course title is localized server-side
+ * with a slug fallback, so no client-side fallback string is needed.
  */
 export interface LmsCertificateViewUiText {
   pageTitle: string;
@@ -22,7 +22,6 @@ export interface LmsCertificateViewUiText {
   notFoundTitle: string;
   notFoundMessage: string;
   revokedBadge: string;
-  courseFallback: (id: number) => string;
 }
 
 export function getLmsCertificateViewUiText(
@@ -44,7 +43,6 @@ export function getLmsCertificateViewUiText(
         notFoundTitle: 'Certificat introuvable',
         notFoundMessage: "Ce certificat n'existe pas ou ne vous appartient pas.",
         revokedBadge: 'RÉVOQUÉ',
-        courseFallback: (id) => `Cours n° ${id}`,
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -61,7 +59,6 @@ export function getLmsCertificateViewUiText(
         notFoundTitle: 'Certificaat niet gevonden',
         notFoundMessage: 'Dit certificaat bestaat niet of is niet van jou.',
         revokedBadge: 'INGETROKKEN',
-        courseFallback: (id) => `Cursus nr. ${id}`,
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -78,7 +75,6 @@ export function getLmsCertificateViewUiText(
         notFoundTitle: 'Certificato non trovato',
         notFoundMessage: 'Questo certificato non esiste o non è tuo.',
         revokedBadge: 'REVOCATO',
-        courseFallback: (id) => `Corso n. ${id}`,
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -95,7 +91,6 @@ export function getLmsCertificateViewUiText(
         notFoundTitle: 'Certificado no encontrado',
         notFoundMessage: 'Este certificado no existe o no te pertenece.',
         revokedBadge: 'REVOCADO',
-        courseFallback: (id) => `Curso n.º ${id}`,
       };
     default:
       return {
@@ -111,7 +106,6 @@ export function getLmsCertificateViewUiText(
         notFoundTitle: 'Certificate not found',
         notFoundMessage: 'This certificate does not exist or is not yours.',
         revokedBadge: 'REVOKED',
-        courseFallback: (id) => `Course #${id}`,
       };
   }
 }

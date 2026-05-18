@@ -16,16 +16,15 @@ import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service
 import {getLmsProgressUiText} from './progress.i18n';
 
 /**
- * Shape we render from ``GET /api/lms/progress/``. The current
- * ``CourseProgressSerializer`` only exposes the FK id (``course``) and
- * not the localized title — a follow-up backend task can wire a
- * ``SerializerMethodField('course_title')``. We accept both today and
- * fall back to a "Course #id" string in the page i18n.
+ * Shape we render from ``GET /api/lms/progress/``. ``course_title`` is
+ * a ``SerializerMethodField`` on the backend that returns the localized
+ * Course title (falling back to the slug server-side), so it is always
+ * a non-empty string at this layer.
  */
 interface ProgressRow {
   id: number;
   course: number;
-  course_title?: string | null;
+  course_title: string;
   course_slug?: string | null;
   progress_percent: number;
   completed_lessons_count?: number;
@@ -65,16 +64,15 @@ export class LmsProgress {
   protected readonly rows = signal<ProgressRow[]>([]);
   protected readonly catalogHref = LMS_CATALOG;
 
-  protected readonly viewRows = computed<ProgressRowVm[]>(() => {
-    const fallback = this.ui().courseFallback;
-    return this.rows().map((row) => ({
+  protected readonly viewRows = computed<ProgressRowVm[]>(() =>
+    this.rows().map((row) => ({
       id: row.id,
-      title: row.course_title?.trim() || fallback(row.course),
+      title: row.course_title,
       progressPercent: row.progress_percent ?? 0,
       updatedAt: row.updated_at,
       isCompleted: (row.progress_percent ?? 0) >= 100,
-    }));
-  });
+    })),
+  );
 
   constructor() {
     this.enrollment.myProgress().subscribe({

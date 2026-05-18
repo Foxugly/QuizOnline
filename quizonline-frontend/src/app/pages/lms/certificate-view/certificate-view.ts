@@ -14,20 +14,17 @@ import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service
 import {getLmsCertificateViewUiText} from './certificate-view.i18n';
 
 /**
- * Payload returned by ``GET /api/lms/certificate/{id}/``. The standard
+ * Payload returned by ``GET /api/lms/certificate/{id}/``. The
  * ``CertificateSerializer`` exposes the FK ids, the certificate number,
- * the issue date, the PDF url and the revocation timestamp.
- *
- * ``course_title`` and ``verification_token`` are not yet part of the
- * serializer — the page degrades gracefully when they are absent (no
- * "Verify link" row is rendered, and the course label falls back to a
- * localized "Course #{id}" string).
+ * the localized ``course_title`` (slug fallback applied server-side),
+ * the issue date, the PDF url, the verification token, and the
+ * revocation timestamp.
  */
 interface CertificateDetail {
   id: number;
   user: number;
   course: number;
-  course_title?: string | null;
+  course_title: string;
   certificate_number: string;
   issued_at: string;
   pdf_url: string | null;
@@ -52,13 +49,7 @@ export class LmsCertificateView implements OnInit, OnDestroy {
   protected readonly notFound = signal(false);
   protected readonly listHref = LMS_ME_CERTIFICATES;
 
-  protected readonly courseTitle = computed(() => {
-    const cert = this.certificate();
-    if (!cert) {
-      return '';
-    }
-    return cert.course_title?.trim() || this.ui().courseFallback(cert.course);
-  });
+  protected readonly courseTitle = computed(() => this.certificate()?.course_title ?? '');
 
   protected readonly verifyUrl = computed(() => {
     const token = this.certificate()?.verification_token;

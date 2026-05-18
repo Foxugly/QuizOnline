@@ -5,10 +5,9 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
  *
  * The page renders a table of every course the caller is enrolled in
  * (status ``active`` or ``completed``) together with a progress bar, a
- * status tag and a "last activity" timestamp. ``courseFallback`` is used
- * when the backend payload does not embed the localized course title —
- * see ``CourseProgressSerializer`` which only carries the FK id today
- * (a follow-up could SerializerMethodField the localized title).
+ * status tag and a "last activity" timestamp. The course title comes
+ * from the backend (localized, slug fallback) so no client-side
+ * fallback string is needed.
  */
 export interface LmsProgressUiText {
   pageTitle: string;
@@ -19,7 +18,6 @@ export interface LmsProgressUiText {
   emptyTitle: string;
   emptyMessage: string;
   exploreButton: string;
-  courseFallback: (id: number) => string;
 }
 
 export function getLmsProgressUiText(
@@ -37,7 +35,6 @@ export function getLmsProgressUiText(
         emptyTitle: 'Aucun cours suivi',
         emptyMessage: 'Inscrivez-vous à un cours depuis le catalogue pour démarrer.',
         exploreButton: 'Parcourir le catalogue',
-        courseFallback: (id) => `Cours n° ${id}`,
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -50,7 +47,6 @@ export function getLmsProgressUiText(
         emptyTitle: 'Geen cursus in uitvoering',
         emptyMessage: 'Schrijf je in voor een cursus vanuit de catalogus om te beginnen.',
         exploreButton: 'Door catalogus bladeren',
-        courseFallback: (id) => `Cursus nr. ${id}`,
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -63,7 +59,6 @@ export function getLmsProgressUiText(
         emptyTitle: 'Nessun corso in corso',
         emptyMessage: 'Iscriviti a un corso dal catalogo per iniziare.',
         exploreButton: 'Sfoglia il catalogo',
-        courseFallback: (id) => `Corso n. ${id}`,
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -76,7 +71,6 @@ export function getLmsProgressUiText(
         emptyTitle: 'Sin cursos en curso',
         emptyMessage: 'Inscríbete en un curso desde el catálogo para empezar.',
         exploreButton: 'Explorar catálogo',
-        courseFallback: (id) => `Curso n.º ${id}`,
       };
     default:
       return {
@@ -88,7 +82,6 @@ export function getLmsProgressUiText(
         emptyTitle: 'No course in progress',
         emptyMessage: 'Enroll in a course from the catalog to get started.',
         exploreButton: 'Browse catalog',
-        courseFallback: (id) => `Course #${id}`,
       };
   }
 }

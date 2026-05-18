@@ -13,15 +13,14 @@ import {getLmsCertificateListUiText} from './certificate-list.i18n';
 
 /**
  * Shape returned by ``GET /api/lms/certificate/`` — see
- * ``CertificateSerializer``. ``course_title`` is not in the standard
- * payload today (only the FK id); it's optional here so the page
- * degrades to a localized "Course #id" placeholder until the backend
- * is extended.
+ * ``CertificateSerializer``. ``course_title`` is a localized
+ * ``SerializerMethodField`` (slug fallback on the backend), so it is
+ * always a non-empty string.
  */
 interface CertificateRow {
   id: number;
   course: number;
-  course_title?: string | null;
+  course_title: string;
   certificate_number: string;
   issued_at: string;
   pdf_url: string | null;
@@ -51,17 +50,16 @@ export class LmsCertificateList {
   protected readonly rows = signal<CertificateRow[]>([]);
   protected readonly catalogHref = LMS_CATALOG;
 
-  protected readonly viewRows = computed<CertificateRowVm[]>(() => {
-    const fallback = this.ui().courseFallback;
-    return this.rows().map((row) => ({
+  protected readonly viewRows = computed<CertificateRowVm[]>(() =>
+    this.rows().map((row) => ({
       id: row.id,
       certificateNumber: row.certificate_number,
-      courseTitle: row.course_title?.trim() || fallback(row.course),
+      courseTitle: row.course_title,
       issuedAt: row.issued_at,
       pdfUrl: row.pdf_url,
       viewHref: LMS_CERTIFICATE_VIEW(row.id),
-    }));
-  });
+    })),
+  );
 
   constructor() {
     this.enrollment.myCertificates().subscribe({
