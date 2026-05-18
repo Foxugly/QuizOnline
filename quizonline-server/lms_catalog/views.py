@@ -1,3 +1,5 @@
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -58,6 +60,77 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.action in ("create", "update", "partial_update"):
             return CourseWriteSerializer
         return CourseDetailSerializer
+
+    def list(self, request, *args, **kwargs):
+        """Override the default list flow to pre-aggregate the cards'
+        meta (lesson count, total duration) on the DB side and to
+        bulk-fetch the caller's enrollment / progress / lesson-
+        completion state in a fixed number of queries — irrespective
+        of the number of courses returned. Without this, the previous
+        ``SerializerMethodField`` pattern issued ~5 queries per course,
+        producing a quadratic blow-up on multi-course domains."""
+        qs = self.filter_queryset(self.get_queryset()).annotate(
+            lesson_count_db=Count("sections__lessons", distinct=True),
+            total_duration_db=Coalesce(Sum("sections__lessons__estimated_duration"), 0),
+        )
+        page = self.paginate_queryset(qs)
+        courses = page if page is not None else list(qs)
+        context = self._build_my_enrollment_context(
+            request, [c.id for c in courses]
+        )
+        serializer = self.get_serializer(courses, many=True)
+        # ``get_serializer`` already wired the standard context; layer
+        # the bulk-fetched lookups on top so ``CourseListSerializer``
+        # can short-circuit its per-row queries.
+        serializer.context.update(context)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    def _build_my_enrollment_context(self, request, course_ids: list[int]) -> dict:
+        """Pre-fetch in 4 queries (one per related table) everything
+        ``CourseListSerializer.get_my_enrollment`` needs for the whole
+        page. Returns a context dict keyed by the same shape the
+        serializer expects."""
+        user = getattr(request, "user", None)
+        if not user or not getattr(user, "is_authenticated", False) or not course_ids:
+            return {
+                "_enrollments_by_course": {},
+                "_progresses_by_course": {},
+                "_lessons_by_course": {},
+                "_completed_lessons": set(),
+            }
+        # Lazy imports to avoid circulars at module load.
+        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+
+        enrollments_by_course = {
+            e.course_id: e
+            for e in CourseEnrollment.objects.filter(user=user, course_id__in=course_ids)
+        }
+        progresses_by_course = {
+            p.course_id: p
+            for p in CourseProgress.objects.filter(user=user, course_id__in=course_ids)
+        }
+        lessons_by_course: dict[int, list[int]] = {}
+        for lid, cid in (
+            Lesson.objects.filter(section__course_id__in=course_ids)
+            .order_by("section__order", "order", "id")
+            .values_list("id", "section__course_id")
+        ):
+            lessons_by_course.setdefault(cid, []).append(lid)
+        completed_lessons = set(
+            LessonProgress.objects.filter(
+                user=user,
+                lesson_id__in=[lid for ids in lessons_by_course.values() for lid in ids],
+                is_completed=True,
+            ).values_list("lesson_id", flat=True)
+        )
+        return {
+            "_enrollments_by_course": enrollments_by_course,
+            "_progresses_by_course": progresses_by_course,
+            "_lessons_by_course": lessons_by_course,
+            "_completed_lessons": completed_lessons,
+        }
 
     @action(detail=False, methods=["get"], url_path=r"by-slug/(?P<slug>[^/]+)")
     def by_slug(self, request, slug=None):

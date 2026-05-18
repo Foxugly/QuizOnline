@@ -418,11 +418,19 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.IntegerField())
     def get_lesson_count(self, obj) -> int:
+        # The list view annotates ``lesson_count_db`` on the queryset
+        # to avoid N+1; the retrieve view falls back to an explicit count.
+        annotated = getattr(obj, "lesson_count_db", None)
+        if annotated is not None:
+            return int(annotated)
         from .models import Lesson
         return Lesson.objects.filter(section__course=obj).count()
 
     @extend_schema_field(serializers.IntegerField())
     def get_total_duration_minutes(self, obj) -> int:
+        annotated = getattr(obj, "total_duration_db", None)
+        if annotated is not None:
+            return int(annotated or 0)
         from django.db.models import Sum
         from .models import Lesson
         agg = Lesson.objects.filter(section__course=obj).aggregate(total=Sum("estimated_duration"))
@@ -439,21 +447,35 @@ class CourseListSerializer(serializers.ModelSerializer):
         "required": ["status", "progress_percent", "next_lesson_id"],
     })
     def get_my_enrollment(self, obj):
-        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
-        from .models import Lesson
         request = self.context.get("request")
         user = getattr(request, "user", None)
         if not user or not getattr(user, "is_authenticated", False):
             return None
+        # Fast path: the list view pre-builds the per-page lookups in
+        # ``CourseViewSet._build_my_enrollment_context`` so we avoid
+        # the N+1 storm that would otherwise hit on a 20-course page.
+        if "_enrollments_by_course" in self.context:
+            enrollment = self.context["_enrollments_by_course"].get(obj.id)
+            if not enrollment:
+                return None
+            progress = self.context["_progresses_by_course"].get(obj.id)
+            lessons = self.context["_lessons_by_course"].get(obj.id, [])
+            completed = self.context["_completed_lessons"]
+            next_lesson_id = next((lid for lid in lessons if lid not in completed), None)
+            return {
+                "status": enrollment.status,
+                "progress_percent": int(progress.progress_percent) if progress else 0,
+                "next_lesson_id": next_lesson_id,
+            }
+        # Retrieve / detail path: single-instance queries are cheap and
+        # avoid forcing every caller to pre-build the context.
+        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+        from .models import Lesson
         enrollment = CourseEnrollment.objects.filter(course=obj, user=user).first()
         if not enrollment:
             return None
         progress = CourseProgress.objects.filter(course=obj, user=user).first()
         progress_pct = int(progress.progress_percent) if progress else 0
-        # Next uncompleted lesson — first lesson in ``(section.order, lesson.order)``
-        # order without a completed ``LessonProgress`` row. Returns the
-        # first lesson of the course when nothing has been started yet,
-        # or ``null`` once every lesson is done.
         lessons = list(
             Lesson.objects.filter(section__course=obj)
             .order_by("section__order", "order", "id")
