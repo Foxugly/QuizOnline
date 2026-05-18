@@ -47,3 +47,11 @@ def quiz_template(db, domain, owner):
     qt = QuizTemplate(domain=domain, title="Q1", created_by=owner)
     qt.save()
     return qt
+
+
+@pytest.fixture
+def learner(db, domain):
+    from customuser.models import CustomUser
+    u = CustomUser.objects.create_user(username="learner", email="learner@x.com", password="x")
+    domain.members.add(u)
+    return u
