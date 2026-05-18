@@ -72,6 +72,11 @@ echo "[2/7] Updating backend..."
 cd "$BACKEND_DIR"
 "$PYTHON" manage.py migrate --noinput
 "$PYTHON" manage.py collectstatic --noinput
+# Compile gettext catalogs (FR/EN/NL/IT/ES) committed under quizonline-server/locale/.
+# The .po sources are tracked, the .mo binaries are gitignored, so every deploy
+# regenerates them. Requires GNU gettext (msgfmt) — installed alongside the
+# other apt packages in deploy/README.md bootstrap.
+"$PYTHON" manage.py compilemessages
 
 # ── 3. Frontend ──────────────────────────────────────────────────────────────
 if [ "$SKIP_FRONTEND" = true ]; then

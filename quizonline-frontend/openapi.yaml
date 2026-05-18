@@ -5649,7 +5649,13 @@ components:
         course:
           type: integer
           readOnly: true
+        course_title:
+          type: string
+          readOnly: true
         certificate_number:
+          type: string
+          readOnly: true
+        verification_token:
           type: string
           readOnly: true
         issued_at:
@@ -5667,11 +5673,13 @@ components:
       required:
       - certificate_number
       - course
+      - course_title
       - id
       - issued_at
       - pdf_url
       - revoked_at
       - user
+      - verification_token
     ContentBlock:
       type: object
       properties:
@@ -6031,6 +6039,9 @@ components:
         course:
           type: integer
           readOnly: true
+        course_title:
+          type: string
+          readOnly: true
         completed_lessons_count:
           type: integer
           readOnly: true
@@ -6047,6 +6058,7 @@ components:
       required:
       - completed_lessons_count
       - course
+      - course_title
       - id
       - progress_percent
       - total_lessons_count
