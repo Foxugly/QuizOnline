@@ -1,15 +1,17 @@
-"""
-Celery tasks for lms_enrollment.
-
-Phase 6 (Task 28) replaces the body of ``render_certificate_pdf`` with the
-real reportlab+Celery implementation. We register the placeholder now so
-``issue_certificate_if_eligible`` can import it without a circular failure.
-"""
+"""Celery tasks for lms_enrollment."""
 
 from celery import shared_task
+from django.core.files.base import ContentFile
+from django.utils import timezone
+
+from .models import Certificate
+from .pdf_export import build_certificate_pdf
 
 
 @shared_task
 def render_certificate_pdf(cert_id: int) -> None:
-    # Populated in Phase 6 (Task 28).
-    return None
+    cert = Certificate.objects.get(pk=cert_id)
+    payload = build_certificate_pdf(cert)
+    cert.pdf.save(f"{cert.certificate_number}.pdf", ContentFile(payload), save=False)
+    cert.pdf_rendered_at = timezone.now()
+    cert.save(update_fields=["pdf", "pdf_rendered_at"])
