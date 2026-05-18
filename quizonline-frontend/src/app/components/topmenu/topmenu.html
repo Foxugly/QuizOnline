@@ -27,6 +27,9 @@
           routerLinkActive="nav__link--active"
           [class.nav__link--accent]="item.accent"
         >
+          @if (item.icon) {
+            <i [class]="item.icon" aria-hidden="true"></i>
+          }
           {{ item.label }}
         </a>
       }
@@ -63,6 +66,16 @@
             </div>
           }
         </div>
+      }
+      @if (donateItem; as donate) {
+        <a
+          [routerLink]="donate.link"
+          class="nav__link nav__link--accent"
+          routerLinkActive="nav__link--active"
+        >
+          <i [class]="donate.icon!" aria-hidden="true"></i>
+          {{ donate.label }}
+        </a>
       }
       @if (isAdmin) {
         <div #adminMenuRoot class="topbar-menu">
