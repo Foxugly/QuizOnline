@@ -9,6 +9,7 @@ export interface LmsCatalogUiText {
   emptyMessage: string;
   enrollmentBadge: Record<'open' | 'approval' | 'invite', string>;
   viewButton: string;
+  createCourseButton: string;
 }
 
 export function getLmsCatalogUiText(
@@ -26,6 +27,7 @@ export function getLmsCatalogUiText(
         emptyMessage: 'Aucun cours publié ne correspond à votre sélection.',
         enrollmentBadge: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
         viewButton: 'Voir',
+        createCourseButton: 'Créer un cours',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -38,6 +40,7 @@ export function getLmsCatalogUiText(
         emptyMessage: 'Geen gepubliceerde cursus komt overeen met uw selectie.',
         enrollmentBadge: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
         viewButton: 'Bekijken',
+        createCourseButton: 'Cursus aanmaken',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -50,6 +53,7 @@ export function getLmsCatalogUiText(
         emptyMessage: 'Nessun corso pubblicato corrisponde alla selezione.',
         enrollmentBadge: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
         viewButton: 'Visualizza',
+        createCourseButton: 'Crea un corso',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -62,6 +66,7 @@ export function getLmsCatalogUiText(
         emptyMessage: 'Ningún curso publicado coincide con su selección.',
         enrollmentBadge: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
         viewButton: 'Ver',
+        createCourseButton: 'Crear un curso',
       };
     default:
       return {
@@ -73,6 +78,7 @@ export function getLmsCatalogUiText(
         emptyMessage: 'No published course matches your filters.',
         enrollmentBadge: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
         viewButton: 'View',
+        createCourseButton: 'Create a course',
       };
   }
 }

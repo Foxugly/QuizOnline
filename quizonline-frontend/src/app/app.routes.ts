@@ -247,6 +247,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    // Must come BEFORE ``lms/course/:slug`` — otherwise the router would
+    // parse ``new`` as a slug and dispatch to the course-detail page.
+    path: 'lms/course/new',
+    loadComponent: () => import('./pages/lms/course-create/course-create').then((m) => m.LmsCourseCreate),
+    canActivate: [authGuard, domainAccessGuard],
+  },
+  {
     path: 'lms/course/:slug',
     loadComponent: () => import('./pages/lms/course-detail/course-detail').then((m) => m.LmsCourseDetail),
     canActivate: [authGuard],
