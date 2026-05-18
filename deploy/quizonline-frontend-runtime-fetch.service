@@ -1,0 +1,42 @@
+[Unit]
+Description=QuizOnline — fetch frontend Sentry runtime config from SSM
+# Same prerequisites as quizonline-env-fetch (network + clock for
+# SigV4) plus nginx itself: the snippet is only useful once nginx is
+# up to reload, and the ``nginx -t`` guard inside the script needs
+# the nginx binary on PATH (always present once the package is
+# installed, but ordering against nginx.service keeps the journal
+# readable on a fresh boot).
+After=network-online.target nginx.service
+Wants=network-online.target
+
+[Service]
+# Type=oneshot mirrors quizonline-env-fetch — we don't want a
+# long-lived process, just a one-shot snippet refresh + nginx
+# reload. RemainAfterExit=yes keeps the unit in "active (exited)"
+# state so downstream ``systemctl status`` shows a clear OK.
+Type=oneshot
+RemainAfterExit=yes
+
+# Runs as root because (a) it writes /etc/nginx/snippets/, (b) the
+# nginx config validation ``nginx -t`` needs to read root-owned
+# certs/keys referenced from the main config, and (c) the
+# ``systemctl reload nginx`` at the end needs root.
+User=root
+
+# Hardening — the script only writes to /etc/nginx/snippets/ and
+# /tmp (via mktemp); everything else is read-only.
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/etc/nginx/snippets
+ProtectHome=yes
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+
+# ExecStart points at the script in the git checkout — same pattern
+# as quizonline-env-fetch (no install step into /usr/local/bin).
+ExecStart=/var/www/django_websites/QuizOnline/deploy/fetch-frontend-runtime-from-ssm.sh
+
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target
