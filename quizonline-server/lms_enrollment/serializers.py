@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from config.serializers import UserSummarySerializer
 
-from .models import Certificate, CourseEnrollment, CourseProgress, LessonProgress
+from .models import Certificate, CourseEnrollment, CourseProgress, LessonNote, LessonProgress
 
 
 def _request_user_language(serializer) -> str:
@@ -116,6 +116,13 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     def get_course_title(self, obj) -> str:
         return _localized_course_title(obj.course, _request_user_language(self))
+
+
+class LessonNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonNote
+        fields = ["id", "user", "lesson", "content", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]
 
 
 class CertificateVerifySerializer(serializers.Serializer):

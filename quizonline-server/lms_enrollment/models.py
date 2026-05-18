@@ -92,3 +92,32 @@ class Certificate(models.Model):
 
     def __str__(self) -> str:
         return self.certificate_number
+
+
+class LessonNote(models.Model):
+    """Private per-learner notes attached to a lesson. One row per
+    ``(user, lesson)`` couple — the learner edits a single
+    long-form note rather than a chronological list of entries,
+    which mirrors how authors take notes while watching a lesson."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="lesson_notes",
+    )
+    lesson = models.ForeignKey(
+        "lms_catalog.Lesson",
+        on_delete=models.CASCADE,
+        related_name="user_notes",
+    )
+    content = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "lesson"], name="uniq_lesson_note_per_user_lesson",
+            ),
+        ]
+        indexes = [models.Index(fields=["user", "lesson"])]

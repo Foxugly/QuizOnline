@@ -15,13 +15,14 @@ from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 from lms_catalog.models import Course, Lesson
 from lms_catalog.permissions import is_lms_instructor
 
-from .models import Certificate, CourseEnrollment, CourseProgress
+from .models import Certificate, CourseEnrollment, CourseProgress, LessonNote
 from .permissions import IsEnrollmentOwnerOrInstructor
 from .serializers import (
     CertificateSerializer,
     CertificateVerifySerializer,
     CourseEnrollmentSerializer,
     CourseProgressSerializer,
+    LessonNoteSerializer,
     LessonProgressSerializer,
 )
 from .services import (
@@ -276,6 +277,33 @@ def course_analytics(request, course_id: int):
         "certificates_issued": certificates_issued,
         "enrollment_trend_30d": enrollment_trend_30d,
     })
+
+
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])
+def my_lesson_note(request, lesson_id: int):
+    """Read or upsert the calling user's private note for one lesson.
+
+    GET returns the note's content (empty string when none exists yet
+    — no need for a 404 on a "fresh" lesson). PUT body is
+    ``{"content": str}`` and creates the row on first write,
+    overwrites it on subsequent writes. We never list notes across
+    users: notes are strictly private.
+    """
+    lesson = Lesson.objects.filter(pk=lesson_id).first()
+    if not lesson:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    note, _ = LessonNote.objects.get_or_create(user=request.user, lesson=lesson)
+    if request.method == "PUT":
+        content = request.data.get("content", "")
+        if not isinstance(content, str):
+            return Response(
+                {"detail": "content must be a string."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        note.content = content
+        note.save(update_fields=["content", "updated_at"])
+    return Response(LessonNoteSerializer(note).data)
 
 
 @api_view(["GET"])

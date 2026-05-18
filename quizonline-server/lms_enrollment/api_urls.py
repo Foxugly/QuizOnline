@@ -8,6 +8,7 @@ from .views import (
     complete_lesson,
     course_analytics,
     enroll_to_course,
+    my_lesson_note,
     start_lesson,
     verify_certificate,
 )
@@ -24,5 +25,6 @@ urlpatterns = router.urls + [
     path("course/<int:course_id>/analytics/", course_analytics, name="course-analytics"),
     path("lesson/<int:lesson_id>/start/", start_lesson, name="start-lesson"),
     path("lesson/<int:lesson_id>/complete/", complete_lesson, name="complete-lesson"),
+    path("lesson/<int:lesson_id>/note/", my_lesson_note, name="lesson-note"),
     path("verify/<str:token>/", verify_certificate, name="verify"),
 ]

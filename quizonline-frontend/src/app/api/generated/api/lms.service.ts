@@ -248,6 +248,14 @@ export interface LmsLessonListRequestParams {
     page?: number;
 }
 
+export interface LmsLessonNoteRetrieveRequestParams {
+    lessonId: number;
+}
+
+export interface LmsLessonNoteUpdateRequestParams {
+    lessonId: number;
+}
+
 export interface LmsLessonPartialUpdateRequestParams {
     /** A unique integer value identifying this lesson. */
     id: number;
@@ -1389,6 +1397,7 @@ export class LmsApi extends BaseService {
     }
 
     /**
+     * Override the default list flow to pre-aggregate the cards\&#39; meta (lesson count, total duration) on the DB side and to bulk-fetch the caller\&#39;s enrollment / progress / lesson- completion state in a fixed number of queries — irrespective of the number of courses returned. Without this, the previous &#x60;&#x60;SerializerMethodField&#x60;&#x60; pattern issued ~5 queries per course, producing a quadratic blow-up on multi-course domains.
      * @endpoint get /api/lms/course/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -2579,6 +2588,124 @@ export class LmsApi extends BaseService {
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Read or upsert the calling user\&#39;s private note for one lesson.  GET returns the note\&#39;s content (empty string when none exists yet — no need for a 404 on a \&quot;fresh\&quot; lesson). PUT body is &#x60;&#x60;{\&quot;content\&quot;: str}&#x60;&#x60; and creates the row on first write, overwrites it on subsequent writes. We never list notes across users: notes are strictly private.
+     * @endpoint get /api/lms/lesson/{lesson_id}/note/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsLessonNoteRetrieve(requestParameters: LmsLessonNoteRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsLessonNoteRetrieve(requestParameters: LmsLessonNoteRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsLessonNoteRetrieve(requestParameters: LmsLessonNoteRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsLessonNoteRetrieve(requestParameters: LmsLessonNoteRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const lessonId = requestParameters?.lessonId;
+        if (lessonId === null || lessonId === undefined) {
+            throw new Error('Required parameter lessonId was null or undefined when calling lmsLessonNoteRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/lesson/${this.configuration.encodeParam({name: "lessonId", value: lessonId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/note/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Read or upsert the calling user\&#39;s private note for one lesson.  GET returns the note\&#39;s content (empty string when none exists yet — no need for a 404 on a \&quot;fresh\&quot; lesson). PUT body is &#x60;&#x60;{\&quot;content\&quot;: str}&#x60;&#x60; and creates the row on first write, overwrites it on subsequent writes. We never list notes across users: notes are strictly private.
+     * @endpoint put /api/lms/lesson/{lesson_id}/note/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsLessonNoteUpdate(requestParameters: LmsLessonNoteUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsLessonNoteUpdate(requestParameters: LmsLessonNoteUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsLessonNoteUpdate(requestParameters: LmsLessonNoteUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsLessonNoteUpdate(requestParameters: LmsLessonNoteUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const lessonId = requestParameters?.lessonId;
+        if (lessonId === null || lessonId === undefined) {
+            throw new Error('Required parameter lessonId was null or undefined when calling lmsLessonNoteUpdate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/lesson/${this.configuration.encodeParam({name: "lessonId", value: lessonId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/note/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

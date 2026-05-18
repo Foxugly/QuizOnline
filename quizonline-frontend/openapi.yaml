@@ -1820,6 +1820,14 @@ paths:
   /api/lms/course/:
     get:
       operationId: lms_course_list
+      description: |-
+        Override the default list flow to pre-aggregate the cards'
+        meta (lesson count, total duration) on the DB side and to
+        bulk-fetch the caller's enrollment / progress / lesson-
+        completion state in a fixed number of queries — irrespective
+        of the number of courses returned. Without this, the previous
+        ``SerializerMethodField`` pattern issued ~5 queries per course,
+        producing a quadratic blow-up on multi-course domains.
       parameters:
       - name: ordering
         required: false
@@ -2372,6 +2380,53 @@ paths:
   /api/lms/lesson/{lesson_id}/complete/:
     post:
       operationId: lms_lesson_complete_create
+      parameters:
+      - in: path
+        name: lesson_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/lesson/{lesson_id}/note/:
+    get:
+      operationId: lms_lesson_note_retrieve
+      description: |-
+        Read or upsert the calling user's private note for one lesson.
+
+        GET returns the note's content (empty string when none exists yet
+        — no need for a 404 on a "fresh" lesson). PUT body is
+        ``{"content": str}`` and creates the row on first write,
+        overwrites it on subsequent writes. We never list notes across
+        users: notes are strictly private.
+      parameters:
+      - in: path
+        name: lesson_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: lms_lesson_note_update
+      description: |-
+        Read or upsert the calling user's private note for one lesson.
+
+        GET returns the note's content (empty string when none exists yet
+        — no need for a 404 on a "fresh" lesson). PUT body is
+        ``{"content": str}`` and creates the row on first write,
+        overwrites it on subsequent writes. We never list notes across
+        users: notes are strictly private.
       parameters:
       - in: path
         name: lesson_id
