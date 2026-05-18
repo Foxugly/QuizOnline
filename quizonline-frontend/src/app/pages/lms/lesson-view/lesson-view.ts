@@ -20,14 +20,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service';
 import {UserService} from '../../../services/user/user';
 
-import {RichTextBlockRenderer} from './block-renderers/rich-text-block-renderer';
-import {ImageBlockRenderer} from './block-renderers/image-block-renderer';
-import {VideoBlockRenderer} from './block-renderers/video-block-renderer';
-import {FileBlockRenderer} from './block-renderers/file-block-renderer';
-import {QuizBlockRenderer} from './block-renderers/quiz-block-renderer';
-import {CalloutBlockRenderer} from './block-renderers/callout-block-renderer';
-import {CodeBlockRenderer} from './block-renderers/code-block-renderer';
-import {EmbedBlockRenderer} from './block-renderers/embed-block-renderer';
+import {LmsBlockCard} from '../../../shared/lms/block-card/block-card';
 import {getLmsLessonViewUiText} from './lesson-view.i18n';
 
 /**
@@ -67,14 +60,7 @@ interface BlockOutlineItem {
     TagModule,
     TextareaModule,
     PageHeader,
-    RichTextBlockRenderer,
-    ImageBlockRenderer,
-    VideoBlockRenderer,
-    FileBlockRenderer,
-    QuizBlockRenderer,
-    CalloutBlockRenderer,
-    CodeBlockRenderer,
-    EmbedBlockRenderer,
+    LmsBlockCard,
   ],
   templateUrl: './lesson-view.html',
   styleUrl: './lesson-view.scss',

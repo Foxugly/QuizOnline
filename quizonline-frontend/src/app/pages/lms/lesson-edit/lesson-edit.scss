@@ -149,74 +149,17 @@
 
 .block-body {
   padding: 0.75rem;
-
-  /* In preview mode the body hosts a learner-facing renderer rather
-   * than the editor controls — bump padding slightly so the rendered
-   * content reads the same way it does on /lms/lesson/{id}. */
-  &--preview {
-    padding: 1rem 1.25rem;
-    overflow: hidden;          /* clip oversized children at the card edge */
-    min-width: 0;              /* let flex children shrink */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
 }
 
-/* Containment rules for the preview mode's nested renderer
- * components. The renderers emit raw <img>/<iframe>/<video>/<pre>
- * with no internal styles — without these, oversized media
- * overflow the block card. Angular's emulated view encapsulation
- * means a plain ``.block-body--preview img`` selector would NOT
- * reach those elements (they belong to a child component's scope),
- * so we pierce via ::ng-deep. The lesson-view page carries its
- * own copy of these rules; we don't refactor the renderers to host
- * their own scoped styles because the editor's mounting context
- * (e.g. the narrower card frame) needs slightly different
- * containment than the learner view's full-width column. */
-:host ::ng-deep .block-body--preview {
-  > * {
-    max-width: 100%;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  iframe {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border: 0;
-    display: block;
-  }
-
-  video {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  pre {
-    overflow-x: auto;
-    max-width: 100%;
-    white-space: pre;
-  }
-
-  /* Rich text frequently embeds its own <img>/<video>/<iframe> via
-   * the author's HTML payload — same containment rules. */
-  .rich-text {
-    overflow-wrap: break-word;
-
-    img, video, iframe {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0.5rem 0;
-    }
-    a { word-break: break-word; }
-    pre { overflow-x: auto; }
-  }
+/* In preview mode the per-block content is rendered by
+ * <app-lms-block-card> directly inside .lesson-body; the shared
+ * component owns the visual frame and all renderer containment.
+ * lesson-body just provides the vertical rhythm. */
+.lesson-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .add-block-bar {

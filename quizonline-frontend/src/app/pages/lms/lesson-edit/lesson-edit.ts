@@ -18,6 +18,8 @@ import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {BlockType, getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {pickTranslation} from '../../../shared/lms/lms-translations';
 
+import {LmsBlockCard} from '../../../shared/lms/block-card/block-card';
+
 import {getLmsLessonEditUiText} from './lesson-edit.i18n';
 import {SavedIndicator} from './block-editors/saved-indicator';
 import {RichTextBlockEditor} from './block-editors/rich-text-block-editor';
@@ -28,17 +30,6 @@ import {QuizBlockEditor} from './block-editors/quiz-block-editor';
 import {CalloutBlockEditor} from './block-editors/callout-block-editor';
 import {CodeBlockEditor} from './block-editors/code-block-editor';
 import {EmbedBlockEditor} from './block-editors/embed-block-editor';
-
-// Block renderers reused from the learner-facing lesson-view so the
-// in-page "Preview" toggle shows exactly what the learner sees.
-import {RichTextBlockRenderer} from '../lesson-view/block-renderers/rich-text-block-renderer';
-import {ImageBlockRenderer} from '../lesson-view/block-renderers/image-block-renderer';
-import {VideoBlockRenderer} from '../lesson-view/block-renderers/video-block-renderer';
-import {FileBlockRenderer} from '../lesson-view/block-renderers/file-block-renderer';
-import {QuizBlockRenderer} from '../lesson-view/block-renderers/quiz-block-renderer';
-import {CalloutBlockRenderer} from '../lesson-view/block-renderers/callout-block-renderer';
-import {CodeBlockRenderer} from '../lesson-view/block-renderers/code-block-renderer';
-import {EmbedBlockRenderer} from '../lesson-view/block-renderers/embed-block-renderer';
 
 /**
  * Shape consumed from ``GET /api/lms/lesson/{id}/``. Mirrors the
@@ -90,14 +81,7 @@ interface BlockOutlineItem {
     CalloutBlockEditor,
     CodeBlockEditor,
     EmbedBlockEditor,
-    RichTextBlockRenderer,
-    ImageBlockRenderer,
-    VideoBlockRenderer,
-    FileBlockRenderer,
-    QuizBlockRenderer,
-    CalloutBlockRenderer,
-    CodeBlockRenderer,
-    EmbedBlockRenderer,
+    LmsBlockCard,
   ],
   templateUrl: './lesson-edit.html',
   styleUrl: './lesson-edit.scss',
