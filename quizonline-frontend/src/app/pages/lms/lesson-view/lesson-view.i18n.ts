@@ -50,6 +50,10 @@ export interface LmsLessonViewUiText {
   quizBlockNotConfigured: string;
   lessonCompletedToast: string;
   lessonCompletedErrorToast: string;
+  /** Label for the right-side "Edit" button shown only to instructors. */
+  editButton: string;
+  /** Heading of the left-side block-outline navigation. */
+  outlineHeading: string;
 }
 
 export function getLmsLessonViewUiText(
@@ -82,6 +86,8 @@ export function getLmsLessonViewUiText(
         quizBlockNotConfigured: 'Quiz non configuré',
         lessonCompletedToast: 'Leçon marquée comme terminée.',
         lessonCompletedErrorToast: 'Impossible de marquer la leçon comme terminée.',
+        editButton: 'Modifier',
+        outlineHeading: 'Plan de la leçon',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -109,6 +115,8 @@ export function getLmsLessonViewUiText(
         quizBlockNotConfigured: 'Quiz niet geconfigureerd',
         lessonCompletedToast: 'Les gemarkeerd als voltooid.',
         lessonCompletedErrorToast: 'Kon les niet als voltooid markeren.',
+        editButton: 'Bewerken',
+        outlineHeading: 'Lesoverzicht',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -136,6 +144,8 @@ export function getLmsLessonViewUiText(
         quizBlockNotConfigured: 'Quiz non configurato',
         lessonCompletedToast: 'Lezione segnata come completata.',
         lessonCompletedErrorToast: 'Impossibile segnare la lezione come completata.',
+        editButton: 'Modifica',
+        outlineHeading: 'Indice della lezione',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -163,6 +173,8 @@ export function getLmsLessonViewUiText(
         quizBlockNotConfigured: 'Cuestionario no configurado',
         lessonCompletedToast: 'Lección marcada como completada.',
         lessonCompletedErrorToast: 'No se pudo marcar la lección como completada.',
+        editButton: 'Editar',
+        outlineHeading: 'Índice de la lección',
       };
     default:
       return {
@@ -189,6 +201,8 @@ export function getLmsLessonViewUiText(
         quizBlockNotConfigured: 'Quiz not configured',
         lessonCompletedToast: 'Lesson marked as completed.',
         lessonCompletedErrorToast: 'Could not mark lesson as completed.',
+        editButton: 'Edit',
+        outlineHeading: 'Lesson outline',
       };
   }
 }

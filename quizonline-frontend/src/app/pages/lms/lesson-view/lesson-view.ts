@@ -1,14 +1,17 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 
+import {LMS_CATALOG, LMS_COURSE_DETAIL, LMS_LESSON_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {ContentBlock} from '../../../shared/lms/content-block.types';
+import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../../shared/lms/lms-translations';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service';
@@ -36,11 +39,22 @@ interface LessonDetailDto {
   translations?: TranslationsMap;
   blocks?: ContentBlock[];
   completed?: boolean;
+  course_slug?: string;
+  course_id?: number;
+  can_manage?: boolean;
+}
+
+interface BlockOutlineItem {
+  id: number;
+  label: string;
+  icon: string;
+  anchor: string;
 }
 
 @Component({
   selector: 'app-lms-lesson-view',
   imports: [
+    RouterLink,
     ButtonModule,
     TagModule,
     RichTextBlockRenderer,
@@ -65,6 +79,10 @@ export class LmsLessonView implements OnInit, OnDestroy {
   private readonly uiSvc = inject(UiTextService);
 
   protected readonly ui = this.uiSvc.localized(getLmsLessonViewUiText);
+  /** Shared "Back" label — same source as every other LMS page. */
+  protected readonly editorUi = this.uiSvc.editor;
+  /** Localized block-type labels used for the left-side outline. */
+  protected readonly common = this.uiSvc.localized(getLmsCommonUiText);
   protected readonly currentLang = this.userService.lang;
 
   protected readonly lesson = signal<LessonDetailDto | null>(null);
@@ -80,6 +98,37 @@ export class LmsLessonView implements OnInit, OnDestroy {
   protected readonly blocks = computed<ContentBlock[]>(() => this.lesson()?.blocks ?? []);
 
   protected readonly isCompleted = computed(() => this.lesson()?.completed === true);
+
+  protected readonly canManage = computed(() => this.lesson()?.can_manage === true);
+
+  /** Anchor href that takes the user back to the parent course detail page.
+   *  Falls back to the catalog when the lesson detail has not yet exposed a
+   *  ``course_slug`` (mid-load or a backend regression). */
+  protected readonly backHref = computed<string>(() => {
+    const slug = this.lesson()?.course_slug;
+    return slug ? LMS_COURSE_DETAIL(slug) : LMS_CATALOG;
+  });
+
+  /** Lesson-edit route for the right-side "Edit" affordance, gated by ``canManage``. */
+  protected readonly editHref = computed<string | null>(() => {
+    if (!this.canManage()) {
+      return null;
+    }
+    const id = this.lesson()?.id;
+    return id ? LMS_LESSON_EDIT(id) : null;
+  });
+
+  /** One outline entry per block, with a stable anchor id ``block-<id>`` consumed
+   *  by both the in-content ``[id]`` binding and the side-nav ``href``. */
+  protected readonly outline = computed<BlockOutlineItem[]>(() => {
+    const labels = this.common().blockTypeLabels;
+    return this.blocks().map((b) => ({
+      id: b.id,
+      label: labels[b.block_type] ?? b.block_type,
+      icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
+      anchor: `block-${b.id}`,
+    }));
+  });
 
   ngOnInit(): void {
     this.routeSub = this.route.paramMap.subscribe((params) => {

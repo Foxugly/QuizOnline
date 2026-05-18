@@ -1,4 +1,24 @@
 @if (lesson(); as l) {
+  <div class="page-toolbar">
+    <p-button
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="backHref()"
+      [label]="editorUi().common.back" />
+
+    @if (editHref(); as href) {
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-pencil"
+        [routerLink]="href"
+        [label]="ui().editButton" />
+    }
+  </div>
+
   <header class="lesson-header">
     <h1>{{ title() }}</h1>
     @if (isCompleted()) {
@@ -6,22 +26,44 @@
     }
   </header>
 
-  <section class="lesson-body">
-    @for (block of blocks(); track block.id) {
-      <article class="block-card" [attr.data-block-type]="block.block_type">
-        @switch (block.block_type) {
-          @case ('rich_text') { <app-block-rich-text [block]="block" /> }
-          @case ('image')     { <app-block-image [block]="block" /> }
-          @case ('video')     { <app-block-video [block]="block" /> }
-          @case ('file')      { <app-block-file [block]="block" /> }
-          @case ('quiz')      { <app-block-quiz [block]="block" /> }
-          @case ('callout')   { <app-block-callout [block]="block" /> }
-          @case ('code')      { <app-block-code [block]="block" /> }
-          @case ('embed')     { <app-block-embed [block]="block" /> }
-        }
-      </article>
+  <div class="lesson-layout">
+    <!-- Left-side block outline: anchored navigation across the content
+         blocks of the current lesson. Sticky on viewports wide enough to
+         host two columns, falls back to a static top strip on narrow ones. -->
+    @if (outline().length > 0) {
+      <aside class="lesson-outline" [attr.aria-label]="ui().outlineHeading">
+        <h2 class="lesson-outline__heading">{{ ui().outlineHeading }}</h2>
+        <ol class="lesson-outline__list">
+          @for (item of outline(); track item.id; let i = $index) {
+            <li>
+              <a class="lesson-outline__link" [href]="'#' + item.anchor">
+                <span class="lesson-outline__index">{{ i + 1 }}</span>
+                <i [class]="item.icon"></i>
+                <span class="lesson-outline__label">{{ item.label }}</span>
+              </a>
+            </li>
+          }
+        </ol>
+      </aside>
     }
-  </section>
+
+    <section class="lesson-body">
+      @for (block of blocks(); track block.id) {
+        <article class="block-card" [attr.data-block-type]="block.block_type" [id]="'block-' + block.id">
+          @switch (block.block_type) {
+            @case ('rich_text') { <app-block-rich-text [block]="block" /> }
+            @case ('image')     { <app-block-image [block]="block" /> }
+            @case ('video')     { <app-block-video [block]="block" /> }
+            @case ('file')      { <app-block-file [block]="block" /> }
+            @case ('quiz')      { <app-block-quiz [block]="block" /> }
+            @case ('callout')   { <app-block-callout [block]="block" /> }
+            @case ('code')      { <app-block-code [block]="block" /> }
+            @case ('embed')     { <app-block-embed [block]="block" /> }
+          }
+        </article>
+      }
+    </section>
+  </div>
 
   <footer class="lesson-footer">
     <p-button
