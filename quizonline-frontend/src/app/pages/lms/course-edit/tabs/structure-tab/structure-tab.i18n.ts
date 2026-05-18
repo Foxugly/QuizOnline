@@ -35,6 +35,8 @@ export interface LmsCourseEditStructureTabUiText {
     isPublishedField: string;
     submitButton: string;
     cancelButton: string;
+    translateButton: string;
+    translationFailed: string;
   };
 
   lessonDialog: {
@@ -45,6 +47,8 @@ export interface LmsCourseEditStructureTabUiText {
     isPublishedField: string;
     submitButton: string;
     cancelButton: string;
+    translateButton: string;
+    translationFailed: string;
   };
 
   sectionCreatedToast: string;
@@ -99,6 +103,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Publiée',
           submitButton: 'Enregistrer',
           cancelButton: 'Annuler',
+          translateButton: 'Traduire vers les autres langues',
+          translationFailed: 'La traduction automatique a échoué.',
         },
         lessonDialog: {
           titleCreate: 'Nouvelle leçon',
@@ -108,6 +114,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Publiée',
           submitButton: 'Enregistrer',
           cancelButton: 'Annuler',
+          translateButton: 'Traduire vers les autres langues',
+          translationFailed: 'La traduction automatique a échoué.',
         },
         sectionCreatedToast: 'Section ajoutée.',
         sectionUpdatedToast: 'Section mise à jour.',
@@ -153,6 +161,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Gepubliceerd',
           submitButton: 'Opslaan',
           cancelButton: 'Annuleren',
+          translateButton: 'Vertaal naar andere talen',
+          translationFailed: 'Automatische vertaling mislukt.',
         },
         lessonDialog: {
           titleCreate: 'Nieuwe les',
@@ -162,6 +172,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Gepubliceerd',
           submitButton: 'Opslaan',
           cancelButton: 'Annuleren',
+          translateButton: 'Vertaal naar andere talen',
+          translationFailed: 'Automatische vertaling mislukt.',
         },
         sectionCreatedToast: 'Sectie toegevoegd.',
         sectionUpdatedToast: 'Sectie bijgewerkt.',
@@ -207,6 +219,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Pubblicata',
           submitButton: 'Salva',
           cancelButton: 'Annulla',
+          translateButton: 'Traduci nelle altre lingue',
+          translationFailed: 'Traduzione automatica non riuscita.',
         },
         lessonDialog: {
           titleCreate: 'Nuova lezione',
@@ -216,6 +230,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Pubblicata',
           submitButton: 'Salva',
           cancelButton: 'Annulla',
+          translateButton: 'Traduci nelle altre lingue',
+          translationFailed: 'Traduzione automatica non riuscita.',
         },
         sectionCreatedToast: 'Sezione aggiunta.',
         sectionUpdatedToast: 'Sezione aggiornata.',
@@ -261,6 +277,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Publicada',
           submitButton: 'Guardar',
           cancelButton: 'Cancelar',
+          translateButton: 'Traducir a otros idiomas',
+          translationFailed: 'La traducción automática ha fallado.',
         },
         lessonDialog: {
           titleCreate: 'Nueva lección',
@@ -270,6 +288,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Publicada',
           submitButton: 'Guardar',
           cancelButton: 'Cancelar',
+          translateButton: 'Traducir a otros idiomas',
+          translationFailed: 'La traducción automática ha fallado.',
         },
         sectionCreatedToast: 'Sección añadida.',
         sectionUpdatedToast: 'Sección actualizada.',
@@ -314,6 +334,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Published',
           submitButton: 'Save',
           cancelButton: 'Cancel',
+          translateButton: 'Translate to other languages',
+          translationFailed: 'Auto-translation failed.',
         },
         lessonDialog: {
           titleCreate: 'New lesson',
@@ -323,6 +345,8 @@ export function getLmsCourseEditStructureTabUiText(
           isPublishedField: 'Published',
           submitButton: 'Save',
           cancelButton: 'Cancel',
+          translateButton: 'Translate to other languages',
+          translationFailed: 'Auto-translation failed.',
         },
         sectionCreatedToast: 'Section added.',
         sectionUpdatedToast: 'Section updated.',

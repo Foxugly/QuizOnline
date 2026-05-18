@@ -28,8 +28,13 @@ import {SectionDto} from '../../../../../api/generated/model/section';
 
 import {LMS_LESSON_EDIT} from '../../../../../app.routes-paths';
 import {LmsCatalogService} from '../../../../../services/lms/lms-catalog.service';
+import {
+  TranslateBatchItem,
+  TranslationService,
+} from '../../../../../services/translation/translation';
 import {EmptyStateComponent} from '../../../../../shared/components/empty-state/empty-state';
-import {logApiError} from '../../../../../shared/api/api-errors';
+import {logApiError, userFacingApiMessage} from '../../../../../shared/api/api-errors';
+import {isEmptyRichText} from '../../../../../shared/html/is-empty-rich-text';
 import {UiTextService} from '../../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../../shared/toast/app-toast.service';
 
@@ -140,8 +145,16 @@ export class LmsCourseEditStructureTab {
   private readonly confirmer = inject(ConfirmationService);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
+  private readonly translator = inject(TranslationService);
 
   protected readonly ui = inject(UiTextService).localized(getLmsCourseEditStructureTabUiText);
+
+  /**
+   * Per-dialog translating flag so the section and lesson dialog buttons
+   * spin independently. Each value is the dialog that's currently fanning
+   * out translations (or ``null`` when idle).
+   */
+  protected readonly translating = signal<'section' | 'lesson' | null>(null);
 
   readonly courseId = input.required<number>();
   readonly course = input<CourseDetailDto | null>(null);
@@ -360,6 +373,69 @@ export class LmsCourseEditStructureTab {
     }
   }
 
+  /**
+   * Auto-fill blank section translations in the OTHER language tabs by
+   * translating from the currently-active tab. Mirrors the
+   * ``info-tab`` / ``course-create`` rule: title is translated as plain
+   * text, description as HTML, and existing non-empty values are never
+   * overwritten.
+   */
+  protected async translateSectionFromActiveTab(): Promise<void> {
+    const state = this.sectionDialog();
+    const source = state.activeLang;
+    const langs = this.languages();
+    if (!source || !langs.includes(source)) {
+      return;
+    }
+
+    const sourceTitle = state.translations[source]?.['title'] ?? '';
+    const sourceDescription = state.translations[source]?.['description'] ?? '';
+
+    this.translating.set('section');
+    try {
+      for (const target of langs) {
+        if (target === source) {
+          continue;
+        }
+        const targetRow = this.sectionDialog().translations[target] ?? {};
+        const needTitle = !(targetRow['title'] ?? '').trim();
+        const needDesc = isEmptyRichText(targetRow['description'] ?? '');
+
+        const items: TranslateBatchItem[] = [];
+        if (needTitle) items.push({key: 'title', text: sourceTitle, format: 'text'});
+        if (needDesc) items.push({key: 'description', text: sourceDescription, format: 'html'});
+
+        if (!items.length) {
+          continue;
+        }
+
+        const out = await this.translator.translateBatch(source, target, items);
+        this.sectionDialog.update((s) => {
+          const existing = s.translations[target] ?? {};
+          const next: Record<string, string> = {...existing};
+          if (needTitle && out['title'] !== undefined) {
+            next['title'] = out['title'];
+          }
+          if (needDesc && out['description'] !== undefined) {
+            next['description'] = out['description'];
+          }
+          return {
+            ...s,
+            translations: {...s.translations, [target]: next},
+          };
+        });
+      }
+    } catch (err) {
+      logApiError('lms.structure.translate-section', err);
+      this.toast.add({
+        severity: 'error',
+        summary: userFacingApiMessage(err, this.ui().sectionDialog.translationFailed),
+      });
+    } finally {
+      this.translating.set(null);
+    }
+  }
+
   // -- Lesson dialog -------------------------------------------------------
 
   protected openLessonDialogCreate(section: SectionDto): void {
@@ -498,6 +574,64 @@ export class LmsCourseEditStructureTab {
             this.toast.addApiError(err, this.ui().actionFailedToast);
           },
         });
+    }
+  }
+
+  /**
+   * Auto-fill blank lesson titles in the OTHER language tabs by
+   * translating from the currently-active tab. Only ``title`` is
+   * translatable in the lesson dialog (description / content blocks
+   * live on the lesson edit page).
+   */
+  protected async translateLessonFromActiveTab(): Promise<void> {
+    const state = this.lessonDialog();
+    const source = state.activeLang;
+    const langs = this.languages();
+    if (!source || !langs.includes(source)) {
+      return;
+    }
+
+    const sourceTitle = state.translations[source]?.['title'] ?? '';
+
+    this.translating.set('lesson');
+    try {
+      for (const target of langs) {
+        if (target === source) {
+          continue;
+        }
+        const targetRow = this.lessonDialog().translations[target] ?? {};
+        const needTitle = !(targetRow['title'] ?? '').trim();
+        if (!needTitle) {
+          continue;
+        }
+
+        const items: TranslateBatchItem[] = [
+          {key: 'title', text: sourceTitle, format: 'text'},
+        ];
+
+        const out = await this.translator.translateBatch(source, target, items);
+        if (out['title'] === undefined) {
+          continue;
+        }
+        this.lessonDialog.update((s) => {
+          const existing = s.translations[target] ?? {};
+          return {
+            ...s,
+            translations: {
+              ...s.translations,
+              [target]: {...existing, title: out['title']},
+            },
+          };
+        });
+      }
+    } catch (err) {
+      logApiError('lms.structure.translate-lesson', err);
+      this.toast.add({
+        severity: 'error',
+        summary: userFacingApiMessage(err, this.ui().lessonDialog.translationFailed),
+      });
+    } finally {
+      this.translating.set(null);
     }
   }
 
