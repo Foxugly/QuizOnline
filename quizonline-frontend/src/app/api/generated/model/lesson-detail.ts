@@ -14,6 +14,7 @@ export interface LessonDetailDto {
     readonly id: number;
     section: number;
     readonly course_id: number;
+    readonly course_slug: string;
     slug: string;
     order?: number;
     is_preview?: boolean;
@@ -22,5 +23,6 @@ export interface LessonDetailDto {
     translations: { [key: string]: { [key: string]: string; }; };
     readonly blocks: Array<ContentBlockDto>;
     readonly available_lang_codes: string;
+    readonly can_manage: boolean;
 }
 

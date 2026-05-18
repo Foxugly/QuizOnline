@@ -6124,14 +6124,12 @@ components:
       - domain
       - id
       - language_code
-      - slug
       - translations
     CourseWriteRequest:
       type: object
       properties:
         slug:
           type: string
-          minLength: 1
           maxLength: 220
           pattern: ^[-a-zA-Z0-9_]+$
         level:
@@ -6168,7 +6166,6 @@ components:
       required:
       - domain
       - language_code
-      - slug
       - translations
     CreateQuizInputRequest:
       type: object
@@ -7145,6 +7142,9 @@ components:
         course_id:
           type: integer
           readOnly: true
+        course_slug:
+          type: string
+          readOnly: true
         slug:
           type: string
           maxLength: 220
@@ -7183,10 +7183,15 @@ components:
         available_lang_codes:
           type: string
           readOnly: true
+        can_manage:
+          type: boolean
+          readOnly: true
       required:
       - available_lang_codes
       - blocks
+      - can_manage
       - course_id
+      - course_slug
       - id
       - section
       - slug
@@ -8248,7 +8253,6 @@ components:
       properties:
         slug:
           type: string
-          minLength: 1
           maxLength: 220
           pattern: ^[-a-zA-Z0-9_]+$
         level:

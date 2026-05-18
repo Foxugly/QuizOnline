@@ -12,7 +12,7 @@ import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
 
 
 export interface CourseWriteRequestDto { 
-    slug: string;
+    slug?: string;
     level?: LevelEnumDto;
     /**
      * Code ISO (ex: fr, nl, en, fr-BE)

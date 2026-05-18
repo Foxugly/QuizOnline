@@ -145,14 +145,23 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     # course" affordance without a second round-trip through the section
     # endpoint just to look up the parent course id.
     course_id = serializers.SerializerMethodField()
+    # Slug of the parent course — the public lesson-view back button
+    # uses ``/lms/course/{slug}`` rather than the id-based edit route.
+    course_slug = serializers.SerializerMethodField()
+    # True when the calling user is allowed to edit the parent course
+    # (superuser, owner, or manager). Drives the lesson-view "Edit"
+    # affordance — kept consistent with the same flag on the course
+    # detail serializer.
+    can_manage = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
         fields = [
-            "id", "section", "course_id", "slug", "order", "is_preview", "is_published",
-            "estimated_duration", "translations", "blocks", "available_lang_codes",
+            "id", "section", "course_id", "course_slug", "slug", "order",
+            "is_preview", "is_published", "estimated_duration",
+            "translations", "blocks", "available_lang_codes", "can_manage",
         ]
-        read_only_fields = ["id", "blocks", "course_id"]
+        read_only_fields = ["id", "blocks", "course_id", "course_slug", "can_manage"]
 
     def get_available_lang_codes(self, obj):
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
@@ -160,6 +169,16 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.IntegerField())
     def get_course_id(self, obj) -> int:
         return obj.section.course_id
+
+    @extend_schema_field(serializers.CharField())
+    def get_course_slug(self, obj) -> str:
+        return obj.section.course.slug
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_can_manage(self, obj) -> bool:
+        from .permissions import is_lms_instructor
+        request = self.context.get("request")
+        return bool(request and is_lms_instructor(request.user, obj.section.course))
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
