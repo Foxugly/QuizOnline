@@ -4,7 +4,7 @@
 
   <div class="tiles">
     <!-- Tile 1: courses in progress -->
-    <article class="tile tile--courses">
+    <article class="tile tile--courses" [routerLink]="progressHref" tabindex="0">
       <header class="tile__head">
         <i class="pi pi-graduation-cap tile__icon" aria-hidden="true"></i>
         <h2 class="tile__title">{{ ui().tiles.courses.title }}</h2>
@@ -44,7 +44,7 @@
     </article>
 
     <!-- Tile 2: certificates -->
-    <article class="tile tile--certificates">
+    <article class="tile tile--certificates" [routerLink]="certificatesHref" tabindex="0">
       <header class="tile__head">
         <i class="pi pi-verified tile__icon" aria-hidden="true"></i>
         <h2 class="tile__title">{{ ui().tiles.certificates.title }}</h2>
@@ -74,7 +74,7 @@
     </article>
 
     <!-- Tile 3: quizzes -->
-    <article class="tile tile--quizzes">
+    <article class="tile tile--quizzes" [routerLink]="quizListHref" tabindex="0">
       <header class="tile__head">
         <i class="pi pi-list-check tile__icon" aria-hidden="true"></i>
         <h2 class="tile__title">{{ ui().tiles.quizzes.title }}</h2>
@@ -95,7 +95,7 @@
     </article>
 
     <!-- Tile 4: catalog -->
-    <article class="tile tile--catalog">
+    <article class="tile tile--catalog" [routerLink]="catalogHref" tabindex="0">
       <header class="tile__head">
         <i class="pi pi-book tile__icon" aria-hidden="true"></i>
         <h2 class="tile__title">{{ ui().tiles.catalog.title }}</h2>
