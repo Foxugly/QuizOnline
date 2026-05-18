@@ -51,6 +51,38 @@ Production-grade moderation, invitations and observability on every `Domain`:
 - **Audit log** (`DomainAuditLog`) per domain, exposed in the edit page
 - **Per-user notification preferences** on `CustomUser.notification_prefs`
 
+## Domain features (Phase E — LMS)
+
+LMS lives in three split Django apps under `/api/lms/`:
+
+- `lms_catalog/` : `Course / Section / Lesson / ContentBlock` (parler-translated). All content scoped to a `Domain`. ContentBlock has 8 types (`rich_text / image / video / file / quiz / callout / code / embed`) validated by `.clean()`. HTML in `rich_text` is sanitised via `nh3` on save (XSS-safe whitelist).
+- `lms_enrollment/` : `CourseEnrollment / LessonProgress / CourseProgress / Certificate / CertificateSequence`. Services handle the lifecycle: `enroll_user_to_course` (3 modes), `mark_lesson_completed`, `calculate_course_progress`, `issue_certificate_if_eligible`. Celery + `reportlab` render the certificate PDF on-commit. On-commit notifications send 5 email templates (enrollment created/approved/rejected, course completed, certificate issued) localised via `gettext` + `.po`.
+- `lms_assessment/` : `LessonQuiz` bridge to `quiz.QuizTemplate`. `post_save` signal on `quiz.Quiz` propagates passing scores (`>= required_score_percent`) to `lms_enrollment.mark_lesson_completed` and to `issue_certificate_if_eligible` for course-level final quizzes.
+
+Roles map directly onto existing Domain roles: superuser = admin; Domain owner/manager = instructor; Domain member = learner. No new permission tables.
+
+A Course's primary `language` and parler translations are constrained to `Domain.allowed_languages` — enforced at the model `.clean()` level AND in `TranslationsField.to_internal_value()`.
+
+Key endpoints under `/api/lms/` (`config/api_urls.py`):
+- `course/`, `section/`, `lesson/`, `block/` — CRUD + `reorder` actions + `publish` / `unpublish` / `clone` on courses
+- `enrollment/`, `course/{id}/enroll/`, `lesson/{id}/start/`, `lesson/{id}/complete/`
+- `progress/`, `me/progress/`
+- `certificate/`, `certificate/{id}/pdf/`, `verify/{token}/` (public, anon throttle scope `lms_cert_verify`)
+- `validation-quiz/`
+
+Frontend pages under `pages/lms/` :
+- Learner: `catalog`, `course-detail`, `lesson-view` (+ 8 block renderers), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
+- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — currently minimal stubs), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs)
+
+Throttle scopes env-overridable + SSM-seedable (`/quizonline/prod/THROTTLE_LMS_*`):
+- `lms_enroll` (default 20/min)
+- `lms_block_write` (default 120/min)
+- `lms_cert_verify` (default 60/min — anon)
+
+Spec + plan:
+- [docs/superpowers/specs/2026-05-18-lms-app-design.md](docs/superpowers/specs/2026-05-18-lms-app-design.md) — design spec
+- [docs/superpowers/plans/2026-05-18-lms-app-implementation.md](docs/superpowers/plans/2026-05-18-lms-app-implementation.md) — implementation plan
+
 ## Deployment
 
 - AWS EC2 in **eu-west-1**, repo at `/var/www/django_websites/QuizOnline/`
