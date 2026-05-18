@@ -13,6 +13,7 @@ export interface CourseProgressDto {
     readonly id: number;
     readonly user: number;
     readonly course: number;
+    readonly course_title: string;
     readonly completed_lessons_count: number;
     readonly total_lessons_count: number;
     readonly progress_percent: number;
