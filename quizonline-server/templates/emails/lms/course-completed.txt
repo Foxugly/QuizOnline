@@ -1,0 +1,8 @@
+{% load i18n %}{% blocktrans with name=user.get_display_name %}Congratulations {{ name }}!{% endblocktrans %}
+
+{% blocktrans with course=course %}You have successfully completed {{ course }}.{% endblocktrans %}
+
+{% trans "Your certificate is being prepared and will be available shortly." %}
+
+{% trans "Best regards," %}
+QuizOnline

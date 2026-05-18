@@ -1,0 +1,8 @@
+{% load i18n %}{% blocktrans with name=enrollment.user.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with course=enrollment.course %}Your enrollment to {{ course }} has been approved.{% endblocktrans %}
+
+{% trans "You can now access the course content." %}
+
+{% trans "Best regards," %}
+QuizOnline

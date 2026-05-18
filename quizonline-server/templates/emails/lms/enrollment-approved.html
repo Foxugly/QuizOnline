@@ -1,0 +1,8 @@
+{% load i18n %}
+<p>{% blocktrans with name=enrollment.user.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
+
+<p>{% blocktrans with course=enrollment.course %}Your enrollment to <strong>{{ course }}</strong> has been approved.{% endblocktrans %}</p>
+
+<p>{% trans "You can now access the course content." %}</p>
+
+<p>{% trans "Best regards," %}<br>QuizOnline</p>

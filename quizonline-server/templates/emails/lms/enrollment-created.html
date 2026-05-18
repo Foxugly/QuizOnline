@@ -1,0 +1,12 @@
+{% load i18n %}
+<p>{% blocktrans with name=enrollment.user.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
+
+<p>{% blocktrans with course=enrollment.course %}You have been enrolled in <strong>{{ course }}</strong>.{% endblocktrans %}</p>
+
+{% if enrollment.status == 'pending' %}
+<p>{% trans "Your enrollment is awaiting approval from an instructor." %}</p>
+{% else %}
+<p>{% trans "You can start the course right away." %}</p>
+{% endif %}
+
+<p>{% trans "Best regards," %}<br>QuizOnline</p>
