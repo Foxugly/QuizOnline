@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { SectionDto } from './section';
+import { CourseDetailMyEnrollmentDto } from './course-detail-my-enrollment';
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
 
@@ -30,6 +31,9 @@ export interface CourseDetailDto {
     cover_image?: string | null;
     translations: { [key: string]: { [key: string]: string; }; };
     domain: number;
+    readonly lesson_count: number;
+    readonly total_duration_minutes: number;
+    my_enrollment: CourseDetailMyEnrollmentDto | null;
     readonly sections: Array<SectionDto>;
     readonly available_lang_codes: string;
     readonly can_manage: string;

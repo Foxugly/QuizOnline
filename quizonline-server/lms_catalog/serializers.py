@@ -396,6 +396,16 @@ def _derive_unique_course_slug(language, translations: dict | None) -> str:
 class CourseListSerializer(serializers.ModelSerializer):
     translations = TranslationsField()
     language_code = serializers.SlugRelatedField(source="language", slug_field="code", read_only=True)
+    # Aggregated counters surfaced on every catalog card. Computed
+    # via DB-level aggregation so a 500-course list does not turn into
+    # 500 ``COUNT(*)`` round-trips.
+    lesson_count = serializers.SerializerMethodField()
+    total_duration_minutes = serializers.SerializerMethodField()
+    # Personal context: the caller's enrollment status (``null`` when
+    # not enrolled) + their course-progress percentage + the next
+    # uncompleted lesson id. Drives the "Continue learning" button and
+    # the enrolled / progress badges on the catalog card.
+    my_enrollment = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -403,7 +413,63 @@ class CourseListSerializer(serializers.ModelSerializer):
             "id", "slug", "level", "language_code", "estimated_duration",
             "enrollment_mode", "is_published", "published_at",
             "cover_image", "translations", "domain",
+            "lesson_count", "total_duration_minutes", "my_enrollment",
         ]
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_lesson_count(self, obj) -> int:
+        from .models import Lesson
+        return Lesson.objects.filter(section__course=obj).count()
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_total_duration_minutes(self, obj) -> int:
+        from django.db.models import Sum
+        from .models import Lesson
+        agg = Lesson.objects.filter(section__course=obj).aggregate(total=Sum("estimated_duration"))
+        return int(agg["total"] or 0)
+
+    @extend_schema_field({
+        "type": "object",
+        "nullable": True,
+        "properties": {
+            "status": {"type": "string"},
+            "progress_percent": {"type": "integer"},
+            "next_lesson_id": {"type": "integer", "nullable": True},
+        },
+        "required": ["status", "progress_percent", "next_lesson_id"],
+    })
+    def get_my_enrollment(self, obj):
+        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+        from .models import Lesson
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not user or not getattr(user, "is_authenticated", False):
+            return None
+        enrollment = CourseEnrollment.objects.filter(course=obj, user=user).first()
+        if not enrollment:
+            return None
+        progress = CourseProgress.objects.filter(course=obj, user=user).first()
+        progress_pct = int(progress.progress_percent) if progress else 0
+        # Next uncompleted lesson — first lesson in ``(section.order, lesson.order)``
+        # order without a completed ``LessonProgress`` row. Returns the
+        # first lesson of the course when nothing has been started yet,
+        # or ``null`` once every lesson is done.
+        lessons = list(
+            Lesson.objects.filter(section__course=obj)
+            .order_by("section__order", "order", "id")
+            .values_list("id", flat=True)
+        )
+        completed_ids = set(
+            LessonProgress.objects.filter(
+                user=user, lesson_id__in=lessons, is_completed=True
+            ).values_list("lesson_id", flat=True)
+        )
+        next_lesson_id = next((lid for lid in lessons if lid not in completed_ids), None)
+        return {
+            "status": enrollment.status,
+            "progress_percent": progress_pct,
+            "next_lesson_id": next_lesson_id,
+        }
 
 
 class CourseDetailSerializer(CourseListSerializer):

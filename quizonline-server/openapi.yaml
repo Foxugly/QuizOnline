@@ -5891,6 +5891,28 @@ components:
               title: Hello
         domain:
           type: integer
+        lesson_count:
+          type: integer
+          readOnly: true
+        total_duration_minutes:
+          type: integer
+          readOnly: true
+        my_enrollment:
+          type: object
+          nullable: true
+          properties:
+            status:
+              type: string
+            progress_percent:
+              type: integer
+            next_lesson_id:
+              type: integer
+              nullable: true
+          required:
+          - status
+          - progress_percent
+          - next_lesson_id
+          readOnly: true
         sections:
           type: array
           items:
@@ -5917,8 +5939,11 @@ components:
       - domain
       - id
       - language_code
+      - lesson_count
+      - my_enrollment
       - sections
       - slug
+      - total_duration_minutes
       - translations
       - updated_at
     CourseDetailRequest:
@@ -6079,11 +6104,36 @@ components:
               title: Hello
         domain:
           type: integer
+        lesson_count:
+          type: integer
+          readOnly: true
+        total_duration_minutes:
+          type: integer
+          readOnly: true
+        my_enrollment:
+          type: object
+          nullable: true
+          properties:
+            status:
+              type: string
+            progress_percent:
+              type: integer
+            next_lesson_id:
+              type: integer
+              nullable: true
+          required:
+          - status
+          - progress_percent
+          - next_lesson_id
+          readOnly: true
       required:
       - domain
       - id
       - language_code
+      - lesson_count
+      - my_enrollment
       - slug
+      - total_duration_minutes
       - translations
     CourseProgress:
       type: object
