@@ -33,6 +33,15 @@ def _course_of(obj):
         return obj.section.course
     if isinstance(obj, ContentBlock):
         return obj.lesson.section.course
+    # Lazy import to avoid catalog -> assessment cycle at module load.
+    try:
+        from lms_assessment.models import LessonQuiz
+        if isinstance(obj, LessonQuiz):
+            if obj.lesson_id:
+                return obj.lesson.section.course
+            return obj.course
+    except ImportError:
+        pass
     raise TypeError(f"_course_of: unsupported {type(obj).__name__}")
 
 
