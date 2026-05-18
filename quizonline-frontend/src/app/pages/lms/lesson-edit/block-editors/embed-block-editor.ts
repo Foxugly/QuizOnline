@@ -4,8 +4,10 @@ import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {Subject, Subscription, debounceTime} from 'rxjs';
 
+import {UserService} from '../../../../services/user/user';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
+import {pickDefaultLang} from '../../../../shared/lms/default-lang';
 
 import {BlockTranslateButton} from './block-translate-button';
 import {getLmsBlockEditorsUiText} from './block-editors.i18n';
@@ -63,6 +65,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmbedBlockEditor implements OnInit, OnDestroy {
+  private readonly user = inject(UserService);
   protected readonly ui = inject(UiTextService).localized(getLmsBlockEditorsUiText);
 
   block = input.required<ContentBlock>();
@@ -70,13 +73,13 @@ export class EmbedBlockEditor implements OnInit, OnDestroy {
   changed = output<Partial<ContentBlock>>();
 
   protected readonly activeLang = signal<string>('');
-  private readonly firstLang = computed(() => this.availableLangs()[0] ?? 'fr');
+  private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
   private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
   private sub: Subscription | null = null;
 
   ngOnInit(): void {
-    this.activeLang.set(this.firstLang());
+    this.activeLang.set(this.defaultLang());
     this.sub = this.debouncer$
       .pipe(debounceTime(500))
       .subscribe((patch) => this.changed.emit(patch));

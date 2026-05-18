@@ -7,12 +7,12 @@ import {BlockType} from './lms-common.i18n';
  * button can simply hide itself.
  */
 export const TRANSLATABLE_FIELDS: Record<BlockType, ReadonlyArray<{key: string; format: 'text' | 'html'}>> = {
-  rich_text: [{key: 'rich_text', format: 'html'}],
+  rich_text: [{key: 'title', format: 'text'}, {key: 'rich_text', format: 'html'}],
   image: [{key: 'title', format: 'text'}],
   video: [{key: 'title', format: 'text'}],
   file: [{key: 'title', format: 'text'}],
-  quiz: [],
+  quiz: [{key: 'title', format: 'text'}],
   callout: [{key: 'title', format: 'text'}, {key: 'callout_text', format: 'text'}],
-  code: [],
+  code: [{key: 'title', format: 'text'}],
   embed: [{key: 'title', format: 'text'}],
 };
