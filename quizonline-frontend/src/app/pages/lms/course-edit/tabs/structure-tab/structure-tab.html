@@ -181,6 +181,18 @@
           @for (code of languages(); track code) {
             <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
           }
+          <div class="tablist-actions">
+            <p-button
+              (onClick)="translateSectionFromActiveTab()"
+              [disabled]="translating() !== null || !sectionDialog().activeLang"
+              [loading]="translating() === 'section'"
+              icon="pi pi-language"
+              [label]="ui().sectionDialog.translateButton"
+              severity="info"
+              size="small"
+              type="button">
+            </p-button>
+          </div>
         </p-tablist>
         <p-tabpanels class="tabpanels-tight">
           @for (code of languages(); track code) {
@@ -282,6 +294,18 @@
           @for (code of languages(); track code) {
             <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
           }
+          <div class="tablist-actions">
+            <p-button
+              (onClick)="translateLessonFromActiveTab()"
+              [disabled]="translating() !== null || !lessonDialog().activeLang"
+              [loading]="translating() === 'lesson'"
+              icon="pi pi-language"
+              [label]="ui().lessonDialog.translateButton"
+              severity="info"
+              size="small"
+              type="button">
+            </p-button>
+          </div>
         </p-tablist>
         <p-tabpanels class="tabpanels-tight">
           @for (code of languages(); track code) {
