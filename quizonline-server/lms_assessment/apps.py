@@ -7,4 +7,5 @@ class LmsAssessmentConfig(AppConfig):
     verbose_name = "LMS — Assessment"
 
     def ready(self):
-        from . import signals  # noqa: F401
+        from .signals import _connect
+        _connect()
