@@ -34,9 +34,31 @@
           (onClick)="togglePublish()">
         </p-button>
       }
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-copy"
+        [label]="ui().cloneButton"
+        [loading]="cloning()"
+        [disabled]="cloning() || deleting() || publishing() || loading()"
+        (onClick)="confirmClone()">
+      </p-button>
+      <p-button
+        type="button"
+        severity="danger"
+        [outlined]="true"
+        icon="pi pi-trash"
+        [label]="ui().deleteButton"
+        [loading]="deleting()"
+        [disabled]="cloning() || deleting() || publishing() || loading()"
+        (onClick)="confirmDelete()">
+      </p-button>
     }
   </div>
 </div>
+
+<p-confirmDialog></p-confirmDialog>
 
 <p-tabs value="info">
   <p-tablist>
@@ -64,7 +86,9 @@
         [course]="course()" />
     </p-tabpanel>
     <p-tabpanel value="analytics">
-      <app-lms-course-edit-analytics-tab [courseId]="courseId()" />
+      <app-lms-course-edit-analytics-tab
+        [courseId]="courseId()"
+        [course]="course()" />
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
