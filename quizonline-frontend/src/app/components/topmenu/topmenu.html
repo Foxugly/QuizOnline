@@ -30,6 +30,40 @@
           {{ item.label }}
         </a>
       }
+      @if (currentUser) {
+        <div #coursesMenuRoot class="topbar-menu">
+          <button class="nav__link nav__link--button" (click)="toggleCoursesMenu($event)" type="button">
+            <i class="pi pi-graduation-cap"></i> {{ ui().topmenu.coursesMenu }}
+          </button>
+          @if (coursesMenuOpen()) {
+            <div class="topbar-dropdown topbar-dropdown--admin">
+              @for (item of coursesMenuItems; track item.label) {
+                <button class="topbar-dropdown__item" type="button" (click)="goNavItem(item)">
+                  <i [class]="item.icon + ' topbar-dropdown__item-icon'" aria-hidden="true"></i>
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+      @if (showQuizDropdown) {
+        <div #quizMenuRoot class="topbar-menu">
+          <button class="nav__link nav__link--button" (click)="toggleQuizMenu($event)" type="button">
+            <i class="pi pi-list-check"></i> {{ ui().topmenu.quizMenu }}
+          </button>
+          @if (quizMenuOpen()) {
+            <div class="topbar-dropdown topbar-dropdown--admin">
+              @for (item of quizMenuItems; track item.label) {
+                <button class="topbar-dropdown__item" type="button" (click)="goNavItem(item)">
+                  <i [class]="item.icon + ' topbar-dropdown__item-icon'" aria-hidden="true"></i>
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
       @if (isAdmin) {
         <div #adminMenuRoot class="topbar-menu">
           <button class="nav__link nav__link--button" (click)="toggleAdminMenu($event)" type="button">

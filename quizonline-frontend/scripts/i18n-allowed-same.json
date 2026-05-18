@@ -1,5 +1,7 @@
 [
   "shell/ui-text:topmenu.quiz",
+  "shell/ui-text:topmenu.quizMenu",
+  "shell/ui-text:topmenu.quizMenuLabel",
   "shell/ui-text:topmenu.questions",
   "shell/ui-text:topmenu.alertsAria",
   "shell/ui-text:userMenu.preferences",

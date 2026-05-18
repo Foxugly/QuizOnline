@@ -17,9 +17,18 @@ export type TopMenuUiText = {
   notificationsAria: string;
   // LMS entries — surfaced for every authenticated user so they can
   // browse the catalog, track progress and access earned certificates.
-  lmsCatalog: string;
+  // ``lmsMyProgress`` / ``lmsMyCertificates`` are still used as sub-item
+  // labels inside the new Courses dropdown.
   lmsMyProgress: string;
   lmsMyCertificates: string;
+  // Courses dropdown — top-level entry for every authenticated user,
+  // wraps Formations / Ma progression / Mes certificats.
+  coursesMenu: string;
+  coursesMenuFormations: string;
+  // Quiz dropdown — replaces the flat Quiz/Subjects/Questions links for
+  // owners/managers/superusers. Members still see ``quiz`` as a flat link.
+  quizMenu: string;
+  quizMenuLabel: string;
 };
 
 export type NotificationsUiText = {

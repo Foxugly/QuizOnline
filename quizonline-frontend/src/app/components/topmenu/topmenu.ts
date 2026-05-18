@@ -61,6 +61,8 @@ type AdminNavItem = {
 export class TopMenuComponent implements OnInit {
   @ViewChild('domainMenuRoot') private readonly domainMenuRoot?: ElementRef<HTMLElement>;
   @ViewChild('adminMenuRoot') private readonly adminMenuRoot?: ElementRef<HTMLElement>;
+  @ViewChild('coursesMenuRoot') private readonly coursesMenuRoot?: ElementRef<HTMLElement>;
+  @ViewChild('quizMenuRoot') private readonly quizMenuRoot?: ElementRef<HTMLElement>;
   @ViewChild('mobileMenuRoot') private readonly mobileMenuRoot?: ElementRef<HTMLElement>;
 
   private readonly router = inject(Router);
@@ -76,6 +78,8 @@ export class TopMenuComponent implements OnInit {
   readonly visibleDomains = signal<DomainReadDto[]>([]);
   readonly domainMenuOpen = signal(false);
   readonly adminMenuOpen = signal(false);
+  readonly coursesMenuOpen = signal(false);
+  readonly quizMenuOpen = signal(false);
   readonly mobileMenuOpen = signal(false);
 
   get currentUser(): CustomUserReadDto | null {
@@ -124,69 +128,49 @@ export class TopMenuComponent implements OnInit {
 
   get navItems(): NavItem[] {
     const isAuthenticated = !!this.currentUser;
-    const items: NavItem[] = [
-    ];
+    const items: NavItem[] = [];
 
-    if (isAuthenticated) {
-      items.push({
-        label: this.ui().topmenu.quiz,
-        link: ROUTES.quiz.list(),
-      });
-      // LMS — surfaced to every authenticated learner. Catalog is the
-      // entry point; "My progress" and "My certificates" deep-link into
-      // the user's personal LMS data.
-      items.push(
-        {
-          label: this.ui().topmenu.lmsCatalog,
-          link: [LMS_CATALOG] as const,
-        },
-        {
-          label: this.ui().topmenu.lmsMyProgress,
-          link: [LMS_ME_PROGRESS] as const,
-        },
-        {
-          label: this.ui().topmenu.lmsMyCertificates,
-          link: [LMS_ME_CERTIFICATES] as const,
-        },
-      );
-    }
-
-    if (this.canManageCurrentDomain) {
-      items.unshift(
-        {
-          label: this.ui().topmenu.subjects,
-          link: ROUTES.subject.list(),
-        },
-        {
-          label: this.ui().topmenu.questions,
-          link: ROUTES.question.list(),
-        },
-      );
-    }
-
-    if (this.canAccessDomainsMenu) {
-      items.unshift(
-        {
-          label: this.ui().topmenu.domains,
-          link: ROUTES.domain.list(),
-        },
-      );
-    }
+    // ----------------------------------------------------------------------
+    // Top-level flat entries.
+    //
+    // Order rendered left-to-right:
+    //   1. Utilisateurs (superuser only)
+    //   2. Domaines (anyone who owns / manages ≥1 domain, or superuser)
+    //   3. Cours dropdown   — rendered in the template after this list
+    //   4. Quiz             — flat link for plain members,
+    //                         dropdown for owner/manager/superuser
+    //                         (the dropdown is rendered in the template
+    //                         after this list)
+    //
+    // Marketing entries (Features, About) only show for visitors.
+    // ----------------------------------------------------------------------
 
     if (this.currentUser?.is_superuser) {
-      items.unshift({
+      items.push({
         label: this.ui().topmenu.users,
         link: ROUTES.user.list(),
       });
     }
 
-    // Marketing / discovery entries (Features, About) are noise for
-    // an authenticated user — they belong on the public side of the
-    // app where they help a visitor decide whether to sign up. We
-    // keep Donate either way: it's a CTA the user may want to act
-    // on regardless of their session.
+    if (this.canAccessDomainsMenu) {
+      items.push({
+        label: this.ui().topmenu.domains,
+        link: ROUTES.domain.list(),
+      });
+    }
+
+    // Plain members (no domain ownership, no superuser) still get a flat
+    // Quiz link. Owners/managers/superusers get a Quiz dropdown rendered
+    // by the template (subjects / questions / quiz) instead.
+    if (isAuthenticated && !this.showQuizDropdown) {
+      items.push({
+        label: this.ui().topmenu.quiz,
+        link: ROUTES.quiz.list(),
+      });
+    }
+
     if (!isAuthenticated) {
-      items.unshift({
+      items.push({
         label: this.ui().topmenu.features,
         link: ['/features'],
       });
@@ -206,6 +190,78 @@ export class TopMenuComponent implements OnInit {
     }
 
     return items;
+  }
+
+  /**
+   * Owners, managers and superusers see Quiz as a dropdown that exposes
+   * Subjects / Questions / Quiz. Plain members keep the flat Quiz link.
+   */
+  get showQuizDropdown(): boolean {
+    return !!this.currentUser && (this.canManageCurrentDomain || this.currentUser.is_superuser);
+  }
+
+  get coursesMenuItems(): AdminNavItem[] {
+    return [
+      {
+        label: this.ui().topmenu.coursesMenuFormations,
+        link: [LMS_CATALOG] as const,
+        icon: 'pi pi-book',
+      },
+      {
+        label: this.ui().topmenu.lmsMyProgress,
+        link: [LMS_ME_PROGRESS] as const,
+        icon: 'pi pi-chart-line',
+      },
+      {
+        label: this.ui().topmenu.lmsMyCertificates,
+        link: [LMS_ME_CERTIFICATES] as const,
+        icon: 'pi pi-verified',
+      },
+    ];
+  }
+
+  get quizMenuItems(): AdminNavItem[] {
+    return [
+      {
+        label: this.ui().topmenu.subjects,
+        link: ROUTES.subject.list(),
+        icon: 'pi pi-tags',
+      },
+      {
+        label: this.ui().topmenu.questions,
+        link: ROUTES.question.list(),
+        icon: 'pi pi-question-circle',
+      },
+      {
+        label: this.ui().topmenu.quiz,
+        link: ROUTES.quiz.list(),
+        icon: 'pi pi-file-edit',
+      },
+    ];
+  }
+
+  toggleCoursesMenu(event: Event): void {
+    event.stopPropagation();
+    this.adminMenuOpen.set(false);
+    this.domainMenuOpen.set(false);
+    this.quizMenuOpen.set(false);
+    this.coursesMenuOpen.update((value) => !value);
+  }
+
+  toggleQuizMenu(event: Event): void {
+    event.stopPropagation();
+    this.adminMenuOpen.set(false);
+    this.domainMenuOpen.set(false);
+    this.coursesMenuOpen.set(false);
+    this.quizMenuOpen.update((value) => !value);
+  }
+
+  goNavItem(item: AdminNavItem): void {
+    this.adminMenuOpen.set(false);
+    this.domainMenuOpen.set(false);
+    this.coursesMenuOpen.set(false);
+    this.quizMenuOpen.set(false);
+    void this.router.navigate(item.link);
   }
 
   ngOnInit(): void {
@@ -244,6 +300,8 @@ export class TopMenuComponent implements OnInit {
   toggleDomainMenu(event: Event): void {
     event.stopPropagation();
     this.adminMenuOpen.set(false);
+    this.coursesMenuOpen.set(false);
+    this.quizMenuOpen.set(false);
     this.domainMenuOpen.update((value) => !value);
   }
 
@@ -290,6 +348,8 @@ export class TopMenuComponent implements OnInit {
   toggleAdminMenu(event: Event): void {
     event.stopPropagation();
     this.domainMenuOpen.set(false);
+    this.coursesMenuOpen.set(false);
+    this.quizMenuOpen.set(false);
     this.adminMenuOpen.update((value) => !value);
   }
 
@@ -352,6 +412,12 @@ export class TopMenuComponent implements OnInit {
     }
     if (!this.adminMenuRoot?.nativeElement.contains(target)) {
       this.adminMenuOpen.set(false);
+    }
+    if (!this.coursesMenuRoot?.nativeElement.contains(target)) {
+      this.coursesMenuOpen.set(false);
+    }
+    if (!this.quizMenuRoot?.nativeElement.contains(target)) {
+      this.quizMenuOpen.set(false);
     }
     if (this.mobileMenuOpen() && !this.mobileMenuRoot?.nativeElement.contains(target)) {
       this.mobileMenuOpen.set(false);
