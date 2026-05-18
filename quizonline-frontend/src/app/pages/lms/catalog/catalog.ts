@@ -8,7 +8,9 @@ import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_COURSE_DETAIL} from '../../../app.routes-paths';
+import {LMS_COURSE_DETAIL, LMS_COURSE_NEW} from '../../../app.routes-paths';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
@@ -56,6 +58,7 @@ interface CatalogCardVm {
 })
 export class LmsCatalog {
   private readonly catalog = inject(LmsCatalogService);
+  private readonly domainService = inject(DomainService);
   private readonly uiSvc = inject(UiTextService);
   private readonly userService = inject(UserService);
 
@@ -66,6 +69,9 @@ export class LmsCatalog {
   protected readonly courses = signal<CatalogCourseRow[]>([]);
   protected readonly search = signal('');
   protected readonly levelFilter = signal<string | null>(null);
+  /** Whether the user has at least one manageable domain (owner / manager / superuser). */
+  protected readonly canCreateCourse = signal(false);
+  protected readonly createCourseHref = LMS_COURSE_NEW;
 
   protected readonly levelOptions = computed(() => {
     const labels = this.common().levelLabels;
@@ -94,6 +100,30 @@ export class LmsCatalog {
 
   constructor() {
     this.refresh();
+    this.loadManageableDomains();
+  }
+
+  private loadManageableDomains(): void {
+    this.domainService.list().subscribe({
+      next: (domains) => {
+        this.canCreateCourse.set((domains ?? []).some((d) => this.canManage(d)));
+      },
+      error: (err: unknown) => {
+        logApiError('lms.catalog.load-domains', err);
+        this.canCreateCourse.set(false);
+      },
+    });
+  }
+
+  private canManage(domain: DomainReadDto): boolean {
+    const me = this.userService.currentUser();
+    if (!me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    return domain.owner?.id === me.id || (domain.managers ?? []).some((u) => u.id === me.id);
   }
 
   protected onSearchChange(value: string): void {

@@ -1,5 +1,15 @@
 <div class="lms-catalog">
-  <h1>{{ ui().pageTitle }}</h1>
+  <div class="catalog-header">
+    <h1>{{ ui().pageTitle }}</h1>
+    @if (canCreateCourse()) {
+      <p-button
+        [routerLink]="createCourseHref"
+        icon="pi pi-plus"
+        [label]="ui().createCourseButton"
+        type="button">
+      </p-button>
+    }
+  </div>
 
   <div class="filters">
     <input
