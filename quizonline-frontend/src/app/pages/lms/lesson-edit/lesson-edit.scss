@@ -1,7 +1,9 @@
 :host {
   display: block;
   padding: 1rem;
-  max-width: 1100px;
+  /* Match lesson-view (1200px) so the preview's main column has the
+   * same width as the learner page — cards reflow identically. */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
