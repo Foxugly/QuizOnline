@@ -29,6 +29,8 @@ export type TopMenuUiText = {
   // owners/managers/superusers. Members still see ``quiz`` as a flat link.
   quizMenu: string;
   quizMenuLabel: string;
+  // Top-level Dashboard entry — unified post-login hub combining LMS + quiz state.
+  dashboard: string;
 };
 
 export type NotificationsUiText = {

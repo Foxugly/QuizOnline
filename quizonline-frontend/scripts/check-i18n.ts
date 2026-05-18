@@ -55,6 +55,7 @@ import {getLmsCourseEditInfoTabUiText} from '../src/app/pages/lms/course-edit/ta
 import {getLmsCourseEditStructureTabUiText} from '../src/app/pages/lms/course-edit/tabs/structure-tab/structure-tab.i18n';
 import {getLmsCourseEditAnalyticsTabUiText} from '../src/app/pages/lms/course-edit/tabs/analytics-tab/analytics-tab.i18n';
 import {getLmsLessonEditUiText} from '../src/app/pages/lms/lesson-edit/lesson-edit.i18n';
+import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -91,6 +92,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/lms/course-edit/structure-tab', get: getLmsCourseEditStructureTabUiText as Getter},
   {name: 'pages/lms/course-edit/analytics-tab', get: getLmsCourseEditAnalyticsTabUiText as Getter},
   {name: 'pages/lms/lesson-edit', get: getLmsLessonEditUiText as Getter},
+  {name: 'pages/dashboard', get: getDashboardUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;

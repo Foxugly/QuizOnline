@@ -15,6 +15,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/magic-link-exchange/magic-link-exchange').then((m) => m.MagicLinkExchangePage),
   },
   {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
+  {
+    // Unified post-login hub: LMS courses + certificates + quizzes + catalog.
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.DashboardPage),
+    canActivate: [authGuard],
+  },
   {path: 'donate', loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
   {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},
   {path: 'privacy', loadComponent: () => import('./pages/privacy/privacy').then((m) => m.Privacy)},

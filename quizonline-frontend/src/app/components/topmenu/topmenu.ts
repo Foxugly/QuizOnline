@@ -146,6 +146,17 @@ export class TopMenuComponent implements OnInit {
     // Marketing entries (Features, About) only show for visitors.
     // ----------------------------------------------------------------------
 
+    // Dashboard — unified post-login hub. Surfaces first so the user
+    // lands on it from the topmenu regardless of the rest of the
+    // role-driven entries.
+    if (isAuthenticated) {
+      items.push({
+        label: this.ui().topmenu.dashboard,
+        link: ['/dashboard'],
+        icon: 'pi pi-th-large',
+      });
+    }
+
     if (this.currentUser?.is_superuser) {
       items.push({
         label: this.ui().topmenu.users,

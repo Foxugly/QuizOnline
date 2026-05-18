@@ -1,0 +1,117 @@
+<div class="dashboard">
+  <app-page-header [title]="ui().pageTitle" />
+  <p class="dashboard__subtitle">{{ ui().pageSubtitle }}</p>
+
+  <div class="tiles">
+    <!-- Tile 1: courses in progress -->
+    <article class="tile tile--courses">
+      <header class="tile__head">
+        <i class="pi pi-graduation-cap tile__icon" aria-hidden="true"></i>
+        <h2 class="tile__title">{{ ui().tiles.courses.title }}</h2>
+      </header>
+      <div class="tile__body">
+        @if (coursesLoading()) {
+          <p-skeleton width="80%" height="0.85rem" styleClass="mb-2" />
+          <p-skeleton width="60%" height="0.85rem" />
+        } @else if (topCourses().length === 0) {
+          <p class="tile__empty">{{ ui().tiles.courses.empty }}</p>
+        } @else {
+          <ul class="course-list">
+            @for (row of topCourses(); track row.id) {
+              <li class="course-list__row">
+                <span class="course-list__title">{{ row.course_title }}</span>
+                <div class="course-list__bar">
+                  <p-progressBar [value]="row.progress_percent" [showValue]="false" />
+                  <span class="course-list__pct">
+                    {{ ui().tiles.courses.progressLabel(row.progress_percent) }}
+                  </span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      <footer class="tile__foot">
+        <p-button
+          type="button"
+          severity="primary"
+          [outlined]="true"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [routerLink]="progressHref"
+          [label]="ui().tiles.courses.cta" />
+      </footer>
+    </article>
+
+    <!-- Tile 2: certificates -->
+    <article class="tile tile--certificates">
+      <header class="tile__head">
+        <i class="pi pi-verified tile__icon" aria-hidden="true"></i>
+        <h2 class="tile__title">{{ ui().tiles.certificates.title }}</h2>
+      </header>
+      <div class="tile__body">
+        @if (certificatesLoading()) {
+          <p-skeleton width="50%" height="2rem" />
+        } @else if (certificatesCount() === 0) {
+          <p class="tile__empty">{{ ui().tiles.certificates.empty }}</p>
+        } @else {
+          <div class="big-count">
+            <span class="big-count__value">{{ certificatesCount() }}</span>
+            <span class="big-count__hint">{{ ui().tiles.certificates.count(certificatesCount()) }}</span>
+          </div>
+        }
+      </div>
+      <footer class="tile__foot">
+        <p-button
+          type="button"
+          severity="primary"
+          [outlined]="true"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [routerLink]="certificatesHref"
+          [label]="ui().tiles.certificates.cta" />
+      </footer>
+    </article>
+
+    <!-- Tile 3: quizzes -->
+    <article class="tile tile--quizzes">
+      <header class="tile__head">
+        <i class="pi pi-list-check tile__icon" aria-hidden="true"></i>
+        <h2 class="tile__title">{{ ui().tiles.quizzes.title }}</h2>
+      </header>
+      <div class="tile__body">
+        <p class="tile__empty">{{ ui().tiles.quizzes.empty }}</p>
+      </div>
+      <footer class="tile__foot">
+        <p-button
+          type="button"
+          severity="primary"
+          [outlined]="true"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [routerLink]="quizListHref"
+          [label]="ui().tiles.quizzes.cta" />
+      </footer>
+    </article>
+
+    <!-- Tile 4: catalog -->
+    <article class="tile tile--catalog">
+      <header class="tile__head">
+        <i class="pi pi-book tile__icon" aria-hidden="true"></i>
+        <h2 class="tile__title">{{ ui().tiles.catalog.title }}</h2>
+      </header>
+      <div class="tile__body">
+        <p class="tile__subtitle">{{ ui().tiles.catalog.subtitle }}</p>
+      </div>
+      <footer class="tile__foot">
+        <p-button
+          type="button"
+          severity="primary"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [routerLink]="catalogHref"
+          [label]="ui().tiles.catalog.cta" />
+      </footer>
+    </article>
+  </div>
+</div>

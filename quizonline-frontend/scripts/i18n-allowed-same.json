@@ -4,6 +4,8 @@
   "shell/ui-text:topmenu.quizMenuLabel",
   "shell/ui-text:topmenu.questions",
   "shell/ui-text:topmenu.alertsAria",
+  "shell/ui-text:topmenu.dashboard",
+  "pages/dashboard:pageTitle",
   "shell/ui-text:userMenu.preferences",
   "shell/ui-text:changePassword.title",
   "shell/ui-text:home.featuresValue",

@@ -24,6 +24,7 @@ export const FR: UiText = {
     coursesMenuFormations: 'Formations',
     quizMenu: 'Quiz',
     quizMenuLabel: 'Quiz',
+    dashboard: 'Tableau de bord',
   },
   userMenu: {
     preferences: 'Préférences',
