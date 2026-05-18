@@ -242,12 +242,14 @@ $transition: 160ms ease;
   gap: 0.2rem;
   padding: 0.45rem;
   position: absolute;
-  right: 0;
+  left: 0;
   top: calc(100% + 0.55rem);
   z-index: 30;
 
   &--admin { min-width: 16rem; }
-  &--domain { min-width: 18rem; }
+  // The domain selector lives on the right edge of the topbar — anchor
+  // it to its trigger's right edge so it doesn't overflow off-screen.
+  &--domain { left: auto; right: 0; min-width: 18rem; }
 
   &__section {
     color: #475569;
