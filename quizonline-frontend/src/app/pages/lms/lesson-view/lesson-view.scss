@@ -16,10 +16,19 @@
   }
 }
 
+/* Sticky on viewports wide enough to host two columns. The
+ * ``top`` value clears the app's sticky topbar (~60px) plus a small
+ * breathing gap, so the outline header never disappears under the
+ * topbar as the user scrolls. ``max-height`` + internal
+ * ``overflow-y: auto`` keep the panel inside the viewport even when
+ * the outline lists 20+ blocks — without these the top of the
+ * outline got clipped on long lessons. */
 .lesson-outline {
   position: sticky;
-  top: 1rem;
+  top: 84px;
   align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
   border: 1px solid var(--p-surface-border, #e5e7eb);
   border-radius: 10px;
   background: var(--p-surface-0, #fff);
@@ -28,6 +37,8 @@
 
   @media (max-width: 860px) {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 

@@ -156,14 +156,24 @@ export class LmsLessonView implements OnInit, OnDestroy {
     this.routeSub = null;
   }
 
+  /** Absolute href for a block anchor — combines the current
+   *  ``location.pathname`` (+ optional query string) with ``#anchor``
+   *  so the browser's link preview / copy-link / right-click menu
+   *  produce ``/lms/lesson/{id}#block-X`` instead of the SPA root
+   *  (``<base href="/">`` would otherwise resolve a bare ``#anchor``
+   *  to ``/#anchor``). */
+  protected anchorHref(anchor: string): string {
+    return `${location.pathname}${location.search}#${anchor}`;
+  }
+
   /**
    * Scroll to the target ``#block-<id>`` anchor on the current page.
    *
-   * Plain ``<a href="#block-1">`` would be intercepted by the Angular
-   * Router as a navigation to ``/#block-1`` — the router treats the
-   * empty path as the root route, so the user got teleported to the
-   * home page. Handling the click manually keeps the navigation
-   * SPA-local and gives us smooth scrolling for free.
+   * Plain ``<a href="#block-1">`` would also be intercepted by the
+   * Angular Router as a navigation to ``/#block-1`` — the empty path
+   * matched the home route and teleported the learner away. Handling
+   * the click manually keeps the navigation SPA-local and gives us
+   * smooth scrolling for free.
    */
   protected scrollToBlock(event: MouseEvent, anchor: string): void {
     event.preventDefault();
@@ -173,8 +183,10 @@ export class LmsLessonView implements OnInit, OnDestroy {
     }
     target.scrollIntoView({behavior: 'smooth', block: 'start'});
     // Keep the URL fragment in sync so the back/forward stack works
-    // and the user can copy a deep-link to a specific block.
-    history.replaceState(history.state, '', `#${anchor}`);
+    // and the user can copy a deep-link to a specific block. Use an
+    // absolute path so the document ``<base href>`` does not collapse
+    // the URL to ``/#anchor``.
+    history.replaceState(history.state, '', this.anchorHref(anchor));
   }
 
   protected completeLesson(): void {
