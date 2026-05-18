@@ -241,4 +241,48 @@ export const routes: Routes = [
     path: 'transfer/accept/:token',
     loadComponent: () => import('./pages/transfer-accept/transfer-accept').then((m) => m.TransferAcceptPage),
   },
+  {
+    path: 'lms/catalog',
+    loadComponent: () => import('./pages/lms/catalog/catalog').then((m) => m.LmsCatalog),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/course/:slug',
+    loadComponent: () => import('./pages/lms/course-detail/course-detail').then((m) => m.LmsCourseDetail),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/course/:id/edit',
+    loadComponent: () => import('./pages/lms/course-edit/course-edit').then((m) => m.LmsCourseEdit),
+    canActivate: [authGuard, domainAccessGuard],
+  },
+  {
+    path: 'lms/lesson/:id',
+    loadComponent: () => import('./pages/lms/lesson-view/lesson-view').then((m) => m.LmsLessonView),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/lesson/:id/edit',
+    loadComponent: () => import('./pages/lms/lesson-edit/lesson-edit').then((m) => m.LmsLessonEdit),
+    canActivate: [authGuard, domainAccessGuard],
+  },
+  {
+    path: 'lms/me/progress',
+    loadComponent: () => import('./pages/lms/progress/progress').then((m) => m.LmsProgress),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/me/certificates',
+    loadComponent: () => import('./pages/lms/certificate-list/certificate-list').then((m) => m.LmsCertificateList),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/certificate/:id',
+    loadComponent: () => import('./pages/lms/certificate-view/certificate-view').then((m) => m.LmsCertificateView),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'lms/verify/:token',
+    loadComponent: () => import('./pages/lms/certificate-verify/certificate-verify').then((m) => m.LmsCertificateVerify),
+  },
 ];

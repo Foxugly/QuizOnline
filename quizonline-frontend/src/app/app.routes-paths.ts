@@ -68,3 +68,13 @@ export let ROUTES = {
 //  this.router.navigate(ROUTES.question.edit(id));
 //}
 
+export const LMS_CATALOG = '/lms/catalog';
+export const LMS_COURSE_DETAIL = (slug: string) => `/lms/course/${slug}`;
+export const LMS_COURSE_EDIT = (id: number) => `/lms/course/${id}/edit`;
+export const LMS_LESSON_VIEW = (id: number) => `/lms/lesson/${id}`;
+export const LMS_LESSON_EDIT = (id: number) => `/lms/lesson/${id}/edit`;
+export const LMS_ME_PROGRESS = '/lms/me/progress';
+export const LMS_ME_CERTIFICATES = '/lms/me/certificates';
+export const LMS_CERTIFICATE_VIEW = (id: number) => `/lms/certificate/${id}`;
+export const LMS_CERTIFICATE_VERIFY = (token: string) => `/lms/verify/${token}`;
+

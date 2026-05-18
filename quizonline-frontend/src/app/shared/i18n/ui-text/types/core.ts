@@ -15,6 +15,11 @@ export type TopMenuUiText = {
   noDomains: string;
   preferences: string;
   notificationsAria: string;
+  // LMS entries — surfaced for every authenticated user so they can
+  // browse the catalog, track progress and access earned certificates.
+  lmsCatalog: string;
+  lmsMyProgress: string;
+  lmsMyCertificates: string;
 };
 
 export type NotificationsUiText = {

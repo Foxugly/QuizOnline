@@ -1,0 +1,10 @@
+{% load i18n %}{% blocktrans with name=cert.user.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with course=cert.course %}Your certificate for {{ course }} is ready.{% endblocktrans %}
+
+{% blocktrans with num=cert.certificate_number %}Certificate number: {{ num }}{% endblocktrans %}
+
+{% trans "You can download the PDF from your certificates page on QuizOnline." %}
+
+{% trans "Best regards," %}
+QuizOnline

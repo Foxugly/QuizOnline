@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-section {
+  padding: 1rem 0;
+}
+
+.tab-section .placeholder {
+  color: var(--text-color-secondary, #6b7280);
+  font-style: italic;
+}

@@ -1,0 +1,50 @@
+<section class="page">
+  <header class="page__header">
+    <h1>{{ ui().pageTitle }}</h1>
+  </header>
+
+  <p-table
+    [value]="viewRows()"
+    dataKey="id"
+    [paginator]="viewRows().length > 10"
+    [rows]="10"
+    [rowHover]="true"
+    styleClass="p-datatable-sm">
+    <ng-template #header>
+      <tr>
+        <th>{{ ui().colCourse }}</th>
+        <th>{{ ui().colProgress }}</th>
+        <th>{{ ui().colLastActivity }}</th>
+        <th>{{ ui().colStatus }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.title }}</td>
+        <td>
+          <p-progressBar [value]="row.progressPercent" [showValue]="true" />
+        </td>
+        <td [attr.title]="row.updatedAt | date:'medium'">{{ row.updatedAt | relativeDate }}</td>
+        <td>
+          @if (row.isCompleted) {
+            <p-tag [value]="common().enrollmentStatusLabels.completed" severity="success" />
+          } @else {
+            <p-tag [value]="common().enrollmentStatusLabels.active" severity="info" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="empty-cell">
+          <h3>{{ ui().emptyTitle }}</h3>
+          <p>{{ ui().emptyMessage }}</p>
+          <p-button
+            [routerLink]="catalogHref"
+            [label]="ui().exploreButton"
+            severity="primary" />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

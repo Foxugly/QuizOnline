@@ -1,0 +1,65 @@
+<section class="page">
+  @if (loading()) {
+    <p class="page__loading">{{ ui().loadingMessage }}</p>
+  } @else if (notFound() || !certificate()) {
+    <p-card>
+      <h1>{{ ui().notFoundTitle }}</h1>
+      <p>{{ ui().notFoundMessage }}</p>
+      <p-button
+        [routerLink]="listHref"
+        [label]="ui().backButton"
+        severity="secondary"
+        [outlined]="true" />
+    </p-card>
+  } @else if (certificate(); as cert) {
+    <p-card>
+      <header class="cert-header">
+        <h1>{{ ui().pageTitle }}</h1>
+        @if (cert.revoked_at) {
+          <p-tag [value]="ui().revokedBadge" severity="danger" />
+        }
+      </header>
+
+      <dl class="cert-grid">
+        <dt>{{ ui().certificateNumberLabel }}</dt>
+        <dd>{{ cert.certificate_number }}</dd>
+
+        <dt>{{ ui().courseLabel }}</dt>
+        <dd>{{ courseTitle() }}</dd>
+
+        <dt>{{ ui().issuedOnLabel }}</dt>
+        <dd>{{ cert.issued_at | date:'medium' }}</dd>
+
+        @if (cert.revoked_at) {
+          <dt>{{ ui().revokedOnLabel }}</dt>
+          <dd>{{ cert.revoked_at | date:'medium' }}</dd>
+        }
+
+        @if (verifyUrl(); as url) {
+          <dt>{{ ui().verifyLinkLabel }}</dt>
+          <dd>
+            <a [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+          </dd>
+        }
+      </dl>
+
+      <footer class="cert-actions">
+        @if (cert.pdf_url) {
+          <a
+            class="p-button p-button-primary"
+            [href]="cert.pdf_url"
+            target="_blank"
+            rel="noopener noreferrer">
+            <i class="pi pi-download"></i>
+            <span>{{ ui().downloadButton }}</span>
+          </a>
+        }
+        <p-button
+          [routerLink]="listHref"
+          [label]="ui().backButton"
+          severity="secondary"
+          [outlined]="true" />
+      </footer>
+    </p-card>
+  }
+</section>

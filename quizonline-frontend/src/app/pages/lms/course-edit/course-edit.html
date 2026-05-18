@@ -1,0 +1,24 @@
+<h1>{{ ui().pageTitle }}</h1>
+
+<p-tabs value="info">
+  <p-tablist>
+    <p-tab value="info">{{ ui().tabInfo }}</p-tab>
+    <p-tab value="structure">{{ ui().tabStructure }}</p-tab>
+    <p-tab value="enrollment">{{ ui().tabEnrollment }}</p-tab>
+    <p-tab value="analytics">{{ ui().tabAnalytics }}</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="info">
+      <app-lms-course-edit-info-tab [courseId]="courseId()" />
+    </p-tabpanel>
+    <p-tabpanel value="structure">
+      <app-lms-course-edit-structure-tab [courseId]="courseId()" />
+    </p-tabpanel>
+    <p-tabpanel value="enrollment">
+      <app-lms-course-edit-enrollment-tab [courseId]="courseId()" />
+    </p-tabpanel>
+    <p-tabpanel value="analytics">
+      <app-lms-course-edit-analytics-tab [courseId]="courseId()" />
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

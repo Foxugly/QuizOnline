@@ -59,6 +59,9 @@ env = environ.Env(
     THROTTLE_DOMAIN_INVITE_FANOUT=(str, "5/hour"),
     THROTTLE_MAGIC_LINK_REQUEST=(str, "3/hour"),
     THROTTLE_MAGIC_LINK_EXCHANGE=(str, "30/min"),
+    THROTTLE_LMS_ENROLL=(str, "20/min"),
+    THROTTLE_LMS_BLOCK_WRITE=(str, "120/min"),
+    THROTTLE_LMS_CERT_VERIFY=(str, "60/min"),
     SENTRY_DSN=(str, ""),
     SENTRY_RELEASE=(str, ""),
     SENTRY_ENVIRONMENT=(str, "production"),
@@ -120,6 +123,9 @@ INSTALLED_APPS = [
     "domain.apps.DomainConfig",
     "language.apps.LanguageConfig",
     "translation.apps.TranslationConfig",
+    "lms_catalog.apps.LmsCatalogConfig",
+    "lms_assessment.apps.LmsAssessmentConfig",
+    "lms_enrollment.apps.LmsEnrollmentConfig",
 ]
 
 MIDDLEWARE = [
@@ -183,6 +189,8 @@ TIME_ZONE = "Europe/Brussels"
 USE_I18N = True
 USE_TZ = True
 
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 
 REST_FRAMEWORK = {
@@ -221,6 +229,9 @@ REST_FRAMEWORK = {
         "domain_invite_fanout": env("THROTTLE_DOMAIN_INVITE_FANOUT"),
         "magic_link_request": env("THROTTLE_MAGIC_LINK_REQUEST"),
         "magic_link_exchange": env("THROTTLE_MAGIC_LINK_EXCHANGE"),
+        "lms_enroll": env("THROTTLE_LMS_ENROLL"),
+        "lms_block_write": env("THROTTLE_LMS_BLOCK_WRITE"),
+        "lms_cert_verify": env("THROTTLE_LMS_CERT_VERIFY"),
     },
 }
 

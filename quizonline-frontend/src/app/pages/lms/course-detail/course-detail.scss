@@ -1,0 +1,27 @@
+.course-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    margin: 0 0 1rem;
+  }
+}
+
+.course-section {
+  margin-bottom: 1.25rem;
+
+  ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}

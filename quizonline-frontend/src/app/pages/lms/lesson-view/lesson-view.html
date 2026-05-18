@@ -1,0 +1,32 @@
+@if (lesson(); as l) {
+  <header class="lesson-header">
+    <h1>{{ title() }}</h1>
+    @if (isCompleted()) {
+      <p-tag severity="success" [value]="ui().alreadyCompletedBadge" />
+    }
+  </header>
+
+  <section class="lesson-body">
+    @for (block of blocks(); track block.id) {
+      @switch (block.block_type) {
+        @case ('rich_text') { <app-block-rich-text [block]="block" /> }
+        @case ('image')     { <app-block-image [block]="block" /> }
+        @case ('video')     { <app-block-video [block]="block" /> }
+        @case ('file')      { <app-block-file [block]="block" /> }
+        @case ('quiz')      { <app-block-quiz [block]="block" /> }
+        @case ('callout')   { <app-block-callout [block]="block" /> }
+        @case ('code')      { <app-block-code [block]="block" /> }
+        @case ('embed')     { <app-block-embed [block]="block" /> }
+      }
+    }
+  </section>
+
+  <footer class="lesson-footer">
+    <p-button
+      [label]="ui().markCompletedButton"
+      [disabled]="isCompleted() || completing()"
+      (onClick)="completeLesson()" />
+  </footer>
+} @else {
+  <p class="muted">{{ ui().pageLoading }}</p>
+}

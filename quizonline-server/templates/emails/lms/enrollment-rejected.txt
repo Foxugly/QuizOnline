@@ -1,0 +1,8 @@
+{% load i18n %}{% blocktrans with name=enrollment.user.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with course=enrollment.course %}Your enrollment to {{ course }} was not approved.{% endblocktrans %}
+
+{% trans "If you believe this is a mistake, please contact the course instructor." %}
+
+{% trans "Best regards," %}
+QuizOnline

@@ -1590,6 +1590,1291 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
+  /api/lms/block/:
+    get:
+      operationId: lms_block_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContentBlockList'
+          description: ''
+    post:
+      operationId: lms_block_create
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentBlock'
+          description: ''
+  /api/lms/block/{id}/:
+    get:
+      operationId: lms_block_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this content block.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentBlock'
+          description: ''
+    put:
+      operationId: lms_block_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this content block.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContentBlockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentBlock'
+          description: ''
+    patch:
+      operationId: lms_block_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this content block.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedContentBlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedContentBlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedContentBlockRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentBlock'
+          description: ''
+    delete:
+      operationId: lms_block_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this content block.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lms/certificate/:
+    get:
+      operationId: lms_certificate_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCertificateList'
+          description: ''
+  /api/lms/certificate/{id}/:
+    get:
+      operationId: lms_certificate_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/lms/certificate/{id}/pdf/:
+    get:
+      operationId: lms_certificate_pdf_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/lms/certificate/{id}/revoke/:
+    post:
+      operationId: lms_certificate_revoke_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/lms/course/:
+    get:
+      operationId: lms_course_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseListList'
+          description: ''
+    post:
+      operationId: lms_course_create
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+  /api/lms/course/{course_id}/enroll/:
+    post:
+      operationId: lms_course_enroll_create
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course/{id}/:
+    get:
+      operationId: lms_course_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+    put:
+      operationId: lms_course_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+    patch:
+      operationId: lms_course_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+    delete:
+      operationId: lms_course_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lms/course/{id}/clone/:
+    post:
+      operationId: lms_course_clone_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/lms/course/{id}/publish/:
+    post:
+      operationId: lms_course_publish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/lms/course/{id}/section/reorder/:
+    post:
+      operationId: lms_course_section_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/lms/course/{id}/unpublish/:
+    post:
+      operationId: lms_course_unpublish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/lms/course/by-slug/{slug}/:
+    get:
+      operationId: lms_course_by_slug_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          pattern: ^[^/]+$
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/lms/enrollment/:
+    get:
+      operationId: lms_enrollment_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseEnrollmentList'
+          description: ''
+  /api/lms/enrollment/{id}/:
+    get:
+      operationId: lms_enrollment_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/lms/enrollment/{id}/approve/:
+    post:
+      operationId: lms_enrollment_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/lms/enrollment/{id}/cancel/:
+    post:
+      operationId: lms_enrollment_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/lms/enrollment/{id}/reject/:
+    post:
+      operationId: lms_enrollment_reject_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/lms/lesson/:
+    get:
+      operationId: lms_lesson_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLessonDetailList'
+          description: ''
+    post:
+      operationId: lms_lesson_create
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+  /api/lms/lesson/{lesson_id}/complete/:
+    post:
+      operationId: lms_lesson_complete_create
+      parameters:
+      - in: path
+        name: lesson_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/lesson/{lesson_id}/start/:
+    post:
+      operationId: lms_lesson_start_create
+      parameters:
+      - in: path
+        name: lesson_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/lesson/{id}/:
+    get:
+      operationId: lms_lesson_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+    put:
+      operationId: lms_lesson_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+    patch:
+      operationId: lms_lesson_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonDetailRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+    delete:
+      operationId: lms_lesson_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lms/lesson/{id}/block/reorder/:
+    post:
+      operationId: lms_lesson_block_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+  /api/lms/progress/:
+    get:
+      operationId: lms_progress_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseProgressList'
+          description: ''
+  /api/lms/progress/{id}/:
+    get:
+      operationId: lms_progress_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseProgress'
+          description: ''
+  /api/lms/section/:
+    get:
+      operationId: lms_section_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSectionList'
+          description: ''
+    post:
+      operationId: lms_section_create
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/lms/section/{id}/:
+    get:
+      operationId: lms_section_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    put:
+      operationId: lms_section_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    patch:
+      operationId: lms_section_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    delete:
+      operationId: lms_section_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lms/section/{id}/lesson/reorder/:
+    post:
+      operationId: lms_section_lesson_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/lms/validation-quiz/:
+    get:
+      operationId: lms_validation_quiz_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLessonQuizList'
+          description: ''
+    post:
+      operationId: lms_validation_quiz_create
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+  /api/lms/validation-quiz/{id}/:
+    get:
+      operationId: lms_validation_quiz_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    put:
+      operationId: lms_validation_quiz_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    patch:
+      operationId: lms_validation_quiz_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    delete:
+      operationId: lms_validation_quiz_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lms/verify/{token}/:
+    get:
+      operationId: lms_verify_retrieve
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
   /api/mail/test/:
     post:
       operationId: mail_test_create
@@ -4317,6 +5602,29 @@ components:
         * `full` - full
         * `unknown` - unknown
         * `hidden` - hidden
+    BlankEnum:
+      enum:
+      - ''
+    BlockTypeEnum:
+      enum:
+      - rich_text
+      - image
+      - video
+      - file
+      - quiz
+      - callout
+      - code
+      - embed
+      type: string
+      description: |-
+        * `rich_text` - Rich text
+        * `image` - Image
+        * `video` - Video
+        * `file` - File
+        * `quiz` - Quiz
+        * `callout` - Callout
+        * `code` - Code
+        * `embed` - Embed
     BulkCreateFromTemplateInputRequest:
       type: object
       properties:
@@ -4329,6 +5637,511 @@ components:
       required:
       - quiz_template_id
       - user_ids
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+          readOnly: true
+        certificate_number:
+          type: string
+          readOnly: true
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+        pdf_url:
+          type: string
+          readOnly: true
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - certificate_number
+      - course
+      - id
+      - issued_at
+      - pdf_url
+      - revoked_at
+      - user
+    ContentBlock:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lesson:
+          type: integer
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: uri
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - id
+      - lesson
+      - translations
+    ContentBlockRequest:
+      type: object
+      properties:
+        lesson:
+          type: integer
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: binary
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - lesson
+      - translations
+    CourseDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        language_code:
+          type: string
+          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
+          readOnly: true
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        is_published:
+          type: boolean
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+        domain:
+          type: integer
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
+          readOnly: true
+        available_lang_codes:
+          type: string
+          readOnly: true
+        can_manage:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - available_lang_codes
+      - can_manage
+      - created_at
+      - domain
+      - id
+      - language_code
+      - sections
+      - slug
+      - translations
+      - updated_at
+    CourseDetailRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        is_published:
+          type: boolean
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cover_image:
+          type: string
+          format: binary
+          nullable: true
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+        domain:
+          type: integer
+      required:
+      - domain
+      - slug
+      - translations
+    CourseEnrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CourseEnrollmentStatusEnum'
+          readOnly: true
+        enrolled_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - completed_at
+      - course
+      - enrolled_at
+      - id
+      - status
+      - user
+    CourseEnrollmentRequest:
+      type: object
+      properties:
+        course:
+          type: integer
+      required:
+      - course
+    CourseEnrollmentStatusEnum:
+      enum:
+      - pending
+      - active
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending approval
+        * `active` - Active
+        * `completed` - Completed
+        * `cancelled` - Cancelled
+    CourseList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        language_code:
+          type: string
+          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
+          readOnly: true
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        is_published:
+          type: boolean
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+        domain:
+          type: integer
+      required:
+      - domain
+      - id
+      - language_code
+      - slug
+      - translations
+    CourseProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+          readOnly: true
+        completed_lessons_count:
+          type: integer
+          readOnly: true
+        total_lessons_count:
+          type: integer
+          readOnly: true
+        progress_percent:
+          type: integer
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - completed_lessons_count
+      - course
+      - id
+      - progress_percent
+      - total_lessons_count
+      - updated_at
+      - user
+    CourseWrite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        language_code:
+          type: string
+          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        domain:
+          type: integer
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - domain
+      - id
+      - language_code
+      - slug
+      - translations
+    CourseWriteRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        language_code:
+          type: string
+          minLength: 1
+          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        cover_image:
+          type: string
+          format: binary
+          nullable: true
+        domain:
+          type: integer
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - domain
+      - language_code
+      - slug
+      - translations
     CreateQuizInputRequest:
       type: object
       properties:
@@ -5165,6 +6978,16 @@ components:
       required:
       - password
       - username
+    EnrollmentModeEnum:
+      enum:
+      - open
+      - approval
+      - invite
+      type: string
+      description: |-
+        * `open` - Open enrollment
+        * `approval` - Requires approval
+        * `invite` - Invite-only
     ErrorDetail:
       type: object
       properties:
@@ -5283,6 +7106,174 @@ components:
       required:
       - code
       - name
+    LessonDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        section:
+          type: integer
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_preview:
+          type: boolean
+        is_published:
+          type: boolean
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentBlock'
+          readOnly: true
+        available_lang_codes:
+          type: string
+          readOnly: true
+      required:
+      - available_lang_codes
+      - blocks
+      - id
+      - section
+      - slug
+      - translations
+    LessonDetailRequest:
+      type: object
+      properties:
+        section:
+          type: integer
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_preview:
+          type: boolean
+        is_published:
+          type: boolean
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - section
+      - slug
+      - translations
+    LessonQuiz:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lesson:
+          type: integer
+          nullable: true
+        course:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        required_score_percent:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        max_attempts:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = unlimited.
+        unlock_next_lesson_on_success:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - quiz_template
+    LessonQuizRequest:
+      type: object
+      properties:
+        lesson:
+          type: integer
+          nullable: true
+        course:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        required_score_percent:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        max_attempts:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = unlimited.
+        unlock_next_lesson_on_success:
+          type: boolean
+      required:
+      - quiz_template
+    LevelEnum:
+      enum:
+      - beginner
+      - intermediate
+      - advanced
+      type: string
+      description: |-
+        * `beginner` - Beginner
+        * `intermediate` - Intermediate
+        * `advanced` - Advanced
     LocalizedAnswerOptionTranslation:
       type: object
       properties:
@@ -5584,6 +7575,121 @@ components:
       - kind
       - payload
       - read_at
+    PaginatedCertificateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+    PaginatedContentBlockList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentBlock'
+    PaginatedCourseEnrollmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseEnrollment'
+    PaginatedCourseListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseList'
+    PaginatedCourseProgressList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseProgress'
     PaginatedCustomUserReadList:
       type: object
       required:
@@ -5699,6 +7805,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LanguageRead'
+    PaginatedLessonDetailList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LessonDetail'
+    PaginatedLessonQuizList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LessonQuiz'
     PaginatedNotificationReadList:
       type: object
       required:
@@ -5906,6 +8058,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/QuizTemplateList'
+    PaginatedSectionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
     PaginatedSubjectReadList:
       type: object
       required:
@@ -5981,6 +8156,100 @@ components:
           minLength: 1
       required:
       - email
+    PatchedContentBlockRequest:
+      type: object
+      properties:
+        lesson:
+          type: integer
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: binary
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+    PatchedCourseWriteRequest:
+      type: object
+      properties:
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        language_code:
+          type: string
+          minLength: 1
+          description: 'Code ISO (ex: fr, nl, en, fr-BE)'
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Total expected duration in minutes.
+        enrollment_mode:
+          $ref: '#/components/schemas/EnrollmentModeEnum'
+        cover_image:
+          type: string
+          format: binary
+          nullable: true
+        domain:
+          type: integer
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
     PatchedCustomUserAdminUpdateRequest:
       type: object
       properties:
@@ -6072,6 +8341,68 @@ components:
           type: string
           minLength: 1
         active:
+          type: boolean
+    PatchedLessonDetailRequest:
+      type: object
+      properties:
+        section:
+          type: integer
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_preview:
+          type: boolean
+        is_published:
+          type: boolean
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+    PatchedLessonQuizRequest:
+      type: object
+      properties:
+        lesson:
+          type: integer
+          nullable: true
+        course:
+          type: integer
+          nullable: true
+        quiz_template:
+          type: integer
+        required_score_percent:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        max_attempts:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = unlimited.
+        unlock_next_lesson_on_success:
           type: boolean
     PatchedQuestionPartialWritePayloadRequest:
       type: object
@@ -6217,6 +8548,30 @@ components:
           title: Mélanger l'ordre des questions
           description: Si activé, chaque session reçoit un ordre de questions différent,
             déterministe par session (mêmes questions à chaque rechargement).
+    PatchedSectionRequest:
+      type: object
+      properties:
+        course:
+          type: integer
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_published:
+          type: boolean
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
     PatchedSubjectPartialRequest:
       type: object
       properties:
@@ -7624,6 +9979,74 @@ components:
           type: boolean
       required:
       - quiz_template
+    Section:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_published:
+          type: boolean
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+        available_lang_codes:
+          type: string
+          readOnly: true
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/LessonDetail'
+          readOnly: true
+      required:
+      - available_lang_codes
+      - course
+      - id
+      - lessons
+      - translations
+    SectionRequest:
+      type: object
+      properties:
+        course:
+          type: integer
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          default: 0
+        is_published:
+          type: boolean
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - course
+      - translations
     SetCurrentDomainRequest:
       type: object
       properties:
@@ -7851,6 +10274,16 @@ components:
       required:
       - id
       - username
+    VideoProviderEnum:
+      enum:
+      - youtube
+      - vimeo
+      - upload
+      type: string
+      description: |-
+        * `youtube` - YouTube
+        * `vimeo` - Vimeo
+        * `upload` - Self-hosted
     VisibilityEnum:
       enum:
       - immediate

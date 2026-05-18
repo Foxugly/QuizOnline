@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  padding: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.verify-page {
+  display: block;
+}
+
+.verify-page__loading {
+  text-align: center;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.verify-page__hint {
+  margin-top: 1.5rem;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.verify-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    flex: 1;
+  }
+}
+
+.verify-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
+
+  dt {
+    font-weight: 600;
+    color: var(--text-color-secondary, #6b7280);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}

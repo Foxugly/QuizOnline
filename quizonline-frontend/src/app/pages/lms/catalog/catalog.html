@@ -1,0 +1,50 @@
+<div class="lms-catalog">
+  <h1>{{ ui().pageTitle }}</h1>
+
+  <div class="filters">
+    <input
+      pInputText
+      type="search"
+      [placeholder]="ui().searchPlaceholder"
+      [ngModel]="search()"
+      (ngModelChange)="onSearchChange($event)"
+    />
+    <p-select
+      [options]="levelOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="levelFilter()"
+      (ngModelChange)="onLevelChange($event)"
+      [placeholder]="ui().filterByLevelLabel"
+      [showClear]="true"
+    />
+  </div>
+
+  <p-dataview [value]="cards()" layout="grid">
+    <ng-template #grid let-items>
+      <div class="grid-wrapper">
+        @for (course of items; track course.id) {
+          <p-card class="course-card">
+            <ng-template #title>{{ course.title }}</ng-template>
+            <ng-template #subtitle>
+              <div class="card-subtitle">
+                <p-tag [value]="course.enrollmentLabel" />
+                <span class="level">{{ course.levelLabel }}</span>
+              </div>
+            </ng-template>
+            <p>{{ course.description }}</p>
+            <ng-template #footer>
+              <p-button [routerLink]="course.href" [label]="ui().viewButton" />
+            </ng-template>
+          </p-card>
+        }
+      </div>
+    </ng-template>
+    <ng-template #empty>
+      <div class="empty-state">
+        <h3>{{ ui().emptyTitle }}</h3>
+        <p>{{ ui().emptyMessage }}</p>
+      </div>
+    </ng-template>
+  </p-dataview>
+</div>
