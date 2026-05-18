@@ -1,4 +1,114 @@
-<section class="tab-section">
-  <h2>{{ ui().heading }}</h2>
-  <p class="placeholder">{{ ui().placeholder(courseId()) }}</p>
+<section class="tab-section enrollment-tab">
+  <p-card>
+    <ng-template #header>
+      <div class="enrollment-tab__header">
+        <div class="enrollment-tab__title">
+          <h2>{{ ui().heading }}</h2>
+          <p class="muted">{{ ui().subtitle }}</p>
+        </div>
+        <div class="enrollment-tab__filter">
+          <label for="enrollment-status-filter" class="meta-label">{{ ui().filters.status.label }}</label>
+          <p-select
+            inputId="enrollment-status-filter"
+            [options]="statusOptions()"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event)"
+            optionLabel="label"
+            optionValue="value">
+          </p-select>
+        </div>
+      </div>
+    </ng-template>
+
+    <p-table
+      [value]="rows()"
+      [loading]="loading()"
+      [paginator]="rows().length > 10"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ ui().columns.user }}</th>
+          <th>{{ ui().columns.email }}</th>
+          <th>{{ ui().columns.status }}</th>
+          <th>{{ ui().columns.enrolledAt }}</th>
+          <th>{{ ui().columns.completedAt }}</th>
+          <th>{{ ui().columns.actions }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td>{{ userDisplayName(row) }}</td>
+          <td>{{ userEmail(row) }}</td>
+          <td>
+            <p-tag
+              [value]="statusLabel(row.status)"
+              [severity]="statusSeverity(row.status)" />
+          </td>
+          <td [attr.title]="row.enrolled_at | date:'medium'">
+            {{ row.enrolled_at | relativeDate }}
+          </td>
+          <td [attr.title]="row.completed_at ? (row.completed_at | date:'medium') : null">
+            @if (row.completed_at) {
+              {{ row.completed_at | relativeDate }}
+            } @else {
+              {{ ui().noCompletedAt }}
+            }
+          </td>
+          <td>
+            @if (isPending(row)) {
+              <p-button
+                type="button"
+                icon="pi pi-check"
+                severity="primary"
+                size="small"
+                [label]="ui().actions.approve"
+                [disabled]="busyId() === row.id"
+                [loading]="busyId() === row.id"
+                (onClick)="confirmApprove(row)">
+              </p-button>
+              <p-button
+                type="button"
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                styleClass="ml-2"
+                [label]="ui().actions.reject"
+                [disabled]="busyId() === row.id"
+                (onClick)="confirmReject(row)">
+              </p-button>
+            } @else if (isActive(row)) {
+              <p-button
+                type="button"
+                icon="pi pi-ban"
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                [label]="ui().actions.cancel"
+                [disabled]="busyId() === row.id"
+                [loading]="busyId() === row.id"
+                (onClick)="confirmCancel(row)">
+              </p-button>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">
+            <app-empty-state
+              icon="pi pi-users"
+              density="compact"
+              [title]="ui().emptyTitle"
+              [hint]="ui().emptyMessage">
+            </app-empty-state>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 </section>
+
+<p-confirmDialog></p-confirmDialog>

@@ -59,7 +59,9 @@
         (changed)="refresh()" />
     </p-tabpanel>
     <p-tabpanel value="enrollment">
-      <app-lms-course-edit-enrollment-tab [courseId]="courseId()" />
+      <app-lms-course-edit-enrollment-tab
+        [courseId]="courseId()"
+        [course]="course()" />
     </p-tabpanel>
     <p-tabpanel value="analytics">
       <app-lms-course-edit-analytics-tab [courseId]="courseId()" />
