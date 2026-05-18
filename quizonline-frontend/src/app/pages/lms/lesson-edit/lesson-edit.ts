@@ -8,12 +8,16 @@ import {Subscription} from 'rxjs';
 import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
+import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
+import {TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
+import {UserService} from '../../../services/user/user';
 import {ContentBlock} from '../../../shared/lms/content-block.types';
 import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {BlockType, getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
+import {TranslationsMap} from '../../../shared/lms/lms-translations';
 
 import {getLmsLessonEditUiText} from './lesson-edit.i18n';
 import {RichTextBlockEditor} from './block-editors/rich-text-block-editor';
@@ -39,6 +43,23 @@ interface LessonDetailDto {
   available_lang_codes?: string[];
   course_id?: number;
 }
+
+/**
+ * Translatable fields per block type, with the format the translation
+ * backend expects so HTML body fields preserve their markup while plain
+ * titles/captions are translated as text. Block types with no entries
+ * (``quiz``, ``code``) are skipped by ``translateAll()``.
+ */
+const TRANSLATABLE_FIELDS: Record<BlockType, ReadonlyArray<{key: string; format: 'text' | 'html'}>> = {
+  rich_text: [{key: 'rich_text', format: 'html'}],
+  image: [{key: 'title', format: 'text'}],
+  video: [{key: 'title', format: 'text'}],
+  file: [{key: 'title', format: 'text'}],
+  quiz: [],
+  callout: [{key: 'title', format: 'text'}, {key: 'callout_text', format: 'text'}],
+  code: [],
+  embed: [{key: 'title', format: 'text'}],
+};
 
 /**
  * Lesson-author shell: ordered list of content blocks with
@@ -72,6 +93,8 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly catalog = inject(LmsCatalogService);
   private readonly toast = inject(AppToastService);
+  private readonly translator = inject(TranslationService);
+  private readonly userService = inject(UserService);
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getLmsLessonEditUiText);
@@ -89,6 +112,8 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
    * — in that case ``back()`` falls back to the LMS catalog.
    */
   protected readonly courseId = signal(0);
+  /** True while a "translate all" run is in flight — disables the button to prevent overlapping runs. */
+  protected readonly translating = signal(false);
 
   protected readonly blockIcons = BLOCK_ICONS;
   protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
@@ -205,6 +230,73 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
         this.toast.addApiError(err, this.ui().reorderErrorToast);
       },
     });
+  }
+
+  /**
+   * Auto-fill empty per-language slots on every translatable block,
+   * using the user's current UI language as the source. Mirrors the
+   * info-tab behaviour: only blanks are filled, never overwritten.
+   * Quiz and code blocks have no translatable fields and are skipped.
+   */
+  protected async translateAll(): Promise<void> {
+    if (this.translating()) {
+      return;
+    }
+    const source = this.userService.lang();
+    const targets = this.availableLangs().filter((l) => l !== source);
+    if (!targets.length) {
+      return;
+    }
+
+    this.translating.set(true);
+    try {
+      for (const block of this.blocks()) {
+        const fields = TRANSLATABLE_FIELDS[block.block_type];
+        if (!fields.length) {
+          continue;
+        }
+        const merged: TranslationsMap = {...(block.translations ?? {})};
+        let touched = false;
+        for (const target of targets) {
+          const items: TranslateBatchItem[] = [];
+          for (const f of fields) {
+            const targetVal = (merged[target]?.[f.key] ?? '').toString();
+            const isBlank = f.format === 'html' ? isEmptyRichText(targetVal) : !targetVal.trim();
+            if (!isBlank) {
+              continue;
+            }
+            const sourceVal = (merged[source]?.[f.key] ?? '').toString();
+            const sourceBlank = f.format === 'html' ? isEmptyRichText(sourceVal) : !sourceVal.trim();
+            if (sourceBlank) {
+              continue;
+            }
+            items.push({key: f.key, text: sourceVal, format: f.format});
+          }
+          if (!items.length) {
+            continue;
+          }
+          const out = await this.translator.translateBatch(source, target, items);
+          const targetGroup = {...(merged[target] ?? {})};
+          for (const f of fields) {
+            const v = out[f.key];
+            if (v !== undefined) {
+              targetGroup[f.key] = v;
+              touched = true;
+            }
+          }
+          merged[target] = targetGroup;
+        }
+        if (touched) {
+          this.onBlockChanged(block.id, {translations: merged});
+        }
+      }
+      this.toast.add({severity: 'success', summary: this.ui().translateSuccessToast});
+    } catch (err) {
+      logApiError('lms.lesson-edit.translate', err);
+      this.toast.addApiError(err, this.ui().translateErrorToast);
+    } finally {
+      this.translating.set(false);
+    }
   }
 
   protected onBlockChanged(blockId: number, patch: Partial<ContentBlock>): void {

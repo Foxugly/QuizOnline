@@ -20,6 +20,9 @@ export interface LmsLessonEditUiText {
   blockErrorToast: string;
   emptyTitle: string;
   emptyHint: string;
+  translateAllButton: string;
+  translateSuccessToast: string;
+  translateErrorToast: string;
 }
 
 export function getLmsLessonEditUiText(
@@ -42,6 +45,9 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'L\'opération sur le bloc a échoué.',
         emptyTitle: 'Leçon vide',
         emptyHint: 'Ajoutez un premier bloc à l\'aide de la barre ci-dessous.',
+        translateAllButton: 'Tout traduire',
+        translateSuccessToast: 'Traductions appliquées aux blocs.',
+        translateErrorToast: 'La traduction automatique a échoué.',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -59,6 +65,9 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'De blok-bewerking is mislukt.',
         emptyTitle: 'Lege les',
         emptyHint: 'Voeg een eerste blok toe via de balk hieronder.',
+        translateAllButton: 'Alles vertalen',
+        translateSuccessToast: 'Vertalingen toegepast op de blokken.',
+        translateErrorToast: 'Automatische vertaling mislukt.',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -76,6 +85,9 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'Operazione sul blocco non riuscita.',
         emptyTitle: 'Lezione vuota',
         emptyHint: 'Aggiungi un primo blocco usando la barra qui sotto.',
+        translateAllButton: 'Traduci tutto',
+        translateSuccessToast: 'Traduzioni applicate ai blocchi.',
+        translateErrorToast: 'Traduzione automatica non riuscita.',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -93,6 +105,9 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'La operación sobre el bloque falló.',
         emptyTitle: 'Lección vacía',
         emptyHint: 'Añade un primer bloque desde la barra de abajo.',
+        translateAllButton: 'Traducir todo',
+        translateSuccessToast: 'Traducciones aplicadas a los bloques.',
+        translateErrorToast: 'La traducción automática falló.',
       };
     default:
       return {
@@ -109,6 +124,9 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'Block operation failed.',
         emptyTitle: 'Empty lesson',
         emptyHint: 'Add a first block from the bar below.',
+        translateAllButton: 'Translate all',
+        translateSuccessToast: 'Translations applied to blocks.',
+        translateErrorToast: 'Automatic translation failed.',
       };
   }
 }

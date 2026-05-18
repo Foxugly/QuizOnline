@@ -8,6 +8,17 @@
     (onClick)="back()">
   </p-button>
   <h1>{{ ui().pageTitle }}</h1>
+  <div class="page-header__actions">
+    <p-button
+      type="button"
+      severity="info"
+      icon="pi pi-language"
+      [label]="ui().translateAllButton"
+      [disabled]="translating() || blocks().length === 0"
+      [loading]="translating()"
+      (onClick)="translateAll()">
+    </p-button>
+  </div>
 </div>
 
 @if (blocks().length === 0) {
