@@ -72,10 +72,39 @@ class ContentBlockSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def validate(self, attrs):
-        instance = self.instance or ContentBlock(**{k: v for k, v in attrs.items() if k != "translations"})
+        # On create (``self.instance is None``), allow the block to be saved as
+        # a draft with no content. The frontend block-builder UX creates an
+        # empty block as soon as the author clicks "+ Add <type>" and only
+        # then fills the payload in via debounced PATCH calls — so the
+        # initial POST genuinely has no per-type content yet and must not be
+        # rejected. ``ContentBlock.clean()`` still runs on every UPDATE
+        # below, and Django admin keeps calling ``full_clean()`` directly,
+        # so the per-type validators remain enforced everywhere else.
+        if self.instance is None:
+            return attrs
+
+        instance = self.instance
         for k, v in attrs.items():
             if k != "translations":
                 setattr(instance, k, v)
+
+        # Fold incoming translations into parler's in-memory cache so that
+        # ``ContentBlock.clean()._has_translated_value(...)`` sees the
+        # caller's brand-new ``rich_text`` / ``callout_text`` value during
+        # ``full_clean()``. Without this, the very first PATCH that supplies
+        # the per-type content would always 400 because nothing is in the
+        # DB yet and the cache is empty. The values folded here are
+        # transient — the real persistence happens in ``_apply_translations``
+        # after the parent ``save()`` returns from ``update()``.
+        tr_dict = attrs.get("translations")
+        if isinstance(tr_dict, dict):
+            for lang, fields in tr_dict.items():
+                if not isinstance(fields, dict):
+                    continue
+                instance.set_current_language(lang)
+                for k, v in fields.items():
+                    setattr(instance, k, v)
+
         instance.full_clean(exclude=["lesson"] if not getattr(instance, "lesson_id", None) else None)
         return attrs
 
@@ -111,17 +140,25 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     translations = TranslationsField()
     blocks = ContentBlockSerializer(many=True, read_only=True)
     available_lang_codes = serializers.SerializerMethodField()
+    # Exposed read-only so the lesson-author shell can render a "Back to
+    # course" affordance without a second round-trip through the section
+    # endpoint just to look up the parent course id.
+    course_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
         fields = [
-            "id", "section", "slug", "order", "is_preview", "is_published",
+            "id", "section", "course_id", "slug", "order", "is_preview", "is_published",
             "estimated_duration", "translations", "blocks", "available_lang_codes",
         ]
-        read_only_fields = ["id", "blocks"]
+        read_only_fields = ["id", "blocks", "course_id"]
 
     def get_available_lang_codes(self, obj):
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_course_id(self, obj) -> int:
+        return obj.section.course_id
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})

@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ButtonModule} from 'primeng/button';
 import {Subscription} from 'rxjs';
 
+import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -27,14 +28,16 @@ import {EmbedBlockEditor} from './block-editors/embed-block-editor';
 /**
  * Shape consumed from ``GET /api/lms/lesson/{id}/``. Mirrors the
  * subset of the lesson serializer the editor cares about: the
- * ordered list of blocks, and the parent course's
- * ``available_lang_codes`` which gates which language tabs every
- * translatable block editor renders.
+ * ordered list of blocks, the parent course's ``available_lang_codes``
+ * which gates which language tabs every translatable block editor
+ * renders, and the ``course_id`` used by the header back-button to
+ * route the author back to the parent course-edit page.
  */
 interface LessonDetailDto {
   id: number;
   blocks?: ContentBlock[];
   available_lang_codes?: string[];
+  course_id?: number;
 }
 
 /**
@@ -65,16 +68,27 @@ interface LessonDetailDto {
 })
 export class LmsLessonEdit implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly catalog = inject(LmsCatalogService);
   private readonly toast = inject(AppToastService);
 
-  protected readonly ui = inject(UiTextService).localized(getLmsLessonEditUiText);
-  protected readonly common = inject(UiTextService).localized(getLmsCommonUiText);
+  private readonly uiSvc = inject(UiTextService);
+  protected readonly ui = this.uiSvc.localized(getLmsLessonEditUiText);
+  protected readonly common = this.uiSvc.localized(getLmsCommonUiText);
+  /** Editor-scoped UI dictionary, used for ``common.back`` on the header back button. */
+  protected readonly editorUi = this.uiSvc.editor;
 
   protected readonly lessonId = signal(0);
   protected readonly blocks = signal<ContentBlock[]>([]);
   protected readonly availableLangs = signal<string[]>(['fr', 'en']);
+  /**
+   * Parent course id, sourced from ``GET /api/lms/lesson/{id}/`` so the
+   * header back-button can route the author back to the parent course
+   * editor. ``0`` while loading or if the field is unexpectedly absent
+   * — in that case ``back()`` falls back to the LMS catalog.
+   */
+  protected readonly courseId = signal(0);
 
   protected readonly blockIcons = BLOCK_ICONS;
   protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
@@ -121,12 +135,28 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
             ? lesson.available_lang_codes
             : ['fr', 'en'],
         );
+        const parsedCourseId =
+          typeof lesson.course_id === 'number' && Number.isFinite(lesson.course_id) && lesson.course_id > 0
+            ? lesson.course_id
+            : 0;
+        this.courseId.set(parsedCourseId);
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-edit.load', err);
         this.toast.addApiError(err, this.ui().blockErrorToast);
       },
     });
+  }
+
+  /**
+   * Navigate back to the parent course-edit page. When the lesson detail
+   * has not yet resolved a valid ``course_id`` (e.g. mid-reload or a
+   * backend regression), fall back to the LMS catalog so the user is
+   * never stranded.
+   */
+  protected back(): void {
+    const cid = this.courseId();
+    this.router.navigateByUrl(cid > 0 ? LMS_COURSE_EDIT(cid) : LMS_CATALOG);
   }
 
   protected addBlock(type: BlockType): void {

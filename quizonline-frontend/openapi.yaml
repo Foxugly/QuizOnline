@@ -7142,6 +7142,9 @@ components:
           readOnly: true
         section:
           type: integer
+        course_id:
+          type: integer
+          readOnly: true
         slug:
           type: string
           maxLength: 220
@@ -7183,6 +7186,7 @@ components:
       required:
       - available_lang_codes
       - blocks
+      - course_id
       - id
       - section
       - slug
