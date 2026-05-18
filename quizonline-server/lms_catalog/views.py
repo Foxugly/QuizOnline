@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 from rest_framework import filters, status, viewsets
