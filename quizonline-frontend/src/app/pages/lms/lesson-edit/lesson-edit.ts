@@ -17,6 +17,7 @@ import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {BlockType, getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 
 import {getLmsLessonEditUiText} from './lesson-edit.i18n';
+import {SavedIndicator} from './block-editors/saved-indicator';
 import {RichTextBlockEditor} from './block-editors/rich-text-block-editor';
 import {ImageBlockEditor} from './block-editors/image-block-editor';
 import {VideoBlockEditor} from './block-editors/video-block-editor';
@@ -57,6 +58,7 @@ interface LessonDetailDto {
     DragDropModule,
     ButtonModule,
     PageHeader,
+    SavedIndicator,
     RichTextBlockEditor,
     ImageBlockEditor,
     VideoBlockEditor,
@@ -97,6 +99,13 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
    *  template picker so authors only see templates from the right
    *  domain. ``0`` while loading. */
   protected readonly domainId = signal(0);
+  /** Map of ``blockId -> lastSavedAt`` updated after every successful
+   *  PATCH. The block-header consumes it via ``<app-saved-indicator>``
+   *  so the author sees a "Saved at HH:MM" hint without opening the
+   *  network panel. ``Map`` value is a millisecond epoch — we build a
+   *  fresh ``Date`` at render time so the indicator stays serializable
+   *  even when the map is recreated on every signal update. */
+  protected readonly lastSavedAt = signal<Map<number, number>>(new Map());
 
   protected readonly blockIcons = BLOCK_ICONS;
   protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
@@ -229,6 +238,15 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
     });
   }
 
+  /** Build a fresh ``Date`` for the saved-at indicator of ``blockId``,
+   *  or ``null`` when no save has happened yet. Returns ``null`` early
+   *  so a brand-new block (just added, no PATCH yet) reads as
+   *  unsaved instead of "Saved at 1970-01-01". */
+  protected savedAtFor(blockId: number): Date | null {
+    const ts = this.lastSavedAt().get(blockId);
+    return ts ? new Date(ts) : null;
+  }
+
   protected onBlockChanged(blockId: number, patch: Partial<ContentBlock>): void {
     this.http.patch(`${this.apiBaseUrl}/block/${blockId}/`, patch).subscribe({
       next: () => {
@@ -237,6 +255,13 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
         this.blocks.update((list) =>
           list.map((b) => (b.id === blockId ? {...b, ...patch} : b)),
         );
+        // Stamp the save so the block-header can render its
+        // "Saved at HH:MM" hint without a round-trip through reload().
+        this.lastSavedAt.update((m) => {
+          const next = new Map(m);
+          next.set(blockId, Date.now());
+          return next;
+        });
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-edit.patch', err);
