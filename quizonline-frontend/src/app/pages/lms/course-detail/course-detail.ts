@@ -6,7 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_COURSE_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
+import {LMS_CATALOG, LMS_COURSE_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -69,6 +69,9 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly ui = this.uiSvc.localized(getLmsCourseDetailUiText);
+  /** Shared "Back" label served by the editor-scoped i18n dictionary. */
+  protected readonly editorUi = this.uiSvc.editor;
+  protected readonly catalogHref = LMS_CATALOG;
   protected readonly currentLang = this.userService.lang;
   protected readonly course = signal<CourseDetailDto | null>(null);
   protected readonly enrolling = signal(false);

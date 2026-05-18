@@ -1,30 +1,37 @@
 @if (course(); as c) {
-  <header class="course-header">
-    <div class="course-header__text">
-      <h1>{{ courseTitle() }}</h1>
-      @if (hasDescription()) {
-        <div class="course-description" [innerHTML]="courseDescription()"></div>
-      }
-    </div>
-    <div class="course-header__actions">
-      @if (canManage(); as canEdit) {
+  <div class="page-toolbar">
+    <p-button
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="catalogHref"
+      [label]="editorUi().common.back" />
+
+    <div class="page-toolbar__actions">
+      @if (canManage()) {
         @if (editHref(); as href) {
           <p-button
             [routerLink]="href"
             [label]="ui().editButton"
             icon="pi pi-pencil"
             severity="secondary"
-            outlined="true"
-          />
+            [outlined]="true" />
         }
       }
       <p-button
         (onClick)="enroll()"
         [label]="ui().enrollButton"
         icon="pi pi-user-plus"
-        [disabled]="enrolling()"
-      />
+        [disabled]="enrolling()" />
     </div>
+  </div>
+
+  <header class="course-header">
+    <h1>{{ courseTitle() }}</h1>
+    @if (hasDescription()) {
+      <div class="course-description" [innerHTML]="courseDescription()"></div>
+    }
   </header>
 
   @if (hasLearningObjectives()) {
@@ -34,30 +41,39 @@
     </section>
   }
 
-  <h2>{{ ui().sectionsHeading }}</h2>
+  <h2 class="sections-heading">{{ ui().sectionsHeading }}</h2>
 
   @if (hasAnyContent()) {
-    @for (section of sectionsVm(); track section.id) {
-      <section class="course-section">
-        <h3>{{ section.title }}</h3>
-        <ul>
-          @for (lesson of section.lessons; track lesson.id) {
-            <li>
-              <a [routerLink]="lesson.href">{{ lesson.title }}</a>
-              @if (lesson.isPreview) {
-                <p-tag [value]="ui().previewBadge" severity="info" />
-              }
-            </li>
-          }
-        </ul>
-      </section>
-    }
+    <ol class="sections-list">
+      @for (section of sectionsVm(); track section.id; let secIdx = $index) {
+        <li class="section">
+          <h3 class="section__title">
+            <span class="section__badge">{{ secIdx + 1 }}</span>
+            {{ section.title }}
+          </h3>
+          <ul class="lessons-list">
+            @for (lesson of section.lessons; track lesson.id; let lesIdx = $index) {
+              <li class="lesson">
+                <a class="lesson__link" [routerLink]="lesson.href">
+                  <i class="pi pi-play-circle lesson__icon"></i>
+                  <span class="lesson__index">{{ secIdx + 1 }}.{{ lesIdx + 1 }}</span>
+                  <span class="lesson__title">{{ lesson.title }}</span>
+                  @if (lesson.isPreview) {
+                    <p-tag [value]="ui().previewBadge" severity="info" />
+                  }
+                  <i class="pi pi-chevron-right lesson__chev"></i>
+                </a>
+              </li>
+            }
+          </ul>
+        </li>
+      }
+    </ol>
   } @else {
     <app-empty-state
       icon="pi pi-book"
       [title]="ui().emptyContentTitle"
-      [hint]="ui().emptyContentMessage"
-    />
+      [hint]="ui().emptyContentMessage" />
   }
 } @else {
   <p>{{ ui().loading }}</p>
