@@ -16,6 +16,8 @@ import {ButtonModule} from 'primeng/button';
 import {SelectModule} from 'primeng/select';
 import {MultiSelectModule} from 'primeng/multiselect';
 
+import {FieldError} from '../../../shared/components/field-error/field-error';
+
 import {AuthService} from '../../../services/auth/auth';
 import {LanguageService} from '../../../services/language/language';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
@@ -29,7 +31,7 @@ import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, SelectModule, MultiSelectModule],
+  imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, SelectModule, MultiSelectModule, FieldError],
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
