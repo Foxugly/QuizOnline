@@ -62,6 +62,7 @@ env = environ.Env(
     THROTTLE_LMS_ENROLL=(str, "20/min"),
     THROTTLE_LMS_BLOCK_WRITE=(str, "120/min"),
     THROTTLE_LMS_CERT_VERIFY=(str, "60/min"),
+    THROTTLE_LMS_ANALYTICS=(str, "60/min"),
     SENTRY_DSN=(str, ""),
     SENTRY_RELEASE=(str, ""),
     SENTRY_ENVIRONMENT=(str, "production"),
@@ -232,6 +233,7 @@ REST_FRAMEWORK = {
         "lms_enroll": env("THROTTLE_LMS_ENROLL"),
         "lms_block_write": env("THROTTLE_LMS_BLOCK_WRITE"),
         "lms_cert_verify": env("THROTTLE_LMS_CERT_VERIFY"),
+        "lms_analytics": env("THROTTLE_LMS_ANALYTICS"),
     },
 }
 

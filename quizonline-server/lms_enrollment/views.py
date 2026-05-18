@@ -170,8 +170,13 @@ class _LmsVerifyThrottle(AnonRateThrottle):
     scope = "lms_cert_verify"
 
 
+class _LmsAnalyticsThrottle(ScopedRateThrottle):
+    scope = "lms_analytics"
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([_LmsAnalyticsThrottle])
 def course_analytics(request, course_id: int):
     """Aggregated analytics for a course's instructor dashboard.
 

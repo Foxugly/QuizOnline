@@ -68,10 +68,21 @@ class CourseViewSet(viewsets.ModelViewSet):
         completion state in a fixed number of queries — irrespective
         of the number of courses returned. Without this, the previous
         ``SerializerMethodField`` pattern issued ~5 queries per course,
-        producing a quadratic blow-up on multi-course domains."""
-        qs = self.filter_queryset(self.get_queryset()).annotate(
-            lesson_count_db=Count("sections__lessons", distinct=True),
-            total_duration_db=Coalesce(Sum("sections__lessons__estimated_duration"), 0),
+        producing a quadratic blow-up on multi-course domains.
+
+        Ordering is pinned to ``(-published_at, -created_at, -id)``
+        so paginator slicing is deterministic — without an explicit
+        secondary tie-breaker DRF emits an ``UnorderedObjectList``
+        warning and consecutive pages may shuffle rows on courses
+        that share the same publish timestamp.
+        """
+        qs = (
+            self.filter_queryset(self.get_queryset())
+            .annotate(
+                lesson_count_db=Count("sections__lessons", distinct=True),
+                total_duration_db=Coalesce(Sum("sections__lessons__estimated_duration"), 0),
+            )
+            .order_by("-published_at", "-created_at", "-id")
         )
         page = self.paginate_queryset(qs)
         courses = page if page is not None else list(qs)

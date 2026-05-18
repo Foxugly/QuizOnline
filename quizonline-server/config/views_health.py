@@ -71,6 +71,26 @@ def _check_cache() -> tuple[bool, str | None]:
     return True, None
 
 
+def _check_celery() -> tuple[bool, str | None]:
+    """Broker round-trip via ``Inspect.ping`` with a 1 s timeout. We
+    treat the absence of any responding worker as a soft failure: the
+    site is still usable, but Celery-backed work (certificate PDF,
+    on-commit notifications) won't fire. Surfaced as an explicit
+    check so an operator can flip the node out of rotation when
+    appropriate without depending on logs."""
+    try:
+        from config.celery import app as celery_app  # pragma: no cover - prod path
+    except Exception as exc:
+        return False, f"celery import failed: {exc}"
+    try:
+        replies = celery_app.control.ping(timeout=1.0)
+    except Exception as exc:  # pragma: no cover - broker outage path
+        return False, str(exc)
+    if not replies:
+        return False, "no workers responded"
+    return True, None
+
+
 def _outbox_pending_count() -> int:
     # Lazy import keeps a circular-import risk away from settings load.
     try:
@@ -86,8 +106,13 @@ def _outbox_pending_count() -> int:
 def health_check(request) -> JsonResponse:
     db_ok, db_err = _check_db()
     cache_ok, cache_err = _check_cache()
+    celery_ok, celery_err = _check_celery()
     outbox_pending = _outbox_pending_count()
 
+    # ``db`` + ``cache`` flip the overall status because they back
+    # every request. Celery is informational — a flaky worker should
+    # surface in the payload (and your monitoring), but it must not
+    # take the web tier out of rotation since requests still serve.
     overall_ok = db_ok and cache_ok
     payload: dict[str, Any] = {
         "status": "ok" if overall_ok else "degraded",
@@ -95,6 +120,7 @@ def health_check(request) -> JsonResponse:
         "checks": {
             "db": {"ok": db_ok, **({"error": db_err} if db_err else {})},
             "cache": {"ok": cache_ok, **({"error": cache_err} if cache_err else {})},
+            "celery": {"ok": celery_ok, **({"error": celery_err} if celery_err else {})},
         },
         "outbox_pending": outbox_pending,
     }
