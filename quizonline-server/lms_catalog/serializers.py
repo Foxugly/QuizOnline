@@ -51,8 +51,15 @@ class TranslationsField(serializers.Field):
 
 
 def _filter_allowed_lang_codes(data: dict, course: Course) -> dict:
-    """Drop translation rows whose ``language_code`` is not in the course domain's
-    ``allowed_languages``. Raises if the domain has none configured at all."""
+    """Drop translation rows whose ``language_code`` is not in the course
+    domain's ``allowed_languages``. Returns the empty dict unchanged so
+    callers that intentionally pass ``{}`` (e.g. the "draft" create flow
+    where the frontend posts a block with no content yet) never trip on
+    a domain that has no language configured — that scenario should be
+    flagged where actual content needs to land, not at the empty-draft
+    handshake."""
+    if not data:
+        return data
     allowed = set(course.domain.allowed_languages.values_list("code", flat=True))
     if not allowed:
         raise serializers.ValidationError("Domain has no allowed_languages configured.")

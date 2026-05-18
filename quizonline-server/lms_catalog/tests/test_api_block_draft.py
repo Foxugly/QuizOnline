@@ -74,6 +74,24 @@ def test_create_code_block_with_empty_payload_succeeds(visible_lesson, owner):
 
 
 @pytest.mark.django_db
+def test_create_block_succeeds_when_domain_has_no_allowed_languages(visible_lesson, owner, course):
+    """An author may legitimately add a draft block on a course whose
+    domain has not yet had any ``allowed_languages`` configured — the
+    draft payload carries an empty ``translations`` dict, so the
+    allowed-language filter has nothing to enforce. This used to 400
+    with "Domain has no allowed_languages configured." even though
+    the request was not trying to set any translation; covered now.
+    """
+    course.domain.allowed_languages.clear()
+    r = _auth(owner).post(
+        "/api/lms/block/",
+        _draft_payload(visible_lesson, ContentBlock.TYPE_RICH_TEXT),
+        format="json",
+    )
+    assert r.status_code == 201, r.content
+
+
+@pytest.mark.django_db
 def test_patch_rich_text_block_with_empty_translations_still_fails(visible_lesson, owner):
     """PATCHing back an empty translation map keeps the per-type check active."""
     create = _auth(owner).post(
