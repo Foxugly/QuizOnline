@@ -140,17 +140,25 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     translations = TranslationsField()
     blocks = ContentBlockSerializer(many=True, read_only=True)
     available_lang_codes = serializers.SerializerMethodField()
+    # Exposed read-only so the lesson-author shell can render a "Back to
+    # course" affordance without a second round-trip through the section
+    # endpoint just to look up the parent course id.
+    course_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
         fields = [
-            "id", "section", "slug", "order", "is_preview", "is_published",
+            "id", "section", "course_id", "slug", "order", "is_preview", "is_published",
             "estimated_duration", "translations", "blocks", "available_lang_codes",
         ]
-        read_only_fields = ["id", "blocks"]
+        read_only_fields = ["id", "blocks", "course_id"]
 
     def get_available_lang_codes(self, obj):
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_course_id(self, obj) -> int:
+        return obj.section.course_id
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
