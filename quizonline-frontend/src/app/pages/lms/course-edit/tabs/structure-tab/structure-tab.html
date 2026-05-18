@@ -1,4 +1,354 @@
-<section class="tab-section">
-  <h2>{{ ui().heading }}</h2>
-  <p class="placeholder">{{ ui().placeholder(courseId()) }}</p>
+<section class="tab-section structure-tab">
+  <header class="structure-tab__header">
+    <h2>{{ ui().heading }}</h2>
+    <p class="muted">{{ ui().subtitle }}</p>
+  </header>
+
+  @if (sections().length === 0) {
+    <app-empty-state
+      icon="pi pi-list"
+      [title]="ui().emptyTitle"
+      [hint]="ui().emptyMessage">
+    </app-empty-state>
+  } @else {
+    <div
+      cdkDropList
+      (cdkDropListDropped)="onSectionDrop($event)"
+      class="section-list">
+      @for (section of sections(); track section.id) {
+        <div cdkDrag class="section-card">
+          <div class="section-card__header">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-arrows-v"
+              severity="secondary"
+              [text]="true"
+              cdkDragHandle
+              [pTooltip]="ui().dragHandleAria"
+              [attr.aria-label]="ui().dragHandleAria">
+            </button>
+            <span class="section-card__title">{{ sectionTitle(section) }}</span>
+
+            <div class="section-card__actions">
+              <div class="toggle-inline">
+                <span class="toggle-inline__label">{{ ui().isPublishedLabel }}</span>
+                <p-toggleswitch
+                  [ngModel]="section.is_published"
+                  (ngModelChange)="toggleSectionPublished(section)"
+                  [attr.aria-label]="ui().isPublishedLabel">
+                </p-toggleswitch>
+              </div>
+
+              <p-button
+                type="button"
+                icon="pi pi-pencil"
+                severity="secondary"
+                [outlined]="true"
+                size="small"
+                [pTooltip]="ui().editButton"
+                [attr.aria-label]="ui().editButton"
+                (onClick)="openSectionDialogEdit(section)">
+              </p-button>
+
+              <p-button
+                type="button"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                size="small"
+                [pTooltip]="ui().deleteButton"
+                [attr.aria-label]="ui().deleteButton"
+                (onClick)="confirmDeleteSection(section)">
+              </p-button>
+
+              <p-button
+                type="button"
+                icon="pi pi-plus"
+                size="small"
+                [label]="ui().addLessonButton"
+                (onClick)="openLessonDialogCreate(section)">
+              </p-button>
+            </div>
+          </div>
+
+          <div
+            cdkDropList
+            [cdkDropListData]="sortedLessons(section)"
+            (cdkDropListDropped)="onLessonDrop(section, $event)"
+            class="lesson-list">
+            @for (lesson of sortedLessons(section); track lesson.id) {
+              <div cdkDrag class="lesson-row">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-arrows-v"
+                  severity="secondary"
+                  [text]="true"
+                  cdkDragHandle
+                  size="small"
+                  [pTooltip]="ui().dragHandleAria"
+                  [attr.aria-label]="ui().dragHandleAria">
+                </button>
+                <span class="lesson-row__title">{{ lessonTitle(lesson) }}</span>
+
+                <div class="lesson-row__actions">
+                  <div class="toggle-inline">
+                    <span class="toggle-inline__label">{{ ui().isPublishedLabel }}</span>
+                    <p-toggleswitch
+                      [ngModel]="lesson.is_published"
+                      (ngModelChange)="toggleLessonPublished(lesson)"
+                      [attr.aria-label]="ui().isPublishedLabel">
+                    </p-toggleswitch>
+                  </div>
+
+                  <div class="toggle-inline">
+                    <span class="toggle-inline__label">{{ ui().isPreviewLabel }}</span>
+                    <p-toggleswitch
+                      [ngModel]="lesson.is_preview"
+                      (ngModelChange)="toggleLessonPreview(lesson)"
+                      [attr.aria-label]="ui().isPreviewLabel">
+                    </p-toggleswitch>
+                  </div>
+
+                  <p-button
+                    type="button"
+                    icon="pi pi-arrow-right"
+                    iconPos="right"
+                    severity="info"
+                    [outlined]="true"
+                    size="small"
+                    [label]="ui().editContentButton"
+                    (onClick)="editLessonContent(lesson)">
+                  </p-button>
+
+                  <p-button
+                    type="button"
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    [outlined]="true"
+                    size="small"
+                    [pTooltip]="ui().editButton"
+                    [attr.aria-label]="ui().editButton"
+                    (onClick)="openLessonDialogEdit(section, lesson)">
+                  </p-button>
+
+                  <p-button
+                    type="button"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [outlined]="true"
+                    size="small"
+                    [pTooltip]="ui().deleteButton"
+                    [attr.aria-label]="ui().deleteButton"
+                    (onClick)="confirmDeleteLesson(lesson)">
+                  </p-button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="structure-tab__footer">
+    <p-button
+      type="button"
+      icon="pi pi-plus"
+      [label]="ui().addSectionButton"
+      (onClick)="openSectionDialogCreate()">
+    </p-button>
+  </div>
 </section>
+
+<!-- Section create / edit dialog -->
+<p-dialog
+  [header]="sectionDialog().id === null ? ui().sectionDialog.titleCreate : ui().sectionDialog.titleEdit"
+  [(visible)]="sectionDialog().visible"
+  [modal]="true"
+  [closable]="!sectionDialog().submitting"
+  [style]="{ width: 'min(48rem, 92vw)' }"
+  [breakpoints]="{ '768px': '94vw' }"
+  (onHide)="closeSectionDialog()">
+  <div class="dialog-body">
+    @if (languages().length > 1) {
+      <p-tabs
+        [value]="sectionDialog().activeLang"
+        (valueChange)="onSectionDialogTabChange($event)"
+        class="tabs tabs--tight">
+        <p-tablist>
+          @for (code of languages(); track code) {
+            <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels class="tabpanels-tight">
+          @for (code of languages(); track code) {
+            <p-tabpanel [value]="code">
+              <div class="dialog-field">
+                <label [attr.for]="'section-title-' + code">{{ ui().sectionDialog.titleField }} ({{ code.toUpperCase() }})</label>
+                <input
+                  pInputText
+                  [id]="'section-title-' + code"
+                  [ngModel]="sectionDialog().translations[code]?.['title'] ?? ''"
+                  (ngModelChange)="setSectionDialogField(code, 'title', $event)"
+                  class="w-full" />
+              </div>
+              <div class="dialog-field">
+                <label [attr.for]="'section-description-' + code">{{ ui().sectionDialog.descriptionField }} ({{ code.toUpperCase() }})</label>
+                <textarea
+                  pTextarea
+                  [id]="'section-description-' + code"
+                  rows="4"
+                  [ngModel]="sectionDialog().translations[code]?.['description'] ?? ''"
+                  (ngModelChange)="setSectionDialogField(code, 'description', $event)"
+                  class="w-full">
+                </textarea>
+              </div>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    } @else if (languages().length === 1) {
+      @let code = languages()[0];
+      <div class="dialog-field">
+        <label [attr.for]="'section-title-' + code">{{ ui().sectionDialog.titleField }}</label>
+        <input
+          pInputText
+          [id]="'section-title-' + code"
+          [ngModel]="sectionDialog().translations[code]?.['title'] ?? ''"
+          (ngModelChange)="setSectionDialogField(code, 'title', $event)"
+          class="w-full" />
+      </div>
+      <div class="dialog-field">
+        <label [attr.for]="'section-description-' + code">{{ ui().sectionDialog.descriptionField }}</label>
+        <textarea
+          pTextarea
+          [id]="'section-description-' + code"
+          rows="4"
+          [ngModel]="sectionDialog().translations[code]?.['description'] ?? ''"
+          (ngModelChange)="setSectionDialogField(code, 'description', $event)"
+          class="w-full">
+        </textarea>
+      </div>
+    }
+
+    <div class="dialog-field toggle-inline">
+      <span class="toggle-inline__label">{{ ui().sectionDialog.isPublishedField }}</span>
+      <p-toggleswitch
+        [ngModel]="sectionDialog().isPublished"
+        (ngModelChange)="setSectionDialogPublished($event)"
+        [attr.aria-label]="ui().sectionDialog.isPublishedField">
+      </p-toggleswitch>
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      type="button"
+      [label]="ui().sectionDialog.cancelButton"
+      severity="secondary"
+      [text]="true"
+      [disabled]="sectionDialog().submitting"
+      (onClick)="closeSectionDialog()">
+    </p-button>
+    <p-button
+      type="button"
+      icon="pi pi-check"
+      [label]="ui().sectionDialog.submitButton"
+      [loading]="sectionDialog().submitting"
+      [disabled]="sectionDialog().submitting"
+      (onClick)="submitSectionDialog()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Lesson create / edit dialog -->
+<p-dialog
+  [header]="lessonDialog().id === null ? ui().lessonDialog.titleCreate : ui().lessonDialog.titleEdit"
+  [(visible)]="lessonDialog().visible"
+  [modal]="true"
+  [closable]="!lessonDialog().submitting"
+  [style]="{ width: 'min(40rem, 92vw)' }"
+  [breakpoints]="{ '768px': '94vw' }"
+  (onHide)="closeLessonDialog()">
+  <div class="dialog-body">
+    @if (languages().length > 1) {
+      <p-tabs
+        [value]="lessonDialog().activeLang"
+        (valueChange)="onLessonDialogTabChange($event)"
+        class="tabs tabs--tight">
+        <p-tablist>
+          @for (code of languages(); track code) {
+            <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels class="tabpanels-tight">
+          @for (code of languages(); track code) {
+            <p-tabpanel [value]="code">
+              <div class="dialog-field">
+                <label [attr.for]="'lesson-title-' + code">{{ ui().lessonDialog.titleField }} ({{ code.toUpperCase() }})</label>
+                <input
+                  pInputText
+                  [id]="'lesson-title-' + code"
+                  [ngModel]="lessonDialog().translations[code]?.['title'] ?? ''"
+                  (ngModelChange)="setLessonDialogTitle(code, $event)"
+                  class="w-full" />
+              </div>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    } @else if (languages().length === 1) {
+      @let code = languages()[0];
+      <div class="dialog-field">
+        <label [attr.for]="'lesson-title-' + code">{{ ui().lessonDialog.titleField }}</label>
+        <input
+          pInputText
+          [id]="'lesson-title-' + code"
+          [ngModel]="lessonDialog().translations[code]?.['title'] ?? ''"
+          (ngModelChange)="setLessonDialogTitle(code, $event)"
+          class="w-full" />
+      </div>
+    }
+
+    <div class="dialog-field toggle-inline">
+      <span class="toggle-inline__label">{{ ui().lessonDialog.isPreviewField }}</span>
+      <p-toggleswitch
+        [ngModel]="lessonDialog().isPreview"
+        (ngModelChange)="setLessonDialogPreview($event)"
+        [attr.aria-label]="ui().lessonDialog.isPreviewField">
+      </p-toggleswitch>
+    </div>
+
+    <div class="dialog-field toggle-inline">
+      <span class="toggle-inline__label">{{ ui().lessonDialog.isPublishedField }}</span>
+      <p-toggleswitch
+        [ngModel]="lessonDialog().isPublished"
+        (ngModelChange)="setLessonDialogPublished($event)"
+        [attr.aria-label]="ui().lessonDialog.isPublishedField">
+      </p-toggleswitch>
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      type="button"
+      [label]="ui().lessonDialog.cancelButton"
+      severity="secondary"
+      [text]="true"
+      [disabled]="lessonDialog().submitting"
+      (onClick)="closeLessonDialog()">
+    </p-button>
+    <p-button
+      type="button"
+      icon="pi pi-check"
+      [label]="ui().lessonDialog.submitButton"
+      [loading]="lessonDialog().submitting"
+      [disabled]="lessonDialog().submitting"
+      (onClick)="submitLessonDialog()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>

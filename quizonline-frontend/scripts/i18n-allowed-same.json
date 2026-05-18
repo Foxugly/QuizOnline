@@ -157,5 +157,9 @@
   "pages/lms/catalog:enrollmentBadge.open",
   "pages/lms/course-create:fields.description",
   "pages/lms/course-create:enrollmentLabels.open",
-  "pages/lms/course-create:toastErrorSummary"
+  "pages/lms/course-create:toastErrorSummary",
+
+  "pages/lms/course-edit:tabStructure",
+  "pages/lms/course-edit/structure-tab:sectionDialog.descriptionField",
+  "pages/lms/course-edit/structure-tab:sectionAria"
 ]
