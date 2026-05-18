@@ -42,7 +42,7 @@ const EN: DomainListUiText = {
   title: 'Domains',
   searchPlaceholder: 'Search…',
   colName: 'Name',
-  colSubjects: 'Subjects',
+  colSubjects: 'Topics',
   colQuestions: 'Questions',
   colPendingRequests: 'Requests',
   colActions: 'Actions',

@@ -253,15 +253,15 @@ const EN_CONTENT: FeaturesContent = {
       },
     },
     subjects: {
-      badge: 'Subjects',
+      badge: 'Topics',
       title: 'Categorise with flexibility',
-      intro: 'Subjects let you freely organise the topics that matter for each domain.',
+      intro: 'Topics let you freely organise the themes that matter for each domain.',
       features: {
-        crud: {title: 'Full management', description: 'Create, edit and toggle subjects scoped to a single domain.'},
+        crud: {title: 'Full management', description: 'Create, edit and toggle topics scoped to a single domain.'},
         multilingual: {title: 'Multilingual content', description: 'Translatable name and description in five languages.'},
         aiTranslate: {title: 'DeepL translations', description: 'Auto-generate translations ready for review.'},
-        tagging: {title: 'Question linkage', description: 'Multi-subject tagging with custom ordering per subject.'},
-        autoCreate: {title: 'Auto-created on import', description: 'Missing subjects appear automatically during question import.'},
+        tagging: {title: 'Question linkage', description: 'Multi-topic tagging with custom ordering per topic.'},
+        autoCreate: {title: 'Auto-created on import', description: 'Missing topics appear automatically during question import.'},
       },
     },
     questions: {

@@ -119,7 +119,7 @@ export const EN: EditorUiText = {
     confirmDeleteAccept: 'Delete',
     confirmDeleteCancel: 'Cancel',
     confirmDeleteUsers: (n) => `Delete ${n} user${n > 1 ? 's' : ''}? This action is irreversible.`,
-    confirmDeleteSubjects: (n) => `Delete ${n} subject${n > 1 ? 's' : ''}? This action is irreversible.`,
+    confirmDeleteSubjects: (n) => `Delete ${n} topic${n > 1 ? 's' : ''}? This action is irreversible.`,
     confirmDeleteTemplates: (n) => `Delete ${n} template${n > 1 ? 's' : ''}? This action is irreversible.`,
   },
   quizSessionTable: {
@@ -144,7 +144,7 @@ export const EN: EditorUiText = {
     domainCreate: {title: 'Create domain', subtitle: 'Translations, status and access'},
     domainEdit: {title: 'Edit domain', subtitle: 'Translations, status and access'},
     subjectEdit: {
-      title: 'Edit subject',
+      title: 'Edit topic',
       subtitle: 'Translations and content',
       questionsTitle: 'Questions',
       addQuestion: 'Add',
@@ -155,12 +155,12 @@ export const EN: EditorUiText = {
       errors: {
         saveFailed: 'Error while saving.',
         translationFailed: 'Error while translating.',
-        loadFailed: 'Unable to load the subject.',
+        loadFailed: 'Unable to load the topic.',
       },
     },
     questionCreate: {
       title: 'Create question',
-      subtitle: 'Domain, subjects, translations and answers',
+      subtitle: 'Domain, topics, translations and answers',
       emptyLanguagesMessage: 'This domain has no active languages configured.',
       practiceTooltipFallback: 'The question will be public and eligible for generated quizzes.',
       errors: {
@@ -201,16 +201,16 @@ export const EN: EditorUiText = {
     },
     quizQuick: {
       title: 'Quick quiz',
-      subtitle: 'Generate a quiz session from a domain and target subjects.',
+      subtitle: 'Generate a quiz session from a domain and target topics.',
       submit: 'Generate quiz',
       errors: {
         generateFailed: 'Unable to generate this quiz.',
         titleRequired: 'Quiz title is required.',
         domainRequired: 'Domain is required.',
-        subjectsRequired: 'Select at least one subject.',
+        subjectsRequired: 'Select at least one topic.',
         questionCountInvalid: 'The question count must be greater than zero.',
         loadDomainsFailed: 'Error while loading the domains.',
-        loadSubjectsFailed: 'Error while loading the subjects.',
+        loadSubjectsFailed: 'Error while loading the topics.',
       },
     },
     quizCreate: {
@@ -343,7 +343,7 @@ export const EN: EditorUiText = {
     languagesCount: 'language(s)',
     name: 'Name',
     description: 'Description',
-    namePlaceholder: 'Subject name',
+    namePlaceholder: 'Topic name',
     required: 'Required field.',
     emptyLanguages: 'This domain has no configured languages.',
   },
@@ -352,8 +352,8 @@ export const EN: EditorUiText = {
     domain: 'Domain',
     domainUnavailable: 'Domain unavailable',
     chooseDomain: 'Choose a domain',
-    subjects: 'Subjects',
-    chooseSubjects: 'Select one or more subjects',
+    subjects: 'Topics',
+    chooseSubjects: 'Select one or more topics',
     active: 'Active',
     mode: 'Mode',
     practice: 'Practice',

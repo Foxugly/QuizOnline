@@ -40,8 +40,8 @@ const EN: SubjectFormUiText = {
   timerInactive: 'Off',
   duration: 'Duration',
   durationSuffix: ' min',
-  subjects: 'Subjects',
-  subjectsPlaceholder: 'Pick one or more subjects',
+  subjects: 'Topics',
+  subjectsPlaceholder: 'Pick one or more topics',
   questionCount: 'Number of questions',
   questionCountWithMax: (max) => `Number of questions (max: ${max})`,
 };

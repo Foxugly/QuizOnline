@@ -35,7 +35,7 @@ const FR: SubjectListUiText = {
 };
 
 const EN: SubjectListUiText = {
-  title: 'Subjects',
+  title: 'Topics',
   searchPlaceholder: 'Search…',
   bulk: {
     placeholder: 'Bulk actions…',

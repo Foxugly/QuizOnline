@@ -1,7 +1,7 @@
 import type {UiText} from './types';
 
 export const EN: UiText = {
-  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Subjects', questions: 'Questions', users: 'Users', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences', notificationsAria: 'Notifications', lmsMyProgress: 'My progress', lmsMyCertificates: 'My certificates', coursesMenu: 'Courses', coursesMenuFormations: 'Courses', quizMenu: 'Quiz', quizMenuLabel: 'Quiz'},
+  topmenu: {quiz: 'Quizzes', domains: 'Domains', subjects: 'Topics', questions: 'Questions', users: 'Users', features: 'Features', donate: 'Donate', about: 'About', alertsAria: 'Messages', currentDomain: 'Current domain', ownedDomains: 'My domains', managedDomains: 'Domains I manage', linkedDomains: 'Linked domains', noDomains: 'No domain', preferences: 'Preferences', notificationsAria: 'Notifications', lmsMyProgress: 'My progress', lmsMyCertificates: 'My certificates', coursesMenu: 'Courses', coursesMenuFormations: 'Courses', quizMenu: 'Quiz', quizMenuLabel: 'Quiz'},
   userMenu: {preferences: 'Preferences', changePassword: 'Change password', logout: 'Logout', login: 'Login', userFallback: 'User'},
   footer: {baseline: 'Quiz and domain content management platform.', version: 'Version', privacyLink: 'Privacy'},
   home: {
@@ -223,9 +223,9 @@ export const EN: UiText = {
       toPlaceholder: 'recipient@example.com',
       toRequired: 'Email address is required.',
       toInvalid: 'Email address is not valid.',
-      subject: 'Subject',
-      subjectPlaceholder: 'Leave empty to use the default subject',
-      subjectHint: 'Optional. When empty, the backend generates a test subject.',
+      subject: 'Topic',
+      subjectPlaceholder: 'Leave empty to use the default topic',
+      subjectHint: 'Optional. When empty, the backend generates a test topic.',
       body: 'Message',
       bodyPlaceholder: 'Leave empty to use the default body',
       bodyHint: 'Optional. When empty, the backend generates a timestamped body.',

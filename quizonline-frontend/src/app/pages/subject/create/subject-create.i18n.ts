@@ -28,14 +28,14 @@ const FR: SubjectCreateUiText = {
 };
 
 const EN: SubjectCreateUiText = {
-  title: 'Create subject',
+  title: 'Create topic',
   subtitle: 'Domain selection and translations',
   emptyLanguagesMessage: 'This domain has no configured languages.',
   toast: {
     loadDomainsFailed: 'Unable to load the domains.',
     loadDomainFailed: 'Unable to load the selected domain.',
     nameRequired: 'Please fill in at least the "name" field for each language.',
-    createFailed: 'Error while creating the subject.',
+    createFailed: 'Error while creating the topic.',
     translationFailed: 'Error while translating.',
   },
 };
