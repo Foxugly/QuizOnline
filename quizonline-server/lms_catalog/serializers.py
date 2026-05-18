@@ -160,6 +160,12 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     # affordance — kept consistent with the same flag on the course
     # detail serializer.
     can_manage = serializers.SerializerMethodField()
+    # Neighbouring lessons in the parent course ordered by
+    # ``(section.order, lesson.order)`` — drive the prev / next footer
+    # navigation on the public lesson-view page. ``null`` at the
+    # course boundaries.
+    prev_lesson = serializers.SerializerMethodField()
+    next_lesson = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -167,8 +173,12 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             "id", "section", "course_id", "course_slug", "slug", "order",
             "is_preview", "is_published", "estimated_duration",
             "translations", "blocks", "available_lang_codes", "can_manage",
+            "prev_lesson", "next_lesson",
         ]
-        read_only_fields = ["id", "blocks", "course_id", "course_slug", "can_manage"]
+        read_only_fields = [
+            "id", "blocks", "course_id", "course_slug", "can_manage",
+            "prev_lesson", "next_lesson",
+        ]
 
     def get_available_lang_codes(self, obj):
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
@@ -186,6 +196,59 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         from .permissions import is_lms_instructor
         request = self.context.get("request")
         return bool(request and is_lms_instructor(request.user, obj.section.course))
+
+    @extend_schema_field({
+        "type": "object",
+        "nullable": True,
+        "properties": {
+            "id": {"type": "integer"},
+            "title": {"type": "string"},
+        },
+        "required": ["id", "title"],
+    })
+    def get_prev_lesson(self, obj):
+        return self._neighbour(obj, direction=-1)
+
+    @extend_schema_field({
+        "type": "object",
+        "nullable": True,
+        "properties": {
+            "id": {"type": "integer"},
+            "title": {"type": "string"},
+        },
+        "required": ["id", "title"],
+    })
+    def get_next_lesson(self, obj):
+        return self._neighbour(obj, direction=+1)
+
+    def _neighbour(self, obj, direction: int):
+        """Return the ``(id, title)`` of the previous / next lesson in
+        the parent course's ``(section.order, lesson.order)`` traversal,
+        or ``None`` at the course boundary. Title is localized in the
+        caller's UI language (falls back to any available translation).
+        """
+        from .models import Lesson  # local import to avoid module-level cycle
+        course_id = obj.section.course_id
+        all_lessons = list(
+            Lesson.objects.filter(section__course_id=course_id)
+            .select_related("section")
+            .order_by("section__order", "order", "id")
+            .values_list("id", flat=True)
+        )
+        try:
+            idx = all_lessons.index(obj.id)
+        except ValueError:
+            return None
+        target_idx = idx + direction
+        if target_idx < 0 or target_idx >= len(all_lessons):
+            return None
+        target = Lesson.objects.filter(pk=all_lessons[target_idx]).first()
+        if not target:
+            return None
+        request = self.context.get("request")
+        lang = getattr(getattr(request, "user", None), "language", None) or "fr"
+        title = target.safe_translation_getter("title", language_code=lang, any_language=True) or target.slug
+        return {"id": target.id, "title": title}
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})

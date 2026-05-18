@@ -58,6 +58,7 @@ export * from './language-enum';
 export * from './language-read';
 export * from './language-write-request';
 export * from './lesson-detail';
+export * from './lesson-detail-prev-lesson';
 export * from './lesson-detail-request';
 export * from './lesson-quiz';
 export * from './lesson-quiz-request';

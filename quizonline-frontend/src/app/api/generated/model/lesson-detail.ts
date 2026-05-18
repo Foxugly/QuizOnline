@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { ContentBlockDto } from './content-block';
+import { LessonDetailPrevLessonDto } from './lesson-detail-prev-lesson';
 
 
 export interface LessonDetailDto { 
@@ -24,5 +25,7 @@ export interface LessonDetailDto {
     readonly blocks: Array<ContentBlockDto>;
     readonly available_lang_codes: string;
     readonly can_manage: boolean;
+    prev_lesson: LessonDetailPrevLessonDto | null;
+    next_lesson: LessonDetailPrevLessonDto | null;
 }
 

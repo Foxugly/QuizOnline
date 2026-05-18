@@ -7228,6 +7228,30 @@ components:
         can_manage:
           type: boolean
           readOnly: true
+        prev_lesson:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+          required:
+          - id
+          - title
+          readOnly: true
+        next_lesson:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+          required:
+          - id
+          - title
+          readOnly: true
       required:
       - available_lang_codes
       - blocks
@@ -7235,6 +7259,8 @@ components:
       - course_id
       - course_slug
       - id
+      - next_lesson
+      - prev_lesson
       - section
       - slug
       - translations
