@@ -36,6 +36,7 @@ type NavItem = {
   label: string;
   link: readonly string[];
   accent?: boolean;
+  icon?: string;
 };
 
 type AdminNavItem = {
@@ -149,6 +150,7 @@ export class TopMenuComponent implements OnInit {
       items.push({
         label: this.ui().topmenu.users,
         link: ROUTES.user.list(),
+        icon: 'pi pi-users',
       });
     }
 
@@ -156,6 +158,7 @@ export class TopMenuComponent implements OnInit {
       items.push({
         label: this.ui().topmenu.domains,
         link: ROUTES.domain.list(),
+        icon: 'pi pi-sitemap',
       });
     }
 
@@ -174,15 +177,15 @@ export class TopMenuComponent implements OnInit {
         label: this.ui().topmenu.features,
         link: ['/features'],
       });
-    }
-
-    items.push({
-      label: this.ui().topmenu.donate,
-      link: ['/donate'],
-      accent: true,
-    });
-
-    if (!isAuthenticated) {
+      // For anonymous visitors, Donate stays inline with Features / About.
+      // For authenticated users it's rendered as a standalone block in the
+      // template (between Quiz and Admin) via donateItem instead.
+      items.push({
+        label: this.ui().topmenu.donate,
+        link: ['/donate'],
+        accent: true,
+        icon: 'pi pi-heart',
+      });
       items.push({
         label: this.ui().topmenu.about,
         link: ['/about'],
@@ -190,6 +193,25 @@ export class TopMenuComponent implements OnInit {
     }
 
     return items;
+  }
+
+  /**
+   * The "Soutenir" (donate) accent button, rendered as a standalone
+   * entry between the Quiz dropdown and the Admin cog. Returns null
+   * for anonymous visitors — they get Donate inline with Features /
+   * About via the existing navItems plumbing (handled in the template).
+   */
+  get donateItem(): NavItem | null {
+    if (!this.currentUser) {
+      // Anonymous: handled by navItems loop alongside Features/About.
+      return null;
+    }
+    return {
+      label: this.ui().topmenu.donate,
+      link: ['/donate'],
+      accent: true,
+      icon: 'pi pi-heart',
+    };
   }
 
   /**
