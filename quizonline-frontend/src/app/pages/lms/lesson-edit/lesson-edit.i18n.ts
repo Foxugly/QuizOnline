@@ -26,6 +26,9 @@ export interface LmsLessonEditUiText {
   previewButton: string;
   /** Toggle label shown when the preview is active (switches back to edit mode). */
   editModeButton: string;
+  /** Heading + aria-label of the left-side block outline shown in
+   *  preview mode — mirrors the learner-facing /lms/lesson/{id} page. */
+  outlineHeading: string;
 }
 
 export function getLmsLessonEditUiText(
@@ -51,6 +54,7 @@ export function getLmsLessonEditUiText(
         viewAsLearnerButton: 'Aperçu apprenant',
         previewButton: 'Aperçu',
         editModeButton: 'Édition',
+        outlineHeading: 'Plan de la leçon',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -71,6 +75,7 @@ export function getLmsLessonEditUiText(
         viewAsLearnerButton: 'Cursist-weergave',
         previewButton: 'Voorbeeld',
         editModeButton: 'Bewerken',
+        outlineHeading: 'Lesoverzicht',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -91,6 +96,7 @@ export function getLmsLessonEditUiText(
         viewAsLearnerButton: 'Anteprima studente',
         previewButton: 'Anteprima',
         editModeButton: 'Modifica',
+        outlineHeading: 'Indice della lezione',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -111,6 +117,7 @@ export function getLmsLessonEditUiText(
         viewAsLearnerButton: 'Vista del estudiante',
         previewButton: 'Vista previa',
         editModeButton: 'Editar',
+        outlineHeading: 'Índice de la lección',
       };
     default:
       return {
@@ -130,6 +137,7 @@ export function getLmsLessonEditUiText(
         viewAsLearnerButton: 'View as learner',
         previewButton: 'Preview',
         editModeButton: 'Edit',
+        outlineHeading: 'Lesson outline',
       };
   }
 }

@@ -11,10 +11,12 @@ import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
+import {UserService} from '../../../services/user/user';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
 import {ContentBlock} from '../../../shared/lms/content-block.types';
 import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {BlockType, getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
+import {pickTranslation} from '../../../shared/lms/lms-translations';
 
 import {getLmsLessonEditUiText} from './lesson-edit.i18n';
 import {SavedIndicator} from './block-editors/saved-indicator';
@@ -52,6 +54,16 @@ interface LessonDetailDto {
   available_lang_codes?: string[];
   course_id?: number;
   domain_id?: number;
+}
+
+/** Shape consumed by the left-side block outline in preview mode —
+ *  mirrors the lesson-view ``BlockOutlineItem`` so authors see the
+ *  same navigation experience as their learners. */
+interface BlockOutlineItem {
+  id: number;
+  label: string;
+  icon: string;
+  anchor: string;
 }
 
 /**
@@ -97,6 +109,8 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly catalog = inject(LmsCatalogService);
   private readonly toast = inject(AppToastService);
+  private readonly userService = inject(UserService);
+  protected readonly currentLang = this.userService.lang;
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getLmsLessonEditUiText);
@@ -152,6 +166,49 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
   protected readonly previewMode = signal(false);
   protected togglePreview(): void {
     this.previewMode.update((v) => !v);
+  }
+
+  /** Outline entries derived from the blocks list — feeds the
+   *  left-side sticky navigation rendered in preview mode. Label
+   *  prefers the block's own translated ``title`` and falls back to
+   *  the localised block-type name (e.g. "Texte enrichi"). Same
+   *  shape and resolution rules as lesson-view's outline so the
+   *  author preview matches the learner view exactly. */
+  protected readonly outline = computed<BlockOutlineItem[]>(() => {
+    const labels = this.common().blockTypeLabels;
+    const lang = this.currentLang();
+    return this.blocks().map((b) => {
+      const customTitle = pickTranslation(b.translations, lang, 'title')?.trim();
+      return {
+        id: b.id,
+        label: customTitle || labels[b.block_type] || b.block_type,
+        icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
+        anchor: `block-${b.id}`,
+      };
+    });
+  });
+
+  /** Absolute href for a block anchor — combines the current path
+   *  with ``#anchor`` so the browser's link preview / right-click
+   *  "copy link" produce ``/lms/lesson/{id}/edit#block-X`` instead
+   *  of the SPA root (``<base href="/">`` would otherwise collapse
+   *  a bare ``#anchor`` to ``/#anchor``). */
+  protected anchorHref(anchor: string): string {
+    return `${location.pathname}${location.search}#${anchor}`;
+  }
+
+  /** Smooth-scroll to a block by anchor. Plain ``<a href="#x">`` is
+   *  intercepted by the Angular Router and teleports to the home
+   *  route — we handle the click ourselves to stay in-page and get
+   *  smooth scrolling for free. */
+  protected scrollToBlock(event: MouseEvent, anchor: string): void {
+    event.preventDefault();
+    const target = document.getElementById(anchor);
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({behavior: 'smooth', block: 'start'});
+    history.replaceState(history.state, '', this.anchorHref(anchor));
   }
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
