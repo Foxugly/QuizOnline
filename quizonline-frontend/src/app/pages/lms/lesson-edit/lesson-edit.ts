@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ButtonModule} from 'primeng/button';
 import {Subscription} from 'rxjs';
 
-import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
+import {LMS_CATALOG, LMS_COURSE_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
@@ -52,6 +52,7 @@ interface LessonDetailDto {
 @Component({
   selector: 'app-lms-lesson-edit',
   imports: [
+    RouterLink,
     DragDropModule,
     ButtonModule,
     PageHeader,
@@ -101,6 +102,15 @@ export class LmsLessonEdit implements OnInit, OnDestroy {
 
   /** True when the route resolved to a valid lesson id. */
   protected readonly hasLesson = computed(() => this.lessonId() > 0);
+
+  /** Public lesson-view route — drives the top-right "view as learner"
+   *  eye button so an author can jump from the editor to the rendered
+   *  learner experience in one click. ``null`` while the route id is
+   *  still being parsed. */
+  protected readonly viewHref = computed<string | null>(() => {
+    const id = this.lessonId();
+    return id > 0 ? LMS_LESSON_VIEW(id) : null;
+  });
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
   private routeSub: Subscription | null = null;

@@ -20,6 +20,8 @@ export interface LmsLessonEditUiText {
   blockErrorToast: string;
   emptyTitle: string;
   emptyHint: string;
+  /** Label for the top-right "view as learner" eye button. */
+  viewAsLearnerButton: string;
 }
 
 export function getLmsLessonEditUiText(
@@ -42,6 +44,7 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'L\'opération sur le bloc a échoué.',
         emptyTitle: 'Leçon vide',
         emptyHint: 'Ajoutez un premier bloc à l\'aide de la barre ci-dessous.',
+        viewAsLearnerButton: 'Aperçu apprenant',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -59,6 +62,7 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'De blok-bewerking is mislukt.',
         emptyTitle: 'Lege les',
         emptyHint: 'Voeg een eerste blok toe via de balk hieronder.',
+        viewAsLearnerButton: 'Cursist-weergave',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -76,6 +80,7 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'Operazione sul blocco non riuscita.',
         emptyTitle: 'Lezione vuota',
         emptyHint: 'Aggiungi un primo blocco usando la barra qui sotto.',
+        viewAsLearnerButton: 'Anteprima studente',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -93,6 +98,7 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'La operación sobre el bloque falló.',
         emptyTitle: 'Lección vacía',
         emptyHint: 'Añade un primer bloque desde la barra de abajo.',
+        viewAsLearnerButton: 'Vista del estudiante',
       };
     default:
       return {
@@ -109,6 +115,7 @@ export function getLmsLessonEditUiText(
         blockErrorToast: 'Block operation failed.',
         emptyTitle: 'Empty lesson',
         emptyHint: 'Add a first block from the bar below.',
+        viewAsLearnerButton: 'View as learner',
       };
   }
 }

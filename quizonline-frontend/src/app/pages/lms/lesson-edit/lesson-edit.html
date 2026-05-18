@@ -9,6 +9,18 @@
       (onClick)="back()">
     </p-button>
   </div>
+  @if (viewHref(); as href) {
+    <div slot="right">
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-eye"
+        [routerLink]="href"
+        [label]="ui().viewAsLearnerButton">
+      </p-button>
+    </div>
+  }
 </app-page-header>
 
 @if (blocks().length === 0) {
