@@ -176,6 +176,7 @@ export class TopMenuComponent implements OnInit {
       items.push({
         label: this.ui().topmenu.features,
         link: ['/features'],
+        icon: 'pi pi-sparkles',
       });
       // For anonymous visitors, Donate stays inline with Features / About.
       // For authenticated users it's rendered as a standalone block in the
@@ -189,6 +190,7 @@ export class TopMenuComponent implements OnInit {
       items.push({
         label: this.ui().topmenu.about,
         link: ['/about'],
+        icon: 'pi pi-info-circle',
       });
     }
 

@@ -7,6 +7,10 @@
   position: relative;
 }
 
+/* Sized to match the rest of the topbar action triggers
+ * (.alert-link, .lang-select__trigger, .bell) so the hover surface
+ * stays consistent across notifications, messages, language and
+ * username. */
 .user-trigger {
   align-items: center;
   background: transparent;
@@ -23,7 +27,8 @@
 .user-trigger:focus,
 .user-trigger:active {
   background: rgba(255, 255, 255, 0.08);
-  color: inherit;
+  border-radius: 0.5rem;
+  color: #f8fafc;
 }
 
 .user-menu__panel {

@@ -3,21 +3,27 @@
   display: inline-flex;
 }
 
+/* Sized to match the rest of the topbar action triggers
+ * (.alert-link, .lang-select__trigger, .user-trigger) so the hover
+ * surface and visual rhythm stay consistent across notifications,
+ * messages, language and username. */
 .bell {
   position: relative;
   background: transparent;
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0 0.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem;
 
   &:hover,
   &:focus-visible {
     background: rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;
   }
 
   i {
