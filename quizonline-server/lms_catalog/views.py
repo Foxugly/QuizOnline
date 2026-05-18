@@ -22,6 +22,9 @@ from .serializers import (
 )
 from .services import (
     clone_course,
+    compact_blocks,
+    compact_lessons,
+    compact_sections,
     export_course_to_dict,
     import_course_from_dict,
     publish_course,
@@ -254,6 +257,11 @@ class SectionViewSet(viewsets.ModelViewSet):
         reorder_lessons(section=section, lesson_ids_in_order=ids)
         return Response(SectionSerializer(section).data)
 
+    def perform_destroy(self, instance):
+        course = instance.course
+        instance.delete()
+        compact_sections(course=course)
+
 
 class LessonViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
@@ -272,6 +280,11 @@ class LessonViewSet(viewsets.ModelViewSet):
         reorder_blocks(lesson=lesson, block_ids_in_order=ids)
         return Response(LessonDetailSerializer(lesson).data)
 
+    def perform_destroy(self, instance):
+        section = instance.section
+        instance.delete()
+        compact_lessons(section=section)
+
 
 class ContentBlockViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
@@ -289,3 +302,8 @@ class ContentBlockViewSet(viewsets.ModelViewSet):
             t.scope = "lms_block_write"
             return [t]
         return []
+
+    def perform_destroy(self, instance):
+        lesson = instance.lesson
+        instance.delete()
+        compact_blocks(lesson=lesson)

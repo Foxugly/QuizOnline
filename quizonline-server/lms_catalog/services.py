@@ -243,6 +243,35 @@ def reorder_lessons(*, section: Section, lesson_ids_in_order: list[int]) -> list
     return _two_phase_reorder(Lesson, models.Q(section=section), lesson_ids_in_order)
 
 
+def _compact(model, parent_filter):
+    """Renumber surviving rows to 0..N-1 in their current ``order``.
+
+    Run this after a delete so the next insertion picks a free slot
+    against the ``UNIQUE(parent, order)`` constraint without the
+    caller having to reason about gaps. Reuses ``_two_phase_reorder``
+    so the constraint is never briefly violated mid-update.
+    """
+    ids = list(model.objects.filter(parent_filter).order_by("order").values_list("id", flat=True))
+    if not ids:
+        return []
+    return _two_phase_reorder(model, parent_filter, ids)
+
+
+@transaction.atomic
+def compact_blocks(*, lesson: Lesson):
+    return _compact(ContentBlock, models.Q(lesson=lesson))
+
+
+@transaction.atomic
+def compact_lessons(*, section: Section):
+    return _compact(Lesson, models.Q(section=section))
+
+
+@transaction.atomic
+def compact_sections(*, course: Course):
+    return _compact(Section, models.Q(course=course))
+
+
 def _unique_clone_slug(base_slug: str) -> str:
     candidate = f"{base_slug}-copy"
     n = 1
