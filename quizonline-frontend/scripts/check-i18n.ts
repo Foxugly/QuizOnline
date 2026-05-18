@@ -50,6 +50,8 @@ import {getSubjectFormUiText} from '../src/app/pages/quiz/subject-form/subject-f
 import {getSubjectCreateUiText} from '../src/app/pages/subject/create/subject-create.i18n';
 import {getLmsCatalogUiText} from '../src/app/pages/lms/catalog/catalog.i18n';
 import {getLmsCourseCreateUiText} from '../src/app/pages/lms/course-create/course-create.i18n';
+import {getLmsCourseEditUiText} from '../src/app/pages/lms/course-edit/course-edit.i18n';
+import {getLmsCourseEditStructureTabUiText} from '../src/app/pages/lms/course-edit/tabs/structure-tab/structure-tab.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -81,6 +83,8 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/subject/create', get: getSubjectCreateUiText as Getter},
   {name: 'pages/lms/catalog', get: getLmsCatalogUiText as Getter},
   {name: 'pages/lms/course-create', get: getLmsCourseCreateUiText as Getter},
+  {name: 'pages/lms/course-edit', get: getLmsCourseEditUiText as Getter},
+  {name: 'pages/lms/course-edit/structure-tab', get: getLmsCourseEditStructureTabUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;
