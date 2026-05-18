@@ -62,7 +62,18 @@ def _is_published_chain(obj) -> bool:
 
 class IsLmsInstructorOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        return is_authenticated_user(request.user)
+        if not is_authenticated_user(request.user):
+            return False
+        # Read methods: pass through to has_object_permission for object access.
+        if request.method in SAFE_METHODS:
+            return True
+        # Create on a list endpoint (no object yet): infer the parent course
+        # from the payload (Course: domain, Section: course, Lesson: section,
+        # ContentBlock: lesson, LessonQuiz: course / lesson) and require
+        # instructor rights on it.
+        if getattr(view, "action", None) == "create":
+            return _can_create(request.user, request.data)
+        return True  # detail-route writes are gated by has_object_permission
 
     def has_object_permission(self, request, view, obj):
         course = _course_of(obj)
@@ -71,3 +82,36 @@ class IsLmsInstructorOrReadOnly(BasePermission):
                 return True
             return is_lms_learner(request.user, course) and _is_published_chain(obj)
         return is_lms_instructor(request.user, course)
+
+
+def _can_create(user, data) -> bool:
+    """Resolve the target course/domain from POST data and return whether
+    ``user`` is an instructor (owner / manager / superuser) for it."""
+    if is_django_admin(user):
+        return True
+    # Lazy imports to avoid circulars at module load.
+    from domain.models import Domain
+    from .models import Course, Lesson, Section
+
+    domain_id = data.get("domain")
+    if domain_id:
+        domain = Domain.objects.filter(pk=domain_id).first()
+        return bool(domain and user.can_manage_domain(domain))
+
+    course_id = data.get("course")
+    if course_id:
+        course = Course.objects.filter(pk=course_id).first()
+        return bool(course and is_lms_instructor(user, course))
+
+    section_id = data.get("section")
+    if section_id:
+        section = Section.objects.filter(pk=section_id).select_related("course").first()
+        return bool(section and is_lms_instructor(user, section.course))
+
+    lesson_id = data.get("lesson")
+    if lesson_id:
+        lesson = Lesson.objects.filter(pk=lesson_id).select_related("section__course").first()
+        return bool(lesson and is_lms_instructor(user, lesson.section.course))
+
+    # No resolvable parent reference => deny create (DRF will return 403).
+    return False

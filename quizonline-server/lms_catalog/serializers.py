@@ -22,7 +22,17 @@ class TranslationsField(serializers.Field):
     """
 
     def to_representation(self, value):
-        instance = value if hasattr(value, "translations") else self.parent.instance
+        # ``value`` may be either the model instance (when the field is called
+        # directly, e.g. ``TranslationsField().to_representation(course)``) or
+        # the parler ``RelatedManager`` (when invoked from a ModelSerializer
+        # bound to the ``translations`` source). The manager exposes the
+        # owning instance via ``.instance``.
+        if hasattr(value, "translations"):
+            instance = value
+        elif hasattr(value, "instance"):
+            instance = value.instance
+        else:
+            instance = self.parent.instance
         result = {}
         for tr in instance.translations.all():
             row = {}
