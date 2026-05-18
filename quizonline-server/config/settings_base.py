@@ -189,6 +189,8 @@ TIME_ZONE = "Europe/Brussels"
 USE_I18N = True
 USE_TZ = True
 
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 
 REST_FRAMEWORK = {

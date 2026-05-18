@@ -28,6 +28,9 @@ quizonline-server/staticfiles/
 quizonline-server/media/question_media/*
 !quizonline-server/media/question_media/dummy.txt
 
+# Compiled gettext message catalogs (build from .po via `manage.py compilemessages`)
+quizonline-server/locale/**/*.mo
+
 # ── Node / Angular ────────────────────────────────────────────────────────────
 node_modules/
 quizonline-frontend/dist/
