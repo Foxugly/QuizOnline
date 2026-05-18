@@ -1,7 +1,5 @@
 <section class="page">
-  <header class="page__header">
-    <h1>{{ ui().pageTitle }}</h1>
-  </header>
+  <app-page-header [title]="ui().pageTitle" />
 
   <p-table
     [value]="viewRows()"

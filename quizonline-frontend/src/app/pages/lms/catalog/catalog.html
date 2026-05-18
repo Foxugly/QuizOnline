@@ -1,7 +1,16 @@
 <div class="lms-catalog">
-  <header class="catalog-header">
-    <h1>{{ ui().pageTitle }}</h1>
-  </header>
+  <app-page-header [title]="ui().pageTitle">
+    @if (canCreateCourse()) {
+      <div slot="right">
+        <p-button
+          [routerLink]="createCourseHref"
+          icon="pi pi-plus"
+          [label]="ui().createCourseButton"
+          type="button">
+        </p-button>
+      </div>
+    }
+  </app-page-header>
 
   <div class="catalog-toolbar">
     <div class="filters">
@@ -22,14 +31,6 @@
         [showClear]="true"
       />
     </div>
-    @if (canCreateCourse()) {
-      <p-button
-        [routerLink]="createCourseHref"
-        icon="pi pi-plus"
-        [label]="ui().createCourseButton"
-        type="button">
-      </p-button>
-    }
   </div>
 
   @if (cards().length === 0) {

@@ -8,6 +8,7 @@ import {Subscription} from 'rxjs';
 import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
@@ -53,6 +54,7 @@ interface LessonDetailDto {
   imports: [
     DragDropModule,
     ButtonModule,
+    PageHeader,
     RichTextBlockEditor,
     ImageBlockEditor,
     VideoBlockEditor,

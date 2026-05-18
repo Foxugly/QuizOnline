@@ -11,6 +11,7 @@ import {LMS_COURSE_DETAIL, LMS_COURSE_NEW} from '../../../app.routes-paths';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../../shared/lms/lms-translations';
@@ -50,6 +51,7 @@ interface CatalogCardVm {
     InputTextModule,
     SelectModule,
     TagModule,
+    PageHeader,
   ],
   templateUrl: './catalog.html',
   styleUrl: './catalog.scss',

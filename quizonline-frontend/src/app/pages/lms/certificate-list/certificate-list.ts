@@ -6,6 +6,7 @@ import {TableModule} from 'primeng/table';
 
 import {LMS_CATALOG, LMS_CERTIFICATE_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service';
 
@@ -38,7 +39,7 @@ interface CertificateRowVm {
 
 @Component({
   selector: 'app-lms-certificate-list',
-  imports: [DatePipe, RouterLink, ButtonModule, TableModule],
+  imports: [DatePipe, RouterLink, ButtonModule, TableModule, PageHeader],
   templateUrl: './certificate-list.html',
   styleUrl: './certificate-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

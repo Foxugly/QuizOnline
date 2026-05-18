@@ -8,6 +8,7 @@ import {TagModule} from 'primeng/tag';
 
 import {LMS_CATALOG} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
@@ -50,6 +51,7 @@ interface ProgressRowVm {
     TableModule,
     TagModule,
     RelativeDatePipe,
+    PageHeader,
   ],
   templateUrl: './progress.html',
   styleUrl: './progress.scss',

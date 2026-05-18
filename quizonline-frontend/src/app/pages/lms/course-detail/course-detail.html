@@ -1,14 +1,15 @@
 @if (course(); as c) {
-  <div class="page-toolbar">
-    <p-button
-      type="button"
-      severity="secondary"
-      [outlined]="true"
-      icon="pi pi-arrow-left"
-      [routerLink]="catalogHref"
-      [label]="editorUi().common.back" />
-
-    <div class="page-toolbar__actions">
+  <app-page-header [title]="courseTitle()">
+    <div slot="left">
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-arrow-left"
+        [routerLink]="catalogHref"
+        [label]="editorUi().common.back" />
+    </div>
+    <div slot="right">
       @if (canManage()) {
         @if (editHref(); as href) {
           <p-button
@@ -25,14 +26,11 @@
         icon="pi pi-user-plus"
         [disabled]="enrolling()" />
     </div>
-  </div>
+  </app-page-header>
 
-  <header class="course-header">
-    <h1>{{ courseTitle() }}</h1>
-    @if (hasDescription()) {
-      <div class="course-description" [innerHTML]="courseDescription()"></div>
-    }
-  </header>
+  @if (hasDescription()) {
+    <div class="course-description" [innerHTML]="courseDescription()"></div>
+  }
 
   @if (hasLearningObjectives()) {
     <section class="course-objectives">
@@ -44,7 +42,7 @@
   <h2 class="sections-heading">{{ ui().sectionsHeading }}</h2>
 
   @if (hasAnyContent()) {
-    <ol class="sections-list">
+    <ol class="sections-list" data-card-bg="white">
       @for (section of sectionsVm(); track section.id; let secIdx = $index) {
         <li class="section">
           <h3 class="section__title">

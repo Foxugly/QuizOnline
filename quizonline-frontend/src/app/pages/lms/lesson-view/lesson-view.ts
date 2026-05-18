@@ -8,6 +8,7 @@ import {TagModule} from 'primeng/tag';
 import {LMS_CATALOG, LMS_COURSE_DETAIL, LMS_LESSON_EDIT} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {BLOCK_ICONS} from '../../../shared/lms/block-icons';
 import {ContentBlock} from '../../../shared/lms/content-block.types';
@@ -57,6 +58,7 @@ interface BlockOutlineItem {
     RouterLink,
     ButtonModule,
     TagModule,
+    PageHeader,
     RichTextBlockRenderer,
     ImageBlockRenderer,
     VideoBlockRenderer,
@@ -118,16 +120,23 @@ export class LmsLessonView implements OnInit, OnDestroy {
     return id ? LMS_LESSON_EDIT(id) : null;
   });
 
-  /** One outline entry per block, with a stable anchor id ``block-<id>`` consumed
-   *  by both the in-content ``[id]`` binding and the side-nav ``href``. */
+  /** One outline entry per block. The label is the block's own
+   *  translated ``title`` when available, falling back to the
+   *  ``block_type`` localized name (e.g. "Texte enrichi"). Anchor is a
+   *  stable ``block-<id>`` consumed by both the ``[id]`` on the block
+   *  card and the side-nav ``href``. */
   protected readonly outline = computed<BlockOutlineItem[]>(() => {
     const labels = this.common().blockTypeLabels;
-    return this.blocks().map((b) => ({
-      id: b.id,
-      label: labels[b.block_type] ?? b.block_type,
-      icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
-      anchor: `block-${b.id}`,
-    }));
+    const lang = this.currentLang();
+    return this.blocks().map((b) => {
+      const customTitle = pickTranslation(b.translations, lang, 'title')?.trim();
+      return {
+        id: b.id,
+        label: customTitle || labels[b.block_type] || b.block_type,
+        icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
+        anchor: `block-${b.id}`,
+      };
+    });
   });
 
   ngOnInit(): void {

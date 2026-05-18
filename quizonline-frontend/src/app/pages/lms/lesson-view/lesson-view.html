@@ -1,30 +1,29 @@
 @if (lesson(); as l) {
-  <div class="page-toolbar">
-    <p-button
-      type="button"
-      severity="secondary"
-      [outlined]="true"
-      icon="pi pi-arrow-left"
-      [routerLink]="backHref()"
-      [label]="editorUi().common.back" />
-
-    @if (editHref(); as href) {
+  <app-page-header [title]="title()">
+    <div slot="left">
       <p-button
         type="button"
         severity="secondary"
         [outlined]="true"
-        icon="pi pi-pencil"
-        [routerLink]="href"
-        [label]="ui().editButton" />
-    }
-  </div>
-
-  <header class="lesson-header">
-    <h1>{{ title() }}</h1>
-    @if (isCompleted()) {
-      <p-tag severity="success" [value]="ui().alreadyCompletedBadge" />
-    }
-  </header>
+        icon="pi pi-arrow-left"
+        [routerLink]="backHref()"
+        [label]="editorUi().common.back" />
+    </div>
+    <div slot="right">
+      @if (isCompleted()) {
+        <p-tag severity="success" [value]="ui().alreadyCompletedBadge" />
+      }
+      @if (editHref(); as href) {
+        <p-button
+          type="button"
+          severity="secondary"
+          [outlined]="true"
+          icon="pi pi-pencil"
+          [routerLink]="href"
+          [label]="ui().editButton" />
+      }
+    </div>
+  </app-page-header>
 
   <div class="lesson-layout">
     <!-- Left-side block outline: anchored navigation across the content

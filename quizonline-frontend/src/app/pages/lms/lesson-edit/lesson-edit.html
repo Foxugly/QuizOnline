@@ -1,14 +1,15 @@
-<div class="page-header">
-  <p-button
-    type="button"
-    severity="secondary"
-    [outlined]="true"
-    icon="pi pi-arrow-left"
-    [label]="editorUi().common.back"
-    (onClick)="back()">
-  </p-button>
-  <h1>{{ ui().pageTitle }}</h1>
-</div>
+<app-page-header [title]="ui().pageTitle">
+  <div slot="left">
+    <p-button
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [label]="editorUi().common.back"
+      (onClick)="back()">
+    </p-button>
+  </div>
+</app-page-header>
 
 @if (blocks().length === 0) {
   <div class="empty-state">
@@ -50,7 +51,7 @@
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('quiz') {
-            <app-quiz-block-editor [block]="block"
+            <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('callout') {
@@ -58,7 +59,7 @@
                                       (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('code') {
-            <app-code-block-editor [block]="block"
+            <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('embed') {
