@@ -29,6 +29,14 @@ Monorepo with two main modules:
 - `editor-ui-text/` : labels for quiz editor UI
 - `ui-text/` : shell, auth and admin UI text — accessed via `inject(UiTextService).ui` / `.editor`
 - Page-scoped i18n lives next to the component (`pages/<page>/<page>.i18n.ts`) and is bound reactively through `inject(UiTextService).localized(getXxxUiText)`
+- Every new page-scoped dictionary must be registered in `quizonline-frontend/scripts/check-i18n.ts` so the build-time completeness check covers it
+- **EN terminology**: the LMS / quiz concept formerly labelled "Subject" is rendered as "Topic" in English (FR/NL/IT/ES keep `Sujet` / `Onderwerp` / `Argomento` / `Tema`). Code identifiers (`SubjectService`, `subject_ids`, route `/subject/...`, JSON keys `"subjects"`) still use the canonical backend name — the rename is purely user-facing.
+
+## Shared UI building blocks
+
+- `<app-page-header [title]>` (under `shared/components/page-header/`) is the canonical page header used by every LMS shell. Three slots: `[slot=left]` / centered title / `[slot=right]`. Project content **directly** onto the slot (no inner wrapping `<div slot="left">`) so the slot's `gap: 0.5rem` applies between siblings. `@if` / `@for` work transparently — the projected elements still match the slot selector after the conditional resolves.
+- `<app-block-translate-button>` (under `pages/lms/lesson-edit/block-editors/block-translate-button.ts`) is the inline "translate from current tab" affordance every translatable block editor renders next to its language tabs. Reads the active tab as source, fills blanks only.
+- `shared/lms/default-lang.ts` exposes `pickDefaultLang(availableLangs, userLang)` — every multilingual editor uses this to pick the initial active tab (user's UI language when allowed, else first allowed language).
 
 ## Backend conventions
 
@@ -65,14 +73,29 @@ A Course's primary `language` and parler translations are constrained to `Domain
 
 Key endpoints under `/api/lms/` (`config/api_urls.py`):
 - `course/`, `section/`, `lesson/`, `block/` — CRUD + `reorder` actions + `publish` / `unpublish` / `clone` on courses
+- `course/?domain=<id>&level=<lvl>` — list filters consumed by the catalog dropdowns
+- `course/{id}/analytics/` — instructor-gated aggregated KPIs (enrollment counts, completion rate, median progress, certificates issued, 30-day enrollment trend) used by the course-edit "Analytics" tab
 - `enrollment/`, `course/{id}/enroll/`, `lesson/{id}/start/`, `lesson/{id}/complete/`
 - `progress/`, `me/progress/`
 - `certificate/`, `certificate/{id}/pdf/`, `verify/{token}/` (public, anon throttle scope `lms_cert_verify`)
 - `validation-quiz/`
 
+`LessonDetailSerializer` is the read-heavy shape consumed by both `lesson-view` (learner) and `lesson-edit` (instructor). On top of the model fields it surfaces:
+- `course_id` / `course_slug` / `domain_id` — used by back buttons, the quiz-template picker scope, and routing
+- `can_manage` — gates the instructor "Edit" affordance + every write action on the lesson
+- `prev_lesson` / `next_lesson` (`{id, title}` or null) — power the lesson-view footer's previous / next chevron buttons. Ordered by `(section.order, lesson.order)` so the traversal bridges section boundaries.
+- `section_title` + `position_in_section` (`{current, total}`) — power the "Leçon 2/5 — Setup" subtitle above the lesson title
+
+`ContentBlock` exposes a translatable `title` field on every type (including `rich_text`, `quiz`, `code` — previously they had none). The title feeds the lesson-view block outline and the in-content card heading. Empty payload draft creates are explicitly allowed (`ContentBlockSerializer.validate` skips `full_clean` when `self.instance is None`, and `_filter_allowed_lang_codes` short-circuits on empty input so a domain with no `allowed_languages` does not 400 the empty-translation draft).
+
 Frontend pages under `pages/lms/` :
-- Learner: `catalog`, `course-detail`, `lesson-view` (+ 8 block renderers), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
-- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — currently minimal stubs), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs)
+- Learner: `catalog` (search + level + domain filters), `course-detail`, `lesson-view` (left block outline + prev/next footer + position subtitle), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
+- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/lms/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs + inline translate button per editor + view-as-learner eye button)
+- Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated)
+
+Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `LmsUploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.
+
+The rich-text sanitizer (`lms_catalog/sanitizer.py`) allows inline `style` attributes on a small set of formatting tags with a strict CSS allowlist (`color`, `background-color`, `text-align`, `text-decoration`, `font-weight/style/size`) so Quill colour / alignment round-trips through save — anything else (including `url(...)` and `expression(...)` payloads) is scrubbed.
 
 Throttle scopes env-overridable + SSM-seedable (`/quizonline/prod/THROTTLE_LMS_*`):
 - `lms_enroll` (default 20/min)
