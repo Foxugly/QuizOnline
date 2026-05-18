@@ -38,6 +38,11 @@ interface CourseDetailDto {
   can_manage?: boolean;
   translations?: TranslationsMap;
   sections?: CourseSectionDto[];
+  my_enrollment?: {
+    status: 'active' | 'pending' | 'completed' | 'cancelled';
+    progress_percent: number;
+    next_lesson_id: number | null;
+  } | null;
 }
 
 interface LessonVm {
@@ -109,6 +114,26 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   protected readonly editHref = computed(() => {
     const c = this.course();
     return c ? LMS_COURSE_EDIT(c.id) : null;
+  });
+
+  /** True when the caller has an active or completed enrollment on
+   *  this course. Pending and cancelled don't count: pending users
+   *  still see the regular "Enroll" hint, cancelled users get the
+   *  normal re-enroll flow. */
+  protected readonly isEnrolled = computed(() => {
+    const me = this.course()?.my_enrollment;
+    return !!me && (me.status === 'active' || me.status === 'completed');
+  });
+
+  /** Resume-on lesson route — points at the first uncompleted lesson
+   *  served by the backend, or null when nothing is left (course
+   *  complete) or when the user isn't enrolled. */
+  protected readonly continueHref = computed<string | null>(() => {
+    const me = this.course()?.my_enrollment;
+    if (!me || me.status === 'cancelled' || !me.next_lesson_id) {
+      return null;
+    }
+    return LMS_LESSON_VIEW(me.next_lesson_id);
   });
 
   protected readonly sectionsVm = computed<SectionVm[]>(() => {

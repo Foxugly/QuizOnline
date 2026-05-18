@@ -7,6 +7,7 @@ export interface LmsCourseDetailUiText {
   learningObjectivesHeading: string;
   durationLabel: string;
   enrollButton: string;
+  continueButton: string;
   editButton: string;
   enrolledBadge: string;
   pendingBadge: string;
@@ -34,6 +35,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: "Objectifs d'apprentissage",
         durationLabel: '{n} min',
         enrollButton: "M'inscrire",
+        continueButton: 'Reprendre',
         editButton: 'Modifier',
         enrolledBadge: 'Inscrit',
         pendingBadge: 'En attente',
@@ -56,6 +58,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Leerdoelen',
         durationLabel: '{n} min',
         enrollButton: 'Inschrijven',
+        continueButton: 'Hervatten',
         editButton: 'Bewerken',
         enrolledBadge: 'Ingeschreven',
         pendingBadge: 'In afwachting',
@@ -78,6 +81,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Obiettivi di apprendimento',
         durationLabel: '{n} min',
         enrollButton: 'Iscriviti',
+        continueButton: 'Riprendi',
         editButton: 'Modifica',
         enrolledBadge: 'Iscritto',
         pendingBadge: 'In attesa',
@@ -100,6 +104,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Objetivos de aprendizaje',
         durationLabel: '{n} min',
         enrollButton: 'Inscribirme',
+        continueButton: 'Reanudar',
         editButton: 'Editar',
         enrolledBadge: 'Inscrito',
         pendingBadge: 'Pendiente',
@@ -121,6 +126,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Learning objectives',
         durationLabel: '{n} min',
         enrollButton: 'Enroll',
+        continueButton: 'Continue',
         editButton: 'Edit',
         enrolledBadge: 'Enrolled',
         pendingBadge: 'Pending',

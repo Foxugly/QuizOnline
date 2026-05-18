@@ -17,11 +17,19 @@
           [outlined]="true" />
       }
     }
-    <p-button slot="right"
-      (onClick)="enroll()"
-      [label]="ui().enrollButton"
-      icon="pi pi-user-plus"
-      [disabled]="enrolling()" />
+    @if (continueHref(); as href) {
+      <p-button slot="right"
+        [routerLink]="href"
+        [label]="ui().continueButton"
+        icon="pi pi-bookmark"
+        severity="primary" />
+    } @else if (!isEnrolled()) {
+      <p-button slot="right"
+        (onClick)="enroll()"
+        [label]="ui().enrollButton"
+        icon="pi pi-user-plus"
+        [disabled]="enrolling()" />
+    }
   </app-page-header>
 
   @if (hasDescription()) {
