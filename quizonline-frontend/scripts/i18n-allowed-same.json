@@ -150,5 +150,10 @@
   "editor-ui-text:common.errorTitle",
 
   "pages/quiz/subject-form:timer",
-  "pages/quiz/subject-form:durationSuffix"
+  "pages/quiz/subject-form:durationSuffix",
+
+  "pages/lms/catalog:enrollmentBadge.open",
+  "pages/lms/course-create:descriptionLabel",
+  "pages/lms/course-create:enrollmentLabels.open",
+  "pages/lms/course-create:toastErrorSummary"
 ]
