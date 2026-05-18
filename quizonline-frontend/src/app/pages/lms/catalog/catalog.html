@@ -1,14 +1,11 @@
 <div class="lms-catalog">
   <app-page-header [title]="ui().pageTitle">
     @if (canCreateCourse()) {
-      <div slot="right">
-        <p-button
-          [routerLink]="createCourseHref"
-          icon="pi pi-plus"
-          [label]="ui().createCourseButton"
-          type="button">
-        </p-button>
-      </div>
+      <p-button slot="right"
+        [routerLink]="createCourseHref"
+        icon="pi pi-plus"
+        [label]="ui().createCourseButton"
+        type="button" />
     }
   </app-page-header>
 

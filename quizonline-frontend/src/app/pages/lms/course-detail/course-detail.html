@@ -1,31 +1,27 @@
 @if (course(); as c) {
   <app-page-header [title]="courseTitle()">
-    <div slot="left">
-      <p-button
-        type="button"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-arrow-left"
-        [routerLink]="catalogHref"
-        [label]="editorUi().common.back" />
-    </div>
-    <div slot="right">
-      @if (canManage()) {
-        @if (editHref(); as href) {
-          <p-button
-            [routerLink]="href"
-            [label]="ui().editButton"
-            icon="pi pi-pencil"
-            severity="secondary"
-            [outlined]="true" />
-        }
+    <p-button slot="left"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="catalogHref"
+      [label]="editorUi().common.back" />
+    @if (canManage()) {
+      @if (editHref(); as href) {
+        <p-button slot="right"
+          [routerLink]="href"
+          [label]="ui().editButton"
+          icon="pi pi-pencil"
+          severity="secondary"
+          [outlined]="true" />
       }
-      <p-button
-        (onClick)="enroll()"
-        [label]="ui().enrollButton"
-        icon="pi pi-user-plus"
-        [disabled]="enrolling()" />
-    </div>
+    }
+    <p-button slot="right"
+      (onClick)="enroll()"
+      [label]="ui().enrollButton"
+      icon="pi pi-user-plus"
+      [disabled]="enrolling()" />
   </app-page-header>
 
   @if (hasDescription()) {

@@ -1,25 +1,19 @@
 <app-page-header [title]="ui().pageTitle">
-  <div slot="left">
-    <p-button
+  <p-button slot="left"
+    type="button"
+    severity="secondary"
+    [outlined]="true"
+    icon="pi pi-arrow-left"
+    [label]="editorUi().common.back"
+    (onClick)="back()" />
+  @if (viewHref(); as href) {
+    <p-button slot="right"
       type="button"
       severity="secondary"
       [outlined]="true"
-      icon="pi pi-arrow-left"
-      [label]="editorUi().common.back"
-      (onClick)="back()">
-    </p-button>
-  </div>
-  @if (viewHref(); as href) {
-    <div slot="right">
-      <p-button
-        type="button"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-eye"
-        [routerLink]="href"
-        [label]="ui().viewAsLearnerButton">
-      </p-button>
-    </div>
+      icon="pi pi-eye"
+      [routerLink]="href"
+      [label]="ui().viewAsLearnerButton" />
   }
 </app-page-header>
 

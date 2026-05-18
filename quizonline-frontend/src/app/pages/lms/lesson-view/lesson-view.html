@@ -1,28 +1,24 @@
 @if (lesson(); as l) {
   <app-page-header [title]="title()">
-    <div slot="left">
-      <p-button
+    <p-button slot="left"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="backHref()"
+      [label]="editorUi().common.back" />
+    @if (isCompleted()) {
+      <p-tag slot="right" severity="success" [value]="ui().alreadyCompletedBadge" />
+    }
+    @if (editHref(); as href) {
+      <p-button slot="right"
         type="button"
         severity="secondary"
         [outlined]="true"
-        icon="pi pi-arrow-left"
-        [routerLink]="backHref()"
-        [label]="editorUi().common.back" />
-    </div>
-    <div slot="right">
-      @if (isCompleted()) {
-        <p-tag severity="success" [value]="ui().alreadyCompletedBadge" />
-      }
-      @if (editHref(); as href) {
-        <p-button
-          type="button"
-          severity="secondary"
-          [outlined]="true"
-          icon="pi pi-pencil"
-          [routerLink]="href"
-          [label]="ui().editButton" />
-      }
-    </div>
+        icon="pi pi-pencil"
+        [routerLink]="href"
+        [label]="ui().editButton" />
+    }
   </app-page-header>
 
   <div class="lesson-layout">
