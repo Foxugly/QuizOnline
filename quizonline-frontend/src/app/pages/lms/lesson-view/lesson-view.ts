@@ -1,9 +1,11 @@
 import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, computed, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {Subscription} from 'rxjs';
+import {Subject, Subscription, debounceTime} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
+import {TextareaModule} from 'primeng/textarea';
+import {FormsModule} from '@angular/forms';
 
 import {LMS_CATALOG, LMS_COURSE_DETAIL, LMS_LESSON_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -60,8 +62,10 @@ interface BlockOutlineItem {
   selector: 'app-lms-lesson-view',
   imports: [
     RouterLink,
+    FormsModule,
     ButtonModule,
     TagModule,
+    TextareaModule,
     PageHeader,
     RichTextBlockRenderer,
     ImageBlockRenderer,
@@ -90,6 +94,14 @@ export class LmsLessonView implements OnInit, OnDestroy, AfterViewInit {
    *  highlighted entry in the left outline (scroll-spy). */
   protected readonly activeAnchor = signal<string | null>(null);
   private observer: IntersectionObserver | null = null;
+
+  /** Caller's private note for the current lesson. ``content`` is the
+   *  live textarea value; ``savedAt`` is set after every successful
+   *  PUT and feeds the inline "Saved at HH:MM" status. */
+  protected readonly noteContent = signal('');
+  protected readonly noteSavedAt = signal<Date | null>(null);
+  private readonly noteInput$ = new Subject<string>();
+  private noteSub: Subscription | null = null;
 
   protected readonly ui = this.uiSvc.localized(getLmsLessonViewUiText);
   /** Shared "Back" label — same source as every other LMS page. */
@@ -179,7 +191,16 @@ export class LmsLessonView implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
       this.loadLesson(id);
+      this.loadNote(id);
     });
+    // Debounced auto-save: every keystroke streams through this
+    // subject and only the final value (after 600ms of inactivity)
+    // hits the backend. Matches the block-editor's 500ms — slightly
+    // longer here because notes tend to be longer-form than
+    // form fields.
+    this.noteSub = this.noteInput$
+      .pipe(debounceTime(600))
+      .subscribe((value) => this.persistNote(value));
   }
 
   ngAfterViewInit(): void {
@@ -200,8 +221,52 @@ export class LmsLessonView implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.routeSub = null;
+    this.noteSub?.unsubscribe();
+    this.noteSub = null;
     this.observer?.disconnect();
     this.observer = null;
+  }
+
+  protected onNoteChange(value: string): void {
+    this.noteContent.set(value);
+    this.noteInput$.next(value);
+  }
+
+  /** Pretty "HH:MM" rendering of the last saved-at timestamp. Returns
+   *  null when no save has happened yet so the template hides the
+   *  hint instead of showing a dummy value. */
+  protected noteSavedAtLabel(): string | null {
+    const ts = this.noteSavedAt();
+    if (!ts) {
+      return null;
+    }
+    return ts.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+  }
+
+  private loadNote(lessonId: number): void {
+    this.enrollment.getLessonNote(lessonId).subscribe({
+      next: (note) => {
+        this.noteContent.set(note?.content ?? '');
+        this.noteSavedAt.set(null);
+      },
+      error: (err: unknown) => {
+        logApiError('lms.lesson-view.note.load', err);
+        this.noteContent.set('');
+      },
+    });
+  }
+
+  private persistNote(content: string): void {
+    const id = this.lesson()?.id;
+    if (!id) {
+      return;
+    }
+    this.enrollment.saveLessonNote(id, content).subscribe({
+      next: () => this.noteSavedAt.set(new Date()),
+      error: (err: unknown) => {
+        logApiError('lms.lesson-view.note.save', err);
+      },
+    });
   }
 
   /** Tear down the previous observer and register a fresh one against

@@ -66,6 +66,30 @@
     </section>
   </div>
 
+  <!-- Private per-learner notes. Persisted via debounced PUT every
+       600 ms of inactivity so the apprenant never loses progress
+       when the tab closes. Empty by default — the placeholder
+       suggests the use. -->
+  <section class="lesson-notes" aria-labelledby="lesson-notes-heading">
+    <header class="lesson-notes__head">
+      <h2 id="lesson-notes-heading">
+        <i class="pi pi-pencil" aria-hidden="true"></i>
+        {{ ui().notesHeading }}
+      </h2>
+      @if (noteSavedAtLabel(); as label) {
+        <span class="lesson-notes__saved">
+          <i class="pi pi-check-circle"></i>
+          {{ ui().notesSavedAt(label) }}
+        </span>
+      }
+    </header>
+    <textarea pTextarea rows="4"
+              class="lesson-notes__area"
+              [ngModel]="noteContent()"
+              (ngModelChange)="onNoteChange($event)"
+              [placeholder]="ui().notesPlaceholder"></textarea>
+  </section>
+
   <footer class="lesson-footer">
     @if (prevLesson(); as prev) {
       <p-button

@@ -133,6 +133,18 @@ export class LmsEnrollmentService {
     return this.http.get<unknown>(`${this.baseUrl}/certificate/${id}/`);
   }
 
+  /** Read the caller's private note for a lesson. Returns a fresh
+   *  empty row when the user hasn't taken a note yet. */
+  getLessonNote(lessonId: number): Observable<{content: string}> {
+    return this.http.get<{content: string}>(`${this.baseUrl}/lesson/${lessonId}/note/`);
+  }
+
+  /** Upsert the caller's note. The backend creates the row on the
+   *  first PUT and overwrites it on subsequent ones. */
+  saveLessonNote(lessonId: number, content: string): Observable<{content: string}> {
+    return this.http.put<{content: string}>(`${this.baseUrl}/lesson/${lessonId}/note/`, {content});
+  }
+
   verify(token: string): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/verify/${encodeURIComponent(token)}/`);
   }

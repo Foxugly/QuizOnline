@@ -60,6 +60,12 @@ export interface LmsLessonViewUiText {
   nextLessonButton: string;
   /** "Lesson {current}/{total}" header subtitle prefix. */
   positionInSection: (current: number, total: number) => string;
+  /** Heading of the private notes section. */
+  notesHeading: string;
+  /** Placeholder shown in the empty notes textarea. */
+  notesPlaceholder: string;
+  /** Status hint: "Saved at HH:MM" right after a successful PUT. */
+  notesSavedAt: (time: string) => string;
 }
 
 export function getLmsLessonViewUiText(
@@ -97,6 +103,9 @@ export function getLmsLessonViewUiText(
         prevLessonButton: 'Leçon précédente',
         nextLessonButton: 'Leçon suivante',
         positionInSection: (c, t) => `Leçon ${c}/${t}`,
+        notesHeading: 'Mes notes',
+        notesPlaceholder: 'Vos notes personnelles sur cette leçon…',
+        notesSavedAt: (time) => `Enregistré à ${time}`,
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -129,6 +138,9 @@ export function getLmsLessonViewUiText(
         prevLessonButton: 'Vorige les',
         nextLessonButton: 'Volgende les',
         positionInSection: (c, t) => `Les ${c}/${t}`,
+        notesHeading: 'Mijn notities',
+        notesPlaceholder: 'Je persoonlijke notities over deze les…',
+        notesSavedAt: (time) => `Opgeslagen om ${time}`,
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -161,6 +173,9 @@ export function getLmsLessonViewUiText(
         prevLessonButton: 'Lezione precedente',
         nextLessonButton: 'Lezione successiva',
         positionInSection: (c, t) => `Lezione ${c}/${t}`,
+        notesHeading: 'I miei appunti',
+        notesPlaceholder: 'I tuoi appunti personali su questa lezione…',
+        notesSavedAt: (time) => `Salvato alle ${time}`,
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -193,6 +208,9 @@ export function getLmsLessonViewUiText(
         prevLessonButton: 'Lección anterior',
         nextLessonButton: 'Lección siguiente',
         positionInSection: (c, t) => `Lección ${c}/${t}`,
+        notesHeading: 'Mis notas',
+        notesPlaceholder: 'Tus notas personales sobre esta lección…',
+        notesSavedAt: (time) => `Guardado a las ${time}`,
       };
     default:
       return {
@@ -224,6 +242,9 @@ export function getLmsLessonViewUiText(
         prevLessonButton: 'Previous lesson',
         nextLessonButton: 'Next lesson',
         positionInSection: (c, t) => `Lesson ${c}/${t}`,
+        notesHeading: 'My notes',
+        notesPlaceholder: 'Your personal notes on this lesson…',
+        notesSavedAt: (time) => `Saved at ${time}`,
       };
   }
 }
