@@ -63,10 +63,32 @@
   </div>
 
   <footer class="lesson-footer">
+    @if (prevLesson(); as prev) {
+      <p-button
+        class="lesson-footer__prev"
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-chevron-left"
+        iconPos="left"
+        [routerLink]="lessonHref(prev.id)"
+        [label]="ui().prevLessonButton + ' — ' + prev.title" />
+    }
     <p-button
+      class="lesson-footer__complete"
       [label]="ui().markCompletedButton"
       [disabled]="isCompleted() || completing()"
       (onClick)="completeLesson()" />
+    @if (nextLesson(); as next) {
+      <p-button
+        class="lesson-footer__next"
+        type="button"
+        severity="primary"
+        icon="pi pi-chevron-right"
+        iconPos="right"
+        [routerLink]="lessonHref(next.id)"
+        [label]="ui().nextLessonButton + ' — ' + next.title" />
+    }
   </footer>
 } @else {
   <p class="muted">{{ ui().pageLoading }}</p>

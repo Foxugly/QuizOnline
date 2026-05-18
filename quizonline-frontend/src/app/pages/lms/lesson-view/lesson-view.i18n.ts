@@ -54,6 +54,10 @@ export interface LmsLessonViewUiText {
   editButton: string;
   /** Heading of the left-side block-outline navigation. */
   outlineHeading: string;
+  /** Footer button: previous lesson. */
+  prevLessonButton: string;
+  /** Footer button: next lesson. */
+  nextLessonButton: string;
 }
 
 export function getLmsLessonViewUiText(
@@ -88,6 +92,8 @@ export function getLmsLessonViewUiText(
         lessonCompletedErrorToast: 'Impossible de marquer la leçon comme terminée.',
         editButton: 'Modifier',
         outlineHeading: 'Plan de la leçon',
+        prevLessonButton: 'Leçon précédente',
+        nextLessonButton: 'Leçon suivante',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -117,6 +123,8 @@ export function getLmsLessonViewUiText(
         lessonCompletedErrorToast: 'Kon les niet als voltooid markeren.',
         editButton: 'Bewerken',
         outlineHeading: 'Lesoverzicht',
+        prevLessonButton: 'Vorige les',
+        nextLessonButton: 'Volgende les',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -146,6 +154,8 @@ export function getLmsLessonViewUiText(
         lessonCompletedErrorToast: 'Impossibile segnare la lezione come completata.',
         editButton: 'Modifica',
         outlineHeading: 'Indice della lezione',
+        prevLessonButton: 'Lezione precedente',
+        nextLessonButton: 'Lezione successiva',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -175,6 +185,8 @@ export function getLmsLessonViewUiText(
         lessonCompletedErrorToast: 'No se pudo marcar la lección como completada.',
         editButton: 'Editar',
         outlineHeading: 'Índice de la lección',
+        prevLessonButton: 'Lección anterior',
+        nextLessonButton: 'Lección siguiente',
       };
     default:
       return {
@@ -203,6 +215,8 @@ export function getLmsLessonViewUiText(
         lessonCompletedErrorToast: 'Could not mark lesson as completed.',
         editButton: 'Edit',
         outlineHeading: 'Lesson outline',
+        prevLessonButton: 'Previous lesson',
+        nextLessonButton: 'Next lesson',
       };
   }
 }

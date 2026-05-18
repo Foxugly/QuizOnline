@@ -5,7 +5,7 @@ import {Subscription} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_CATALOG, LMS_COURSE_DETAIL, LMS_LESSON_EDIT} from '../../../app.routes-paths';
+import {LMS_CATALOG, LMS_COURSE_DETAIL, LMS_LESSON_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
@@ -43,6 +43,8 @@ interface LessonDetailDto {
   course_slug?: string;
   course_id?: number;
   can_manage?: boolean;
+  prev_lesson?: {id: number; title: string} | null;
+  next_lesson?: {id: number; title: string} | null;
 }
 
 interface BlockOutlineItem {
@@ -119,6 +121,15 @@ export class LmsLessonView implements OnInit, OnDestroy {
     const id = this.lesson()?.id;
     return id ? LMS_LESSON_EDIT(id) : null;
   });
+
+  /** Neighbouring-lesson view-models for the footer prev/next buttons.
+   *  ``null`` at the course boundary — the template hides the button. */
+  protected readonly prevLesson = computed(() => this.lesson()?.prev_lesson ?? null);
+  protected readonly nextLesson = computed(() => this.lesson()?.next_lesson ?? null);
+
+  protected lessonHref(id: number): ReturnType<typeof LMS_LESSON_VIEW> {
+    return LMS_LESSON_VIEW(id);
+  }
 
   /** One outline entry per block. The label is the block's own
    *  translated ``title`` when available, falling back to the
