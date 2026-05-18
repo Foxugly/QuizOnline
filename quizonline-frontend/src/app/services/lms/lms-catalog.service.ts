@@ -57,6 +57,28 @@ export class LmsCatalogService {
     return this.http.post<unknown>(`${this.baseUrl}/course/${id}/clone/`, {});
   }
 
+  /**
+   * Update a course via ``PATCH /api/lms/course/{id}/``. ``payload`` is
+   * forwarded as JSON — for cover-image uploads use the dedicated
+   * :meth:`uploadCourseCoverImage` companion below which switches to
+   * multipart form-data.
+   */
+  updateCourse(id: number, payload: Record<string, unknown>): Observable<unknown> {
+    return this.http.patch<unknown>(`${this.baseUrl}/course/${id}/`, payload);
+  }
+
+  /**
+   * Replace a course's ``cover_image`` via multipart form-data. Mirrors
+   * the :class:`LmsUploadService` pattern used by the lesson block
+   * editors: a single-field PATCH so DRF's parser negotiation can
+   * decode the file without us having to JSON-encode binary content.
+   */
+  uploadCourseCoverImage(id: number, file: File): Observable<unknown> {
+    const fd = new FormData();
+    fd.append('cover_image', file);
+    return this.http.patch<unknown>(`${this.baseUrl}/course/${id}/`, fd);
+  }
+
   reorderSections(courseId: number, ids: number[]): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/course/${courseId}/section/reorder/`, {ids});
   }
