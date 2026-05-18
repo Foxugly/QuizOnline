@@ -1,12 +1,14 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
+import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {Subscription} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_LESSON_VIEW} from '../../../app.routes-paths';
+import {LMS_COURSE_EDIT, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
+import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {pickTranslation, type TranslationsMap} from '../../../shared/lms/lms-translations';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
@@ -32,6 +34,7 @@ interface CourseDetailDto {
   id: number;
   slug: string;
   enrollment_mode?: 'open' | 'approval' | 'invite';
+  can_manage?: boolean;
   translations?: TranslationsMap;
   sections?: CourseSectionDto[];
 }
@@ -51,7 +54,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-lms-course-detail',
-  imports: [RouterLink, ButtonModule, ProgressBarModule, TagModule],
+  imports: [RouterLink, ButtonModule, ProgressBarModule, TagModule, EmptyStateComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,6 +66,7 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   private readonly uiSvc = inject(UiTextService);
   private readonly userService = inject(UserService);
   private readonly toast = inject(AppToastService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly ui = this.uiSvc.localized(getLmsCourseDetailUiText);
   protected readonly currentLang = this.userService.lang;
@@ -75,9 +79,33 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
     pickTranslation(this.course()?.translations, this.currentLang(), 'title'),
   );
 
-  protected readonly courseDescription = computed(() =>
-    pickTranslation(this.course()?.translations, this.currentLang(), 'description'),
+  /** Description is HTML produced by the rich-text editor; backend
+   *  sanitizes it via nh3 on write, so we can trust it for innerHTML. */
+  protected readonly courseDescription = computed<SafeHtml>(() => {
+    const html = pickTranslation(this.course()?.translations, this.currentLang(), 'description');
+    return this.sanitizer.bypassSecurityTrustHtml(html ?? '');
+  });
+
+  protected readonly hasDescription = computed(
+    () => !!pickTranslation(this.course()?.translations, this.currentLang(), 'description')?.trim(),
   );
+
+  protected readonly courseLearningObjectives = computed<SafeHtml>(() => {
+    const html = pickTranslation(this.course()?.translations, this.currentLang(), 'learning_objectives');
+    return this.sanitizer.bypassSecurityTrustHtml(html ?? '');
+  });
+
+  protected readonly hasLearningObjectives = computed(
+    () =>
+      !!pickTranslation(this.course()?.translations, this.currentLang(), 'learning_objectives')?.trim(),
+  );
+
+  protected readonly canManage = computed(() => !!this.course()?.can_manage);
+
+  protected readonly editHref = computed(() => {
+    const c = this.course();
+    return c ? LMS_COURSE_EDIT(c.id) : null;
+  });
 
   protected readonly sectionsVm = computed<SectionVm[]>(() => {
     const lang = this.currentLang();
@@ -92,6 +120,11 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
         href: LMS_LESSON_VIEW(l.id),
       })),
     }));
+  });
+
+  protected readonly hasAnyContent = computed(() => {
+    const sections = this.sectionsVm();
+    return sections.some((s) => s.lessons.length > 0);
   });
 
   ngOnInit(): void {
