@@ -170,6 +170,11 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     # course boundaries.
     prev_lesson = serializers.SerializerMethodField()
     next_lesson = serializers.SerializerMethodField()
+    # Localized parent section title for the lesson-view subtitle.
+    section_title = serializers.SerializerMethodField()
+    # Position breadcrumb: ``{current: int, total: int}`` of this
+    # lesson within its section so the learner can see "Lesson 2/5".
+    position_in_section = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -178,10 +183,12 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             "slug", "order", "is_preview", "is_published", "estimated_duration",
             "translations", "blocks", "available_lang_codes", "can_manage",
             "prev_lesson", "next_lesson",
+            "section_title", "position_in_section",
         ]
         read_only_fields = [
             "id", "blocks", "course_id", "course_slug", "domain_id", "can_manage",
             "prev_lesson", "next_lesson",
+            "section_title", "position_in_section",
         ]
 
     def get_available_lang_codes(self, obj):
@@ -228,6 +235,38 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     })
     def get_next_lesson(self, obj):
         return self._neighbour(obj, direction=+1)
+
+    @extend_schema_field(serializers.CharField())
+    def get_section_title(self, obj) -> str:
+        section = obj.section
+        request = self.context.get("request")
+        lang = getattr(getattr(request, "user", None), "language", None) or "fr"
+        return (
+            section.safe_translation_getter("title", language_code=lang, any_language=True)
+            or f"Section #{section.pk}"
+        )
+
+    @extend_schema_field({
+        "type": "object",
+        "properties": {
+            "current": {"type": "integer"},
+            "total": {"type": "integer"},
+        },
+        "required": ["current", "total"],
+    })
+    def get_position_in_section(self, obj):
+        from .models import Lesson
+        section_lessons = list(
+            Lesson.objects.filter(section_id=obj.section_id)
+            .order_by("order", "id")
+            .values_list("id", flat=True)
+        )
+        total = len(section_lessons)
+        try:
+            current = section_lessons.index(obj.id) + 1
+        except ValueError:
+            current = 0
+        return {"current": current, "total": total}
 
     def _neighbour(self, obj, direction: int):
         """Return the ``(id, title)`` of the previous / next lesson in

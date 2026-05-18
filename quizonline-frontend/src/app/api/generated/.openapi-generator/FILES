@@ -83,6 +83,7 @@ model/join-request-status-enum.ts
 model/language-enum.ts
 model/language-read.ts
 model/language-write-request.ts
+model/lesson-detail-position-in-section.ts
 model/lesson-detail-prev-lesson.ts
 model/lesson-detail-request.ts
 model/lesson-detail.ts

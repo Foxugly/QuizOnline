@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { ContentBlockDto } from './content-block';
+import { LessonDetailPositionInSectionDto } from './lesson-detail-position-in-section';
 import { LessonDetailPrevLessonDto } from './lesson-detail-prev-lesson';
 
 
@@ -28,5 +29,7 @@ export interface LessonDetailDto {
     readonly can_manage: boolean;
     prev_lesson: LessonDetailPrevLessonDto | null;
     next_lesson: LessonDetailPrevLessonDto | null;
+    readonly section_title: string;
+    position_in_section: LessonDetailPositionInSectionDto;
 }
 

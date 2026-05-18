@@ -7255,6 +7255,20 @@ components:
           - id
           - title
           readOnly: true
+        section_title:
+          type: string
+          readOnly: true
+        position_in_section:
+          type: object
+          properties:
+            current:
+              type: integer
+            total:
+              type: integer
+          required:
+          - current
+          - total
+          readOnly: true
       required:
       - available_lang_codes
       - blocks
@@ -7264,8 +7278,10 @@ components:
       - domain_id
       - id
       - next_lesson
+      - position_in_section
       - prev_lesson
       - section
+      - section_title
       - slug
       - translations
     LessonDetailRequest:

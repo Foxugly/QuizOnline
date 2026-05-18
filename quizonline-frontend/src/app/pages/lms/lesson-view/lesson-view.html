@@ -1,4 +1,7 @@
 @if (lesson(); as l) {
+  @if (positionSubtitle(); as subtitle) {
+    <p class="lesson-position">{{ subtitle }}</p>
+  }
   <app-page-header [title]="title()">
     <p-button slot="left"
       type="button"

@@ -40,6 +40,22 @@ def course_with_two_sections(db, course):
 
 
 @pytest.mark.django_db
+def test_section_title_and_position(owner, course_with_two_sections):
+    """The new ``section_title`` + ``position_in_section`` payload feeds
+    the lesson-view subtitle ("Leçon 2/2 — Setup")."""
+    s1l2 = course_with_two_sections["s1l2"]
+    s1l2.section.set_current_language("fr")
+    s1l2.section.title = "Premiers pas"
+    s1l2.section.save()
+
+    resp = _auth(owner).get(f"/api/lms/lesson/{s1l2.id}/")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["section_title"] == "Premiers pas"
+    assert body["position_in_section"] == {"current": 2, "total": 2}
+
+
+@pytest.mark.django_db
 def test_neighbours_at_course_start(owner, course_with_two_sections):
     """First lesson of the course: prev null, next is the next lesson in same section."""
     resp = _auth(owner).get(f"/api/lms/lesson/{course_with_two_sections['s1l1'].id}/")

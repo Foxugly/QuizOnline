@@ -58,6 +58,8 @@ export interface LmsLessonViewUiText {
   prevLessonButton: string;
   /** Footer button: next lesson. */
   nextLessonButton: string;
+  /** "Lesson {current}/{total}" header subtitle prefix. */
+  positionInSection: (current: number, total: number) => string;
 }
 
 export function getLmsLessonViewUiText(
@@ -94,6 +96,7 @@ export function getLmsLessonViewUiText(
         outlineHeading: 'Plan de la leçon',
         prevLessonButton: 'Leçon précédente',
         nextLessonButton: 'Leçon suivante',
+        positionInSection: (c, t) => `Leçon ${c}/${t}`,
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -125,6 +128,7 @@ export function getLmsLessonViewUiText(
         outlineHeading: 'Lesoverzicht',
         prevLessonButton: 'Vorige les',
         nextLessonButton: 'Volgende les',
+        positionInSection: (c, t) => `Les ${c}/${t}`,
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -156,6 +160,7 @@ export function getLmsLessonViewUiText(
         outlineHeading: 'Indice della lezione',
         prevLessonButton: 'Lezione precedente',
         nextLessonButton: 'Lezione successiva',
+        positionInSection: (c, t) => `Lezione ${c}/${t}`,
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -187,6 +192,7 @@ export function getLmsLessonViewUiText(
         outlineHeading: 'Índice de la lección',
         prevLessonButton: 'Lección anterior',
         nextLessonButton: 'Lección siguiente',
+        positionInSection: (c, t) => `Lección ${c}/${t}`,
       };
     default:
       return {
@@ -217,6 +223,7 @@ export function getLmsLessonViewUiText(
         outlineHeading: 'Lesson outline',
         prevLessonButton: 'Previous lesson',
         nextLessonButton: 'Next lesson',
+        positionInSection: (c, t) => `Lesson ${c}/${t}`,
       };
   }
 }

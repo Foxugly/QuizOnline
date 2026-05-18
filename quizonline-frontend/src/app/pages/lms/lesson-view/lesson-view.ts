@@ -45,6 +45,8 @@ interface LessonDetailDto {
   can_manage?: boolean;
   prev_lesson?: {id: number; title: string} | null;
   next_lesson?: {id: number; title: string} | null;
+  section_title?: string;
+  position_in_section?: {current: number; total: number};
 }
 
 interface BlockOutlineItem {
@@ -126,6 +128,17 @@ export class LmsLessonView implements OnInit, OnDestroy {
    *  ``null`` at the course boundary — the template hides the button. */
   protected readonly prevLesson = computed(() => this.lesson()?.prev_lesson ?? null);
   protected readonly nextLesson = computed(() => this.lesson()?.next_lesson ?? null);
+
+  /** "Lesson 2/5 — Setup" subtitle text. Returns ``null`` when the
+   *  position payload is missing (defensive against an older backend). */
+  protected readonly positionSubtitle = computed<string | null>(() => {
+    const l = this.lesson();
+    if (!l?.position_in_section || !l?.section_title) {
+      return null;
+    }
+    const pos = this.ui().positionInSection(l.position_in_section.current, l.position_in_section.total);
+    return `${pos} — ${l.section_title}`;
+  });
 
   protected lessonHref(id: number): ReturnType<typeof LMS_LESSON_VIEW> {
     return LMS_LESSON_VIEW(id);
