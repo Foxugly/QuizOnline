@@ -20,14 +20,40 @@
   }
 }
 
+/* Row action buttons (start / assign / results / edit / delete). The
+ * previous 0.5rem gap with default ``size="small"`` button padding made
+ * a row of 5 icon-only actions feel airy. Compact gap + tightened
+ * padding lets them sit closer without crowding. */
 .row-actions {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .row-actions .p-button {
+  padding: 0.2rem 0.35rem;
+
+  .p-button-icon {
+    font-size: 0.95rem;
+  }
 }
 
 .center-cell {
   text-align: center;
+}
+
+/* Boolean indicators replace yes/no text — sized + coloured for at-a-glance scanning. */
+.bool-icon--yes {
+  color: var(--p-green-500, #22c55e);
+  font-size: 1.05rem;
+}
+
+.bool-icon--no {
+  color: var(--p-red-400, #f87171);
+  font-size: 1.05rem;
 }
 
 .empty-cell {
@@ -36,6 +62,13 @@
   color: #6b7280;
 }
 
+/* Trim the table body text a notch — the previous default felt heavy
+ * once the row-action column got tightened. */
+:host ::ng-deep .p-datatable tbody > tr > td {
+  font-size: 0.875rem;
+}
+
 :host ::ng-deep .p-datatable thead > tr > th {
   text-align: center !important;
+  font-size: 0.85rem;
 }
