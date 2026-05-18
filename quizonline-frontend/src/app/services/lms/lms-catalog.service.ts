@@ -58,6 +58,18 @@ export class LmsCatalogService {
   }
 
   /**
+   * Delete a course via ``DELETE /api/lms/course/{id}/``. Cascades to all
+   * sections, lessons, content blocks and learner enrollments / progress
+   * via standard ORM ``on_delete=CASCADE`` rules. Will surface a 4xx
+   * error from the backend when a non-cascade FK protects deletion
+   * (notably ``Certificate.course`` is ``on_delete=PROTECT``, so any
+   * course that has issued certificates cannot be deleted).
+   */
+  deleteCourse(id: number): Observable<unknown> {
+    return this.http.delete<unknown>(`${this.baseUrl}/course/${id}/`);
+  }
+
+  /**
    * Update a course via ``PATCH /api/lms/course/{id}/``. ``payload`` is
    * forwarded as JSON — for cover-image uploads use the dedicated
    * :meth:`uploadCourseCoverImage` companion below which switches to
