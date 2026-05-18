@@ -1,6 +1,10 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from language.models import Language
+
+from .models import ContentBlock, Course, Lesson, Section
+
 
 @extend_schema_field({
     "type": "object",
@@ -33,3 +37,207 @@ class TranslationsField(serializers.Field):
         if not isinstance(data, dict):
             raise serializers.ValidationError("Expected a dict of {lang_code: {field: value}}.")
         return data
+
+
+def _filter_allowed_lang_codes(data: dict, course: Course) -> dict:
+    """Drop translation rows whose ``language_code`` is not in the course domain's
+    ``allowed_languages``. Raises if the domain has none configured at all."""
+    allowed = set(course.domain.allowed_languages.values_list("code", flat=True))
+    if not allowed:
+        raise serializers.ValidationError("Domain has no allowed_languages configured.")
+    return {k: v for k, v in data.items() if k in allowed}
+
+
+class ContentBlockSerializer(serializers.ModelSerializer):
+    translations = TranslationsField()
+
+    class Meta:
+        model = ContentBlock
+        fields = [
+            "id", "lesson", "block_type", "order", "is_required",
+            "image", "video_url", "video_provider", "file", "external_url",
+            "code_language", "code_content", "quiz_template",
+            "metadata", "translations",
+        ]
+        read_only_fields = ["id"]
+
+    def validate(self, attrs):
+        instance = self.instance or ContentBlock(**{k: v for k, v in attrs.items() if k != "translations"})
+        for k, v in attrs.items():
+            if k != "translations":
+                setattr(instance, k, v)
+        instance.full_clean(exclude=["lesson"] if not getattr(instance, "lesson_id", None) else None)
+        return attrs
+
+    def create(self, validated_data):
+        tr = validated_data.pop("translations", {})
+        instance = ContentBlock.objects.create(**validated_data)
+        return self._apply_translations(instance, tr)
+
+    def update(self, instance, validated_data):
+        tr = validated_data.pop("translations", None)
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        instance.save()
+        if tr is not None:
+            self._apply_translations(instance, tr)
+        return instance
+
+    def _apply_translations(self, instance, tr_dict):
+        course = instance.lesson.section.course
+        tr_dict = _filter_allowed_lang_codes(tr_dict, course)
+        for lang, fields in tr_dict.items():
+            instance.set_current_language(lang)
+            for k, v in fields.items():
+                setattr(instance, k, v)
+            instance.save()
+        return instance
+
+
+class LessonDetailSerializer(serializers.ModelSerializer):
+    translations = TranslationsField()
+    blocks = ContentBlockSerializer(many=True, read_only=True)
+    available_lang_codes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = [
+            "id", "section", "slug", "order", "is_preview", "is_published",
+            "estimated_duration", "translations", "blocks", "available_lang_codes",
+        ]
+        read_only_fields = ["id", "blocks"]
+
+    def get_available_lang_codes(self, obj):
+        return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
+
+    def create(self, validated_data):
+        tr = validated_data.pop("translations", {})
+        instance = Lesson.objects.create(**validated_data)
+        return self._apply(instance, tr)
+
+    def update(self, instance, validated_data):
+        tr = validated_data.pop("translations", None)
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        instance.save()
+        if tr is not None:
+            self._apply(instance, tr)
+        return instance
+
+    def _apply(self, instance, tr_dict):
+        course = instance.section.course
+        tr_dict = _filter_allowed_lang_codes(tr_dict, course)
+        for lang, fields in tr_dict.items():
+            instance.set_current_language(lang)
+            for k, v in fields.items():
+                setattr(instance, k, v)
+            instance.save()
+        return instance
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    translations = TranslationsField()
+    available_lang_codes = serializers.SerializerMethodField()
+    lessons = LessonDetailSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Section
+        fields = ["id", "course", "order", "is_published", "translations", "available_lang_codes", "lessons"]
+        read_only_fields = ["id", "lessons"]
+
+    def get_available_lang_codes(self, obj):
+        return sorted(obj.course.domain.allowed_languages.values_list("code", flat=True))
+
+    def create(self, validated_data):
+        tr = validated_data.pop("translations", {})
+        instance = Section.objects.create(**validated_data)
+        return self._apply(instance, tr)
+
+    def update(self, instance, validated_data):
+        tr = validated_data.pop("translations", None)
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        instance.save()
+        if tr is not None:
+            self._apply(instance, tr)
+        return instance
+
+    def _apply(self, instance, tr_dict):
+        tr_dict = _filter_allowed_lang_codes(tr_dict, instance.course)
+        for lang, fields in tr_dict.items():
+            instance.set_current_language(lang)
+            for k, v in fields.items():
+                setattr(instance, k, v)
+            instance.save()
+        return instance
+
+
+class CourseListSerializer(serializers.ModelSerializer):
+    translations = TranslationsField()
+    language_code = serializers.SlugRelatedField(source="language", slug_field="code", read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            "id", "slug", "level", "language_code", "estimated_duration",
+            "enrollment_mode", "is_published", "published_at",
+            "cover_image", "translations", "domain",
+        ]
+
+
+class CourseDetailSerializer(CourseListSerializer):
+    sections = SectionSerializer(many=True, read_only=True)
+    available_lang_codes = serializers.SerializerMethodField()
+    can_manage = serializers.SerializerMethodField()
+
+    class Meta(CourseListSerializer.Meta):
+        fields = CourseListSerializer.Meta.fields + [
+            "sections", "available_lang_codes", "can_manage", "created_at", "updated_at",
+        ]
+
+    def get_available_lang_codes(self, obj):
+        return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
+
+    def get_can_manage(self, obj):
+        from .permissions import is_lms_instructor
+        request = self.context.get("request")
+        return bool(request and is_lms_instructor(request.user, obj))
+
+
+class CourseWriteSerializer(serializers.ModelSerializer):
+    translations = TranslationsField()
+    language_code = serializers.SlugRelatedField(queryset=Language.objects.all(), source="language", slug_field="code")
+
+    class Meta:
+        model = Course
+        fields = [
+            "id", "slug", "level", "language_code", "estimated_duration",
+            "enrollment_mode", "cover_image", "domain", "translations",
+        ]
+        read_only_fields = ["id"]
+
+    def create(self, validated_data):
+        tr = validated_data.pop("translations", {})
+        instance = Course(**validated_data)
+        instance.full_clean()
+        instance.save()
+        return self._apply(instance, tr)
+
+    def update(self, instance, validated_data):
+        tr = validated_data.pop("translations", None)
+        for k, v in validated_data.items():
+            setattr(instance, k, v)
+        instance.full_clean()
+        instance.save()
+        if tr is not None:
+            self._apply(instance, tr)
+        return instance
+
+    def _apply(self, instance, tr_dict):
+        tr_dict = _filter_allowed_lang_codes(tr_dict, instance)
+        for lang, fields in tr_dict.items():
+            instance.set_current_language(lang)
+            for k, v in fields.items():
+                setattr(instance, k, v)
+            instance.save()
+        return instance
