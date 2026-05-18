@@ -206,6 +206,41 @@ sudo systemctl reload nginx
 
 ---
 
+## Upgrade the Python runtime
+
+EOL bumps (e.g. 3.8 → 3.12) — `deploy/upgrade-python.sh` does the
+swap in-place on the live box. Stops the three services, backs the
+old venv up to `.venv.bak.<timestamp>`, creates a fresh venv with
+the target interpreter, reinstalls `requirements.txt`, runs
+`manage.py check` + `migrate --plan` as a guard, then restarts and
+polls `/health/`. A `trap` triggers automatic rollback on any
+failure between stop and start.
+
+```bash
+# On EC2, as a sudoer:
+sudo bash deploy/upgrade-python.sh --dry-run        # preview, no mutations
+sudo bash deploy/upgrade-python.sh                  # interactive, target 3.12
+sudo bash deploy/upgrade-python.sh --version 3.13   # any minor version
+sudo bash deploy/upgrade-python.sh --yes            # skip the confirm prompt
+sudo bash deploy/upgrade-python.sh --rollback       # restore the most recent .venv.bak.*
+```
+
+Idempotent: re-running on a box already on the target version is a
+no-op. The backup is kept indefinitely — delete it manually after a
+week of uptime on the new interpreter:
+
+```bash
+sudo rm -rf /var/www/django_websites/QuizOnline/quizonline-server/.venv.bak.<timestamp>
+```
+
+When you bump prod, **also bump CI** (`.github/workflows/ci.yml`,
+the five `setup-python` blocks) so the runner matches the prod
+interpreter and a future PEP-585-style runtime gotcha (`list[int]`
+crashes on 3.8 but compiles cleanly everywhere else) cannot slip
+through.
+
+---
+
 ## AWS resources
 
 All in **eu-west-1** unless noted.
