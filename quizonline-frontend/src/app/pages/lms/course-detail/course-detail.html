@@ -1,1 +1,31 @@
-<h1>{{ ui().pageTitle }}</h1>
+@if (course(); as c) {
+  <header class="course-header">
+    <h1>{{ courseTitle() }}</h1>
+    <p>{{ courseDescription() }}</p>
+    <p-button
+      (onClick)="enroll()"
+      [label]="ui().enrollButton"
+      [disabled]="enrolling()"
+    />
+  </header>
+
+  <h2>{{ ui().sectionsHeading }}</h2>
+
+  @for (section of sectionsVm(); track section.id) {
+    <section class="course-section">
+      <h3>{{ section.title }}</h3>
+      <ul>
+        @for (lesson of section.lessons; track lesson.id) {
+          <li>
+            <a [routerLink]="lesson.href">{{ lesson.title }}</a>
+            @if (lesson.isPreview) {
+              <p-tag [value]="ui().previewBadge" severity="info" />
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+} @else {
+  <p>{{ ui().loading }}</p>
+}
