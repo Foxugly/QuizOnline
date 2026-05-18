@@ -6,7 +6,7 @@
 
   @if (loading()) {
     <ul class="analytics-counters" aria-busy="true">
-      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
         <li class="analytics-counters__skeleton">
           <p-skeleton width="60%" height="0.85rem" styleClass="mb-2" />
           <p-skeleton width="40%" height="1.6rem" />
@@ -32,15 +32,15 @@
       icon="pi pi-chart-bar"
       [title]="ui().emptyTitle"
       [hint]="ui().emptyMessage" />
-  } @else {
+  } @else if (counts(); as c) {
     <ul class="analytics-counters">
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.total }}</span>
-        <span class="analytics-counters__value">{{ snapshot().total }}</span>
+        <span class="analytics-counters__value">{{ c.total }}</span>
       </li>
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.active }}</span>
-        <span class="analytics-counters__value">{{ snapshot().active }}</span>
+        <span class="analytics-counters__value">{{ c.active }}</span>
         @if (activeHint(); as hint) {
           <span class="analytics-counters__hint">{{ hint }}</span>
         }
@@ -48,27 +48,35 @@
       @if (showPendingKpi()) {
         <li>
           <span class="analytics-counters__label">{{ ui().kpi.pending }}</span>
-          <span class="analytics-counters__value">{{ snapshot().pending }}</span>
+          <span class="analytics-counters__value">{{ c.pending }}</span>
         </li>
       }
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.completed }}</span>
-        <span class="analytics-counters__value">{{ snapshot().completed }}</span>
+        <span class="analytics-counters__value">{{ c.completed }}</span>
         @if (completedHint(); as hint) {
           <span class="analytics-counters__hint">{{ hint }}</span>
         }
       </li>
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.cancelled }}</span>
-        <span class="analytics-counters__value">{{ snapshot().cancelled }}</span>
+        <span class="analytics-counters__value">{{ c.cancelled }}</span>
       </li>
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.completionRate }}</span>
-        <span class="analytics-counters__value">{{ snapshot().completionRatePct }} %</span>
+        <span class="analytics-counters__value">{{ analytics()!.completion_rate_pct }} %</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.medianProgress }}</span>
+        <span class="analytics-counters__value">{{ analytics()!.median_progress_pct }} %</span>
+      </li>
+      <li>
+        <span class="analytics-counters__label">{{ ui().kpi.certificatesIssued }}</span>
+        <span class="analytics-counters__value">{{ analytics()!.certificates_issued }}</span>
       </li>
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.lastEnrollment }}</span>
-        @if (snapshot().lastEnrolledAt; as ts) {
+        @if (analytics()!.last_enrolled_at; as ts) {
           <span
             class="analytics-counters__value"
             [attr.title]="ts | date:'medium'">{{ ts | relativeDate }}</span>
@@ -80,7 +88,7 @@
       </li>
       <li>
         <span class="analytics-counters__label">{{ ui().kpi.lastCompletion }}</span>
-        @if (snapshot().lastCompletedAt; as ts) {
+        @if (analytics()!.last_completed_at; as ts) {
           <span
             class="analytics-counters__value"
             [attr.title]="ts | date:'medium'">{{ ts | relativeDate }}</span>
@@ -91,5 +99,30 @@
         }
       </li>
     </ul>
+
+    <section class="analytics-trend">
+      <header class="analytics-trend__head">
+        <h3>{{ ui().trendHeading }}</h3>
+        <p class="analytics-trend__subtitle">{{ ui().trendSubtitle }}</p>
+      </header>
+      @if (trendHasAny()) {
+        <div class="analytics-trend__chart" role="img" [attr.aria-label]="ui().trendHeading">
+          @for (bar of trendBars(); track bar.date) {
+            <div class="analytics-trend__bar-wrap"
+                 [attr.title]="(bar.date | date:'mediumDate') + ' — ' + bar.count">
+              <div class="analytics-trend__bar"
+                   [class.analytics-trend__bar--empty]="bar.count === 0"
+                   [style.height.%]="bar.heightPct"></div>
+            </div>
+          }
+        </div>
+        <div class="analytics-trend__axis">
+          <span>{{ trendBars()[0].date | date:'mediumDate' }}</span>
+          <span>{{ trendBars()[trendBars().length - 1].date | date:'mediumDate' }}</span>
+        </div>
+      } @else {
+        <p class="analytics-trend__empty">{{ ui().kpiHints.neverYet }}</p>
+      }
+    </section>
   }
 </section>

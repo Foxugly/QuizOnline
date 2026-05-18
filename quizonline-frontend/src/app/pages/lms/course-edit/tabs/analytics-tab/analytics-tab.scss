@@ -68,6 +68,82 @@
   min-height: 4.5rem;
 }
 
+/* 30-day enrollment trend — lightweight sparkline rendered as 30
+ * positioned divs. No Chart.js dependency: the chart is decorative,
+ * each bar already has a tooltip with the exact count/date. */
+.analytics-trend {
+  margin-top: 1.5rem;
+}
+
+.analytics-trend__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+}
+
+.analytics-trend__subtitle {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.analytics-trend__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 96px;
+  padding: 0.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 0.5rem;
+  background: var(--surface-card);
+}
+
+.analytics-trend__bar-wrap {
+  flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 0;
+}
+
+.analytics-trend__bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--p-primary-color, #3b82f6), var(--p-primary-400, #60a5fa));
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: opacity 120ms ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &--empty {
+    background: var(--surface-200, #f1f5f9);
+    height: 2px !important;
+  }
+}
+
+.analytics-trend__axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  color: var(--text-color-secondary);
+  font-size: 0.78rem;
+}
+
+.analytics-trend__empty {
+  margin: 0.5rem 0 0;
+  color: var(--text-color-secondary);
+  font-style: italic;
+}
+
 .analytics-error {
   display: flex;
   flex-direction: column;

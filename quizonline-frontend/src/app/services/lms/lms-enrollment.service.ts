@@ -16,6 +16,24 @@ interface PagedEnvelope<T> {
   results: T[];
 }
 
+/** Server-side analytics payload for a single course. Mirrors the shape
+ *  returned by ``GET /api/lms/course/{id}/analytics/``. */
+export interface CourseAnalyticsDto {
+  enrollment_counts: {
+    total: number;
+    active: number;
+    pending: number;
+    completed: number;
+    cancelled: number;
+  };
+  completion_rate_pct: number;
+  last_enrolled_at: string | null;
+  last_completed_at: string | null;
+  median_progress_pct: number;
+  certificates_issued: number;
+  enrollment_trend_30d: Array<{date: string; count: number}>;
+}
+
 /**
  * Thin wrapper around the LMS enrollment / progress / certificate REST
  * endpoints. Same rationale as :class:`LmsCatalogService` — routes through
@@ -99,6 +117,12 @@ export class LmsEnrollmentService {
 
   myProgress(): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/progress/`);
+  }
+
+  /** Aggregated instructor-side analytics for one course. Backend
+   *  returns a single envelope so the frontend doesn't aggregate. */
+  courseAnalytics(courseId: number): Observable<CourseAnalyticsDto> {
+    return this.http.get<CourseAnalyticsDto>(`${this.baseUrl}/course/${courseId}/analytics/`);
   }
 
   myCertificates(): Observable<unknown> {

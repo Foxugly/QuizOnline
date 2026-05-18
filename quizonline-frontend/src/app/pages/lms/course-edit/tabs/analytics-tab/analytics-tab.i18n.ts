@@ -23,7 +23,11 @@ export interface LmsCourseEditAnalyticsTabUiText {
     completionRate: string;
     lastEnrollment: string;
     lastCompletion: string;
+    medianProgress: string;
+    certificatesIssued: string;
   };
+  trendHeading: string;
+  trendSubtitle: string;
   kpiHints: {
     pctOfTotal: (pct: number) => string;
     neverYet: string;
@@ -55,7 +59,11 @@ export function getLmsCourseEditAnalyticsTabUiText(
           completionRate: 'Taux de réussite',
           lastEnrollment: 'Dernière inscription',
           lastCompletion: 'Dernière complétion',
+          medianProgress: 'Progression médiane',
+          certificatesIssued: 'Certificats émis',
         },
+        trendHeading: 'Inscriptions sur 30 jours',
+        trendSubtitle: 'Nombre de nouvelles inscriptions par jour, fenêtre glissante.',
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % du total`,
           neverYet: '—',
@@ -83,7 +91,11 @@ export function getLmsCourseEditAnalyticsTabUiText(
           completionRate: 'Voltooiingspercentage',
           lastEnrollment: 'Laatste inschrijving',
           lastCompletion: 'Laatste voltooiing',
+          medianProgress: 'Mediane voortgang',
+          certificatesIssued: 'Uitgegeven certificaten',
         },
+        trendHeading: 'Inschrijvingen over 30 dagen',
+        trendSubtitle: 'Aantal nieuwe inschrijvingen per dag, voortschrijdend venster.',
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % van het totaal`,
           neverYet: '—',
@@ -111,7 +123,11 @@ export function getLmsCourseEditAnalyticsTabUiText(
           completionRate: 'Tasso di completamento',
           lastEnrollment: 'Ultima iscrizione',
           lastCompletion: 'Ultimo completamento',
+          medianProgress: 'Progresso mediano',
+          certificatesIssued: 'Certificati emessi',
         },
+        trendHeading: 'Iscrizioni a 30 giorni',
+        trendSubtitle: 'Numero di nuove iscrizioni al giorno, finestra mobile.',
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % del totale`,
           neverYet: '—',
@@ -139,7 +155,11 @@ export function getLmsCourseEditAnalyticsTabUiText(
           completionRate: 'Tasa de finalización',
           lastEnrollment: 'Última inscripción',
           lastCompletion: 'Última finalización',
+          medianProgress: 'Progreso mediano',
+          certificatesIssued: 'Certificados emitidos',
         },
+        trendHeading: 'Inscripciones a 30 días',
+        trendSubtitle: 'Número de nuevas inscripciones por día, ventana deslizante.',
         kpiHints: {
           pctOfTotal: (pct) => `${pct} % del total`,
           neverYet: '—',
@@ -165,7 +185,11 @@ export function getLmsCourseEditAnalyticsTabUiText(
           completionRate: 'Completion rate',
           lastEnrollment: 'Last enrollment',
           lastCompletion: 'Last completion',
+          medianProgress: 'Median progress',
+          certificatesIssued: 'Certificates issued',
         },
+        trendHeading: 'Enrollments over 30 days',
+        trendSubtitle: 'Number of new enrollments per day, rolling window.',
         kpiHints: {
           pctOfTotal: (pct) => `${pct}% of total`,
           neverYet: '—',
