@@ -1,3 +1,4 @@
+from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -222,6 +223,40 @@ class SectionSerializer(serializers.ModelSerializer):
         return instance
 
 
+def _derive_unique_course_slug(language, translations: dict | None) -> str:
+    """Derive a unique slug for a new Course from its primary-language title.
+
+    Looks up the title in the Course's primary language first, then falls
+    back to any provided translation. If no title slugifies to a non-empty
+    value (e.g. CJK-only titles), uses a timestamped ``"course-<n>"`` shape
+    so the create call still succeeds. Appends ``-2``, ``-3``, ... on
+    collisions until uniqueness is reached.
+    """
+    primary_code = getattr(language, "code", None)
+    candidates = []
+    if translations:
+        if primary_code and isinstance(translations.get(primary_code), dict):
+            candidates.append(translations[primary_code].get("title", ""))
+        for code, fields in translations.items():
+            if code == primary_code:
+                continue
+            if isinstance(fields, dict):
+                candidates.append(fields.get("title", ""))
+    base = ""
+    for title in candidates:
+        base = slugify(title or "")
+        if base:
+            break
+    if not base:
+        base = f"course-{Course.objects.count() + 1}"
+    candidate = base
+    n = 2
+    while Course.objects.filter(slug=candidate).exists():
+        candidate = f"{base}-{n}"
+        n += 1
+    return candidate[:220]
+
+
 class CourseListSerializer(serializers.ModelSerializer):
     translations = TranslationsField()
     language_code = serializers.SlugRelatedField(source="language", slug_field="code", read_only=True)
@@ -257,6 +292,10 @@ class CourseDetailSerializer(CourseListSerializer):
 class CourseWriteSerializer(serializers.ModelSerializer):
     translations = TranslationsField()
     language_code = serializers.SlugRelatedField(queryset=Language.objects.all(), source="language", slug_field="code")
+    # Allow omitted / blank slug on create — :meth:`create` derives one from
+    # the primary-language title. Edits never auto-rename the slug (URL
+    # stability), so leaving this optional is safe.
+    slug = serializers.SlugField(max_length=220, required=False, allow_blank=True)
 
     class Meta:
         model = Course
@@ -268,6 +307,8 @@ class CourseWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
+        if not (validated_data.get("slug") or "").strip():
+            validated_data["slug"] = _derive_unique_course_slug(validated_data.get("language"), tr)
         instance = Course(**validated_data)
         instance.full_clean()
         instance.save()
