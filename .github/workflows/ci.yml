@@ -172,6 +172,12 @@ jobs:
       - name: Run production build
         run: npm run build
 
+      - name: Report bundle size
+        # Surfaces the post-build inventory in CI logs so size
+        # regressions are visible BEFORE they trip ng's own
+        # ``maximumError`` budget (1.2 MB initial). Non-blocking.
+        run: npm run report:bundle-size
+
       - name: Run e2e tests
         run: npm run test:e2e
 

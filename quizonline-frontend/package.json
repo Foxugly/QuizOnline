@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "check:i18n": "tsx scripts/check-i18n.ts",
+    "report:bundle-size": "node scripts/report-bundle-size.mjs",
     "test": "ng test --watch=false",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
