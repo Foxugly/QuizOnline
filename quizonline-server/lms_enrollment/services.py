@@ -3,12 +3,14 @@ from __future__ import annotations
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from lms_catalog.models import Course, Lesson
 from .models import (
     CourseEnrollment,
     CourseProgress,
+    LessonProgress,
 )
 
 
@@ -87,3 +89,79 @@ def _ensure_course_progress(user, course: Course) -> CourseProgress:
         defaults={"total_lessons_count": total},
     )
     return cp
+
+
+@transaction.atomic
+def mark_lesson_started(*, user, lesson: Lesson) -> LessonProgress:
+    progress, _ = LessonProgress.objects.select_for_update().get_or_create(
+        user=user,
+        lesson=lesson,
+        defaults={"is_started": True, "started_at": timezone.now()},
+    )
+    if not progress.is_started:
+        progress.is_started = True
+        progress.started_at = timezone.now()
+        progress.save(update_fields=["is_started", "started_at", "last_seen_at"])
+    return progress
+
+
+@transaction.atomic
+def mark_lesson_completed(
+    *, user, lesson: Lesson, progress_percent: int = 100,
+) -> LessonProgress:
+    progress, _ = LessonProgress.objects.select_for_update().get_or_create(
+        user=user, lesson=lesson,
+    )
+    was_completed = progress.is_completed
+    progress.is_started = True
+    progress.is_completed = True
+    progress.progress_percent = max(progress.progress_percent, progress_percent)
+    progress.started_at = progress.started_at or timezone.now()
+    progress.completed_at = progress.completed_at or timezone.now()
+    progress.save()
+
+    course = lesson.section.course
+    cp = calculate_course_progress(user=user, course=course)
+
+    if not was_completed and cp.progress_percent == 100:
+        issue_certificate_if_eligible(user=user, course=course)
+    return progress
+
+
+@transaction.atomic
+def calculate_course_progress(*, user, course: Course) -> CourseProgress:
+    total = Lesson.objects.filter(
+        section__course=course,
+        section__is_published=True,
+        is_published=True,
+    ).count()
+    completed = LessonProgress.objects.filter(
+        user=user,
+        lesson__section__course=course,
+        lesson__section__is_published=True,
+        lesson__is_published=True,
+        is_completed=True,
+    ).count()
+    percent = int((completed / total) * 100) if total else 0
+    cp, _ = CourseProgress.objects.select_for_update().get_or_create(
+        user=user, course=course,
+    )
+    cp.total_lessons_count = total
+    cp.completed_lessons_count = completed
+    cp.progress_percent = percent
+    cp.save()
+    if percent == 100:
+        CourseEnrollment.objects.filter(
+            user=user,
+            course=course,
+            status=CourseEnrollment.STATUS_ACTIVE,
+        ).update(
+            status=CourseEnrollment.STATUS_COMPLETED,
+            completed_at=timezone.now(),
+        )
+    return cp
+
+
+def issue_certificate_if_eligible(*, user, course):
+    # Replaced in Task 25 below.
+    return None
