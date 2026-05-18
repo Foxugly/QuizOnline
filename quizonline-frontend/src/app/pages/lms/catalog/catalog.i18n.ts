@@ -4,6 +4,7 @@ export interface LmsCatalogUiText {
   pageTitle: string;
   filterByLevelLabel: string;
   filterByLanguageLabel: string;
+  filterByDomainLabel: string;
   searchPlaceholder: string;
   emptyTitle: string;
   emptyMessage: string;
@@ -22,6 +23,7 @@ export function getLmsCatalogUiText(
         pageTitle: 'Catalogue des cours',
         filterByLevelLabel: 'Niveau',
         filterByLanguageLabel: 'Langue',
+        filterByDomainLabel: 'Domaine',
         searchPlaceholder: 'Rechercher un cours…',
         emptyTitle: 'Aucun cours disponible',
         emptyMessage: 'Aucun cours publié ne correspond à votre sélection.',
@@ -35,6 +37,7 @@ export function getLmsCatalogUiText(
         pageTitle: 'Cursuscatalogus',
         filterByLevelLabel: 'Niveau',
         filterByLanguageLabel: 'Taal',
+        filterByDomainLabel: 'Domein',
         searchPlaceholder: 'Zoek een cursus…',
         emptyTitle: 'Geen cursus beschikbaar',
         emptyMessage: 'Geen gepubliceerde cursus komt overeen met uw selectie.',
@@ -48,6 +51,7 @@ export function getLmsCatalogUiText(
         pageTitle: 'Catalogo dei corsi',
         filterByLevelLabel: 'Livello',
         filterByLanguageLabel: 'Lingua',
+        filterByDomainLabel: 'Dominio',
         searchPlaceholder: 'Cerca un corso…',
         emptyTitle: 'Nessun corso disponibile',
         emptyMessage: 'Nessun corso pubblicato corrisponde alla selezione.',
@@ -61,6 +65,7 @@ export function getLmsCatalogUiText(
         pageTitle: 'Catálogo de cursos',
         filterByLevelLabel: 'Nivel',
         filterByLanguageLabel: 'Idioma',
+        filterByDomainLabel: 'Dominio',
         searchPlaceholder: 'Buscar un curso…',
         emptyTitle: 'Sin cursos disponibles',
         emptyMessage: 'Ningún curso publicado coincide con su selección.',
@@ -73,6 +78,7 @@ export function getLmsCatalogUiText(
         pageTitle: 'Course catalog',
         filterByLevelLabel: 'Level',
         filterByLanguageLabel: 'Language',
+        filterByDomainLabel: 'Domain',
         searchPlaceholder: 'Search a course…',
         emptyTitle: 'No course available',
         emptyMessage: 'No published course matches your filters.',

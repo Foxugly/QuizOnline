@@ -27,6 +27,17 @@
         [placeholder]="ui().filterByLevelLabel"
         [showClear]="true"
       />
+      @if (availableDomains().length > 1) {
+        <p-select
+          [options]="domainOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="domainFilter()"
+          (ngModelChange)="onDomainChange($event)"
+          [placeholder]="ui().filterByDomainLabel"
+          [showClear]="true"
+        />
+      }
     </div>
   </div>
 

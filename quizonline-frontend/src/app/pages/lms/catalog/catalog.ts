@@ -12,6 +12,7 @@ import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getLmsCommonUiText} from '../../../shared/lms/lms-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../../shared/lms/lms-translations';
@@ -71,6 +72,11 @@ export class LmsCatalog {
   protected readonly courses = signal<CatalogCourseRow[]>([]);
   protected readonly search = signal('');
   protected readonly levelFilter = signal<string | null>(null);
+  protected readonly domainFilter = signal<number | null>(null);
+  /** Domains the user belongs to (owner / manager / member). Drives
+   *  the domain filter dropdown so the catalog can be narrowed
+   *  client-side and server-side to a single tenant. */
+  protected readonly availableDomains = signal<DomainReadDto[]>([]);
   /** Whether the user has at least one manageable domain (owner / manager / superuser). */
   protected readonly canCreateCourse = signal(false);
   protected readonly createCourseHref = LMS_COURSE_NEW;
@@ -83,6 +89,16 @@ export class LmsCatalog {
       {value: 'intermediate', label: labels.intermediate},
       {value: 'advanced', label: labels.advanced},
     ];
+  });
+
+  /** Domain dropdown options. Re-uses the same label helper as the
+   *  topmenu's domain selector so the rendered name stays consistent. */
+  protected readonly domainOptions = computed(() => {
+    const lang = this.currentLang();
+    return this.availableDomains().map((d) => ({
+      value: d.id,
+      label: getLocalizedDomainName(d, lang),
+    }));
   });
 
   protected readonly cards = computed<CatalogCardVm[]>(() => {
@@ -110,10 +126,13 @@ export class LmsCatalog {
   private loadManageableDomains(): void {
     this.domainService.list().subscribe({
       next: (domains) => {
-        this.canCreateCourse.set((domains ?? []).some((d) => this.canManage(d)));
+        const list = domains ?? [];
+        this.availableDomains.set(list);
+        this.canCreateCourse.set(list.some((d) => this.canManage(d)));
       },
       error: (err: unknown) => {
         logApiError('lms.catalog.load-domains', err);
+        this.availableDomains.set([]);
         this.canCreateCourse.set(false);
       },
     });
@@ -140,8 +159,13 @@ export class LmsCatalog {
     this.refresh();
   }
 
+  protected onDomainChange(value: number | null): void {
+    this.domainFilter.set(value);
+    this.refresh();
+  }
+
   private refresh(): void {
-    const params: {search?: string; level?: string} = {};
+    const params: {search?: string; level?: string; domain?: number} = {};
     const term = this.search().trim();
     if (term) {
       params.search = term;
@@ -149,6 +173,10 @@ export class LmsCatalog {
     const level = this.levelFilter();
     if (level) {
       params.level = level;
+    }
+    const domain = this.domainFilter();
+    if (domain) {
+      params.domain = domain;
     }
     this.catalog.list(params).subscribe({
       next: (response) => {

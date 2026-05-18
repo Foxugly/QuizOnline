@@ -31,11 +31,26 @@ class CourseViewSet(viewsets.ModelViewSet):
     lookup_field = "pk"
 
     def get_queryset(self):
-        return (
+        qs = (
             Course.objects.visible_to(self.request.user)
             .select_related("domain", "language")
             .prefetch_related("translations")
         )
+        # Optional ``?domain=<id>`` / ``?level=<level>`` query filters
+        # power the catalog's domain + level dropdowns. Invalid values
+        # silently degrade to an empty queryset slice rather than
+        # erroring out, since the params come from a UI picker that
+        # only ever feeds in known values.
+        domain_id = self.request.query_params.get("domain")
+        if domain_id:
+            try:
+                qs = qs.filter(domain_id=int(domain_id))
+            except (TypeError, ValueError):
+                qs = qs.none()
+        level = self.request.query_params.get("level")
+        if level:
+            qs = qs.filter(level=level)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "list":

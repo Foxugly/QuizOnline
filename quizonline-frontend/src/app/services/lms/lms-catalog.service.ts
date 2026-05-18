@@ -17,13 +17,16 @@ export class LmsCatalogService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
 
-  list(params: {search?: string; level?: string} = {}): Observable<{count: number; results: unknown[]}> {
+  list(params: {search?: string; level?: string; domain?: number} = {}): Observable<{count: number; results: unknown[]}> {
     let httpParams = new HttpParams();
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }
     if (params.level) {
       httpParams = httpParams.set('level', params.level);
+    }
+    if (params.domain) {
+      httpParams = httpParams.set('domain', String(params.domain));
     }
     return this.http.get<{count: number; results: unknown[]}>(`${this.baseUrl}/course/`, {params: httpParams});
   }
