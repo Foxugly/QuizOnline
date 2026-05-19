@@ -14,6 +14,7 @@ env = environ.Env(
     JWT_SIGNING_KEY=(str, ""),
     LMS_COURSE_INVITES_ENABLED=(bool, True),
     LMS_COURSE_INVITE_BULK_MAX=(int, 200),
+    LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE=(int, 72),
     ALLOWED_HOSTS=(list, ["*"]),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:4200", "http://127.0.0.1:4200"]),
     DEFAULT_FROM_EMAIL=(str, "no-reply@monapp.com"),
@@ -320,6 +321,11 @@ CELERY_BEAT_SCHEDULE = {
         "task": "lms_enrollment.tasks.expire_pending_course_invites",
         "schedule": 3600.0,  # once an hour
     },
+    "send-course-invite-reminders": {
+        "task": "lms_enrollment.tasks.send_course_invite_reminders",
+        "schedule": 3600.0,  # once an hour — idempotency comes from
+        # the per-row ``reminder_sent_at`` stamp, not the cadence.
+    },
 }
 
 # Course-invite feature kill switch. When False, every invite endpoint
@@ -333,6 +339,13 @@ LMS_COURSE_INVITES_ENABLED = env("LMS_COURSE_INVITES_ENABLED")
 # instructor pasting a 50k-line CSV and tying up a worker for
 # minutes.
 LMS_COURSE_INVITE_BULK_MAX = env("LMS_COURSE_INVITE_BULK_MAX")
+# Lead time (hours before ``expires_at``) for the J-3 reminder email
+# fired by :func:`lms_enrollment.tasks.send_course_invite_reminders`.
+# Default 72 h matches the docs and gives invitees a full day to react
+# during a business week. Set to 0 to disable the reminder entirely
+# without touching the beat schedule (the task is a no-op when the
+# value is 0).
+LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE = env("LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE")
 DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE")
 FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE")
 MAX_UPLOAD_FILE_SIZE = env("MAX_UPLOAD_FILE_SIZE")

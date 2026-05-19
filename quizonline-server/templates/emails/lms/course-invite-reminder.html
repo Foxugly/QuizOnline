@@ -1,0 +1,20 @@
+{% load i18n %}
+<p>{% blocktrans with name=invite.invitee.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
+
+<p>{% blocktrans with expires_at=invite.expires_at|date:"DATETIME_FORMAT" %}This is a reminder: your invitation expires on {{ expires_at }}.{% endblocktrans %}</p>
+
+<p>{% blocktrans with inviter=invite.created_by.get_display_name course=invite.course %}{{ inviter }} invited you to join the course <strong>{{ course }}</strong>, and we did not see you accept yet.{% endblocktrans %}</p>
+
+{% if course_description %}
+<div style="margin: 1rem 0; padding-left: 0.75rem; border-left: 3px solid #e5e7eb; color: #4b5563;">
+{{ course_description|safe }}
+</div>
+{% endif %}
+
+{% if course_estimated_duration %}
+<p><strong>{% trans "Estimated duration:" %}</strong> {% blocktrans with minutes=course_estimated_duration %}{{ minutes }} min{% endblocktrans %}</p>
+{% endif %}
+
+<p><a href="{{ accept_url }}">{% trans "Accept the invitation" %}</a></p>
+
+<p>{% trans "Best regards," %}<br>QuizOnline</p>

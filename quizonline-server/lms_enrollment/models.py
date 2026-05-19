@@ -181,6 +181,15 @@ class CourseInvite(AuditMixin, models.Model):
     # Bumped each time we re-send the mail; useful for audit and for
     # cron-driven "remind invitees who never clicked" jobs.
     last_sent_at = models.DateTimeField(auto_now_add=True)
+    # Stamped by :func:`lms_enrollment.tasks.send_course_invite_reminders`
+    # the first time the J-3 (configurable via
+    # :setting:`LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE`) expiration
+    # reminder fires. NULL means "no reminder sent yet" — the sweep
+    # filters on this so an invitee never receives more than one
+    # reminder per invitation, even if the cron runs every hour. Also
+    # zeroed by :func:`resend_course_invite` so a manual resend resets
+    # the reminder clock for the new ``expires_at``.
+    reminder_sent_at = models.DateTimeField(null=True, blank=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     declined_at = models.DateTimeField(null=True, blank=True)
     revoked_at = models.DateTimeField(null=True, blank=True)

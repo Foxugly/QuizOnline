@@ -651,6 +651,106 @@ def test_expire_pending_course_invites_marks_only_overdue_rows(
     assert revoked.status == CourseInvite.STATUS_REVOKED
 
 
+# ---------------------------------------------------------------------
+# Celery beat sweep: J-3 expiration reminder
+# ---------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_send_course_invite_reminders_fires_once_within_window(
+    invite_course, learner, manager, stranger, owner,
+):
+    """The reminder sweep emails one J-3 follow-up per row inside the
+    ``LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE`` window, stamps
+    ``reminder_sent_at`` so a second run is a no-op, and leaves rows
+    outside the window (too soon / already accepted / already
+    reminded) alone."""
+    from lms_enrollment.tasks import send_course_invite_reminders
+
+    # Row #1: pending, expires in 24h — INSIDE the 72h reminder window.
+    in_window = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    CourseInvite.objects.filter(pk=in_window.pk).update(
+        expires_at=timezone.now() + timedelta(hours=24),
+    )
+    # Row #2: pending, expires in 10 days — OUTSIDE the window.
+    far_off = invite_user_to_course(
+        course=invite_course, invitee=manager, inviter=owner,
+    )
+    CourseInvite.objects.filter(pk=far_off.pk).update(
+        expires_at=timezone.now() + timedelta(days=10),
+    )
+    # Row #3: pending but already reminded — must NOT be reminded again.
+    already_reminded = CourseInvite.objects.create(
+        course=invite_course, invitee=stranger, created_by=owner,
+        status=CourseInvite.STATUS_PENDING,
+        expires_at=timezone.now() + timedelta(hours=12),
+        reminder_sent_at=timezone.now() - timedelta(hours=1),
+    )
+
+    mail.outbox = []
+    with override_settings(LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE=72):
+        n = send_course_invite_reminders()
+        assert n == 1
+
+    in_window.refresh_from_db()
+    far_off.refresh_from_db()
+    already_reminded.refresh_from_db()
+    assert in_window.reminder_sent_at is not None
+    assert far_off.reminder_sent_at is None
+    # The pre-existing stamp on row #3 must NOT be overwritten.
+    assert already_reminded.reminder_sent_at is not None
+
+    # Second run is a no-op (idempotent on ``reminder_sent_at``).
+    with override_settings(LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE=72):
+        assert send_course_invite_reminders() == 0
+
+
+@pytest.mark.django_db
+def test_send_course_invite_reminders_is_disabled_when_window_zero(
+    invite_course, learner, owner,
+):
+    """``LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE=0`` short-circuits the
+    sweep: no row is touched, no email queued. Lets the operator
+    disable the feature at runtime without removing the beat entry."""
+    from lms_enrollment.tasks import send_course_invite_reminders
+
+    inv = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    CourseInvite.objects.filter(pk=inv.pk).update(
+        expires_at=timezone.now() + timedelta(hours=1),
+    )
+
+    with override_settings(LMS_COURSE_INVITE_REMINDER_HOURS_BEFORE=0):
+        assert send_course_invite_reminders() == 0
+
+    inv.refresh_from_db()
+    assert inv.reminder_sent_at is None
+
+
+@pytest.mark.django_db
+def test_resend_course_invite_clears_reminder_stamp(
+    invite_course, learner, owner,
+):
+    """A manual resend after a reminder already fired must reset the
+    ``reminder_sent_at`` stamp so the new ``expires_at`` triggers a
+    fresh reminder when it enters the J-3 window."""
+    inv = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    CourseInvite.objects.filter(pk=inv.pk).update(
+        reminder_sent_at=timezone.now() - timedelta(hours=2),
+    )
+    inv.refresh_from_db()
+    assert inv.reminder_sent_at is not None
+
+    resend_course_invite(invite=inv, sender=owner)
+
+    inv.refresh_from_db()
+    assert inv.reminder_sent_at is None
+
+
 @pytest.mark.django_db
 def test_notify_instructors_helper_fans_out_to_owner_and_managers(
     course, learner, owner, manager,

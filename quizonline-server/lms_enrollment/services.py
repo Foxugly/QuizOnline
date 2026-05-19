@@ -538,9 +538,17 @@ def resend_course_invite(*, invite: CourseInvite, sender) -> CourseInvite:
         raise ValidationError(_("Invitation is not pending."))
     invite.last_sent_at = timezone.now()
     invite.expires_at = _default_course_invite_expiry()
+    # Clear the reminder stamp so the J-3 sweep re-arms for the new
+    # expires_at — without this, an instructor manually re-sending an
+    # invite that already triggered a reminder would never get a fresh
+    # reminder against the renewed deadline.
+    invite.reminder_sent_at = None
     invite.updated_by = sender
     invite.save(
-        update_fields=["last_sent_at", "expires_at", "updated_by", "updated_at"],
+        update_fields=[
+            "last_sent_at", "expires_at", "reminder_sent_at",
+            "updated_by", "updated_at",
+        ],
     )
 
     payload = _course_invite_payload(invite)

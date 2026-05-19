@@ -232,6 +232,47 @@ def make_course_enrollment_request_email_callable(enrollment, instructor):
     return _send
 
 
+def make_course_invite_reminder_email_callable(invite):
+    """Return a zero-arg callable that mails a J-3 expiration reminder
+    to the invitee. Mirrors the initial invitation email's structure
+    so the reminder feels like a follow-up, not a brand-new message —
+    same accept URL, same course description, same expiry line. The
+    template adds an explicit "X hours left" lede so the urgency is
+    immediately visible.
+
+    Sends are deferred to ``transaction.on_commit`` so a failed
+    transaction (e.g. the sweep crashing between the
+    ``reminder_sent_at`` UPDATE and email queue) does not leak an
+    email about a row whose stamp never persisted."""
+    def _send():
+        def _do_send():
+            lang = invite.invitee.language or "fr"
+            with translation.override(lang):
+                subject = _("Reminder: invitation to %(course)s expires soon") % {
+                    "course": invite.course.safe_translation_getter(
+                        "title", language_code=lang, any_language=True,
+                    ) or "",
+                }
+            raw_description = invite.course.safe_translation_getter(
+                "description", language_code=lang, any_language=True,
+            ) or ""
+            from lms_catalog.sanitizer import sanitize_rich_text
+            course_description = sanitize_rich_text(raw_description)
+            _send_html_email(
+                to_email=invite.invitee.email, subject=subject,
+                template_base="course-invite-reminder",
+                context={
+                    "invite": invite,
+                    "accept_url": _build_invite_accept_url(invite),
+                    "course_description": course_description,
+                    "course_estimated_duration": invite.course.estimated_duration,
+                },
+                lang=lang,
+            )
+        _on_commit(_do_send)
+    return _send
+
+
 def make_course_invite_accepted_email_callable(invite):
     """Notification to the inviter that the invitee accepted — on-commit."""
     def _send():
