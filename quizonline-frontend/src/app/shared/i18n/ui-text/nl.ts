@@ -115,6 +115,7 @@ export const NL: UiText = {
     notificationKindCourseInviteSent: 'Een van mijn cursusuitnodigingen is verzonden',
     notificationKindCourseInviteReceived: 'Ik ben uitgenodigd voor een cursus',
     notificationKindCourseInviteAccepted: 'Een van mijn cursusuitnodigingen is geaccepteerd',
+    notificationKindCourseEnrollmentRequest: 'Nieuwe inschrijvingsaanvraag op een cursus die ik beheer',
     notificationChannelEmail: 'E-mail',
     notificationChannelWeb: 'Bel',
     notificationGroupUser: 'Mijn meldingen',

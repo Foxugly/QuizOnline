@@ -435,6 +435,7 @@ export class Preferences implements OnInit {
     {kind: 'lms.course_invite.sent', role: 'manager' as const},
     {kind: 'lms.course_invite.received', role: 'user' as const},
     {kind: 'lms.course_invite.accepted', role: 'manager' as const},
+    {kind: 'lms.course_enrollment_request.created', role: 'manager' as const},
   ];
 
   /** True iff the current user holds at least one role of that kind. */
@@ -500,6 +501,8 @@ export class Preferences implements OnInit {
         return t.notificationKindCourseInviteReceived;
       case 'lms.course_invite.accepted':
         return t.notificationKindCourseInviteAccepted;
+      case 'lms.course_enrollment_request.created':
+        return t.notificationKindCourseEnrollmentRequest;
       default:
         return kind;
     }

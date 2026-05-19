@@ -26,6 +26,7 @@ export const DOMAIN_NOTIFICATION_KINDS = [
   'lms.course_invite.sent',
   'lms.course_invite.received',
   'lms.course_invite.accepted',
+  'lms.course_enrollment_request.created',
 ] as const;
 
 export interface DomainEditNotificationsBinding {
@@ -152,6 +153,8 @@ export class DomainEditNotificationsController {
         return p.notificationKindCourseInviteReceived;
       case 'lms.course_invite.accepted':
         return p.notificationKindCourseInviteAccepted;
+      case 'lms.course_enrollment_request.created':
+        return p.notificationKindCourseEnrollmentRequest;
       default:
         return kind;
     }

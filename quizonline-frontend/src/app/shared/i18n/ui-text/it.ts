@@ -116,6 +116,7 @@ export const IT: UiText = {
     notificationKindCourseInviteSent: 'Uno dei miei inviti a un corso è stato inviato',
     notificationKindCourseInviteReceived: 'Sono invitato a partecipare a un corso',
     notificationKindCourseInviteAccepted: 'Uno dei miei inviti a un corso è stato accettato',
+    notificationKindCourseEnrollmentRequest: 'Nuova richiesta di iscrizione su un corso che modero',
     notificationChannelEmail: 'E-mail',
     notificationChannelWeb: 'Campanella',
     notificationGroupUser: 'Le mie notifiche',
