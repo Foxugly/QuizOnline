@@ -6,7 +6,10 @@ import {ProgressBarModule} from 'primeng/progressbar';
 import {SkeletonModule} from 'primeng/skeleton';
 
 import {LMS_CATALOG, LMS_COURSE_INVITE_ACCEPT, LMS_ME_CERTIFICATES, LMS_ME_INVITATIONS, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
+import {DomainReadDto} from '../../api/generated/model/domain-read';
+import {DomainService} from '../../services/domain/domain';
 import {CourseInviteDto, LmsEnrollmentService} from '../../services/lms/lms-enrollment.service';
+import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
@@ -53,6 +56,8 @@ interface CertificateRow {
 })
 export class DashboardPage implements OnInit {
   private readonly enrollment = inject(LmsEnrollmentService);
+  private readonly domainService = inject(DomainService);
+  private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly ui = inject(UiTextService).localized(getDashboardUiText);
 
@@ -68,6 +73,11 @@ export class DashboardPage implements OnInit {
   protected readonly certificates = signal<CertificateRow[]>([]);
   protected readonly invitationsLoading = signal(true);
   protected readonly invitations = signal<CourseInviteDto[]>([]);
+  /** Domains the user belongs to in any capacity. Used to decide
+   *  whether the caller is an instructor anywhere — which keeps the
+   *  invitations tile visible even when empty so the affordance stays
+   *  discoverable for users who manage invite-only courses. */
+  private readonly domains = signal<DomainReadDto[]>([]);
 
   /** Top 3 pending invitations for the tile body, sorted by most
    *  recently sent so the freshest one shows first. */
@@ -75,6 +85,36 @@ export class DashboardPage implements OnInit {
     [...this.invitations()]
       .sort((a, b) => (a.last_sent_at < b.last_sent_at ? 1 : -1))
       .slice(0, 3),
+  );
+
+  /** True when the caller owns or manages at least one domain
+   *  (superusers count too). Pulled from the domains list rather
+   *  than ``currentUser()`` because the user model does not carry
+   *  the owned/managed domain set inline. */
+  private readonly isInstructorAnywhere = computed(() => {
+    const me = this.userService.currentUser();
+    if (!me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    return this.domains().some(
+      (d) => d.owner?.id === me.id || (d.managers ?? []).some((u) => u.id === me.id),
+    );
+  });
+
+  /** Visibility gate for the "Pending invitations" tile.
+   *
+   *  Renders while still loading (skeletons keep the layout stable),
+   *  whenever there is at least one invitation to act on, and for
+   *  instructors so the discoverability of the feature is preserved.
+   *  Hidden for a plain learner who has no invitation — those users
+   *  would otherwise see a permanently-empty tile that adds nothing. */
+  protected readonly showInvitationsTile = computed(() =>
+    this.invitationsLoading()
+    || this.invitations().length > 0
+    || this.isInstructorAnywhere(),
   );
 
   /** Top 3 courses by recent activity, ranked by ``updated_at`` desc. */
@@ -90,6 +130,19 @@ export class DashboardPage implements OnInit {
     this.loadCourses();
     this.loadCertificates();
     this.loadInvitations();
+    this.loadDomains();
+  }
+
+  private loadDomains(): void {
+    this.domainService.list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (domains) => this.domains.set(domains ?? []),
+        error: (err: unknown) => {
+          logApiError('dashboard.domains', err);
+          this.domains.set([]);
+        },
+      });
   }
 
   protected inviteHref(token: string): string {
