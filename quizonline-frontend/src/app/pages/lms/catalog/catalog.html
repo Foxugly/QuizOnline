@@ -127,5 +127,14 @@
         </article>
       }
     </div>
+
+    @if (totalCount() > pageSize) {
+      <p-paginator
+        styleClass="catalog-paginator"
+        [first]="first()"
+        [rows]="pageSize"
+        [totalRecords]="totalCount()"
+        (onPageChange)="onPageChange($event)" />
+    }
   }
 </div>

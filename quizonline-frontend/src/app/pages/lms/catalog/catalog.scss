@@ -161,4 +161,13 @@
 
     h3 { margin: 0 0 0.5rem; }
   }
+
+  /* Centered paginator below the grid — only renders when the result
+   * count exceeds the page size, so the catalog footer stays clean on
+   * small tenants. */
+  .catalog-paginator {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+  }
 }

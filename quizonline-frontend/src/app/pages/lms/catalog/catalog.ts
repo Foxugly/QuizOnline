@@ -6,6 +6,7 @@ import {RouterLink} from '@angular/router';
 import {Subject, debounceTime} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
+import {PaginatorModule, type PaginatorState} from 'primeng/paginator';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
@@ -90,6 +91,7 @@ interface CatalogCardVm {
     RouterLink,
     ButtonModule,
     InputTextModule,
+    PaginatorModule,
     SelectModule,
     TagModule,
     TooltipModule,
@@ -122,6 +124,19 @@ export class LmsCatalog implements OnInit {
   protected readonly search = signal('');
   protected readonly levelFilter = signal<string | null>(null);
   protected readonly domainFilter = signal<number | null>(null);
+  /** Total result count surfaced by DRF's pagination — feeds the
+   *  PrimeNG paginator's ``[totalRecords]`` so the page count is
+   *  accurate even though we only ever hold one page in memory. */
+  protected readonly totalCount = signal(0);
+  /** Zero-based offset PrimeNG drives via ``PaginatorState.first``.
+   *  Mapped back to DRF's 1-based ``?page=`` in :meth:`refresh`. */
+  protected readonly first = signal(0);
+  /** Fixed page size. Must match ``settings.API_PAGE_SIZE`` (default
+   *  20) since DRF's PageNumberPagination does not honour
+   *  ``?page_size=`` unless ``page_size_query_param`` is explicitly
+   *  enabled. The PrimeNG paginator renders without a rows-per-page
+   *  control as a result. */
+  protected readonly pageSize = 20;
   /** Domains the user belongs to (owner / manager / member). Drives
    *  the domain filter dropdown so the catalog can be narrowed
    *  client-side and server-side to a single tenant. */
@@ -221,8 +236,18 @@ export class LmsCatalog implements OnInit {
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.search.set(value);
+        // Typing in the search box resets to page 1 — staying on page
+        // 5 of the prior result set would leave the user staring at
+        // an empty grid when the new filter has fewer pages.
+        this.first.set(0);
         this.refresh();
       });
+  }
+
+  protected onPageChange(event: PaginatorState): void {
+    const offset = typeof event.first === 'number' ? event.first : 0;
+    this.first.set(offset);
+    this.refresh();
   }
 
   private loadManageableDomains(): void {
@@ -257,16 +282,18 @@ export class LmsCatalog implements OnInit {
 
   protected onLevelChange(value: string | null): void {
     this.levelFilter.set(value);
+    this.first.set(0);
     this.refresh();
   }
 
   protected onDomainChange(value: number | null): void {
     this.domainFilter.set(value);
+    this.first.set(0);
     this.refresh();
   }
 
   private refresh(): void {
-    const params: {search?: string; level?: string; domain?: number} = {};
+    const params: {search?: string; level?: string; domain?: number; page?: number} = {};
     const term = this.search().trim();
     if (term) {
       params.search = term;
@@ -279,14 +306,20 @@ export class LmsCatalog implements OnInit {
     if (domain) {
       params.domain = domain;
     }
+    const page = Math.floor(this.first() / this.pageSize) + 1;
+    if (page > 1) {
+      params.page = page;
+    }
     this.catalog.list(params).subscribe({
       next: (response) => {
         const results = (response?.results ?? []) as CatalogCourseRow[];
         this.courses.set(results);
+        this.totalCount.set(typeof response?.count === 'number' ? response.count : 0);
       },
       error: (err: unknown) => {
         logApiError('lms.catalog.list', err);
         this.courses.set([]);
+        this.totalCount.set(0);
       },
     });
   }
