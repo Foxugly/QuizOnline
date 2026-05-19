@@ -1,6 +1,21 @@
-:host {
-  display: block;
-  padding: 1rem;
-  max-width: 1440px;
-  margin: 0 auto;
+:host { display: block; }
+
+/*
+ * The info-tab renders its form inside a <p-card>, and the structure/
+ * enrollment/analytics tabs each carry their own surface chrome. Now
+ * that they're nested inside the outer ``.card form-card builder-stack``
+ * shell, that inner card paints a redundant border on top of the outer
+ * one — flatten the immediate-child card chrome (PrimeNG's ``.p-card``
+ * + plain ``.card``) while keeping its padding so the content still
+ * breathes. Mirrors the pattern used in domain-edit.scss.
+ */
+:host ::ng-deep .builder-pane > * > .card,
+:host ::ng-deep .builder-pane > * > section > p-card > .p-card,
+:host ::ng-deep .builder-pane > * > section > .p-card,
+:host ::ng-deep .builder-pane > * > p-card > .p-card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
 }

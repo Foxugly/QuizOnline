@@ -1,22 +1,20 @@
-<app-page-header [title]="ui().pageTitle">
-  <p-button slot="left"
-    type="button"
-    severity="secondary"
-    [outlined]="true"
-    icon="pi pi-arrow-left"
-    [label]="editorUi().common.back"
-    (onClick)="back()">
-  </p-button>
-  @if (course(); as c) {
-    @if (c.is_published) {
+<div class="page">
+  <app-page-header [title]="ui().pageTitle">
+    <p-button slot="left"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [label]="editorUi().common.back"
+      (onClick)="back()">
+    </p-button>
+    @if (course()?.is_published) {
       <p-tag slot="left" severity="success" [value]="ui().publishedBadge" icon="pi pi-eye" />
-    } @else {
+    } @else if (course()) {
       <p-tag slot="left" severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-pencil" />
     }
-  }
 
-  @if (course(); as c) {
-    @if (c.is_published) {
+    @if (course()?.is_published) {
       <p-button slot="right"
         type="button"
         severity="secondary"
@@ -38,7 +36,7 @@
         tooltipPosition="bottom"
         [attr.aria-label]="ui().publishButton"
         [loading]="publishing()"
-        [disabled]="publishing() || loading()"
+        [disabled]="!course() || publishing() || loading()"
         (onClick)="togglePublish()">
       </p-button>
     }
@@ -51,7 +49,7 @@
       tooltipPosition="bottom"
       [attr.aria-label]="ui().cloneButton"
       [loading]="cloning()"
-      [disabled]="cloning() || deleting() || publishing() || loading()"
+      [disabled]="!course() || cloning() || deleting() || publishing() || loading()"
       (onClick)="confirmClone()">
     </p-button>
     <p-button slot="right"
@@ -62,7 +60,7 @@
       [pTooltip]="ui().exportButton"
       tooltipPosition="bottom"
       [attr.aria-label]="ui().exportButton"
-      [disabled]="cloning() || deleting() || publishing() || loading()"
+      [disabled]="!course() || cloning() || deleting() || publishing() || loading()"
       (onClick)="exportCourse()">
     </p-button>
     <p-button slot="right"
@@ -74,63 +72,71 @@
       tooltipPosition="bottom"
       [attr.aria-label]="ui().deleteButton"
       [loading]="deleting()"
-      [disabled]="cloning() || deleting() || publishing() || loading()"
+      [disabled]="!course() || cloning() || deleting() || publishing() || loading()"
       (onClick)="confirmDelete()">
     </p-button>
+  </app-page-header>
+
+  <p-confirmDialog></p-confirmDialog>
+
+  @if (loading() && !course()) {
+    <div class="card">
+      <p class="muted">{{ ui().loadingMessage }}</p>
+    </div>
+  } @else {
+    <div class="card form-card builder-stack">
+      <p-tabs value="info" class="builder-tabs">
+        <p-tablist>
+          <p-tab value="info">
+            <i class="pi pi-info-circle tab-icon"></i>
+            {{ ui().tabInfo }}
+          </p-tab>
+          <p-tab value="structure">
+            <i class="pi pi-sitemap tab-icon"></i>
+            {{ ui().tabStructure }}
+          </p-tab>
+          <p-tab value="enrollment">
+            <i class="pi pi-users tab-icon"></i>
+            {{ ui().tabEnrollment }}
+          </p-tab>
+          <p-tab value="analytics">
+            <i class="pi pi-chart-bar tab-icon"></i>
+            {{ ui().tabAnalytics }}
+          </p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="info">
+            <div class="builder-pane">
+              <app-lms-course-edit-info-tab
+                [courseId]="courseId()"
+                [course]="course()"
+                (changed)="refresh()" />
+            </div>
+          </p-tabpanel>
+          <p-tabpanel value="structure">
+            <div class="builder-pane">
+              <app-lms-course-edit-structure-tab
+                [courseId]="courseId()"
+                [course]="course()"
+                (changed)="refresh()" />
+            </div>
+          </p-tabpanel>
+          <p-tabpanel value="enrollment">
+            <div class="builder-pane">
+              <app-lms-course-edit-enrollment-tab
+                [courseId]="courseId()"
+                [course]="course()" />
+            </div>
+          </p-tabpanel>
+          <p-tabpanel value="analytics">
+            <div class="builder-pane">
+              <app-lms-course-edit-analytics-tab
+                [courseId]="courseId()"
+                [course]="course()" />
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
   }
-</app-page-header>
-
-<p-confirmDialog></p-confirmDialog>
-
-<p-tabs value="info" class="builder-tabs">
-  <p-tablist>
-    <p-tab value="info">
-      <i class="pi pi-info-circle tab-icon"></i>
-      {{ ui().tabInfo }}
-    </p-tab>
-    <p-tab value="structure">
-      <i class="pi pi-sitemap tab-icon"></i>
-      {{ ui().tabStructure }}
-    </p-tab>
-    <p-tab value="enrollment">
-      <i class="pi pi-users tab-icon"></i>
-      {{ ui().tabEnrollment }}
-    </p-tab>
-    <p-tab value="analytics">
-      <i class="pi pi-chart-bar tab-icon"></i>
-      {{ ui().tabAnalytics }}
-    </p-tab>
-  </p-tablist>
-  <p-tabpanels>
-    <p-tabpanel value="info">
-      <div class="builder-pane">
-        <app-lms-course-edit-info-tab
-          [courseId]="courseId()"
-          [course]="course()"
-          (changed)="refresh()" />
-      </div>
-    </p-tabpanel>
-    <p-tabpanel value="structure">
-      <div class="builder-pane">
-        <app-lms-course-edit-structure-tab
-          [courseId]="courseId()"
-          [course]="course()"
-          (changed)="refresh()" />
-      </div>
-    </p-tabpanel>
-    <p-tabpanel value="enrollment">
-      <div class="builder-pane">
-        <app-lms-course-edit-enrollment-tab
-          [courseId]="courseId()"
-          [course]="course()" />
-      </div>
-    </p-tabpanel>
-    <p-tabpanel value="analytics">
-      <div class="builder-pane">
-        <app-lms-course-edit-analytics-tab
-          [courseId]="courseId()"
-          [course]="course()" />
-      </div>
-    </p-tabpanel>
-  </p-tabpanels>
-</p-tabs>
+</div>
