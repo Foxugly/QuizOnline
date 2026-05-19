@@ -170,6 +170,34 @@ export interface LmsCourseImportCreateRequestParams {
     courseDetailRequestDto: CourseDetailRequestDto;
 }
 
+export interface LmsCourseInviteAcceptCreateRequestParams {
+    token: string;
+}
+
+export interface LmsCourseInviteCreateRequestParams {
+    courseId: number;
+}
+
+export interface LmsCourseInviteDeclineCreateRequestParams {
+    token: string;
+}
+
+export interface LmsCourseInviteResendCreateRequestParams {
+    id: number;
+}
+
+export interface LmsCourseInviteRetrieveRequestParams {
+    token: string;
+}
+
+export interface LmsCourseInviteRevokeCreateRequestParams {
+    id: number;
+}
+
+export interface LmsCourseInvitesRetrieveRequestParams {
+    courseId: number;
+}
+
 export interface LmsCourseListRequestParams {
     /** Which field to use when ordering the results. */
     ordering?: string;
@@ -1592,6 +1620,419 @@ export class LmsApi extends BaseService {
             {
                 context: localVarHttpContext,
                 body: courseDetailRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Invitee accepts a pending invitation. Creates the active &#x60;&#x60;CourseEnrollment&#x60;&#x60; and notifies the inviter.
+     * @endpoint post /api/lms/course-invite/{token}/accept/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteAcceptCreate(requestParameters: LmsCourseInviteAcceptCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteAcceptCreate(requestParameters: LmsCourseInviteAcceptCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteAcceptCreate(requestParameters: LmsCourseInviteAcceptCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteAcceptCreate(requestParameters: LmsCourseInviteAcceptCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling lmsCourseInviteAcceptCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/accept/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Instructor invites a domain member to an &#x60;&#x60;ENROLL_INVITE&#x60;&#x60; course.
+     * @endpoint post /api/lms/course/{course_id}/invite/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteCreate(requestParameters: LmsCourseInviteCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteCreate(requestParameters: LmsCourseInviteCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteCreate(requestParameters: LmsCourseInviteCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteCreate(requestParameters: LmsCourseInviteCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const courseId = requestParameters?.courseId;
+        if (courseId === null || courseId === undefined) {
+            throw new Error('Required parameter courseId was null or undefined when calling lmsCourseInviteCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Invitee declines a pending invitation.
+     * @endpoint post /api/lms/course-invite/{token}/decline/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteDeclineCreate(requestParameters: LmsCourseInviteDeclineCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteDeclineCreate(requestParameters: LmsCourseInviteDeclineCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteDeclineCreate(requestParameters: LmsCourseInviteDeclineCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteDeclineCreate(requestParameters: LmsCourseInviteDeclineCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling lmsCourseInviteDeclineCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/decline/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Instructor re-sends a pending invitation.
+     * @endpoint post /api/lms/course-invite/{id}/resend/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteResendCreate(requestParameters: LmsCourseInviteResendCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteResendCreate(requestParameters: LmsCourseInviteResendCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteResendCreate(requestParameters: LmsCourseInviteResendCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteResendCreate(requestParameters: LmsCourseInviteResendCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const id = requestParameters?.id;
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling lmsCourseInviteResendCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/resend/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Token-keyed lookup. Returns the invitation (any status) for the invitee or any instructor of the course — used by the &#x60;&#x60;/lms/course-invite/{token}/&#x60;&#x60; acceptance page to render the invitation card before the user clicks Accept or Decline.
+     * @endpoint get /api/lms/course-invite/{token}/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteRetrieve(requestParameters: LmsCourseInviteRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteRetrieve(requestParameters: LmsCourseInviteRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteRetrieve(requestParameters: LmsCourseInviteRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteRetrieve(requestParameters: LmsCourseInviteRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const token = requestParameters?.token;
+        if (token === null || token === undefined) {
+            throw new Error('Required parameter token was null or undefined when calling lmsCourseInviteRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Instructor revokes a pending invitation.
+     * @endpoint post /api/lms/course-invite/{id}/revoke/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteRevokeCreate(requestParameters: LmsCourseInviteRevokeCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteRevokeCreate(requestParameters: LmsCourseInviteRevokeCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteRevokeCreate(requestParameters: LmsCourseInviteRevokeCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteRevokeCreate(requestParameters: LmsCourseInviteRevokeCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const id = requestParameters?.id;
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling lmsCourseInviteRevokeCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List invitations for a course. Instructor-only.
+     * @endpoint get /api/lms/course/{course_id}/invites/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInvitesRetrieve(requestParameters: LmsCourseInvitesRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInvitesRetrieve(requestParameters: LmsCourseInvitesRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInvitesRetrieve(requestParameters: LmsCourseInvitesRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInvitesRetrieve(requestParameters: LmsCourseInvitesRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const courseId = requestParameters?.courseId;
+        if (courseId === null || courseId === undefined) {
+            throw new Error('Required parameter courseId was null or undefined when calling lmsCourseInvitesRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invites/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

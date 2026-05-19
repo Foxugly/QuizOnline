@@ -1889,6 +1889,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseWrite'
           description: ''
+  /api/lms/course-invite/{id}/resend/:
+    post:
+      operationId: lms_course_invite_resend_create
+      description: Instructor re-sends a pending invitation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course-invite/{id}/revoke/:
+    post:
+      operationId: lms_course_invite_revoke_create
+      description: Instructor revokes a pending invitation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course-invite/{token}/:
+    get:
+      operationId: lms_course_invite_retrieve
+      description: |-
+        Token-keyed lookup. Returns the invitation (any status) for the
+        invitee or any instructor of the course — used by the
+        ``/lms/course-invite/{token}/`` acceptance page to render the
+        invitation card before the user clicks Accept or Decline.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course-invite/{token}/accept/:
+    post:
+      operationId: lms_course_invite_accept_create
+      description: |-
+        Invitee accepts a pending invitation. Creates the active
+        ``CourseEnrollment`` and notifies the inviter.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course-invite/{token}/decline/:
+    post:
+      operationId: lms_course_invite_decline_create
+      description: Invitee declines a pending invitation.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/lms/course/{course_id}/analytics/:
     get:
       operationId: lms_course_analytics_retrieve
@@ -1934,6 +2025,40 @@ paths:
   /api/lms/course/{course_id}/enroll/:
     post:
       operationId: lms_course_enroll_create
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course/{course_id}/invite/:
+    post:
+      operationId: lms_course_invite_create
+      description: Instructor invites a domain member to an ``ENROLL_INVITE`` course.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/lms/course/{course_id}/invites/:
+    get:
+      operationId: lms_course_invites_retrieve
+      description: List invitations for a course. Instructor-only.
       parameters:
       - in: path
         name: course_id
