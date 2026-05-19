@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 14:34+0200\n"
+"POT-Creation-Date: 2026-05-19 14:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -446,6 +446,13 @@ msgstr ""
 
 #, python-format
 msgid "%(inviter)s has invited you to join the course <strong>%(course)s</strong>."
+msgstr ""
+
+msgid "Estimated duration:"
+msgstr ""
+
+#, python-format
+msgid "%(minutes)s min"
 msgstr ""
 
 #, python-format

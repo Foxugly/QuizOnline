@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 14:34+0200\n"
+"POT-Creation-Date: 2026-05-19 14:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -460,6 +460,13 @@ msgstr "%(invitee)s ha aceptado tu invitación al curso %(course)s."
 msgid "%(inviter)s has invited you to join the course <strong>%(course)s</strong>."
 msgstr "Te has inscrito en <strong>%(course)s</strong>."
 
+msgid "Estimated duration:"
+msgstr "Duración estimada:"
+
+#, python-format
+msgid "%(minutes)s min"
+msgstr "%(minutes)s min"
+
 #, python-format
 msgid "You have until %(expires_at)s to accept this invitation."
 msgstr "Tienes hasta el %(expires_at)s para aceptar esta invitación."
@@ -523,6 +530,7 @@ msgstr "Si crees que es un error, contacta al instructor del curso."
 msgid "Your enrollment to %(course)s was not approved."
 msgstr "Tu inscripción a %(course)s no ha sido aprobada."
 
+#, python-format
 msgid "%(learner)s has requested to enroll in the course <strong>%(course)s</strong>."
 msgstr "%(learner)s ha solicitado inscribirse en el curso <strong>%(course)s</strong>."
 
@@ -532,6 +540,7 @@ msgstr "Revisa la solicitud y apruébala o recházala desde la pestaña Inscripc
 msgid "Open enrollment requests"
 msgstr "Abrir solicitudes de inscripción"
 
+#, python-format
 msgid "%(learner)s has requested to enroll in the course %(course)s."
 msgstr "%(learner)s ha solicitado inscribirse en el curso %(course)s."
 

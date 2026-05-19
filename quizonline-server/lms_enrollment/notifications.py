@@ -126,7 +126,12 @@ def make_course_invite_received_email_callable(invite):
     domain × user pref intersection decides whether to actually fire.
     Sends are deferred to ``transaction.on_commit`` so a failed
     transaction does not leak an email about a row that never
-    persisted."""
+    persisted.
+
+    The context exposes the course's localised description so the
+    invitee can see what the course is about straight from the
+    inbox, without having to click through to the acceptance page
+    just to find out."""
     def _send():
         def _do_send():
             lang = invite.invitee.language or "fr"
@@ -136,10 +141,18 @@ def make_course_invite_received_email_callable(invite):
                         "title", language_code=lang, any_language=True,
                     ) or "",
                 }
+            course_description = invite.course.safe_translation_getter(
+                "description", language_code=lang, any_language=True,
+            ) or ""
             _send_html_email(
                 to_email=invite.invitee.email, subject=subject,
                 template_base="course-invite-received",
-                context={"invite": invite, "accept_url": _build_invite_accept_url(invite)},
+                context={
+                    "invite": invite,
+                    "accept_url": _build_invite_accept_url(invite),
+                    "course_description": course_description,
+                    "course_estimated_duration": invite.course.estimated_duration,
+                },
                 lang=lang,
             )
         _on_commit(_do_send)

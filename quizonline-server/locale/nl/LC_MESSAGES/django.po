@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 14:34+0200\n"
+"POT-Creation-Date: 2026-05-19 14:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -460,6 +460,13 @@ msgstr "%(invitee)s heeft je uitnodiging voor de cursus %(course)s geaccepteerd.
 msgid "%(inviter)s has invited you to join the course <strong>%(course)s</strong>."
 msgstr "Je bent ingeschreven voor <strong>%(course)s</strong>."
 
+msgid "Estimated duration:"
+msgstr "Geschatte duur:"
+
+#, python-format
+msgid "%(minutes)s min"
+msgstr "%(minutes)s min"
+
 #, python-format
 msgid "You have until %(expires_at)s to accept this invitation."
 msgstr "Je hebt tot %(expires_at)s om deze uitnodiging te accepteren."
@@ -523,6 +530,7 @@ msgstr "Als je denkt dat dit een fout is, neem contact op met de instructeur."
 msgid "Your enrollment to %(course)s was not approved."
 msgstr "Je inschrijving voor %(course)s is niet goedgekeurd."
 
+#, python-format
 msgid "%(learner)s has requested to enroll in the course <strong>%(course)s</strong>."
 msgstr "%(learner)s heeft een inschrijving aangevraagd voor de cursus <strong>%(course)s</strong>."
 
@@ -532,6 +540,7 @@ msgstr "Bekijk de aanvraag en keur deze goed of weiger deze via het tabblad Insc
 msgid "Open enrollment requests"
 msgstr "Inschrijvingsaanvragen openen"
 
+#, python-format
 msgid "%(learner)s has requested to enroll in the course %(course)s."
 msgstr "%(learner)s heeft een inschrijving aangevraagd voor de cursus %(course)s."
 

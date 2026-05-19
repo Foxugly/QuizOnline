@@ -3,6 +3,16 @@
 
 <p>{% blocktrans with inviter=invite.inviter.get_display_name course=invite.course %}{{ inviter }} has invited you to join the course <strong>{{ course }}</strong>.{% endblocktrans %}</p>
 
+{% if course_description %}
+<div style="margin: 1rem 0; padding-left: 0.75rem; border-left: 3px solid #e5e7eb; color: #4b5563;">
+{{ course_description|safe }}
+</div>
+{% endif %}
+
+{% if course_estimated_duration %}
+<p><strong>{% trans "Estimated duration:" %}</strong> {% blocktrans with minutes=course_estimated_duration %}{{ minutes }} min{% endblocktrans %}</p>
+{% endif %}
+
 <p>{% blocktrans with expires_at=invite.expires_at|date:"DATETIME_FORMAT" %}You have until {{ expires_at }} to accept this invitation.{% endblocktrans %}</p>
 
 <p><a href="{{ accept_url }}">{% trans "Accept the invitation" %}</a></p>
