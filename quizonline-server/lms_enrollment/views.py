@@ -112,7 +112,22 @@ class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class _LmsEnrollThrottle(ScopedRateThrottle):
+    """Learner-side bucket: self-enroll + accept invite. Tightly
+    capped (20/min) so a script attempting to brute-force course IDs
+    gets rate-limited fast."""
+
     scope = "lms_enroll"
+
+
+class _LmsInviteSendThrottle(ScopedRateThrottle):
+    """Instructor-side bucket: send / bulk-send / resend invitations.
+    Higher cap (50/min) because an instructor inviting a cohort
+    legitimately needs more throughput than a learner self-enroll.
+    Split from ``lms_enroll`` so a bulk-invite spree by one
+    instructor cannot starve the learner-side accept flow that
+    shares the same scope."""
+
+    scope = "lms_invite_send"
 
 
 @api_view(["POST"])
@@ -475,7 +490,7 @@ def _require_invites_enabled():
 )
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([_LmsEnrollThrottle])
+@throttle_classes([_LmsInviteSendThrottle])
 def course_invite_send(request, course_id: int):
     """Instructor invites a domain member to an ``ENROLL_INVITE`` course."""
     gate = _require_invites_enabled()
@@ -516,7 +531,7 @@ def course_invite_send(request, course_id: int):
 )
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([_LmsEnrollThrottle])
+@throttle_classes([_LmsInviteSendThrottle])
 def course_invite_bulk_send(request, course_id: int):
     """Instructor sends invitations to several domain members in one go.
 
@@ -621,6 +636,7 @@ def course_invite_list(request, course_id: int):
 @extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([_LmsInviteSendThrottle])
 def course_invite_resend(request, pk: int):
     """Instructor re-sends a pending invitation."""
     gate = _require_invites_enabled()

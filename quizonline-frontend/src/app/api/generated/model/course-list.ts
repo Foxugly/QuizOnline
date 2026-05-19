@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { CourseDetailMyPendingInviteDto } from './course-detail-my-pending-invite';
 import { CourseDetailMyEnrollmentDto } from './course-detail-my-enrollment';
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
@@ -33,6 +34,7 @@ export interface CourseListDto {
     readonly lesson_count: number;
     readonly total_duration_minutes: number;
     my_enrollment: CourseDetailMyEnrollmentDto | null;
+    my_pending_invite: CourseDetailMyPendingInviteDto | null;
 }
 
 

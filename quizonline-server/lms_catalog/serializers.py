@@ -425,6 +425,12 @@ class CourseListSerializer(serializers.ModelSerializer):
     # uncompleted lesson id. Drives the "Continue learning" button and
     # the enrolled / progress badges on the catalog card.
     my_enrollment = serializers.SerializerMethodField()
+    # Pending course invitation (if any) for the calling user — same
+    # shape on both list and detail responses. Surfaced on the list
+    # too so the catalog card can render a small "Invited" chip and
+    # the learner does not have to open the detail page to discover
+    # they have an unread invitation.
+    my_pending_invite = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -433,6 +439,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             "enrollment_mode", "is_published", "published_at",
             "cover_image", "translations", "domain",
             "lesson_count", "total_duration_minutes", "my_enrollment",
+            "my_pending_invite",
         ]
 
     @extend_schema_field(serializers.IntegerField())
@@ -512,27 +519,6 @@ class CourseListSerializer(serializers.ModelSerializer):
             "next_lesson_id": next_lesson_id,
         }
 
-
-class CourseDetailSerializer(CourseListSerializer):
-    sections = SectionSerializer(many=True, read_only=True)
-    available_lang_codes = serializers.SerializerMethodField()
-    can_manage = serializers.SerializerMethodField()
-    my_pending_invite = serializers.SerializerMethodField()
-
-    class Meta(CourseListSerializer.Meta):
-        fields = CourseListSerializer.Meta.fields + [
-            "sections", "available_lang_codes", "can_manage",
-            "my_pending_invite", "created_at", "updated_at",
-        ]
-
-    def get_available_lang_codes(self, obj):
-        return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
-
-    def get_can_manage(self, obj):
-        from .permissions import is_lms_instructor
-        request = self.context.get("request")
-        return bool(request and is_lms_instructor(request.user, obj))
-
     @extend_schema_field({
         "type": "object",
         "nullable": True,
@@ -545,18 +531,23 @@ class CourseDetailSerializer(CourseListSerializer):
         "required": ["id", "token", "expires_at", "inviter_display_name"],
     })
     def get_my_pending_invite(self, obj):
-        """Pending ``CourseInvite`` token for the calling user, if any.
+        """Pending ``CourseInvite`` for the calling user, if any.
 
-        Exposed so the learner-facing course-detail page can both
-        swap its "Enroll" button for "Accept the invitation" and
-        render an "Invited by X" banner without doing a second
-        round-trip. Returns ``None`` for anonymous callers or when
-        the user has no pending invitation on this course.
+        Surfaced on both list and detail. The catalog list view
+        pre-builds a ``_pending_invites_by_course`` map in
+        ``CourseViewSet._build_my_enrollment_context`` to keep this
+        O(1) per row. The detail / retrieve path falls through to a
+        single per-course query.
+
+        Returns ``None`` for anonymous callers or when the user has
+        no pending invitation on this course.
         """
         request = self.context.get("request")
         user = getattr(request, "user", None) if request is not None else None
         if user is None or not getattr(user, "is_authenticated", False):
             return None
+        if "_pending_invites_by_course" in self.context:
+            return self.context["_pending_invites_by_course"].get(obj.id)
         from lms_enrollment.models import CourseInvite
         invite = (
             CourseInvite.objects.filter(
@@ -578,6 +569,26 @@ class CourseDetailSerializer(CourseListSerializer):
                 invite.created_by.get_display_name() if invite.created_by else ""
             ),
         }
+
+
+class CourseDetailSerializer(CourseListSerializer):
+    sections = SectionSerializer(many=True, read_only=True)
+    available_lang_codes = serializers.SerializerMethodField()
+    can_manage = serializers.SerializerMethodField()
+
+    class Meta(CourseListSerializer.Meta):
+        fields = CourseListSerializer.Meta.fields + [
+            "sections", "available_lang_codes", "can_manage",
+            "created_at", "updated_at",
+        ]
+
+    def get_available_lang_codes(self, obj):
+        return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
+
+    def get_can_manage(self, obj):
+        from .permissions import is_lms_instructor
+        request = self.context.get("request")
+        return bool(request and is_lms_instructor(request.user, obj))
 
 
 class CourseWriteSerializer(serializers.ModelSerializer):

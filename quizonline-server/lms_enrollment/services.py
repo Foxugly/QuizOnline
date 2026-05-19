@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -48,6 +48,24 @@ def _is_instructor(user, course: Course) -> bool:
 
 @transaction.atomic
 def enroll_user_to_course(*, user, course: Course, requested_by=None) -> CourseEnrollment:
+    """
+    Idempotent enrollment creation for ``(user, course)``.
+
+    Concurrency: when the row already exists, ``select_for_update``
+    locks it so the second waiter sees the same instance and returns
+    idempotently. When the row does NOT yet exist, ``select_for_update``
+    has nothing to lock — two parallel transactions can both observe
+    ``existing is None`` under Postgres' default READ COMMITTED
+    isolation and proceed to ``create()``. The DB's
+    ``unique(user, course)`` constraint catches the second
+    ``INSERT`` and Django surfaces it as ``IntegrityError``. We
+    catch it explicitly and converge on a single row by re-reading.
+
+    Without this guard a browser double-submit (slow network masking
+    a re-issue, two tabs clicking Enroll) bubbles a 500 to the
+    learner instead of the idempotent "you're already enrolled"
+    behaviour the rest of the API promises.
+    """
     existing = (
         CourseEnrollment.objects.select_for_update()
         .filter(user=user, course=course)
@@ -65,12 +83,18 @@ def enroll_user_to_course(*, user, course: Course, requested_by=None) -> CourseE
     else:
         status = CourseEnrollment.STATUS_ACTIVE
 
-    enrollment = CourseEnrollment.objects.create(
-        user=user,
-        course=course,
-        status=status,
-        created_by=requested_by or user,
-    )
+    try:
+        enrollment = CourseEnrollment.objects.create(
+            user=user,
+            course=course,
+            status=status,
+            created_by=requested_by or user,
+        )
+    except IntegrityError:
+        # Race: another transaction created the row between our
+        # ``first()`` and our ``create()``. Converge on its row.
+        return CourseEnrollment.objects.get(user=user, course=course)
+
     notify_enrollment_created_on_commit(enrollment)
     if enrollment.status == CourseEnrollment.STATUS_PENDING:
         _notify_instructors_of_pending_request(enrollment)

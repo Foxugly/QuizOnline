@@ -6297,17 +6297,6 @@ components:
           - progress_percent
           - next_lesson_id
           readOnly: true
-        sections:
-          type: array
-          items:
-            $ref: '#/components/schemas/Section'
-          readOnly: true
-        available_lang_codes:
-          type: string
-          readOnly: true
-        can_manage:
-          type: string
-          readOnly: true
         my_pending_invite:
           type: object
           nullable: true
@@ -6326,6 +6315,17 @@ components:
           - token
           - expires_at
           - inviter_display_name
+          readOnly: true
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
+          readOnly: true
+        available_lang_codes:
+          type: string
+          readOnly: true
+        can_manage:
+          type: string
           readOnly: true
         created_at:
           type: string
@@ -6669,12 +6669,32 @@ components:
           - progress_percent
           - next_lesson_id
           readOnly: true
+        my_pending_invite:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            token:
+              type: string
+            expires_at:
+              type: string
+              format: date-time
+            inviter_display_name:
+              type: string
+          required:
+          - id
+          - token
+          - expires_at
+          - inviter_display_name
+          readOnly: true
       required:
       - domain
       - id
       - language_code
       - lesson_count
       - my_enrollment
+      - my_pending_invite
       - slug
       - total_duration_minutes
       - translations

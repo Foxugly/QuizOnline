@@ -109,10 +109,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def _build_my_enrollment_context(self, request, course_ids: list[int]) -> dict:
-        """Pre-fetch in 4 queries (one per related table) everything
-        ``CourseListSerializer.get_my_enrollment`` needs for the whole
-        page. Returns a context dict keyed by the same shape the
-        serializer expects."""
+        """Pre-fetch in 5 queries (one per related table) everything
+        ``CourseListSerializer.get_my_enrollment`` +
+        ``get_my_pending_invite`` need for the whole page. Returns a
+        context dict keyed by the same shape the serializer expects."""
         user = getattr(request, "user", None)
         if not user or not getattr(user, "is_authenticated", False) or not course_ids:
             return {
@@ -120,9 +120,10 @@ class CourseViewSet(viewsets.ModelViewSet):
                 "_progresses_by_course": {},
                 "_lessons_by_course": {},
                 "_completed_lessons": set(),
+                "_pending_invites_by_course": {},
             }
         # Lazy imports to avoid circulars at module load.
-        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+        from lms_enrollment.models import CourseEnrollment, CourseInvite, CourseProgress, LessonProgress
 
         enrollments_by_course = {
             e.course_id: e
@@ -146,11 +147,37 @@ class CourseViewSet(viewsets.ModelViewSet):
                 is_completed=True,
             ).values_list("lesson_id", flat=True)
         )
+        # Pending invites for this user on any of the listed courses.
+        # ``select_related("created_by")`` keeps the inviter dereference
+        # in the same query — feeding the serializer's
+        # ``inviter_display_name`` field.
+        pending_invites_by_course: dict[int, dict] = {}
+        for invite in (
+            CourseInvite.objects.filter(
+                invitee=user,
+                status=CourseInvite.STATUS_PENDING,
+                course_id__in=course_ids,
+            )
+            .select_related("created_by")
+            .order_by("-created_at")
+        ):
+            # Idempotent — if multiple pendings somehow exist for the
+            # same (course, invitee), the latest one wins thanks to
+            # ``-created_at``.
+            pending_invites_by_course.setdefault(invite.course_id, {
+                "id": invite.id,
+                "token": invite.token,
+                "expires_at": invite.expires_at.isoformat(),
+                "inviter_display_name": (
+                    invite.created_by.get_display_name() if invite.created_by else ""
+                ),
+            })
         return {
             "_enrollments_by_course": enrollments_by_course,
             "_progresses_by_course": progresses_by_course,
             "_lessons_by_course": lessons_by_course,
             "_completed_lessons": completed_lessons,
+            "_pending_invites_by_course": pending_invites_by_course,
         }
 
     @action(detail=False, methods=["get"], url_path=r"by-slug/(?P<slug>[^/]+)")
