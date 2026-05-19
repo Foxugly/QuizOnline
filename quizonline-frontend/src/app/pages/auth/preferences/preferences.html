@@ -206,46 +206,50 @@
 
           <p-tabpanel value="notifications">
             <div class="builder-pane">
-              @for (role of ['user', 'manager', 'owner']; track role) {
-                @if (hasRole($any(role))) {
-                  <div class="notif-prefs__group">
-                    <h4 class="notif-prefs__group-title">{{ roleLabelFor($any(role)) }}</h4>
-
-                    <!-- Column headers repeated per group so the e-mail /
-                         cloche labels stay visible as the user scrolls
-                         between role sections. -->
+              <!-- Group toggles by topical category (Domain / Quiz / LMS)
+                   inside a collapsible <p-fieldset> each, so the page no
+                   longer reads as one long flat list of switches. Within
+                   a category, eligible kinds are filtered by role
+                   (a learner with no managed domain never sees
+                   ``join_request.created``). A category that has zero
+                   eligible kinds for this user is skipped entirely. -->
+              @for (category of notificationCategories; track category) {
+                @if (kindsInCategory(category).length > 0) {
+                  <p-fieldset
+                    [legend]="notificationCategoryLabel(category)"
+                    [toggleable]="true"
+                    [collapsed]="false"
+                    styleClass="notif-prefs__fieldset">
                     <div class="notif-prefs__header">
                       <span></span>
                       <span class="notif-prefs__col">{{ ui().preferences.notificationChannelEmail }}</span>
                       <span class="notif-prefs__col">{{ ui().preferences.notificationChannelWeb }}</span>
                     </div>
 
-                    @for (entry of notificationCatalog; track entry.kind) {
-                      @if (entry.role === role) {
-                        <div class="notif-prefs__row">
-                          <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
-                          <div class="notif-prefs__col">
-                            <p-toggleswitch
-                              [ngModel]="isChannelEnabled(entry.kind, 'email')"
-                              (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
-                              [ngModelOptions]="{standalone: true}"
-                              [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelEmail"
-                              [disabled]="saving()">
-                            </p-toggleswitch>
-                          </div>
-                          <div class="notif-prefs__col">
-                            <p-toggleswitch
-                              [ngModel]="isChannelEnabled(entry.kind, 'web')"
-                              (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
-                              [ngModelOptions]="{standalone: true}"
-                              [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelWeb"
-                              [disabled]="saving()">
-                            </p-toggleswitch>
-                          </div>
+                    @for (entry of kindsInCategory(category); track entry.kind) {
+                      <div class="notif-prefs__row">
+                        <span class="notif-prefs__label">{{ notificationKindLabel(entry.kind) }}</span>
+                        <div class="notif-prefs__col">
+                          <p-toggleswitch
+                            [ngModel]="isChannelEnabled(entry.kind, 'email')"
+                            (ngModelChange)="toggleChannel(entry.kind, 'email', $event)"
+                            [ngModelOptions]="{standalone: true}"
+                            [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelEmail"
+                            [disabled]="saving()">
+                          </p-toggleswitch>
                         </div>
-                      }
+                        <div class="notif-prefs__col">
+                          <p-toggleswitch
+                            [ngModel]="isChannelEnabled(entry.kind, 'web')"
+                            (ngModelChange)="toggleChannel(entry.kind, 'web', $event)"
+                            [ngModelOptions]="{standalone: true}"
+                            [attr.aria-label]="notificationKindLabel(entry.kind) + ' — ' + ui().preferences.notificationChannelWeb"
+                            [disabled]="saving()">
+                          </p-toggleswitch>
+                        </div>
+                      </div>
                     }
-                  </div>
+                  </p-fieldset>
                 }
               }
               <div class="footer-actions">

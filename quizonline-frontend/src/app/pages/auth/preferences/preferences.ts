@@ -8,6 +8,7 @@ import {switchMap} from 'rxjs/operators';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {DialogModule} from 'primeng/dialog';
+import {FieldsetModule} from 'primeng/fieldset';
 import {InputTextModule} from 'primeng/inputtext';
 import {MessageModule} from 'primeng/message';
 import {SelectModule} from 'primeng/select';
@@ -37,6 +38,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     ButtonModule,
     CardModule,
     DialogModule,
+    FieldsetModule,
     InputTextModule,
     MessageModule,
     SelectModule,
@@ -423,20 +425,42 @@ export class Preferences implements OnInit {
    * point asking them about it).
    */
   readonly notificationCatalog = [
-    {kind: 'domain.join_request.created', role: 'manager' as const},
-    {kind: 'domain.join_request.decided', role: 'user' as const},
-    {kind: 'domain.join_request.expiry_warning', role: 'user' as const},
-    {kind: 'domain.invite.received', role: 'user' as const},
-    {kind: 'domain.transfer.received', role: 'owner' as const},
-    {kind: 'quiz.assignment', role: 'user' as const},
-    {kind: 'quiz.completed', role: 'owner' as const},
-    {kind: 'quiz.result_available', role: 'user' as const},
-    {kind: 'quiz.detail_available', role: 'user' as const},
-    {kind: 'lms.course_invite.sent', role: 'manager' as const},
-    {kind: 'lms.course_invite.received', role: 'user' as const},
-    {kind: 'lms.course_invite.accepted', role: 'manager' as const},
-    {kind: 'lms.course_enrollment_request.created', role: 'manager' as const},
+    {kind: 'domain.join_request.created', role: 'manager' as const, category: 'domain' as const},
+    {kind: 'domain.join_request.decided', role: 'user' as const, category: 'domain' as const},
+    {kind: 'domain.join_request.expiry_warning', role: 'user' as const, category: 'domain' as const},
+    {kind: 'domain.invite.received', role: 'user' as const, category: 'domain' as const},
+    {kind: 'domain.transfer.received', role: 'owner' as const, category: 'domain' as const},
+    {kind: 'quiz.assignment', role: 'user' as const, category: 'quiz' as const},
+    {kind: 'quiz.completed', role: 'owner' as const, category: 'quiz' as const},
+    {kind: 'quiz.result_available', role: 'user' as const, category: 'quiz' as const},
+    {kind: 'quiz.detail_available', role: 'user' as const, category: 'quiz' as const},
+    {kind: 'lms.course_invite.sent', role: 'manager' as const, category: 'lms' as const},
+    {kind: 'lms.course_invite.received', role: 'user' as const, category: 'lms' as const},
+    {kind: 'lms.course_invite.accepted', role: 'manager' as const, category: 'lms' as const},
+    {kind: 'lms.course_enrollment_request.created', role: 'manager' as const, category: 'lms' as const},
   ];
+
+  /** Category ordering used by the template to render the
+   *  ``<p-fieldset>`` sections. Each appears only when the user has
+   *  at least one eligible kind in it (a domain-less learner gets
+   *  ``lms`` collapsed, etc.). */
+  readonly notificationCategories = ['domain', 'quiz', 'lms'] as const;
+
+  /** Kinds in ``category`` the calling user is eligible for, given
+   *  their role(s). Empty array hides the category entirely. */
+  kindsInCategory(category: 'domain' | 'quiz' | 'lms') {
+    return this.notificationCatalog.filter(
+      (entry) => entry.category === category && this.hasRole(entry.role),
+    );
+  }
+
+  /** Localised header for a notification category fieldset. */
+  notificationCategoryLabel(category: 'domain' | 'quiz' | 'lms'): string {
+    const t = this.ui().preferences;
+    if (category === 'domain') return t.notificationCategoryDomain;
+    if (category === 'quiz') return t.notificationCategoryQuiz;
+    return t.notificationCategoryLms;
+  }
 
   /** True iff the current user holds at least one role of that kind. */
   hasRole(role: 'user' | 'manager' | 'owner'): boolean {

@@ -166,6 +166,9 @@ export type PreferencesUiText = {
   notificationKindCourseInviteReceived: string;
   notificationKindCourseInviteAccepted: string;
   notificationKindCourseEnrollmentRequest: string;
+  notificationCategoryDomain: string;
+  notificationCategoryQuiz: string;
+  notificationCategoryLms: string;
   notificationChannelEmail: string;
   notificationChannelWeb: string;
   notificationGroupUser: string;

@@ -209,6 +209,9 @@ $danger-ink: #7f1d1d;
   }
 
   &__label { min-width: 0; }
+
+  /* Stack the per-category fieldsets with breathing room. */
+  &__fieldset { margin-bottom: 0.75rem; }
 }
 
 .domain-toolbar { display: flex; justify-content: flex-start; }
