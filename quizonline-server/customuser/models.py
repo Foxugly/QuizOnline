@@ -110,6 +110,28 @@ class CustomUser(AbstractUser):
             return qs.distinct()
         return qs.filter(Q(owner=self) | Q(managers=self)).distinct()
 
+    def can_create_domain(self) -> bool:
+        """True quand l'utilisateur peut créer un nouveau domaine.
+
+        Règle : ``nb_domain_max`` est un quota par-utilisateur défini
+        par un superuser (champ du modèle, default 0). On peut créer
+        tant que le nombre de domaines détenus est strictement
+        inférieur au quota. Les superusers court-circuitent toujours
+        le quota.
+
+        Appelée par :func:`domain.views.DomainViewSet.perform_create`
+        avant la sauvegarde, et par le frontend (``canCreateDomain``
+        dans le topmenu + ``domainAccessGuard``) pour gater l'entrée
+        Domaines. Les deux côtés doivent rester en miroir — modifier
+        la règle ici suppose de la propager côté Angular.
+        """
+        if self.is_superuser:
+            return True
+        Domain = self._domain_model()
+        owned = Domain.objects.filter(owner=self).count()
+        quota = self.nb_domain_max or 0
+        return owned < quota
+
     def get_visible_domains(self, *, active_only: bool = True) -> QuerySet:
         """
         Alias "pratique": en général l’UI liste les domaines visibles/choisissables.

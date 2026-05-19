@@ -30,10 +30,15 @@ class DomainViewSetTests(TestCase):
         cls.factory = APIRequestFactory()
 
         # Users
-        cls.owner = User.objects.create_user(username="owner", password="pwd")
-        cls.other = User.objects.create_user(username="other", password="pwd")
-        cls.global_staff = User.objects.create_user(username="staff", password="pwd", is_staff=True)
-        cls.member = User.objects.create_user(username="member", password="pwd")
+        # ``nb_domain_max=10`` on test-fixture users so the per-user
+        # creation quota (enforced by ``DomainViewSet.perform_create``)
+        # is never the failure cause for the unrelated CRUD tests in
+        # this module. The quota itself is covered by
+        # ``test_create_quota.py``.
+        cls.owner = User.objects.create_user(username="owner", password="pwd", nb_domain_max=10)
+        cls.other = User.objects.create_user(username="other", password="pwd", nb_domain_max=10)
+        cls.global_staff = User.objects.create_user(username="staff", password="pwd", is_staff=True, nb_domain_max=10)
+        cls.member = User.objects.create_user(username="member", password="pwd", nb_domain_max=10)
 
         # Languages
         cls.lang_fr = Language.objects.create(code="fr", name="Français", active=True)

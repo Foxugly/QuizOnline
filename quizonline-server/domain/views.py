@@ -288,20 +288,18 @@ class DomainViewSet(
 
     def perform_create(self, serializer):
         user = self.request.user
-        # ``nb_domain_max`` is a per-user creation quota (0 by default,
-        # set by a superuser via /user/{id}/edit). Refuse the create
-        # when the caller already owns ``nb_domain_max`` domains —
-        # superusers bypass the quota. We check here rather than in a
-        # permission class so the message can carry the relevant
-        # counter pair instead of a generic 403.
-        if not user.is_superuser:
-            owned_count = Domain.objects.filter(owner=user).count()
+        # Quota check lives on the user model
+        # (``CustomUser.can_create_domain``) so the same rule is the
+        # source of truth for the API, the frontend topmenu, and the
+        # ``domainAccessGuard`` — moving the rule means touching one
+        # method, not three callers.
+        if not user.can_create_domain():
+            owned = Domain.objects.filter(owner=user).count()
             quota = getattr(user, "nb_domain_max", 0) or 0
-            if owned_count >= quota:
-                raise PermissionDenied(
-                    f"Domain creation quota exhausted ({owned_count}/{quota}). "
-                    "Contact an administrator to raise nb_domain_max.",
-                )
+            raise PermissionDenied(
+                f"Domain creation quota exhausted ({owned}/{quota}). "
+                "Contact an administrator to raise nb_domain_max.",
+            )
         domain = serializer.save(created_by=user, updated_by=user)
         if user and not user.is_anonymous:
             domain.managers.add(user)
