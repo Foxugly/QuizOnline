@@ -404,6 +404,15 @@ def test_endpoint_bulk_resend_resends_all_pending(
     # Revoked row was NOT touched.
     assert revoked.status == CourseInvite.STATUS_REVOKED
 
+    # Exactly one audit row for the whole bulk action — readability
+    # over fidelity, mirrors bulk_send semantics.
+    from lms_catalog.models import CourseAuditLog
+    audit = CourseAuditLog.objects.filter(
+        course=invite_course, action="course.invite.bulk_resend",
+    )
+    assert audit.count() == 1
+    assert audit.first().metadata == {"processed": 2, "skipped": 0}
+
 
 @pytest.mark.django_db
 def test_endpoint_bulk_resend_forbids_non_instructor(invite_course, learner):

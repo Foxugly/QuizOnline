@@ -20,6 +20,7 @@ from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 
 from lms_catalog.models import Course, Lesson
 from lms_catalog.permissions import is_lms_instructor
+from lms_catalog.services import record_course_audit
 
 from .models import (
     Certificate,
@@ -691,6 +692,15 @@ def course_invite_bulk_resend(request, course_id: int):
         except DjangoValidationError:
             # Row raced out of ``pending`` between fetch and resend.
             skipped += 1
+    # One bulk row in the audit trail rather than N — matches the
+    # bulk_send semantics (one user-visible action = one log row) and
+    # keeps the audit-log tab readable on courses with large cohorts.
+    if processed or skipped:
+        record_course_audit(
+            course=course, actor=request.user,
+            action="course.invite.bulk_resend",
+            metadata={"processed": processed, "skipped": skipped},
+        )
     return Response({"processed": processed, "skipped": skipped})
 
 
