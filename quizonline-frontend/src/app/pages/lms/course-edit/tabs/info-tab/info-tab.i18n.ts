@@ -31,6 +31,7 @@ export interface LmsCourseEditInfoTabUiText {
     learningObjectivesHint: string;
   };
   enrollmentLabels: Record<'open' | 'approval' | 'invite', string>;
+  inviteOnlyHint: string;
   translateButton: string;
   uploadButton: string;
   removeCoverButton: string;
@@ -74,6 +75,8 @@ export function getLmsCourseEditInfoTabUiText(
           learningObjectivesHint: 'Liste de compétences ou résultats attendus à la fin du cours.',
         },
         enrollmentLabels: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
+        inviteOnlyHint:
+          'Les apprenants doivent être invités explicitement. Le cours est masqué du catalogue tant que l’invitation n’est pas envoyée.',
         translateButton: 'Traduire depuis cet onglet',
         uploadButton: 'Choisir une image…',
         removeCoverButton: 'Retirer l’image',
@@ -112,6 +115,8 @@ export function getLmsCourseEditInfoTabUiText(
           learningObjectivesHint: 'Vaardigheden of resultaten die studenten aan het einde behalen.',
         },
         enrollmentLabels: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
+        inviteOnlyHint:
+          'Cursisten moeten expliciet worden uitgenodigd. De cursus blijft verborgen in de catalogus zolang de uitnodiging niet is verzonden.',
         translateButton: 'Vertalen vanuit dit tabblad',
         uploadButton: 'Afbeelding kiezen…',
         removeCoverButton: 'Afbeelding verwijderen',
@@ -150,6 +155,8 @@ export function getLmsCourseEditInfoTabUiText(
           learningObjectivesHint: 'Competenze o risultati attesi al termine del corso.',
         },
         enrollmentLabels: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
+        inviteOnlyHint:
+          'Gli studenti devono essere invitati esplicitamente. Il corso resta nascosto dal catalogo finché l’invito non viene inviato.',
         translateButton: 'Traduci da questa scheda',
         uploadButton: 'Scegli un’immagine…',
         removeCoverButton: 'Rimuovi immagine',
@@ -188,6 +195,8 @@ export function getLmsCourseEditInfoTabUiText(
           learningObjectivesHint: 'Competencias o resultados que se esperan al finalizar el curso.',
         },
         enrollmentLabels: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
+        inviteOnlyHint:
+          'Los alumnos deben ser invitados explícitamente. El curso permanece oculto del catálogo hasta que se envía la invitación.',
         translateButton: 'Traducir desde esta pestaña',
         uploadButton: 'Elegir una imagen…',
         removeCoverButton: 'Quitar imagen',
@@ -225,6 +234,8 @@ export function getLmsCourseEditInfoTabUiText(
           learningObjectivesHint: 'Skills or outcomes learners will achieve by the end of the course.',
         },
         enrollmentLabels: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
+        inviteOnlyHint:
+          'Learners must be invited explicitly. The course stays hidden from the catalog until the invitation is sent.',
         translateButton: 'Translate from this tab',
         uploadButton: 'Choose an image…',
         removeCoverButton: 'Remove cover',

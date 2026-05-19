@@ -31,6 +31,12 @@
                 optionValue="value">
               </p-select>
             </div>
+            @if (isInviteOnly()) {
+              <p-message severity="info" [closable]="false" styleClass="invite-mode-hint">
+                <i class="pi pi-info-circle"></i>
+                <span>{{ pageText().inviteOnlyHint }}</span>
+              </p-message>
+            }
           </div>
 
           <div class="meta-item">

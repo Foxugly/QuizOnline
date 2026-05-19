@@ -10,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -209,6 +209,19 @@ export class LmsCourseEditInfoTab {
     }),
     translations: this.fb.group({}),
   });
+
+  /** Reactive mirror of the ``enrollment_mode`` control so the template
+   *  can switch the invite-only hint banner on/off without a manual
+   *  subscription. ``toSignal`` keeps it in sync as the author flips
+   *  the ``<p-select>`` value. */
+  private readonly enrollmentMode = toSignal(
+    this.form.controls.enrollment_mode.valueChanges,
+    {initialValue: this.form.controls.enrollment_mode.value},
+  );
+
+  protected readonly isInviteOnly = computed(
+    () => this.enrollmentMode() === EnrollmentModeEnumDto.Invite,
+  );
 
   // ---- Effects ------------------------------------------------------------
 
