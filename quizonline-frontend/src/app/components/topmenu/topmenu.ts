@@ -202,11 +202,14 @@ export class TopMenuComponent implements OnInit {
 
     // Plain members (no domain ownership, no superuser) still get a flat
     // Quiz link. Owners/managers/superusers get a Quiz dropdown rendered
-    // by the template (subjects / questions / quiz) instead.
+    // by the template (subjects / questions / quiz) instead. The icon
+    // matches the dropdown trigger's icon so the affordance feels
+    // consistent across roles.
     if (isAuthenticated && !this.showQuizDropdown) {
       items.push({
         label: this.ui().topmenu.quiz,
         link: ROUTES.quiz.list(),
+        icon: 'pi pi-list-check',
       });
     }
 
