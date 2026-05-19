@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 
+import {LMS_ME_INVITATIONS} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
-import {UserService} from '../../services/user/user';
+import {LmsInvitationCountService} from '../../services/lms/lms-invitation-count.service';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
@@ -12,13 +13,20 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {'(document:click)': 'closeMenu()'},
 })
-export class UserMenuComponent {
+export class UserMenuComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
+  protected readonly invitationCount = inject(LmsInvitationCountService);
+
   protected readonly open = signal(false);
 
   readonly ui = inject(UiTextService).ui;
+
+  ngOnInit(): void {
+    // The dropdown badge needs the pending count even before the
+    // user opens the menu — fire once on mount.
+    this.invitationCount.ensureLoaded();
+  }
 
   goPreferences() {
     this.open.set(false);
@@ -28,6 +36,11 @@ export class UserMenuComponent {
   goChangePassword() {
     this.open.set(false);
     void this.router.navigate(['/change-password']);
+  }
+
+  goMyInvitations() {
+    this.open.set(false);
+    void this.router.navigateByUrl(LMS_ME_INVITATIONS);
   }
 
   logout() {

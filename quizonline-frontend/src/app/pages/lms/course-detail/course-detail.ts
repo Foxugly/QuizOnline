@@ -16,6 +16,7 @@ import {pickTranslation, type TranslationsMap} from '../../../shared/lms/lms-tra
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
 import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service';
+import {LmsInvitationCountService} from '../../../services/lms/lms-invitation-count.service';
 import {UserService} from '../../../services/user/user';
 
 import {getLmsCourseDetailUiText} from './course-detail.i18n';
@@ -80,6 +81,7 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly catalog = inject(LmsCatalogService);
   private readonly enrollment = inject(LmsEnrollmentService);
+  private readonly invitationCount = inject(LmsInvitationCountService);
   private readonly uiSvc = inject(UiTextService);
   private readonly userService = inject(UserService);
   private readonly toast = inject(AppToastService);
@@ -227,6 +229,7 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
     this.acceptingInvite.set(true);
     this.enrollment.acceptInviteByToken(token).subscribe({
       next: () => {
+        this.invitationCount.refresh();
         this.toast.add({severity: 'success', summary: this.ui().acceptInviteSuccessToast});
         // Re-fetch so my_enrollment / my_pending_invite refresh and
         // the header swaps the button for "Continue".

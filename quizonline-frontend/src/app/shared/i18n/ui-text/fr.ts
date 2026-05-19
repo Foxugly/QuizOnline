@@ -30,6 +30,7 @@ export const FR: UiText = {
     preferences: 'Préférences',
     changePassword: 'Changer le mot de passe',
     logout: 'Déconnexion',
+    myInvitations: 'Mes invitations',
     login: 'Connexion',
     userFallback: 'Utilisateur',
   },

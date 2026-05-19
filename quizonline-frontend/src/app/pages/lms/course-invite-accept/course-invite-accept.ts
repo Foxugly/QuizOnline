@@ -16,6 +16,7 @@ import {logApiError} from '../../../shared/api/api-errors';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {CourseInviteDto, LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service';
+import {LmsInvitationCountService} from '../../../services/lms/lms-invitation-count.service';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 import {getLmsCourseInviteAcceptUiText} from './course-invite-accept.i18n';
@@ -61,6 +62,7 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly enrollment = inject(LmsEnrollmentService);
+  private readonly invitationCount = inject(LmsInvitationCountService);
   private readonly confirmer = inject(ConfirmationService);
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
@@ -141,6 +143,7 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
       next: () => {
         this.busy.set(false);
         this.state.set('accepted');
+        this.invitationCount.refresh();
         this.toast.add({severity: 'success', summary: this.ui().acceptSuccessToast});
       },
       error: (err: unknown) => {
@@ -178,6 +181,7 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
       next: () => {
         this.busy.set(false);
         this.state.set('declined');
+        this.invitationCount.refresh();
         this.toast.add({severity: 'success', summary: this.ui().declineSuccessToast});
       },
       error: (err: unknown) => {

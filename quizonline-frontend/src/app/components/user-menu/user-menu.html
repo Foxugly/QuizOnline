@@ -8,10 +8,21 @@
       >
         <i class="pi pi-user"></i>
         <span>{{ auth.getUsername() || ui().userMenu.userFallback }}</span>
+        @if (invitationCount.pendingCount() > 0) {
+          <span class="user-trigger__badge"
+                [attr.aria-label]="ui().userMenu.myInvitations">{{ invitationCount.pendingCount() }}</span>
+        }
       </button>
 
       @if (open()) {
         <div class="user-menu__panel" (click)="$event.stopPropagation()">
+          @if (invitationCount.pendingCount() > 0) {
+            <button type="button" class="user-menu__item" (click)="goMyInvitations()">
+              <i class="pi pi-envelope user-menu__item-icon" aria-hidden="true"></i>
+              <span>{{ ui().userMenu.myInvitations }}</span>
+              <span class="user-menu__item-badge">{{ invitationCount.pendingCount() }}</span>
+            </button>
+          }
           <button type="button" class="user-menu__item" (click)="goPreferences()">
             <i class="pi pi-sliders-h user-menu__item-icon" aria-hidden="true"></i>
             <span>{{ ui().userMenu.preferences }}</span>

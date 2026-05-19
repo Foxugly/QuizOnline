@@ -56,6 +56,10 @@ export type UserMenuUiText = {
   changePassword: string;
   logout: string;
   login: string;
+  /** "My invitations" link entry — shown only when the user has at
+   *  least one pending course invitation (the count is the trailing
+   *  badge on the menu item). */
+  myInvitations: string;
   /** Generic fallback rendered when the stored username is missing
    *  (e.g. session restored from a refresh token whose USER_KEY was
    *  evicted from local/session storage). */
