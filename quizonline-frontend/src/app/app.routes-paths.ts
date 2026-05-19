@@ -79,4 +79,5 @@ export const LMS_ME_PROGRESS = '/lms/me/progress';
 export const LMS_ME_CERTIFICATES = '/lms/me/certificates';
 export const LMS_CERTIFICATE_VIEW = (id: number) => `/lms/certificate/${id}`;
 export const LMS_CERTIFICATE_VERIFY = (token: string) => `/lms/verify/${token}`;
+export const LMS_COURSE_INVITE_ACCEPT = (token: string) => `/lms/course-invite/${token}`;
 

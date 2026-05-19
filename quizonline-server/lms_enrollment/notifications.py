@@ -108,7 +108,7 @@ def _build_invite_accept_url(invite) -> str:
     work whether the mail server resolves relative links or not.
     """
     base = getattr(settings, "FRONTEND_BASE_URL", "").rstrip("/")
-    return f"{base}/lms/course-invite/{invite.token}/"
+    return f"{base}/lms/course-invite/{invite.token}"
 
 
 def _on_commit(callable_) -> None:

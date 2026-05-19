@@ -54,6 +54,7 @@ import {getLmsCourseEditUiText} from '../src/app/pages/lms/course-edit/course-ed
 import {getLmsCourseEditInfoTabUiText} from '../src/app/pages/lms/course-edit/tabs/info-tab/info-tab.i18n';
 import {getLmsCourseEditStructureTabUiText} from '../src/app/pages/lms/course-edit/tabs/structure-tab/structure-tab.i18n';
 import {getLmsCourseEditAnalyticsTabUiText} from '../src/app/pages/lms/course-edit/tabs/analytics-tab/analytics-tab.i18n';
+import {getLmsCourseInviteAcceptUiText} from '../src/app/pages/lms/course-invite-accept/course-invite-accept.i18n';
 import {getLmsLessonEditUiText} from '../src/app/pages/lms/lesson-edit/lesson-edit.i18n';
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
 
@@ -91,6 +92,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/lms/course-edit/info-tab', get: getLmsCourseEditInfoTabUiText as Getter},
   {name: 'pages/lms/course-edit/structure-tab', get: getLmsCourseEditStructureTabUiText as Getter},
   {name: 'pages/lms/course-edit/analytics-tab', get: getLmsCourseEditAnalyticsTabUiText as Getter},
+  {name: 'pages/lms/course-invite-accept', get: getLmsCourseInviteAcceptUiText as Getter},
   {name: 'pages/lms/lesson-edit', get: getLmsLessonEditUiText as Getter},
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
 ];

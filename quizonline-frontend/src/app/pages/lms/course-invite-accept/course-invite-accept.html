@@ -1,0 +1,136 @@
+<div class="page">
+  <app-page-header [title]="ui().pageTitle"></app-page-header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p-card>
+        <p class="muted">{{ ui().loadingMessage }}</p>
+      </p-card>
+    }
+    @case ('pending') {
+      @if (invite(); as inv) {
+        <p-card>
+          <p class="invite-line">
+            {{ ui().invitationFrom(inviterDisplayName(), inv.course_title) }}
+          </p>
+          <p class="muted">{{ ui().expiresAt(inv.expires_at | date:'medium') }}</p>
+          <div class="invite-actions">
+            <p-button
+              type="button"
+              icon="pi pi-check"
+              severity="primary"
+              [label]="ui().acceptButton"
+              [loading]="busy()"
+              [disabled]="busy()"
+              (onClick)="accept()">
+            </p-button>
+            <p-button
+              type="button"
+              icon="pi pi-times"
+              severity="secondary"
+              [outlined]="true"
+              [label]="ui().declineButton"
+              [disabled]="busy()"
+              (onClick)="decline()">
+            </p-button>
+          </div>
+        </p-card>
+      }
+    }
+    @case ('accepted') {
+      <p-card>
+        <h2>{{ ui().acceptedTitle }}</h2>
+        <p>{{ ui().acceptedMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            icon="pi pi-bookmark"
+            severity="primary"
+            [label]="ui().goToCourseButton"
+            (onClick)="goToCourse()">
+          </p-button>
+        </div>
+      </p-card>
+    }
+    @case ('declined') {
+      <p-card>
+        <h2>{{ ui().declinedTitle }}</h2>
+        <p>{{ ui().declinedMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            [routerLink]="catalogHref"
+            [label]="ui().backToCatalogButton">
+          </p-button>
+        </div>
+      </p-card>
+    }
+    @case ('revoked') {
+      <p-card>
+        <h2>{{ ui().revokedTitle }}</h2>
+        <p class="muted">{{ ui().revokedMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            [routerLink]="catalogHref"
+            [label]="ui().backToCatalogButton">
+          </p-button>
+        </div>
+      </p-card>
+    }
+    @case ('expired') {
+      <p-card>
+        <h2>{{ ui().expiredTitle }}</h2>
+        <p class="muted">{{ ui().expiredMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            [routerLink]="catalogHref"
+            [label]="ui().backToCatalogButton">
+          </p-button>
+        </div>
+      </p-card>
+    }
+    @case ('not_found') {
+      <p-card>
+        <h2>{{ ui().notFoundTitle }}</h2>
+        <p class="muted">{{ ui().notFoundMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            [routerLink]="catalogHref"
+            [label]="ui().backToCatalogButton">
+          </p-button>
+        </div>
+      </p-card>
+    }
+    @case ('forbidden') {
+      <p-card>
+        <h2>{{ ui().forbiddenTitle }}</h2>
+        <p class="muted">{{ ui().forbiddenMessage }}</p>
+        <div class="invite-actions">
+          <p-button
+            type="button"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-arrow-left"
+            [routerLink]="catalogHref"
+            [label]="ui().backToCatalogButton">
+          </p-button>
+        </div>
+      </p-card>
+    }
+  }
+</div>
