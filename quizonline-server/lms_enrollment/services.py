@@ -277,7 +277,9 @@ def _is_domain_member(user, course: Course) -> bool:
 def _course_invite_payload(invite: CourseInvite) -> dict:
     """Web-notification payload shared by the three invite kinds. The
     frontend uses these keys to render the human-readable line and the
-    deep-link target without re-querying the API."""
+    deep-link target without re-querying the API. The inviter is
+    sourced from ``AuditMixin.created_by`` — the legacy ``inviter`` FK
+    was dropped as redundant."""
     course = invite.course
     return {
         "invite_id": invite.id,
@@ -287,8 +289,8 @@ def _course_invite_payload(invite: CourseInvite) -> dict:
         "course_title": course.safe_translation_getter("title", any_language=True) or "",
         "invitee_id": invite.invitee_id,
         "invitee_username": invite.invitee.username,
-        "inviter_id": invite.inviter_id,
-        "inviter_username": invite.inviter.username if invite.inviter else "",
+        "inviter_id": invite.created_by_id,
+        "inviter_username": invite.created_by.username if invite.created_by else "",
     }
 
 
@@ -336,7 +338,6 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
         invite = CourseInvite.objects.create(
             course=course,
             invitee=invitee,
-            inviter=inviter,
             expires_at=_default_course_invite_expiry(),
             created_by=inviter,
         )
@@ -346,10 +347,9 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
         # window — otherwise re-sending a 13-day-old invite leaves them
         # with one day to act, which is worse UX than not resending.
         invite.expires_at = _default_course_invite_expiry()
-        invite.inviter = inviter
         invite.updated_by = inviter
         invite.save(
-            update_fields=["last_sent_at", "expires_at", "inviter", "updated_by", "updated_at"],
+            update_fields=["last_sent_at", "expires_at", "updated_by", "updated_at"],
         )
 
     payload = _course_invite_payload(invite)
@@ -428,9 +428,9 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
 
         payload = _course_invite_payload(invite)
         # Tell the inviter their invitation was accepted.
-        if invite.inviter is not None:
+        if invite.created_by is not None:
             notify(
-                user=invite.inviter,
+                user=invite.created_by,
                 kind=KIND_COURSE_INVITE_ACCEPTED,
                 payload=payload,
                 domain=invite.course.domain,

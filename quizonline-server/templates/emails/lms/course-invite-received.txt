@@ -1,6 +1,6 @@
 {% load i18n %}{% blocktrans with name=invite.invitee.get_display_name %}Hello {{ name }},{% endblocktrans %}
 
-{% blocktrans with inviter=invite.inviter.get_display_name course=invite.course %}{{ inviter }} has invited you to join the course {{ course }}.{% endblocktrans %}
+{% blocktrans with inviter=invite.created_by.get_display_name course=invite.course %}{{ inviter }} has invited you to join the course {{ course }}.{% endblocktrans %}
 
 {% if course_description %}{{ course_description|striptags|safe }}
 

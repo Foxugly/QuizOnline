@@ -1,5 +1,5 @@
 {% load i18n %}
-<p>{% blocktrans with name=invite.inviter.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
+<p>{% blocktrans with name=invite.created_by.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
 
 <p>{% blocktrans with invitee=invite.invitee.get_display_name course=invite.course %}{{ invitee }} has accepted your invitation to the course <strong>{{ course }}</strong>.{% endblocktrans %}</p>
 

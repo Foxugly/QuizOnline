@@ -556,7 +556,7 @@ def course_invite_list(request, course_id: int):
     status_filter = request.query_params.get("status")
     qs = (
         CourseInvite.objects.filter(course=course)
-        .select_related("course", "invitee", "inviter")
+        .select_related("course", "invitee", "created_by")
         .order_by("-created_at")
     )
     if status_filter:
@@ -570,7 +570,7 @@ def course_invite_resend(request, pk: int):
     """Instructor re-sends a pending invitation."""
     invite = (
         CourseInvite.objects
-        .select_related("course", "invitee", "inviter")
+        .select_related("course", "invitee", "created_by")
         .filter(pk=pk)
         .first()
     )
@@ -586,7 +586,7 @@ def course_invite_revoke(request, pk: int):
     """Instructor revokes a pending invitation."""
     invite = (
         CourseInvite.objects
-        .select_related("course", "invitee", "inviter")
+        .select_related("course", "invitee", "created_by")
         .filter(pk=pk)
         .first()
     )
@@ -609,7 +609,7 @@ def my_course_invitations(request):
     revoked / expired rows for a basic history view."""
     qs = (
         CourseInvite.objects.filter(invitee=request.user)
-        .select_related("course", "inviter", "course__domain")
+        .select_related("course", "created_by", "course__domain")
         .order_by("-created_at")
     )
     status_filter = request.query_params.get("status")
@@ -629,7 +629,7 @@ def course_invite_detail(request, token: str):
     invitation card before the user clicks Accept or Decline."""
     invite = (
         CourseInvite.objects
-        .select_related("course", "invitee", "inviter", "course__domain")
+        .select_related("course", "invitee", "created_by", "course__domain")
         .filter(token=token)
         .first()
     )
@@ -648,7 +648,7 @@ def course_invite_accept(request, token: str):
     """Invitee accepts a pending invitation. Creates the active
     ``CourseEnrollment`` and notifies the inviter."""
     invite = (
-        CourseInvite.objects.select_related("course", "invitee", "inviter")
+        CourseInvite.objects.select_related("course", "invitee", "created_by")
         .filter(token=token)
         .first()
     )
@@ -666,7 +666,7 @@ def course_invite_accept(request, token: str):
 def course_invite_decline(request, token: str):
     """Invitee declines a pending invitation."""
     invite = (
-        CourseInvite.objects.select_related("course", "invitee", "inviter")
+        CourseInvite.objects.select_related("course", "invitee", "created_by")
         .filter(token=token)
         .first()
     )

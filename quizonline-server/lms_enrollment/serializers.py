@@ -149,6 +149,12 @@ class CourseInviteSerializer(serializers.ModelSerializer):
     )
     course_level = serializers.CharField(source="course.level", read_only=True)
     invitee_detail = serializers.SerializerMethodField()
+    # The legacy ``inviter`` FK was dropped — its role is now carried by
+    # ``AuditMixin.created_by``. The JSON field names stay (``inviter`` +
+    # ``inviter_detail``) so the frontend keeps working unchanged.
+    inviter = serializers.IntegerField(
+        source="created_by_id", read_only=True, allow_null=True,
+    )
     inviter_detail = serializers.SerializerMethodField()
 
     class Meta:
@@ -200,7 +206,7 @@ class CourseInviteSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(UserSummarySerializer(allow_null=True))
     def get_inviter_detail(self, obj) -> dict | None:
-        return _enrollment_user_summary(obj.inviter) if obj.inviter_id else None
+        return _enrollment_user_summary(obj.created_by) if obj.created_by_id else None
 
 
 class CourseInviteSendSerializer(serializers.Serializer):

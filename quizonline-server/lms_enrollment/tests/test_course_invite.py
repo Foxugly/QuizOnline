@@ -80,7 +80,7 @@ def test_invite_creates_pending_row_with_token(invite_course, learner, owner):
     )
     assert invite.status == CourseInvite.STATUS_PENDING
     assert invite.invitee == learner
-    assert invite.inviter == owner
+    assert invite.created_by == owner
     assert invite.token  # non-empty
     assert invite.expires_at > timezone.now() + timedelta(days=13)
 
@@ -443,7 +443,7 @@ def test_endpoint_my_invitations_returns_pending_only_by_default(
     # Same learner, different course → revoked.
     other_course = invite_course
     revoked = CourseInvite.objects.create(
-        course=other_course, invitee=learner, inviter=owner,
+        course=other_course, invitee=learner, created_by=owner,
         status=CourseInvite.STATUS_REVOKED,
         expires_at=timezone.now() + timedelta(days=14),
     )
@@ -599,7 +599,7 @@ def test_expire_pending_course_invites_marks_only_overdue_rows(
     # A non-pending row, also past its expiry — the sweep must NOT
     # touch it (status filter is ``pending`` only).
     revoked = CourseInvite.objects.create(
-        course=invite_course, invitee=stranger, inviter=owner,
+        course=invite_course, invitee=stranger, created_by=owner,
         status=CourseInvite.STATUS_REVOKED,
         expires_at=timezone.now() - timedelta(days=30),
     )

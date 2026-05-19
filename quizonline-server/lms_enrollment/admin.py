@@ -50,11 +50,15 @@ class CourseProgressAdmin(admin.ModelAdmin):
 
 @admin.register(CourseInvite)
 class CourseInviteAdmin(admin.ModelAdmin):
-    list_display = ("id", "course", "invitee", "inviter", "status", "expires_at", "created_at")
+    """The inviter is read off ``created_by`` (AuditMixin) — no separate
+    ``inviter`` FK any more, so the list/search/select_related set
+    points at ``created_by`` instead."""
+
+    list_display = ("id", "course", "invitee", "created_by", "status", "expires_at", "created_at")
     list_filter = ("status", "course__domain")
     search_fields = ("invitee__email", "invitee__username", "course__translations__title")
-    list_select_related = ("course", "invitee", "inviter")
-    autocomplete_fields = ("course", "invitee", "inviter")
+    list_select_related = ("course", "invitee", "created_by")
+    autocomplete_fields = ("course", "invitee", "created_by")
     readonly_fields = (
         "token", "last_sent_at", "accepted_at", "declined_at", "revoked_at",
         "created_at", "updated_at", "created_by", "updated_by",

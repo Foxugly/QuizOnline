@@ -1,4 +1,4 @@
-{% load i18n %}{% blocktrans with name=invite.inviter.get_display_name %}Hello {{ name }},{% endblocktrans %}
+{% load i18n %}{% blocktrans with name=invite.created_by.get_display_name %}Hello {{ name }},{% endblocktrans %}
 
 {% blocktrans with invitee=invite.invitee.get_display_name course=invite.course %}Your invitation has been sent to {{ invitee }} for the course {{ course }}.{% endblocktrans %}
 

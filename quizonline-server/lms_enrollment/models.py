@@ -160,13 +160,9 @@ class CourseInvite(AuditMixin, models.Model):
         on_delete=models.CASCADE,
         related_name="received_course_invites",
     )
-    inviter = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="sent_course_invites",
-    )
+    # The inviter is carried by ``AuditMixin.created_by`` — no extra
+    # FK needed. Code that needs "who sent this" should read
+    # ``invite.created_by`` directly.
     status = models.CharField(
         max_length=16,
         choices=STATUS_CHOICES,

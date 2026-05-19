@@ -163,9 +163,9 @@ def make_course_invite_sent_email_callable(invite):
     """Confirmation email to the inviter — same on-commit deferral."""
     def _send():
         def _do_send():
-            if invite.inviter is None or not invite.inviter.email:
+            if invite.created_by is None or not invite.created_by.email:
                 return
-            lang = invite.inviter.language or "fr"
+            lang = invite.created_by.language or "fr"
             with translation.override(lang):
                 subject = _("Invitation sent for %(course)s") % {
                     "course": invite.course.safe_translation_getter(
@@ -173,7 +173,7 @@ def make_course_invite_sent_email_callable(invite):
                     ) or "",
                 }
             _send_html_email(
-                to_email=invite.inviter.email, subject=subject,
+                to_email=invite.created_by.email, subject=subject,
                 template_base="course-invite-sent",
                 context={"invite": invite}, lang=lang,
             )
@@ -224,15 +224,15 @@ def make_course_invite_accepted_email_callable(invite):
     """Notification to the inviter that the invitee accepted — on-commit."""
     def _send():
         def _do_send():
-            if invite.inviter is None or not invite.inviter.email:
+            if invite.created_by is None or not invite.created_by.email:
                 return
-            lang = invite.inviter.language or "fr"
+            lang = invite.created_by.language or "fr"
             with translation.override(lang):
                 subject = _("%(invitee)s accepted your invitation") % {
                     "invitee": invite.invitee.get_display_name(),
                 }
             _send_html_email(
-                to_email=invite.inviter.email, subject=subject,
+                to_email=invite.created_by.email, subject=subject,
                 template_base="course-invite-accepted",
                 context={"invite": invite}, lang=lang,
             )

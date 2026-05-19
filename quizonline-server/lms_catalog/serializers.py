@@ -564,7 +564,7 @@ class CourseDetailSerializer(CourseListSerializer):
                 invitee=user,
                 status=CourseInvite.STATUS_PENDING,
             )
-            .select_related("inviter")
+            .select_related("created_by")
             .order_by("-created_at")
             .first()
         )
@@ -575,7 +575,7 @@ class CourseDetailSerializer(CourseListSerializer):
             "token": invite.token,
             "expires_at": invite.expires_at.isoformat(),
             "inviter_display_name": (
-                invite.inviter.get_display_name() if invite.inviter else ""
+                invite.created_by.get_display_name() if invite.created_by else ""
             ),
         }
 
