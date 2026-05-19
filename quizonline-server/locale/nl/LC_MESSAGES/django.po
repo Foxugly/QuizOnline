@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 14:53+0200\n"
+"POT-Creation-Date: 2026-05-19 18:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -304,6 +304,10 @@ msgid "New enrollment request for %(course)s"
 msgstr "Je inschrijving voor %(course)s is goedgekeurd"
 
 #, python-format
+msgid "Reminder: invitation to %(course)s expires soon"
+msgstr "Herinnering: uw uitnodiging voor %(course)s verloopt binnenkort"
+
+#, python-format
 msgid "%(invitee)s accepted your invitation"
 msgstr "%(invitee)s heeft je uitnodiging geaccepteerd"
 
@@ -480,6 +484,18 @@ msgstr "%(inviter)s nodigt je uit om deel te nemen aan de cursus %(course)s."
 
 msgid "Accept the invitation:"
 msgstr "Uitnodiging accepteren:"
+
+#, python-format
+msgid "This is a reminder: your invitation expires on %(expires_at)s."
+msgstr "Kleine herinnering: uw uitnodiging verloopt op %(expires_at)s."
+
+#, python-format
+msgid "%(inviter)s invited you to join the course <strong>%(course)s</strong>, and we did not see you accept yet."
+msgstr "%(inviter)s heeft u uitgenodigd om deel te nemen aan de cursus <strong>%(course)s</strong>, en we hebben uw acceptatie nog niet ontvangen."
+
+#, python-format
+msgid "%(inviter)s invited you to join the course %(course)s, and we did not see you accept yet."
+msgstr "%(inviter)s heeft u uitgenodigd om deel te nemen aan de cursus %(course)s, en we hebben uw acceptatie nog niet ontvangen."
 
 #, fuzzy, python-format
 #| msgid "You have been enrolled in <strong>%(course)s</strong>."

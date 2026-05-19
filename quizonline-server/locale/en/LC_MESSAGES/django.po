@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 14:53+0200\n"
+"POT-Creation-Date: 2026-05-19 18:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -299,6 +299,10 @@ msgid "New enrollment request for %(course)s"
 msgstr ""
 
 #, python-format
+msgid "Reminder: invitation to %(course)s expires soon"
+msgstr ""
+
+#, python-format
 msgid "%(invitee)s accepted your invitation"
 msgstr ""
 
@@ -467,6 +471,18 @@ msgid "%(inviter)s has invited you to join the course %(course)s."
 msgstr ""
 
 msgid "Accept the invitation:"
+msgstr ""
+
+#, python-format
+msgid "This is a reminder: your invitation expires on %(expires_at)s."
+msgstr ""
+
+#, python-format
+msgid "%(inviter)s invited you to join the course <strong>%(course)s</strong>, and we did not see you accept yet."
+msgstr ""
+
+#, python-format
+msgid "%(inviter)s invited you to join the course %(course)s, and we did not see you accept yet."
 msgstr ""
 
 #, python-format
