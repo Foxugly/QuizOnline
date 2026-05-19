@@ -2072,6 +2072,11 @@ paths:
         throttle bucket, so an instructor inviting 50 learners at once
         doesn't trip the per-minute limit they would hit if they looped
         client-side.
+
+        Caps the request at ``settings.LMS_COURSE_INVITE_BULK_MAX`` ids
+        (default 200) so a runaway paste cannot tie up a worker for
+        minutes — the cap is large enough to cover a "whole cohort"
+        invite in a single shot for any realistic course.
       parameters:
       - in: path
         name: course_id

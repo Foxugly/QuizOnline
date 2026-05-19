@@ -388,6 +388,42 @@ def test_endpoint_bulk_send_rejects_empty_list(invite_course, owner):
 
 
 @pytest.mark.django_db
+def test_endpoint_bulk_send_rejects_oversize_list(invite_course, owner):
+    """Bulk send caps the input list at ``LMS_COURSE_INVITE_BULK_MAX``
+    (200 by default). Above the cap the endpoint 400s so a runaway
+    paste cannot tie up a worker for minutes."""
+    from django.conf import settings as dj_settings
+    client = APIClient()
+    client.force_authenticate(owner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-send",
+        kwargs={"course_id": invite_course.id},
+    )
+    oversize = list(range(1, dj_settings.LMS_COURSE_INVITE_BULK_MAX + 5))
+    response = client.post(url, {"invitee_ids": oversize}, format="json")
+    assert response.status_code == 400
+    assert "at most" in response.json()["detail"]
+
+
+@pytest.mark.django_db
+@override_settings(LMS_COURSE_INVITES_ENABLED=False)
+def test_endpoint_send_returns_503_when_feature_disabled(
+    invite_course, learner, owner,
+):
+    """When the operator flips the kill switch, write endpoints
+    refuse the request with 503. Read endpoints (list, my-invitations)
+    stay open so existing invitees can still see their pending rows."""
+    client = APIClient()
+    client.force_authenticate(owner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-send",
+        kwargs={"course_id": invite_course.id},
+    )
+    response = client.post(url, {"invitee_id": learner.id}, format="json")
+    assert response.status_code == 503
+
+
+@pytest.mark.django_db
 def test_endpoint_list_invites_instructor_only(invite_course, learner, owner):
     invite_user_to_course(course=invite_course, invitee=learner, inviter=owner)
     client = APIClient()

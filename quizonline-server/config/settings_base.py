@@ -12,6 +12,8 @@ env = environ.Env(
     DEBUG=(bool, True),
     SECRET_KEY=(str, "django-insecure-dev-key-change-me"),
     JWT_SIGNING_KEY=(str, ""),
+    LMS_COURSE_INVITES_ENABLED=(bool, True),
+    LMS_COURSE_INVITE_BULK_MAX=(int, 200),
     ALLOWED_HOSTS=(list, ["*"]),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:4200", "http://127.0.0.1:4200"]),
     DEFAULT_FROM_EMAIL=(str, "no-reply@monapp.com"),
@@ -317,6 +319,18 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 3600.0,  # once an hour
     },
 }
+
+# Course-invite feature kill switch. When False, every invite endpoint
+# (send, list, accept, …) returns 503 and the catalog visibility filter
+# stops exposing invite-only courses through the invite branch. Lets
+# the operator pull the plug on the feature without a code redeploy.
+LMS_COURSE_INVITES_ENABLED = env("LMS_COURSE_INVITES_ENABLED")
+
+# Hard cap on the size of a single ``POST course/<id>/invite-bulk/``
+# request. Above this the endpoint 400s — guards against a runaway
+# instructor pasting a 50k-line CSV and tying up a worker for
+# minutes.
+LMS_COURSE_INVITE_BULK_MAX = env("LMS_COURSE_INVITE_BULK_MAX")
 DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE")
 FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE")
 MAX_UPLOAD_FILE_SIZE = env("MAX_UPLOAD_FILE_SIZE")

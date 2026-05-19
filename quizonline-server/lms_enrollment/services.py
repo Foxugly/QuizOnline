@@ -392,6 +392,12 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
     function raises right after. A single wrapping
     ``@transaction.atomic`` would roll that mark back along with the
     raise.
+
+    Concurrency: the status transition runs under ``select_for_update``
+    on the invite row so two simultaneous accept attempts (browser
+    double-click, two tabs, etc.) cannot both pass the PENDING gate
+    and emit two ACCEPTED rows. The second waiter sees the now-
+    accepted row and falls into the ``status != PENDING`` branch.
     """
     if accepted_by is None or accepted_by.id != invite.invitee_id:
         raise PermissionDenied(_("Only the invitee can accept this invitation."))
@@ -403,6 +409,21 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
         raise ValidationError(_("Invitation has expired."))
 
     with transaction.atomic():
+        # Re-fetch under a row lock so the PENDING check is atomic
+        # with the ACCEPTED write — closes the TOCTOU window between
+        # the pre-check above and the save below. ``select_related``
+        # carries over the FKs subsequent lines / on-commit notif
+        # builders read so we don't pay a re-query per dereference.
+        locked = (
+            CourseInvite.objects
+            .select_for_update()
+            .select_related("course", "invitee", "created_by", "course__domain")
+            .filter(pk=invite.pk)
+            .first()
+        )
+        if locked is None or locked.status != CourseInvite.STATUS_PENDING:
+            raise ValidationError(_("Invitation is not pending."))
+        invite = locked
         invite.status = CourseInvite.STATUS_ACCEPTED
         invite.accepted_at = timezone.now()
         invite.updated_by = accepted_by

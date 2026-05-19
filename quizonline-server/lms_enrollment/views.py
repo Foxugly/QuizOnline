@@ -1,6 +1,7 @@
 from datetime import timedelta
 from statistics import median
 
+from django.conf import settings
 from django.core.exceptions import (
     PermissionDenied as DjangoPermissionDenied,
     ValidationError as DjangoValidationError,
@@ -454,11 +455,27 @@ def _get_user_or_404(user_id):
     return get_user_model().objects.filter(pk=user_id).first()
 
 
+def _require_invites_enabled():
+    """Raise a 503-shaped response payload if the operator has muted
+    the course-invite feature via ``LMS_COURSE_INVITES_ENABLED``. Used
+    by every invite endpoint so the kill switch is a single point of
+    control."""
+    if not getattr(settings, "LMS_COURSE_INVITES_ENABLED", True):
+        return Response(
+            {"detail": "Course invitations are temporarily disabled."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+    return None
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @throttle_classes([_LmsEnrollThrottle])
 def course_invite_send(request, course_id: int):
     """Instructor invites a domain member to an ``ENROLL_INVITE`` course."""
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
     course = Course.objects.filter(pk=course_id).first()
     if not course:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -497,7 +514,15 @@ def course_invite_bulk_send(request, course_id: int):
     throttle bucket, so an instructor inviting 50 learners at once
     doesn't trip the per-minute limit they would hit if they looped
     client-side.
+
+    Caps the request at ``settings.LMS_COURSE_INVITE_BULK_MAX`` ids
+    (default 200) so a runaway paste cannot tie up a worker for
+    minutes — the cap is large enough to cover a "whole cohort"
+    invite in a single shot for any realistic course.
     """
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
     course = Course.objects.filter(pk=course_id).first()
     if not course:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -506,6 +531,17 @@ def course_invite_bulk_send(request, course_id: int):
     if not isinstance(raw_ids, list) or not raw_ids:
         return Response(
             {"detail": "invitee_ids must be a non-empty list of integers."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    bulk_max = getattr(settings, "LMS_COURSE_INVITE_BULK_MAX", 200)
+    if len(raw_ids) > bulk_max:
+        return Response(
+            {
+                "detail": (
+                    f"invitee_ids must contain at most {bulk_max} entries "
+                    f"(received {len(raw_ids)})."
+                ),
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
     try:
@@ -568,6 +604,9 @@ def course_invite_list(request, course_id: int):
 @permission_classes([IsAuthenticated])
 def course_invite_resend(request, pk: int):
     """Instructor re-sends a pending invitation."""
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
     invite = (
         CourseInvite.objects
         .select_related("course", "invitee", "created_by")
@@ -647,6 +686,9 @@ def course_invite_detail(request, token: str):
 def course_invite_accept(request, token: str):
     """Invitee accepts a pending invitation. Creates the active
     ``CourseEnrollment`` and notifies the inviter."""
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
     invite = (
         CourseInvite.objects.select_related("course", "invitee", "created_by")
         .filter(token=token)
@@ -665,6 +707,9 @@ def course_invite_accept(request, token: str):
 @permission_classes([IsAuthenticated])
 def course_invite_decline(request, token: str):
     """Invitee declines a pending invitation."""
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
     invite = (
         CourseInvite.objects.select_related("course", "invitee", "created_by")
         .filter(token=token)
