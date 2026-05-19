@@ -38,6 +38,14 @@ import {AppToastService} from '../../../../../shared/toast/app-toast.service';
 
 import {getLmsCourseEditEnrollmentTabUiText} from './enrollment-tab.i18n';
 
+/** Picker-friendly shape that wraps ``UserSummaryDto`` with a
+ *  precomputed ``displayName`` so PrimeNG's ``<p-autoComplete>`` can
+ *  bind to ``field="displayName"`` (the component does not support a
+ *  function-valued ``field`` input). */
+interface MemberPickerItem extends UserSummaryDto {
+  displayName: string;
+}
+
 /** Status filter options surfaced in the ``p-select`` above the table.
  * ``all`` is the sentinel for "no status filter" and is translated into
  * "don't send the ``?status=`` query param" in :meth:`refresh`. */
@@ -114,12 +122,16 @@ export class LmsCourseEditEnrollmentTab {
   protected readonly busyInviteId = signal<number | null>(null);
   protected readonly sending = signal(false);
   /** All domain members — used as the autocomplete source. Fetched
-   *  once per course / domain change. */
-  private readonly domainMembers = signal<UserSummaryDto[]>([]);
+   *  once per course / domain change. Each row carries a precomputed
+   *  ``displayName`` so the picker's ``field="displayName"`` binding
+   *  can render the "First Last (username)" shape without needing a
+   *  function-valued ``[field]`` binding (PrimeNG only supports a
+   *  string property name there). */
+  private readonly domainMembers = signal<MemberPickerItem[]>([]);
   /** The narrowed picker suggestions matching the current ``query``. */
-  protected readonly memberSuggestions = signal<UserSummaryDto[]>([]);
+  protected readonly memberSuggestions = signal<MemberPickerItem[]>([]);
   /** Currently selected invitee (after the autocomplete picks one). */
-  protected readonly selectedInvitee = signal<UserSummaryDto | null>(null);
+  protected readonly selectedInvitee = signal<MemberPickerItem | null>(null);
 
   // ---- Derived -----------------------------------------------------------
 
@@ -429,7 +441,10 @@ export class LmsCourseEditEnrollmentTab {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (d: {members?: UserSummaryDto[]}) => {
-          const members = d.members ?? [];
+          const members = (d.members ?? []).map<MemberPickerItem>((u) => ({
+            ...u,
+            displayName: this.inviteeDisplayName(u),
+          }));
           this.domainMembers.set(members);
           this.memberSuggestions.set(members);
         },

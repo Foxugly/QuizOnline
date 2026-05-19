@@ -13,7 +13,7 @@
           <p class="invite-line">
             {{ ui().invitationFrom(inviterDisplayName(), inv.course_title) }}
           </p>
-          <p class="muted">{{ ui().expiresAt(inv.expires_at | date:'medium') }}</p>
+          <p class="muted">{{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}</p>
           <div class="invite-actions">
             <p-button
               type="button"
