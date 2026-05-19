@@ -1,5 +1,11 @@
 :host { display: block; }
 
+.draft-banner {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0 1rem;
+}
+
 /*
  * The info-tab renders its form inside a <p-card>, and the structure/
  * enrollment/analytics tabs each carry their own surface chrome. Now
