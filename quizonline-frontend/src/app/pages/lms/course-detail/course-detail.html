@@ -40,6 +40,16 @@
     }
   </app-page-header>
 
+  @if (showStatusBadge()) {
+    <div class="status-badge-row">
+      @if (isPublished()) {
+        <p-tag severity="success" [value]="statusBadgeLabel()" icon="pi pi-eye" />
+      } @else {
+        <p-tag severity="secondary" [value]="statusBadgeLabel()" icon="pi pi-pencil" />
+      }
+    </div>
+  }
+
   @if (pendingInviteInviter(); as inviter) {
     <p-message severity="info" [closable]="false" styleClass="invite-banner">
       <i class="pi pi-envelope"></i>

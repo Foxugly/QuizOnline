@@ -14,6 +14,15 @@
   }
 }
 
+/* Centered draft/published badge surfaced under the page header for
+ * instructors only — mirrors the same row used by the course-edit
+ * page so the two surfaces feel like one. */
+.status-badge-row {
+  display: flex;
+  justify-content: center;
+  margin: -0.5rem 0 1rem;
+}
+
 .course-description,
 .rich-text {
   margin: 0 0 1rem;

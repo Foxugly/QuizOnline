@@ -18,6 +18,13 @@ export interface LmsCourseDetailUiText {
   inviteOnlyMessage: string;
   approvalPendingMessage: string;
   invitedByBanner: (inviter: string) => string;
+  /** Instructor-only publish-status badge — same vocabulary as
+   *  ``LmsCatalogUiText.statusLabels`` so the two surfaces stay in
+   *  sync. */
+  statusLabels: {
+    published: string;
+    draft: string;
+  };
   enrollSuccessToast: string;
   enrollErrorToast: string;
   acceptInviteSuccessToast: string;
@@ -50,6 +57,7 @@ export function getLmsCourseDetailUiText(
         inviteOnlyMessage: 'Ce cours est sur invitation uniquement.',
         approvalPendingMessage: 'Votre inscription attend la validation d\'un instructeur.',
         invitedByBanner: (inviter) => `${inviter} vous a invité·e à rejoindre ce cours.`,
+        statusLabels: {published: 'Publié', draft: 'Brouillon'},
         enrollSuccessToast: 'Inscription confirmée.',
         enrollErrorToast: "Impossible de s'inscrire.",
         acceptInviteSuccessToast: 'Invitation acceptée.',
@@ -77,6 +85,7 @@ export function getLmsCourseDetailUiText(
         inviteOnlyMessage: 'Deze cursus is alleen op uitnodiging.',
         approvalPendingMessage: 'Je inschrijving wacht op goedkeuring van een instructeur.',
         invitedByBanner: (inviter) => `${inviter} heeft je uitgenodigd voor deze cursus.`,
+        statusLabels: {published: 'Gepubliceerd', draft: 'Concept'},
         enrollSuccessToast: 'Inschrijving bevestigd.',
         enrollErrorToast: 'Inschrijven mislukt.',
         acceptInviteSuccessToast: 'Uitnodiging geaccepteerd.',
@@ -104,6 +113,7 @@ export function getLmsCourseDetailUiText(
         inviteOnlyMessage: 'Questo corso è solo su invito.',
         approvalPendingMessage: 'La tua iscrizione attende l\'approvazione di un istruttore.',
         invitedByBanner: (inviter) => `${inviter} ti ha invitato a partecipare a questo corso.`,
+        statusLabels: {published: 'Pubblicato', draft: 'Bozza'},
         enrollSuccessToast: 'Iscrizione confermata.',
         enrollErrorToast: 'Iscrizione non riuscita.',
         acceptInviteSuccessToast: 'Invito accettato.',
@@ -131,6 +141,7 @@ export function getLmsCourseDetailUiText(
         inviteOnlyMessage: 'Este curso es solo por invitación.',
         approvalPendingMessage: 'Tu inscripción está pendiente de aprobación.',
         invitedByBanner: (inviter) => `${inviter} te ha invitado a este curso.`,
+        statusLabels: {published: 'Publicado', draft: 'Borrador'},
         enrollSuccessToast: 'Inscripción confirmada.',
         enrollErrorToast: 'No se pudo inscribir.',
         acceptInviteSuccessToast: 'Invitación aceptada.',
@@ -157,6 +168,7 @@ export function getLmsCourseDetailUiText(
         inviteOnlyMessage: 'This course is invite-only.',
         approvalPendingMessage: 'Your enrollment is awaiting instructor approval.',
         invitedByBanner: (inviter) => `${inviter} has invited you to join this course.`,
+        statusLabels: {published: 'Published', draft: 'Draft'},
         enrollSuccessToast: 'Enrollment confirmed.',
         enrollErrorToast: 'Could not enroll.',
         acceptInviteSuccessToast: 'Invitation accepted.',

@@ -38,6 +38,12 @@ interface CourseDetailDto {
   slug: string;
   enrollment_mode?: 'open' | 'approval' | 'invite';
   can_manage?: boolean;
+  /** Publish state — drives the instructor-only draft/published tag
+   *  shown under the page header. Members of an invite-only domain
+   *  can land on this page (via a pending invite) on a still-published
+   *  course; only instructors see the badge, since for learners the
+   *  course is by definition published. */
+  is_published?: boolean;
   translations?: TranslationsMap;
   sections?: CourseSectionDto[];
   my_enrollment?: {
@@ -124,6 +130,18 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   );
 
   protected readonly canManage = computed(() => !!this.course()?.can_manage);
+
+  /** Drives the centered draft/published badge below the page header
+   *  — shown only when the caller can manage the course (learners only
+   *  see published rows, so a tag would be redundant for them). */
+  protected readonly showStatusBadge = computed(() => this.canManage());
+
+  protected readonly isPublished = computed(() => !!this.course()?.is_published);
+
+  protected readonly statusBadgeLabel = computed(() => {
+    const labels = this.ui().statusLabels;
+    return this.isPublished() ? labels.published : labels.draft;
+  });
 
   protected readonly editHref = computed(() => {
     const c = this.course();
