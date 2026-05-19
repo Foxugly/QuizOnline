@@ -51,6 +51,7 @@ import {getSubjectCreateUiText} from '../src/app/pages/subject/create/subject-cr
 import {getLmsCatalogUiText} from '../src/app/pages/lms/catalog/catalog.i18n';
 import {getLmsCourseCreateUiText} from '../src/app/pages/lms/course-create/course-create.i18n';
 import {getLmsCourseEditUiText} from '../src/app/pages/lms/course-edit/course-edit.i18n';
+import {getLmsCourseListUiText} from '../src/app/pages/lms/course-list/course-list.i18n';
 import {getLmsCourseEditInfoTabUiText} from '../src/app/pages/lms/course-edit/tabs/info-tab/info-tab.i18n';
 import {getLmsCourseEditStructureTabUiText} from '../src/app/pages/lms/course-edit/tabs/structure-tab/structure-tab.i18n';
 import {getLmsCourseEditAnalyticsTabUiText} from '../src/app/pages/lms/course-edit/tabs/analytics-tab/analytics-tab.i18n';
@@ -90,6 +91,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/lms/catalog', get: getLmsCatalogUiText as Getter},
   {name: 'pages/lms/course-create', get: getLmsCourseCreateUiText as Getter},
   {name: 'pages/lms/course-edit', get: getLmsCourseEditUiText as Getter},
+  {name: 'pages/lms/course-list', get: getLmsCourseListUiText as Getter},
   {name: 'pages/lms/course-edit/info-tab', get: getLmsCourseEditInfoTabUiText as Getter},
   {name: 'pages/lms/course-edit/structure-tab', get: getLmsCourseEditStructureTabUiText as Getter},
   {name: 'pages/lms/course-edit/analytics-tab', get: getLmsCourseEditAnalyticsTabUiText as Getter},

@@ -9,7 +9,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
 
-import {LMS_COURSE_DETAIL, LMS_COURSE_NEW, LMS_LESSON_VIEW} from '../../../app.routes-paths';
+import {LMS_COURSE_DETAIL, LMS_COURSE_LIST, LMS_COURSE_NEW, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -101,6 +101,7 @@ export class LmsCatalog implements OnInit {
   /** Whether the user has at least one manageable domain (owner / manager / superuser). */
   protected readonly canCreateCourse = signal(false);
   protected readonly createCourseHref = LMS_COURSE_NEW;
+  protected readonly courseListHref = LMS_COURSE_LIST;
 
   protected readonly levelOptions = computed(() => {
     const labels = this.common().levelLabels;

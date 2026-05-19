@@ -2,6 +2,15 @@
   <app-page-header [title]="ui().pageTitle">
     @if (canCreateCourse()) {
       <p-button slot="right"
+        [routerLink]="courseListHref"
+        icon="pi pi-list"
+        severity="secondary"
+        [outlined]="true"
+        [label]="ui().listButton"
+        type="button" />
+    }
+    @if (canCreateCourse()) {
+      <p-button slot="right"
         [routerLink]="createCourseHref"
         icon="pi pi-plus"
         [label]="ui().createCourseButton"

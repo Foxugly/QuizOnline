@@ -1,0 +1,148 @@
+<div class="page">
+  <div class="header-line header-line--grid">
+    <div class="header-spacer"></div>
+
+    <div class="header-center">
+      <h1 class="title">{{ ui().title }}</h1>
+    </div>
+
+    <div class="header-actions">
+      <p-button
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-th-large"
+        [routerLink]="catalogHref"
+        [label]="ui().catalogButton">
+      </p-button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <app-bulk-actions
+        [options]="bulkActionOptions()"
+        [placeholder]="ui().bulk.placeholder"
+        [applyLabel]="ui().bulk.apply"
+        [count]="selectedCount()"
+        [countText]="ui().bulk.selectedCount(selectedCount())"
+        [applying]="applyingBulk()"
+        (apply)="applyBulk($event)">
+      </app-bulk-actions>
+
+      <div class="card-actions">
+        <input
+          pInputText
+          type="search"
+          [placeholder]="ui().searchPlaceholder"
+          [ngModel]="q()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+
+        <p-button
+          [routerLink]="createCourseHref"
+          icon="pi pi-plus"
+          [label]="editorUi().common.add"
+          severity="primary"
+          type="button">
+        </p-button>
+      </div>
+    </div>
+
+    <p-table
+      [dataKey]="'id'"
+      [paginator]="rowsData().length > rows"
+      [rows]="rows"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [value]="rowsData()"
+      [selection]="selectedRows()"
+      (selectionChange)="onSelectionChange($event)"
+      selectionMode="multiple"
+      showGridlines
+      size="small"
+      sortMode="single"
+      stripedRows
+      styleClass="table"
+    >
+      <ng-template #header>
+        <tr>
+          <th class="col-checkbox" style="width: 3rem"></th>
+          <th pSortableColumn="title" style="text-align: center;">
+            {{ ui().columns.title }}
+            <p-sortIcon field="title"></p-sortIcon>
+          </th>
+          <th pSortableColumn="domainName" style="text-align: center;">
+            {{ ui().columns.domain }}
+            <p-sortIcon field="domainName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="levelLabel" style="text-align: center;">
+            {{ ui().columns.level }}
+            <p-sortIcon field="levelLabel"></p-sortIcon>
+          </th>
+          <th pSortableColumn="enrollmentLabel" style="text-align: center;">
+            {{ ui().columns.enrollment }}
+            <p-sortIcon field="enrollmentLabel"></p-sortIcon>
+          </th>
+          <th pSortableColumn="isPublished" style="text-align: center;">
+            {{ ui().columns.status }}
+            <p-sortIcon field="isPublished"></p-sortIcon>
+          </th>
+          <th pSortableColumn="lessonCount" style="text-align: center;">
+            {{ ui().columns.lessons }}
+            <p-sortIcon field="lessonCount"></p-sortIcon>
+          </th>
+          <th class="col-actions">{{ ui().columns.actions }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-row>
+        <tr>
+          <td class="col-checkbox">
+            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+          </td>
+          <td>{{ row.title }}</td>
+          <td style="text-align: center;">{{ row.domainName }}</td>
+          <td style="text-align: center;">{{ row.levelLabel }}</td>
+          <td style="text-align: center;">{{ row.enrollmentLabel }}</td>
+          <td style="text-align: center;">
+            @if (row.isPublished) {
+              <p-tag severity="success" [value]="row.statusLabel" icon="pi pi-eye" />
+            } @else {
+              <p-tag severity="secondary" [value]="row.statusLabel" icon="pi pi-pencil" />
+            }
+          </td>
+          <td style="text-align: center;">{{ row.lessonCount }}</td>
+          <td class="col-actions">
+            <div class="row-actions">
+              <p-button
+                (click)="goView(row.slug)"
+                icon="pi pi-eye"
+                severity="secondary"
+                [outlined]="true"
+                size="small"
+                type="button">
+              </p-button>
+              <p-button
+                (click)="goEdit(row.id)"
+                icon="pi pi-pencil"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 1.5rem;">
+            {{ ui().emptyMessage }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-confirmDialog></p-confirmDialog>

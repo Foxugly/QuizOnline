@@ -70,6 +70,7 @@ export let ROUTES = {
 
 export const DASHBOARD = '/dashboard';
 export const LMS_CATALOG = '/lms/catalog';
+export const LMS_COURSE_LIST = '/lms/course/list';
 export const LMS_COURSE_NEW = '/lms/course/new';
 export const LMS_COURSE_DETAIL = (slug: string) => `/lms/course/${slug}`;
 export const LMS_COURSE_EDIT = (id: number) => `/lms/course/${id}/edit`;

@@ -11,6 +11,10 @@ export interface LmsCatalogUiText {
   enrollmentBadge: Record<'open' | 'approval' | 'invite', string>;
   viewButton: string;
   createCourseButton: string;
+  /** Top-right CTA on the catalog header that routes instructors to
+   *  the admin ``/lms/course/list`` table view. Visible only when the
+   *  caller manages at least one domain. */
+  listButton: string;
   /** Card meta: lesson count, e.g. "12 lessons". */
   lessonCount: (n: number) => string;
   /** Card meta: total duration formatted as "Xh Ym" or "Y min". */
@@ -38,6 +42,7 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
         viewButton: 'Voir',
         createCourseButton: 'Créer un cours',
+        listButton: 'Liste',
         lessonCount: (n) => `${n} leçon${n > 1 ? 's' : ''}`,
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Inscrit',
@@ -56,6 +61,7 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
         viewButton: 'Bekijken',
         createCourseButton: 'Cursus aanmaken',
+        listButton: 'Lijst',
         lessonCount: (n) => `${n} les${n > 1 ? 'sen' : ''}`,
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} u ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Ingeschreven',
@@ -74,6 +80,7 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
         viewButton: 'Visualizza',
         createCourseButton: 'Crea un corso',
+        listButton: 'Elenco',
         lessonCount: (n) => `${n} lezion${n > 1 ? 'i' : 'e'}`,
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Iscritto',
@@ -92,6 +99,7 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
         viewButton: 'Ver',
         createCourseButton: 'Crear un curso',
+        listButton: 'Lista',
         lessonCount: (n) => `${n} lección${n > 1 ? 'es' : ''}`,
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Inscrito',
@@ -109,6 +117,7 @@ export function getLmsCatalogUiText(
         enrollmentBadge: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
         viewButton: 'View',
         createCourseButton: 'Create a course',
+        listButton: 'List',
         lessonCount: (n) => `${n} lesson${n > 1 ? 's' : ''}`,
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 > 0 ? (m % 60) + 'min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Enrolled',
