@@ -40,6 +40,9 @@ model/course-detail.ts
 model/course-enrollment-request.ts
 model/course-enrollment-status-enum.ts
 model/course-enrollment.ts
+model/course-invite-send-request.ts
+model/course-invite-status-enum.ts
+model/course-invite.ts
 model/course-list.ts
 model/course-progress.ts
 model/course-write-request.ts
@@ -92,6 +95,7 @@ model/lesson-detail.ts
 model/lesson-quiz-request.ts
 model/lesson-quiz.ts
 model/level-enum.ts
+model/lms-course-invite-bulk-create200-response.ts
 model/localized-answer-option-translation-request.ts
 model/localized-answer-option-translation.ts
 model/localized-name-description-translation-request.ts

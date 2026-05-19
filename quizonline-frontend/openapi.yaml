@@ -1905,7 +1905,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course-invite/{id}/revoke/:
     post:
       operationId: lms_course_invite_revoke_create
@@ -1922,7 +1926,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course-invite/{token}/:
     get:
       operationId: lms_course_invite_retrieve
@@ -1943,7 +1951,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course-invite/{token}/accept/:
     post:
       operationId: lms_course_invite_accept_create
@@ -1962,7 +1974,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
   /api/lms/course-invite/{token}/decline/:
     post:
       operationId: lms_course_invite_decline_create
@@ -1979,7 +1995,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course/{course_id}/analytics/:
     get:
       operationId: lms_course_analytics_retrieve
@@ -2050,11 +2070,27 @@ paths:
         required: true
       tags:
       - lms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+        required: true
       security:
       - jwtAuth: []
       responses:
-        '200':
-          description: No response body
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course/{course_id}/invite-bulk/:
     post:
       operationId: lms_course_invite_bulk_create
@@ -2089,10 +2125,22 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  skipped:
+                    type: integer
+                required:
+                - processed
+                - skipped
+          description: ''
   /api/lms/course/{course_id}/invites/:
     get:
-      operationId: lms_course_invites_retrieve
+      operationId: lms_course_invites_list
       description: List invitations for a course. Instructor-only.
       parameters:
       - in: path
@@ -2106,7 +2154,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/course/{id}/:
     get:
       operationId: lms_course_retrieve
@@ -2841,7 +2895,7 @@ paths:
           description: ''
   /api/lms/me/invitations/:
     get:
-      operationId: lms_me_invitations_retrieve
+      operationId: lms_me_invitations_list
       description: |-
         Every ``CourseInvite`` row addressed to the calling user,
         most recent first. Powers the ``/lms/me/invitations`` page so a
@@ -2857,7 +2911,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/lms/progress/:
     get:
       operationId: lms_progress_list
@@ -6401,6 +6461,145 @@ components:
         * `active` - Active
         * `completed` - Completed
         * `cancelled` - Cancelled
+    CourseInvite:
+      type: object
+      description: |-
+        Read shape for course invitations. Carries enough denormalized
+        context (course title + description + objectives + duration + level,
+        plus invitee/inviter summaries) that the instructor-side list and
+        the invitee-side accept page can both render without chaining extra
+        requests. The acceptance page reaches users cold from email, so
+        skipping a second round-trip matters on slow mobile networks.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        token:
+          type: string
+          readOnly: true
+        course:
+          type: integer
+          readOnly: true
+        course_title:
+          type: string
+          readOnly: true
+        course_slug:
+          type: string
+          readOnly: true
+        course_description:
+          type: string
+          description: Localised, HTML-sanitized description (already nh3'd on save).
+          readOnly: true
+        course_learning_objectives:
+          type: string
+          readOnly: true
+        course_estimated_duration:
+          type: integer
+          readOnly: true
+        course_level:
+          type: string
+          readOnly: true
+        invitee:
+          type: integer
+          readOnly: true
+        invitee_detail:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
+        inviter:
+          type: integer
+          readOnly: true
+          nullable: true
+        inviter_detail:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          nullable: true
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CourseInviteStatusEnum'
+          readOnly: true
+          default: pending
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+        accepted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        declined_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - accepted_at
+      - course
+      - course_description
+      - course_estimated_duration
+      - course_learning_objectives
+      - course_level
+      - course_slug
+      - course_title
+      - created_at
+      - declined_at
+      - expires_at
+      - id
+      - invitee
+      - invitee_detail
+      - inviter
+      - inviter_detail
+      - last_sent_at
+      - revoked_at
+      - status
+      - token
+      - updated_at
+    CourseInviteSendRequest:
+      type: object
+      description: |-
+        Write shape for ``POST /api/lms/course/{id}/invite/``. The
+        instructor picks an invitee by their ``user_id``; that user must
+        already be a member of the course's domain (enforced by the
+        service layer).
+      properties:
+        invitee_id:
+          type: integer
+      required:
+      - invitee_id
+    CourseInviteStatusEnum:
+      enum:
+      - pending
+      - accepted
+      - declined
+      - revoked
+      - expired
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `accepted` - Accepted
+        * `declined` - Declined
+        * `revoked` - Revoked
+        * `expired` - Expired
     CourseList:
       type: object
       properties:

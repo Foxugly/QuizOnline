@@ -10,6 +10,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.http import FileResponse
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
 from rest_framework.exceptions import PermissionDenied
@@ -468,6 +469,10 @@ def _require_invites_enabled():
     return None
 
 
+@extend_schema(
+    request=CourseInviteSendSerializer,
+    responses={status.HTTP_201_CREATED: CourseInviteSerializer},
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @throttle_classes([_LmsEnrollThrottle])
@@ -497,6 +502,18 @@ def course_invite_send(request, course_id: int):
     )
 
 
+@extend_schema(
+    responses={
+        status.HTTP_200_OK: {
+            "type": "object",
+            "properties": {
+                "processed": {"type": "integer"},
+                "skipped": {"type": "integer"},
+            },
+            "required": ["processed", "skipped"],
+        },
+    },
+)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @throttle_classes([_LmsEnrollThrottle])
@@ -579,6 +596,7 @@ def course_invite_bulk_send(request, course_id: int):
     return Response({"processed": processed, "skipped": skipped})
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer(many=True)})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def course_invite_list(request, course_id: int):
@@ -600,6 +618,7 @@ def course_invite_list(request, course_id: int):
     return Response(CourseInviteSerializer(qs, many=True).data)
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def course_invite_resend(request, pk: int):
@@ -619,6 +638,7 @@ def course_invite_resend(request, pk: int):
     return Response(CourseInviteSerializer(invite).data)
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def course_invite_revoke(request, pk: int):
@@ -635,6 +655,7 @@ def course_invite_revoke(request, pk: int):
     return Response(CourseInviteSerializer(invite).data)
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer(many=True)})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def my_course_invitations(request):
@@ -659,6 +680,7 @@ def my_course_invitations(request):
     return Response(CourseInviteSerializer(qs, many=True).data)
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def course_invite_detail(request, token: str):
@@ -680,6 +702,7 @@ def course_invite_detail(request, token: str):
     return Response(CourseInviteSerializer(invite).data)
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseEnrollmentSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @throttle_classes([_LmsEnrollThrottle])
@@ -703,6 +726,7 @@ def course_invite_accept(request, token: str):
     )
 
 
+@extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def course_invite_decline(request, token: str):
