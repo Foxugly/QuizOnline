@@ -29,7 +29,23 @@ export class LmsCatalogService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
 
-  list(params: {search?: string; level?: string; domain?: number} = {}): Observable<{count: number; results: unknown[]}> {
+  list(
+    params: {
+      search?: string;
+      level?: string;
+      domain?: number;
+      /** Backend ``?manageable_only=1`` filter — restricts the list to
+       *  courses the caller owns or manages. Used by the instructor
+       *  /lms/course/list page so paginator slicing reflects only
+       *  manageable rows. */
+      manageableOnly?: boolean;
+      /** DRF page index (1-based). Page size is fixed server-side
+       *  (``API_PAGE_SIZE``, default 20) — DRF's
+       *  ``PageNumberPagination`` does not honour ``?page_size=``
+       *  unless ``page_size_query_param`` is explicitly enabled. */
+      page?: number;
+    } = {},
+  ): Observable<{count: number; next: string | null; previous: string | null; results: unknown[]}> {
     let httpParams = new HttpParams();
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
@@ -40,7 +56,15 @@ export class LmsCatalogService {
     if (params.domain) {
       httpParams = httpParams.set('domain', String(params.domain));
     }
-    return this.http.get<{count: number; results: unknown[]}>(`${this.baseUrl}/course/`, {params: httpParams});
+    if (params.manageableOnly) {
+      httpParams = httpParams.set('manageable_only', '1');
+    }
+    if (params.page && params.page > 0) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+    return this.http.get<{count: number; next: string | null; previous: string | null; results: unknown[]}>(
+      `${this.baseUrl}/course/`, {params: httpParams},
+    );
   }
 
   /**

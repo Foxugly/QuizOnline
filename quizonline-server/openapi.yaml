@@ -1835,6 +1835,12 @@ paths:
         warning and consecutive pages may shuffle rows on courses
         that share the same publish timestamp.
       parameters:
+      - in: query
+        name: manageable_only
+        schema:
+          type: boolean
+        description: Scope to courses the caller owns or manages. Used by the instructor
+          /lms/course/list page; drops courses where the caller is only a member.
       - name: ordering
         required: false
         in: query

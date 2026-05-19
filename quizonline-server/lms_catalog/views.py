@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -35,6 +36,21 @@ from .services import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="manageable_only",
+                description=(
+                    "Scope to courses the caller owns or manages. "
+                    "Used by the instructor /lms/course/list page; "
+                    "drops courses where the caller is only a member."
+                ),
+                required=False, type=bool, location="query",
+            ),
+        ],
+    ),
+)
 class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -62,6 +78,24 @@ class CourseViewSet(viewsets.ModelViewSet):
         level = self.request.query_params.get("level")
         if level:
             qs = qs.filter(level=level)
+        # Optional ``?manageable_only=1`` scopes the queryset to
+        # courses the caller can manage (owner / manager of the
+        # course's domain — superusers see everything). The instructor
+        # /lms/course/list page uses this so paginator slicing reflects
+        # only manageable rows; without it the frontend was filtering a
+        # page client-side and could legitimately render an empty page
+        # when manageable rows happened to live in a later page.
+        if self.request.query_params.get("manageable_only") in {"1", "true", "True"}:
+            user = self.request.user
+            if getattr(user, "is_superuser", False):
+                pass
+            elif getattr(user, "is_authenticated", False):
+                from django.db.models import Q
+                qs = qs.filter(
+                    Q(domain__owner=user) | Q(domain__managers=user),
+                ).distinct()
+            else:
+                qs = qs.none()
         return qs
 
     def get_serializer_class(self):

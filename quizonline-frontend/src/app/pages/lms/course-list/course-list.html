@@ -51,46 +51,31 @@
 
     <p-table
       [dataKey]="'id'"
-      [paginator]="rowsData().length > rows"
-      [rows]="rows"
-      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [lazy]="true"
+      [paginator]="totalCount() > pageSize"
+      [rows]="pageSize"
+      [totalRecords]="totalCount()"
+      [first]="first()"
+      [loading]="loading()"
+      (onLazyLoad)="onLazyLoad($event)"
       [value]="rowsData()"
       [selection]="selectedRows()"
       (selectionChange)="onSelectionChange($event)"
       selectionMode="multiple"
       showGridlines
       size="small"
-      sortMode="single"
       stripedRows
       styleClass="table"
     >
       <ng-template #header>
         <tr>
           <th class="col-checkbox" style="width: 3rem"></th>
-          <th pSortableColumn="title" style="text-align: center;">
-            {{ ui().columns.title }}
-            <p-sortIcon field="title"></p-sortIcon>
-          </th>
-          <th pSortableColumn="domainName" style="text-align: center;">
-            {{ ui().columns.domain }}
-            <p-sortIcon field="domainName"></p-sortIcon>
-          </th>
-          <th pSortableColumn="levelLabel" style="text-align: center;">
-            {{ ui().columns.level }}
-            <p-sortIcon field="levelLabel"></p-sortIcon>
-          </th>
-          <th pSortableColumn="enrollmentLabel" style="text-align: center;">
-            {{ ui().columns.enrollment }}
-            <p-sortIcon field="enrollmentLabel"></p-sortIcon>
-          </th>
-          <th pSortableColumn="isPublished" style="text-align: center;">
-            {{ ui().columns.status }}
-            <p-sortIcon field="isPublished"></p-sortIcon>
-          </th>
-          <th pSortableColumn="lessonCount" style="text-align: center;">
-            {{ ui().columns.lessons }}
-            <p-sortIcon field="lessonCount"></p-sortIcon>
-          </th>
+          <th style="text-align: center;">{{ ui().columns.title }}</th>
+          <th style="text-align: center;">{{ ui().columns.domain }}</th>
+          <th style="text-align: center;">{{ ui().columns.level }}</th>
+          <th style="text-align: center;">{{ ui().columns.enrollment }}</th>
+          <th style="text-align: center;">{{ ui().columns.status }}</th>
+          <th style="text-align: center;">{{ ui().columns.lessons }}</th>
           <th class="col-actions">{{ ui().columns.actions }}</th>
         </tr>
       </ng-template>

@@ -7,7 +7,7 @@ import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
-import {TableModule} from 'primeng/table';
+import {TableModule, type TableLazyLoadEvent} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
 import {ConfirmationService} from 'primeng/api';
 
@@ -56,6 +56,14 @@ interface CourseListRow {
 
 type BulkAction = 'publish' | 'unpublish' | 'delete';
 
+/** Fixed page size — must match the backend's ``API_PAGE_SIZE``
+ *  (default 20). DRF's ``PageNumberPagination`` does not honour
+ *  ``?page_size=`` unless ``page_size_query_param`` is explicitly
+ *  enabled, so we cannot drive this from the table's rows-per-page
+ *  selector. The PrimeNG paginator therefore renders without a
+ *  rows-per-page control. */
+const PAGE_SIZE = 20;
+
 @Component({
   selector: 'app-lms-course-list',
   imports: [
@@ -92,39 +100,25 @@ export class LmsCourseList implements OnInit {
 
   protected readonly catalogHref = LMS_CATALOG;
   protected readonly createCourseHref = LMS_COURSE_NEW;
-  protected readonly rows = 10;
+  protected readonly pageSize = PAGE_SIZE;
 
   protected readonly courses = signal<CourseListRowDto[]>([]);
   protected readonly domains = signal<DomainReadDto[]>([]);
+  /** Total result count surfaced by DRF's pagination — feeds the
+   *  PrimeNG table's ``[totalRecords]`` so the paginator renders the
+   *  right number of pages even though we only hold one page in
+   *  memory. */
+  protected readonly totalCount = signal(0);
+  /** Zero-based offset PrimeNG drives via ``first`` in
+   *  ``TableLazyLoadEvent``. We translate it back to a 1-based DRF
+   *  page index before talking to the backend. */
+  protected readonly first = signal(0);
   protected readonly q = signal('');
   protected readonly loading = signal(false);
   protected readonly selectedRows = signal<CourseListRow[]>([]);
   protected readonly applyingBulk = signal(false);
 
   readonly selectedCount = computed(() => this.selectedRows().length);
-
-  /** Domain ids the current user owns or manages. Drives the
-   *  manageable-only client-side filter — the backend's
-   *  ``visible_to`` queryset already returns drafts for instructors,
-   *  but it also returns published courses in domains the caller is
-   *  merely a member of. We trim those out here so this page stays
-   *  strictly instructor-facing. */
-  private readonly manageableDomainIds = computed(() => {
-    const me = this.userService.currentUser();
-    if (!me) {
-      return new Set<number>();
-    }
-    if (me.is_superuser) {
-      return new Set(this.domains().map((d) => d.id));
-    }
-    const ids = new Set<number>();
-    for (const domain of this.domains()) {
-      if (domain.owner?.id === me.id || (domain.managers ?? []).some((u) => u.id === me.id)) {
-        ids.add(domain.id);
-      }
-    }
-    return ids;
-  });
 
   private readonly domainNameById = computed(() => {
     const lang = this.currentLang();
@@ -135,29 +129,29 @@ export class LmsCourseList implements OnInit {
     return map;
   });
 
+  /** View-model rows for the current page. No client-side filtering
+   *  anymore — the backend's ``?manageable_only=1`` filter already
+   *  scopes the result to courses the caller can manage, so what we
+   *  receive IS the page that should be displayed. */
   readonly rowsData = computed<CourseListRow[]>(() => {
     const lang = this.currentLang();
-    const manageable = this.manageableDomainIds();
     const labels = this.ui();
     const levelLabels = this.common().levelLabels;
     const statusLabels = labels.statusLabels;
     const enrollmentBadgeLabels = labels.enrollmentBadge;
     const domainNames = this.domainNameById();
-    return this.courses()
-      .filter((c) => manageable.has(c.domain))
-      .map<CourseListRow>((c) => ({
-        id: c.id,
-        slug: c.slug,
-        title: pickTranslation(c.translations, lang, 'title') || `#${c.id}`,
-        domainName: domainNames.get(c.domain) ?? `#${c.domain}`,
-        domainId: c.domain,
-        levelLabel: levelLabels[c.level] ?? c.level,
-        enrollmentLabel: enrollmentBadgeLabels[c.enrollment_mode] ?? c.enrollment_mode,
-        isPublished: !!c.is_published,
-        statusLabel: c.is_published ? statusLabels.published : statusLabels.draft,
-        lessonCount: typeof c.lesson_count === 'number' ? c.lesson_count : 0,
-      }))
-      .sort((left, right) => left.title.localeCompare(right.title));
+    return this.courses().map<CourseListRow>((c) => ({
+      id: c.id,
+      slug: c.slug,
+      title: pickTranslation(c.translations, lang, 'title') || `#${c.id}`,
+      domainName: domainNames.get(c.domain) ?? `#${c.domain}`,
+      domainId: c.domain,
+      levelLabel: levelLabels[c.level] ?? c.level,
+      enrollmentLabel: enrollmentBadgeLabels[c.enrollment_mode] ?? c.enrollment_mode,
+      isPublished: !!c.is_published,
+      statusLabel: c.is_published ? statusLabels.published : statusLabels.draft,
+      lessonCount: typeof c.lesson_count === 'number' ? c.lesson_count : 0,
+    }));
   });
 
   readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
@@ -174,10 +168,15 @@ export class LmsCourseList implements OnInit {
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.q.set(value);
+        // A new search resets to page 1 so a user typing on page 5
+        // does not stare at "no results" because page 5 of the
+        // filtered set is empty.
+        this.first.set(0);
         this.load();
       });
     this.loadDomains();
-    this.load();
+    // Initial load is driven by the table's ``onLazyLoad`` firing once
+    // on first render, so we don't double-fetch.
   }
 
   protected onSearchChange(value: string): void {
@@ -186,6 +185,12 @@ export class LmsCourseList implements OnInit {
 
   protected onSelectionChange(rows: CourseListRow[]): void {
     this.selectedRows.set(rows);
+  }
+
+  protected onLazyLoad(event: TableLazyLoadEvent): void {
+    const offset = typeof event.first === 'number' ? event.first : 0;
+    this.first.set(offset);
+    this.load();
   }
 
   protected goEdit(courseId: number): void {
@@ -266,16 +271,23 @@ export class LmsCourseList implements OnInit {
   private load(): void {
     this.loading.set(true);
     const term = this.q().trim();
-    this.catalog.list(term ? {search: term} : {})
+    const page = Math.floor(this.first() / PAGE_SIZE) + 1;
+    this.catalog.list({
+      manageableOnly: true,
+      page,
+      ...(term ? {search: term} : {}),
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.courses.set((response?.results ?? []) as CourseListRowDto[]);
+          this.totalCount.set(typeof response?.count === 'number' ? response.count : 0);
           this.loading.set(false);
         },
         error: (err: unknown) => {
           logApiError('lms.course-list.load', err);
           this.courses.set([]);
+          this.totalCount.set(0);
           this.loading.set(false);
         },
       });

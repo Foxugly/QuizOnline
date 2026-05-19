@@ -214,6 +214,8 @@ export interface LmsCourseInvitesListRequestParams {
 }
 
 export interface LmsCourseListRequestParams {
+    /** Scope to courses the caller owns or manages. Used by the instructor /lms/course/list page; drops courses where the caller is only a member. */
+    manageableOnly?: boolean;
     /** Which field to use when ordering the results. */
     ordering?: string;
     /** A page number within the paginated result set. */
@@ -2213,11 +2215,21 @@ export class LmsApi extends BaseService {
     public lmsCourseList(requestParameters?: LmsCourseListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedCourseListListDto>>;
     public lmsCourseList(requestParameters?: LmsCourseListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedCourseListListDto>>;
     public lmsCourseList(requestParameters?: LmsCourseListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const manageableOnly = requestParameters?.manageableOnly;
         const ordering = requestParameters?.ordering;
         const page = requestParameters?.page;
         const search = requestParameters?.search;
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'manageable_only',
+            <any>manageableOnly,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
