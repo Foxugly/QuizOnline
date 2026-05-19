@@ -2,8 +2,10 @@
 
 Operator runbook for the QuizOnline production environment. Companion
 to [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md) (one section per
-credential) and [`env.production.example`](env.production.example)
-(reference shape of the backend `.env`).
+credential), [`env.production.example`](env.production.example)
+(reference shape of the backend `.env`), and
+[`COURSE-INVITE-RUNBOOK.md`](COURSE-INVITE-RUNBOOK.md) (rollback /
+monitoring / failure modes specific to the LMS course-invite flow).
 
 The day-to-day flow is **"push to `main`, watch CI go green, deploy
 fires automatically"** — everything below this paragraph is for the
@@ -474,6 +476,9 @@ instance-level.
 
 - [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md) — per-credential
   rotation procedures + EBS encryption verification.
+- [`COURSE-INVITE-RUNBOOK.md`](COURSE-INVITE-RUNBOOK.md) —
+  feature-specific rollback (3 levels), monitoring queries, and
+  recovery commands for the LMS course-invite flow.
 - [`env.production.example`](env.production.example) — reference
   `.env` shape for the backend.
 - [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example) —
