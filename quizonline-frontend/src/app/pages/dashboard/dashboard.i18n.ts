@@ -34,6 +34,12 @@ export interface DashboardUiText {
       subtitle: string;
       cta: string;
     };
+    invitations: {
+      title: string;
+      empty: string;
+      cta: string;
+      inviterLine: (inviter: string) => string;
+    };
   };
 }
 
@@ -69,6 +75,12 @@ export function getDashboardUiText(
             subtitle: 'Parcourez les cours disponibles dans vos domaines.',
             cta: 'Parcourir le catalogue',
           },
+          invitations: {
+            title: 'Invitations en attente',
+            empty: 'Aucune invitation à un cours en attente.',
+            cta: 'Voir mes invitations',
+            inviterLine: (inviter) => `Invité·e par ${inviter}`,
+          },
         },
       };
     case LanguageEnumDto.Nl:
@@ -98,6 +110,12 @@ export function getDashboardUiText(
             title: 'Catalogus',
             subtitle: 'Blader door de cursussen in jouw domeinen.',
             cta: 'Door catalogus bladeren',
+          },
+          invitations: {
+            title: 'Lopende uitnodigingen',
+            empty: 'Geen lopende cursusuitnodigingen.',
+            cta: 'Mijn uitnodigingen bekijken',
+            inviterLine: (inviter) => `Uitgenodigd door ${inviter}`,
           },
         },
       };
@@ -129,6 +147,12 @@ export function getDashboardUiText(
             subtitle: 'Esplora i corsi disponibili nei tuoi domini.',
             cta: 'Sfoglia il catalogo',
           },
+          invitations: {
+            title: 'Inviti in attesa',
+            empty: 'Nessun invito a un corso in attesa.',
+            cta: 'Vedi i miei inviti',
+            inviterLine: (inviter) => `Invitato da ${inviter}`,
+          },
         },
       };
     case LanguageEnumDto.Es:
@@ -159,6 +183,12 @@ export function getDashboardUiText(
             subtitle: 'Explora los cursos disponibles en tus dominios.',
             cta: 'Explorar el catálogo',
           },
+          invitations: {
+            title: 'Invitaciones pendientes',
+            empty: 'No tienes invitaciones a cursos pendientes.',
+            cta: 'Ver mis invitaciones',
+            inviterLine: (inviter) => `Invitado por ${inviter}`,
+          },
         },
       };
     default:
@@ -187,6 +217,12 @@ export function getDashboardUiText(
             title: 'Catalog',
             subtitle: 'Browse the courses available in your domains.',
             cta: 'Browse the catalog',
+          },
+          invitations: {
+            title: 'Pending invitations',
+            empty: 'No pending course invitations.',
+            cta: 'View my invitations',
+            inviterLine: (inviter) => `Invited by ${inviter}`,
           },
         },
       };

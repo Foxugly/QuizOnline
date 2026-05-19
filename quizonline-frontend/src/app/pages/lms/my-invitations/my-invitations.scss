@@ -9,10 +9,22 @@
 }
 
 .invitation-card {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
   &__title {
     margin: 0 0 0.5rem;
     font-size: 1.1rem;
+    flex: 1;
+    min-width: 0;
   }
+
+  &__head &__title { margin: 0; }
 
   &__meta {
     display: flex;
@@ -25,5 +37,10 @@
 
   &__actions {
     margin-top: 0.75rem;
+  }
+
+  /* History cards have a muted look since the action moment is past. */
+  &--history {
+    opacity: 0.85;
   }
 }

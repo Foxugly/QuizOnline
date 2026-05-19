@@ -1,12 +1,15 @@
 import {DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {RouterLink} from '@angular/router';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
+import {TabsModule} from 'primeng/tabs';
+import {TagModule} from 'primeng/tag';
 
-import {LMS_COURSE_INVITE_ACCEPT} from '../../../app.routes-paths';
+import {LMS_COURSE_INVITE_ACCEPT, LMS_COURSE_DETAIL} from '../../../app.routes-paths';
+import {CourseInviteStatusEnumDto} from '../../../api/generated/model/course-invite-status-enum';
 import {logApiError} from '../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
 import {PageHeader} from '../../../shared/components/page-header/page-header';
@@ -16,12 +19,21 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 import {getLmsMyInvitationsUiText} from './my-invitations.i18n';
 
+/** PrimeNG tag severities reused for invitation statuses. */
+type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+
 /**
- * Learner-side hub at ``/lms/me/invitations`` listing every pending
- * course invitation the calling user has received. Each row is a
- * card with the inviter, the expiry date, and a deep-link to the
- * dedicated acceptance page so the learner can accept / decline
- * with all the context (description, objectives, duration).
+ * Learner-side hub at ``/lms/me/invitations``.
+ *
+ * Two tabs:
+ *
+ * - **Pending** (default): every pending invitation. Each card links
+ *   to the dedicated acceptance page so the learner can accept /
+ *   decline with full context.
+ * - **History**: every non-pending invitation (accepted / declined /
+ *   revoked / expired) so the learner can retrieve a course they
+ *   joined via invitation OR check why they no longer see a course
+ *   they used to be invited to.
  *
  * A learner who follows an email link lands directly on
  * ``/lms/course-invite/<token>``; this page covers the alternate
@@ -30,7 +42,11 @@ import {getLmsMyInvitationsUiText} from './my-invitations.i18n';
  */
 @Component({
   selector: 'app-lms-my-invitations',
-  imports: [DatePipe, RouterLink, ButtonModule, CardModule, EmptyStateComponent, PageHeader],
+  imports: [
+    DatePipe, RouterLink,
+    ButtonModule, CardModule, TabsModule, TagModule,
+    EmptyStateComponent, PageHeader,
+  ],
   templateUrl: './my-invitations.html',
   styleUrl: './my-invitations.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +60,14 @@ export class LmsMyInvitations implements OnInit {
 
   protected readonly invitations = signal<CourseInviteDto[]>([]);
   protected readonly loading = signal(false);
+  protected readonly activeTab = signal<'pending' | 'history'>('pending');
+
+  protected readonly pendingInvitations = computed(() =>
+    this.invitations().filter((i) => i.status === CourseInviteStatusEnumDto.Pending),
+  );
+  protected readonly historyInvitations = computed(() =>
+    this.invitations().filter((i) => i.status !== CourseInviteStatusEnumDto.Pending),
+  );
 
   ngOnInit(): void {
     this.refresh();
@@ -62,10 +86,34 @@ export class LmsMyInvitations implements OnInit {
     return LMS_COURSE_INVITE_ACCEPT(token);
   }
 
+  /** History rows for accepted invitations link straight to the
+   *  course detail (the learner is enrolled now). Other terminal
+   *  statuses stay on the read-only card. */
+  protected courseHrefFor(slug: string): string {
+    return LMS_COURSE_DETAIL(slug);
+  }
+
+  protected statusLabel(status: CourseInviteDto['status']): string {
+    const labels = this.ui().statusLabels;
+    if (status === CourseInviteStatusEnumDto.Pending) return labels.pending;
+    if (status === CourseInviteStatusEnumDto.Accepted) return labels.accepted;
+    if (status === CourseInviteStatusEnumDto.Declined) return labels.declined;
+    if (status === CourseInviteStatusEnumDto.Revoked) return labels.revoked;
+    return labels.expired;
+  }
+
+  protected statusSeverity(status: CourseInviteDto['status']): TagSeverity {
+    if (status === CourseInviteStatusEnumDto.Accepted) return 'success';
+    if (status === CourseInviteStatusEnumDto.Pending) return 'warn';
+    return 'secondary';
+  }
+
   private refresh(): void {
     this.loading.set(true);
+    // ``status=all`` to fetch both pending + history in one round-trip;
+    // the template tabs filter the in-memory list per tab.
     this.enrollment
-      .myInvitations()
+      .myInvitations({status: 'all'})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (rows) => {

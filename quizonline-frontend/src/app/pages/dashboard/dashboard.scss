@@ -115,6 +115,14 @@
   }
 }
 
+.course-list__hint {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary, #6b7280);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .course-list__pct {
   font-size: 0.75rem;
   color: var(--text-color-secondary, #6b7280);

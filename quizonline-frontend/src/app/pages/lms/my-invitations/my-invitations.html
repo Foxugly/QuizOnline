@@ -3,36 +3,88 @@
 
   @if (loading() && invitations().length === 0) {
     <p class="muted">{{ ui().loading }}</p>
-  } @else if (invitations().length === 0) {
-    <app-empty-state
-      icon="pi pi-envelope"
-      [title]="ui().emptyTitle"
-      [hint]="ui().emptyMessage">
-    </app-empty-state>
   } @else {
-    <div class="invitation-list">
-      @for (inv of invitations(); track inv.id) {
-        <p-card styleClass="invitation-card">
-          <h3 class="invitation-card__title">{{ inv.course_title }}</h3>
-          <p class="muted invitation-card__meta">
-            <i class="pi pi-user"></i>
-            {{ ui().invitationFrom(inviterDisplayName(inv)) }}
-          </p>
-          <p class="muted invitation-card__meta">
-            <i class="pi pi-clock"></i>
-            {{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}
-          </p>
-          <div class="invitation-card__actions">
-            <p-button
-              type="button"
-              icon="pi pi-arrow-right"
-              severity="primary"
-              [label]="ui().viewInvitationButton"
-              [routerLink]="hrefFor(inv.token)">
-            </p-button>
-          </div>
-        </p-card>
-      }
-    </div>
+    <p-tabs [value]="activeTab()" (valueChange)="activeTab.set($any($event))">
+      <p-tablist>
+        <p-tab value="pending">{{ ui().tabPending }} ({{ pendingInvitations().length }})</p-tab>
+        <p-tab value="history">{{ ui().tabHistory }} ({{ historyInvitations().length }})</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="pending">
+          @if (pendingInvitations().length === 0) {
+            <app-empty-state
+              icon="pi pi-envelope"
+              [title]="ui().emptyTitle"
+              [hint]="ui().emptyMessage">
+            </app-empty-state>
+          } @else {
+            <div class="invitation-list">
+              @for (inv of pendingInvitations(); track inv.id) {
+                <p-card styleClass="invitation-card">
+                  <h3 class="invitation-card__title">{{ inv.course_title }}</h3>
+                  <p class="muted invitation-card__meta">
+                    <i class="pi pi-user"></i>
+                    {{ ui().invitationFrom(inviterDisplayName(inv)) }}
+                  </p>
+                  <p class="muted invitation-card__meta">
+                    <i class="pi pi-clock"></i>
+                    {{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}
+                  </p>
+                  <div class="invitation-card__actions">
+                    <p-button
+                      type="button"
+                      icon="pi pi-arrow-right"
+                      severity="primary"
+                      [label]="ui().viewInvitationButton"
+                      [routerLink]="hrefFor(inv.token)">
+                    </p-button>
+                  </div>
+                </p-card>
+              }
+            </div>
+          }
+        </p-tabpanel>
+        <p-tabpanel value="history">
+          @if (historyInvitations().length === 0) {
+            <app-empty-state
+              icon="pi pi-history"
+              [title]="ui().emptyHistoryTitle"
+              [hint]="ui().emptyHistoryMessage">
+            </app-empty-state>
+          } @else {
+            <div class="invitation-list">
+              @for (inv of historyInvitations(); track inv.id) {
+                <p-card styleClass="invitation-card invitation-card--history">
+                  <div class="invitation-card__head">
+                    <h3 class="invitation-card__title">{{ inv.course_title }}</h3>
+                    <p-tag [value]="statusLabel(inv.status)" [severity]="statusSeverity(inv.status)" />
+                  </div>
+                  <p class="muted invitation-card__meta">
+                    <i class="pi pi-user"></i>
+                    {{ ui().invitationFrom(inviterDisplayName(inv)) }}
+                  </p>
+                  <p class="muted invitation-card__meta">
+                    <i class="pi pi-calendar"></i>
+                    {{ ui().historyDateLabel((inv.updated_at | date:'medium') ?? '') }}
+                  </p>
+                  @if (inv.status === 'accepted') {
+                    <div class="invitation-card__actions">
+                      <p-button
+                        type="button"
+                        icon="pi pi-bookmark"
+                        severity="secondary"
+                        [outlined]="true"
+                        [label]="ui().viewCourseButton"
+                        [routerLink]="courseHrefFor(inv.course_slug)">
+                      </p-button>
+                    </div>
+                  }
+                </p-card>
+              }
+            </div>
+          }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   }
 </div>

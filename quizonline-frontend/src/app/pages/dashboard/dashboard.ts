@@ -5,8 +5,8 @@ import {ButtonModule} from 'primeng/button';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {SkeletonModule} from 'primeng/skeleton';
 
-import {LMS_CATALOG, LMS_ME_CERTIFICATES, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
-import {LmsEnrollmentService} from '../../services/lms/lms-enrollment.service';
+import {LMS_CATALOG, LMS_COURSE_INVITE_ACCEPT, LMS_ME_CERTIFICATES, LMS_ME_INVITATIONS, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
+import {CourseInviteDto, LmsEnrollmentService} from '../../services/lms/lms-enrollment.service';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
@@ -59,12 +59,23 @@ export class DashboardPage implements OnInit {
   protected readonly catalogHref = LMS_CATALOG;
   protected readonly progressHref = LMS_ME_PROGRESS;
   protected readonly certificatesHref = LMS_ME_CERTIFICATES;
+  protected readonly invitationsHref = LMS_ME_INVITATIONS;
   protected readonly quizListHref = ROUTES.quiz.list();
 
   protected readonly coursesLoading = signal(true);
   protected readonly courses = signal<ProgressRow[]>([]);
   protected readonly certificatesLoading = signal(true);
   protected readonly certificates = signal<CertificateRow[]>([]);
+  protected readonly invitationsLoading = signal(true);
+  protected readonly invitations = signal<CourseInviteDto[]>([]);
+
+  /** Top 3 pending invitations for the tile body, sorted by most
+   *  recently sent so the freshest one shows first. */
+  protected readonly topInvitations = computed(() =>
+    [...this.invitations()]
+      .sort((a, b) => (a.last_sent_at < b.last_sent_at ? 1 : -1))
+      .slice(0, 3),
+  );
 
   /** Top 3 courses by recent activity, ranked by ``updated_at`` desc. */
   protected readonly topCourses = computed(() =>
@@ -78,6 +89,28 @@ export class DashboardPage implements OnInit {
   ngOnInit(): void {
     this.loadCourses();
     this.loadCertificates();
+    this.loadInvitations();
+  }
+
+  protected inviteHref(token: string): string {
+    return LMS_COURSE_INVITE_ACCEPT(token);
+  }
+
+  private loadInvitations(): void {
+    this.invitationsLoading.set(true);
+    this.enrollment.myInvitations()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rows) => {
+          this.invitations.set(rows);
+          this.invitationsLoading.set(false);
+        },
+        error: (err: unknown) => {
+          logApiError('dashboard.invitations', err);
+          this.invitations.set([]);
+          this.invitationsLoading.set(false);
+        },
+      });
   }
 
   private loadCourses(): void {

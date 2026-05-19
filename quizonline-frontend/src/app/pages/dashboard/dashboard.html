@@ -94,7 +94,44 @@
       </footer>
     </article>
 
-    <!-- Tile 4: catalog -->
+    <!-- Tile 4: invitations en attente -->
+    <article class="tile tile--invitations" [routerLink]="invitationsHref" tabindex="0">
+      <header class="tile__head">
+        <i class="pi pi-envelope tile__icon" aria-hidden="true"></i>
+        <h2 class="tile__title">{{ ui().tiles.invitations.title }}</h2>
+      </header>
+      <div class="tile__body">
+        @if (invitationsLoading()) {
+          <p-skeleton width="80%" height="0.85rem" styleClass="mb-2" />
+          <p-skeleton width="60%" height="0.85rem" />
+        } @else if (topInvitations().length === 0) {
+          <p class="tile__empty">{{ ui().tiles.invitations.empty }}</p>
+        } @else {
+          <ul class="course-list">
+            @for (inv of topInvitations(); track inv.id) {
+              <li class="course-list__row" [routerLink]="inviteHref(inv.token)" (click)="$event.stopPropagation()">
+                <span class="course-list__title">{{ inv.course_title }}</span>
+                <span class="course-list__hint">
+                  {{ ui().tiles.invitations.inviterLine(inv.inviter_detail?.username || '') }}
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      <footer class="tile__foot">
+        <p-button
+          type="button"
+          severity="primary"
+          [outlined]="true"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [routerLink]="invitationsHref"
+          [label]="ui().tiles.invitations.cta" />
+      </footer>
+    </article>
+
+    <!-- Tile 5: catalog -->
     <article class="tile tile--catalog" [routerLink]="catalogHref" tabindex="0">
       <header class="tile__head">
         <i class="pi pi-book tile__icon" aria-hidden="true"></i>

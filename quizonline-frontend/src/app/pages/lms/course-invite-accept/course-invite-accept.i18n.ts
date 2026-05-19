@@ -26,6 +26,7 @@ export interface LmsCourseInviteAcceptUiText {
 
   acceptedTitle: string;
   acceptedMessage: string;
+  acceptedRedirectHint: string;
   declinedTitle: string;
   declinedMessage: string;
   revokedTitle: string;
@@ -70,6 +71,7 @@ export function getLmsCourseInviteAcceptUiText(
         goToCourseButton: 'Aller au cours',
         acceptedTitle: 'Invitation acceptée',
         acceptedMessage: 'Vous êtes maintenant inscrit·e au cours.',
+        acceptedRedirectHint: 'Redirection vers le cours dans 2 secondes…',
         declinedTitle: 'Invitation refusée',
         declinedMessage: 'L’invitation a été marquée comme refusée.',
         revokedTitle: 'Invitation révoquée',
@@ -110,6 +112,7 @@ export function getLmsCourseInviteAcceptUiText(
         goToCourseButton: 'Ga naar de cursus',
         acceptedTitle: 'Uitnodiging geaccepteerd',
         acceptedMessage: 'Je bent nu ingeschreven voor de cursus.',
+        acceptedRedirectHint: 'Doorsturen naar de cursus over 2 seconden…',
         declinedTitle: 'Uitnodiging geweigerd',
         declinedMessage: 'De uitnodiging is gemarkeerd als geweigerd.',
         revokedTitle: 'Uitnodiging ingetrokken',
@@ -150,6 +153,7 @@ export function getLmsCourseInviteAcceptUiText(
         goToCourseButton: 'Vai al corso',
         acceptedTitle: 'Invito accettato',
         acceptedMessage: 'Ora sei iscritto al corso.',
+        acceptedRedirectHint: 'Reindirizzamento al corso tra 2 secondi…',
         declinedTitle: 'Invito rifiutato',
         declinedMessage: 'L’invito è stato contrassegnato come rifiutato.',
         revokedTitle: 'Invito revocato',
@@ -190,6 +194,7 @@ export function getLmsCourseInviteAcceptUiText(
         goToCourseButton: 'Ir al curso',
         acceptedTitle: 'Invitación aceptada',
         acceptedMessage: 'Ya estás inscrito en el curso.',
+        acceptedRedirectHint: 'Redirigiendo al curso en 2 segundos…',
         declinedTitle: 'Invitación rechazada',
         declinedMessage: 'La invitación se ha marcado como rechazada.',
         revokedTitle: 'Invitación revocada',
@@ -229,6 +234,7 @@ export function getLmsCourseInviteAcceptUiText(
         goToCourseButton: 'Go to the course',
         acceptedTitle: 'Invitation accepted',
         acceptedMessage: 'You are now enrolled in the course.',
+        acceptedRedirectHint: 'Redirecting to the course in 2 seconds…',
         declinedTitle: 'Invitation declined',
         declinedMessage: 'The invitation has been marked as declined.',
         revokedTitle: 'Invitation revoked',

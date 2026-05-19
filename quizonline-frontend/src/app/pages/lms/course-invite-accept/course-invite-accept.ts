@@ -131,6 +131,10 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.routeSub = null;
+    if (this.autoRedirectTimer !== null) {
+      window.clearTimeout(this.autoRedirectTimer);
+      this.autoRedirectTimer = null;
+    }
   }
 
   protected accept(): void {
@@ -145,6 +149,12 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
         this.state.set('accepted');
         this.invitationCount.refresh();
         this.toast.add({severity: 'success', summary: this.ui().acceptSuccessToast});
+        // Auto-redirect to the course detail after a short delay so
+        // the learner does not have to manually click "Go to course"
+        // — they wanted in, they're in, send them there. Two
+        // seconds is long enough to read the "Invitation acceptée"
+        // confirmation card without feeling stuck.
+        this.scheduleAutoRedirect();
       },
       error: (err: unknown) => {
         this.busy.set(false);
@@ -152,6 +162,21 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
         this.toast.addApiError(err, this.ui().acceptErrorToast);
       },
     });
+  }
+
+  /** Two-second timeout to the course detail after a successful
+   *  accept. Stored on the instance so ``ngOnDestroy`` can clear it
+   *  if the user navigates away in the meantime. */
+  private autoRedirectTimer: number | null = null;
+
+  private scheduleAutoRedirect(): void {
+    if (this.autoRedirectTimer !== null) {
+      window.clearTimeout(this.autoRedirectTimer);
+    }
+    this.autoRedirectTimer = window.setTimeout(() => {
+      this.autoRedirectTimer = null;
+      this.goToCourse();
+    }, 2000);
   }
 
   protected confirmDecline(): void {
