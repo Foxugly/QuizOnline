@@ -166,15 +166,11 @@ $transition: 160ms ease;
   justify-content: flex-end;
 }
 
-/* Aligned with the rest of the topbar action triggers (.bell,
- * .lang-select__trigger, .domain-trigger, .user-trigger) so the five
- * right-side affordances share font, colour and hover behaviour. */
 .alert-link {
   align-items: center;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: rgba(226, 232, 240, 0.88);
+  border: 0;
+  color: $light;
   cursor: pointer;
   display: inline-flex;
   height: 2.5rem;
@@ -185,8 +181,7 @@ $transition: 160ms ease;
 
   &:hover {
     background: $white-08;
-    border-color: $white-14;
-    color: #fff;
+    border-radius: 0.5rem;
   }
 
   &__badge {
@@ -213,29 +208,21 @@ $transition: 160ms ease;
   position: relative;
 }
 
-/* The only right-side trigger that keeps a visible chip background:
- * the active domain is meaningful context (which workspace am I in?)
- * so we leave the surface on by default. Font, height and hover colour
- * still line up with .alert-link / .bell / .lang-select__trigger /
- * .user-trigger so the five triggers read as one family. */
 .domain-trigger {
   align-items: center;
   background: $white-08;
   border: 1px solid $white-14;
   border-radius: 999px;
-  color: rgba(226, 232, 240, 0.88);
+  color: $light;
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.9rem;
-  font-weight: 600;
   gap: 0.55rem;
   max-width: 16rem;
   min-height: 2.5rem;
-  padding: 0.45rem 0.7rem;
+  padding: 0.55rem 0.9rem;
 
   &:hover {
     background: $white-14;
-    color: #fff;
   }
 
   &__label {

@@ -3,16 +3,15 @@
   display: inline-flex;
 }
 
-/* Same visual language as the other topbar action triggers
- * (.alert-link, .lang-select__trigger, .domain-trigger, .user-trigger):
- * pill radius, muted text matching the nav__link colour, hover lifts
- * the surface and brightens to white. */
+/* Sized to match the rest of the topbar action triggers
+ * (.alert-link, .lang-select__trigger, .user-trigger) so the hover
+ * surface and visual rhythm stay consistent across notifications,
+ * messages, language and username. */
 .bell {
   position: relative;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: rgba(226, 232, 240, 0.88);
+  border: none;
+  color: inherit;
   cursor: pointer;
   padding: 0 0.5rem;
   height: 2.5rem;
@@ -24,8 +23,7 @@
   &:hover,
   &:focus-visible {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
-    color: #fff;
+    border-radius: 0.5rem;
   }
 
   i {
