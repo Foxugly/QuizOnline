@@ -15,22 +15,35 @@ from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 from lms_catalog.models import Course, Lesson
 from lms_catalog.permissions import is_lms_instructor
 
-from .models import Certificate, CourseEnrollment, CourseProgress, LessonNote
+from .models import (
+    Certificate,
+    CourseEnrollment,
+    CourseInvite,
+    CourseProgress,
+    LessonNote,
+)
 from .permissions import IsEnrollmentOwnerOrInstructor
 from .serializers import (
     CertificateSerializer,
     CertificateVerifySerializer,
     CourseEnrollmentSerializer,
+    CourseInviteSendSerializer,
+    CourseInviteSerializer,
     CourseProgressSerializer,
     LessonNoteSerializer,
     LessonProgressSerializer,
 )
 from .services import (
+    accept_course_invite,
     approve_enrollment,
+    decline_course_invite,
     enroll_user_to_course,
+    invite_user_to_course,
     mark_lesson_completed,
     mark_lesson_started,
     reject_enrollment,
+    resend_course_invite,
+    revoke_course_invite,
 )
 
 
@@ -335,3 +348,147 @@ def verify_certificate(request, token: str):
         "revoked": cert.revoked_at is not None,
     }
     return Response(CertificateVerifySerializer(payload).data)
+
+
+# ---------------------------------------------------------------------
+# Course invitations
+# ---------------------------------------------------------------------
+
+def _get_user_or_404(user_id):
+    from django.contrib.auth import get_user_model
+    return get_user_model().objects.filter(pk=user_id).first()
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([_LmsEnrollThrottle])
+def course_invite_send(request, course_id: int):
+    """Instructor invites a domain member to an ``ENROLL_INVITE`` course."""
+    course = Course.objects.filter(pk=course_id).first()
+    if not course:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    payload = CourseInviteSendSerializer(data=request.data)
+    payload.is_valid(raise_exception=True)
+    invitee = _get_user_or_404(payload.validated_data["invitee_id"])
+    if invitee is None:
+        return Response(
+            {"detail": "Invitee not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    invite = invite_user_to_course(
+        course=course, invitee=invitee, inviter=request.user,
+    )
+    return Response(
+        CourseInviteSerializer(invite).data,
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def course_invite_list(request, course_id: int):
+    """List invitations for a course. Instructor-only."""
+    course = Course.objects.filter(pk=course_id).first()
+    if not course:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if not is_lms_instructor(request.user, course):
+        raise PermissionDenied()
+
+    status_filter = request.query_params.get("status")
+    qs = (
+        CourseInvite.objects.filter(course=course)
+        .select_related("course", "invitee", "inviter")
+        .order_by("-created_at")
+    )
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    return Response(CourseInviteSerializer(qs, many=True).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def course_invite_resend(request, pk: int):
+    """Instructor re-sends a pending invitation."""
+    invite = (
+        CourseInvite.objects
+        .select_related("course", "invitee", "inviter")
+        .filter(pk=pk)
+        .first()
+    )
+    if not invite:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    invite = resend_course_invite(invite=invite, sender=request.user)
+    return Response(CourseInviteSerializer(invite).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def course_invite_revoke(request, pk: int):
+    """Instructor revokes a pending invitation."""
+    invite = (
+        CourseInvite.objects
+        .select_related("course", "invitee", "inviter")
+        .filter(pk=pk)
+        .first()
+    )
+    if not invite:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    invite = revoke_course_invite(invite=invite, revoked_by=request.user)
+    return Response(CourseInviteSerializer(invite).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def course_invite_detail(request, token: str):
+    """Token-keyed lookup. Returns the invitation (any status) for the
+    invitee or any instructor of the course — used by the
+    ``/lms/course-invite/{token}/`` acceptance page to render the
+    invitation card before the user clicks Accept or Decline."""
+    invite = (
+        CourseInvite.objects
+        .select_related("course", "invitee", "inviter", "course__domain")
+        .filter(token=token)
+        .first()
+    )
+    if not invite:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    user = request.user
+    if user.id != invite.invitee_id and not is_lms_instructor(user, invite.course):
+        raise PermissionDenied()
+    return Response(CourseInviteSerializer(invite).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([_LmsEnrollThrottle])
+def course_invite_accept(request, token: str):
+    """Invitee accepts a pending invitation. Creates the active
+    ``CourseEnrollment`` and notifies the inviter."""
+    invite = (
+        CourseInvite.objects.select_related("course", "invitee", "inviter")
+        .filter(token=token)
+        .first()
+    )
+    if not invite:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    enrollment = accept_course_invite(invite=invite, accepted_by=request.user)
+    return Response(
+        CourseEnrollmentSerializer(enrollment).data,
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def course_invite_decline(request, token: str):
+    """Invitee declines a pending invitation."""
+    invite = (
+        CourseInvite.objects.select_related("course", "invitee", "inviter")
+        .filter(token=token)
+        .first()
+    )
+    if not invite:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    invite = decline_course_invite(invite=invite, declined_by=request.user)
+    return Response(CourseInviteSerializer(invite).data)

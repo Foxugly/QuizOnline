@@ -7,13 +7,21 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from customuser.notifications import (
+    KIND_COURSE_INVITE_ACCEPTED,
+    KIND_COURSE_INVITE_RECEIVED,
+    KIND_COURSE_INVITE_SENT,
+    notify,
+)
 from lms_catalog.models import Course, Lesson
 from .models import (
     Certificate,
     CertificateSequence,
     CourseEnrollment,
+    CourseInvite,
     CourseProgress,
     LessonProgress,
+    _default_course_invite_expiry,
 )
 from .notifications import (
     notify_certificate_issued_on_commit,
@@ -203,6 +211,224 @@ def _generate_certificate_number() -> str:
         seq.counter += 1
         seq.save()
         return f"QO-{year}-{seq.counter:04d}"
+
+
+def _is_domain_member(user, course: Course) -> bool:
+    if user is None or not getattr(user, "id", None):
+        return False
+    domain = course.domain
+    if getattr(domain, "owner_id", None) == user.id:
+        return True
+    if domain.managers.filter(pk=user.id).exists():
+        return True
+    return domain.members.filter(pk=user.id).exists()
+
+
+def _course_invite_payload(invite: CourseInvite) -> dict:
+    """Web-notification payload shared by the three invite kinds. The
+    frontend uses these keys to render the human-readable line and the
+    deep-link target without re-querying the API."""
+    course = invite.course
+    return {
+        "invite_id": invite.id,
+        "invite_token": invite.token,
+        "course_id": course.id,
+        "course_slug": course.slug,
+        "course_title": course.safe_translation_getter("title", any_language=True) or "",
+        "invitee_id": invite.invitee_id,
+        "invitee_username": invite.invitee.username,
+        "inviter_id": invite.inviter_id,
+        "inviter_username": invite.inviter.username if invite.inviter else "",
+    }
+
+
+@transaction.atomic
+def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
+    """
+    Create — or refresh — a ``CourseInvite`` so ``invitee`` can join
+    the invite-only ``course``.
+
+    Permission: ``inviter`` must be an instructor of the course's
+    domain. ``invitee`` must already be a member of that same domain
+    (course invitations are intra-domain only by design — instructors
+    cannot pull in external users through this path).
+
+    Idempotent: if a PENDING row already exists for ``(course,
+    invitee)`` we re-use it and bump ``last_sent_at`` so clicking
+    "Invite" twice does not duplicate. If the invitee already has an
+    active enrollment, raise ``ValidationError`` — there is nothing
+    to invite them to.
+    """
+    if course.enrollment_mode != Course.ENROLL_INVITE:
+        raise ValidationError(_("Course is not invite-only."))
+    if not _is_instructor(inviter, course):
+        raise PermissionDenied(_("Only instructors can invite to this course."))
+    if not _is_domain_member(invitee, course):
+        raise ValidationError(_("Invitee must be a member of the course's domain."))
+    if invitee.id == getattr(inviter, "id", None):
+        raise ValidationError(_("You cannot invite yourself."))
+
+    existing_enrollment = CourseEnrollment.objects.filter(
+        user=invitee, course=course,
+    ).first()
+    if existing_enrollment and existing_enrollment.status in (
+        CourseEnrollment.STATUS_ACTIVE,
+        CourseEnrollment.STATUS_COMPLETED,
+    ):
+        raise ValidationError(_("User is already enrolled in this course."))
+
+    invite = (
+        CourseInvite.objects.select_for_update()
+        .filter(course=course, invitee=invitee, status=CourseInvite.STATUS_PENDING)
+        .first()
+    )
+    if invite is None:
+        invite = CourseInvite.objects.create(
+            course=course,
+            invitee=invitee,
+            inviter=inviter,
+            expires_at=_default_course_invite_expiry(),
+            created_by=inviter,
+        )
+    else:
+        invite.last_sent_at = timezone.now()
+        # Push the expiry forward so a resend gives the invitee a full
+        # window — otherwise re-sending a 13-day-old invite leaves them
+        # with one day to act, which is worse UX than not resending.
+        invite.expires_at = _default_course_invite_expiry()
+        invite.inviter = inviter
+        invite.updated_by = inviter
+        invite.save(
+            update_fields=["last_sent_at", "expires_at", "inviter", "updated_by", "updated_at"],
+        )
+
+    payload = _course_invite_payload(invite)
+    # Notify the invitee they got an invitation.
+    notify(
+        user=invitee,
+        kind=KIND_COURSE_INVITE_RECEIVED,
+        payload=payload,
+        domain=course.domain,
+    )
+    # Notify the inviter that the send went through (confirmation).
+    if inviter is not None:
+        notify(
+            user=inviter,
+            kind=KIND_COURSE_INVITE_SENT,
+            payload=payload,
+            domain=course.domain,
+        )
+    return invite
+
+
+@transaction.atomic
+def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollment:
+    """
+    Mark the invitation accepted and create the matching
+    ``CourseEnrollment`` in ``ACTIVE`` status.
+
+    Permission: only the invitee themselves can accept. The invite
+    must be PENDING and not expired.
+
+    The matching enrollment is created via
+    :func:`enroll_user_to_course` so the standard creation hooks
+    (progress row, ``enrollment_created`` notification to the learner)
+    still fire — the path stays consistent with self-enroll.
+    """
+    if accepted_by is None or accepted_by.id != invite.invitee_id:
+        raise PermissionDenied(_("Only the invitee can accept this invitation."))
+    if invite.status != CourseInvite.STATUS_PENDING:
+        raise ValidationError(_("Invitation is not pending."))
+    if invite.is_expired:
+        invite.status = CourseInvite.STATUS_EXPIRED
+        invite.save(update_fields=["status", "updated_at"])
+        raise ValidationError(_("Invitation has expired."))
+
+    invite.status = CourseInvite.STATUS_ACCEPTED
+    invite.accepted_at = timezone.now()
+    invite.updated_by = accepted_by
+    invite.save(
+        update_fields=["status", "accepted_at", "updated_by", "updated_at"],
+    )
+
+    # The invitee path bypasses the ENROLL_INVITE guard in
+    # ``enroll_user_to_course`` because we mint the enrollment row
+    # directly here — the invitation row is the proof of permission.
+    enrollment, _created = CourseEnrollment.objects.get_or_create(
+        user=invite.invitee,
+        course=invite.course,
+        defaults={
+            "status": CourseEnrollment.STATUS_ACTIVE,
+            "created_by": invite.invitee,
+        },
+    )
+    if enrollment.status != CourseEnrollment.STATUS_ACTIVE:
+        enrollment.status = CourseEnrollment.STATUS_ACTIVE
+        enrollment.save(update_fields=["status"])
+    _ensure_course_progress(invite.invitee, invite.course)
+
+    payload = _course_invite_payload(invite)
+    # Tell the inviter their invitation was accepted.
+    if invite.inviter is not None:
+        notify(
+            user=invite.inviter,
+            kind=KIND_COURSE_INVITE_ACCEPTED,
+            payload=payload,
+            domain=invite.course.domain,
+        )
+    return enrollment
+
+
+@transaction.atomic
+def decline_course_invite(*, invite: CourseInvite, declined_by) -> CourseInvite:
+    """Mark a pending invitation declined. Only the invitee can decline."""
+    if declined_by is None or declined_by.id != invite.invitee_id:
+        raise PermissionDenied(_("Only the invitee can decline this invitation."))
+    if invite.status != CourseInvite.STATUS_PENDING:
+        raise ValidationError(_("Invitation is not pending."))
+    invite.status = CourseInvite.STATUS_DECLINED
+    invite.declined_at = timezone.now()
+    invite.updated_by = declined_by
+    invite.save(update_fields=["status", "declined_at", "updated_by", "updated_at"])
+    return invite
+
+
+@transaction.atomic
+def revoke_course_invite(*, invite: CourseInvite, revoked_by) -> CourseInvite:
+    """Revoke a pending invitation. Only instructors of the course can revoke."""
+    if not _is_instructor(revoked_by, invite.course):
+        raise PermissionDenied(_("Only instructors can revoke this invitation."))
+    if invite.status != CourseInvite.STATUS_PENDING:
+        raise ValidationError(_("Invitation is not pending."))
+    invite.status = CourseInvite.STATUS_REVOKED
+    invite.revoked_at = timezone.now()
+    invite.updated_by = revoked_by
+    invite.save(update_fields=["status", "revoked_at", "updated_by", "updated_at"])
+    return invite
+
+
+@transaction.atomic
+def resend_course_invite(*, invite: CourseInvite, sender) -> CourseInvite:
+    """Re-send a pending invitation (bumps ``last_sent_at`` and the expiry)."""
+    if not _is_instructor(sender, invite.course):
+        raise PermissionDenied(_("Only instructors can resend this invitation."))
+    if invite.status != CourseInvite.STATUS_PENDING:
+        raise ValidationError(_("Invitation is not pending."))
+    invite.last_sent_at = timezone.now()
+    invite.expires_at = _default_course_invite_expiry()
+    invite.updated_by = sender
+    invite.save(
+        update_fields=["last_sent_at", "expires_at", "updated_by", "updated_at"],
+    )
+
+    payload = _course_invite_payload(invite)
+    notify(
+        user=invite.invitee,
+        kind=KIND_COURSE_INVITE_RECEIVED,
+        payload=payload,
+        domain=invite.course.domain,
+    )
+    return invite
 
 
 @transaction.atomic

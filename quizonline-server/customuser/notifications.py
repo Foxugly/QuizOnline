@@ -41,6 +41,13 @@ KIND_QUIZ_ASSIGNMENT = "quiz.assignment"
 KIND_QUIZ_COMPLETED = "quiz.completed"
 KIND_QUIZ_RESULT_AVAILABLE = "quiz.result_available"
 KIND_QUIZ_DETAIL_AVAILABLE = "quiz.detail_available"
+# LMS course-invite events. The ``sent`` and ``accepted`` kinds target
+# the inviter (an instructor) — they confirm to the manager-side that
+# their action went through. ``received`` targets the invitee (a
+# domain member / learner) so they can act on the invitation.
+KIND_COURSE_INVITE_SENT = "lms.course_invite.sent"
+KIND_COURSE_INVITE_RECEIVED = "lms.course_invite.received"
+KIND_COURSE_INVITE_ACCEPTED = "lms.course_invite.accepted"
 
 NOTIFICATION_KINDS: tuple[str, ...] = (
     KIND_JOIN_REQUEST_CREATED,
@@ -52,6 +59,9 @@ NOTIFICATION_KINDS: tuple[str, ...] = (
     KIND_QUIZ_COMPLETED,
     KIND_QUIZ_RESULT_AVAILABLE,
     KIND_QUIZ_DETAIL_AVAILABLE,
+    KIND_COURSE_INVITE_SENT,
+    KIND_COURSE_INVITE_RECEIVED,
+    KIND_COURSE_INVITE_ACCEPTED,
 )
 
 # Role of the *recipient* — drives the way prefs are grouped in the UI
@@ -71,6 +81,9 @@ KIND_ROLE: dict[str, str] = {
     KIND_QUIZ_COMPLETED: ROLE_OWNER,
     KIND_QUIZ_RESULT_AVAILABLE: ROLE_USER,
     KIND_QUIZ_DETAIL_AVAILABLE: ROLE_USER,
+    KIND_COURSE_INVITE_SENT: ROLE_MANAGER,
+    KIND_COURSE_INVITE_RECEIVED: ROLE_USER,
+    KIND_COURSE_INVITE_ACCEPTED: ROLE_MANAGER,
 }
 
 CHANNEL_EMAIL = "email"

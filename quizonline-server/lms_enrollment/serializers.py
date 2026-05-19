@@ -3,7 +3,14 @@ from rest_framework import serializers
 
 from config.serializers import UserSummarySerializer
 
-from .models import Certificate, CourseEnrollment, CourseProgress, LessonNote, LessonProgress
+from .models import (
+    Certificate,
+    CourseEnrollment,
+    CourseInvite,
+    CourseProgress,
+    LessonNote,
+    LessonProgress,
+)
 
 
 def _request_user_language(serializer) -> str:
@@ -123,6 +130,61 @@ class LessonNoteSerializer(serializers.ModelSerializer):
         model = LessonNote
         fields = ["id", "user", "lesson", "content", "created_at", "updated_at"]
         read_only_fields = ["id", "user", "created_at", "updated_at"]
+
+
+class CourseInviteSerializer(serializers.ModelSerializer):
+    """Read shape for course invitations. Carries enough denormalized
+    context (course title, invitee/inviter summaries) that the
+    instructor-side list and the invitee-side accept page can both
+    render without chaining extra requests."""
+
+    course_title = serializers.SerializerMethodField()
+    course_slug = serializers.CharField(source="course.slug", read_only=True)
+    invitee_detail = serializers.SerializerMethodField()
+    inviter_detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseInvite
+        fields = [
+            "id",
+            "token",
+            "course",
+            "course_title",
+            "course_slug",
+            "invitee",
+            "invitee_detail",
+            "inviter",
+            "inviter_detail",
+            "status",
+            "expires_at",
+            "last_sent_at",
+            "accepted_at",
+            "declined_at",
+            "revoked_at",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+    def get_course_title(self, obj) -> str:
+        return _localized_course_title(obj.course, _request_user_language(self))
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_invitee_detail(self, obj) -> dict | None:
+        return _enrollment_user_summary(obj.invitee) if obj.invitee_id else None
+
+    @extend_schema_field(UserSummarySerializer(allow_null=True))
+    def get_inviter_detail(self, obj) -> dict | None:
+        return _enrollment_user_summary(obj.inviter) if obj.inviter_id else None
+
+
+class CourseInviteSendSerializer(serializers.Serializer):
+    """Write shape for ``POST /api/lms/course/{id}/invite/``. The
+    instructor picks an invitee by their ``user_id``; that user must
+    already be a member of the course's domain (enforced by the
+    service layer)."""
+
+    invitee_id = serializers.IntegerField()
 
 
 class CertificateVerifySerializer(serializers.Serializer):
