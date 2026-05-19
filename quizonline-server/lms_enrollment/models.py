@@ -1,9 +1,24 @@
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from config.models import AuditMixin
+
+
+COURSE_INVITE_DEFAULT_TTL_DAYS = 14
+
+
+def _generate_course_invite_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def _default_course_invite_expiry():
+    return timezone.now() + timedelta(days=COURSE_INVITE_DEFAULT_TTL_DAYS)
 
 
 class CourseEnrollment(AuditMixin, models.Model):
@@ -92,6 +107,123 @@ class Certificate(models.Model):
 
     def __str__(self) -> str:
         return self.certificate_number
+
+
+class CourseInvite(AuditMixin, models.Model):
+    """
+    Outstanding invitation for a domain member to join a specific
+    ``ENROLL_INVITE`` course.
+
+    Instructors can only invite users who are already members of the
+    course's domain, so the invitee is always a registered
+    :class:`CustomUser` — the model carries a ``invitee`` FK rather
+    than a raw email. Persisting one row per pending invitation gives
+    us four properties beyond a stateless "send email and hope":
+
+    1. **Resend**: an instructor who lost the original mail can re-send
+       without remembering whom they invited.
+    2. **Revoke**: an instructor who changes their mind can mark the
+       row revoked; the accept endpoint cross-checks the row state
+       so the token alone is not enough.
+    3. **Audit / dashboard**: visible list of "I invited 3 learners,
+       1 accepted, 2 still pending."
+    4. **Visibility**: the LMS catalog / detail querysets filter on
+       the presence of a PENDING invite so invite-only courses
+       are exposed only to the invited learners.
+
+    Only one PENDING row per ``(course, invitee)`` couple at a time —
+    the partial unique constraint kicks in on the second insert and
+    the invite view re-uses (and bumps ``last_sent_at`` on) the
+    existing row instead.
+    """
+
+    STATUS_PENDING = "pending"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_DECLINED = "declined"
+    STATUS_REVOKED = "revoked"
+    STATUS_EXPIRED = "expired"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, _("Pending")),
+        (STATUS_ACCEPTED, _("Accepted")),
+        (STATUS_DECLINED, _("Declined")),
+        (STATUS_REVOKED, _("Revoked")),
+        (STATUS_EXPIRED, _("Expired")),
+    ]
+
+    course = models.ForeignKey(
+        "lms_catalog.Course",
+        on_delete=models.CASCADE,
+        related_name="invites",
+    )
+    invitee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="received_course_invites",
+    )
+    inviter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="sent_course_invites",
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        db_index=True,
+    )
+    token = models.CharField(
+        max_length=64,
+        unique=True,
+        db_index=True,
+        default=_generate_course_invite_token,
+    )
+    # Pre-computed for cheap "which invites expire soon" queries and as
+    # a fast denial signal before bothering with row-state checks.
+    expires_at = models.DateTimeField(default=_default_course_invite_expiry)
+    # Bumped each time we re-send the mail; useful for audit and for
+    # cron-driven "remind invitees who never clicked" jobs.
+    last_sent_at = models.DateTimeField(auto_now_add=True)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    declined_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["course", "invitee"],
+                condition=Q(status="pending"),
+                name="uniq_pending_course_invite_per_course_invitee",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["invitee", "status"],
+                name="course_inv_user_status_idx",
+            ),
+            models.Index(
+                fields=["course", "status"],
+                name="course_inv_course_st_idx",
+            ),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return (
+            f"CourseInvite(course={self.course_id}, "
+            f"invitee={self.invitee_id}, status={self.status})"
+        )
+
+    @property
+    def is_pending(self) -> bool:
+        return self.status == self.STATUS_PENDING
+
+    @property
+    def is_expired(self) -> bool:
+        return timezone.now() >= self.expires_at
 
 
 class LessonNote(models.Model):

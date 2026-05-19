@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils import timezone
 
-from .models import Certificate, CourseEnrollment, CourseProgress, LessonProgress
+from .models import Certificate, CourseEnrollment, CourseInvite, CourseProgress, LessonProgress
 from .services import approve_enrollment
 from .tasks import render_certificate_pdf
 
@@ -46,6 +46,19 @@ class CourseProgressAdmin(admin.ModelAdmin):
     list_filter = ("course__domain",)
     list_select_related = ("user", "course")
     readonly_fields = ("updated_at",)
+
+
+@admin.register(CourseInvite)
+class CourseInviteAdmin(admin.ModelAdmin):
+    list_display = ("id", "course", "invitee", "inviter", "status", "expires_at", "created_at")
+    list_filter = ("status", "course__domain")
+    search_fields = ("invitee__email", "invitee__username", "course__translations__title")
+    list_select_related = ("course", "invitee", "inviter")
+    autocomplete_fields = ("course", "invitee", "inviter")
+    readonly_fields = (
+        "token", "last_sent_at", "accepted_at", "declined_at", "revoked_at",
+        "created_at", "updated_at", "created_by", "updated_by",
+    )
 
 
 @admin.register(Certificate)
