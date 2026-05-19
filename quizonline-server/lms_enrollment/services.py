@@ -294,6 +294,21 @@ def _course_invite_payload(invite: CourseInvite) -> dict:
     }
 
 
+def _sentry_tag_invite(invite: CourseInvite) -> None:
+    """Best-effort: tag the current Sentry scope with the invite's
+    course / invitee / inviter ids so an exception fired downstream
+    surfaces in Sentry with the context already attached. No-op when
+    Sentry is not initialised (tests, dev without DSN). Failures here
+    must never break the calling flow — observability is best-effort."""
+    try:
+        import sentry_sdk
+        sentry_sdk.set_tag("course_id", invite.course_id)
+        sentry_sdk.set_tag("invite_id", invite.id)
+        sentry_sdk.set_tag("invitee_id", invite.invitee_id)
+    except Exception:  # noqa: BLE001 — observability never breaks the flow
+        pass
+
+
 @transaction.atomic
 def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
     """
@@ -352,6 +367,7 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
             update_fields=["last_sent_at", "expires_at", "updated_by", "updated_at"],
         )
 
+    _sentry_tag_invite(invite)
     payload = _course_invite_payload(invite)
     # Notify the invitee they got an invitation.
     notify(
@@ -424,6 +440,7 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
         if locked is None or locked.status != CourseInvite.STATUS_PENDING:
             raise ValidationError(_("Invitation is not pending."))
         invite = locked
+        _sentry_tag_invite(invite)
         invite.status = CourseInvite.STATUS_ACCEPTED
         invite.accepted_at = timezone.now()
         invite.updated_by = accepted_by

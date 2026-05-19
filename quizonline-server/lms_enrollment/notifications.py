@@ -3,26 +3,30 @@
 from __future__ import annotations
 
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import gettext as _
 
+from core.mailers._common import queue_email
+
 
 def _send_html_email(*, to_email: str, subject: str, template_base: str, context: dict, lang: str) -> None:
+    """Render an LMS email template and hand it off to the
+    ``OutboundEmail`` outbox.
+
+    The outbox pattern (queue in DB, deliver via Celery) gives us
+    crash-safety and retry for free — a worker death between
+    ``send_mail`` and SMTP ACK no longer drops the email, and a
+    transient SMTP failure now triggers the Celery task's autoretry
+    instead of vanishing silently. Mirrors the pattern used by
+    ``core/mailers/*`` for domain invites, registration, etc."""
     if not to_email:
         return
     with translation.override(lang):
         html_body = render_to_string(f"emails/lms/{template_base}.html", context)
         text_body = render_to_string(f"emails/lms/{template_base}.txt", context)
-        send_mail(
-            subject=subject,
-            message=text_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[to_email],
-            html_message=html_body,
-        )
+    queue_email(subject, text_body, [to_email], html_body)
 
 
 def notify_enrollment_created_on_commit(enrollment) -> None:
