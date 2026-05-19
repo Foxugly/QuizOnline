@@ -2055,6 +2055,36 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/lms/course/{course_id}/invite-bulk/:
+    post:
+      operationId: lms_course_invite_bulk_create
+      description: |-
+        Instructor sends invitations to several domain members in one go.
+
+        Body: ``{"invitee_ids": [int, ...]}``. The endpoint short-circuits
+        on the first permission failure (non-instructor / wrong course mode
+        / domain mismatch) so a bad caller can't squeeze through one
+        successful invite. Per-invitee failures (already enrolled, etc.)
+        are silently counted as ``skipped`` so the bulk-send doesn't get
+        derailed by stale picker rows.
+
+        Counts the whole call as ONE hit against the ``lms_enroll``
+        throttle bucket, so an instructor inviting 50 learners at once
+        doesn't trip the per-minute limit they would hit if they looped
+        client-side.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/lms/course/{course_id}/invites/:
     get:
       operationId: lms_course_invites_retrieve

@@ -184,6 +184,20 @@ export class LmsEnrollmentService {
     );
   }
 
+  /** Instructor-side: send invitations to several domain members in
+   *  one shot. Returns ``{processed, skipped}`` so the UI can show a
+   *  partial-success toast when stale picker rows / non-members slip
+   *  through. */
+  bulkInviteToCourse(
+    courseId: number,
+    inviteeIds: number[],
+  ): Observable<{processed: number; skipped: number}> {
+    return this.http.post<{processed: number; skipped: number}>(
+      `${this.baseUrl}/course/${courseId}/invite-bulk/`,
+      {invitee_ids: inviteeIds},
+    );
+  }
+
   /** Instructor-side: list every invitation for a course (optionally
    *  narrowed to a status). */
   listInvitesForCourse(

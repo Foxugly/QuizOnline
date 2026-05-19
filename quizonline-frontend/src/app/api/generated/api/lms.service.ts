@@ -174,6 +174,10 @@ export interface LmsCourseInviteAcceptCreateRequestParams {
     token: string;
 }
 
+export interface LmsCourseInviteBulkCreateRequestParams {
+    courseId: number;
+}
+
 export interface LmsCourseInviteCreateRequestParams {
     courseId: number;
 }
@@ -1675,6 +1679,65 @@ export class LmsApi extends BaseService {
         }
 
         let localVarPath = `/api/lms/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/accept/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Instructor sends invitations to several domain members in one go.  Body: &#x60;&#x60;{\&quot;invitee_ids\&quot;: [int, ...]}&#x60;&#x60;. The endpoint short-circuits on the first permission failure (non-instructor / wrong course mode / domain mismatch) so a bad caller can\&#39;t squeeze through one successful invite. Per-invitee failures (already enrolled, etc.) are silently counted as &#x60;&#x60;skipped&#x60;&#x60; so the bulk-send doesn\&#39;t get derailed by stale picker rows.  Counts the whole call as ONE hit against the &#x60;&#x60;lms_enroll&#x60;&#x60; throttle bucket, so an instructor inviting 50 learners at once doesn\&#39;t trip the per-minute limit they would hit if they looped client-side.
+     * @endpoint post /api/lms/course/{course_id}/invite-bulk/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteBulkCreate(requestParameters: LmsCourseInviteBulkCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public lmsCourseInviteBulkCreate(requestParameters: LmsCourseInviteBulkCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public lmsCourseInviteBulkCreate(requestParameters: LmsCourseInviteBulkCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public lmsCourseInviteBulkCreate(requestParameters: LmsCourseInviteBulkCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const courseId = requestParameters?.courseId;
+        if (courseId === null || courseId === undefined) {
+            throw new Error('Required parameter courseId was null or undefined when calling lmsCourseInviteBulkCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {

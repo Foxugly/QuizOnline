@@ -8,6 +8,7 @@ from .views import (
     complete_lesson,
     course_analytics,
     course_invite_accept,
+    course_invite_bulk_send,
     course_invite_decline,
     course_invite_detail,
     course_invite_list,
@@ -32,6 +33,7 @@ urlpatterns = router.urls + [
     path("course/<int:course_id>/analytics/", course_analytics, name="course-analytics"),
     # Course-level invite endpoints (instructor side)
     path("course/<int:course_id>/invite/", course_invite_send, name="course-invite-send"),
+    path("course/<int:course_id>/invite-bulk/", course_invite_bulk_send, name="course-invite-bulk-send"),
     path("course/<int:course_id>/invites/", course_invite_list, name="course-invite-list"),
     path("course-invite/<int:pk>/resend/", course_invite_resend, name="course-invite-resend"),
     path("course-invite/<int:pk>/revoke/", course_invite_revoke, name="course-invite-revoke"),

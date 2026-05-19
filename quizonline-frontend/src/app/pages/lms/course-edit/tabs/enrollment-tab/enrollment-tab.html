@@ -15,21 +15,24 @@
         <div class="invite-form__row">
           <p-autoComplete
             inputId="invite-picker"
-            [ngModel]="selectedInvitee()"
-            (ngModelChange)="selectedInvitee.set($event)"
+            [ngModel]="selectedInvitees()"
+            (ngModelChange)="selectedInvitees.set($event)"
             [suggestions]="memberSuggestions()"
             (completeMethod)="onMemberSearch($event)"
             field="displayName"
             [placeholder]="ui().invite.pickerPlaceholder"
             [dropdown]="true"
             [forceSelection]="true"
+            [multiple]="true"
             styleClass="invite-form__picker">
           </p-autoComplete>
           <p-button
             type="button"
             icon="pi pi-send"
-            [label]="ui().invite.sendButton"
-            [disabled]="!selectedInvitee() || sending()"
+            [label]="selectedInvitees().length > 1
+              ? ui().invite.sendBulkButton(selectedInvitees().length)
+              : ui().invite.sendButton"
+            [disabled]="selectedInvitees().length === 0 || sending()"
             [loading]="sending()"
             (onClick)="sendInvite()">
           </p-button>

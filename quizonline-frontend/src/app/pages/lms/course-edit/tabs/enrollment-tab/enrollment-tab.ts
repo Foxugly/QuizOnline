@@ -130,8 +130,9 @@ export class LmsCourseEditEnrollmentTab {
   private readonly domainMembers = signal<MemberPickerItem[]>([]);
   /** The narrowed picker suggestions matching the current ``query``. */
   protected readonly memberSuggestions = signal<MemberPickerItem[]>([]);
-  /** Currently selected invitee (after the autocomplete picks one). */
-  protected readonly selectedInvitee = signal<MemberPickerItem | null>(null);
+  /** Currently selected invitees — the picker is multi-select so a
+   *  single bulk send invites everyone in this list at once. */
+  protected readonly selectedInvitees = signal<MemberPickerItem[]>([]);
 
   // ---- Derived -----------------------------------------------------------
 
@@ -197,7 +198,7 @@ export class LmsCourseEditEnrollmentTab {
         this.invites.set([]);
         this.domainMembers.set([]);
         this.memberSuggestions.set([]);
-        this.selectedInvitee.set(null);
+        this.selectedInvitees.set([]);
       }
     });
   }
@@ -347,19 +348,34 @@ export class LmsCourseEditEnrollmentTab {
 
   protected sendInvite(): void {
     const id = this.courseId();
-    const invitee = this.selectedInvitee();
-    if (id <= 0 || !invitee || this.sending()) {
+    const invitees = this.selectedInvitees();
+    if (id <= 0 || invitees.length === 0 || this.sending()) {
       return;
     }
     this.sending.set(true);
+    const ids = invitees.map((u) => u.id);
     this.enrollmentSvc
-      .inviteToCourse(id, invitee.id)
+      .bulkInviteToCourse(id, ids)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (result) => {
           this.sending.set(false);
-          this.selectedInvitee.set(null);
-          this.toast.add({severity: 'success', summary: this.ui().invite.toasts.sendSuccess});
+          this.selectedInvitees.set([]);
+          // ``processed`` = invites actually created or refreshed.
+          // ``skipped`` = backend rejected (stale picker row, already
+          // enrolled, etc.). Surface a partial-success toast so the
+          // instructor knows what happened without checking the list.
+          const t = this.ui().invite.toasts;
+          if (result.skipped > 0 && result.processed > 0) {
+            this.toast.add({
+              severity: 'warn',
+              summary: t.sendPartialSummary(result.processed, result.skipped),
+            });
+          } else if (result.processed > 0) {
+            this.toast.add({severity: 'success', summary: t.sendSuccess});
+          } else {
+            this.toast.add({severity: 'error', summary: t.sendFailed});
+          }
           this.refreshInvites();
         },
         error: (err: unknown) => {

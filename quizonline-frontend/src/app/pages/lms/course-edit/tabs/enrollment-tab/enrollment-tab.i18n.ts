@@ -63,6 +63,7 @@ export interface LmsCourseEditEnrollmentTabUiText {
     pickerLabel: string;
     pickerPlaceholder: string;
     sendButton: string;
+    sendBulkButton: (n: number) => string;
     pendingListHeading: string;
     columns: {
       user: string;
@@ -88,6 +89,7 @@ export interface LmsCourseEditEnrollmentTabUiText {
     toasts: {
       sendSuccess: string;
       sendFailed: string;
+      sendPartialSummary: (processed: number, skipped: number) => string;
       resendSuccess: string;
       resendFailed: string;
       revokeSuccess: string;
@@ -148,9 +150,10 @@ export function getLmsCourseEditEnrollmentTabUiText(
           heading: 'Inviter un apprenant',
           subtitle:
             'Les apprenants invités reçoivent un email avec un lien pour accepter l’invitation.',
-          pickerLabel: 'Apprenant',
-          pickerPlaceholder: 'Chercher un membre du domaine…',
+          pickerLabel: 'Apprenant(s)',
+          pickerPlaceholder: 'Chercher un ou plusieurs membres du domaine…',
           sendButton: 'Envoyer l’invitation',
+          sendBulkButton: (n) => `Envoyer ${n} invitations`,
           pendingListHeading: 'Invitations en cours',
           columns: {
             user: 'Apprenant',
@@ -176,6 +179,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
           toasts: {
             sendSuccess: 'Invitation envoyée.',
             sendFailed: 'L’envoi de l’invitation a échoué.',
+            sendPartialSummary: (processed, skipped) =>
+              `${processed} invitation(s) envoyée(s), ${skipped} ignorée(s) (déjà inscrit ou invité).`,
             resendSuccess: 'Invitation renvoyée.',
             resendFailed: 'Le renvoi de l’invitation a échoué.',
             revokeSuccess: 'Invitation révoquée.',
@@ -231,9 +236,10 @@ export function getLmsCourseEditEnrollmentTabUiText(
           heading: 'Een cursist uitnodigen',
           subtitle:
             'Uitgenodigde cursisten ontvangen een e-mail met een link om de uitnodiging te accepteren.',
-          pickerLabel: 'Cursist',
-          pickerPlaceholder: 'Zoek een lid van het domein…',
+          pickerLabel: 'Cursist(en)',
+          pickerPlaceholder: 'Zoek een of meer leden van het domein…',
           sendButton: 'Uitnodiging verzenden',
+          sendBulkButton: (n) => `${n} uitnodigingen verzenden`,
           pendingListHeading: 'Lopende uitnodigingen',
           columns: {
             user: 'Cursist',
@@ -259,6 +265,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
           toasts: {
             sendSuccess: 'Uitnodiging verzonden.',
             sendFailed: 'Uitnodiging verzenden is mislukt.',
+            sendPartialSummary: (processed, skipped) =>
+              `${processed} uitnodiging(en) verzonden, ${skipped} overgeslagen (al ingeschreven of uitgenodigd).`,
             resendSuccess: 'Uitnodiging opnieuw verzonden.',
             resendFailed: 'Uitnodiging opnieuw verzenden is mislukt.',
             revokeSuccess: 'Uitnodiging ingetrokken.',
@@ -314,9 +322,10 @@ export function getLmsCourseEditEnrollmentTabUiText(
           heading: 'Invita uno studente',
           subtitle:
             'Gli studenti invitati riceveranno un’email con un link per accettare l’invito.',
-          pickerLabel: 'Studente',
-          pickerPlaceholder: 'Cerca un membro del dominio…',
+          pickerLabel: 'Studente/i',
+          pickerPlaceholder: 'Cerca uno o più membri del dominio…',
           sendButton: 'Invia invito',
+          sendBulkButton: (n) => `Invia ${n} inviti`,
           pendingListHeading: 'Inviti in corso',
           columns: {
             user: 'Studente',
@@ -342,6 +351,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
           toasts: {
             sendSuccess: 'Invito inviato.',
             sendFailed: 'Invio dell’invito non riuscito.',
+            sendPartialSummary: (processed, skipped) =>
+              `${processed} invito/i inviato/i, ${skipped} saltato/i (già iscritto o invitato).`,
             resendSuccess: 'Invito rinviato.',
             resendFailed: 'Rinvio dell’invito non riuscito.',
             revokeSuccess: 'Invito revocato.',
@@ -397,9 +408,10 @@ export function getLmsCourseEditEnrollmentTabUiText(
           heading: 'Invitar a un alumno',
           subtitle:
             'Los alumnos invitados recibirán un correo electrónico con un enlace para aceptar la invitación.',
-          pickerLabel: 'Alumno',
-          pickerPlaceholder: 'Buscar un miembro del dominio…',
+          pickerLabel: 'Alumno(s)',
+          pickerPlaceholder: 'Buscar uno o varios miembros del dominio…',
           sendButton: 'Enviar invitación',
+          sendBulkButton: (n) => `Enviar ${n} invitaciones`,
           pendingListHeading: 'Invitaciones en curso',
           columns: {
             user: 'Alumno',
@@ -425,6 +437,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
           toasts: {
             sendSuccess: 'Invitación enviada.',
             sendFailed: 'No se pudo enviar la invitación.',
+            sendPartialSummary: (processed, skipped) =>
+              `${processed} invitación(es) enviada(s), ${skipped} omitida(s) (ya inscrito o invitado).`,
             resendSuccess: 'Invitación reenviada.',
             resendFailed: 'No se pudo reenviar la invitación.',
             revokeSuccess: 'Invitación revocada.',
@@ -479,9 +493,10 @@ export function getLmsCourseEditEnrollmentTabUiText(
           heading: 'Invite a learner',
           subtitle:
             'Invited learners receive an email with a link to accept the invitation.',
-          pickerLabel: 'Learner',
-          pickerPlaceholder: 'Search a domain member…',
+          pickerLabel: 'Learner(s)',
+          pickerPlaceholder: 'Search one or several domain members…',
           sendButton: 'Send invitation',
+          sendBulkButton: (n) => `Send ${n} invitations`,
           pendingListHeading: 'Outstanding invitations',
           columns: {
             user: 'Learner',
@@ -507,6 +522,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
           toasts: {
             sendSuccess: 'Invitation sent.',
             sendFailed: 'Failed to send the invitation.',
+            sendPartialSummary: (processed, skipped) =>
+              `${processed} invitation(s) sent, ${skipped} skipped (already enrolled or invited).`,
             resendSuccess: 'Invitation resent.',
             resendFailed: 'Failed to resend the invitation.',
             revokeSuccess: 'Invitation revoked.',

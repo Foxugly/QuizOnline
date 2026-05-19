@@ -1,6 +1,10 @@
 from datetime import timedelta
 from statistics import median
 
+from django.core.exceptions import (
+    PermissionDenied as DjangoPermissionDenied,
+    ValidationError as DjangoValidationError,
+)
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.http import FileResponse
@@ -383,6 +387,69 @@ def course_invite_send(request, course_id: int):
         CourseInviteSerializer(invite).data,
         status=status.HTTP_201_CREATED,
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([_LmsEnrollThrottle])
+def course_invite_bulk_send(request, course_id: int):
+    """Instructor sends invitations to several domain members in one go.
+
+    Body: ``{"invitee_ids": [int, ...]}``. The endpoint short-circuits
+    on the first permission failure (non-instructor / wrong course mode
+    / domain mismatch) so a bad caller can't squeeze through one
+    successful invite. Per-invitee failures (already enrolled, etc.)
+    are silently counted as ``skipped`` so the bulk-send doesn't get
+    derailed by stale picker rows.
+
+    Counts the whole call as ONE hit against the ``lms_enroll``
+    throttle bucket, so an instructor inviting 50 learners at once
+    doesn't trip the per-minute limit they would hit if they looped
+    client-side.
+    """
+    course = Course.objects.filter(pk=course_id).first()
+    if not course:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    raw_ids = request.data.get("invitee_ids", [])
+    if not isinstance(raw_ids, list) or not raw_ids:
+        return Response(
+            {"detail": "invitee_ids must be a non-empty list of integers."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    try:
+        invitee_ids = [int(i) for i in raw_ids]
+    except (TypeError, ValueError):
+        return Response(
+            {"detail": "invitee_ids must contain integers only."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    invitees = {u.id: u for u in User.objects.filter(pk__in=invitee_ids)}
+
+    processed = 0
+    skipped = 0
+    for uid in invitee_ids:
+        invitee = invitees.get(uid)
+        if invitee is None:
+            skipped += 1
+            continue
+        try:
+            invite_user_to_course(
+                course=course, invitee=invitee, inviter=request.user,
+            )
+            processed += 1
+        except DjangoPermissionDenied:
+            # Caller is not an instructor — abort the whole call so
+            # an unprivileged user can't drip-feed invites one by one.
+            raise PermissionDenied()
+        except DjangoValidationError:
+            # Per-invitee rule violation (already enrolled, non-member,
+            # wrong mode). Skip and continue with the next id.
+            skipped += 1
+    return Response({"processed": processed, "skipped": skipped})
 
 
 @api_view(["GET"])

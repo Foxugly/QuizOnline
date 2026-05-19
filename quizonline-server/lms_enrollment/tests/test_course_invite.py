@@ -330,6 +330,64 @@ def test_endpoint_send_invite_forbids_non_instructor(invite_course, learner):
 
 
 @pytest.mark.django_db
+def test_endpoint_bulk_send_creates_one_invite_per_member(
+    invite_course, learner, manager, owner, stranger,
+):
+    """Bulk send accepts a list of invitee ids, creates one
+    ``CourseInvite`` per domain member and silently skips the rest
+    (non-member, missing id, …) instead of erroring out."""
+    client = APIClient()
+    client.force_authenticate(owner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-send",
+        kwargs={"course_id": invite_course.id},
+    )
+    # learner + manager are both domain members; stranger is not.
+    response = client.post(
+        url,
+        {"invitee_ids": [learner.id, manager.id, stranger.id, 999999]},
+        format="json",
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["processed"] == 2
+    assert body["skipped"] == 2
+    # And the rows actually persisted.
+    assert CourseInvite.objects.filter(
+        course=invite_course, invitee=learner, status=CourseInvite.STATUS_PENDING,
+    ).exists()
+    assert CourseInvite.objects.filter(
+        course=invite_course, invitee=manager, status=CourseInvite.STATUS_PENDING,
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_endpoint_bulk_send_forbids_non_instructor(invite_course, learner, manager):
+    """Bulk send aborts the whole call when the caller is not an
+    instructor — no silent partial success."""
+    client = APIClient()
+    client.force_authenticate(learner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-send",
+        kwargs={"course_id": invite_course.id},
+    )
+    response = client.post(url, {"invitee_ids": [manager.id]}, format="json")
+    assert response.status_code in (400, 403)
+
+
+@pytest.mark.django_db
+def test_endpoint_bulk_send_rejects_empty_list(invite_course, owner):
+    client = APIClient()
+    client.force_authenticate(owner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-send",
+        kwargs={"course_id": invite_course.id},
+    )
+    response = client.post(url, {"invitee_ids": []}, format="json")
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
 def test_endpoint_list_invites_instructor_only(invite_course, learner, owner):
     invite_user_to_course(course=invite_course, invitee=learner, inviter=owner)
     client = APIClient()
