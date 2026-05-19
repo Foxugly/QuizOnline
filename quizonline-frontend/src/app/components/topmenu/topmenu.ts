@@ -122,9 +122,36 @@ export class TopMenuComponent implements OnInit {
       return true;
     }
 
-    return this.visibleDomains().some(
+    // Already owns or manages at least one domain → menu shows the
+    // entry point to manage them.
+    const managesOne = this.visibleDomains().some(
       (domain) => domain.owner?.id === me.id || (domain.managers ?? []).some((user) => user.id === me.id),
     );
+    if (managesOne) {
+      return true;
+    }
+
+    // Or has remaining creation slots on ``nb_domain_max`` — the
+    // platform-level quota a superuser sets via the user-admin form.
+    // Letting the menu show even for a fresh user with quota lets them
+    // bootstrap their first domain without an admin having to add them
+    // to an existing one first.
+    return this.canCreateDomain;
+  }
+
+  /** True when the caller has at least one unused creation slot on
+   *  their ``nb_domain_max`` quota. Superusers always pass. */
+  get canCreateDomain(): boolean {
+    const me = this.currentUser;
+    if (!me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    const quota = me.nb_domain_max ?? 0;
+    const owned = me.owned_domain_ids?.length ?? 0;
+    return quota > owned;
   }
 
   get navItems(): NavItem[] {
