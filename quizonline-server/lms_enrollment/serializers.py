@@ -134,12 +134,20 @@ class LessonNoteSerializer(serializers.ModelSerializer):
 
 class CourseInviteSerializer(serializers.ModelSerializer):
     """Read shape for course invitations. Carries enough denormalized
-    context (course title, invitee/inviter summaries) that the
-    instructor-side list and the invitee-side accept page can both
-    render without chaining extra requests."""
+    context (course title + description + objectives + duration + level,
+    plus invitee/inviter summaries) that the instructor-side list and
+    the invitee-side accept page can both render without chaining extra
+    requests. The acceptance page reaches users cold from email, so
+    skipping a second round-trip matters on slow mobile networks."""
 
     course_title = serializers.SerializerMethodField()
     course_slug = serializers.CharField(source="course.slug", read_only=True)
+    course_description = serializers.SerializerMethodField()
+    course_learning_objectives = serializers.SerializerMethodField()
+    course_estimated_duration = serializers.IntegerField(
+        source="course.estimated_duration", read_only=True,
+    )
+    course_level = serializers.CharField(source="course.level", read_only=True)
     invitee_detail = serializers.SerializerMethodField()
     inviter_detail = serializers.SerializerMethodField()
 
@@ -151,6 +159,10 @@ class CourseInviteSerializer(serializers.ModelSerializer):
             "course",
             "course_title",
             "course_slug",
+            "course_description",
+            "course_learning_objectives",
+            "course_estimated_duration",
+            "course_level",
             "invitee",
             "invitee_detail",
             "inviter",
@@ -168,6 +180,19 @@ class CourseInviteSerializer(serializers.ModelSerializer):
 
     def get_course_title(self, obj) -> str:
         return _localized_course_title(obj.course, _request_user_language(self))
+
+    def get_course_description(self, obj) -> str:
+        """Localised, HTML-sanitized description (already nh3'd on save)."""
+        lang = _request_user_language(self)
+        return obj.course.safe_translation_getter(
+            "description", language_code=lang, any_language=True,
+        ) or ""
+
+    def get_course_learning_objectives(self, obj) -> str:
+        lang = _request_user_language(self)
+        return obj.course.safe_translation_getter(
+            "learning_objectives", language_code=lang, any_language=True,
+        ) or ""
 
     @extend_schema_field(UserSummarySerializer(allow_null=True))
     def get_invitee_detail(self, obj) -> dict | None:

@@ -11,6 +11,10 @@ export interface LmsCourseInviteAcceptUiText {
   loadingMessage: string;
   invitationFrom: (inviter: string, course: string) => string;
   expiresAt: (when: string) => string;
+  durationLabel: (minutes: number) => string;
+  levelLabel: string;
+  learningObjectivesHeading: string;
+  levelChoices: Record<'beginner' | 'intermediate' | 'advanced', string>;
   acceptButton: string;
   declineButton: string;
   declineConfirmHeader: string;
@@ -51,6 +55,10 @@ export function getLmsCourseInviteAcceptUiText(
         invitationFrom: (inviter, course) =>
           `${inviter} vous invite à rejoindre le cours « ${course} ».`,
         expiresAt: (when) => `Cette invitation expire le ${when}.`,
+        durationLabel: (minutes) => `${minutes} min`,
+        levelLabel: 'Niveau',
+        learningObjectivesHeading: 'Objectifs d’apprentissage',
+        levelChoices: {beginner: 'Débutant', intermediate: 'Intermédiaire', advanced: 'Avancé'},
         acceptButton: 'Accepter l’invitation',
         declineButton: 'Refuser',
         declineConfirmHeader: 'Refuser l’invitation',
@@ -87,6 +95,10 @@ export function getLmsCourseInviteAcceptUiText(
         invitationFrom: (inviter, course) =>
           `${inviter} nodigt je uit voor de cursus "${course}".`,
         expiresAt: (when) => `Deze uitnodiging vervalt op ${when}.`,
+        durationLabel: (minutes) => `${minutes} min`,
+        levelLabel: 'Niveau',
+        learningObjectivesHeading: 'Leerdoelen',
+        levelChoices: {beginner: 'Beginner', intermediate: 'Gemiddeld', advanced: 'Gevorderd'},
         acceptButton: 'Uitnodiging accepteren',
         declineButton: 'Weigeren',
         declineConfirmHeader: 'Uitnodiging weigeren',
@@ -123,6 +135,10 @@ export function getLmsCourseInviteAcceptUiText(
         invitationFrom: (inviter, course) =>
           `${inviter} ti invita a partecipare al corso "${course}".`,
         expiresAt: (when) => `Questo invito scade il ${when}.`,
+        durationLabel: (minutes) => `${minutes} min`,
+        levelLabel: 'Livello',
+        learningObjectivesHeading: 'Obiettivi di apprendimento',
+        levelChoices: {beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzato'},
         acceptButton: 'Accetta l’invito',
         declineButton: 'Rifiuta',
         declineConfirmHeader: 'Rifiutare l’invito',
@@ -159,6 +175,10 @@ export function getLmsCourseInviteAcceptUiText(
         invitationFrom: (inviter, course) =>
           `${inviter} te invita a unirte al curso «${course}».`,
         expiresAt: (when) => `Esta invitación caduca el ${when}.`,
+        durationLabel: (minutes) => `${minutes} min`,
+        levelLabel: 'Nivel',
+        learningObjectivesHeading: 'Objetivos de aprendizaje',
+        levelChoices: {beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado'},
         acceptButton: 'Aceptar la invitación',
         declineButton: 'Rechazar',
         declineConfirmHeader: 'Rechazar la invitación',
@@ -194,6 +214,10 @@ export function getLmsCourseInviteAcceptUiText(
         invitationFrom: (inviter, course) =>
           `${inviter} has invited you to join the course "${course}".`,
         expiresAt: (when) => `This invitation expires on ${when}.`,
+        durationLabel: (minutes) => `${minutes} min`,
+        levelLabel: 'Level',
+        learningObjectivesHeading: 'Learning objectives',
+        levelChoices: {beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced'},
         acceptButton: 'Accept the invitation',
         declineButton: 'Decline',
         declineConfirmHeader: 'Decline the invitation',

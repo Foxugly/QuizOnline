@@ -7,9 +7,36 @@
   margin: 0 0 0.5rem;
 }
 
+.invite-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1rem 0 1.25rem;
+  flex-wrap: wrap;
+
+  &__duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-color-secondary, #6b7280);
+    font-size: 0.9rem;
+  }
+}
+
+.invite-description,
+.invite-objectives {
+  margin-top: 1.25rem;
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 650;
+  }
+}
+
 .invite-actions {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
   flex-wrap: wrap;
 }

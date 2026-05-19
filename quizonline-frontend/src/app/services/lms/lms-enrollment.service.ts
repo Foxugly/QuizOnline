@@ -10,13 +10,22 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 /** Read shape of a single ``CourseInvite`` row as exposed by
  *  ``/api/lms/course/{id}/invites/`` and the token-keyed endpoints.
  *  Mirrors :class:`CourseInviteSerializer` on the backend so the
- *  generated client and this hand-rolled wrapper stay in sync. */
+ *  generated client and this hand-rolled wrapper stay in sync.
+ *
+ *  The ``course_*`` denormalized fields exist so the cold-from-email
+ *  acceptance page can render the full course "card" (title + rich
+ *  description + objectives + duration + level) without a second
+ *  request to ``/api/lms/course/{slug}/``. */
 export interface CourseInviteDto {
   id: number;
   token: string;
   course: number;
   course_title: string;
   course_slug: string;
+  course_description: string;
+  course_learning_objectives: string;
+  course_estimated_duration: number;
+  course_level: string;
   invitee: number;
   invitee_detail: UserSummaryDto | null;
   inviter: number | null;

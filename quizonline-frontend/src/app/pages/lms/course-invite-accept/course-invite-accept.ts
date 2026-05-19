@@ -2,12 +2,14 @@ import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
+import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {Subscription} from 'rxjs';
 
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {TagModule} from 'primeng/tag';
 
 import {LMS_CATALOG, LMS_COURSE_DETAIL} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -49,7 +51,7 @@ type ViewState =
  */
 @Component({
   selector: 'app-lms-course-invite-accept',
-  imports: [DatePipe, RouterLink, ButtonModule, CardModule, ConfirmDialogModule, PageHeader],
+  imports: [DatePipe, RouterLink, ButtonModule, CardModule, ConfirmDialogModule, TagModule, PageHeader],
   providers: [ConfirmationService],
   templateUrl: './course-invite-accept.html',
   styleUrl: './course-invite-accept.scss',
@@ -62,6 +64,7 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
   private readonly confirmer = inject(ConfirmationService);
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly ui = this.uiSvc.localized(getLmsCourseInviteAcceptUiText);
   protected readonly catalogHref = LMS_CATALOG;
@@ -83,6 +86,32 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
     const inv = this.invite();
     return inv ? LMS_COURSE_DETAIL(inv.course_slug) : LMS_CATALOG;
   });
+
+  /** Sanitized HTML for the course description. Backend nh3-sanitizes
+   *  rich text on save so the field is XSS-safe before it lands here. */
+  protected readonly courseDescription = computed<SafeHtml>(() =>
+    this.sanitizer.bypassSecurityTrustHtml(this.invite()?.course_description ?? ''),
+  );
+
+  protected readonly courseLearningObjectives = computed<SafeHtml>(() =>
+    this.sanitizer.bypassSecurityTrustHtml(this.invite()?.course_learning_objectives ?? ''),
+  );
+
+  protected readonly hasDescription = computed(
+    () => !!(this.invite()?.course_description ?? '').trim(),
+  );
+
+  protected readonly hasLearningObjectives = computed(
+    () => !!(this.invite()?.course_learning_objectives ?? '').trim(),
+  );
+
+  protected levelLabel(level: string): string {
+    const choices = this.ui().levelChoices;
+    if (level === 'beginner') return choices.beginner;
+    if (level === 'intermediate') return choices.intermediate;
+    if (level === 'advanced') return choices.advanced;
+    return level;
+  }
 
   private routeSub: Subscription | null = null;
 
