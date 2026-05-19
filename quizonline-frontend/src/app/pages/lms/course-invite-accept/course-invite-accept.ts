@@ -4,8 +4,10 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Subscription} from 'rxjs';
 
+import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 
 import {LMS_CATALOG, LMS_COURSE_DETAIL} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -47,7 +49,8 @@ type ViewState =
  */
 @Component({
   selector: 'app-lms-course-invite-accept',
-  imports: [DatePipe, RouterLink, ButtonModule, CardModule, PageHeader],
+  imports: [DatePipe, RouterLink, ButtonModule, CardModule, ConfirmDialogModule, PageHeader],
+  providers: [ConfirmationService],
   templateUrl: './course-invite-accept.html',
   styleUrl: './course-invite-accept.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +59,7 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly enrollment = inject(LmsEnrollmentService);
+  private readonly confirmer = inject(ConfirmationService);
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
 
@@ -118,9 +122,26 @@ export class LmsCourseInviteAccept implements OnInit, OnDestroy {
     });
   }
 
-  protected decline(): void {
+  protected confirmDecline(): void {
     const inv = this.invite();
     if (!inv || this.busy() || this.state() !== 'pending') {
+      return;
+    }
+    const t = this.ui();
+    this.confirmer.confirm({
+      header: t.declineConfirmHeader,
+      message: t.declineConfirmMessage(inv.course_title),
+      icon: 'pi pi-times-circle',
+      acceptLabel: t.declineConfirmAccept,
+      rejectLabel: t.declineConfirmReject,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.decline(),
+    });
+  }
+
+  private decline(): void {
+    const inv = this.invite();
+    if (!inv) {
       return;
     }
     this.busy.set(true);

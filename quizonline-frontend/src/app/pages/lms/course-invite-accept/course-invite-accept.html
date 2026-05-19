@@ -31,7 +31,7 @@
               [outlined]="true"
               [label]="ui().declineButton"
               [disabled]="busy()"
-              (onClick)="decline()">
+              (onClick)="confirmDecline()">
             </p-button>
           </div>
         </p-card>
@@ -133,4 +133,6 @@
       </p-card>
     }
   }
+
+  <p-confirmDialog></p-confirmDialog>
 </div>

@@ -13,6 +13,10 @@ export interface LmsCourseInviteAcceptUiText {
   expiresAt: (when: string) => string;
   acceptButton: string;
   declineButton: string;
+  declineConfirmHeader: string;
+  declineConfirmMessage: (courseTitle: string) => string;
+  declineConfirmAccept: string;
+  declineConfirmReject: string;
   backToCatalogButton: string;
   goToCourseButton: string;
 
@@ -49,6 +53,11 @@ export function getLmsCourseInviteAcceptUiText(
         expiresAt: (when) => `Cette invitation expire le ${when}.`,
         acceptButton: 'Accepter l’invitation',
         declineButton: 'Refuser',
+        declineConfirmHeader: 'Refuser l’invitation',
+        declineConfirmMessage: (courseTitle) =>
+          `Refuser définitivement l’invitation à « ${courseTitle} » ? L’instructeur devra vous renvoyer une invitation si vous changez d’avis.`,
+        declineConfirmAccept: 'Refuser',
+        declineConfirmReject: 'Annuler',
         backToCatalogButton: 'Retour au catalogue',
         goToCourseButton: 'Aller au cours',
         acceptedTitle: 'Invitation acceptée',
@@ -80,6 +89,11 @@ export function getLmsCourseInviteAcceptUiText(
         expiresAt: (when) => `Deze uitnodiging vervalt op ${when}.`,
         acceptButton: 'Uitnodiging accepteren',
         declineButton: 'Weigeren',
+        declineConfirmHeader: 'Uitnodiging weigeren',
+        declineConfirmMessage: (courseTitle) =>
+          `De uitnodiging voor "${courseTitle}" definitief weigeren? De instructeur moet een nieuwe uitnodiging sturen als je van gedachten verandert.`,
+        declineConfirmAccept: 'Weigeren',
+        declineConfirmReject: 'Annuleren',
         backToCatalogButton: 'Terug naar catalogus',
         goToCourseButton: 'Ga naar de cursus',
         acceptedTitle: 'Uitnodiging geaccepteerd',
@@ -111,6 +125,11 @@ export function getLmsCourseInviteAcceptUiText(
         expiresAt: (when) => `Questo invito scade il ${when}.`,
         acceptButton: 'Accetta l’invito',
         declineButton: 'Rifiuta',
+        declineConfirmHeader: 'Rifiutare l’invito',
+        declineConfirmMessage: (courseTitle) =>
+          `Rifiutare definitivamente l’invito a "${courseTitle}"? L’istruttore dovrà inviare un nuovo invito se cambi idea.`,
+        declineConfirmAccept: 'Rifiuta',
+        declineConfirmReject: 'Annulla',
         backToCatalogButton: 'Torna al catalogo',
         goToCourseButton: 'Vai al corso',
         acceptedTitle: 'Invito accettato',
@@ -142,6 +161,11 @@ export function getLmsCourseInviteAcceptUiText(
         expiresAt: (when) => `Esta invitación caduca el ${when}.`,
         acceptButton: 'Aceptar la invitación',
         declineButton: 'Rechazar',
+        declineConfirmHeader: 'Rechazar la invitación',
+        declineConfirmMessage: (courseTitle) =>
+          `¿Rechazar definitivamente la invitación a «${courseTitle}»? El instructor deberá enviarte una nueva invitación si cambias de opinión.`,
+        declineConfirmAccept: 'Rechazar',
+        declineConfirmReject: 'Cancelar',
         backToCatalogButton: 'Volver al catálogo',
         goToCourseButton: 'Ir al curso',
         acceptedTitle: 'Invitación aceptada',
@@ -172,6 +196,11 @@ export function getLmsCourseInviteAcceptUiText(
         expiresAt: (when) => `This invitation expires on ${when}.`,
         acceptButton: 'Accept the invitation',
         declineButton: 'Decline',
+        declineConfirmHeader: 'Decline the invitation',
+        declineConfirmMessage: (courseTitle) =>
+          `Permanently decline the invitation to "${courseTitle}"? The instructor will have to send you a new invitation if you change your mind.`,
+        declineConfirmAccept: 'Decline',
+        declineConfirmReject: 'Cancel',
         backToCatalogButton: 'Back to catalog',
         goToCourseButton: 'Go to the course',
         acceptedTitle: 'Invitation accepted',
