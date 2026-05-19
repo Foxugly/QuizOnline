@@ -23,6 +23,14 @@ export interface LmsCatalogUiText {
   enrolledBadge: string;
   /** Continue-learning CTA label shown instead of "View" once enrolled. */
   continueButton: string;
+  /** Per-card publish-status badge — surfaced only for cards the caller
+   *  can manage, so plain learners never see them. Same vocabulary as
+   *  :type:`LmsCourseListUiText.statusLabels` so the two instructor
+   *  surfaces stay consistent. */
+  statusLabels: {
+    published: string;
+    draft: string;
+  };
 }
 
 export function getLmsCatalogUiText(
@@ -47,6 +55,7 @@ export function getLmsCatalogUiText(
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Inscrit',
         continueButton: 'Reprendre',
+        statusLabels: {published: 'Publié', draft: 'Brouillon'},
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -66,6 +75,7 @@ export function getLmsCatalogUiText(
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} u ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Ingeschreven',
         continueButton: 'Hervatten',
+        statusLabels: {published: 'Gepubliceerd', draft: 'Concept'},
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -85,6 +95,7 @@ export function getLmsCatalogUiText(
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Iscritto',
         continueButton: 'Riprendi',
+        statusLabels: {published: 'Pubblicato', draft: 'Bozza'},
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -104,6 +115,7 @@ export function getLmsCatalogUiText(
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)} h ${m % 60 > 0 ? (m % 60) + ' min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Inscrito',
         continueButton: 'Reanudar',
+        statusLabels: {published: 'Publicado', draft: 'Borrador'},
       };
     default:
       return {
@@ -122,6 +134,7 @@ export function getLmsCatalogUiText(
         duration: (m) => m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 > 0 ? (m % 60) + 'min' : ''}`.trim() : `${m} min`,
         enrolledBadge: 'Enrolled',
         continueButton: 'Continue',
+        statusLabels: {published: 'Published', draft: 'Draft'},
       };
   }
 }

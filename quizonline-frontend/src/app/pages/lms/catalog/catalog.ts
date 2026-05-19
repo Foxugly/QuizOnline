@@ -35,6 +35,12 @@ interface CatalogCourseRow {
   domain: number;
   level: 'beginner' | 'intermediate' | 'advanced';
   enrollment_mode: 'open' | 'approval' | 'invite';
+  /** True when the course has been published. Drafts only reach the
+   *  catalog response for instructors (the backend ``visible_to``
+   *  queryset filters them out for plain members) so the per-card
+   *  status tag is only meaningful when the caller can manage the
+   *  course in the first place. */
+  is_published: boolean;
   translations?: TranslationsMap;
   lesson_count?: number;
   total_duration_minutes?: number;
@@ -64,6 +70,13 @@ interface CatalogCardVm {
    *  of the card for instructors only (owner / manager of the course's
    *  domain, or superuser). ``null`` hides the button entirely. */
   editHref: string | null;
+  /** Localized "Publié" / "Brouillon" badge label — surfaced only for
+   *  cards the caller can manage. ``null`` hides the badge entirely so
+   *  learners (who only ever see published courses in their list)
+   *  don't see a redundant "Publié" tag on every card. */
+  statusLabel: string | null;
+  /** Drives the badge severity + icon — ``true`` for published. */
+  statusIsPublished: boolean;
   lessonCountLabel: string | null;
   durationLabel: string | null;
   isEnrolled: boolean;
@@ -171,6 +184,7 @@ export class LmsCatalog implements OnInit {
       const enrolled = !!me && me.status !== 'cancelled';
       const nextLessonId = me?.next_lesson_id ?? null;
       const canManage = manageable.has(c.domain);
+      const isPublished = !!c.is_published;
       return {
         id: c.id,
         slug: c.slug,
@@ -183,6 +197,10 @@ export class LmsCatalog implements OnInit {
         href: LMS_COURSE_DETAIL(c.slug),
         continueHref: enrolled && nextLessonId ? LMS_LESSON_VIEW(nextLessonId) : null,
         editHref: canManage ? LMS_COURSE_EDIT(c.id) : null,
+        statusLabel: canManage
+          ? (isPublished ? ui.statusLabels.published : ui.statusLabels.draft)
+          : null,
+        statusIsPublished: isPublished,
         lessonCountLabel: typeof c.lesson_count === 'number' && c.lesson_count > 0
           ? ui.lessonCount(c.lesson_count) : null,
         durationLabel: typeof c.total_duration_minutes === 'number' && c.total_duration_minutes > 0
