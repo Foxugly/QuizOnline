@@ -326,7 +326,6 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
     return invite
 
 
-@transaction.atomic
 def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollment:
     """
     Mark the invitation accepted and create the matching
@@ -339,6 +338,13 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
     :func:`enroll_user_to_course` so the standard creation hooks
     (progress row, ``enrollment_created`` notification to the learner)
     still fire — the path stays consistent with self-enroll.
+
+    The expiry check intentionally lives **outside** the main atomic
+    block: when an expired invite is accepted we still want to mark
+    it ``EXPIRED`` for audit / catalog filtering even though the
+    function raises right after. A single wrapping
+    ``@transaction.atomic`` would roll that mark back along with the
+    raise.
     """
     if accepted_by is None or accepted_by.id != invite.invitee_id:
         raise PermissionDenied(_("Only the invitee can accept this invitation."))
@@ -349,39 +355,40 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
         invite.save(update_fields=["status", "updated_at"])
         raise ValidationError(_("Invitation has expired."))
 
-    invite.status = CourseInvite.STATUS_ACCEPTED
-    invite.accepted_at = timezone.now()
-    invite.updated_by = accepted_by
-    invite.save(
-        update_fields=["status", "accepted_at", "updated_by", "updated_at"],
-    )
-
-    # The invitee path bypasses the ENROLL_INVITE guard in
-    # ``enroll_user_to_course`` because we mint the enrollment row
-    # directly here — the invitation row is the proof of permission.
-    enrollment, _created = CourseEnrollment.objects.get_or_create(
-        user=invite.invitee,
-        course=invite.course,
-        defaults={
-            "status": CourseEnrollment.STATUS_ACTIVE,
-            "created_by": invite.invitee,
-        },
-    )
-    if enrollment.status != CourseEnrollment.STATUS_ACTIVE:
-        enrollment.status = CourseEnrollment.STATUS_ACTIVE
-        enrollment.save(update_fields=["status"])
-    _ensure_course_progress(invite.invitee, invite.course)
-
-    payload = _course_invite_payload(invite)
-    # Tell the inviter their invitation was accepted.
-    if invite.inviter is not None:
-        notify(
-            user=invite.inviter,
-            kind=KIND_COURSE_INVITE_ACCEPTED,
-            payload=payload,
-            domain=invite.course.domain,
-            email_callable=make_course_invite_accepted_email_callable(invite),
+    with transaction.atomic():
+        invite.status = CourseInvite.STATUS_ACCEPTED
+        invite.accepted_at = timezone.now()
+        invite.updated_by = accepted_by
+        invite.save(
+            update_fields=["status", "accepted_at", "updated_by", "updated_at"],
         )
+
+        # The invitee path bypasses the ENROLL_INVITE guard in
+        # ``enroll_user_to_course`` because we mint the enrollment row
+        # directly here — the invitation row is the proof of permission.
+        enrollment, _created = CourseEnrollment.objects.get_or_create(
+            user=invite.invitee,
+            course=invite.course,
+            defaults={
+                "status": CourseEnrollment.STATUS_ACTIVE,
+                "created_by": invite.invitee,
+            },
+        )
+        if enrollment.status != CourseEnrollment.STATUS_ACTIVE:
+            enrollment.status = CourseEnrollment.STATUS_ACTIVE
+            enrollment.save(update_fields=["status"])
+        _ensure_course_progress(invite.invitee, invite.course)
+
+        payload = _course_invite_payload(invite)
+        # Tell the inviter their invitation was accepted.
+        if invite.inviter is not None:
+            notify(
+                user=invite.inviter,
+                kind=KIND_COURSE_INVITE_ACCEPTED,
+                payload=payload,
+                domain=invite.course.domain,
+                email_callable=make_course_invite_accepted_email_callable(invite),
+            )
     return enrollment
 
 
