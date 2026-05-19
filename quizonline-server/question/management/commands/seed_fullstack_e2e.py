@@ -10,6 +10,8 @@ from django.db import transaction
 
 from domain.models import Domain
 from language.models import Language
+from lms_catalog.models import Course
+from lms_enrollment.models import CourseEnrollment, CourseInvite
 from question.models import AnswerOption, MediaAsset, Question, QuestionMedia
 from question.youtube import normalize_external_url
 from quiz.constants import VISIBILITY_IMMEDIATE
@@ -302,10 +304,60 @@ class Command(BaseCommand):
         quiz_session.save()
         quiz_session.answers.all().delete()
 
+        # --- LMS course-invite seed -------------------------------------
+        # An invite-only course owned by ``admin`` plus a pending
+        # ``CourseInvite`` aimed at ``testuser``. The Playwright invite
+        # spec drives this end-to-end (login as testuser, click "Voir
+        # l'invitation", accept, verify the enrollment landed via API).
+        fr_lang = Language.objects.get(code="fr")
+        invite_course = (
+            Course.objects.filter(domain=domain, slug="e2e-invite-only").first()
+        )
+        if invite_course is None:
+            invite_course = Course(
+                domain=domain,
+                slug="e2e-invite-only",
+                language=fr_lang,
+                level=Course.LEVEL_BEGINNER,
+                enrollment_mode=Course.ENROLL_INVITE,
+                is_published=True,
+            )
+            invite_course.set_current_language("fr")
+            invite_course.title = "Cours sur invitation (E2E)"
+            invite_course.description = "Cours seede pour le test Playwright d'acceptation d'invitation."
+            invite_course.save()
+        else:
+            invite_course.enrollment_mode = Course.ENROLL_INVITE
+            invite_course.is_published = True
+            invite_course.save(update_fields=["enrollment_mode", "is_published"])
+            upsert_translation(
+                invite_course, "fr",
+                title="Cours sur invitation (E2E)",
+                description="Cours seede pour le test Playwright d'acceptation d'invitation.",
+            )
+
+        # Clear any enrollment from a previous accept-spec run so the
+        # invite goes back to a clean PENDING state and the spec can
+        # accept again.
+        CourseEnrollment.objects.filter(course=invite_course, user=testuser).delete()
+
+        invite, _created = CourseInvite.objects.get_or_create(
+            course=invite_course,
+            invitee=testuser,
+            defaults={"created_by": admin, "status": CourseInvite.STATUS_PENDING},
+        )
+        if invite.status != CourseInvite.STATUS_PENDING:
+            invite.status = CourseInvite.STATUS_PENDING
+            invite.accepted_at = None
+            invite.declined_at = None
+            invite.revoked_at = None
+            invite.save(update_fields=["status", "accepted_at", "declined_at", "revoked_at"])
+
         self.stdout.write(
             self.style.SUCCESS(
                 "Seeded full-stack data: "
-                f"user=admin question_id={question.id} quiz_id={quiz_session.id} domain_id={domain.id}",
+                f"user=admin question_id={question.id} quiz_id={quiz_session.id} "
+                f"domain_id={domain.id} invite_id={invite.id}",
             ),
         )
 
