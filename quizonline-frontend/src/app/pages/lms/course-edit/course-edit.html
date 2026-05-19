@@ -1,111 +1,136 @@
-<div class="page-header">
-  <div class="page-header__title">
-    <p-button
+<app-page-header [title]="ui().pageTitle">
+  <p-button slot="left"
+    type="button"
+    severity="secondary"
+    [outlined]="true"
+    icon="pi pi-arrow-left"
+    [label]="editorUi().common.back"
+    (onClick)="back()">
+  </p-button>
+  @if (course(); as c) {
+    @if (c.is_published) {
+      <p-tag slot="left" severity="success" [value]="ui().publishedBadge" icon="pi pi-eye" />
+    } @else {
+      <p-tag slot="left" severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-pencil" />
+    }
+  }
+
+  @if (course(); as c) {
+    @if (c.is_published) {
+      <p-button slot="right"
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-eye-slash"
+        [pTooltip]="ui().unpublishButton"
+        tooltipPosition="bottom"
+        [attr.aria-label]="ui().unpublishButton"
+        [loading]="publishing()"
+        [disabled]="publishing() || loading()"
+        (onClick)="togglePublish()">
+      </p-button>
+    } @else {
+      <p-button slot="right"
+        type="button"
+        severity="primary"
+        icon="pi pi-eye"
+        [pTooltip]="ui().publishButton"
+        tooltipPosition="bottom"
+        [attr.aria-label]="ui().publishButton"
+        [loading]="publishing()"
+        [disabled]="publishing() || loading()"
+        (onClick)="togglePublish()">
+      </p-button>
+    }
+    <p-button slot="right"
       type="button"
       severity="secondary"
       [outlined]="true"
-      icon="pi pi-arrow-left"
-      [label]="editorUi().common.back"
-      (onClick)="back()">
+      icon="pi pi-copy"
+      [pTooltip]="ui().cloneButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="ui().cloneButton"
+      [loading]="cloning()"
+      [disabled]="cloning() || deleting() || publishing() || loading()"
+      (onClick)="confirmClone()">
     </p-button>
-    <h1>{{ ui().pageTitle }}</h1>
-    @if (course(); as c) {
-      @if (c.is_published) {
-        <p-tag severity="success" [value]="ui().publishedBadge" icon="pi pi-eye" />
-      } @else {
-        <p-tag severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-pencil" />
-      }
-    }
-  </div>
-
-  <div class="page-header__actions">
-    @if (course(); as c) {
-      @if (c.is_published) {
-        <p-button
-          type="button"
-          severity="secondary"
-          [outlined]="true"
-          icon="pi pi-eye-slash"
-          [label]="ui().unpublishButton"
-          [loading]="publishing()"
-          [disabled]="publishing() || loading()"
-          (onClick)="togglePublish()">
-        </p-button>
-      } @else {
-        <p-button
-          type="button"
-          severity="primary"
-          icon="pi pi-eye"
-          [label]="ui().publishButton"
-          [loading]="publishing()"
-          [disabled]="publishing() || loading()"
-          (onClick)="togglePublish()">
-        </p-button>
-      }
-      <p-button
-        type="button"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-copy"
-        [label]="ui().cloneButton"
-        [loading]="cloning()"
-        [disabled]="cloning() || deleting() || publishing() || loading()"
-        (onClick)="confirmClone()">
-      </p-button>
-      <p-button
-        type="button"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-download"
-        [label]="ui().exportButton"
-        [disabled]="cloning() || deleting() || publishing() || loading()"
-        (onClick)="exportCourse()">
-      </p-button>
-      <p-button
-        type="button"
-        severity="danger"
-        [outlined]="true"
-        icon="pi pi-trash"
-        [label]="ui().deleteButton"
-        [loading]="deleting()"
-        [disabled]="cloning() || deleting() || publishing() || loading()"
-        (onClick)="confirmDelete()">
-      </p-button>
-    }
-  </div>
-</div>
+    <p-button slot="right"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-download"
+      [pTooltip]="ui().exportButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="ui().exportButton"
+      [disabled]="cloning() || deleting() || publishing() || loading()"
+      (onClick)="exportCourse()">
+    </p-button>
+    <p-button slot="right"
+      type="button"
+      severity="danger"
+      [outlined]="true"
+      icon="pi pi-trash"
+      [pTooltip]="ui().deleteButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="ui().deleteButton"
+      [loading]="deleting()"
+      [disabled]="cloning() || deleting() || publishing() || loading()"
+      (onClick)="confirmDelete()">
+    </p-button>
+  }
+</app-page-header>
 
 <p-confirmDialog></p-confirmDialog>
 
-<p-tabs value="info">
+<p-tabs value="info" class="builder-tabs">
   <p-tablist>
-    <p-tab value="info">{{ ui().tabInfo }}</p-tab>
-    <p-tab value="structure">{{ ui().tabStructure }}</p-tab>
-    <p-tab value="enrollment">{{ ui().tabEnrollment }}</p-tab>
-    <p-tab value="analytics">{{ ui().tabAnalytics }}</p-tab>
+    <p-tab value="info">
+      <i class="pi pi-info-circle tab-icon"></i>
+      {{ ui().tabInfo }}
+    </p-tab>
+    <p-tab value="structure">
+      <i class="pi pi-sitemap tab-icon"></i>
+      {{ ui().tabStructure }}
+    </p-tab>
+    <p-tab value="enrollment">
+      <i class="pi pi-users tab-icon"></i>
+      {{ ui().tabEnrollment }}
+    </p-tab>
+    <p-tab value="analytics">
+      <i class="pi pi-chart-bar tab-icon"></i>
+      {{ ui().tabAnalytics }}
+    </p-tab>
   </p-tablist>
   <p-tabpanels>
     <p-tabpanel value="info">
-      <app-lms-course-edit-info-tab
-        [courseId]="courseId()"
-        [course]="course()"
-        (changed)="refresh()" />
+      <div class="builder-pane">
+        <app-lms-course-edit-info-tab
+          [courseId]="courseId()"
+          [course]="course()"
+          (changed)="refresh()" />
+      </div>
     </p-tabpanel>
     <p-tabpanel value="structure">
-      <app-lms-course-edit-structure-tab
-        [courseId]="courseId()"
-        [course]="course()"
-        (changed)="refresh()" />
+      <div class="builder-pane">
+        <app-lms-course-edit-structure-tab
+          [courseId]="courseId()"
+          [course]="course()"
+          (changed)="refresh()" />
+      </div>
     </p-tabpanel>
     <p-tabpanel value="enrollment">
-      <app-lms-course-edit-enrollment-tab
-        [courseId]="courseId()"
-        [course]="course()" />
+      <div class="builder-pane">
+        <app-lms-course-edit-enrollment-tab
+          [courseId]="courseId()"
+          [course]="course()" />
+      </div>
     </p-tabpanel>
     <p-tabpanel value="analytics">
-      <app-lms-course-edit-analytics-tab
-        [courseId]="courseId()"
-        [course]="course()" />
+      <div class="builder-pane">
+        <app-lms-course-edit-analytics-tab
+          [courseId]="courseId()"
+          [course]="course()" />
+      </div>
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>

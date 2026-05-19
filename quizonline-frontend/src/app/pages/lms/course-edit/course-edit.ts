@@ -6,11 +6,13 @@ import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TabsModule} from 'primeng/tabs';
 import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {LMS_CATALOG, LMS_COURSE_EDIT} from '../../../app.routes-paths';
 import {CourseDetailDto} from '../../../api/generated/model/course-detail';
 import {LmsCatalogService} from '../../../services/lms/lms-catalog.service';
 import {logApiError} from '../../../shared/api/api-errors';
+import {PageHeader} from '../../../shared/components/page-header/page-header';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
@@ -40,6 +42,8 @@ import {LmsCourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     ConfirmDialogModule,
     TabsModule,
     TagModule,
+    TooltipModule,
+    PageHeader,
     LmsCourseEditInfoTab,
     LmsCourseEditStructureTab,
     LmsCourseEditEnrollmentTab,

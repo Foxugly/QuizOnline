@@ -4,38 +4,3 @@
   max-width: 1200px;
   margin: 0 auto;
 }
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.page-header__title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-
-  h1 {
-    margin: 0;
-  }
-}
-
-.page-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tab-section {
-  padding: 1rem 0;
-}
-
-.tab-section .placeholder {
-  color: var(--text-color-secondary, #6b7280);
-  font-style: italic;
-}
