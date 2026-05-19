@@ -66,6 +66,22 @@ export interface CourseAnalyticsDto {
   median_progress_pct: number;
   certificates_issued: number;
   enrollment_trend_30d: Array<{date: string; count: number}>;
+  /** Invitation-side KPIs. The block is always present (zeros when the
+   *  course never used invitations) so the frontend can switch on
+   *  ``invite_counts.total > 0`` rather than checking field
+   *  presence. Only surfaces in the UI when the course is in
+   *  invite-only mode. */
+  invite_counts: {
+    total: number;
+    pending: number;
+    accepted: number;
+    declined: number;
+    revoked: number;
+    expired: number;
+  };
+  invite_acceptance_rate_pct: number;
+  invite_median_decision_hours: number;
+  invite_trend_30d: Array<{date: string; count: number}>;
 }
 
 /**

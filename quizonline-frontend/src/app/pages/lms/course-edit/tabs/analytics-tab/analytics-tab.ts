@@ -74,6 +74,17 @@ export class LmsCourseEditAnalyticsTab {
     () => this.course()?.enrollment_mode === 'approval',
   );
 
+  /** Whether to render the invite-side KPI block. We surface it on
+   *  any course that has at least one invitation row regardless of
+   *  the current mode — an instructor who flips a course back to
+   *  ``open`` after sending invitations should still see what
+   *  happened. */
+  protected readonly showInviteSection = computed(
+    () => (this.analytics()?.invite_counts.total ?? 0) > 0,
+  );
+
+  protected readonly inviteCounts = computed(() => this.analytics()?.invite_counts ?? null);
+
   protected readonly hasData = computed(() => (this.analytics()?.enrollment_counts.total ?? 0) > 0);
 
   protected readonly counts = computed(() => this.analytics()?.enrollment_counts ?? null);

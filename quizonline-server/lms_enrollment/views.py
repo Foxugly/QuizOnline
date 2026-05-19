@@ -284,6 +284,8 @@ def course_analytics(request, course_id: int):
             {"date": day.isoformat(), "count": trend_rows.get(day, 0)}
         )
 
+    invite_block = _course_invite_analytics_block(course, today, earliest)
+
     return Response({
         "enrollment_counts": {
             "total": total,
@@ -298,7 +300,96 @@ def course_analytics(request, course_id: int):
         "median_progress_pct": median_progress_pct,
         "certificates_issued": certificates_issued,
         "enrollment_trend_30d": enrollment_trend_30d,
+        **invite_block,
     })
+
+
+def _course_invite_analytics_block(course, today, earliest):
+    """Return the ``invite_*`` analytics keys for a course's
+    invite-mode dashboard. Always shaped the same way (zeros when
+    the course never used invitations) so the frontend doesn't need
+    to branch on schema presence.
+
+    Metrics:
+
+    * ``invite_counts`` — one count per status (pending / accepted /
+      declined / revoked / expired) plus a total.
+    * ``invite_acceptance_rate_pct`` — accepted / (accepted +
+      declined + expired + revoked). ``pending`` rows are excluded
+      so the rate reflects only invitations that have reached a
+      terminal state.
+    * ``invite_median_decision_hours`` — median hours between
+      ``last_sent_at`` and the decision timestamp on every
+      accepted / declined invite. Zero when nobody decided yet.
+    * ``invite_trend_30d`` — one bucket per day for the last 30
+      days counting invitations created in that bucket. Same shape
+      as ``enrollment_trend_30d``.
+    """
+    invites = CourseInvite.objects.filter(course=course)
+    status_counts = dict(
+        invites.values_list("status").annotate(n=Count("id"))
+    )
+    pending = status_counts.get(CourseInvite.STATUS_PENDING, 0)
+    accepted = status_counts.get(CourseInvite.STATUS_ACCEPTED, 0)
+    declined = status_counts.get(CourseInvite.STATUS_DECLINED, 0)
+    revoked = status_counts.get(CourseInvite.STATUS_REVOKED, 0)
+    expired = status_counts.get(CourseInvite.STATUS_EXPIRED, 0)
+    total = pending + accepted + declined + revoked + expired
+
+    terminal = accepted + declined + revoked + expired
+    invite_acceptance_rate_pct = (
+        round((accepted / terminal) * 100) if terminal > 0 else 0
+    )
+
+    # Median decision latency: how long between ``last_sent_at`` and
+    # the moment the invitee acted (accept or decline). Revoked /
+    # expired rows are excluded — they don't reflect invitee
+    # behaviour.
+    decision_rows = (
+        invites.filter(
+            status__in=[
+                CourseInvite.STATUS_ACCEPTED, CourseInvite.STATUS_DECLINED,
+            ],
+        )
+        .values("last_sent_at", "accepted_at", "declined_at")
+    )
+    decision_hours = []
+    for r in decision_rows:
+        decided = r["accepted_at"] or r["declined_at"]
+        if decided and r["last_sent_at"]:
+            delta = decided - r["last_sent_at"]
+            decision_hours.append(delta.total_seconds() / 3600.0)
+    invite_median_decision_hours = (
+        round(median(decision_hours), 1) if decision_hours else 0
+    )
+
+    # 30-day creation trend.
+    invite_trend_rows = dict(
+        invites.filter(created_at__date__gte=earliest)
+        .annotate(day=TruncDate("created_at"))
+        .values_list("day")
+        .annotate(n=Count("id"))
+    )
+    invite_trend_30d = []
+    for i in range(30):
+        day = earliest + timedelta(days=i)
+        invite_trend_30d.append(
+            {"date": day.isoformat(), "count": invite_trend_rows.get(day, 0)}
+        )
+
+    return {
+        "invite_counts": {
+            "total": total,
+            "pending": pending,
+            "accepted": accepted,
+            "declined": declined,
+            "revoked": revoked,
+            "expired": expired,
+        },
+        "invite_acceptance_rate_pct": invite_acceptance_rate_pct,
+        "invite_median_decision_hours": invite_median_decision_hours,
+        "invite_trend_30d": invite_trend_30d,
+    }
 
 
 @api_view(["GET", "PUT"])

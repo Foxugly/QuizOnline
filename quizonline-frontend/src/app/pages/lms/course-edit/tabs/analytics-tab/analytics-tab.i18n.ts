@@ -28,6 +28,21 @@ export interface LmsCourseEditAnalyticsTabUiText {
   };
   trendHeading: string;
   trendSubtitle: string;
+  invite: {
+    heading: string;
+    subtitle: string;
+    kpi: {
+      total: string;
+      pending: string;
+      accepted: string;
+      declined: string;
+      revoked: string;
+      expired: string;
+      acceptanceRate: string;
+      medianDecisionHours: string;
+    };
+    decisionHoursValue: (hours: number) => string;
+  };
   auditHeading: string;
   auditEmpty: string;
   /** Localized action labels — back-end actions are free-form strings
@@ -71,6 +86,21 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inscriptions sur 30 jours',
         trendSubtitle: 'Nombre de nouvelles inscriptions par jour, fenêtre glissante.',
+        invite: {
+          heading: 'Invitations',
+          subtitle: 'Indicateurs des invitations envoyées sur ce cours.',
+          kpi: {
+            total: 'Total envoyées',
+            pending: 'En attente',
+            accepted: 'Acceptées',
+            declined: 'Refusées',
+            revoked: 'Révoquées',
+            expired: 'Expirées',
+            acceptanceRate: 'Taux d’acceptation',
+            medianDecisionHours: 'Délai médian de décision',
+          },
+          decisionHoursValue: (hours) => `${hours} h`,
+        },
         auditHeading: 'Activité récente',
         auditEmpty: 'Aucune action enregistrée pour le moment.',
         auditAction: (a) => ({
@@ -110,6 +140,21 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inschrijvingen over 30 dagen',
         trendSubtitle: 'Aantal nieuwe inschrijvingen per dag, voortschrijdend venster.',
+        invite: {
+          heading: 'Uitnodigingen',
+          subtitle: 'Indicatoren van uitnodigingen die voor deze cursus zijn verzonden.',
+          kpi: {
+            total: 'Totaal verzonden',
+            pending: 'In behandeling',
+            accepted: 'Geaccepteerd',
+            declined: 'Geweigerd',
+            revoked: 'Ingetrokken',
+            expired: 'Verlopen',
+            acceptanceRate: 'Acceptatiepercentage',
+            medianDecisionHours: 'Mediaan beslistijd',
+          },
+          decisionHoursValue: (hours) => `${hours} u`,
+        },
         auditHeading: 'Recente activiteit',
         auditEmpty: 'Nog geen geregistreerde actie.',
         auditAction: (a) => ({
@@ -149,6 +194,21 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Iscrizioni a 30 giorni',
         trendSubtitle: 'Numero di nuove iscrizioni al giorno, finestra mobile.',
+        invite: {
+          heading: 'Inviti',
+          subtitle: 'Indicatori degli inviti inviati per questo corso.',
+          kpi: {
+            total: 'Totale inviati',
+            pending: 'In attesa',
+            accepted: 'Accettati',
+            declined: 'Rifiutati',
+            revoked: 'Revocati',
+            expired: 'Scaduti',
+            acceptanceRate: 'Tasso di accettazione',
+            medianDecisionHours: 'Tempo mediano di decisione',
+          },
+          decisionHoursValue: (hours) => `${hours} h`,
+        },
         auditHeading: 'Attività recente',
         auditEmpty: 'Nessuna azione registrata al momento.',
         auditAction: (a) => ({
@@ -188,6 +248,21 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Inscripciones a 30 días',
         trendSubtitle: 'Número de nuevas inscripciones por día, ventana deslizante.',
+        invite: {
+          heading: 'Invitaciones',
+          subtitle: 'Indicadores de las invitaciones enviadas para este curso.',
+          kpi: {
+            total: 'Total enviadas',
+            pending: 'Pendientes',
+            accepted: 'Aceptadas',
+            declined: 'Rechazadas',
+            revoked: 'Revocadas',
+            expired: 'Caducadas',
+            acceptanceRate: 'Tasa de aceptación',
+            medianDecisionHours: 'Tiempo medio de decisión',
+          },
+          decisionHoursValue: (hours) => `${hours} h`,
+        },
         auditHeading: 'Actividad reciente',
         auditEmpty: 'Aún no hay acción registrada.',
         auditAction: (a) => ({
@@ -225,6 +300,21 @@ export function getLmsCourseEditAnalyticsTabUiText(
         },
         trendHeading: 'Enrollments over 30 days',
         trendSubtitle: 'Number of new enrollments per day, rolling window.',
+        invite: {
+          heading: 'Invitations',
+          subtitle: 'Metrics on the invitations sent for this course.',
+          kpi: {
+            total: 'Total sent',
+            pending: 'Pending',
+            accepted: 'Accepted',
+            declined: 'Declined',
+            revoked: 'Revoked',
+            expired: 'Expired',
+            acceptanceRate: 'Acceptance rate',
+            medianDecisionHours: 'Median decision time',
+          },
+          decisionHoursValue: (hours) => `${hours} h`,
+        },
         auditHeading: 'Recent activity',
         auditEmpty: 'No action recorded yet.',
         auditAction: (a) => ({

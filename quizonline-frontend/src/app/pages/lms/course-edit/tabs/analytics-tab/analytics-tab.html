@@ -125,6 +125,51 @@
       }
     </section>
 
+    @if (showInviteSection() && inviteCounts(); as ic) {
+      <section class="analytics-invite">
+        <header class="analytics-trend__head">
+          <h3>{{ ui().invite.heading }}</h3>
+          <p class="analytics-trend__subtitle">{{ ui().invite.subtitle }}</p>
+        </header>
+        <ul class="analytics-counters">
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.total }}</span>
+            <span class="analytics-counters__value">{{ ic.total }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.pending }}</span>
+            <span class="analytics-counters__value">{{ ic.pending }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.accepted }}</span>
+            <span class="analytics-counters__value">{{ ic.accepted }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.declined }}</span>
+            <span class="analytics-counters__value">{{ ic.declined }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.revoked }}</span>
+            <span class="analytics-counters__value">{{ ic.revoked }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.expired }}</span>
+            <span class="analytics-counters__value">{{ ic.expired }}</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.acceptanceRate }}</span>
+            <span class="analytics-counters__value">{{ analytics()!.invite_acceptance_rate_pct }} %</span>
+          </li>
+          <li>
+            <span class="analytics-counters__label">{{ ui().invite.kpi.medianDecisionHours }}</span>
+            <span class="analytics-counters__value">
+              {{ ui().invite.decisionHoursValue(analytics()!.invite_median_decision_hours) }}
+            </span>
+          </li>
+        </ul>
+      </section>
+    }
+
     <section class="analytics-audit">
       <header class="analytics-trend__head">
         <h3>{{ ui().auditHeading }}</h3>
