@@ -16,6 +16,20 @@
   letter-spacing: 0.02em;
 }
 
+/* Pin the lesson title to a single centered line. The shared
+ * PageHeader's title wraps by default — that's fine on pages with
+ * short titles and chunky side slots, but a learner-facing lesson
+ * title looks better intact even when long, with overflow collapsing
+ * into an ellipsis rather than stacking two or three lines above the
+ * content. ``min-width: 0`` is required for ``text-overflow`` to
+ * activate inside the grid track. */
+:host ::ng-deep app-page-header .page-header__title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 .lesson-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
