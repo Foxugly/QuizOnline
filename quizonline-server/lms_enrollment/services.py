@@ -24,6 +24,9 @@ from .models import (
     _default_course_invite_expiry,
 )
 from .notifications import (
+    make_course_invite_accepted_email_callable,
+    make_course_invite_received_email_callable,
+    make_course_invite_sent_email_callable,
     notify_certificate_issued_on_commit,
     notify_course_completed_on_commit,
     notify_enrollment_approved_on_commit,
@@ -309,6 +312,7 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
         kind=KIND_COURSE_INVITE_RECEIVED,
         payload=payload,
         domain=course.domain,
+        email_callable=make_course_invite_received_email_callable(invite),
     )
     # Notify the inviter that the send went through (confirmation).
     if inviter is not None:
@@ -317,6 +321,7 @@ def invite_user_to_course(*, course: Course, invitee, inviter) -> CourseInvite:
             kind=KIND_COURSE_INVITE_SENT,
             payload=payload,
             domain=course.domain,
+            email_callable=make_course_invite_sent_email_callable(invite),
         )
     return invite
 
@@ -375,6 +380,7 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
             kind=KIND_COURSE_INVITE_ACCEPTED,
             payload=payload,
             domain=invite.course.domain,
+            email_callable=make_course_invite_accepted_email_callable(invite),
         )
     return enrollment
 
@@ -427,6 +433,7 @@ def resend_course_invite(*, invite: CourseInvite, sender) -> CourseInvite:
         kind=KIND_COURSE_INVITE_RECEIVED,
         payload=payload,
         domain=invite.course.domain,
+        email_callable=make_course_invite_received_email_callable(invite),
     )
     return invite
 

@@ -1,0 +1,10 @@
+{% load i18n %}{% blocktrans with name=invite.invitee.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with inviter=invite.inviter.get_display_name course=invite.course %}{{ inviter }} has invited you to join the course {{ course }}.{% endblocktrans %}
+
+{% blocktrans with expires_at=invite.expires_at|date:"DATETIME_FORMAT" %}You have until {{ expires_at }} to accept this invitation.{% endblocktrans %}
+
+{% trans "Accept the invitation:" %} {{ accept_url }}
+
+{% trans "Best regards," %}
+QuizOnline

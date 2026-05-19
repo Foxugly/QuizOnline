@@ -1,0 +1,8 @@
+{% load i18n %}{% blocktrans with name=invite.inviter.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with invitee=invite.invitee.get_display_name course=invite.course %}{{ invitee }} has accepted your invitation to the course {{ course }}.{% endblocktrans %}
+
+{% trans "They now have access to the course materials." %}
+
+{% trans "Best regards," %}
+QuizOnline

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-18 02:31+0200\n"
+"POT-Creation-Date: 2026-05-19 12:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,529 +17,503 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\config\settings_base.py:180
 msgid "English"
 msgstr ""
 
-#: .\config\settings_base.py:181
 msgid "French"
 msgstr ""
 
-#: .\config\settings_base.py:182
 msgid "Dutch"
 msgstr ""
 
-#: .\config\settings_base.py:183
 msgid "Italy"
 msgstr ""
 
-#: .\config\settings_base.py:184
 msgid "Spain"
 msgstr ""
 
-#: .\customuser\admin.py:17
 msgid "Personal info"
 msgstr ""
 
-#: .\customuser\admin.py:18
 msgid "Domains"
 msgstr ""
 
-#: .\customuser\admin.py:19
 msgid "Security"
 msgstr ""
 
-#: .\customuser\admin.py:20
 msgid "Permissions"
 msgstr ""
 
-#: .\customuser\admin.py:21
 msgid "Important dates"
 msgstr ""
 
-#: .\customuser\admin.py:34
 msgid "Password change required"
 msgstr ""
 
-#: .\customuser\admin.py:38
 msgid "Owned domains"
 msgstr ""
 
-#: .\customuser\admin.py:42
 msgid "Managed domains"
 msgstr ""
 
-#: .\customuser\admin.py:46
 msgid "Linked domains"
 msgstr ""
 
-#: .\customuser\models.py:11
 msgid "email address"
 msgstr ""
 
-#: .\customuser\models.py:12
 msgid "language"
 msgstr ""
 
-#: .\domain\admin.py:52
 msgid "Languages & access"
 msgstr ""
 
-#: .\domain\admin.py:53
 msgid "Dates"
 msgstr ""
 
-#: .\domain\admin.py:68
 msgid "Name"
 msgstr ""
 
-#: .\domain\admin.py:73
 msgid "Allowed languages"
 msgstr ""
 
-#: .\domain\admin.py:77
 msgid "Staff"
 msgstr ""
 
-#: .\domain\admin.py:81
 msgid "Members"
 msgstr ""
 
-#: .\domain\models.py:17
 msgid "Automatic"
 msgstr ""
 
-#: .\domain\models.py:18
 msgid "Owner validation"
 msgstr ""
 
-#: .\domain\models.py:19
 msgid "Owner or managers validation"
 msgstr ""
 
-#: .\domain\models.py:28 .\language\models.py:20 .\subject\admin.py:39
-#: .\subject\models.py:9
 msgid "name"
 msgstr ""
 
-#: .\domain\models.py:29 .\lms_catalog\models.py:59 .\lms_catalog\models.py:96
-#: .\subject\models.py:10
 msgid "description"
 msgstr "beschrijving"
 
-#: .\domain\models.py:116 .\domain\models.py:199
 msgid "Pending"
 msgstr ""
 
-#: .\domain\models.py:117
 msgid "Approved"
 msgstr ""
 
-#: .\domain\models.py:118
 msgid "Rejected"
 msgstr ""
 
-#: .\domain\models.py:119 .\lms_enrollment\models.py:18
 msgid "Cancelled"
 msgstr "Geannuleerd"
 
-#: .\domain\models.py:200
 msgid "Accepted"
 msgstr ""
 
-#: .\domain\models.py:201
 msgid "Revoked"
 msgstr ""
 
-#: .\language\models.py:13
 msgid "code"
 msgstr ""
 
-#: .\language\models.py:16
 msgid "Code ISO (ex: fr, nl, en, fr-BE)"
 msgstr ""
 
-#: .\language\models.py:22
 msgid "Nom lisible (ex: Français, Nederlands, English)"
 msgstr ""
 
-#: .\language\models.py:26
 msgid "active"
 msgstr ""
 
-#: .\language\models.py:28
 msgid "Langue disponible pour la saisie et l'affichage"
 msgstr ""
 
-#: .\language\models.py:35
 msgid "Language"
 msgstr ""
 
-#: .\language\models.py:36
 msgid "Languages"
 msgstr ""
 
-#: .\lms_assessment\models.py:21
 msgid "0 = unlimited."
 msgstr "0 = onbeperkt."
 
-#: .\lms_assessment\models.py:44
 msgid "LessonQuiz must reference either a lesson or a course (exactly one)."
 msgstr "LessonQuiz moet verwijzen naar een les of een cursus (precies één)."
 
-#: .\lms_assessment\models.py:51
 msgid "Quiz must belong to the same domain as the target."
 msgstr "Quiz moet tot hetzelfde domein als het doel behoren."
 
-#: .\lms_catalog\models.py:22
 msgid "Beginner"
 msgstr "Beginner"
 
-#: .\lms_catalog\models.py:23
 msgid "Intermediate"
 msgstr "Gevorderd"
 
-#: .\lms_catalog\models.py:24
 msgid "Advanced"
 msgstr "Geavanceerd"
 
-#: .\lms_catalog\models.py:31
 msgid "Open enrollment"
 msgstr "Open inschrijving"
 
-#: .\lms_catalog\models.py:32
 msgid "Requires approval"
 msgstr "Vereist goedkeuring"
 
-#: .\lms_catalog\models.py:33
 msgid "Invite-only"
 msgstr "Alleen op uitnodiging"
 
-#: .\lms_catalog\models.py:44
 msgid "Primary language of the course."
 msgstr "Hoofdtaal van de cursus."
 
-#: .\lms_catalog\models.py:47
 msgid "Total expected duration in minutes."
 msgstr "Totale verwachte duur in minuten."
 
-#: .\lms_catalog\models.py:58 .\lms_catalog\models.py:95
-#: .\lms_catalog\models.py:120 .\lms_catalog\models.py:181
-#: .\question\admin.py:196 .\question\models.py:35
 msgid "title"
 msgstr "titel"
 
-#: .\lms_catalog\models.py:60
 msgid "learning objectives"
 msgstr "leerdoelen"
 
-#: .\lms_catalog\models.py:78
 msgid "Published courses must have published_at set."
 msgstr "Gepubliceerde cursussen moeten published_at hebben ingesteld."
 
-#: .\lms_catalog\models.py:82
 msgid "Configure allowed_languages on the domain before creating courses."
 msgstr "Stel allowed_languages in op het domein voor je cursussen aanmaakt."
 
-#: .\lms_catalog\models.py:85
 msgid "Course primary language must be one of the domain's allowed languages."
 msgstr "De hoofdtaal van de cursus moet een van de toegestane talen van het domein zijn."
 
-#: .\lms_catalog\models.py:121
 msgid "short description"
 msgstr "korte beschrijving"
 
-#: .\lms_catalog\models.py:147
 msgid "Rich text"
 msgstr "Opgemaakte tekst"
 
-#: .\lms_catalog\models.py:148
 msgid "Image"
 msgstr "Afbeelding"
 
-#: .\lms_catalog\models.py:149
 msgid "Video"
 msgstr "Video"
 
-#: .\lms_catalog\models.py:150
 msgid "File"
 msgstr "Bestand"
 
-#: .\lms_catalog\models.py:151
 msgid "Quiz"
 msgstr "Quiz"
 
-#: .\lms_catalog\models.py:152
 msgid "Callout"
 msgstr "Aandachtsblok"
 
-#: .\lms_catalog\models.py:153
 msgid "Code"
 msgstr "Code"
 
-#: .\lms_catalog\models.py:154
 msgid "Embed"
 msgstr "Insluiting"
 
-#: .\lms_catalog\models.py:159
 msgid "Self-hosted"
 msgstr "Lokaal gehost"
 
-#: .\lms_catalog\models.py:182
 msgid "rich text"
 msgstr "opgemaakte tekst"
 
-#: .\lms_catalog\models.py:183
 msgid "callout text"
 msgstr "aandachtstekst"
 
-#: .\lms_catalog\models.py:231
 #, python-format
 msgid "ContentBlock of type %(t)s is missing its required payload."
 msgstr "ContentBlock van type %(t)s mist zijn vereiste payload."
 
-#: .\lms_catalog\models.py:237
 msgid "Quiz must belong to the same domain as the course."
 msgstr "Quiz moet tot hetzelfde domein als de cursus behoren."
 
-#: .\lms_catalog\services.py:23
+msgid "Unsupported export payload version."
+msgstr ""
+
+#, fuzzy
+#| msgid "ID mismatch in reorder payload."
+msgid "Missing \"course\" payload."
+msgstr "ID-mismatch in herschikkingsverzoek."
+
+msgid "Target domain has no allowed_languages configured."
+msgstr ""
+
+#, fuzzy, python-brace-format
+#| msgid "Course primary language must be one of the domain's allowed languages."
+msgid "Course primary language \"{c}\" not allowed in target domain."
+msgstr "De hoofdtaal van de cursus moet een van de toegestane talen van het domein zijn."
+
+#, python-brace-format
+msgid "Unknown language \"{c}\"."
+msgstr ""
+
 msgid "Cannot publish a course with no published content."
 msgstr "Kan een cursus zonder gepubliceerde inhoud niet publiceren."
 
-#: .\lms_catalog\services.py:42
 msgid "ID mismatch in reorder payload."
 msgstr "ID-mismatch in herschikkingsverzoek."
 
-#: .\lms_enrollment\models.py:15
 msgid "Pending approval"
 msgstr "In afwachting van goedkeuring"
 
-#: .\lms_enrollment\models.py:16
 msgid "Active"
 msgstr "Actief"
 
-#: .\lms_enrollment\models.py:17
 msgid "Completed"
 msgstr "Voltooid"
 
-#: .\lms_enrollment\notifications.py:32
+msgid "Declined"
+msgstr "Geweigerd"
+
+msgid "Expired"
+msgstr "Verlopen"
+
 #, python-format
 msgid "Welcome to %(course)s"
 msgstr "Welkom bij %(course)s"
 
-#: .\lms_enrollment\notifications.py:47
 #, python-format
 msgid "Your enrollment to %(course)s was approved"
 msgstr "Je inschrijving voor %(course)s is goedgekeurd"
 
-#: .\lms_enrollment\notifications.py:62
 #, python-format
 msgid "Your enrollment to %(course)s was not approved"
 msgstr "Je inschrijving voor %(course)s is niet goedgekeurd"
 
-#: .\lms_enrollment\notifications.py:77
 #, python-format
 msgid "You completed %(course)s"
 msgstr "Je hebt %(course)s voltooid"
 
-#: .\lms_enrollment\notifications.py:92
 #, python-format
 msgid "Your certificate for %(course)s is ready"
 msgstr "Je certificaat voor %(course)s is klaar"
 
-#: .\lms_enrollment\pdf_export.py:20
+#, fuzzy, python-format
+#| msgid "Welcome to %(course)s"
+msgid "Invitation to join %(course)s"
+msgstr "Welkom bij %(course)s"
+
+#, python-format
+msgid "Invitation sent for %(course)s"
+msgstr "Uitnodiging verzonden voor %(course)s"
+
+#, python-format
+msgid "%(invitee)s accepted your invitation"
+msgstr "%(invitee)s heeft je uitnodiging geaccepteerd"
+
 msgid "Certificate of Completion"
 msgstr "Certificaat van voltooiing"
 
-#: .\lms_enrollment\pdf_export.py:21
 msgid "has completed the course"
 msgstr "heeft de cursus voltooid"
 
-#: .\lms_enrollment\pdf_export.py:22
 #, python-format
 msgid "Issued on %(date)s"
 msgstr "Uitgegeven op %(date)s"
 
-#: .\lms_enrollment\pdf_export.py:23
 #, python-format
 msgid "Certificate №: %(num)s"
 msgstr "Certificaat nr. %(num)s"
 
-#: .\lms_enrollment\pdf_export.py:24
 #, python-format
 msgid "Verification token: %(t)s"
 msgstr "Verificatietoken: %(t)s"
 
-#: .\lms_enrollment\services.py:47
 msgid "Course is invite-only."
 msgstr "Cursus is alleen op uitnodiging."
 
-#: .\lms_enrollment\services.py:70 .\lms_enrollment\services.py:85
 msgid "Enrollment is not pending."
 msgstr "Inschrijving is niet in afwachting."
 
-#: .\question\admin.py:47
+#, fuzzy
+#| msgid "Course is invite-only."
+msgid "Course is not invite-only."
+msgstr "Cursus is alleen op uitnodiging."
+
+msgid "Only instructors can invite to this course."
+msgstr "Alleen instructeurs kunnen uitnodigen voor deze cursus."
+
+msgid "Invitee must be a member of the course's domain."
+msgstr "De genodigde moet lid zijn van het domein van de cursus."
+
+msgid "You cannot invite yourself."
+msgstr "Je kunt jezelf niet uitnodigen."
+
+msgid "User is already enrolled in this course."
+msgstr "De gebruiker is al ingeschreven voor deze cursus."
+
+msgid "Only the invitee can accept this invitation."
+msgstr "Alleen de genodigde kan deze uitnodiging accepteren."
+
+#, fuzzy
+#| msgid "Enrollment is not pending."
+msgid "Invitation is not pending."
+msgstr "Inschrijving is niet in afwachting."
+
+msgid "Invitation has expired."
+msgstr "De uitnodiging is verlopen."
+
+msgid "Only the invitee can decline this invitation."
+msgstr "Alleen de genodigde kan deze uitnodiging weigeren."
+
+msgid "Only instructors can revoke this invitation."
+msgstr "Alleen instructeurs kunnen deze uitnodiging intrekken."
+
+msgid "Only instructors can resend this invitation."
+msgstr "Alleen instructeurs kunnen deze uitnodiging opnieuw verzenden."
+
 msgid "A Question must have at least 2 possible answers."
 msgstr ""
 
-#: .\question\admin.py:52
 msgid "Indique au moins une réponse correcte."
 msgstr ""
 
-#: .\question\admin.py:56
 msgid "Only ONE answer allowed."
 msgstr ""
 
-#: .\question\admin.py:182 .\subject\admin.py:32
 msgid "Référence"
 msgstr ""
 
-#: .\question\admin.py:183
 msgid "Modes"
 msgstr ""
 
-#: .\question\admin.py:184
 msgid "Réponses"
 msgstr ""
 
-#: .\question\admin.py:185 .\subject\admin.py:33
 msgid "Traductions"
 msgstr ""
 
-#: .\question\admin.py:215
 #, python-format
 msgid "Erreur de validation: %s"
 msgstr ""
 
-#: .\question\admin.py:261
 msgid "content"
 msgstr ""
 
-#: .\question\models.py:36
 msgid "Description"
 msgstr ""
 
-#: .\question\models.py:37
 msgid "Explanation"
 msgstr ""
 
-#: .\question\models.py:153
 msgid "possible answer"
 msgstr ""
 
-#: .\templates\emails\lms\certificate-issued.html:2
-#: .\templates\emails\lms\certificate-issued.txt:1
-#: .\templates\emails\lms\enrollment-approved.html:2
-#: .\templates\emails\lms\enrollment-approved.txt:1
-#: .\templates\emails\lms\enrollment-created.html:2
-#: .\templates\emails\lms\enrollment-created.txt:1
-#: .\templates\emails\lms\enrollment-rejected.html:2
-#: .\templates\emails\lms\enrollment-rejected.txt:1
 #, python-format
 msgid "Hello %(name)s,"
 msgstr "Hallo %(name)s,"
 
-#: .\templates\emails\lms\certificate-issued.html:4
 #, python-format
 msgid "Your certificate for <strong>%(course)s</strong> is ready."
 msgstr "Je certificaat voor <strong>%(course)s</strong> is klaar."
 
-#: .\templates\emails\lms\certificate-issued.html:6
-#: .\templates\emails\lms\certificate-issued.txt:5
 #, python-format
 msgid "Certificate number: %(num)s"
 msgstr "Certificaatnummer: %(num)s"
 
-#: .\templates\emails\lms\certificate-issued.html:8
-#: .\templates\emails\lms\certificate-issued.txt:7
 msgid "You can download the PDF from your certificates page on QuizOnline."
 msgstr "Je kan de PDF downloaden vanuit je certificaten-pagina op QuizOnline."
 
-#: .\templates\emails\lms\certificate-issued.html:10
-#: .\templates\emails\lms\certificate-issued.txt:9
-#: .\templates\emails\lms\course-completed.html:8
-#: .\templates\emails\lms\course-completed.txt:7
-#: .\templates\emails\lms\enrollment-approved.html:8
-#: .\templates\emails\lms\enrollment-approved.txt:7
-#: .\templates\emails\lms\enrollment-created.html:12
-#: .\templates\emails\lms\enrollment-created.txt:8
-#: .\templates\emails\lms\enrollment-rejected.html:8
-#: .\templates\emails\lms\enrollment-rejected.txt:7
 msgid "Best regards,"
 msgstr "Met vriendelijke groet,"
 
-#: .\templates\emails\lms\certificate-issued.txt:3
 #, python-format
 msgid "Your certificate for %(course)s is ready."
 msgstr "Je certificaat voor %(course)s is klaar."
 
-#: .\templates\emails\lms\course-completed.html:2
-#: .\templates\emails\lms\course-completed.txt:1
 #, python-format
 msgid "Congratulations %(name)s!"
 msgstr "Gefeliciteerd %(name)s!"
 
-#: .\templates\emails\lms\course-completed.html:4
 #, python-format
 msgid "You have successfully completed <strong>%(course)s</strong>."
 msgstr "Je hebt <strong>%(course)s</strong> succesvol voltooid."
 
-#: .\templates\emails\lms\course-completed.html:6
-#: .\templates\emails\lms\course-completed.txt:5
 msgid "Your certificate is being prepared and will be available shortly."
 msgstr "Je certificaat wordt voorbereid en is binnenkort beschikbaar."
 
-#: .\templates\emails\lms\course-completed.txt:3
 #, python-format
 msgid "You have successfully completed %(course)s."
 msgstr "Je hebt %(course)s succesvol voltooid."
 
-#: .\templates\emails\lms\enrollment-approved.html:4
+#, python-format
+msgid "%(invitee)s has accepted your invitation to the course <strong>%(course)s</strong>."
+msgstr "%(invitee)s heeft je uitnodiging voor de cursus <strong>%(course)s</strong> geaccepteerd."
+
+#, fuzzy
+#| msgid "You can now access the course content."
+msgid "They now have access to the course materials."
+msgstr "Je hebt nu toegang tot de cursusinhoud."
+
+#, python-format
+msgid "%(invitee)s has accepted your invitation to the course %(course)s."
+msgstr "%(invitee)s heeft je uitnodiging voor de cursus %(course)s geaccepteerd."
+
+#, fuzzy, python-format
+#| msgid "You have been enrolled in <strong>%(course)s</strong>."
+msgid "%(inviter)s has invited you to join the course <strong>%(course)s</strong>."
+msgstr "Je bent ingeschreven voor <strong>%(course)s</strong>."
+
+#, python-format
+msgid "You have until %(expires_at)s to accept this invitation."
+msgstr "Je hebt tot %(expires_at)s om deze uitnodiging te accepteren."
+
+msgid "Accept the invitation"
+msgstr "Uitnodiging accepteren"
+
+#, python-format
+msgid "%(inviter)s has invited you to join the course %(course)s."
+msgstr "%(inviter)s nodigt je uit om deel te nemen aan de cursus %(course)s."
+
+msgid "Accept the invitation:"
+msgstr "Uitnodiging accepteren:"
+
+#, fuzzy, python-format
+#| msgid "You have been enrolled in <strong>%(course)s</strong>."
+msgid "Your invitation has been sent to %(invitee)s for the course <strong>%(course)s</strong>."
+msgstr "Je bent ingeschreven voor <strong>%(course)s</strong>."
+
+#, python-format
+msgid "It will expire on %(expires_at)s if not accepted."
+msgstr "De uitnodiging vervalt op %(expires_at)s als deze niet wordt geaccepteerd."
+
+#, python-format
+msgid "Your invitation has been sent to %(invitee)s for the course %(course)s."
+msgstr "Je uitnodiging is verzonden naar %(invitee)s voor de cursus %(course)s."
+
 #, python-format
 msgid "Your enrollment to <strong>%(course)s</strong> has been approved."
 msgstr "Je inschrijving voor <strong>%(course)s</strong> is goedgekeurd."
 
-#: .\templates\emails\lms\enrollment-approved.html:6
-#: .\templates\emails\lms\enrollment-approved.txt:5
 msgid "You can now access the course content."
 msgstr "Je hebt nu toegang tot de cursusinhoud."
 
-#: .\templates\emails\lms\enrollment-approved.txt:3
 #, python-format
 msgid "Your enrollment to %(course)s has been approved."
 msgstr "Je inschrijving voor %(course)s is goedgekeurd."
 
-#: .\templates\emails\lms\enrollment-created.html:4
 #, python-format
 msgid "You have been enrolled in <strong>%(course)s</strong>."
 msgstr "Je bent ingeschreven voor <strong>%(course)s</strong>."
 
-#: .\templates\emails\lms\enrollment-created.html:7
-#: .\templates\emails\lms\enrollment-created.txt:5
 msgid "Your enrollment is awaiting approval from an instructor."
 msgstr "Je inschrijving wacht op goedkeuring van een instructeur."
 
-#: .\templates\emails\lms\enrollment-created.html:9
-#: .\templates\emails\lms\enrollment-created.txt:6
 msgid "You can start the course right away."
 msgstr "Je kan meteen aan de cursus beginnen."
 
-#: .\templates\emails\lms\enrollment-created.txt:3
 #, python-format
 msgid "You have been enrolled in %(course)s."
 msgstr "Je bent ingeschreven voor %(course)s."
 
-#: .\templates\emails\lms\enrollment-rejected.html:4
 #, python-format
 msgid "Your enrollment to <strong>%(course)s</strong> was not approved."
 msgstr "Je inschrijving voor <strong>%(course)s</strong> is niet goedgekeurd."
 
-#: .\templates\emails\lms\enrollment-rejected.html:6
-#: .\templates\emails\lms\enrollment-rejected.txt:5
 msgid "If you believe this is a mistake, please contact the course instructor."
 msgstr "Als je denkt dat dit een fout is, neem contact op met de instructeur."
 
-#: .\templates\emails\lms\enrollment-rejected.txt:3
 #, python-format
 msgid "Your enrollment to %(course)s was not approved."
 msgstr "Je inschrijving voor %(course)s is niet goedgekeurd."

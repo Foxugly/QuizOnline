@@ -1,0 +1,10 @@
+{% load i18n %}
+<p>{% blocktrans with name=invite.invitee.get_display_name %}Hello {{ name }},{% endblocktrans %}</p>
+
+<p>{% blocktrans with inviter=invite.inviter.get_display_name course=invite.course %}{{ inviter }} has invited you to join the course <strong>{{ course }}</strong>.{% endblocktrans %}</p>
+
+<p>{% blocktrans with expires_at=invite.expires_at|date:"DATETIME_FORMAT" %}You have until {{ expires_at }} to accept this invitation.{% endblocktrans %}</p>
+
+<p><a href="{{ accept_url }}">{% trans "Accept the invitation" %}</a></p>
+
+<p>{% trans "Best regards," %}<br>QuizOnline</p>

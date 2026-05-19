@@ -98,3 +98,91 @@ def notify_certificate_issued_on_commit(cert) -> None:
             context={"cert": cert}, lang=lang,
         )
     transaction.on_commit(_send)
+
+
+def _build_invite_accept_url(invite) -> str:
+    """Absolute URL the invitee clicks to land on the acceptance page.
+
+    The frontend route lives under ``/lms/course-invite/<token>/`` —
+    we prefix it with the configured ``FRONTEND_BASE_URL`` so emails
+    work whether the mail server resolves relative links or not.
+    """
+    base = getattr(settings, "FRONTEND_BASE_URL", "").rstrip("/")
+    return f"{base}/lms/course-invite/{invite.token}/"
+
+
+def _on_commit(callable_) -> None:
+    """Hook a function onto the current transaction's commit so emails
+    only go out after the DB write actually succeeds. Used by the
+    course-invite email callables — the orchestrator
+    ``customuser.notifications.notify`` calls them immediately, so we
+    defer the actual ``send_mail`` ourselves."""
+    transaction.on_commit(callable_)
+
+
+def make_course_invite_received_email_callable(invite):
+    """Return a zero-arg callable that emails the invitee. Used by
+    ``customuser.notifications.notify(email_callable=...)`` so the
+    domain × user pref intersection decides whether to actually fire.
+    Sends are deferred to ``transaction.on_commit`` so a failed
+    transaction does not leak an email about a row that never
+    persisted."""
+    def _send():
+        def _do_send():
+            lang = invite.invitee.language or "fr"
+            with translation.override(lang):
+                subject = _("Invitation to join %(course)s") % {
+                    "course": invite.course.safe_translation_getter(
+                        "title", language_code=lang, any_language=True,
+                    ) or "",
+                }
+            _send_html_email(
+                to_email=invite.invitee.email, subject=subject,
+                template_base="course-invite-received",
+                context={"invite": invite, "accept_url": _build_invite_accept_url(invite)},
+                lang=lang,
+            )
+        _on_commit(_do_send)
+    return _send
+
+
+def make_course_invite_sent_email_callable(invite):
+    """Confirmation email to the inviter — same on-commit deferral."""
+    def _send():
+        def _do_send():
+            if invite.inviter is None or not invite.inviter.email:
+                return
+            lang = invite.inviter.language or "fr"
+            with translation.override(lang):
+                subject = _("Invitation sent for %(course)s") % {
+                    "course": invite.course.safe_translation_getter(
+                        "title", language_code=lang, any_language=True,
+                    ) or "",
+                }
+            _send_html_email(
+                to_email=invite.inviter.email, subject=subject,
+                template_base="course-invite-sent",
+                context={"invite": invite}, lang=lang,
+            )
+        _on_commit(_do_send)
+    return _send
+
+
+def make_course_invite_accepted_email_callable(invite):
+    """Notification to the inviter that the invitee accepted — on-commit."""
+    def _send():
+        def _do_send():
+            if invite.inviter is None or not invite.inviter.email:
+                return
+            lang = invite.inviter.language or "fr"
+            with translation.override(lang):
+                subject = _("%(invitee)s accepted your invitation") % {
+                    "invitee": invite.invitee.get_display_name(),
+                }
+            _send_html_email(
+                to_email=invite.inviter.email, subject=subject,
+                template_base="course-invite-accepted",
+                context={"invite": invite}, lang=lang,
+            )
+        _on_commit(_do_send)
+    return _send
