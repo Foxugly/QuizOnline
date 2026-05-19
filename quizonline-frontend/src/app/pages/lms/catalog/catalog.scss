@@ -30,6 +30,7 @@
    * inside the footer slot — the previous p-card + multiple
    * <ng-template> setup occasionally produced a duplicate render). */
   .course-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -46,6 +47,19 @@
     }
   }
 
+  /* Instructor-only edit affordance. Absolutely positioned so it
+   * doesn't disturb the existing column flow of the card body; the
+   * card-level ``padding-right`` keeps the title from sliding under
+   * the icon. Hidden by default — only rendered when the host
+   * component computes ``editHref`` (caller is owner / manager of
+   * the course's domain, or superuser). */
+  .course-card__edit {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
+  }
+
   .course-card__head {
     display: flex;
     flex-direction: column;
@@ -54,6 +68,11 @@
 
   .course-card__title {
     margin: 0;
+    /* Reserve space on the right so the title text never slides
+     * under the absolutely-positioned instructor Edit button. The
+     * value matches the button's expected width (~ 2.25rem) + its
+     * right offset. */
+    padding-right: 2.5rem;
     font-size: 1.05rem;
     line-height: 1.3;
   }

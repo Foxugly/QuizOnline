@@ -59,6 +59,19 @@
     <div class="grid-wrapper">
       @for (course of cards(); track course.id) {
         <article class="course-card" [class.course-card--enrolled]="course.isEnrolled">
+          @if (course.editHref; as editHref) {
+            <p-button
+              class="course-card__edit"
+              type="button"
+              severity="secondary"
+              [outlined]="true"
+              icon="pi pi-pencil"
+              size="small"
+              [routerLink]="editHref"
+              [pTooltip]="editorUi().common.edit"
+              tooltipPosition="bottom"
+              [attr.aria-label]="editorUi().common.edit" />
+          }
           <header class="course-card__head">
             <h3 class="course-card__title">{{ course.title }}</h3>
             <div class="course-card__meta">

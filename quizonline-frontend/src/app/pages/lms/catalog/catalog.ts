@@ -8,8 +8,9 @@ import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
 
-import {LMS_COURSE_DETAIL, LMS_COURSE_LIST, LMS_COURSE_NEW, LMS_LESSON_VIEW} from '../../../app.routes-paths';
+import {LMS_COURSE_DETAIL, LMS_COURSE_EDIT, LMS_COURSE_LIST, LMS_COURSE_NEW, LMS_LESSON_VIEW} from '../../../app.routes-paths';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {DomainService} from '../../../services/domain/domain';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -27,6 +28,11 @@ import {getLmsCatalogUiText} from './catalog.i18n';
 interface CatalogCourseRow {
   id: number;
   slug: string;
+  /** Domain id — needed to derive whether the caller can manage this
+   *  course (owns or manages its domain). Not currently surfaced as
+   *  ``can_manage`` on :class:`CourseListSerializer`, so we resolve
+   *  it client-side against the user's manageable domain set. */
+  domain: number;
   level: 'beginner' | 'intermediate' | 'advanced';
   enrollment_mode: 'open' | 'approval' | 'invite';
   translations?: TranslationsMap;
@@ -54,6 +60,10 @@ interface CatalogCardVm {
    *  next-uncompleted lesson; ``null`` otherwise (the card just routes
    *  to the course detail). */
   continueHref: string | null;
+  /** Edit deep-link surfaced as a small action button at the top-right
+   *  of the card for instructors only (owner / manager of the course's
+   *  domain, or superuser). ``null`` hides the button entirely. */
+  editHref: string | null;
   lessonCountLabel: string | null;
   durationLabel: string | null;
   isEnrolled: boolean;
@@ -69,6 +79,7 @@ interface CatalogCardVm {
     InputTextModule,
     SelectModule,
     TagModule,
+    TooltipModule,
     PageHeader,
   ],
   templateUrl: './catalog.html',
@@ -88,6 +99,10 @@ export class LmsCatalog implements OnInit {
 
   protected readonly ui = this.uiSvc.localized(getLmsCatalogUiText);
   protected readonly common = this.uiSvc.localized(getLmsCommonUiText);
+  /** Shared "Edit" label served by the editor-scoped i18n dictionary
+   *  — reused on the per-card instructor Edit button so we don't add
+   *  a duplicate string to the catalog's own i18n. */
+  protected readonly editorUi = this.uiSvc.editor;
   protected readonly currentLang = this.userService.lang;
 
   protected readonly courses = signal<CatalogCourseRow[]>([]);
@@ -113,6 +128,28 @@ export class LmsCatalog implements OnInit {
     ];
   });
 
+  /** Set of domain ids the caller owns or manages. Drives the
+   *  per-card Edit button visibility — superusers see Edit on every
+   *  card by policy, instructors only on cards in their own domains.
+   *  ``availableDomains`` is the same list that backs the create-
+   *  course gate, so the two affordances stay in sync. */
+  private readonly manageableDomainIds = computed(() => {
+    const me = this.userService.currentUser();
+    if (!me) {
+      return new Set<number>();
+    }
+    if (me.is_superuser) {
+      return new Set(this.availableDomains().map((d) => d.id));
+    }
+    const ids = new Set<number>();
+    for (const d of this.availableDomains()) {
+      if (this.canManage(d)) {
+        ids.add(d.id);
+      }
+    }
+    return ids;
+  });
+
   /** Domain dropdown options. Re-uses the same label helper as the
    *  topmenu's domain selector so the rendered name stays consistent. */
   protected readonly domainOptions = computed(() => {
@@ -128,10 +165,12 @@ export class LmsCatalog implements OnInit {
     const ui = this.ui();
     const levelLabels = this.common().levelLabels;
     const enrollmentLabels = ui.enrollmentBadge;
+    const manageable = this.manageableDomainIds();
     return this.courses().map((c) => {
       const me = c.my_enrollment ?? null;
       const enrolled = !!me && me.status !== 'cancelled';
       const nextLessonId = me?.next_lesson_id ?? null;
+      const canManage = manageable.has(c.domain);
       return {
         id: c.id,
         slug: c.slug,
@@ -143,6 +182,7 @@ export class LmsCatalog implements OnInit {
         ),
         href: LMS_COURSE_DETAIL(c.slug),
         continueHref: enrolled && nextLessonId ? LMS_LESSON_VIEW(nextLessonId) : null,
+        editHref: canManage ? LMS_COURSE_EDIT(c.id) : null,
         lessonCountLabel: typeof c.lesson_count === 'number' && c.lesson_count > 0
           ? ui.lessonCount(c.lesson_count) : null,
         durationLabel: typeof c.total_duration_minutes === 'number' && c.total_duration_minutes > 0
