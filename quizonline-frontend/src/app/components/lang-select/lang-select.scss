@@ -6,22 +6,29 @@
   position: relative;
 }
 
+/* Same visual language as the other topbar action triggers
+ * (.alert-link, .bell, .domain-trigger, .user-trigger) — pill radius,
+ * muted text matching the nav__link colour, hover lifts to white. */
 .lang-select__trigger {
   align-items: center;
   background: transparent;
-  border: none;
-  color: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: rgba(226, 232, 240, 0.88);
   cursor: pointer;
   display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 600;
   gap: 0.45rem;
   min-height: 2.5rem;
   min-width: 0;
-  padding: 0.4rem 0.6rem;
+  padding: 0.45rem 0.7rem;
 }
 
 .lang-select__trigger:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 0.5rem;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #fff;
 }
 
 .lang-select__menu {

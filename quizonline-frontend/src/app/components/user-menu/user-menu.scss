@@ -7,28 +7,31 @@
   position: relative;
 }
 
-/* Sized to match the rest of the topbar action triggers
- * (.alert-link, .lang-select__trigger, .bell) so the hover surface
- * stays consistent across notifications, messages, language and
- * username. */
+/* Mirrors the .nav__link style on the left side of the topbar
+ * (font-size, weight, muted text colour, pill radius, hover surface)
+ * so messages, notifications, domain, language and username share a
+ * single visual language. */
 .user-trigger {
   align-items: center;
   background: transparent;
-  border: none;
-  color: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: rgba(226, 232, 240, 0.88);
   cursor: pointer;
   display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 600;
   gap: 0.5rem;
   min-height: 2.5rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.45rem 0.7rem;
 }
 
 .user-trigger:hover,
 .user-trigger:focus,
 .user-trigger:active {
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 0.5rem;
-  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #fff;
 }
 
 .user-menu__panel {
