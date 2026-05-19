@@ -9,7 +9,7 @@
       [label]="editorUi().common.back" />
     @if (canManage()) {
       @if (editHref(); as href) {
-        <p-button slot="right"
+        <p-button slot="left"
           [routerLink]="href"
           [label]="ui().editButton"
           icon="pi pi-pencil"
