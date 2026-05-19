@@ -131,7 +131,13 @@ def make_course_invite_received_email_callable(invite):
     The context exposes the course's localised description so the
     invitee can see what the course is about straight from the
     inbox, without having to click through to the acceptance page
-    just to find out."""
+    just to find out.
+
+    Defence in depth: the description is also re-sanitized with the
+    project's nh3 allow-list before injection, so a future model
+    change that bypasses the on-save sanitizer cannot leak unsafe
+    HTML through the email. nh3 on an already-clean payload is a
+    near-no-op."""
     def _send():
         def _do_send():
             lang = invite.invitee.language or "fr"
@@ -141,9 +147,11 @@ def make_course_invite_received_email_callable(invite):
                         "title", language_code=lang, any_language=True,
                     ) or "",
                 }
-            course_description = invite.course.safe_translation_getter(
+            raw_description = invite.course.safe_translation_getter(
                 "description", language_code=lang, any_language=True,
             ) or ""
+            from lms_catalog.sanitizer import sanitize_rich_text
+            course_description = sanitize_rich_text(raw_description)
             _send_html_email(
                 to_email=invite.invitee.email, subject=subject,
                 template_base="course-invite-received",

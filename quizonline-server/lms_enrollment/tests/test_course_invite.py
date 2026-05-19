@@ -615,6 +615,62 @@ def test_expire_pending_course_invites_marks_only_overdue_rows(
     assert revoked.status == CourseInvite.STATUS_REVOKED
 
 
+@pytest.mark.django_db
+def test_notify_instructors_helper_fans_out_to_owner_and_managers(
+    course, learner, owner, manager,
+):
+    """Direct unit test on ``_notify_instructors_of_pending_request``:
+    it MUST emit one web row per instructor (owner + managers) and
+    skip the self-enrolling user itself (so an instructor who self-
+    enrolls doesn't notify themselves through the back door)."""
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
+    from customuser.models import Notification
+    from lms_enrollment.models import CourseEnrollment
+    from lms_enrollment.services import _notify_instructors_of_pending_request
+
+    enrollment = CourseEnrollment.objects.create(
+        user=learner, course=course,
+        status=CourseEnrollment.STATUS_PENDING,
+    )
+    Notification.objects.filter(kind=KIND_COURSE_ENROLLMENT_REQUEST).delete()
+
+    _notify_instructors_of_pending_request(enrollment)
+
+    rows = Notification.objects.filter(kind=KIND_COURSE_ENROLLMENT_REQUEST)
+    assert rows.filter(user=owner).exists()
+    assert rows.filter(user=manager).exists()
+    assert not rows.filter(user=learner).exists()
+
+    # Payload includes the deep-link context the frontend uses.
+    row = rows.filter(user=owner).first()
+    assert row.payload["course_id"] == course.id
+    assert row.payload["course_slug"] == course.slug
+    assert row.payload["user_id"] == learner.id
+    assert row.payload["user_username"] == learner.username
+
+
+@pytest.mark.django_db
+def test_notify_instructors_helper_skips_self_invitee(course, owner):
+    """Edge case: the course owner self-enrolls. The helper excludes
+    the enrollee from the fan-out so the owner doesn't notify
+    themselves."""
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
+    from customuser.models import Notification
+    from lms_enrollment.models import CourseEnrollment
+    from lms_enrollment.services import _notify_instructors_of_pending_request
+
+    enrollment = CourseEnrollment.objects.create(
+        user=owner, course=course,
+        status=CourseEnrollment.STATUS_PENDING,
+    )
+    Notification.objects.filter(kind=KIND_COURSE_ENROLLMENT_REQUEST).delete()
+
+    _notify_instructors_of_pending_request(enrollment)
+
+    rows = Notification.objects.filter(kind=KIND_COURSE_ENROLLMENT_REQUEST)
+    assert not rows.filter(user=owner).exists()
+
+
 @pytest.mark.django_db(transaction=True)
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def test_pending_enrollment_notifies_all_instructors(
