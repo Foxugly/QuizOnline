@@ -21,3 +21,10 @@ repos:
         entry: bash -c 'cd quizonline-frontend && npx --no-install tsx scripts/check-i18n.ts'
         pass_filenames: false
         files: ^quizonline-frontend/src/app/(shared/i18n/|.*\.i18n\.ts$)
+
+      - id: openapi-sync-check
+        name: OpenAPI sync guard (backend API changes need a regen)
+        language: system
+        entry: python scripts/check_openapi_sync.py
+        pass_filenames: false
+        files: ^quizonline-server/.*\.py$
