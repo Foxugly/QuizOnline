@@ -34,6 +34,7 @@ model/certificate.ts
 model/content-block-request.ts
 model/content-block.ts
 model/course-detail-my-enrollment.ts
+model/course-detail-my-pending-invite.ts
 model/course-detail-request.ts
 model/course-detail.ts
 model/course-enrollment-request.ts

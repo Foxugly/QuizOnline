@@ -43,6 +43,15 @@ interface CourseDetailDto {
     progress_percent: number;
     next_lesson_id: number | null;
   } | null;
+  /** Token of the caller's pending invitation for this course, if any.
+   *  Drives the "Accepter l'invitation" button on the header — when
+   *  present, we replace the regular ``Enroll`` CTA with the accept
+   *  affordance. */
+  my_pending_invite?: {
+    id: number;
+    token: string;
+    expires_at: string;
+  } | null;
 }
 
 interface LessonVm {
@@ -81,6 +90,7 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   protected readonly currentLang = this.userService.lang;
   protected readonly course = signal<CourseDetailDto | null>(null);
   protected readonly enrolling = signal(false);
+  protected readonly acceptingInvite = signal(false);
 
   private routeSub: Subscription | null = null;
 
@@ -128,6 +138,13 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   /** Resume-on lesson route — points at the first uncompleted lesson
    *  served by the backend, or null when nothing is left (course
    *  complete) or when the user isn't enrolled. */
+  /** Token of the caller's pending invitation for this course, or
+   *  ``null`` when there is none. Drives the "Accept the invitation"
+   *  button on the header. */
+  protected readonly pendingInviteToken = computed<string | null>(
+    () => this.course()?.my_pending_invite?.token ?? null,
+  );
+
   protected readonly continueHref = computed<string | null>(() => {
     const me = this.course()?.my_enrollment;
     if (!me || me.status === 'cancelled' || !me.next_lesson_id) {
@@ -188,6 +205,28 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
         this.toast.addApiError(err, this.ui().enrollErrorToast);
       },
       complete: () => this.enrolling.set(false),
+    });
+  }
+
+  protected acceptInvite(): void {
+    const current = this.course();
+    const token = this.pendingInviteToken();
+    if (!current || !token || this.acceptingInvite()) {
+      return;
+    }
+    this.acceptingInvite.set(true);
+    this.enrollment.acceptInviteByToken(token).subscribe({
+      next: () => {
+        this.toast.add({severity: 'success', summary: this.ui().acceptInviteSuccessToast});
+        // Re-fetch so my_enrollment / my_pending_invite refresh and
+        // the header swaps the button for "Continue".
+        this.loadBySlug(current.slug);
+      },
+      error: (err: unknown) => {
+        logApiError('lms.course-detail.accept-invite', err);
+        this.toast.addApiError(err, this.ui().acceptInviteErrorToast);
+      },
+      complete: () => this.acceptingInvite.set(false),
     });
   }
 

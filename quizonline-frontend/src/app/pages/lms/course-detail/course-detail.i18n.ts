@@ -7,6 +7,7 @@ export interface LmsCourseDetailUiText {
   learningObjectivesHeading: string;
   durationLabel: string;
   enrollButton: string;
+  acceptInviteButton: string;
   continueButton: string;
   editButton: string;
   enrolledBadge: string;
@@ -18,6 +19,8 @@ export interface LmsCourseDetailUiText {
   approvalPendingMessage: string;
   enrollSuccessToast: string;
   enrollErrorToast: string;
+  acceptInviteSuccessToast: string;
+  acceptInviteErrorToast: string;
   emptyContentTitle: string;
   emptyContentMessage: string;
 }
@@ -35,6 +38,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: "Objectifs d'apprentissage",
         durationLabel: '{n} min',
         enrollButton: "M'inscrire",
+        acceptInviteButton: "Accepter l'invitation",
         continueButton: 'Reprendre',
         editButton: 'Modifier',
         enrolledBadge: 'Inscrit',
@@ -46,6 +50,8 @@ export function getLmsCourseDetailUiText(
         approvalPendingMessage: 'Votre inscription attend la validation d\'un instructeur.',
         enrollSuccessToast: 'Inscription confirmée.',
         enrollErrorToast: "Impossible de s'inscrire.",
+        acceptInviteSuccessToast: 'Invitation acceptée.',
+        acceptInviteErrorToast: "Impossible d'accepter l'invitation.",
         emptyContentTitle: 'Aucun contenu pour l\'instant',
         emptyContentMessage: 'Le contenu du cours n\'a pas encore été publié.',
       };
@@ -58,6 +64,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Leerdoelen',
         durationLabel: '{n} min',
         enrollButton: 'Inschrijven',
+        acceptInviteButton: 'Uitnodiging accepteren',
         continueButton: 'Hervatten',
         editButton: 'Bewerken',
         enrolledBadge: 'Ingeschreven',
@@ -69,6 +76,8 @@ export function getLmsCourseDetailUiText(
         approvalPendingMessage: 'Je inschrijving wacht op goedkeuring van een instructeur.',
         enrollSuccessToast: 'Inschrijving bevestigd.',
         enrollErrorToast: 'Inschrijven mislukt.',
+        acceptInviteSuccessToast: 'Uitnodiging geaccepteerd.',
+        acceptInviteErrorToast: 'Uitnodiging accepteren is mislukt.',
         emptyContentTitle: 'Nog geen inhoud',
         emptyContentMessage: 'De cursusinhoud is nog niet gepubliceerd.',
       };
@@ -81,6 +90,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Obiettivi di apprendimento',
         durationLabel: '{n} min',
         enrollButton: 'Iscriviti',
+        acceptInviteButton: "Accetta l'invito",
         continueButton: 'Riprendi',
         editButton: 'Modifica',
         enrolledBadge: 'Iscritto',
@@ -92,6 +102,8 @@ export function getLmsCourseDetailUiText(
         approvalPendingMessage: 'La tua iscrizione attende l\'approvazione di un istruttore.',
         enrollSuccessToast: 'Iscrizione confermata.',
         enrollErrorToast: 'Iscrizione non riuscita.',
+        acceptInviteSuccessToast: 'Invito accettato.',
+        acceptInviteErrorToast: "Impossibile accettare l'invito.",
         emptyContentTitle: 'Nessun contenuto ancora',
         emptyContentMessage: 'Il contenuto del corso non è ancora stato pubblicato.',
       };
@@ -104,6 +116,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Objetivos de aprendizaje',
         durationLabel: '{n} min',
         enrollButton: 'Inscribirme',
+        acceptInviteButton: 'Aceptar la invitación',
         continueButton: 'Reanudar',
         editButton: 'Editar',
         enrolledBadge: 'Inscrito',
@@ -115,6 +128,8 @@ export function getLmsCourseDetailUiText(
         approvalPendingMessage: 'Tu inscripción está pendiente de aprobación.',
         enrollSuccessToast: 'Inscripción confirmada.',
         enrollErrorToast: 'No se pudo inscribir.',
+        acceptInviteSuccessToast: 'Invitación aceptada.',
+        acceptInviteErrorToast: 'No se pudo aceptar la invitación.',
         emptyContentTitle: 'Sin contenido aún',
         emptyContentMessage: 'El contenido del curso aún no ha sido publicado.',
       };
@@ -126,6 +141,7 @@ export function getLmsCourseDetailUiText(
         learningObjectivesHeading: 'Learning objectives',
         durationLabel: '{n} min',
         enrollButton: 'Enroll',
+        acceptInviteButton: 'Accept the invitation',
         continueButton: 'Continue',
         editButton: 'Edit',
         enrolledBadge: 'Enrolled',
@@ -137,6 +153,8 @@ export function getLmsCourseDetailUiText(
         approvalPendingMessage: 'Your enrollment is awaiting instructor approval.',
         enrollSuccessToast: 'Enrollment confirmed.',
         enrollErrorToast: 'Could not enroll.',
+        acceptInviteSuccessToast: 'Invitation accepted.',
+        acceptInviteErrorToast: 'Could not accept the invitation.',
         emptyContentTitle: 'No content yet',
         emptyContentMessage: 'The course content has not been published yet.',
       };

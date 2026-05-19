@@ -6194,6 +6194,22 @@ components:
         can_manage:
           type: string
           readOnly: true
+        my_pending_invite:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            token:
+              type: string
+            expires_at:
+              type: string
+              format: date-time
+          required:
+          - id
+          - token
+          - expires_at
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -6211,6 +6227,7 @@ components:
       - language_code
       - lesson_count
       - my_enrollment
+      - my_pending_invite
       - sections
       - slug
       - total_duration_minutes

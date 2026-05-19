@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { SectionDto } from './section';
+import { CourseDetailMyPendingInviteDto } from './course-detail-my-pending-invite';
 import { CourseDetailMyEnrollmentDto } from './course-detail-my-enrollment';
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
@@ -37,6 +38,7 @@ export interface CourseDetailDto {
     readonly sections: Array<SectionDto>;
     readonly available_lang_codes: string;
     readonly can_manage: string;
+    my_pending_invite: CourseDetailMyPendingInviteDto | null;
     readonly created_at: string;
     readonly updated_at: string;
 }

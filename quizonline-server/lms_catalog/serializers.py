@@ -517,10 +517,12 @@ class CourseDetailSerializer(CourseListSerializer):
     sections = SectionSerializer(many=True, read_only=True)
     available_lang_codes = serializers.SerializerMethodField()
     can_manage = serializers.SerializerMethodField()
+    my_pending_invite = serializers.SerializerMethodField()
 
     class Meta(CourseListSerializer.Meta):
         fields = CourseListSerializer.Meta.fields + [
-            "sections", "available_lang_codes", "can_manage", "created_at", "updated_at",
+            "sections", "available_lang_codes", "can_manage",
+            "my_pending_invite", "created_at", "updated_at",
         ]
 
     def get_available_lang_codes(self, obj):
@@ -530,6 +532,47 @@ class CourseDetailSerializer(CourseListSerializer):
         from .permissions import is_lms_instructor
         request = self.context.get("request")
         return bool(request and is_lms_instructor(request.user, obj))
+
+    @extend_schema_field({
+        "type": "object",
+        "nullable": True,
+        "properties": {
+            "id": {"type": "integer"},
+            "token": {"type": "string"},
+            "expires_at": {"type": "string", "format": "date-time"},
+        },
+        "required": ["id", "token", "expires_at"],
+    })
+    def get_my_pending_invite(self, obj):
+        """Pending ``CourseInvite`` token for the calling user, if any.
+
+        Exposed so the learner-facing course-detail page can swap its
+        "Enroll" button for "Accept the invitation" without doing a
+        second round-trip. Returns ``None`` for anonymous callers or
+        when the user has no pending invitation on this course.
+        """
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request is not None else None
+        if user is None or not getattr(user, "is_authenticated", False):
+            return None
+        from lms_enrollment.models import CourseInvite
+        invite = (
+            CourseInvite.objects.filter(
+                course=obj,
+                invitee=user,
+                status=CourseInvite.STATUS_PENDING,
+            )
+            .order_by("-created_at")
+            .values("id", "token", "expires_at")
+            .first()
+        )
+        if not invite:
+            return None
+        return {
+            "id": invite["id"],
+            "token": invite["token"],
+            "expires_at": invite["expires_at"].isoformat(),
+        }
 
 
 class CourseWriteSerializer(serializers.ModelSerializer):

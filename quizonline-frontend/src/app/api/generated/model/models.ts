@@ -9,6 +9,7 @@ export * from './content-block';
 export * from './content-block-request';
 export * from './course-detail';
 export * from './course-detail-my-enrollment';
+export * from './course-detail-my-pending-invite';
 export * from './course-detail-request';
 export * from './course-enrollment';
 export * from './course-enrollment-request';

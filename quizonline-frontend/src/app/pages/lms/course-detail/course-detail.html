@@ -23,6 +23,14 @@
         [label]="ui().continueButton"
         icon="pi pi-bookmark"
         severity="primary" />
+    } @else if (pendingInviteToken()) {
+      <p-button slot="right"
+        (onClick)="acceptInvite()"
+        [label]="ui().acceptInviteButton"
+        icon="pi pi-check"
+        severity="primary"
+        [loading]="acceptingInvite()"
+        [disabled]="acceptingInvite()" />
     } @else if (!isEnrolled()) {
       <p-button slot="right"
         (onClick)="enroll()"
