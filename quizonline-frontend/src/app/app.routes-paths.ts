@@ -77,6 +77,7 @@ export const LMS_LESSON_VIEW = (id: number) => `/lms/lesson/${id}`;
 export const LMS_LESSON_EDIT = (id: number) => `/lms/lesson/${id}/edit`;
 export const LMS_ME_PROGRESS = '/lms/me/progress';
 export const LMS_ME_CERTIFICATES = '/lms/me/certificates';
+export const LMS_ME_INVITATIONS = '/lms/me/invitations';
 export const LMS_CERTIFICATE_VIEW = (id: number) => `/lms/certificate/${id}`;
 export const LMS_CERTIFICATE_VERIFY = (token: string) => `/lms/verify/${token}`;
 export const LMS_COURSE_INVITE_ACCEPT = (token: string) => `/lms/course-invite/${token}`;

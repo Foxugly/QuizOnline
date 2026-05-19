@@ -240,6 +240,21 @@ export class LmsEnrollmentService {
     );
   }
 
+  /** Invitee-side: every ``CourseInvite`` addressed to the calling
+   *  user. Default scope is ``status=pending`` to mirror the backend
+   *  default — pass ``status=all`` for the full history (accepted /
+   *  declined / revoked / expired included). */
+  myInvitations(params: {status?: string} = {}): Observable<CourseInviteDto[]> {
+    let httpParams = new HttpParams();
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    return this.http.get<CourseInviteDto[]>(
+      `${this.baseUrl}/me/invitations/`,
+      {params: httpParams},
+    );
+  }
+
   /** Invitee-side: token-keyed lookup used by the acceptance page +
    *  the course-detail "Accept the invitation" button. Authenticated
    *  call; the backend gates non-invitee / non-instructor with 403. */

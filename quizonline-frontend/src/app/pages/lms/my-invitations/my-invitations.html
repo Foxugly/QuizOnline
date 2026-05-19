@@ -1,0 +1,38 @@
+<div class="page">
+  <app-page-header [title]="ui().pageTitle"></app-page-header>
+
+  @if (loading() && invitations().length === 0) {
+    <p class="muted">{{ ui().loading }}</p>
+  } @else if (invitations().length === 0) {
+    <app-empty-state
+      icon="pi pi-envelope"
+      [title]="ui().emptyTitle"
+      [hint]="ui().emptyMessage">
+    </app-empty-state>
+  } @else {
+    <div class="invitation-list">
+      @for (inv of invitations(); track inv.id) {
+        <p-card styleClass="invitation-card">
+          <h3 class="invitation-card__title">{{ inv.course_title }}</h3>
+          <p class="muted invitation-card__meta">
+            <i class="pi pi-user"></i>
+            {{ ui().invitationFrom(inviterDisplayName(inv)) }}
+          </p>
+          <p class="muted invitation-card__meta">
+            <i class="pi pi-clock"></i>
+            {{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}
+          </p>
+          <div class="invitation-card__actions">
+            <p-button
+              type="button"
+              icon="pi pi-arrow-right"
+              severity="primary"
+              [label]="ui().viewInvitationButton"
+              [routerLink]="hrefFor(inv.token)">
+            </p-button>
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+</div>

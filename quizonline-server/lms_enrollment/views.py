@@ -507,6 +507,30 @@ def course_invite_revoke(request, pk: int):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def my_course_invitations(request):
+    """Every ``CourseInvite`` row addressed to the calling user,
+    most recent first. Powers the ``/lms/me/invitations`` page so a
+    learner with several pending invitations can find them all in
+    one place without trawling through email.
+
+    Defaults to ``status=pending`` so the page surfaces actionable
+    rows first; pass ``?status=all`` to include accepted / declined /
+    revoked / expired rows for a basic history view."""
+    qs = (
+        CourseInvite.objects.filter(invitee=request.user)
+        .select_related("course", "inviter", "course__domain")
+        .order_by("-created_at")
+    )
+    status_filter = request.query_params.get("status")
+    if status_filter and status_filter != "all":
+        qs = qs.filter(status=status_filter)
+    elif not status_filter:
+        qs = qs.filter(status=CourseInvite.STATUS_PENDING)
+    return Response(CourseInviteSerializer(qs, many=True).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def course_invite_detail(request, token: str):
     """Token-keyed lookup. Returns the invitation (any status) for the
     invitee or any instructor of the course — used by the

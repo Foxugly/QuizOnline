@@ -431,6 +431,53 @@ def test_endpoint_accept_creates_enrollment(invite_course, learner, owner):
 
 
 @pytest.mark.django_db
+def test_endpoint_my_invitations_returns_pending_only_by_default(
+    invite_course, learner, owner,
+):
+    """``GET /api/lms/me/invitations/`` defaults to ``status=pending``
+    so the page surfaces actionable rows. Other-status rows leak in
+    only when ``?status=all`` is passed."""
+    pending = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    # Same learner, different course → revoked.
+    other_course = invite_course
+    revoked = CourseInvite.objects.create(
+        course=other_course, invitee=learner, inviter=owner,
+        status=CourseInvite.STATUS_REVOKED,
+        expires_at=timezone.now() + timedelta(days=14),
+    )
+    client = APIClient()
+    client.force_authenticate(learner)
+    url = reverse("api:lms-enrollment-api:my-course-invitations")
+
+    default = client.get(url)
+    assert default.status_code == 200
+    ids = [row["id"] for row in default.json()]
+    assert pending.id in ids
+    assert revoked.id not in ids
+
+    full = client.get(url + "?status=all")
+    full_ids = [row["id"] for row in full.json()]
+    assert pending.id in full_ids
+    assert revoked.id in full_ids
+
+
+@pytest.mark.django_db
+def test_endpoint_my_invitations_isolates_users(invite_course, learner, manager, owner):
+    """Each learner only sees their own invitations."""
+    invite_user_to_course(course=invite_course, invitee=learner, inviter=owner)
+    invite_user_to_course(course=invite_course, invitee=manager, inviter=owner)
+    client = APIClient()
+    client.force_authenticate(learner)
+    url = reverse("api:lms-enrollment-api:my-course-invitations")
+    response = client.get(url)
+    assert response.status_code == 200
+    rows = response.json()
+    assert all(row["invitee"] == learner.id for row in rows)
+
+
+@pytest.mark.django_db
 def test_endpoint_detail_returns_invite_for_invitee(invite_course, learner, owner):
     invite = invite_user_to_course(
         course=invite_course, invitee=learner, inviter=owner,

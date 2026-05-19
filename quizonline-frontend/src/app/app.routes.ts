@@ -288,6 +288,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'lms/me/invitations',
+    loadComponent: () =>
+      import('./pages/lms/my-invitations/my-invitations').then(
+        (m) => m.LmsMyInvitations,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'lms/me/progress',
     loadComponent: () => import('./pages/lms/progress/progress').then((m) => m.LmsProgress),
     canActivate: [authGuard],

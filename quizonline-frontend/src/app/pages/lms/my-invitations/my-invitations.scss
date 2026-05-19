@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.invitation-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+}
+
+.invitation-card {
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.25rem 0;
+    color: var(--text-color-secondary, #6b7280);
+    font-size: 0.9rem;
+  }
+
+  &__actions {
+    margin-top: 0.75rem;
+  }
+}
