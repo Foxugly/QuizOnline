@@ -432,6 +432,9 @@ export class Preferences implements OnInit {
     {kind: 'quiz.completed', role: 'owner' as const},
     {kind: 'quiz.result_available', role: 'user' as const},
     {kind: 'quiz.detail_available', role: 'user' as const},
+    {kind: 'lms.course_invite.sent', role: 'manager' as const},
+    {kind: 'lms.course_invite.received', role: 'user' as const},
+    {kind: 'lms.course_invite.accepted', role: 'manager' as const},
   ];
 
   /** True iff the current user holds at least one role of that kind. */
@@ -491,6 +494,12 @@ export class Preferences implements OnInit {
         return t.notificationKindQuizResultAvailable;
       case 'quiz.detail_available':
         return t.notificationKindQuizDetailAvailable;
+      case 'lms.course_invite.sent':
+        return t.notificationKindCourseInviteSent;
+      case 'lms.course_invite.received':
+        return t.notificationKindCourseInviteReceived;
+      case 'lms.course_invite.accepted':
+        return t.notificationKindCourseInviteAccepted;
       default:
         return kind;
     }

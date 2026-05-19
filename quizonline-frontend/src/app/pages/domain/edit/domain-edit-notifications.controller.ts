@@ -23,6 +23,9 @@ export const DOMAIN_NOTIFICATION_KINDS = [
   'quiz.completed',
   'quiz.result_available',
   'quiz.detail_available',
+  'lms.course_invite.sent',
+  'lms.course_invite.received',
+  'lms.course_invite.accepted',
 ] as const;
 
 export interface DomainEditNotificationsBinding {
@@ -143,6 +146,12 @@ export class DomainEditNotificationsController {
         return p.notificationKindQuizResultAvailable;
       case 'quiz.detail_available':
         return p.notificationKindQuizDetailAvailable;
+      case 'lms.course_invite.sent':
+        return p.notificationKindCourseInviteSent;
+      case 'lms.course_invite.received':
+        return p.notificationKindCourseInviteReceived;
+      case 'lms.course_invite.accepted':
+        return p.notificationKindCourseInviteAccepted;
       default:
         return kind;
     }
