@@ -154,6 +154,22 @@ export class LmsCourseEditEnrollmentTab {
     () => this.invites().filter((i) => i.status === 'pending'),
   );
 
+  /** Set of user IDs the picker must exclude — anyone already enrolled
+   *  (any status) on this course OR who has an outstanding pending
+   *  invitation. Surfaced as a Set for O(1) lookup during the
+   *  ``completeMethod`` filter. The backend rejects duplicates anyway
+   *  but pre-hiding them keeps the picker honest. */
+  private readonly excludedUserIds = computed(() => {
+    const ids = new Set<number>();
+    for (const r of this.rows()) {
+      if (typeof r.user === 'number') ids.add(r.user);
+    }
+    for (const i of this.pendingInvites()) {
+      ids.add(i.invitee);
+    }
+    return ids;
+  });
+
   // ---- Effects -----------------------------------------------------------
 
   constructor() {
@@ -308,13 +324,14 @@ export class LmsCourseEditEnrollmentTab {
 
   protected onMemberSearch(event: {query: string}): void {
     const q = (event.query ?? '').trim().toLowerCase();
-    const all = this.domainMembers();
+    const excluded = this.excludedUserIds();
+    const eligible = this.domainMembers().filter((m) => !excluded.has(m.id));
     if (!q) {
-      this.memberSuggestions.set(all);
+      this.memberSuggestions.set(eligible);
       return;
     }
     this.memberSuggestions.set(
-      all.filter((m) => {
+      eligible.filter((m) => {
         const haystack = [
           m.username,
           m.first_name ?? '',
