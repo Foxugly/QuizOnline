@@ -4,6 +4,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {UserService} from '../../../../services/user/user';
 import {ContentBlock} from '../../../../shared/lms/content-block.types';
 import {pickTranslation} from '../../../../shared/lms/lms-translations';
+import {nonBreakingHyphensInHtml} from '../../../../shared/lms/non-break-hyphens';
 
 /**
  * Renders the localized ``rich_text`` payload of a ``ContentBlock``.
@@ -26,7 +27,9 @@ export class RichTextBlockRenderer {
 
   protected readonly safeHtml = computed<SafeHtml>(() =>
     this.sanitizer.bypassSecurityTrustHtml(
-      pickTranslation(this.block().translations, this.user.lang(), 'rich_text'),
+      nonBreakingHyphensInHtml(
+        pickTranslation(this.block().translations, this.user.lang(), 'rich_text'),
+      ),
     ),
   );
 }
