@@ -523,6 +523,51 @@ def test_invite_respects_domain_kind_off(invite_course, learner, owner):
     assert learner_rows.count() == 0
 
 
+# ---------------------------------------------------------------------
+# Celery beat sweep: expire stale pending invites
+# ---------------------------------------------------------------------
+
+@pytest.mark.django_db
+def test_expire_pending_course_invites_marks_only_overdue_rows(
+    invite_course, learner, manager, stranger, owner,
+):
+    """The hourly sweep flips overdue ``pending`` invites to
+    ``expired`` and leaves everything else (still-valid pending,
+    accepted, revoked, declined) untouched."""
+    from lms_enrollment.tasks import expire_pending_course_invites
+
+    # Still-valid PENDING — must stay pending after the sweep.
+    fresh = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    # Overdue PENDING — should become EXPIRED. The ``.update`` bypasses
+    # the service so we can set ``expires_at`` in the past without the
+    # resend path bumping it forward again.
+    overdue = invite_user_to_course(
+        course=invite_course, invitee=manager, inviter=owner,
+    )
+    CourseInvite.objects.filter(pk=overdue.pk).update(
+        expires_at=timezone.now() - timedelta(seconds=1),
+    )
+    # A non-pending row, also past its expiry — the sweep must NOT
+    # touch it (status filter is ``pending`` only).
+    revoked = CourseInvite.objects.create(
+        course=invite_course, invitee=stranger, inviter=owner,
+        status=CourseInvite.STATUS_REVOKED,
+        expires_at=timezone.now() - timedelta(days=30),
+    )
+
+    n = expire_pending_course_invites()
+    assert n == 1
+
+    overdue.refresh_from_db()
+    fresh.refresh_from_db()
+    revoked.refresh_from_db()
+    assert overdue.status == CourseInvite.STATUS_EXPIRED
+    assert fresh.status == CourseInvite.STATUS_PENDING
+    assert revoked.status == CourseInvite.STATUS_REVOKED
+
+
 @pytest.mark.django_db(transaction=True)
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def test_accept_emails_inviter(invite_course, learner, owner):

@@ -312,6 +312,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "domain.tasks.send_expiring_join_request_warnings_task",
         "schedule": 24 * 3600.0,  # once a day
     },
+    "expire-pending-course-invites": {
+        "task": "lms_enrollment.tasks.expire_pending_course_invites",
+        "schedule": 3600.0,  # once an hour
+    },
 }
 DATA_UPLOAD_MAX_MEMORY_SIZE = env("DATA_UPLOAD_MAX_MEMORY_SIZE")
 FILE_UPLOAD_MAX_MEMORY_SIZE = env("FILE_UPLOAD_MAX_MEMORY_SIZE")
