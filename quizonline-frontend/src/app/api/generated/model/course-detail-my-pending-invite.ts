@@ -13,5 +13,6 @@ export interface CourseDetailMyPendingInviteDto {
     id: number;
     token: string;
     expires_at: string;
+    inviter_display_name: string;
 }
 

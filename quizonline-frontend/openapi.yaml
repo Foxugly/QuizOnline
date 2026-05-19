@@ -6235,10 +6235,13 @@ components:
             expires_at:
               type: string
               format: date-time
+            inviter_display_name:
+              type: string
           required:
           - id
           - token
           - expires_at
+          - inviter_display_name
           readOnly: true
         created_at:
           type: string

@@ -540,16 +540,18 @@ class CourseDetailSerializer(CourseListSerializer):
             "id": {"type": "integer"},
             "token": {"type": "string"},
             "expires_at": {"type": "string", "format": "date-time"},
+            "inviter_display_name": {"type": "string"},
         },
-        "required": ["id", "token", "expires_at"],
+        "required": ["id", "token", "expires_at", "inviter_display_name"],
     })
     def get_my_pending_invite(self, obj):
         """Pending ``CourseInvite`` token for the calling user, if any.
 
-        Exposed so the learner-facing course-detail page can swap its
-        "Enroll" button for "Accept the invitation" without doing a
-        second round-trip. Returns ``None`` for anonymous callers or
-        when the user has no pending invitation on this course.
+        Exposed so the learner-facing course-detail page can both
+        swap its "Enroll" button for "Accept the invitation" and
+        render an "Invited by X" banner without doing a second
+        round-trip. Returns ``None`` for anonymous callers or when
+        the user has no pending invitation on this course.
         """
         request = self.context.get("request")
         user = getattr(request, "user", None) if request is not None else None
@@ -562,16 +564,19 @@ class CourseDetailSerializer(CourseListSerializer):
                 invitee=user,
                 status=CourseInvite.STATUS_PENDING,
             )
+            .select_related("inviter")
             .order_by("-created_at")
-            .values("id", "token", "expires_at")
             .first()
         )
         if not invite:
             return None
         return {
-            "id": invite["id"],
-            "token": invite["token"],
-            "expires_at": invite["expires_at"].isoformat(),
+            "id": invite.id,
+            "token": invite.token,
+            "expires_at": invite.expires_at.isoformat(),
+            "inviter_display_name": (
+                invite.inviter.get_display_name() if invite.inviter else ""
+            ),
         }
 
 

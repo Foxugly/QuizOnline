@@ -3,6 +3,7 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {Subscription} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
+import {MessageModule} from 'primeng/message';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {TagModule} from 'primeng/tag';
 
@@ -51,6 +52,7 @@ interface CourseDetailDto {
     id: number;
     token: string;
     expires_at: string;
+    inviter_display_name: string;
   } | null;
 }
 
@@ -69,7 +71,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-lms-course-detail',
-  imports: [RouterLink, ButtonModule, ProgressBarModule, TagModule, EmptyStateComponent, PageHeader],
+  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, EmptyStateComponent, PageHeader],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -144,6 +146,14 @@ export class LmsCourseDetail implements OnInit, OnDestroy {
   protected readonly pendingInviteToken = computed<string | null>(
     () => this.course()?.my_pending_invite?.token ?? null,
   );
+
+  /** Display name of the inviter — populates the "Invited by X"
+   *  banner above the course content. ``null`` when there is no
+   *  pending invitation. */
+  protected readonly pendingInviteInviter = computed<string | null>(() => {
+    const inv = this.course()?.my_pending_invite;
+    return inv?.inviter_display_name?.trim() ? inv.inviter_display_name : null;
+  });
 
   protected readonly continueHref = computed<string | null>(() => {
     const me = this.course()?.my_enrollment;

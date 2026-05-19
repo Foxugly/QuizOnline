@@ -40,6 +40,13 @@
     }
   </app-page-header>
 
+  @if (pendingInviteInviter(); as inviter) {
+    <p-message severity="info" [closable]="false" styleClass="invite-banner">
+      <i class="pi pi-envelope"></i>
+      <span>{{ ui().invitedByBanner(inviter) }}</span>
+    </p-message>
+  }
+
   @if (hasDescription()) {
     <div class="course-description" [innerHTML]="courseDescription()"></div>
   }

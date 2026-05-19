@@ -5,6 +5,15 @@
   margin: 0 auto;
 }
 
+.invite-banner {
+  display: block;
+  margin: 0 0 1rem;
+
+  .pi {
+    margin-right: 0.4rem;
+  }
+}
+
 .course-description,
 .rich-text {
   margin: 0 0 1rem;
