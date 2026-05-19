@@ -50,6 +50,16 @@
           }
         </div>
       }
+      @if (currentUser && !showQuizDropdown) {
+        <a
+          [routerLink]="quizLink"
+          class="nav__link"
+          routerLinkActive="nav__link--active"
+        >
+          <i class="pi pi-list-check" aria-hidden="true"></i>
+          {{ ui().topmenu.quiz }}
+        </a>
+      }
       @if (showQuizDropdown) {
         <div #quizMenuRoot class="topbar-menu">
           <button class="nav__link nav__link--button" (click)="toggleQuizMenu($event)" type="button">

@@ -83,6 +83,11 @@ export class TopMenuComponent implements OnInit {
   readonly quizMenuOpen = signal(false);
   readonly mobileMenuOpen = signal(false);
 
+  /** Static route to the Quiz list — exposed as a property so the
+   *  flat Quiz template block can bind ``[routerLink]`` without
+   *  reaching into ``ROUTES`` directly. */
+  protected readonly quizLink = ROUTES.quiz.list();
+
   get currentUser(): CustomUserReadDto | null {
     return this.userService.currentUser();
   }
@@ -161,14 +166,15 @@ export class TopMenuComponent implements OnInit {
     // ----------------------------------------------------------------------
     // Top-level flat entries.
     //
-    // Order rendered left-to-right:
-    //   1. Utilisateurs (superuser only)
-    //   2. Domaines (anyone who owns / manages ≥1 domain, or superuser)
-    //   3. Cours dropdown   — rendered in the template after this list
-    //   4. Quiz             — flat link for plain members,
+    // Order rendered left-to-right (authenticated):
+    //   1. Dashboard
+    //   2. Utilisateurs (superuser only)
+    //   3. Domaines (anyone with manageable / creatable, or superuser)
+    //   4. Cours dropdown   — rendered in the template after this list
+    //   5. Quiz             — flat link for plain members,
     //                         dropdown for owner/manager/superuser
-    //                         (the dropdown is rendered in the template
-    //                         after this list)
+    //                         (both rendered in the template AFTER the
+    //                         Cours dropdown so Cours sits before Quiz)
     //
     // Marketing entries (Features, About) only show for visitors.
     // ----------------------------------------------------------------------
@@ -200,18 +206,10 @@ export class TopMenuComponent implements OnInit {
       });
     }
 
-    // Plain members (no domain ownership, no superuser) still get a flat
-    // Quiz link. Owners/managers/superusers get a Quiz dropdown rendered
-    // by the template (subjects / questions / quiz) instead. The icon
-    // matches the dropdown trigger's icon so the affordance feels
-    // consistent across roles.
-    if (isAuthenticated && !this.showQuizDropdown) {
-      items.push({
-        label: this.ui().topmenu.quiz,
-        link: ROUTES.quiz.list(),
-        icon: 'pi pi-list-check',
-      });
-    }
+    // Flat Quiz for plain members is rendered DIRECTLY in the template
+    // (after the Cours dropdown) so the desired Dashboard → Domaines →
+    // Cours → Quiz order is preserved. Owners/managers/superusers get
+    // the Quiz dropdown instead — also rendered after Cours.
 
     if (!isAuthenticated) {
       items.push({
