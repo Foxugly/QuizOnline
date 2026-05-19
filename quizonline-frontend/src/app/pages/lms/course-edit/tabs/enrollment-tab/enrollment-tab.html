@@ -1,4 +1,112 @@
 <section class="tab-section enrollment-tab">
+  @if (isInviteOnly()) {
+    <p-card styleClass="invite-card">
+      <ng-template #header>
+        <div class="enrollment-tab__header">
+          <div class="enrollment-tab__title">
+            <h2>{{ ui().invite.heading }}</h2>
+            <p class="muted">{{ ui().invite.subtitle }}</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="invite-form">
+        <label class="invite-form__label" for="invite-picker">{{ ui().invite.pickerLabel }}</label>
+        <div class="invite-form__row">
+          <p-autoComplete
+            inputId="invite-picker"
+            [ngModel]="selectedInvitee()"
+            (ngModelChange)="selectedInvitee.set($event)"
+            [suggestions]="memberSuggestions()"
+            (completeMethod)="onMemberSearch($event)"
+            [field]="inviteeDisplayName.bind(this)"
+            [placeholder]="ui().invite.pickerPlaceholder"
+            [dropdown]="true"
+            [forceSelection]="true"
+            styleClass="invite-form__picker">
+          </p-autoComplete>
+          <p-button
+            type="button"
+            icon="pi pi-send"
+            [label]="ui().invite.sendButton"
+            [disabled]="!selectedInvitee() || sending()"
+            [loading]="sending()"
+            (onClick)="sendInvite()">
+          </p-button>
+        </div>
+      </div>
+
+      <h3 class="invite-list__heading">{{ ui().invite.pendingListHeading }}</h3>
+      <p-table
+        [value]="pendingInvites()"
+        [loading]="invitesLoading()"
+        [paginator]="pendingInvites().length > 10"
+        [rows]="10"
+        dataKey="id">
+        <ng-template #header>
+          <tr>
+            <th>{{ ui().invite.columns.user }}</th>
+            <th>{{ ui().invite.columns.sentAt }}</th>
+            <th>{{ ui().invite.columns.expiresAt }}</th>
+            <th>{{ ui().invite.columns.status }}</th>
+            <th>{{ ui().invite.columns.actions }}</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-invite>
+          <tr>
+            <td>{{ inviteeDisplayName(invite.invitee_detail) }}</td>
+            <td [attr.title]="invite.last_sent_at | date:'medium'">
+              {{ invite.last_sent_at | relativeDate }}
+            </td>
+            <td [attr.title]="invite.expires_at | date:'medium'">
+              {{ invite.expires_at | date:'short' }}
+            </td>
+            <td>
+              <p-tag
+                [value]="inviteStatusLabel(invite.status)"
+                [severity]="inviteStatusSeverity(invite.status)" />
+            </td>
+            <td>
+              <p-button
+                type="button"
+                icon="pi pi-send"
+                severity="secondary"
+                size="small"
+                [outlined]="true"
+                [label]="ui().invite.actions.resend"
+                [disabled]="busyInviteId() === invite.id"
+                [loading]="busyInviteId() === invite.id"
+                (onClick)="confirmResend(invite)">
+              </p-button>
+              <p-button
+                type="button"
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                styleClass="ml-2"
+                [label]="ui().invite.actions.revoke"
+                [disabled]="busyInviteId() === invite.id"
+                (onClick)="confirmRevoke(invite)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5">
+              <app-empty-state
+                icon="pi pi-envelope"
+                density="compact"
+                [title]="ui().invite.emptyTitle">
+              </app-empty-state>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  }
+
   <p-card>
     <ng-template #header>
       <div class="enrollment-tab__header">

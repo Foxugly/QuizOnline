@@ -5,7 +5,9 @@ import {LanguageEnumDto} from '../../../../../api/generated/model/language-enum'
  * labels for the enrollment table (status filter, column headers,
  * per-row action buttons + confirm dialogs and the empty state) plus
  * the toast strings raised after an approve / reject / cancel
- * round-trip with the backend. All five languages stay aligned
+ * round-trip with the backend. The ``invite`` sub-tree carries the
+ * matching strings for the course-invite section that surfaces on
+ * ``ENROLL_INVITE`` courses. All five languages stay aligned
  * (enforced by ``scripts/check-i18n.ts`` in pre-commit).
  */
 export interface LmsCourseEditEnrollmentTabUiText {
@@ -53,6 +55,45 @@ export interface LmsCourseEditEnrollmentTabUiText {
     cancelFailed: string;
     loadFailed: string;
     errorSummary: string;
+  };
+
+  invite: {
+    heading: string;
+    subtitle: string;
+    pickerLabel: string;
+    pickerPlaceholder: string;
+    sendButton: string;
+    pendingListHeading: string;
+    columns: {
+      user: string;
+      sentAt: string;
+      expiresAt: string;
+      status: string;
+      actions: string;
+    };
+    statusLabels: {
+      pending: string;
+      accepted: string;
+      declined: string;
+      revoked: string;
+      expired: string;
+    };
+    actions: {
+      resend: string;
+      revoke: string;
+      confirmResend: (name: string) => string;
+      confirmRevoke: (name: string) => string;
+    };
+    emptyTitle: string;
+    toasts: {
+      sendSuccess: string;
+      sendFailed: string;
+      resendSuccess: string;
+      resendFailed: string;
+      revokeSuccess: string;
+      revokeFailed: string;
+      loadFailed: string;
+    };
   };
 }
 
@@ -103,6 +144,45 @@ export function getLmsCourseEditEnrollmentTabUiText(
           loadFailed: 'Impossible de charger les inscriptions.',
           errorSummary: 'Erreur',
         },
+        invite: {
+          heading: 'Inviter un apprenant',
+          subtitle:
+            'Les apprenants invités reçoivent un email avec un lien pour accepter l’invitation.',
+          pickerLabel: 'Apprenant',
+          pickerPlaceholder: 'Chercher un membre du domaine…',
+          sendButton: 'Envoyer l’invitation',
+          pendingListHeading: 'Invitations en cours',
+          columns: {
+            user: 'Apprenant',
+            sentAt: 'Envoyée',
+            expiresAt: 'Expire',
+            status: 'Statut',
+            actions: 'Actions',
+          },
+          statusLabels: {
+            pending: 'En attente',
+            accepted: 'Acceptée',
+            declined: 'Refusée',
+            revoked: 'Révoquée',
+            expired: 'Expirée',
+          },
+          actions: {
+            resend: 'Renvoyer',
+            revoke: 'Révoquer',
+            confirmResend: (name) => `Renvoyer l’invitation à ${name} ?`,
+            confirmRevoke: (name) => `Révoquer l’invitation envoyée à ${name} ?`,
+          },
+          emptyTitle: 'Aucune invitation en cours.',
+          toasts: {
+            sendSuccess: 'Invitation envoyée.',
+            sendFailed: 'L’envoi de l’invitation a échoué.',
+            resendSuccess: 'Invitation renvoyée.',
+            resendFailed: 'Le renvoi de l’invitation a échoué.',
+            revokeSuccess: 'Invitation révoquée.',
+            revokeFailed: 'La révocation de l’invitation a échoué.',
+            loadFailed: 'Impossible de charger les invitations.',
+          },
+        },
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -146,6 +226,45 @@ export function getLmsCourseEditEnrollmentTabUiText(
           cancelFailed: 'Annuleren van inschrijving mislukt.',
           loadFailed: 'Inschrijvingen konden niet worden geladen.',
           errorSummary: 'Fout',
+        },
+        invite: {
+          heading: 'Een cursist uitnodigen',
+          subtitle:
+            'Uitgenodigde cursisten ontvangen een e-mail met een link om de uitnodiging te accepteren.',
+          pickerLabel: 'Cursist',
+          pickerPlaceholder: 'Zoek een lid van het domein…',
+          sendButton: 'Uitnodiging verzenden',
+          pendingListHeading: 'Lopende uitnodigingen',
+          columns: {
+            user: 'Cursist',
+            sentAt: 'Verzonden',
+            expiresAt: 'Vervalt',
+            status: 'Status',
+            actions: 'Acties',
+          },
+          statusLabels: {
+            pending: 'In behandeling',
+            accepted: 'Geaccepteerd',
+            declined: 'Geweigerd',
+            revoked: 'Ingetrokken',
+            expired: 'Verlopen',
+          },
+          actions: {
+            resend: 'Opnieuw verzenden',
+            revoke: 'Intrekken',
+            confirmResend: (name) => `Uitnodiging opnieuw verzenden naar ${name}?`,
+            confirmRevoke: (name) => `Uitnodiging aan ${name} intrekken?`,
+          },
+          emptyTitle: 'Geen lopende uitnodigingen.',
+          toasts: {
+            sendSuccess: 'Uitnodiging verzonden.',
+            sendFailed: 'Uitnodiging verzenden is mislukt.',
+            resendSuccess: 'Uitnodiging opnieuw verzonden.',
+            resendFailed: 'Uitnodiging opnieuw verzenden is mislukt.',
+            revokeSuccess: 'Uitnodiging ingetrokken.',
+            revokeFailed: 'Uitnodiging intrekken is mislukt.',
+            loadFailed: 'Uitnodigingen konden niet worden geladen.',
+          },
         },
       };
     case LanguageEnumDto.It:
@@ -191,6 +310,45 @@ export function getLmsCourseEditEnrollmentTabUiText(
           loadFailed: 'Impossibile caricare le iscrizioni.',
           errorSummary: 'Errore',
         },
+        invite: {
+          heading: 'Invita uno studente',
+          subtitle:
+            'Gli studenti invitati riceveranno un’email con un link per accettare l’invito.',
+          pickerLabel: 'Studente',
+          pickerPlaceholder: 'Cerca un membro del dominio…',
+          sendButton: 'Invia invito',
+          pendingListHeading: 'Inviti in corso',
+          columns: {
+            user: 'Studente',
+            sentAt: 'Inviato',
+            expiresAt: 'Scade',
+            status: 'Stato',
+            actions: 'Azioni',
+          },
+          statusLabels: {
+            pending: 'In attesa',
+            accepted: 'Accettato',
+            declined: 'Rifiutato',
+            revoked: 'Revocato',
+            expired: 'Scaduto',
+          },
+          actions: {
+            resend: 'Rinvia',
+            revoke: 'Revoca',
+            confirmResend: (name) => `Rinviare l’invito a ${name}?`,
+            confirmRevoke: (name) => `Revocare l’invito inviato a ${name}?`,
+          },
+          emptyTitle: 'Nessun invito in corso.',
+          toasts: {
+            sendSuccess: 'Invito inviato.',
+            sendFailed: 'Invio dell’invito non riuscito.',
+            resendSuccess: 'Invito rinviato.',
+            resendFailed: 'Rinvio dell’invito non riuscito.',
+            revokeSuccess: 'Invito revocato.',
+            revokeFailed: 'Revoca dell’invito non riuscita.',
+            loadFailed: 'Impossibile caricare gli inviti.',
+          },
+        },
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -235,6 +393,45 @@ export function getLmsCourseEditEnrollmentTabUiText(
           loadFailed: 'No se pudieron cargar las inscripciones.',
           errorSummary: 'Error',
         },
+        invite: {
+          heading: 'Invitar a un alumno',
+          subtitle:
+            'Los alumnos invitados recibirán un correo electrónico con un enlace para aceptar la invitación.',
+          pickerLabel: 'Alumno',
+          pickerPlaceholder: 'Buscar un miembro del dominio…',
+          sendButton: 'Enviar invitación',
+          pendingListHeading: 'Invitaciones en curso',
+          columns: {
+            user: 'Alumno',
+            sentAt: 'Enviada',
+            expiresAt: 'Caduca',
+            status: 'Estado',
+            actions: 'Acciones',
+          },
+          statusLabels: {
+            pending: 'Pendiente',
+            accepted: 'Aceptada',
+            declined: 'Rechazada',
+            revoked: 'Revocada',
+            expired: 'Caducada',
+          },
+          actions: {
+            resend: 'Reenviar',
+            revoke: 'Revocar',
+            confirmResend: (name) => `¿Reenviar la invitación a ${name}?`,
+            confirmRevoke: (name) => `¿Revocar la invitación enviada a ${name}?`,
+          },
+          emptyTitle: 'No hay invitaciones en curso.',
+          toasts: {
+            sendSuccess: 'Invitación enviada.',
+            sendFailed: 'No se pudo enviar la invitación.',
+            resendSuccess: 'Invitación reenviada.',
+            resendFailed: 'No se pudo reenviar la invitación.',
+            revokeSuccess: 'Invitación revocada.',
+            revokeFailed: 'No se pudo revocar la invitación.',
+            loadFailed: 'No se pudieron cargar las invitaciones.',
+          },
+        },
       };
     default:
       return {
@@ -277,6 +474,45 @@ export function getLmsCourseEditEnrollmentTabUiText(
           cancelFailed: 'Failed to cancel the enrollment.',
           loadFailed: 'Failed to load enrollments.',
           errorSummary: 'Error',
+        },
+        invite: {
+          heading: 'Invite a learner',
+          subtitle:
+            'Invited learners receive an email with a link to accept the invitation.',
+          pickerLabel: 'Learner',
+          pickerPlaceholder: 'Search a domain member…',
+          sendButton: 'Send invitation',
+          pendingListHeading: 'Outstanding invitations',
+          columns: {
+            user: 'Learner',
+            sentAt: 'Sent',
+            expiresAt: 'Expires',
+            status: 'Status',
+            actions: 'Actions',
+          },
+          statusLabels: {
+            pending: 'Pending',
+            accepted: 'Accepted',
+            declined: 'Declined',
+            revoked: 'Revoked',
+            expired: 'Expired',
+          },
+          actions: {
+            resend: 'Resend',
+            revoke: 'Revoke',
+            confirmResend: (name) => `Resend the invitation to ${name}?`,
+            confirmRevoke: (name) => `Revoke the invitation sent to ${name}?`,
+          },
+          emptyTitle: 'No outstanding invitations.',
+          toasts: {
+            sendSuccess: 'Invitation sent.',
+            sendFailed: 'Failed to send the invitation.',
+            resendSuccess: 'Invitation resent.',
+            resendFailed: 'Failed to resend the invitation.',
+            revokeSuccess: 'Invitation revoked.',
+            revokeFailed: 'Failed to revoke the invitation.',
+            loadFailed: 'Failed to load invitations.',
+          },
         },
       };
   }

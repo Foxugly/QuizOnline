@@ -13,6 +13,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 
 import {ConfirmationService} from 'primeng/api';
+import {AutoCompleteModule} from 'primeng/autocomplete';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -23,9 +24,11 @@ import {TagModule} from 'primeng/tag';
 import {CourseEnrollmentDto} from '../../../../../api/generated/model/course-enrollment';
 import {CourseEnrollmentStatusEnumDto} from '../../../../../api/generated/model/course-enrollment-status-enum';
 import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
+import {EnrollmentModeEnumDto} from '../../../../../api/generated/model/enrollment-mode-enum';
 import {UserSummaryDto} from '../../../../../api/generated/model/user-summary';
 
-import {LmsEnrollmentService} from '../../../../../services/lms/lms-enrollment.service';
+import {DomainService} from '../../../../../services/domain/domain';
+import {CourseInviteDto, LmsEnrollmentService} from '../../../../../services/lms/lms-enrollment.service';
 import {logApiError} from '../../../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../../../../shared/i18n/ui-text.service';
@@ -47,16 +50,11 @@ type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contr
  * "Enrollment" tab of ``/lms/course/:id/edit``: lists every enrollment
  * of the parent course (server-side filtered to instructors only — see
  * :class:`CourseEnrollmentViewSet.get_queryset`) with a status filter
- * and per-row approve / reject / cancel actions. Approving or rejecting
- * a pending request flips the row's status; cancelling an active one
- * marks it ``cancelled``. The table re-fetches itself after every
- * mutation so the badge / available actions stay in sync without
- * needing the parent shell to re-fetch the course.
- *
- * Mirrors the shape of the join-requests admin page (pending /
- * approved / rejected filter, confirm-dialog gated row actions) but
- * scoped to a single course so instructors don't have to leave the
- * course-edit shell to moderate their roster.
+ * and per-row approve / reject / cancel actions. On invite-only
+ * courses the tab also surfaces an "Invite a learner" section above
+ * the enrollment table — autocomplete picks from the domain
+ * membership and pending invitations get their own table with
+ * resend / revoke actions.
  */
 @Component({
   selector: 'app-lms-course-edit-enrollment-tab',
@@ -65,6 +63,7 @@ type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contr
   imports: [
     FormsModule,
     DatePipe,
+    AutoCompleteModule,
     ButtonModule,
     CardModule,
     ConfirmDialogModule,
@@ -81,6 +80,7 @@ export class LmsCourseEditEnrollmentTab {
   // ---- DI ----------------------------------------------------------------
 
   private readonly enrollmentSvc = inject(LmsEnrollmentService);
+  private readonly domainSvc = inject(DomainService);
   private readonly confirmer = inject(ConfirmationService);
   private readonly toast = inject(AppToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -92,10 +92,10 @@ export class LmsCourseEditEnrollmentTab {
   // ---- Inputs ------------------------------------------------------------
 
   readonly courseId = input.required<number>();
-  /** The full course DTO, piped down from the shell. Currently unused by
-   *  this tab but accepted for parity with the other tabs so the shell
-   *  template stays uniform — keeps the door open for a future
-   *  "instructor-only enrollment mode hint" banner. */
+  /** The full course DTO — used to (a) tell whether the course is
+   *  invite-only so we surface the invite section, and (b) reach the
+   *  domain id so we can preload the autocomplete with that domain's
+   *  members. */
   readonly course = input<CourseDetailDto | null>(null);
 
   // ---- State signals -----------------------------------------------------
@@ -107,6 +107,19 @@ export class LmsCourseEditEnrollmentTab {
    *  approves on the same enrollment. */
   protected readonly busyId = signal<number | null>(null);
   protected readonly statusFilter = signal<StatusFilterValue>('all');
+
+  // Invite-side state
+  protected readonly invites = signal<CourseInviteDto[]>([]);
+  protected readonly invitesLoading = signal(false);
+  protected readonly busyInviteId = signal<number | null>(null);
+  protected readonly sending = signal(false);
+  /** All domain members — used as the autocomplete source. Fetched
+   *  once per course / domain change. */
+  private readonly domainMembers = signal<UserSummaryDto[]>([]);
+  /** The narrowed picker suggestions matching the current ``query``. */
+  protected readonly memberSuggestions = signal<UserSummaryDto[]>([]);
+  /** Currently selected invitee (after the autocomplete picks one). */
+  protected readonly selectedInvitee = signal<UserSummaryDto | null>(null);
 
   // ---- Derived -----------------------------------------------------------
 
@@ -121,14 +134,21 @@ export class LmsCourseEditEnrollmentTab {
     ];
   });
 
+  protected readonly isInviteOnly = computed(
+    () => this.course()?.enrollment_mode === EnrollmentModeEnumDto.Invite,
+  );
+
+  protected readonly pendingInvites = computed(
+    () => this.invites().filter((i) => i.status === 'pending'),
+  );
+
   // ---- Effects -----------------------------------------------------------
 
   constructor() {
-    // (Re-)fetch whenever the parent shell pushes a new ``courseId`` or
-    // the local status filter changes.
+    // (Re-)fetch enrollments whenever the parent shell pushes a new
+    // ``courseId`` or the local status filter changes.
     effect(() => {
       const id = this.courseId();
-      // Read the filter signal so the effect re-runs when it changes.
       this.statusFilter();
       if (id > 0) {
         this.refresh();
@@ -136,14 +156,26 @@ export class LmsCourseEditEnrollmentTab {
         this.rows.set([]);
       }
     });
+
+    // (Re-)fetch invitations + domain members when the course shifts
+    // into invite-only mode (or the course itself changes).
+    effect(() => {
+      const id = this.courseId();
+      const inviteOnly = this.isInviteOnly();
+      if (id > 0 && inviteOnly) {
+        this.refreshInvites();
+        this.loadDomainMembers();
+      } else {
+        this.invites.set([]);
+        this.domainMembers.set([]);
+        this.memberSuggestions.set([]);
+        this.selectedInvitee.set(null);
+      }
+    });
   }
 
   // ---- Public template API ----------------------------------------------
 
-  /** Resolved display name for a row's user. Prefers the longer
-   *  ``first last (username)`` form built client-side; falls back to
-   *  the username or the bare id when the backend hasn't populated
-   *  ``user_detail`` (e.g. tombstone row). */
   protected userDisplayName(row: CourseEnrollmentDto): string {
     const u: UserSummaryDto | null | undefined = row.user_detail;
     if (!u) {
@@ -229,6 +261,113 @@ export class LmsCourseEditEnrollmentTab {
     });
   }
 
+  // ---- Invite-side actions ----------------------------------------------
+
+  protected inviteeDisplayName(u: UserSummaryDto | null | undefined): string {
+    if (!u) {
+      return '';
+    }
+    const first = (u.first_name ?? '').trim();
+    const last = (u.last_name ?? '').trim();
+    if (first && last) {
+      return `${first} ${last} (${u.username})`;
+    }
+    return u.username || `#${u.id}`;
+  }
+
+  protected inviteStatusLabel(status: CourseInviteDto['status']): string {
+    return this.ui().invite.statusLabels[status];
+  }
+
+  protected inviteStatusSeverity(status: CourseInviteDto['status']): TagSeverity {
+    switch (status) {
+      case 'pending':
+        return 'warn';
+      case 'accepted':
+        return 'success';
+      case 'declined':
+      case 'revoked':
+      case 'expired':
+        return 'secondary';
+      default:
+        return 'secondary';
+    }
+  }
+
+  protected onMemberSearch(event: {query: string}): void {
+    const q = (event.query ?? '').trim().toLowerCase();
+    const all = this.domainMembers();
+    if (!q) {
+      this.memberSuggestions.set(all);
+      return;
+    }
+    this.memberSuggestions.set(
+      all.filter((m) => {
+        const haystack = [
+          m.username,
+          m.first_name ?? '',
+          m.last_name ?? '',
+          m.email ?? '',
+        ]
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(q);
+      }),
+    );
+  }
+
+  protected sendInvite(): void {
+    const id = this.courseId();
+    const invitee = this.selectedInvitee();
+    if (id <= 0 || !invitee || this.sending()) {
+      return;
+    }
+    this.sending.set(true);
+    this.enrollmentSvc
+      .inviteToCourse(id, invitee.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.sending.set(false);
+          this.selectedInvitee.set(null);
+          this.toast.add({severity: 'success', summary: this.ui().invite.toasts.sendSuccess});
+          this.refreshInvites();
+        },
+        error: (err: unknown) => {
+          this.sending.set(false);
+          logApiError('lms.course-edit.invite.send', err);
+          this.toast.addApiError(err, this.ui().invite.toasts.sendFailed);
+        },
+      });
+  }
+
+  protected confirmResend(invite: CourseInviteDto): void {
+    const name = this.inviteeDisplayName(invite.invitee_detail);
+    const labels = this.ui();
+    this.confirmer.confirm({
+      header: labels.actions.confirmHeader,
+      message: labels.invite.actions.confirmResend(name),
+      icon: 'pi pi-send',
+      acceptLabel: labels.actions.confirmAccept,
+      rejectLabel: labels.actions.confirmReject,
+      accept: () => this.resend(invite),
+    });
+  }
+
+  protected confirmRevoke(invite: CourseInviteDto): void {
+    const name = this.inviteeDisplayName(invite.invitee_detail);
+    const labels = this.ui();
+    this.confirmer.confirm({
+      header: labels.actions.confirmHeader,
+      message: labels.invite.actions.confirmRevoke(name),
+      icon: 'pi pi-ban',
+      acceptLabel: labels.actions.confirmAccept,
+      rejectLabel: labels.actions.confirmReject,
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.revoke(invite),
+    });
+  }
+
   // ---- Internals ---------------------------------------------------------
 
   private refresh(): void {
@@ -252,6 +391,52 @@ export class LmsCourseEditEnrollmentTab {
           logApiError('lms.course-edit.enrollment.list', err);
           this.toast.addApiError(err, this.ui().toasts.loadFailed);
           this.loading.set(false);
+        },
+      });
+  }
+
+  private refreshInvites(): void {
+    const id = this.courseId();
+    if (id <= 0) {
+      return;
+    }
+    this.invitesLoading.set(true);
+    this.enrollmentSvc
+      .listInvitesForCourse(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rows) => {
+          this.invites.set(rows);
+          this.invitesLoading.set(false);
+        },
+        error: (err: unknown) => {
+          logApiError('lms.course-edit.invite.list', err);
+          this.toast.addApiError(err, this.ui().invite.toasts.loadFailed);
+          this.invitesLoading.set(false);
+        },
+      });
+  }
+
+  private loadDomainMembers(): void {
+    const domainId = this.course()?.domain ?? null;
+    if (!domainId) {
+      this.domainMembers.set([]);
+      this.memberSuggestions.set([]);
+      return;
+    }
+    this.domainSvc
+      .retrieve(domainId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (d: {members?: UserSummaryDto[]}) => {
+          const members = d.members ?? [];
+          this.domainMembers.set(members);
+          this.memberSuggestions.set(members);
+        },
+        error: (err: unknown) => {
+          logApiError('lms.course-edit.invite.members', err);
+          this.domainMembers.set([]);
+          this.memberSuggestions.set([]);
         },
       });
   }
@@ -309,6 +494,44 @@ export class LmsCourseEditEnrollmentTab {
           this.busyId.set(null);
           logApiError('lms.course-edit.enrollment.cancel', err);
           this.toast.addApiError(err, this.ui().toasts.cancelFailed);
+        },
+      });
+  }
+
+  private resend(invite: CourseInviteDto): void {
+    this.busyInviteId.set(invite.id);
+    this.enrollmentSvc
+      .resendInvite(invite.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.busyInviteId.set(null);
+          this.toast.add({severity: 'success', summary: this.ui().invite.toasts.resendSuccess});
+          this.refreshInvites();
+        },
+        error: (err: unknown) => {
+          this.busyInviteId.set(null);
+          logApiError('lms.course-edit.invite.resend', err);
+          this.toast.addApiError(err, this.ui().invite.toasts.resendFailed);
+        },
+      });
+  }
+
+  private revoke(invite: CourseInviteDto): void {
+    this.busyInviteId.set(invite.id);
+    this.enrollmentSvc
+      .revokeInvite(invite.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.busyInviteId.set(null);
+          this.toast.add({severity: 'success', summary: this.ui().invite.toasts.revokeSuccess});
+          this.refreshInvites();
+        },
+        error: (err: unknown) => {
+          this.busyInviteId.set(null);
+          logApiError('lms.course-edit.invite.revoke', err);
+          this.toast.addApiError(err, this.ui().invite.toasts.revokeFailed);
         },
       });
   }

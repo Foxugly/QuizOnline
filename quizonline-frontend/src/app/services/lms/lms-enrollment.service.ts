@@ -4,7 +4,32 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {CourseEnrollmentDto} from '../../api/generated/model/course-enrollment';
+import {UserSummaryDto} from '../../api/generated/model/user-summary';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+
+/** Read shape of a single ``CourseInvite`` row as exposed by
+ *  ``/api/lms/course/{id}/invites/`` and the token-keyed endpoints.
+ *  Mirrors :class:`CourseInviteSerializer` on the backend so the
+ *  generated client and this hand-rolled wrapper stay in sync. */
+export interface CourseInviteDto {
+  id: number;
+  token: string;
+  course: number;
+  course_title: string;
+  course_slug: string;
+  invitee: number;
+  invitee_detail: UserSummaryDto | null;
+  inviter: number | null;
+  inviter_detail: UserSummaryDto | null;
+  status: 'pending' | 'accepted' | 'declined' | 'revoked' | 'expired';
+  expires_at: string;
+  last_sent_at: string;
+  accepted_at: string | null;
+  declined_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 /** DRF page envelope returned by paginated list endpoints. The enrollment list
  * goes through the default ``PageNumberPagination`` config so all list
@@ -147,5 +172,74 @@ export class LmsEnrollmentService {
 
   verify(token: string): Observable<unknown> {
     return this.http.get<unknown>(`${this.baseUrl}/verify/${encodeURIComponent(token)}/`);
+  }
+
+  // ---- Course invitations -----------------------------------------------
+
+  /** Instructor-side: send a course invitation to a domain member. */
+  inviteToCourse(courseId: number, inviteeId: number): Observable<CourseInviteDto> {
+    return this.http.post<CourseInviteDto>(
+      `${this.baseUrl}/course/${courseId}/invite/`,
+      {invitee_id: inviteeId},
+    );
+  }
+
+  /** Instructor-side: list every invitation for a course (optionally
+   *  narrowed to a status). */
+  listInvitesForCourse(
+    courseId: number,
+    params: {status?: string} = {},
+  ): Observable<CourseInviteDto[]> {
+    let httpParams = new HttpParams();
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    return this.http.get<CourseInviteDto[]>(
+      `${this.baseUrl}/course/${courseId}/invites/`,
+      {params: httpParams},
+    );
+  }
+
+  /** Instructor-side: re-send a pending invitation. Bumps
+   *  ``last_sent_at`` and pushes the expiry forward by 14 days. */
+  resendInvite(inviteId: number): Observable<CourseInviteDto> {
+    return this.http.post<CourseInviteDto>(
+      `${this.baseUrl}/course-invite/${inviteId}/resend/`,
+      {},
+    );
+  }
+
+  /** Instructor-side: revoke a pending invitation. */
+  revokeInvite(inviteId: number): Observable<CourseInviteDto> {
+    return this.http.post<CourseInviteDto>(
+      `${this.baseUrl}/course-invite/${inviteId}/revoke/`,
+      {},
+    );
+  }
+
+  /** Invitee-side: token-keyed lookup used by the acceptance page +
+   *  the course-detail "Accept the invitation" button. Authenticated
+   *  call; the backend gates non-invitee / non-instructor with 403. */
+  getInviteByToken(token: string): Observable<CourseInviteDto> {
+    return this.http.get<CourseInviteDto>(
+      `${this.baseUrl}/course-invite/${encodeURIComponent(token)}/`,
+    );
+  }
+
+  /** Invitee-side: accept the invitation. Creates the ACTIVE
+   *  enrollment on the backend and notifies the inviter. */
+  acceptInviteByToken(token: string): Observable<CourseEnrollmentDto> {
+    return this.http.post<CourseEnrollmentDto>(
+      `${this.baseUrl}/course-invite/${encodeURIComponent(token)}/accept/`,
+      {},
+    );
+  }
+
+  /** Invitee-side: decline the invitation. */
+  declineInviteByToken(token: string): Observable<CourseInviteDto> {
+    return this.http.post<CourseInviteDto>(
+      `${this.baseUrl}/course-invite/${encodeURIComponent(token)}/decline/`,
+      {},
+    );
   }
 }

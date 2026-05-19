@@ -30,3 +30,38 @@
     min-width: 12rem;
   }
 }
+
+.invite-card {
+  margin-bottom: 1rem;
+}
+
+.invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__picker {
+    flex: 1 1 24rem;
+    min-width: 16rem;
+  }
+}
+
+.invite-list__heading {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
