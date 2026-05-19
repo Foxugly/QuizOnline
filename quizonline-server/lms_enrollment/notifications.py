@@ -168,6 +168,45 @@ def make_course_invite_sent_email_callable(invite):
     return _send
 
 
+def _build_course_inscriptions_url(course) -> str:
+    """Deep-link to the course-edit Inscriptions tab — instructors land
+    on the page they need to act from. Uses a query param for tab
+    selection so a future tab redesign that survives the slug stays
+    backward-compatible."""
+    base = getattr(settings, "FRONTEND_BASE_URL", "").rstrip("/")
+    return f"{base}/lms/course/{course.id}/edit?tab=enrollment"
+
+
+def make_course_enrollment_request_email_callable(enrollment, instructor):
+    """Return a zero-arg callable that emails ``instructor`` about
+    the pending enrollment request. ``transaction.on_commit`` defers
+    the actual send so a failed enrollment transaction does not leak
+    an email about a row that never persisted."""
+    def _send():
+        def _do_send():
+            if not instructor or not instructor.email:
+                return
+            lang = instructor.language or "fr"
+            with translation.override(lang):
+                subject = _("New enrollment request for %(course)s") % {
+                    "course": enrollment.course.safe_translation_getter(
+                        "title", language_code=lang, any_language=True,
+                    ) or "",
+                }
+            _send_html_email(
+                to_email=instructor.email, subject=subject,
+                template_base="enrollment-request",
+                context={
+                    "enrollment": enrollment,
+                    "instructor": instructor,
+                    "inscriptions_url": _build_course_inscriptions_url(enrollment.course),
+                },
+                lang=lang,
+            )
+        _on_commit(_do_send)
+    return _send
+
+
 def make_course_invite_accepted_email_callable(invite):
     """Notification to the inviter that the invitee accepted — on-commit."""
     def _send():

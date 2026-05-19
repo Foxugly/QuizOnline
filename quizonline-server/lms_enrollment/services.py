@@ -3,15 +3,17 @@ from __future__ import annotations
 import secrets
 
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import transaction
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from customuser.notifications import (
+    KIND_COURSE_ENROLLMENT_REQUEST,
     KIND_COURSE_INVITE_ACCEPTED,
     KIND_COURSE_INVITE_RECEIVED,
     KIND_COURSE_INVITE_SENT,
     notify,
+    notify_many,
 )
 from lms_catalog.models import Course, Lesson
 from .models import (
@@ -24,6 +26,7 @@ from .models import (
     _default_course_invite_expiry,
 )
 from .notifications import (
+    make_course_enrollment_request_email_callable,
     make_course_invite_accepted_email_callable,
     make_course_invite_received_email_callable,
     make_course_invite_sent_email_callable,
@@ -69,8 +72,52 @@ def enroll_user_to_course(*, user, course: Course, requested_by=None) -> CourseE
         created_by=requested_by or user,
     )
     notify_enrollment_created_on_commit(enrollment)
+    if enrollment.status == CourseEnrollment.STATUS_PENDING:
+        _notify_instructors_of_pending_request(enrollment)
     _ensure_course_progress(user, course)
     return enrollment
+
+
+def _notify_instructors_of_pending_request(enrollment: CourseEnrollment) -> None:
+    """Fan-out web + email notification to every instructor of the
+    course's domain so they know a learner is waiting on approval.
+    Mirrors the join-request "created" notification for domains —
+    one row per instructor, gated by per-user prefs ∩ per-domain
+    settings."""
+    domain = enrollment.course.domain
+    instructors = _course_instructors_queryset(enrollment.course).exclude(
+        pk=enrollment.user_id,
+    )
+    payload = {
+        "enrollment_id": enrollment.id,
+        "course_id": enrollment.course_id,
+        "course_slug": enrollment.course.slug,
+        "course_title": enrollment.course.safe_translation_getter(
+            "title", any_language=True,
+        ) or "",
+        "user_id": enrollment.user_id,
+        "user_username": enrollment.user.username,
+        "user_display_name": enrollment.user.get_display_name(),
+    }
+    notify_many(
+        users=list(instructors),
+        kind=KIND_COURSE_ENROLLMENT_REQUEST,
+        payload_builder=payload,
+        domain=domain,
+        email_callable_builder=lambda instructor:
+            make_course_enrollment_request_email_callable(enrollment, instructor),
+    )
+
+
+def _course_instructors_queryset(course: Course):
+    """Owner + all managers of the course's domain. Deduplicated."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    domain = course.domain
+    return User.objects.filter(
+        models.Q(pk=domain.owner_id)
+        | models.Q(pk__in=domain.managers.values_list("pk", flat=True)),
+    ).distinct()
 
 
 @transaction.atomic

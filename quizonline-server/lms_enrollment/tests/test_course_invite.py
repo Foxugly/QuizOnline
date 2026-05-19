@@ -570,6 +570,65 @@ def test_expire_pending_course_invites_marks_only_overdue_rows(
 
 @pytest.mark.django_db(transaction=True)
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+def test_pending_enrollment_notifies_all_instructors(
+    course, learner, owner, manager,
+):
+    """A self-enrollment on an ``approval``-mode course fires the
+    ``lms.course_enrollment_request.created`` notification on every
+    instructor (owner + managers) so they don't miss it."""
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
+    from customuser.models import Notification
+    from lms_enrollment.services import enroll_user_to_course
+
+    course.enrollment_mode = Course.ENROLL_APPROVAL
+    course.save()
+    mail.outbox = []
+
+    enroll_user_to_course(user=learner, course=course)
+
+    owner_mails = [m for m in mail.outbox if owner.email in m.to]
+    manager_mails = [m for m in mail.outbox if manager.email in m.to]
+    learner_mails = [m for m in mail.outbox if learner.email in m.to]
+    assert owner_mails  # instructor (owner) notified
+    assert manager_mails  # instructor (manager) notified
+    assert learner_mails  # learner still gets the "pending" confirmation
+
+    rows = Notification.objects.filter(kind=KIND_COURSE_ENROLLMENT_REQUEST)
+    assert rows.filter(user=owner).exists()
+    assert rows.filter(user=manager).exists()
+    # Learner does NOT get a "request created" web row (they're the requester).
+    assert not rows.filter(user=learner).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+def test_pending_enrollment_respects_instructor_email_opt_out(
+    course, learner, owner, manager,
+):
+    """An instructor who muted the email channel for
+    ``course_enrollment_request`` keeps the web row but stops getting
+    emails — same intersection logic as every other notification kind."""
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
+    from lms_enrollment.services import enroll_user_to_course
+
+    course.enrollment_mode = Course.ENROLL_APPROVAL
+    course.save()
+    owner.notification_prefs = {
+        KIND_COURSE_ENROLLMENT_REQUEST: {"email": False},
+    }
+    owner.save(update_fields=["notification_prefs"])
+    mail.outbox = []
+
+    enroll_user_to_course(user=learner, course=course)
+
+    owner_mails = [m for m in mail.outbox if owner.email in m.to]
+    manager_mails = [m for m in mail.outbox if manager.email in m.to]
+    assert owner_mails == []  # muted
+    assert manager_mails  # other instructor still gets it
+
+
+@pytest.mark.django_db(transaction=True)
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def test_accept_emails_inviter(invite_course, learner, owner):
     invite = invite_user_to_course(
         course=invite_course, invitee=learner, inviter=owner,

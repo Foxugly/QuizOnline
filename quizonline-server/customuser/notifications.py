@@ -48,6 +48,10 @@ KIND_QUIZ_DETAIL_AVAILABLE = "quiz.detail_available"
 KIND_COURSE_INVITE_SENT = "lms.course_invite.sent"
 KIND_COURSE_INVITE_RECEIVED = "lms.course_invite.received"
 KIND_COURSE_INVITE_ACCEPTED = "lms.course_invite.accepted"
+# Pending self-enrollment on an ``approval``-mode course. Fanned out
+# to every instructor (domain owner + managers) so they know there is
+# a row to approve / reject in the course's Inscriptions tab.
+KIND_COURSE_ENROLLMENT_REQUEST = "lms.course_enrollment_request.created"
 
 NOTIFICATION_KINDS: tuple[str, ...] = (
     KIND_JOIN_REQUEST_CREATED,
@@ -62,6 +66,7 @@ NOTIFICATION_KINDS: tuple[str, ...] = (
     KIND_COURSE_INVITE_SENT,
     KIND_COURSE_INVITE_RECEIVED,
     KIND_COURSE_INVITE_ACCEPTED,
+    KIND_COURSE_ENROLLMENT_REQUEST,
 )
 
 # Role of the *recipient* — drives the way prefs are grouped in the UI
@@ -84,6 +89,7 @@ KIND_ROLE: dict[str, str] = {
     KIND_COURSE_INVITE_SENT: ROLE_MANAGER,
     KIND_COURSE_INVITE_RECEIVED: ROLE_USER,
     KIND_COURSE_INVITE_ACCEPTED: ROLE_MANAGER,
+    KIND_COURSE_ENROLLMENT_REQUEST: ROLE_MANAGER,
 }
 
 CHANNEL_EMAIL = "email"
