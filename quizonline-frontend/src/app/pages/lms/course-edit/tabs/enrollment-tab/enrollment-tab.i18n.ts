@@ -84,6 +84,8 @@ export interface LmsCourseEditEnrollmentTabUiText {
       revoke: string;
       confirmResend: (name: string) => string;
       confirmRevoke: (name: string) => string;
+      resendAll: string;
+      confirmResendAll: (n: number) => string;
     };
     emptyTitle: string;
     toasts: {
@@ -95,6 +97,9 @@ export interface LmsCourseEditEnrollmentTabUiText {
       revokeSuccess: string;
       revokeFailed: string;
       loadFailed: string;
+      resendAllSuccess: (n: number) => string;
+      resendAllPartial: (processed: number, skipped: number) => string;
+      resendAllFailed: string;
     };
   };
 }
@@ -174,6 +179,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revoke: 'Révoquer',
             confirmResend: (name) => `Renvoyer l’invitation à ${name} ?`,
             confirmRevoke: (name) => `Révoquer l’invitation envoyée à ${name} ?`,
+            resendAll: 'Tout renvoyer',
+            confirmResendAll: (n) => `Renvoyer les ${n} invitations en attente ?`,
           },
           emptyTitle: 'Aucune invitation en cours.',
           toasts: {
@@ -186,6 +193,11 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revokeSuccess: 'Invitation révoquée.',
             revokeFailed: 'La révocation de l’invitation a échoué.',
             loadFailed: 'Impossible de charger les invitations.',
+            resendAllSuccess: (n) =>
+              n <= 1 ? `${n} invitation renvoyée.` : `${n} invitations renvoyées.`,
+            resendAllPartial: (processed, skipped) =>
+              `${processed} invitation(s) renvoyée(s), ${skipped} ignorée(s).`,
+            resendAllFailed: 'Le renvoi groupé a échoué.',
           },
         },
       };
@@ -260,6 +272,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revoke: 'Intrekken',
             confirmResend: (name) => `Uitnodiging opnieuw verzenden naar ${name}?`,
             confirmRevoke: (name) => `Uitnodiging aan ${name} intrekken?`,
+            resendAll: 'Alles opnieuw verzenden',
+            confirmResendAll: (n) => `De ${n} lopende uitnodigingen opnieuw verzenden?`,
           },
           emptyTitle: 'Geen lopende uitnodigingen.',
           toasts: {
@@ -272,6 +286,11 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revokeSuccess: 'Uitnodiging ingetrokken.',
             revokeFailed: 'Uitnodiging intrekken is mislukt.',
             loadFailed: 'Uitnodigingen konden niet worden geladen.',
+            resendAllSuccess: (n) =>
+              n <= 1 ? `${n} uitnodiging opnieuw verzonden.` : `${n} uitnodigingen opnieuw verzonden.`,
+            resendAllPartial: (processed, skipped) =>
+              `${processed} uitnodiging(en) opnieuw verzonden, ${skipped} overgeslagen.`,
+            resendAllFailed: 'Bulk opnieuw verzenden is mislukt.',
           },
         },
       };
@@ -346,6 +365,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revoke: 'Revoca',
             confirmResend: (name) => `Rinviare l’invito a ${name}?`,
             confirmRevoke: (name) => `Revocare l’invito inviato a ${name}?`,
+            resendAll: 'Rinvia tutto',
+            confirmResendAll: (n) => `Rinviare i ${n} inviti in corso?`,
           },
           emptyTitle: 'Nessun invito in corso.',
           toasts: {
@@ -358,6 +379,11 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revokeSuccess: 'Invito revocato.',
             revokeFailed: 'Revoca dell’invito non riuscita.',
             loadFailed: 'Impossibile caricare gli inviti.',
+            resendAllSuccess: (n) =>
+              n <= 1 ? `${n} invito rinviato.` : `${n} inviti rinviati.`,
+            resendAllPartial: (processed, skipped) =>
+              `${processed} invito/i rinviato/i, ${skipped} saltato/i.`,
+            resendAllFailed: 'Rinvio in blocco non riuscito.',
           },
         },
       };
@@ -432,6 +458,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revoke: 'Revocar',
             confirmResend: (name) => `¿Reenviar la invitación a ${name}?`,
             confirmRevoke: (name) => `¿Revocar la invitación enviada a ${name}?`,
+            resendAll: 'Reenviar todas',
+            confirmResendAll: (n) => `¿Reenviar las ${n} invitaciones en curso?`,
           },
           emptyTitle: 'No hay invitaciones en curso.',
           toasts: {
@@ -444,6 +472,11 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revokeSuccess: 'Invitación revocada.',
             revokeFailed: 'No se pudo revocar la invitación.',
             loadFailed: 'No se pudieron cargar las invitaciones.',
+            resendAllSuccess: (n) =>
+              n <= 1 ? `${n} invitación reenviada.` : `${n} invitaciones reenviadas.`,
+            resendAllPartial: (processed, skipped) =>
+              `${processed} invitación(es) reenviada(s), ${skipped} omitida(s).`,
+            resendAllFailed: 'El reenvío masivo falló.',
           },
         },
       };
@@ -517,6 +550,8 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revoke: 'Revoke',
             confirmResend: (name) => `Resend the invitation to ${name}?`,
             confirmRevoke: (name) => `Revoke the invitation sent to ${name}?`,
+            resendAll: 'Resend all',
+            confirmResendAll: (n) => `Resend the ${n} outstanding invitations?`,
           },
           emptyTitle: 'No outstanding invitations.',
           toasts: {
@@ -529,6 +564,11 @@ export function getLmsCourseEditEnrollmentTabUiText(
             revokeSuccess: 'Invitation revoked.',
             revokeFailed: 'Failed to revoke the invitation.',
             loadFailed: 'Failed to load invitations.',
+            resendAllSuccess: (n) =>
+              `${n} invitation${n > 1 ? 's' : ''} resent.`,
+            resendAllPartial: (processed, skipped) =>
+              `${processed} invitation(s) resent, ${skipped} skipped.`,
+            resendAllFailed: 'Bulk resend failed.',
           },
         },
       };

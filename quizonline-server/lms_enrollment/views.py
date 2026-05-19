@@ -633,6 +633,67 @@ def course_invite_list(request, course_id: int):
     return Response(CourseInviteSerializer(qs, many=True).data)
 
 
+@extend_schema(
+    responses={
+        status.HTTP_200_OK: {
+            "type": "object",
+            "properties": {
+                "processed": {"type": "integer"},
+                "skipped": {"type": "integer"},
+            },
+            "required": ["processed", "skipped"],
+        },
+    },
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([_LmsInviteSendThrottle])
+def course_invite_bulk_resend(request, course_id: int):
+    """Resend every pending invitation on a course in one shot.
+
+    The instructor companion to ``course_invite_bulk_send``: when a
+    course already has a dozen pending invites and the cohort start
+    date slips, nobody wants to click "Resend" twelve times. This
+    endpoint pulls every ``CourseInvite`` in ``STATUS_PENDING`` for
+    the course, runs :func:`resend_course_invite` on each, and
+    reports a ``{processed, skipped}`` count.
+
+    ``skipped`` covers the narrow race window where a row flips out
+    of ``pending`` between the queryset and the per-row call
+    (someone accepting / declining / the expire sweep landing
+    simultaneously). Returns the bulk shape the catalog already
+    consumes for ``bulk_send`` so the same toast and refresh path
+    apply on the frontend side.
+
+    Counts the whole call as ONE hit against the ``lms_invite_send``
+    throttle bucket — same rationale as bulk_send.
+    """
+    gate = _require_invites_enabled()
+    if gate is not None:
+        return gate
+    course = Course.objects.filter(pk=course_id).first()
+    if not course:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if not is_lms_instructor(request.user, course):
+        raise PermissionDenied()
+
+    pending = (
+        CourseInvite.objects
+        .select_related("course", "invitee", "created_by")
+        .filter(course=course, status=CourseInvite.STATUS_PENDING)
+    )
+    processed = 0
+    skipped = 0
+    for invite in pending:
+        try:
+            resend_course_invite(invite=invite, sender=request.user)
+            processed += 1
+        except DjangoValidationError:
+            # Row raced out of ``pending`` between fetch and resend.
+            skipped += 1
+    return Response({"processed": processed, "skipped": skipped})
+
+
 @extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

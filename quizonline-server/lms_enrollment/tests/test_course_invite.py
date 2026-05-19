@@ -362,6 +362,62 @@ def test_endpoint_bulk_send_creates_one_invite_per_member(
 
 
 @pytest.mark.django_db
+def test_endpoint_bulk_resend_resends_all_pending(
+    invite_course, learner, manager, stranger, owner,
+):
+    """Bulk-resend picks up every ``pending`` invite for the course
+    and runs the resend service on each. Already-accepted /
+    revoked invites are left alone — they're not ``pending``."""
+    inv1 = invite_user_to_course(
+        course=invite_course, invitee=learner, inviter=owner,
+    )
+    inv2 = invite_user_to_course(
+        course=invite_course, invitee=manager, inviter=owner,
+    )
+    # A non-pending row on the same course — must stay untouched.
+    revoked = CourseInvite.objects.create(
+        course=invite_course, invitee=stranger, created_by=owner,
+        status=CourseInvite.STATUS_REVOKED,
+        expires_at=timezone.now() + timedelta(days=1),
+    )
+    # Backdate ``last_sent_at`` so we can detect the bump.
+    CourseInvite.objects.filter(pk__in=[inv1.pk, inv2.pk]).update(
+        last_sent_at=timezone.now() - timedelta(days=2),
+    )
+
+    client = APIClient()
+    client.force_authenticate(owner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-resend",
+        kwargs={"course_id": invite_course.id},
+    )
+    response = client.post(url)
+    assert response.status_code == 200
+    body = response.json()
+    assert body == {"processed": 2, "skipped": 0}
+
+    inv1.refresh_from_db()
+    inv2.refresh_from_db()
+    revoked.refresh_from_db()
+    assert inv1.last_sent_at > timezone.now() - timedelta(seconds=10)
+    assert inv2.last_sent_at > timezone.now() - timedelta(seconds=10)
+    # Revoked row was NOT touched.
+    assert revoked.status == CourseInvite.STATUS_REVOKED
+
+
+@pytest.mark.django_db
+def test_endpoint_bulk_resend_forbids_non_instructor(invite_course, learner):
+    client = APIClient()
+    client.force_authenticate(learner)
+    url = reverse(
+        "api:lms-enrollment-api:course-invite-bulk-resend",
+        kwargs={"course_id": invite_course.id},
+    )
+    response = client.post(url)
+    assert response.status_code in (400, 403)
+
+
+@pytest.mark.django_db
 def test_endpoint_bulk_send_forbids_non_instructor(invite_course, learner, manager):
     """Bulk send aborts the whole call when the caller is not an
     instructor — no silent partial success."""

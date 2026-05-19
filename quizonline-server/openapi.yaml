@@ -2138,6 +2138,53 @@ paths:
                 - processed
                 - skipped
           description: ''
+  /api/lms/course/{course_id}/invite-bulk-resend/:
+    post:
+      operationId: lms_course_invite_bulk_resend_create
+      description: |-
+        Resend every pending invitation on a course in one shot.
+
+        The instructor companion to ``course_invite_bulk_send``: when a
+        course already has a dozen pending invites and the cohort start
+        date slips, nobody wants to click "Resend" twelve times. This
+        endpoint pulls every ``CourseInvite`` in ``STATUS_PENDING`` for
+        the course, runs :func:`resend_course_invite` on each, and
+        reports a ``{processed, skipped}`` count.
+
+        ``skipped`` covers the narrow race window where a row flips out
+        of ``pending`` between the queryset and the per-row call
+        (someone accepting / declining / the expire sweep landing
+        simultaneously). Returns the bulk shape the catalog already
+        consumes for ``bulk_send`` so the same toast and refresh path
+        apply on the frontend side.
+
+        Counts the whole call as ONE hit against the ``lms_invite_send``
+        throttle bucket — same rationale as bulk_send.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  skipped:
+                    type: integer
+                required:
+                - processed
+                - skipped
+          description: ''
   /api/lms/course/{course_id}/invites/:
     get:
       operationId: lms_course_invites_list

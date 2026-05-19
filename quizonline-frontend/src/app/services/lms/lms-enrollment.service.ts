@@ -222,6 +222,17 @@ export class LmsEnrollmentService {
     );
   }
 
+  /** Instructor-side: re-send every pending invitation on a course in
+   *  one shot. Returns ``{processed, skipped}`` — ``skipped`` covers
+   *  the narrow race where a row leaves ``pending`` between the
+   *  backend's queryset and the per-row resend. */
+  resendAllPendingInvites(courseId: number): Observable<{processed: number; skipped: number}> {
+    return this.http.post<{processed: number; skipped: number}>(
+      `${this.baseUrl}/course/${courseId}/invite-bulk-resend/`,
+      {},
+    );
+  }
+
   /** Instructor-side: revoke a pending invitation. */
   revokeInvite(inviteId: number): Observable<CourseInviteDto> {
     return this.http.post<CourseInviteDto>(

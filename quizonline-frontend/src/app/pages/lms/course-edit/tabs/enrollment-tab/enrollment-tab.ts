@@ -121,6 +121,12 @@ export class LmsCourseEditEnrollmentTab {
   protected readonly invitesLoading = signal(false);
   protected readonly busyInviteId = signal<number | null>(null);
   protected readonly sending = signal(false);
+  /** True while the "Resend all" bulk action is in flight. Disables
+   *  the button + suppresses double-clicks; an independent flag from
+   *  ``busyInviteId`` because the per-row resend buttons disable on
+   *  their own row, but a bulk run needs to disable the whole header
+   *  button regardless of which row is selected. */
+  protected readonly resendingAll = signal(false);
   /** All domain members — used as the autocomplete source. Fetched
    *  once per course / domain change. Each row carries a precomputed
    *  ``displayName`` so the picker's ``field="displayName"`` binding
@@ -397,6 +403,49 @@ export class LmsCourseEditEnrollmentTab {
       rejectLabel: labels.actions.confirmReject,
       accept: () => this.resend(invite),
     });
+  }
+
+  protected confirmResendAll(): void {
+    const n = this.pendingInvites().length;
+    if (n === 0 || this.resendingAll()) {
+      return;
+    }
+    const labels = this.ui();
+    this.confirmer.confirm({
+      header: labels.actions.confirmHeader,
+      message: labels.invite.actions.confirmResendAll(n),
+      icon: 'pi pi-send',
+      acceptLabel: labels.actions.confirmAccept,
+      rejectLabel: labels.actions.confirmReject,
+      accept: () => this.resendAll(),
+    });
+  }
+
+  private resendAll(): void {
+    const id = this.courseId();
+    if (id <= 0 || this.resendingAll()) {
+      return;
+    }
+    this.resendingAll.set(true);
+    this.enrollmentSvc
+      .resendAllPendingInvites(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.resendingAll.set(false);
+          const labels = this.ui().invite.toasts;
+          const summary = result.skipped > 0
+            ? labels.resendAllPartial(result.processed, result.skipped)
+            : labels.resendAllSuccess(result.processed);
+          this.toast.add({severity: 'success', summary});
+          this.refreshInvites();
+        },
+        error: (err: unknown) => {
+          this.resendingAll.set(false);
+          logApiError('lms.course-edit.invite.resend-all', err);
+          this.toast.addApiError(err, this.ui().invite.toasts.resendAllFailed);
+        },
+      });
   }
 
   protected confirmRevoke(invite: CourseInviteDto): void {

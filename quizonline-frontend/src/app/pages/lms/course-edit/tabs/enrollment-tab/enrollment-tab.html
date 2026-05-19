@@ -39,7 +39,22 @@
         </div>
       </div>
 
-      <h3 class="invite-list__heading">{{ ui().invite.pendingListHeading }}</h3>
+      <div class="invite-list__head">
+        <h3 class="invite-list__heading">{{ ui().invite.pendingListHeading }}</h3>
+        @if (pendingInvites().length > 0) {
+          <p-button
+            type="button"
+            icon="pi pi-send"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            [label]="ui().invite.actions.resendAll"
+            [disabled]="resendingAll() || pendingInvites().length === 0"
+            [loading]="resendingAll()"
+            (onClick)="confirmResendAll()">
+          </p-button>
+        }
+      </div>
       <p-table
         [value]="pendingInvites()"
         [loading]="invitesLoading()"

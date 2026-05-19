@@ -184,6 +184,10 @@ export interface LmsCourseInviteBulkCreateRequestParams {
     courseId: number;
 }
 
+export interface LmsCourseInviteBulkResendCreateRequestParams {
+    courseId: number;
+}
+
 export interface LmsCourseInviteCreateRequestParams {
     courseId: number;
     courseInviteSendRequestDto: CourseInviteSendRequestDto;
@@ -1747,6 +1751,66 @@ export class LmsApi extends BaseService {
         }
 
         let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<LmsCourseInviteBulkCreate200ResponseDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Resend every pending invitation on a course in one shot.  The instructor companion to &#x60;&#x60;course_invite_bulk_send&#x60;&#x60;: when a course already has a dozen pending invites and the cohort start date slips, nobody wants to click \&quot;Resend\&quot; twelve times. This endpoint pulls every &#x60;&#x60;CourseInvite&#x60;&#x60; in &#x60;&#x60;STATUS_PENDING&#x60;&#x60; for the course, runs :func:&#x60;resend_course_invite&#x60; on each, and reports a &#x60;&#x60;{processed, skipped}&#x60;&#x60; count.  &#x60;&#x60;skipped&#x60;&#x60; covers the narrow race window where a row flips out of &#x60;&#x60;pending&#x60;&#x60; between the queryset and the per-row call (someone accepting / declining / the expire sweep landing simultaneously). Returns the bulk shape the catalog already consumes for &#x60;&#x60;bulk_send&#x60;&#x60; so the same toast and refresh path apply on the frontend side.  Counts the whole call as ONE hit against the &#x60;&#x60;lms_invite_send&#x60;&#x60; throttle bucket — same rationale as bulk_send.
+     * @endpoint post /api/lms/course/{course_id}/invite-bulk-resend/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lmsCourseInviteBulkResendCreate(requestParameters: LmsCourseInviteBulkResendCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LmsCourseInviteBulkCreate200ResponseDto>;
+    public lmsCourseInviteBulkResendCreate(requestParameters: LmsCourseInviteBulkResendCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LmsCourseInviteBulkCreate200ResponseDto>>;
+    public lmsCourseInviteBulkResendCreate(requestParameters: LmsCourseInviteBulkResendCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LmsCourseInviteBulkCreate200ResponseDto>>;
+    public lmsCourseInviteBulkResendCreate(requestParameters: LmsCourseInviteBulkResendCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const courseId = requestParameters?.courseId;
+        if (courseId === null || courseId === undefined) {
+            throw new Error('Required parameter courseId was null or undefined when calling lmsCourseInviteBulkResendCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/lms/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk-resend/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LmsCourseInviteBulkCreate200ResponseDto>('post', `${basePath}${localVarPath}`,
             {

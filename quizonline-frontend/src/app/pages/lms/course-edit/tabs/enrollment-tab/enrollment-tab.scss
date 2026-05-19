@@ -60,8 +60,20 @@
   }
 }
 
-.invite-list__heading {
+.invite-list__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin: 0.5rem 0 0.75rem;
+
+  .invite-list__heading {
+    margin: 0;
+  }
+}
+
+.invite-list__heading {
   font-size: 1rem;
   font-weight: 600;
 }
