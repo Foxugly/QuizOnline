@@ -28,32 +28,34 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
   selector: 'app-file-block-editor',
   imports: [FormsModule, FileUploadModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
-    <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
-      <p-tablist>
-        @for (lang of availableLangs(); track lang) {
-          <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
-        }
-        <div class="tablist-actions">
-          <app-block-translate-button
-            [block]="block()"
-            [availableLangs]="availableLangs()"
-            [activeLang]="activeLang()"
-            (changed)="changed.emit($event)" />
-        </div>
-      </p-tablist>
-      <p-tabpanels>
-        @for (lang of availableLangs(); track lang) {
-          <p-tabpanel [value]="lang">
-            <label class="field">
-              {{ ui().fieldTitle }}
-              <input pInputText type="text"
-                     [ngModel]="titleFor(lang)"
-                     (ngModelChange)="onTitleChange(lang, $event)" />
-            </label>
-          </p-tabpanel>
-        }
-      </p-tabpanels>
-    </p-tabs>
+    @if (!hideTitle()) {
+      <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
+        <p-tablist>
+          @for (lang of availableLangs(); track lang) {
+            <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+          }
+          <div class="tablist-actions">
+            <app-block-translate-button
+              [block]="block()"
+              [availableLangs]="availableLangs()"
+              [activeLang]="activeLang()"
+              (changed)="changed.emit($event)" />
+          </div>
+        </p-tablist>
+        <p-tabpanels>
+          @for (lang of availableLangs(); track lang) {
+            <p-tabpanel [value]="lang">
+              <label class="field">
+                {{ ui().fieldTitle }}
+                <input pInputText type="text"
+                       [ngModel]="titleFor(lang)"
+                       (ngModelChange)="onTitleChange(lang, $event)" />
+              </label>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    }
 
     <div class="upload-area">
       @if (block().file; as url) {
@@ -97,6 +99,9 @@ export class FileBlockEditor implements OnInit, OnDestroy {
 
   block = input.required<ContentBlock>();
   availableLangs = input<string[]>(['fr', 'en']);
+  /** Hide the per-language title input (and its language tab strip,
+   *  since the title is the only translatable field on this block). */
+  hideTitle = input<boolean>(false);
   changed = output<Partial<ContentBlock>>();
 
   protected readonly uploading = signal(false);

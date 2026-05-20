@@ -32,32 +32,34 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
   selector: 'app-quiz-block-editor',
   imports: [FormsModule, AutoCompleteModule, InputTextModule, TabsModule, TagModule, BlockTranslateButton],
   template: `
-    <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
-      <p-tablist>
-        @for (lang of availableLangs(); track lang) {
-          <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
-        }
-        <div class="tablist-actions">
-          <app-block-translate-button
-            [block]="block()"
-            [availableLangs]="availableLangs()"
-            [activeLang]="activeLang()"
-            (changed)="changed.emit($event)" />
-        </div>
-      </p-tablist>
-      <p-tabpanels>
-        @for (lang of availableLangs(); track lang) {
-          <p-tabpanel [value]="lang">
-            <label class="field">
-              {{ ui().fieldTitle }}
-              <input pInputText type="text"
-                     [ngModel]="titleFor(lang)"
-                     (ngModelChange)="onTitleChange(lang, $event)" />
-            </label>
-          </p-tabpanel>
-        }
-      </p-tabpanels>
-    </p-tabs>
+    @if (!hideTitle()) {
+      <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
+        <p-tablist>
+          @for (lang of availableLangs(); track lang) {
+            <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+          }
+          <div class="tablist-actions">
+            <app-block-translate-button
+              [block]="block()"
+              [availableLangs]="availableLangs()"
+              [activeLang]="activeLang()"
+              (changed)="changed.emit($event)" />
+          </div>
+        </p-tablist>
+        <p-tabpanels>
+          @for (lang of availableLangs(); track lang) {
+            <p-tabpanel [value]="lang">
+              <label class="field">
+                {{ ui().fieldTitle }}
+                <input pInputText type="text"
+                       [ngModel]="titleFor(lang)"
+                       (ngModelChange)="onTitleChange(lang, $event)" />
+              </label>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    }
 
     <div class="field">
       <span>{{ ui().fieldQuizTemplate }}</span>
@@ -112,6 +114,9 @@ export class QuizBlockEditor implements OnInit, OnDestroy {
    *  cannot pick a quiz from another domain (the backend rejects that
    *  combo on save anyway, but pre-filtering keeps the picker honest). */
   domainId = input<number | null>(null);
+  /** Hide the per-language title input (and its language tab strip,
+   *  since the title is the only translatable field on this block). */
+  hideTitle = input<boolean>(false);
   changed = output<Partial<ContentBlock>>();
 
   protected readonly activeLang = signal<string>('');

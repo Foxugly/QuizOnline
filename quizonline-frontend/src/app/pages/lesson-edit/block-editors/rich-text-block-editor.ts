@@ -25,6 +25,9 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
 @Component({
   selector: 'app-rich-text-block-editor',
   imports: [FormsModule, EditorModule, InputTextModule, TabsModule, BlockTranslateButton],
+  host: {
+    '[class.rich-text-block-editor--autogrow]': 'autogrow()',
+  },
   template: `
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
@@ -42,15 +45,17 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
           <p-tabpanel [value]="lang">
-            <label class="field">
-              {{ ui().fieldTitle }}
-              <input pInputText type="text"
-                     [ngModel]="titleFor(lang)"
-                     (ngModelChange)="onTitleChange(lang, $event)" />
-            </label>
+            @if (!hideTitle()) {
+              <label class="field">
+                {{ ui().fieldTitle }}
+                <input pInputText type="text"
+                       [ngModel]="titleFor(lang)"
+                       (ngModelChange)="onTitleChange(lang, $event)" />
+              </label>
+            }
             <p-editor [ngModel]="bodyFor(lang)"
                       (ngModelChange)="onChange(lang, $event)"
-                      [style]="{ height: '200px' }" />
+                      [style]="autogrow() ? {} : { height: '200px' }" />
           </p-tabpanel>
         }
       </p-tabpanels>
@@ -60,6 +65,24 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     :host { display: block; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
     .field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; margin: 0.5rem 0; }
+
+    /* Autogrow mode (turned on by the question host so the prompt /
+     * answer / explanation rich-text editors start as a single line
+     * and grow with content rather than wasting 200 px upfront). Quill
+     * caps its container at the host element's height by default; we
+     * unpin both the container and the editable to height:auto and set
+     * a single-line minimum on the editable so an empty editor is
+     * still clickable. */
+    :host(.rich-text-block-editor--autogrow) ::ng-deep .p-editor-container,
+    :host(.rich-text-block-editor--autogrow) ::ng-deep .p-editor-container .ql-container {
+      height: auto;
+    }
+    :host(.rich-text-block-editor--autogrow) ::ng-deep .p-editor-container .ql-editor {
+      min-height: 1.6em;
+      max-height: none;
+      height: auto;
+      overflow-y: visible;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -69,6 +92,13 @@ export class RichTextBlockEditor implements OnInit, OnDestroy {
 
   block = input.required<ContentBlock>();
   availableLangs = input<string[]>(['fr', 'en']);
+  /** Hide the per-language title input. The Quill body still renders. */
+  hideTitle = input<boolean>(false);
+  /** Single-line minimum height; Quill grows with content as the user
+   *  presses Enter. Used by question hosts (prompt / answer /
+   *  explanation) so the editor doesn't waste 200 px upfront on
+   *  one-line answers. Lesson hosts keep the fixed 200 px default. */
+  autogrow = input<boolean>(false);
   changed = output<Partial<ContentBlock>>();
 
   protected readonly activeLang = signal<string>('');

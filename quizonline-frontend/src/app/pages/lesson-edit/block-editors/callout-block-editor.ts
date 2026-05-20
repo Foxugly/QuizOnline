@@ -40,12 +40,14 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
       <p-tabpanels>
         @for (lang of availableLangs(); track lang) {
           <p-tabpanel [value]="lang">
-            <label>
-              {{ ui().fieldTitle }}
-              <input pInputText type="text"
-                     [ngModel]="titleFor(lang)"
-                     (ngModelChange)="onChange(lang, 'title', $event)" />
-            </label>
+            @if (!hideTitle()) {
+              <label>
+                {{ ui().fieldTitle }}
+                <input pInputText type="text"
+                       [ngModel]="titleFor(lang)"
+                       (ngModelChange)="onChange(lang, 'title', $event)" />
+              </label>
+            }
             <label>
               {{ ui().fieldCalloutBody }}
               <textarea pInputTextarea rows="3"
@@ -70,6 +72,12 @@ export class CalloutBlockEditor implements OnInit, OnDestroy {
 
   block = input.required<ContentBlock>();
   availableLangs = input<string[]>(['fr', 'en']);
+  /** Hide the per-language title input. Question hosts (prompt /
+   *  answer / explanation blocks) don't need block titles since the
+   *  blocks aren't outlined in a learner-facing navigation — the
+   *  lesson-view block outline that consumes ``title`` only exists
+   *  for lesson hosts. */
+  hideTitle = input<boolean>(false);
   changed = output<Partial<ContentBlock>>();
 
   protected readonly activeLang = signal<string>('');

@@ -22,35 +22,44 @@
         @switch (block.block_type) {
           @case ('rich_text') {
             <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                        [hideTitle]="hideBlockTitles()"
+                                        [autogrow]="richTextAutogrow()"
                                         (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('image') {
             <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    [hideTitle]="hideBlockTitles()"
                                     (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('video') {
             <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    [hideTitle]="hideBlockTitles()"
                                     (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('file') {
             <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   [hideTitle]="hideBlockTitles()"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('quiz') {
             <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
                                    [domainId]="domainId() || null"
+                                   [hideTitle]="hideBlockTitles()"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('callout') {
             <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      [hideTitle]="hideBlockTitles()"
                                       (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('code') {
             <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   [hideTitle]="hideBlockTitles()"
                                    (changed)="onBlockChanged(block.id, $event)" />
           }
           @case ('embed') {
             <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    [hideTitle]="hideBlockTitles()"
                                     (changed)="onBlockChanged(block.id, $event)" />
           }
         }
@@ -61,7 +70,7 @@
 
 <div class="add-block-bar" [attr.aria-label]="ui().addBlockBarLabel">
   <span class="hint">{{ ui().addBlockHint }}</span>
-  @for (t of blockTypes; track t.value) {
+  @for (t of blockTypes(); track t.value) {
     <p-button [label]="common().blockTypeLabels[t.value]" [icon]="blockIcons[t.value]"
               severity="secondary" size="small" (onClick)="addBlock(t.value)" />
   }

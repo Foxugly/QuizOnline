@@ -95,6 +95,16 @@ export class BlockListEditor {
   readonly blockRole = input<BlockRole>('body');
   readonly availableLangs = input<string[]>(['fr', 'en']);
   readonly domainId = input<number | null>(null);
+  /** Pass-through to each block editor. ``true`` on question hosts so
+   *  the per-language ``title`` input + its language tab strip vanish —
+   *  question blocks have no learner-facing outline so the field would
+   *  just add noise to the editor. */
+  readonly hideBlockTitles = input<boolean>(false);
+  /** Pass-through to the rich-text block editor: when ``true``, the
+   *  Quill editor starts at a single line and grows with content
+   *  instead of pinning to a 200 px box. Turned on by question hosts
+   *  where the prompt / answer / explanation are usually short. */
+  readonly richTextAutogrow = input<boolean>(false);
 
   readonly blocksChanged = output<void>();
 
@@ -104,11 +114,23 @@ export class BlockListEditor {
   protected readonly lastSavedAt = signal<Map<number, number>>(new Map());
 
   protected readonly blockIcons = BLOCK_ICONS;
-  protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
+  private readonly ALL_BLOCK_TYPES: ReadonlyArray<{value: BlockType}> = [
     {value: 'rich_text'}, {value: 'image'}, {value: 'video'},
     {value: 'file'}, {value: 'quiz'}, {value: 'callout'},
     {value: 'code'}, {value: 'embed'},
   ];
+  /** Block types the "+ add" bar surfaces — derived from ``hostType``.
+   *  Quiz blocks only make sense on lessons (a quiz inside a question
+   *  would be a recursive content structure with no learner-facing
+   *  semantics). For ``question`` / ``answer_option`` hosts we hide
+   *  the option so the author can't even pick it. ``addBlock`` mirrors
+   *  the filter as a defensive guard. */
+  protected readonly blockTypes = computed<ReadonlyArray<{value: BlockType}>>(() => {
+    if (this.hostType() === 'lesson') {
+      return this.ALL_BLOCK_TYPES;
+    }
+    return this.ALL_BLOCK_TYPES.filter((t) => t.value !== 'quiz');
+  });
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
 
@@ -120,6 +142,14 @@ export class BlockListEditor {
   }
 
   protected addBlock(type: BlockType): void {
+    // Defensive guard: the "+ Quiz" button is hidden on question and
+    // answer-option hosts (``blockTypes`` filter), but if a stale view
+    // or a future caller invokes ``addBlock('quiz')`` on a non-lesson
+    // host we drop the request rather than POST a quiz block onto a
+    // structure that has no learner-facing way to render it.
+    if (type === 'quiz' && this.hostType() !== 'lesson') {
+      return;
+    }
     const existing = this.blocks().map((b) => b.order);
     const order = existing.length > 0 ? Math.max(...existing) + 1 : 0;
 
