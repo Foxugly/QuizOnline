@@ -26,6 +26,8 @@ import {UserService} from '../../services/user/user';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {NoCopyDirective} from '../../shared/directives/no-copy.directive';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
+import {BlockCard} from '../../shared/learning/block-card/block-card';
+import {ContentBlock} from '../../shared/learning/content-block.types';
 
 export interface AnswerPayload {
   questionId: number;
@@ -49,6 +51,7 @@ export interface AnswerPayload {
     ButtonModule,
     ToggleButtonModule,
     NoCopyDirective,
+    BlockCard,
   ],
 })
 export class QuizQuestionComponent {
@@ -251,32 +254,33 @@ export class QuizQuestionComponent {
     return this.getT(question)?.title?.trim() ?? '';
   }
 
-  protected getDescription(question: QuestionReadDto): string {
-    return this.getT(question)?.description?.trim() ?? '';
+  /**
+   * Polymorphic prompt blocks. Phase 3 moved the question's prompt
+   * (formerly the parler-translated ``description`` rich-text) onto a
+   * polymorphic block list — ``QuestionRead.prompt_blocks`` carries
+   * the array. We surface it as ``ContentBlock[]`` so ``<app-block-card>``
+   * (the same renderer the learner lesson view uses) can dispatch to
+   * each per-type renderer.
+   */
+  protected promptBlocks(question: QuestionReadDto): ContentBlock[] {
+    return ((question as unknown as { prompt_blocks?: ContentBlock[] }).prompt_blocks ?? [])
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
-  protected getExplanation(question: QuestionReadDto): string {
-    return this.getT(question)?.explanation?.trim() ?? '';
+  /** Polymorphic explanation blocks — same mechanism as the prompt. */
+  protected explanationBlocks(question: QuestionReadDto): ContentBlock[] {
+    return ((question as unknown as { explanation_blocks?: ContentBlock[] }).explanation_blocks ?? [])
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
-  protected getAnswerContent(option: QuestionAnswerOptionReadDto): string {
-    // Phase 3 LMS refactor: AnswerOption content moved from a parler
-    // translation to a polymorphic block list. Until the frontend
-    // question editor is rewritten (follow-up branch), surface the
-    // first non-empty rich_text translation from the option's blocks.
-    const lang = this.currentLang();
-    const blocks = (option as { blocks?: ReadonlyArray<{ translations?: Record<string, { rich_text?: string }> }> }).blocks ?? [];
-    for (const block of blocks) {
-      const current = block.translations?.[lang]?.rich_text?.trim();
-      if (current) return current;
-    }
-    for (const block of blocks) {
-      for (const translation of Object.values(block.translations ?? {})) {
-        const value = translation.rich_text?.trim();
-        if (value) return value;
-      }
-    }
-    return '';
+  /** Block list attached to a single answer option. Phase 3 moved the
+   *  per-answer content (formerly ``AnswerOption.content`` rich-text)
+   *  onto the GenericForeignKey block host. */
+  protected answerBlocks(option: QuestionAnswerOptionReadDto): ContentBlock[] {
+    const blocks = (option as unknown as { blocks?: ContentBlock[] }).blocks ?? [];
+    return blocks.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
   protected canShowCorrectionState(): boolean {
