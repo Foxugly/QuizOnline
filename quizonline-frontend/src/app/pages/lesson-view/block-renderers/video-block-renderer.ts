@@ -4,6 +4,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickTranslation} from '../../../shared/learning/learning-translations';
+import {toYoutubeEmbedUrl} from '../../../shared/media/youtube';
 import {UserService} from '../../../services/user/user';
 import {getLessonViewUiText} from '../lesson-view.i18n';
 
@@ -31,7 +32,7 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
 @Component({
   selector: 'app-block-video',
   template: `
-    @switch (block().video_provider) {
+    @switch (effectiveProvider()) {
       @case ('youtube') {
         <div class="video-frame">
           <iframe [src]="embedUrl()" [title]="title()" frameborder="0" loading="lazy"
@@ -93,18 +94,43 @@ export class VideoBlockRenderer {
     pickTranslation(this.block().translations, this.user.lang(), 'title') || 'Video',
   );
 
+  /** The provider to render with. Falls back to host-based auto-detection
+   *  on the ``video_url`` when the block has no explicit ``video_provider``
+   *  set — older blocks (or ones whose provider was wiped) still embed
+   *  correctly instead of falling through to the "video unavailable"
+   *  placeholder. */
+  protected readonly effectiveProvider = computed<string>(() => {
+    const explicit = (this.block().video_provider || '').toLowerCase();
+    if (explicit) {
+      return explicit;
+    }
+    const url = (this.block().video_url || '').toLowerCase();
+    if (/(?:youtube\.com|youtu\.be)/i.test(url)) {
+      return 'youtube';
+    }
+    if (/vimeo\.com/i.test(url)) {
+      return 'vimeo';
+    }
+    return '';
+  });
+
   protected readonly embedUrl = computed<SafeResourceUrl>(() => {
     const url = this.block().video_url || '';
     return this.sanitizer.bypassSecurityTrustResourceUrl(this.toEmbed(url));
   });
 
-  /** Convert common YouTube and Vimeo watch URLs to their iframe-embed form.
-   *  YouTube uses ``youtube-nocookie.com`` — same player, no third-party
-   *  cookies set before play, no "Consent" interstitial in the EU. */
+  /** Convert common YouTube and Vimeo watch URLs to their iframe-embed
+   *  form. Delegates YouTube parsing to the shared ``toYoutubeEmbedUrl``
+   *  helper (URL-based — handles ``youtu.be`` / ``watch?v=`` / ``embed``
+   *  / ``shorts`` / ``live`` / ``v/`` plus the ``?si=`` share param)
+   *  rather than a local regex that misses edge cases. The shared
+   *  helper already pins us to ``youtube.com/embed`` (not nocookie)
+   *  because the nocookie host surfaces "Vidéo non disponible" on
+   *  perfectly public videos. */
   private toEmbed(url: string): string {
-    const yt = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]+)/);
+    const yt = toYoutubeEmbedUrl(url);
     if (yt) {
-      return `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0`;
+      return `${yt}?rel=0`;
     }
     const vm = url.match(/vimeo\.com\/(\d+)/);
     if (vm) {
