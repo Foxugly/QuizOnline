@@ -28,52 +28,6 @@
       </div>
     </ng-template>
 
-    @if (question.media.length) {
-      <div class="quiz-question__media">
-        @for (m of question.media; track m.id ?? m.sort_order; let i = $index) {
-          @switch (m.asset.kind) {
-            @case ('image') {
-              <p-image
-                [alt]="getTitle(question)"
-                [preview]="true"
-                [src]="mediaSrc(m)"
-                class="quiz-question__media-image"
-              ></p-image>
-            }
-            @case ('video') {
-              <video
-                [src]="mediaSrc(m)"
-                class="quiz-question__media-video"
-                controls
-              >
-                Votre navigateur ne supporte pas la video.
-              </video>
-            }
-            @case ('external') {
-              @if (externalSafeUrl(m); as url) {
-                <div class="youtube-wrapper">
-                  <iframe
-                    [src]="url"
-                    allowfullscreen
-                    frameborder="0"
-                  ></iframe>
-                </div>
-              } @else if (externalLinkUrl(m); as link) {
-                <a
-                  [href]="link"
-                  class="quiz-question__external-link"
-                  rel="noopener"
-                  target="_blank"
-                >
-                  Ouvrir le lien video
-                </a>
-              }
-            }
-          }
-        }
-      </div>
-    }
-
     @if (promptBlocks(question).length) {
       <div class="quiz-question__prompt">
         @for (block of promptBlocks(question); track block.id) {

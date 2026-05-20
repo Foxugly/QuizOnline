@@ -8,24 +8,19 @@ import {
   output,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {CardModule} from 'primeng/card';
-import {ChipModule} from 'primeng/chip';
 import {CheckboxModule} from 'primeng/checkbox';
 import {RadioButtonModule} from 'primeng/radiobutton';
-import {ImageModule} from 'primeng/image';
 import {ButtonModule} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {ToggleButtonModule} from 'primeng/togglebutton';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-answer-option-read';
-import {QuestionMediaReadDto} from '../../api/generated/model/question-media-read';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UserService} from '../../services/user/user';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {NoCopyDirective} from '../../shared/directives/no-copy.directive';
-import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../shared/media/youtube';
 import {BlockCard} from '../../shared/learning/block-card/block-card';
 import {ContentBlock} from '../../shared/learning/content-block.types';
 
@@ -44,10 +39,8 @@ export interface AnswerPayload {
     CommonModule,
     FormsModule,
     CardModule,
-    ChipModule,
     CheckboxModule,
     RadioButtonModule,
-    ImageModule,
     ButtonModule,
     ToggleButtonModule,
     NoCopyDirective,
@@ -82,8 +75,6 @@ export class QuizQuestionComponent {
   readonly currentLang = computed<LanguageEnumDto>(() => this.userService.lang() ?? LanguageEnumDto.Fr);
   selectedOptionIds: number[] = [];
   selectedRadioId: number | null = null;
-
-  private sanitizer = inject(DomSanitizer);
 
   constructor() {
     effect(() => {
@@ -200,48 +191,6 @@ export class QuizQuestionComponent {
     }
 
     return 'answer-line';
-  }
-
-  mediaSrc(m: QuestionMediaReadDto): string {
-    return (m.asset.file as string | null) || m.asset.external_url || '';
-  }
-
-  externalSafeUrl(m: QuestionMediaReadDto): SafeResourceUrl | null {
-    const raw = m.asset.external_url || '';
-    const embed = toYoutubeEmbedUrl(raw);
-
-    if (!embed) {
-      return null;
-    }
-
-    return this.sanitizer.bypassSecurityTrustResourceUrl(embed);
-  }
-
-  externalLinkUrl(m: QuestionMediaReadDto): string | null {
-    return m.asset.external_url || null;
-  }
-
-  isYoutubeMedia(m: QuestionMediaReadDto): boolean {
-    return isYoutubeUrl(m.asset.external_url || '');
-  }
-
-  stripOuterP(html: string): string {
-    if (!html) {
-      return html;
-    }
-
-    const trimmed = html.trim();
-    let inner = trimmed;
-
-    if (trimmed.startsWith('<p') && trimmed.endsWith('</p>')) {
-      const startTagEnd = trimmed.indexOf('>') + 1;
-      const endTagStart = trimmed.lastIndexOf('</p>');
-      inner = trimmed.substring(startTagEnd, endTagStart).trim();
-    }
-
-    return inner
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\u00A0/g, ' ');
   }
 
   protected getT(question: QuestionReadDto): any {
