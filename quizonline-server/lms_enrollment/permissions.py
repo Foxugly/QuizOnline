@@ -1,7 +1,7 @@
 from rest_framework.permissions import AllowAny, BasePermission
 
 from config.permissions import is_authenticated_user, is_django_admin
-from lms_catalog.permissions import is_lms_instructor
+from course.permissions import is_lms_instructor
 
 
 class IsEnrollmentOwnerOrInstructor(BasePermission):

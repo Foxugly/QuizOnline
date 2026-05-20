@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import PermissionDenied
 
-from lms_catalog.models import Course
+from course.models import Course
 from lms_enrollment.models import CourseEnrollment
 from lms_enrollment.services import (
     approve_enrollment,

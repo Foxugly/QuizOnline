@@ -15,7 +15,8 @@ from customuser.notifications import (
     notify,
     notify_many,
 )
-from lms_catalog.models import Course, Lesson
+from course.models import Course
+from lesson.models import Lesson
 from .models import (
     Certificate,
     CertificateSequence,

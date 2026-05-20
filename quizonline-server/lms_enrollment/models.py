@@ -34,7 +34,7 @@ class CourseEnrollment(AuditMixin, models.Model):
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_enrollments")
-    course = models.ForeignKey("lms_catalog.Course", on_delete=models.CASCADE, related_name="enrollments")
+    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="enrollments")
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -51,7 +51,7 @@ class CourseEnrollment(AuditMixin, models.Model):
 
 class LessonProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lesson_progress")
-    lesson = models.ForeignKey("lms_catalog.Lesson", on_delete=models.CASCADE, related_name="user_progress")
+    lesson = models.ForeignKey("lesson.Lesson", on_delete=models.CASCADE, related_name="user_progress")
     is_started = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     started_at = models.DateTimeField(null=True, blank=True)
@@ -68,7 +68,7 @@ class LessonProgress(models.Model):
 
 class CourseProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_progress")
-    course = models.ForeignKey("lms_catalog.Course", on_delete=models.CASCADE, related_name="user_progress")
+    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="user_progress")
     completed_lessons_count = models.PositiveIntegerField(default=0)
     total_lessons_count = models.PositiveIntegerField(default=0)
     progress_percent = models.PositiveSmallIntegerField(default=0)
@@ -87,7 +87,7 @@ class CertificateSequence(models.Model):
 
 class Certificate(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="certificates")
-    course = models.ForeignKey("lms_catalog.Course", on_delete=models.PROTECT, related_name="certificates")
+    course = models.ForeignKey("course.Course", on_delete=models.PROTECT, related_name="certificates")
     issued_at = models.DateTimeField(auto_now_add=True)
     certificate_number = models.CharField(max_length=32, unique=True)
     verification_token = models.CharField(max_length=64, unique=True, db_index=True)
@@ -151,7 +151,7 @@ class CourseInvite(AuditMixin, models.Model):
     ]
 
     course = models.ForeignKey(
-        "lms_catalog.Course",
+        "course.Course",
         on_delete=models.CASCADE,
         related_name="invites",
     )
@@ -243,7 +243,7 @@ class LessonNote(models.Model):
         related_name="lesson_notes",
     )
     lesson = models.ForeignKey(
-        "lms_catalog.Lesson",
+        "lesson.Lesson",
         on_delete=models.CASCADE,
         related_name="user_notes",
     )

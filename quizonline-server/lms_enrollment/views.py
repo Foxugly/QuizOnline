@@ -18,9 +18,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 
-from lms_catalog.models import Course, Lesson
-from lms_catalog.permissions import is_lms_instructor
-from lms_catalog.services import record_course_audit
+from course.models import Course
+from course.permissions import is_lms_instructor
+from course.services import record_course_audit
+from lesson.models import Lesson
 
 from .models import (
     Certificate,
@@ -71,8 +72,8 @@ class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
             except (TypeError, ValueError):
                 return base.none()
             # Instructor of that course → see all its enrollments.
-            from lms_catalog.models import Course
-            from lms_catalog.permissions import is_lms_instructor
+            from course.models import Course
+            from course.permissions import is_lms_instructor
             course = Course.objects.filter(pk=course_id).first()
             if course and is_lms_instructor(user, course):
                 qs = base.filter(course=course)

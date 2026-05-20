@@ -154,7 +154,7 @@ def make_course_invite_received_email_callable(invite):
             raw_description = invite.course.safe_translation_getter(
                 "description", language_code=lang, any_language=True,
             ) or ""
-            from lms_catalog.sanitizer import sanitize_rich_text
+            from block.sanitizer import sanitize_rich_text
             course_description = sanitize_rich_text(raw_description)
             _send_html_email(
                 to_email=invite.invitee.email, subject=subject,
@@ -256,7 +256,7 @@ def make_course_invite_reminder_email_callable(invite):
             raw_description = invite.course.safe_translation_getter(
                 "description", language_code=lang, any_language=True,
             ) or ""
-            from lms_catalog.sanitizer import sanitize_rich_text
+            from block.sanitizer import sanitize_rich_text
             course_description = sanitize_rich_text(raw_description)
             _send_html_email(
                 to_email=invite.invitee.email, subject=subject,

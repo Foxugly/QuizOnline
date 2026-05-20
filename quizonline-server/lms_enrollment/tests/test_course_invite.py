@@ -27,7 +27,7 @@ from customuser.models import CustomUser
 from customuser.notifications import (
     KIND_COURSE_INVITE_RECEIVED,
 )
-from lms_catalog.models import Course
+from course.models import Course
 from lms_enrollment.models import CourseEnrollment, CourseInvite
 from lms_enrollment.services import (
     accept_course_invite,
@@ -406,7 +406,7 @@ def test_endpoint_bulk_resend_resends_all_pending(
 
     # Exactly one audit row for the whole bulk action — readability
     # over fidelity, mirrors bulk_send semantics.
-    from lms_catalog.models import CourseAuditLog
+    from course.models import CourseAuditLog
     audit = CourseAuditLog.objects.filter(
         course=invite_course, action="course.invite.bulk_resend",
     )

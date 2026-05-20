@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from lms_catalog.permissions import IsLmsInstructorOrReadOnly
+from course.permissions import IsLmsInstructorOrReadOnly
 
 from .models import LessonQuiz
 from .serializers import LessonQuizSerializer

@@ -1,7 +1,8 @@
 import pytest
 
 from lms_assessment.models import LessonQuiz
-from lms_catalog.models import Lesson, Section
+from course.models import Section
+from lesson.models import Lesson
 from lms_enrollment.models import Certificate
 from lms_enrollment.services import enroll_user_to_course, mark_lesson_completed
 from quiz.models import Quiz

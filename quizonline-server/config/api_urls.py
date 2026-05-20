@@ -20,7 +20,9 @@ urlpatterns = [
     path("lang/", include(("language.api_urls", "lang"), namespace="lang-api")),
     path("translate/", include(("translation.api_urls", "translation"), namespace="translate-api")),
     path("lms/", include([
-        path("", include(("lms_catalog.api_urls", "lms_catalog"), namespace="lms-catalog-api")),
+        path("", include(("course.api_urls", "course"), namespace="course-api")),
+        path("", include(("lesson.api_urls", "lesson"), namespace="lesson-api")),
+        path("", include(("block.api_urls", "block"), namespace="block-api")),
         path("", include(("lms_assessment.api_urls", "lms_assessment"), namespace="lms-assessment-api")),
         path("", include(("lms_enrollment.api_urls", "lms_enrollment"), namespace="lms-enrollment-api")),
     ])),

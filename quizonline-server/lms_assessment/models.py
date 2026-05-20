@@ -6,11 +6,11 @@ from django.utils.translation import gettext_lazy as _
 
 class LessonQuiz(models.Model):
     lesson = models.OneToOneField(
-        "lms_catalog.Lesson", on_delete=models.CASCADE,
+        "lesson.Lesson", on_delete=models.CASCADE,
         related_name="validation_quiz", null=True, blank=True,
     )
     course = models.OneToOneField(
-        "lms_catalog.Course", on_delete=models.CASCADE,
+        "course.Course", on_delete=models.CASCADE,
         related_name="final_quiz", null=True, blank=True,
     )
     quiz_template = models.ForeignKey(

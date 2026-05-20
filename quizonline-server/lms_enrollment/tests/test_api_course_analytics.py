@@ -68,7 +68,7 @@ def test_empty_course_returns_zeros(owner, url):
 def test_invite_analytics_metrics(course, owner, learner, url):
     """Acceptance rate + median decision hours + counts + trend
     populate when invitations exist."""
-    from lms_catalog.models import Course
+    from course.models import Course
     from lms_enrollment.models import CourseInvite
     from lms_enrollment.services import (
         accept_course_invite,

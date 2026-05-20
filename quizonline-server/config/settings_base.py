@@ -128,7 +128,9 @@ INSTALLED_APPS = [
     "domain.apps.DomainConfig",
     "language.apps.LanguageConfig",
     "translation.apps.TranslationConfig",
-    "lms_catalog.apps.LmsCatalogConfig",
+    "course.apps.CourseConfig",
+    "lesson.apps.LessonConfig",
+    "block.apps.BlockConfig",
     "lms_assessment.apps.LmsAssessmentConfig",
     "lms_enrollment.apps.LmsEnrollmentConfig",
 ]

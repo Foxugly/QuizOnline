@@ -1,6 +1,7 @@
 import pytest
 
-from lms_catalog.models import Lesson, Section
+from course.models import Section
+from lesson.models import Lesson
 from lms_enrollment.models import CourseEnrollment, CourseProgress
 from lms_enrollment.services import (
     enroll_user_to_course,

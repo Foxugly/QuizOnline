@@ -3,7 +3,8 @@ import pytest
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
-from lms_catalog.models import Course, Lesson, Section
+from course.models import Course, Section
+from lesson.models import Lesson
 
 
 @pytest.fixture

@@ -27,7 +27,7 @@ from core.seed_e2e import (
     upsert_translation,
 )
 from language.models import Language
-from lms_catalog.models import Course
+from course.models import Course
 from lms_enrollment.models import CourseEnrollment, CourseInvite
 
 
