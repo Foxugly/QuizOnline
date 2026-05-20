@@ -1,0 +1,68 @@
+@if (blocks().length === 0) {
+  <div class="empty-state empty-state--inline">
+    <p>{{ ui().emptyHint }}</p>
+  </div>
+}
+
+<div cdkDropList (cdkDropListDropped)="onDrop($event)" class="block-list">
+  @for (block of blocks(); track block.id) {
+    <div cdkDrag class="block-card" [id]="anchorFor(block.id)">
+      <div class="block-header">
+        <p-button icon="pi pi-arrows-v" severity="secondary" cdkDragHandle />
+        <span class="block-label">
+          <i [class]="blockIcons[block.block_type]"></i>
+          {{ common().blockTypeLabels[block.block_type] }}
+        </span>
+        <app-saved-indicator [savedAt]="savedAtFor(block.id)" />
+        <p-button icon="pi pi-trash" severity="danger" size="small"
+                  (onClick)="deleteBlock(block.id)"
+                  [attr.aria-label]="ui().deleteBlockAria" />
+      </div>
+      <div class="block-body">
+        @switch (block.block_type) {
+          @case ('rich_text') {
+            <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                        (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('image') {
+            <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('video') {
+            <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('file') {
+            <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('quiz') {
+            <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   [domainId]="domainId() || null"
+                                   (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('callout') {
+            <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('code') {
+            <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                   (changed)="onBlockChanged(block.id, $event)" />
+          }
+          @case ('embed') {
+            <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                    (changed)="onBlockChanged(block.id, $event)" />
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<div class="add-block-bar" [attr.aria-label]="ui().addBlockBarLabel">
+  <span class="hint">{{ ui().addBlockHint }}</span>
+  @for (t of blockTypes; track t.value) {
+    <p-button [label]="common().blockTypeLabels[t.value]" [icon]="blockIcons[t.value]"
+              severity="secondary" size="small" (onClick)="addBlock(t.value)" />
+  }
+</div>

@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  scroll-margin-top: 1rem;
+}
+
+.block-card {
+  scroll-margin-top: 1rem;
+  border: 1px solid var(--surface-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--surface-0, white);
+}
+
+.block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+  background: var(--surface-100, #f9fafb);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.block-label {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.block-body {
+  padding: 0.75rem;
+}
+
+.add-block-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--surface-50, #f3f4f6);
+  border-radius: 8px;
+  align-items: center;
+}
+
+.add-block-bar .hint {
+  flex-basis: 100%;
+  color: var(--text-color-secondary, #6b7280);
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  color: var(--text-color-secondary, #6b7280);
+
+  &--inline {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* The PrimeNG move button is wrapped in ``cdkDragHandle`` — show a
+ * grab cursor (and a pulse on hover) so it reads as draggable. */
+:host ::ng-deep [cdkDragHandle] {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:hover .p-button {
+    background: var(--p-primary-100, #dbeafe);
+    border-color: var(--p-primary-color, #3b82f6);
+  }
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+  background: var(--surface-100, #f9fafb);
+  border: 2px dashed var(--p-primary-color, #3b82f6);
+  border-radius: 8px;
+  min-height: 3rem;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.22);
+  border-radius: 8px;
+  background: var(--surface-0, white);
+  border: 1px solid var(--p-primary-color, #3b82f6);
+}
