@@ -28,11 +28,11 @@ model/action-enum.ts
 model/alert-thread-status-enum.ts
 model/answer-correctness-state-enum.ts
 model/blank-enum.ts
+model/block-request.ts
 model/block-type-enum.ts
+model/block.ts
 model/bulk-create-from-template-input-request.ts
 model/certificate.ts
-model/content-block-request.ts
-model/content-block.ts
 model/course-detail-my-enrollment.ts
 model/course-detail-my-pending-invite.ts
 model/course-detail-request.ts
@@ -118,8 +118,8 @@ model/mode-enum.ts
 model/models.ts
 model/moderation-summary-item.ts
 model/notification-read.ts
+model/paginated-block-list.ts
 model/paginated-certificate-list.ts
-model/paginated-content-block-list.ts
 model/paginated-course-enrollment-list.ts
 model/paginated-course-list-list.ts
 model/paginated-course-progress-list.ts
@@ -145,7 +145,7 @@ model/password-change-request.ts
 model/password-reset-confirm-request.ts
 model/password-reset-ok.ts
 model/password-reset-request-request.ts
-model/patched-content-block-request.ts
+model/patched-block-request.ts
 model/patched-course-write-request.ts
 model/patched-custom-user-admin-update-request.ts
 model/patched-custom-user-profile-update-request.ts

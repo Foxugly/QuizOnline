@@ -1,4 +1,4 @@
-"""HTML sanitization for ContentBlock.rich_text — XSS-safe whitelist."""
+"""HTML sanitization for Block.rich_text — XSS-safe whitelist."""
 
 import re
 

@@ -53,10 +53,10 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             "section_title", "position_in_section",
         ]
 
-    @extend_schema_field({"type": "array", "items": {"$ref": "#/components/schemas/ContentBlock"}})
+    @extend_schema_field({"type": "array", "items": {"$ref": "#/components/schemas/Block"}})
     def get_blocks(self, obj):
-        from block.serializers import ContentBlockSerializer
-        return ContentBlockSerializer(obj.blocks.all(), many=True, context=self.context).data
+        from block.serializers import BlockSerializer
+        return BlockSerializer(obj.blocks.all(), many=True, context=self.context).data
 
     def get_available_lang_codes(self, obj):
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))

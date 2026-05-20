@@ -7,13 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ContentBlockDto } from './content-block';
+import { BlockDto } from './block';
 
 
-export interface PaginatedContentBlockListDto { 
+export interface PaginatedBlockListDto { 
     count: number;
     next?: string | null;
     previous?: string | null;
-    results: Array<ContentBlockDto>;
+    results: Array<BlockDto>;
 }
 

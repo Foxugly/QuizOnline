@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from course.models import Section
 from lesson.models import Lesson
-from block.models import ContentBlock
+from block.models import Block
 from course.services import reorder_sections
 from lesson.services import reorder_lessons
 from block.services import reorder_blocks
@@ -11,8 +11,8 @@ from block.services import reorder_blocks
 
 @pytest.mark.django_db
 def test_reorder_blocks_swaps_two(lesson):
-    a = ContentBlock.objects.create(lesson=lesson, block_type=ContentBlock.TYPE_CODE, code_content="A", order=0)
-    b = ContentBlock.objects.create(lesson=lesson, block_type=ContentBlock.TYPE_CODE, code_content="B", order=1)
+    a = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="A", order=0)
+    b = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="B", order=1)
     reorder_blocks(lesson=lesson, block_ids_in_order=[b.id, a.id])
     a.refresh_from_db()
     b.refresh_from_db()
@@ -21,7 +21,7 @@ def test_reorder_blocks_swaps_two(lesson):
 
 @pytest.mark.django_db
 def test_reorder_blocks_rejects_unknown_id(lesson):
-    a = ContentBlock.objects.create(lesson=lesson, block_type=ContentBlock.TYPE_CODE, code_content="A", order=0)
+    a = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="A", order=0)
     with pytest.raises(ValidationError):
         reorder_blocks(lesson=lesson, block_ids_in_order=[a.id, 999999])
 

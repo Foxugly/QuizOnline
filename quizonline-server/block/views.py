@@ -5,19 +5,24 @@ from rest_framework.throttling import ScopedRateThrottle
 
 from course.permissions import IsLmsInstructorOrReadOnly
 
-from .models import ContentBlock
-from .serializers import ContentBlockSerializer
+from .models import Block
+from .serializers import BlockSerializer
 from .services import compact_blocks
 
 
-class ContentBlockViewSet(viewsets.ModelViewSet):
+class BlockViewSet(viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
-    serializer_class = ContentBlockSerializer
+    serializer_class = BlockSerializer
 
     def get_queryset(self):
+        # ``select_related("target_content_type")`` keeps the ContentType
+        # lookup cheap; the GFK target itself is resolved lazily on
+        # access. Lesson-hosted blocks still walk to the parent course
+        # for the visibility check via the ``related_query_name="lesson"``
+        # alias declared on ``Lesson.blocks``.
         return (
-            ContentBlock.objects.visible_to(self.request.user)
-            .select_related("lesson", "lesson__section", "lesson__section__course")
+            Block.objects.visible_to(self.request.user)
+            .select_related("target_content_type")
         )
 
     def get_throttles(self):
@@ -28,6 +33,11 @@ class ContentBlockViewSet(viewsets.ModelViewSet):
         return []
 
     def perform_destroy(self, instance):
-        lesson = instance.lesson
+        # Capture the host before deletion so ``compact_blocks`` can
+        # renumber its surviving siblings. Today the host is always a
+        # Lesson; Phase 3 will extend ``compact_blocks`` to handle
+        # Question / AnswerOption hosts.
+        host = instance.target
         instance.delete()
-        compact_blocks(lesson=lesson)
+        if host is not None:
+            compact_blocks(lesson=host)

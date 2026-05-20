@@ -1,11 +1,11 @@
 """Tests for the draft-friendly ``POST /api/lms/block/`` flow.
 
-The frontend block-builder UX creates a content block as soon as the
-author clicks "+ Add <type>" — at which point the payload genuinely
-has no per-type content yet — and only fills it in afterwards via
-debounced PATCH calls. ``ContentBlockSerializer.validate()`` must
-therefore accept an empty draft on CREATE while still enforcing the
-per-type ``ContentBlock.clean()`` validators on UPDATE.
+The frontend block-builder UX creates a block as soon as the author
+clicks "+ Add <type>" — at which point the payload genuinely has no
+per-type content yet — and only fills it in afterwards via debounced
+PATCH calls. ``BlockSerializer.validate()`` must therefore accept an
+empty draft on CREATE while still enforcing the per-type
+``Block.clean()`` validators on UPDATE.
 
 These tests pin that contract end-to-end through the DRF view so the
 loop "create empty → patch content" cannot regress to a 400 again.
@@ -16,7 +16,7 @@ from rest_framework.test import APIClient
 
 from course.models import Section
 from lesson.models import Lesson
-from block.models import ContentBlock
+from block.models import Block
 
 
 def _auth(user):
@@ -27,7 +27,7 @@ def _auth(user):
 
 @pytest.fixture
 def visible_lesson(db, course):
-    """A lesson that ``ContentBlockQuerySet.visible_to`` will surface for the owner.
+    """A lesson that ``BlockQuerySet.visible_to`` will surface for the owner.
 
     The default ``lesson`` fixture sits on an unpublished section with
     ``is_published=False`` and ``is_preview=False`` — fine for raw-model
@@ -55,11 +55,11 @@ def test_create_rich_text_block_with_empty_payload_succeeds(visible_lesson, owne
     """POST with the minimal draft payload (no per-type content) must 201."""
     r = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_RICH_TEXT),
+        _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
     assert r.status_code == 201, r.content
-    assert r.data["block_type"] == ContentBlock.TYPE_RICH_TEXT
+    assert r.data["block_type"] == Block.TYPE_RICH_TEXT
     assert r.data["order"] == 0
 
 
@@ -68,11 +68,11 @@ def test_create_code_block_with_empty_payload_succeeds(visible_lesson, owner):
     """Same draft flow for a different block type to cover the pattern."""
     r = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_CODE),
+        _draft_payload(visible_lesson, Block.TYPE_CODE),
         format="json",
     )
     assert r.status_code == 201, r.content
-    assert r.data["block_type"] == ContentBlock.TYPE_CODE
+    assert r.data["block_type"] == Block.TYPE_CODE
 
 
 @pytest.mark.django_db
@@ -87,7 +87,7 @@ def test_create_block_succeeds_when_domain_has_no_allowed_languages(visible_less
     course.domain.allowed_languages.clear()
     r = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_RICH_TEXT),
+        _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
     assert r.status_code == 201, r.content
@@ -98,7 +98,7 @@ def test_patch_rich_text_block_with_empty_translations_still_fails(visible_lesso
     """PATCHing back an empty translation map keeps the per-type check active."""
     create = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_RICH_TEXT),
+        _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
     assert create.status_code == 201, create.content
@@ -117,7 +117,7 @@ def test_patch_rich_text_block_with_content_succeeds(visible_lesson, owner):
     """The end-to-end "create empty -> patch real content" flow."""
     create = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_RICH_TEXT),
+        _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
     assert create.status_code == 201, create.content
@@ -129,7 +129,7 @@ def test_patch_rich_text_block_with_content_succeeds(visible_lesson, owner):
         format="json",
     )
     assert r.status_code == 200, r.content
-    block = ContentBlock.objects.get(pk=block_id)
+    block = Block.objects.get(pk=block_id)
     block.set_current_language("fr")
     assert block.rich_text == "<p>hi</p>"
 
@@ -139,7 +139,7 @@ def test_patch_code_block_with_content_succeeds(visible_lesson, owner):
     """Mirror the rich_text flow on a non-translated payload field."""
     create = _auth(owner).post(
         "/api/lms/block/",
-        _draft_payload(visible_lesson, ContentBlock.TYPE_CODE),
+        _draft_payload(visible_lesson, Block.TYPE_CODE),
         format="json",
     )
     assert create.status_code == 201, create.content
@@ -151,6 +151,6 @@ def test_patch_code_block_with_content_succeeds(visible_lesson, owner):
         format="json",
     )
     assert r.status_code == 200, r.content
-    block = ContentBlock.objects.get(pk=block_id)
+    block = Block.objects.get(pk=block_id)
     assert block.code_content == "print('hi')"
     assert block.code_language == "python"

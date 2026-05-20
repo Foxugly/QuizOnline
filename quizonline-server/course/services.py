@@ -88,7 +88,7 @@ def import_course_from_dict(*, payload: dict, target_domain, by_user) -> Course:
     uploaded files, quiz_template FKs) are dropped: the structural
     skeleton (text, structure, block types) carries over, the rest
     has to be re-attached on the new side."""
-    from block.models import ContentBlock
+    from block.models import Block
     from language.models import Language
     from lesson.models import Lesson
 
@@ -142,9 +142,9 @@ def import_course_from_dict(*, payload: dict, target_domain, by_user) -> Course:
             )
             _apply_translations(lesson, l_payload.get("translations", {}), allowed)
             for b_payload in l_payload.get("blocks", []) or []:
-                block = ContentBlock.objects.create(
-                    lesson=lesson,
-                    block_type=b_payload.get("block_type", ContentBlock.TYPE_RICH_TEXT),
+                block = Block.objects.create(
+                    target=lesson,
+                    block_type=b_payload.get("block_type", Block.TYPE_RICH_TEXT),
                     order=int(b_payload.get("order") or 0),
                     is_required=bool(b_payload.get("is_required")),
                     video_url=b_payload.get("video_url", ""),
@@ -269,7 +269,7 @@ def _unique_clone_slug(base_slug: str) -> str:
 
 @transaction.atomic
 def clone_course(*, source: Course, by_user, target_domain=None) -> Course:
-    from block.models import ContentBlock
+    from block.models import Block
     from lesson.models import Lesson
 
     new_domain = target_domain or source.domain
@@ -313,9 +313,18 @@ def clone_course(*, source: Course, by_user, target_domain=None) -> Course:
                 new_lesson.short_description = tr.short_description
                 new_lesson.save()
             for old_block in old_lesson.blocks.all():
-                fields = {f.name: getattr(old_block, f.name) for f in ContentBlock._meta.concrete_fields if f.name != "id"}
-                fields["lesson"] = new_lesson
-                new_block = ContentBlock.objects.create(**fields)
+                # Skip the GFK pair — we re-point the clone at the new
+                # lesson explicitly via ``target=`` below so the cloned
+                # block lands on the right host without dragging the
+                # source row's content_type / object_id over.
+                exclude = {"id", "target_content_type", "target_object_id"}
+                fields = {
+                    f.name: getattr(old_block, f.name)
+                    for f in Block._meta.concrete_fields
+                    if f.name not in exclude
+                }
+                fields["target"] = new_lesson
+                new_block = Block.objects.create(**fields)
                 for tr in old_block.translations.all():
                     new_block.set_current_language(tr.language_code)
                     new_block.title = tr.title

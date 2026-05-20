@@ -1,13 +1,30 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
-from .querysets import ContentBlockQuerySet
+from .querysets import BlockQuerySet
 
 
-class ContentBlock(TranslatableModel):
+class Block(TranslatableModel):
+    """Polymorphic content block attached to any host via GenericForeignKey.
+
+    Phase 2 of the LMS refactor: ``Block`` used to be hard-wired to
+    ``Lesson`` through a plain ``ForeignKey``. To prepare Phase 3 — where
+    ``Question`` and ``AnswerOption`` also become block hosts — the FK
+    is replaced with a ``(content_type, object_id)`` pair and a
+    ``target`` GFK. Lesson keeps its ``lesson.blocks.all()`` accessor
+    via a ``GenericRelation`` on the Lesson model.
+
+    The reverse-query name ``"lesson"`` is preserved on Lesson's
+    GenericRelation so existing read paths like
+    ``Block.objects.filter(lesson__section__course=course)`` keep
+    working unchanged through the refactor.
+    """
+
     TYPE_RICH_TEXT = "rich_text"
     TYPE_IMAGE = "image"
     TYPE_VIDEO = "video"
@@ -32,9 +49,15 @@ class ContentBlock(TranslatableModel):
         ("upload", _("Self-hosted")),
     ]
 
-    lesson = models.ForeignKey(
-        "lesson.Lesson", on_delete=models.CASCADE, related_name="blocks",
+    # Generic host: Lesson today, Question / AnswerOption in Phase 3.
+    target_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="block_hosts",
     )
+    target_object_id = models.BigIntegerField()
+    target = GenericForeignKey("target_content_type", "target_object_id")
+
     block_type = models.CharField(max_length=16, choices=TYPE_CHOICES)
     order = models.PositiveIntegerField(default=0, db_index=True)
     is_required = models.BooleanField(default=False)
@@ -58,12 +81,18 @@ class ContentBlock(TranslatableModel):
         callout_text=models.TextField(_("callout text"), blank=True),
     )
 
-    objects = TranslatableManager.from_queryset(ContentBlockQuerySet)()
+    objects = TranslatableManager.from_queryset(BlockQuerySet)()
 
     class Meta:
-        ordering = ["lesson", "order"]
+        ordering = ["target_content_type", "target_object_id", "order"]
         constraints = [
-            models.UniqueConstraint(fields=["lesson", "order"], name="uniq_block_order_per_lesson"),
+            models.UniqueConstraint(
+                fields=["target_content_type", "target_object_id", "order"],
+                name="uniq_block_order_per_target",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["target_content_type", "target_object_id"]),
         ]
 
     def _has_translated_value(self, field: str) -> bool:
@@ -103,11 +132,16 @@ class ContentBlock(TranslatableModel):
         check = validators.get(self.block_type)
         if check and not check():
             raise ValidationError({
-                "block_type": _("ContentBlock of type %(t)s is missing its required payload.") % {"t": self.block_type},
+                "block_type": _("Block of type %(t)s is missing its required payload.") % {"t": self.block_type},
             })
-        if self.block_type == self.TYPE_QUIZ and self.quiz_template_id and self.lesson_id:
-            course_domain_id = self.lesson.section.course.domain_id
-            if self.quiz_template.domain_id != course_domain_id:
+        if self.block_type == self.TYPE_QUIZ and self.quiz_template_id:
+            # For now, only Lesson is a host (Question/AnswerOption land in Phase 3).
+            # Walk the GFK to fetch the host and pull its course's domain id.
+            host = self.target
+            host_domain_id = None
+            if host is not None and hasattr(host, "section"):
+                host_domain_id = host.section.course.domain_id
+            if host_domain_id and self.quiz_template.domain_id != host_domain_id:
                 raise ValidationError({
                     "quiz_template": _("Quiz must belong to the same domain as the course."),
                 })

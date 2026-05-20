@@ -2,7 +2,7 @@ import pytest
 
 from course.models import Section
 from lesson.models import Lesson
-from block.models import ContentBlock
+from block.models import Block
 from course.services import clone_course
 
 
@@ -16,7 +16,7 @@ def test_clone_course_duplicates_structure(course, owner):
     lesson.set_current_language("fr")
     lesson.title = "L1"
     lesson.save()
-    ContentBlock.objects.create(lesson=lesson, block_type=ContentBlock.TYPE_CODE, code_content="A", order=0)
+    Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="A", order=0)
 
     cloned = clone_course(source=course, by_user=owner)
 

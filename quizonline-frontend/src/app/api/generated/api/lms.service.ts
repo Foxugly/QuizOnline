@@ -17,11 +17,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { BlockDto } from '../model/block';
+// @ts-ignore
+import { BlockRequestDto } from '../model/block-request';
+// @ts-ignore
 import { CertificateDto } from '../model/certificate';
-// @ts-ignore
-import { ContentBlockDto } from '../model/content-block';
-// @ts-ignore
-import { ContentBlockRequestDto } from '../model/content-block-request';
 // @ts-ignore
 import { CourseDetailDto } from '../model/course-detail';
 // @ts-ignore
@@ -51,9 +51,9 @@ import { LessonQuizRequestDto } from '../model/lesson-quiz-request';
 // @ts-ignore
 import { LmsCourseInviteBulkCreate200ResponseDto } from '../model/lms-course-invite-bulk-create200-response';
 // @ts-ignore
-import { PaginatedCertificateListDto } from '../model/paginated-certificate-list';
+import { PaginatedBlockListDto } from '../model/paginated-block-list';
 // @ts-ignore
-import { PaginatedContentBlockListDto } from '../model/paginated-content-block-list';
+import { PaginatedCertificateListDto } from '../model/paginated-certificate-list';
 // @ts-ignore
 import { PaginatedCourseEnrollmentListDto } from '../model/paginated-course-enrollment-list';
 // @ts-ignore
@@ -67,7 +67,7 @@ import { PaginatedLessonQuizListDto } from '../model/paginated-lesson-quiz-list'
 // @ts-ignore
 import { PaginatedSectionListDto } from '../model/paginated-section-list';
 // @ts-ignore
-import { PatchedContentBlockRequestDto } from '../model/patched-content-block-request';
+import { PatchedBlockRequestDto } from '../model/patched-block-request';
 // @ts-ignore
 import { PatchedCourseWriteRequestDto } from '../model/patched-course-write-request';
 // @ts-ignore
@@ -88,11 +88,11 @@ import { BaseService } from '../api.base.service';
 
 
 export interface LmsBlockCreateRequestParams {
-    contentBlockRequestDto: ContentBlockRequestDto;
+    blockRequestDto: BlockRequestDto;
 }
 
 export interface LmsBlockDestroyRequestParams {
-    /** A unique integer value identifying this content block. */
+    /** A unique integer value identifying this block. */
     id: number;
 }
 
@@ -102,20 +102,20 @@ export interface LmsBlockListRequestParams {
 }
 
 export interface LmsBlockPartialUpdateRequestParams {
-    /** A unique integer value identifying this content block. */
+    /** A unique integer value identifying this block. */
     id: number;
-    patchedContentBlockRequestDto?: PatchedContentBlockRequestDto;
+    patchedBlockRequestDto?: PatchedBlockRequestDto;
 }
 
 export interface LmsBlockRetrieveRequestParams {
-    /** A unique integer value identifying this content block. */
+    /** A unique integer value identifying this block. */
     id: number;
 }
 
 export interface LmsBlockUpdateRequestParams {
-    /** A unique integer value identifying this content block. */
+    /** A unique integer value identifying this block. */
     id: number;
-    contentBlockRequestDto: ContentBlockRequestDto;
+    blockRequestDto: BlockRequestDto;
 }
 
 export interface LmsCertificateListRequestParams {
@@ -434,13 +434,13 @@ export class LmsApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ContentBlockDto>;
-    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ContentBlockDto>>;
-    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ContentBlockDto>>;
+    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BlockDto>;
+    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BlockDto>>;
+    public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BlockDto>>;
     public lmsBlockCreate(requestParameters: LmsBlockCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const contentBlockRequestDto = requestParameters?.contentBlockRequestDto;
-        if (contentBlockRequestDto === null || contentBlockRequestDto === undefined) {
-            throw new Error('Required parameter contentBlockRequestDto was null or undefined when calling lmsBlockCreate.');
+        const blockRequestDto = requestParameters?.blockRequestDto;
+        if (blockRequestDto === null || blockRequestDto === undefined) {
+            throw new Error('Required parameter blockRequestDto was null or undefined when calling lmsBlockCreate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -484,10 +484,10 @@ export class LmsApi extends BaseService {
 
         let localVarPath = `/api/lms/block/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ContentBlockDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<BlockDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: contentBlockRequestDto,
+                body: blockRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -563,9 +563,9 @@ export class LmsApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedContentBlockListDto>;
-    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedContentBlockListDto>>;
-    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedContentBlockListDto>>;
+    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedBlockListDto>;
+    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedBlockListDto>>;
+    public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedBlockListDto>>;
     public lmsBlockList(requestParameters?: LmsBlockListRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const page = requestParameters?.page;
 
@@ -610,7 +610,7 @@ export class LmsApi extends BaseService {
 
         let localVarPath = `/api/lms/block/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PaginatedContentBlockListDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PaginatedBlockListDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
@@ -631,15 +631,15 @@ export class LmsApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ContentBlockDto>;
-    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ContentBlockDto>>;
-    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ContentBlockDto>>;
+    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BlockDto>;
+    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BlockDto>>;
+    public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BlockDto>>;
     public lmsBlockPartialUpdate(requestParameters: LmsBlockPartialUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const id = requestParameters?.id;
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling lmsBlockPartialUpdate.');
         }
-        const patchedContentBlockRequestDto = requestParameters?.patchedContentBlockRequestDto;
+        const patchedBlockRequestDto = requestParameters?.patchedBlockRequestDto;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -682,10 +682,10 @@ export class LmsApi extends BaseService {
 
         let localVarPath = `/api/lms/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ContentBlockDto>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<BlockDto>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: patchedContentBlockRequestDto,
+                body: patchedBlockRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -703,9 +703,9 @@ export class LmsApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ContentBlockDto>;
-    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ContentBlockDto>>;
-    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ContentBlockDto>>;
+    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BlockDto>;
+    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BlockDto>>;
+    public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BlockDto>>;
     public lmsBlockRetrieve(requestParameters: LmsBlockRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const id = requestParameters?.id;
         if (id === null || id === undefined) {
@@ -742,7 +742,7 @@ export class LmsApi extends BaseService {
 
         let localVarPath = `/api/lms/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ContentBlockDto>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<BlockDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -762,17 +762,17 @@ export class LmsApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ContentBlockDto>;
-    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ContentBlockDto>>;
-    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ContentBlockDto>>;
+    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BlockDto>;
+    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BlockDto>>;
+    public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BlockDto>>;
     public lmsBlockUpdate(requestParameters: LmsBlockUpdateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const id = requestParameters?.id;
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling lmsBlockUpdate.');
         }
-        const contentBlockRequestDto = requestParameters?.contentBlockRequestDto;
-        if (contentBlockRequestDto === null || contentBlockRequestDto === undefined) {
-            throw new Error('Required parameter contentBlockRequestDto was null or undefined when calling lmsBlockUpdate.');
+        const blockRequestDto = requestParameters?.blockRequestDto;
+        if (blockRequestDto === null || blockRequestDto === undefined) {
+            throw new Error('Required parameter blockRequestDto was null or undefined when calling lmsBlockUpdate.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -816,10 +816,10 @@ export class LmsApi extends BaseService {
 
         let localVarPath = `/api/lms/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ContentBlockDto>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<BlockDto>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: contentBlockRequestDto,
+                body: blockRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

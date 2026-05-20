@@ -1609,7 +1609,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedContentBlockList'
+                $ref: '#/components/schemas/PaginatedBlockList'
           description: ''
     post:
       operationId: lms_block_create
@@ -1619,13 +1619,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1634,7 +1634,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContentBlock'
+                $ref: '#/components/schemas/Block'
           description: ''
   /api/lms/block/{id}/:
     get:
@@ -1644,7 +1644,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this content block.
+        description: A unique integer value identifying this block.
         required: true
       tags:
       - lms
@@ -1655,7 +1655,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContentBlock'
+                $ref: '#/components/schemas/Block'
           description: ''
     put:
       operationId: lms_block_update
@@ -1664,7 +1664,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this content block.
+        description: A unique integer value identifying this block.
         required: true
       tags:
       - lms
@@ -1672,13 +1672,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
+              $ref: '#/components/schemas/BlockRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1687,7 +1687,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContentBlock'
+                $ref: '#/components/schemas/Block'
           description: ''
     patch:
       operationId: lms_block_partial_update
@@ -1696,7 +1696,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this content block.
+        description: A unique integer value identifying this block.
         required: true
       tags:
       - lms
@@ -1704,13 +1704,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
+              $ref: '#/components/schemas/PatchedBlockRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
+              $ref: '#/components/schemas/PatchedBlockRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
+              $ref: '#/components/schemas/PatchedBlockRequest'
       security:
       - jwtAuth: []
       responses:
@@ -1718,7 +1718,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContentBlock'
+                $ref: '#/components/schemas/Block'
           description: ''
     delete:
       operationId: lms_block_destroy
@@ -1727,7 +1727,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this content block.
+        description: A unique integer value identifying this block.
         required: true
       tags:
       - lms
@@ -6084,6 +6084,150 @@ components:
     BlankEnum:
       enum:
       - ''
+    Block:
+      type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a plain ``lesson`` integer field even though
+        the underlying model is now polymorphic (``target`` GFK). This is
+        deliberate (Phase 2 plan, Option B): existing API clients continue
+        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
+        quietly translates the value into the ``(target_content_type,
+        target_object_id)`` pair the model now uses.
+
+        Phase 4 (URL flattening) will revisit whether to expose a more
+        generic ``{"target_type", "target_id"}`` shape on the wire.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lesson:
+          type: integer
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: uri
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - id
+      - lesson
+      - translations
+    BlockRequest:
+      type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a plain ``lesson`` integer field even though
+        the underlying model is now polymorphic (``target`` GFK). This is
+        deliberate (Phase 2 plan, Option B): existing API clients continue
+        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
+        quietly translates the value into the ``(target_content_type,
+        target_object_id)`` pair the model now uses.
+
+        Phase 4 (URL flattening) will revisit whether to expose a more
+        generic ``{"target_type", "target_id"}`` shape on the wire.
+      properties:
+        lesson:
+          type: integer
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: binary
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - lesson
+      - translations
     BlockTypeEnum:
       enum:
       - rich_text
@@ -6159,128 +6303,6 @@ components:
       - revoked_at
       - user
       - verification_token
-    ContentBlock:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        lesson:
-          type: integer
-        block_type:
-          $ref: '#/components/schemas/BlockTypeEnum'
-        order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          default: 0
-        is_required:
-          type: boolean
-        image:
-          type: string
-          format: uri
-          nullable: true
-        video_url:
-          type: string
-          format: uri
-          maxLength: 200
-        video_provider:
-          oneOf:
-          - $ref: '#/components/schemas/VideoProviderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        file:
-          type: string
-          format: uri
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          maxLength: 200
-        code_language:
-          type: string
-          maxLength: 32
-        code_content:
-          type: string
-        quiz_template:
-          type: integer
-          nullable: true
-        metadata: {}
-        translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
-          example:
-            fr:
-              title: Bonjour
-            en:
-              title: Hello
-      required:
-      - block_type
-      - id
-      - lesson
-      - translations
-    ContentBlockRequest:
-      type: object
-      properties:
-        lesson:
-          type: integer
-        block_type:
-          $ref: '#/components/schemas/BlockTypeEnum'
-        order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          default: 0
-        is_required:
-          type: boolean
-        image:
-          type: string
-          format: binary
-          nullable: true
-        video_url:
-          type: string
-          format: uri
-          maxLength: 200
-        video_provider:
-          oneOf:
-          - $ref: '#/components/schemas/VideoProviderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        file:
-          type: string
-          format: binary
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          maxLength: 200
-        code_language:
-          type: string
-          maxLength: 32
-        code_content:
-          type: string
-        quiz_template:
-          type: integer
-          nullable: true
-        metadata: {}
-        translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
-          example:
-            fr:
-              title: Bonjour
-            en:
-              title: Hello
-      required:
-      - block_type
-      - lesson
-      - translations
     CourseDetail:
       type: object
       properties:
@@ -7889,7 +7911,7 @@ components:
         blocks:
           type: array
           items:
-            $ref: '#/components/schemas/ContentBlock'
+            $ref: '#/components/schemas/Block'
           readOnly: true
         available_lang_codes:
           type: string
@@ -8366,6 +8388,29 @@ components:
       - kind
       - payload
       - read_at
+    PaginatedBlockList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
     PaginatedCertificateList:
       type: object
       required:
@@ -8389,29 +8434,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Certificate'
-    PaginatedContentBlockList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContentBlock'
     PaginatedCourseEnrollmentList:
       type: object
       required:
@@ -8947,8 +8969,20 @@ components:
           minLength: 1
       required:
       - email
-    PatchedContentBlockRequest:
+    PatchedBlockRequest:
       type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a plain ``lesson`` integer field even though
+        the underlying model is now polymorphic (``target`` GFK). This is
+        deliberate (Phase 2 plan, Option B): existing API clients continue
+        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
+        quietly translates the value into the ``(target_content_type,
+        target_object_id)`` pair the model now uses.
+
+        Phase 4 (URL flattening) will revisit whether to expose a more
+        generic ``{"target_type", "target_id"}`` shape on the wire.
       properties:
         lesson:
           type: integer
@@ -8959,7 +8993,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_required:
           type: boolean
         image:

@@ -7,9 +7,9 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ContentBlockDto } from './content-block';
 import { LessonDetailPositionInSectionDto } from './lesson-detail-position-in-section';
 import { LessonDetailPrevLessonDto } from './lesson-detail-prev-lesson';
+import { BlockDto } from './block';
 
 
 export interface LessonDetailDto { 
@@ -24,7 +24,7 @@ export interface LessonDetailDto {
     is_published?: boolean;
     estimated_duration?: number;
     translations: { [key: string]: { [key: string]: string; }; };
-    readonly blocks: Array<ContentBlockDto>;
+    readonly blocks: Array<BlockDto>;
     readonly available_lang_codes: string;
     readonly can_manage: boolean;
     prev_lesson: LessonDetailPrevLessonDto | null;

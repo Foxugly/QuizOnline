@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from block.models import ContentBlock
+from block.models import Block
 from domain.models import Domain
 from language.models import Language
 from lesson.models import Lesson
@@ -62,8 +62,8 @@ class Command(BaseCommand):
             lesson.title = "Bonjour, le monde"
             lesson.save()
 
-            ContentBlock.objects.create(
-                lesson=lesson, block_type=ContentBlock.TYPE_CODE,
+            Block.objects.create(
+                target=lesson, block_type=Block.TYPE_CODE,
                 order=0, code_language="python", code_content="print('Bonjour!')",
             )
 

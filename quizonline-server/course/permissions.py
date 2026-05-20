@@ -24,7 +24,7 @@ def is_lms_learner(user, course) -> bool:
 
 def _course_of(obj):
     """Navigate any LMS object up to its Course parent."""
-    from block.models import ContentBlock
+    from block.models import Block
     from lesson.models import Lesson
     from .models import Course, Section
     if isinstance(obj, Course):
@@ -33,8 +33,15 @@ def _course_of(obj):
         return obj.course
     if isinstance(obj, Lesson):
         return obj.section.course
-    if isinstance(obj, ContentBlock):
-        return obj.lesson.section.course
+    if isinstance(obj, Block):
+        # Polymorphic block — walk the GFK to the host. Today the host
+        # is always a Lesson; Phase 3 will add Question / AnswerOption.
+        host = obj.target
+        if isinstance(host, Lesson):
+            return host.section.course
+        raise TypeError(
+            f"_course_of: Block with unsupported host {type(host).__name__}"
+        )
     # Lazy import to avoid catalog -> assessment cycle at module load.
     try:
         from assessment.models import LessonQuiz
@@ -48,7 +55,7 @@ def _course_of(obj):
 
 
 def _is_published_chain(obj) -> bool:
-    from block.models import ContentBlock
+    from block.models import Block
     from lesson.models import Lesson
     from .models import Section
     course = _course_of(obj)
@@ -58,9 +65,11 @@ def _is_published_chain(obj) -> bool:
         return obj.is_published
     if isinstance(obj, Lesson):
         return obj.section.is_published and (obj.is_published or obj.is_preview)
-    if isinstance(obj, ContentBlock):
-        lesson = obj.lesson
-        return lesson.section.is_published and (lesson.is_published or lesson.is_preview)
+    if isinstance(obj, Block):
+        host = obj.target
+        if isinstance(host, Lesson):
+            return host.section.is_published and (host.is_published or host.is_preview)
+        return True
     return True  # Course: covered by course.is_published
 
 
@@ -73,7 +82,7 @@ class IsLmsInstructorOrReadOnly(BasePermission):
             return True
         # Create on a list endpoint (no object yet): infer the parent course
         # from the payload (Course: domain, Section: course, Lesson: section,
-        # ContentBlock: lesson, LessonQuiz: course / lesson) and require
+        # Block: lesson, LessonQuiz: course / lesson) and require
         # instructor rights on it.
         if getattr(view, "action", None) == "create":
             return _can_create(request.user, request.data)

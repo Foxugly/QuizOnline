@@ -10,14 +10,17 @@
 import { BlockTypeEnumDto } from './block-type-enum';
 
 
-export interface PatchedContentBlockRequestDto { 
+/**
+ * Serializer for :class:`Block`.  The wire shape keeps a plain ``lesson`` integer field even though the underlying model is now polymorphic (``target`` GFK). This is deliberate (Phase 2 plan, Option B): existing API clients continue to POST / PATCH ``{\"lesson\": <id>, ...}`` while the serializer quietly translates the value into the ``(target_content_type, target_object_id)`` pair the model now uses.  Phase 4 (URL flattening) will revisit whether to expose a more generic ``{\"target_type\", \"target_id\"}`` shape on the wire.
+ */
+export interface PatchedBlockRequestDto { 
     lesson?: number;
     block_type?: BlockTypeEnumDto;
     order?: number;
     is_required?: boolean;
     image?: Blob | null;
     video_url?: string;
-    video_provider?: PatchedContentBlockRequestDtoVideoProviderEnum;
+    video_provider?: PatchedBlockRequestDtoVideoProviderEnum;
     file?: Blob | null;
     external_url?: string;
     code_language?: string;
@@ -26,7 +29,7 @@ export interface PatchedContentBlockRequestDto {
     metadata?: any | null;
     translations?: { [key: string]: { [key: string]: string; }; };
 }
-export enum PatchedContentBlockRequestDtoVideoProviderEnum {
+export enum PatchedBlockRequestDtoVideoProviderEnum {
     Youtube = 'youtube',
     Vimeo = 'vimeo',
     Upload = 'upload',

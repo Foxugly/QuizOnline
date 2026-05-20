@@ -13,7 +13,7 @@ from rest_framework.test import APIClient
 from customuser.models import CustomUser
 from course.models import Course, Section
 from lesson.models import Lesson
-from block.models import ContentBlock
+from block.models import Block
 from course.services import export_course_to_dict
 
 
@@ -35,8 +35,8 @@ def populated_course(db, course):
     lesson.set_current_language("fr")
     lesson.title = "Lesson 1"
     lesson.save()
-    block = ContentBlock.objects.create(
-        lesson=lesson, block_type=ContentBlock.TYPE_RICH_TEXT, order=0,
+    block = Block.objects.create(
+        target=lesson, block_type=Block.TYPE_RICH_TEXT, order=0,
     )
     block.set_current_language("fr")
     block.rich_text = "<p>hello</p>"
