@@ -5,6 +5,3 @@ class CertificateConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "certificate"
     verbose_name = "Certificate"
-
-    def ready(self):
-        pass
