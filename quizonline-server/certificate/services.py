@@ -26,7 +26,7 @@ def _course_completed(user, course: Course) -> bool:
 
 
 def _final_quiz_passed(user, course: Course) -> bool:
-    from lms_assessment.models import LessonQuiz
+    from assessment.models import LessonQuiz
     final = LessonQuiz.objects.filter(course=course).first()
     if final is None:
         return True
@@ -34,7 +34,7 @@ def _final_quiz_passed(user, course: Course) -> bool:
     sessions = Quiz.objects.filter(
         user=user, quiz_template=final.quiz_template, active=False,
     )
-    from lms_assessment.services import compute_score_percent
+    from assessment.services import compute_score_percent
     return any(
         compute_score_percent(s) >= final.required_score_percent for s in sessions
     )

@@ -1,6 +1,6 @@
 import pytest
 
-from lms_assessment.models import LessonQuiz
+from assessment.models import LessonQuiz
 from course.models import Section
 from lesson.models import Lesson
 from certificate.models import Certificate
@@ -23,7 +23,7 @@ def test_full_path_with_final_quiz(course, quiz_template, learner, monkeypatch):
     assert Certificate.objects.filter(user=learner, course=course).count() == 0
 
     # simulate final quiz pass
-    import lms_assessment.services as svc
+    import assessment.services as svc
     monkeypatch.setattr(svc, "compute_score_percent", lambda s: 80)
     q = Quiz.objects.create(domain=quiz_template.domain, quiz_template=quiz_template, user=learner, active=True)
     q.active = False

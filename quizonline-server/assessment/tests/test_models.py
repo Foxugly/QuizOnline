@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
-from lms_assessment.models import LessonQuiz
+from assessment.models import LessonQuiz
 
 
 @pytest.mark.django_db

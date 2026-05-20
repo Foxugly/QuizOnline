@@ -14,5 +14,5 @@ def _connect():
     post_save.connect(
         _on_quiz_saved,
         sender=Quiz,
-        dispatch_uid="lms_assessment.quiz_post_save",
+        dispatch_uid="assessment.quiz_post_save",
     )

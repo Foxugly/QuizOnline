@@ -7,6 +7,5 @@ class AssessmentConfig(AppConfig):
     verbose_name = "Assessment"
 
     def ready(self):
-        # Wire the lms_assessment signals (Quiz pass propagates to
-        # LessonProgress / Certificate eligibility check).
-        from . import signals  # noqa: F401
+        from .signals import _connect
+        _connect()

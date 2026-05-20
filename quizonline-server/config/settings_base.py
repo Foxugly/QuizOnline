@@ -133,7 +133,7 @@ INSTALLED_APPS = [
     "block.apps.BlockConfig",
     "enrollment.apps.EnrollmentConfig",
     "certificate.apps.CertificateConfig",
-    "lms_assessment.apps.LmsAssessmentConfig",
+    "assessment.apps.AssessmentConfig",
 ]
 
 MIDDLEWARE = [
