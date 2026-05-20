@@ -5,10 +5,10 @@ import {ButtonModule} from 'primeng/button';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {SkeletonModule} from 'primeng/skeleton';
 
-import {LMS_CATALOG, LMS_COURSE_INVITE_ACCEPT, LMS_ME_CERTIFICATES, LMS_ME_INVITATIONS, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
+import {CATALOG, COURSE_INVITE_ACCEPT, ME_CERTIFICATES, ME_INVITATIONS, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
 import {DomainService} from '../../services/domain/domain';
-import {CourseInviteDto, LmsEnrollmentService} from '../../services/lms/lms-enrollment.service';
+import {CourseInviteDto, EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
@@ -55,16 +55,16 @@ interface CertificateRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage implements OnInit {
-  private readonly enrollment = inject(LmsEnrollmentService);
+  private readonly enrollment = inject(EnrollmentService);
   private readonly domainService = inject(DomainService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly ui = inject(UiTextService).localized(getDashboardUiText);
 
-  protected readonly catalogHref = LMS_CATALOG;
-  protected readonly progressHref = LMS_ME_PROGRESS;
-  protected readonly certificatesHref = LMS_ME_CERTIFICATES;
-  protected readonly invitationsHref = LMS_ME_INVITATIONS;
+  protected readonly catalogHref = CATALOG;
+  protected readonly progressHref = ME_PROGRESS;
+  protected readonly certificatesHref = ME_CERTIFICATES;
+  protected readonly invitationsHref = ME_INVITATIONS;
   protected readonly quizListHref = ROUTES.quiz.list();
 
   protected readonly coursesLoading = signal(true);
@@ -146,7 +146,7 @@ export class DashboardPage implements OnInit {
   }
 
   protected inviteHref(token: string): string {
-    return LMS_COURSE_INVITE_ACCEPT(token);
+    return COURSE_INVITE_ACCEPT(token);
   }
 
   private loadInvitations(): void {

@@ -248,77 +248,77 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/transfer-accept/transfer-accept').then((m) => m.TransferAcceptPage),
   },
   {
-    path: 'lms/catalog',
-    loadComponent: () => import('./pages/lms/catalog/catalog').then((m) => m.LmsCatalog),
+    path: 'catalog',
+    loadComponent: () => import('./pages/catalog/catalog').then((m) => m.Catalog),
     canActivate: [authGuard],
   },
   {
-    // Must come BEFORE ``lms/course/:slug`` — otherwise the router would
+    // Must come BEFORE ``course/:slug`` — otherwise the router would
     // parse ``list`` / ``new`` as a slug and dispatch to course-detail.
-    path: 'lms/course/list',
-    loadComponent: () => import('./pages/lms/course-list/course-list').then((m) => m.LmsCourseList),
+    path: 'course/list',
+    loadComponent: () => import('./pages/course-list/course-list').then((m) => m.CourseList),
     canActivate: [authGuard, domainAccessGuard],
   },
   {
-    // Must come BEFORE ``lms/course/:slug`` — otherwise the router would
+    // Must come BEFORE ``course/:slug`` — otherwise the router would
     // parse ``new`` as a slug and dispatch to the course-detail page.
-    path: 'lms/course/new',
-    loadComponent: () => import('./pages/lms/course-create/course-create').then((m) => m.LmsCourseCreate),
+    path: 'course/new',
+    loadComponent: () => import('./pages/course-create/course-create').then((m) => m.CourseCreate),
     canActivate: [authGuard, domainAccessGuard],
   },
   {
-    path: 'lms/course/:slug',
-    loadComponent: () => import('./pages/lms/course-detail/course-detail').then((m) => m.LmsCourseDetail),
+    path: 'course/:slug',
+    loadComponent: () => import('./pages/course-detail/course-detail').then((m) => m.CourseDetail),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/course/:id/edit',
-    loadComponent: () => import('./pages/lms/course-edit/course-edit').then((m) => m.LmsCourseEdit),
+    path: 'course/:id/edit',
+    loadComponent: () => import('./pages/course-edit/course-edit').then((m) => m.CourseEdit),
     canActivate: [authGuard, domainAccessGuard],
   },
   {
-    path: 'lms/lesson/:id',
-    loadComponent: () => import('./pages/lms/lesson-view/lesson-view').then((m) => m.LmsLessonView),
+    path: 'lesson/:id',
+    loadComponent: () => import('./pages/lesson-view/lesson-view').then((m) => m.LessonView),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/lesson/:id/edit',
-    loadComponent: () => import('./pages/lms/lesson-edit/lesson-edit').then((m) => m.LmsLessonEdit),
+    path: 'lesson/:id/edit',
+    loadComponent: () => import('./pages/lesson-edit/lesson-edit').then((m) => m.LessonEdit),
     canActivate: [authGuard, domainAccessGuard],
   },
   {
-    path: 'lms/course-invite/:token',
+    path: 'course-invite/:token',
     loadComponent: () =>
-      import('./pages/lms/course-invite-accept/course-invite-accept').then(
-        (m) => m.LmsCourseInviteAccept,
+      import('./pages/course-invite-accept/course-invite-accept').then(
+        (m) => m.CourseInviteAccept,
       ),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/me/invitations',
+    path: 'me/invitations',
     loadComponent: () =>
-      import('./pages/lms/my-invitations/my-invitations').then(
-        (m) => m.LmsMyInvitations,
+      import('./pages/my-invitations/my-invitations').then(
+        (m) => m.MyInvitations,
       ),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/me/progress',
-    loadComponent: () => import('./pages/lms/progress/progress').then((m) => m.LmsProgress),
+    path: 'me/progress',
+    loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/me/certificates',
-    loadComponent: () => import('./pages/lms/certificate-list/certificate-list').then((m) => m.LmsCertificateList),
+    path: 'me/certificates',
+    loadComponent: () => import('./pages/certificate-list/certificate-list').then((m) => m.CertificateList),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/certificate/:id',
-    loadComponent: () => import('./pages/lms/certificate-view/certificate-view').then((m) => m.LmsCertificateView),
+    path: 'certificate/:id',
+    loadComponent: () => import('./pages/certificate-view/certificate-view').then((m) => m.CertificateView),
     canActivate: [authGuard],
   },
   {
-    path: 'lms/verify/:token',
-    loadComponent: () => import('./pages/lms/certificate-verify/certificate-verify').then((m) => m.LmsCertificateVerify),
+    path: 'verify/:token',
+    loadComponent: () => import('./pages/certificate-verify/certificate-verify').then((m) => m.CertificateVerify),
   },
 ];

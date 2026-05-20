@@ -156,16 +156,16 @@
   "pages/quiz/subject-form:timer",
   "pages/quiz/subject-form:durationSuffix",
 
-  "pages/lms/catalog:enrollmentBadge.open",
-  "pages/lms/course-create:fields.description",
-  "pages/lms/course-create:enrollmentLabels.open",
-  "pages/lms/course-create:toastErrorSummary",
+  "pages/catalog:enrollmentBadge.open",
+  "pages/course-create:fields.description",
+  "pages/course-create:enrollmentLabels.open",
+  "pages/course-create:toastErrorSummary",
 
-  "pages/lms/course-edit:tabStructure",
-  "pages/lms/course-edit/structure-tab:sectionDialog.descriptionField",
-  "pages/lms/course-edit/structure-tab:sectionAria",
-  "pages/lms/course-edit/info-tab:fields.description",
-  "pages/lms/course-edit/info-tab:enrollmentLabels.open",
-  "pages/lms/course-edit/info-tab:toasts.errorSummary",
-  "pages/lms/course-edit/analytics-tab:kpiHints.neverYet"
+  "pages/course-edit:tabStructure",
+  "pages/course-edit/structure-tab:sectionDialog.descriptionField",
+  "pages/course-edit/structure-tab:sectionAria",
+  "pages/course-edit/info-tab:fields.description",
+  "pages/course-edit/info-tab:enrollmentLabels.open",
+  "pages/course-edit/info-tab:toasts.errorSummary",
+  "pages/course-edit/analytics-tab:kpiHints.neverYet"
 ]

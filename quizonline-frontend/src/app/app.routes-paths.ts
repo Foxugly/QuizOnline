@@ -69,17 +69,16 @@ export let ROUTES = {
 //}
 
 export const DASHBOARD = '/dashboard';
-export const LMS_CATALOG = '/lms/catalog';
-export const LMS_COURSE_LIST = '/lms/course/list';
-export const LMS_COURSE_NEW = '/lms/course/new';
-export const LMS_COURSE_DETAIL = (slug: string) => `/lms/course/${slug}`;
-export const LMS_COURSE_EDIT = (id: number) => `/lms/course/${id}/edit`;
-export const LMS_LESSON_VIEW = (id: number) => `/lms/lesson/${id}`;
-export const LMS_LESSON_EDIT = (id: number) => `/lms/lesson/${id}/edit`;
-export const LMS_ME_PROGRESS = '/lms/me/progress';
-export const LMS_ME_CERTIFICATES = '/lms/me/certificates';
-export const LMS_ME_INVITATIONS = '/lms/me/invitations';
-export const LMS_CERTIFICATE_VIEW = (id: number) => `/lms/certificate/${id}`;
-export const LMS_CERTIFICATE_VERIFY = (token: string) => `/lms/verify/${token}`;
-export const LMS_COURSE_INVITE_ACCEPT = (token: string) => `/lms/course-invite/${token}`;
-
+export const CATALOG = '/catalog';
+export const COURSE_LIST = '/course/list';
+export const COURSE_NEW = '/course/new';
+export const COURSE_DETAIL = (slug: string) => `/course/${slug}`;
+export const COURSE_EDIT = (id: number) => `/course/${id}/edit`;
+export const LESSON_VIEW = (id: number) => `/lesson/${id}`;
+export const LESSON_EDIT = (id: number) => `/lesson/${id}/edit`;
+export const ME_PROGRESS = '/me/progress';
+export const ME_CERTIFICATES = '/me/certificates';
+export const ME_INVITATIONS = '/me/invitations';
+export const CERTIFICATE_VIEW = (id: number) => `/certificate/${id}`;
+export const CERTIFICATE_VERIFY = (token: string) => `/verify/${token}`;
+export const COURSE_INVITE_ACCEPT = (token: string) => `/course-invite/${token}`;
