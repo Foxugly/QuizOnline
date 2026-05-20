@@ -38,7 +38,7 @@ type ViewState =
  *
  * Flow:
  *   1. Token is read from the route param.
- *   2. ``GET /api/lms/course-invite/<token>/`` fetches the row. The
+ *   2. ``GET /api/course-invite/<token>/`` fetches the row. The
  *      endpoint requires auth + a 403 if the caller is neither the
  *      invitee nor an instructor of the course — those map to the
  *      ``forbidden`` view state.

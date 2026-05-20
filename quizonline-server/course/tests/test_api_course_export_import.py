@@ -1,7 +1,7 @@
 """Tests for the course export/import endpoints.
 
-GET  /api/lms/course/{id}/export/  → dump the course as a JSON dict.
-POST /api/lms/course/import/       → recreate the course in a target
+GET  /api/course/{id}/export/  → dump the course as a JSON dict.
+POST /api/course/import/       → recreate the course in a target
                                      domain. The new course is
                                      created unpublished and the
                                      slug is uniquified on collision.
@@ -67,7 +67,7 @@ def test_export_returns_full_payload(owner, populated_course):
 @pytest.mark.django_db
 def test_export_endpoint_instructor_gated(populated_course, db):
     stranger = CustomUser.objects.create_user(username="stranger", password="x")
-    resp = _auth(stranger).get(f"/api/lms/course/{populated_course.id}/export/")
+    resp = _auth(stranger).get(f"/api/course/{populated_course.id}/export/")
     # 403 (instructor check) or 404 (visibility filter) is acceptable.
     assert resp.status_code in (403, 404)
 
@@ -76,7 +76,7 @@ def test_export_endpoint_instructor_gated(populated_course, db):
 def test_import_roundtrips_structure(owner, populated_course, domain):
     payload = export_course_to_dict(course=populated_course)
     resp = _auth(owner).post(
-        "/api/lms/course/import/",
+        "/api/course/import/",
         {"payload": payload, "target_domain_id": domain.id},
         format="json",
     )
@@ -99,7 +99,7 @@ def test_import_roundtrips_structure(owner, populated_course, domain):
 @pytest.mark.django_db
 def test_import_rejects_wrong_version(owner, domain):
     resp = _auth(owner).post(
-        "/api/lms/course/import/",
+        "/api/course/import/",
         {"payload": {"version": "9.9", "course": {}}, "target_domain_id": domain.id},
         format="json",
     )
@@ -109,7 +109,7 @@ def test_import_rejects_wrong_version(owner, domain):
 @pytest.mark.django_db
 def test_import_rejects_unknown_domain(owner):
     resp = _auth(owner).post(
-        "/api/lms/course/import/",
+        "/api/course/import/",
         {"payload": {"version": "1.0", "course": {}}, "target_domain_id": 99999},
         format="json",
     )

@@ -24,7 +24,7 @@ import {LmsBlockCard} from '../../../shared/lms/block-card/block-card';
 import {getLmsLessonViewUiText} from './lesson-view.i18n';
 
 /**
- * Shape consumed from ``GET /api/lms/lesson/{id}/``. The backend
+ * Shape consumed from ``GET /api/lesson/{id}/``. The backend
  * serializer nests blocks under ``blocks`` ordered by ``order`` and
  * surfaces a ``completed`` flag derived from the caller's progress row —
  * we treat both fields as optional so the page degrades gracefully if
@@ -99,7 +99,7 @@ export class LmsLessonView implements OnInit, OnDestroy, AfterViewInit {
   protected readonly lesson = signal<LessonDetailDto | null>(null);
   protected readonly completing = signal(false);
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
   private routeSub: Subscription | null = null;
 
   protected readonly title = computed(() =>

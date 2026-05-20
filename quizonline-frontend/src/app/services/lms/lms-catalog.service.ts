@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
-/** Read-only row exposed by ``GET /api/lms/course/{id}/audit-log/``.
+/** Read-only row exposed by ``GET /api/course/{id}/audit-log/``.
  *  Mirrors the ``CourseAuditLogSerializer`` shape — kept here as a
  *  local type rather than going through the generated OpenAPI client
  *  to match the rest of this service. */
@@ -27,7 +27,7 @@ export interface CourseAuditEntryDto {
 @Injectable({providedIn: 'root'})
 export class LmsCatalogService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
 
   list(
     params: {
@@ -120,7 +120,7 @@ export class LmsCatalogService {
   }
 
   /**
-   * Delete a course via ``DELETE /api/lms/course/{id}/``. Cascades to all
+   * Delete a course via ``DELETE /api/course/{id}/``. Cascades to all
    * sections, lessons, content blocks and learner enrollments / progress
    * via standard ORM ``on_delete=CASCADE`` rules. Will surface a 4xx
    * error from the backend when a non-cascade FK protects deletion
@@ -132,7 +132,7 @@ export class LmsCatalogService {
   }
 
   /**
-   * Update a course via ``PATCH /api/lms/course/{id}/``. ``payload`` is
+   * Update a course via ``PATCH /api/course/{id}/``. ``payload`` is
    * forwarded as JSON — for cover-image uploads use the dedicated
    * :meth:`uploadCourseCoverImage` companion below which switches to
    * multipart form-data.

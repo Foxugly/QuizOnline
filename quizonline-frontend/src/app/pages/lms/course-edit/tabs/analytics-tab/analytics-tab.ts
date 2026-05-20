@@ -34,7 +34,7 @@ interface TrendBarVm {
 
 /**
  * "Analytics" tab of ``/lms/course/:id/edit``. Calls the server-side
- * ``/api/lms/course/{id}/analytics/`` endpoint so the frontend never
+ * ``/api/course/{id}/analytics/`` endpoint so the frontend never
  * aggregates: it just renders the pre-computed KPIs + a small 30-day
  * enrollment-trend bar chart.
  *

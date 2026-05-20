@@ -1,7 +1,7 @@
 """Tests for the per-course audit log (recording + read endpoint).
 
 publish / unpublish / clone services append a row to ``CourseAuditLog``.
-``GET /api/lms/course/{id}/audit-log/`` is instructor-gated and
+``GET /api/course/{id}/audit-log/`` is instructor-gated and
 returns the rows in reverse-chronological order (most recent first).
 """
 
@@ -64,7 +64,7 @@ def test_clone_records_audit_row_with_source_metadata(owner, publishable_course)
 @pytest.mark.django_db
 def test_audit_log_endpoint_returns_rows_for_instructor(owner, publishable_course):
     publish_course(course=publishable_course, by_user=owner)
-    resp = _auth(owner).get(f"/api/lms/course/{publishable_course.id}/audit-log/")
+    resp = _auth(owner).get(f"/api/course/{publishable_course.id}/audit-log/")
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) == 1
@@ -75,7 +75,7 @@ def test_audit_log_endpoint_returns_rows_for_instructor(owner, publishable_cours
 @pytest.mark.django_db
 def test_audit_log_endpoint_is_instructor_gated(publishable_course, db):
     stranger = CustomUser.objects.create_user(username="stranger", password="x")
-    resp = _auth(stranger).get(f"/api/lms/course/{publishable_course.id}/audit-log/")
+    resp = _auth(stranger).get(f"/api/course/{publishable_course.id}/audit-log/")
     # Stranger isn't a domain member at all → catalog visibility filter
     # turns the course into a 404 before the instructor check fires.
     # Either 403 (instructor check) or 404 (visibility) is acceptable.

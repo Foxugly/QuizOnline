@@ -19,12 +19,10 @@ urlpatterns = [
     path("domain/", include(("domain.api_urls", "domain"), namespace="domain-api")),
     path("lang/", include(("language.api_urls", "lang"), namespace="lang-api")),
     path("translate/", include(("translation.api_urls", "translation"), namespace="translate-api")),
-    path("lms/", include([
-        path("", include(("course.api_urls", "course"), namespace="course-api")),
-        path("", include(("lesson.api_urls", "lesson"), namespace="lesson-api")),
-        path("", include(("block.api_urls", "block"), namespace="block-api")),
-        path("", include(("assessment.api_urls", "assessment"), namespace="assessment-api")),
-        path("", include(("enrollment.api_urls", "enrollment"), namespace="enrollment-api")),
-        path("", include(("certificate.api_urls", "certificate"), namespace="certificate-api")),
-    ])),
+    path("", include(("course.api_urls", "course"), namespace="course-api")),
+    path("", include(("lesson.api_urls", "lesson"), namespace="lesson-api")),
+    path("", include(("block.api_urls", "block"), namespace="block-api")),
+    path("", include(("assessment.api_urls", "assessment"), namespace="assessment-api")),
+    path("", include(("enrollment.api_urls", "enrollment"), namespace="enrollment-api")),
+    path("", include(("certificate.api_urls", "certificate"), namespace="certificate-api")),
 ]

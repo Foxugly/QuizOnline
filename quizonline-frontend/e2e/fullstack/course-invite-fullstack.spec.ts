@@ -67,7 +67,7 @@ test('testuser accepts a pending course invitation and lands enrolled', async ({
   // Verify the enrollment row exists via the backend API.
   const accessToken = await getAccessToken(page, 'testuser');
   const enrollmentsResponse = await page.request.get(
-    'http://127.0.0.1:8001/api/lms/enrollment/?status=active',
+    'http://127.0.0.1:8001/api/enrollment/?status=active',
     {headers: {Authorization: `Bearer ${accessToken}`}},
   );
   expect(enrollmentsResponse.ok()).toBeTruthy();

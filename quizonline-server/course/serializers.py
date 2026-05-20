@@ -143,7 +143,7 @@ def _derive_unique_course_slug(language, translations: dict | None) -> str:
 
 
 class CourseAuditLogSerializer(serializers.ModelSerializer):
-    """Read-only audit row exposed by ``/api/lms/course/{id}/audit-log/``.
+    """Read-only audit row exposed by ``/api/course/{id}/audit-log/``.
 
     ``actor_username`` resolves the FK once at serializer time so the
     consumer doesn't have to do its own lookup — frontends typically

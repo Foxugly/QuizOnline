@@ -47,7 +47,7 @@ def two_lessons(db, published_course):
 
 @pytest.mark.django_db
 def test_lesson_count_and_duration(owner, published_course, two_lessons):
-    body = _auth(owner).get("/api/lms/course/").json()
+    body = _auth(owner).get("/api/course/").json()
     course = next(c for c in body["results"] if c["id"] == published_course.id)
     assert course["lesson_count"] == 2
     assert course["total_duration_minutes"] == 35
@@ -60,7 +60,7 @@ def test_my_enrollment_null_when_not_enrolled(published_course, two_lessons, db)
     # to them — the catalog visibility filter scopes "member" reads to
     # the domains they belong to.
     published_course.domain.members.add(other)
-    body = _auth(other).get("/api/lms/course/").json()
+    body = _auth(other).get("/api/course/").json()
     course = next(c for c in body["results"] if c["id"] == published_course.id)
     assert course["my_enrollment"] is None
 
@@ -75,7 +75,7 @@ def test_my_enrollment_returns_status_and_next_lesson(published_course, two_less
     CourseProgress.objects.create(
         user=learner, course=published_course, progress_percent=30,
     )
-    body = _auth(learner).get("/api/lms/course/").json()
+    body = _auth(learner).get("/api/course/").json()
     course = next(c for c in body["results"] if c["id"] == published_course.id)
     assert course["my_enrollment"]["status"] == "active"
     assert course["my_enrollment"]["progress_percent"] == 30
@@ -89,7 +89,7 @@ def test_my_enrollment_skips_completed_lessons(published_course, two_lessons, db
     published_course.domain.members.add(learner)
     CourseEnrollment.objects.create(user=learner, course=published_course)
     LessonProgress.objects.create(user=learner, lesson=two_lessons[0], is_completed=True)
-    body = _auth(learner).get("/api/lms/course/").json()
+    body = _auth(learner).get("/api/course/").json()
     course = next(c for c in body["results"] if c["id"] == published_course.id)
     assert course["my_enrollment"]["next_lesson_id"] == two_lessons[1].id
 
@@ -101,6 +101,6 @@ def test_my_enrollment_next_lesson_null_when_all_done(published_course, two_less
     CourseEnrollment.objects.create(user=learner, course=published_course)
     for lesson in two_lessons:
         LessonProgress.objects.create(user=learner, lesson=lesson, is_completed=True)
-    body = _auth(learner).get("/api/lms/course/").json()
+    body = _auth(learner).get("/api/course/").json()
     course = next(c for c in body["results"] if c["id"] == published_course.id)
     assert course["my_enrollment"]["next_lesson_id"] is None

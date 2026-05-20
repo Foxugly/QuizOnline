@@ -1,4 +1,4 @@
-"""Regression test pinning the query budget on ``GET /api/lms/course/``.
+"""Regression test pinning the query budget on ``GET /api/course/``.
 
 The catalog list view used to issue ~5 queries per course on top of
 the visibility filter — enrollment, progress, lesson list, completion
@@ -60,7 +60,7 @@ def test_course_list_query_budget_is_constant_under_growth(five_courses):
     15 queries total. The previous N+1 implementation produced
     ~30+ on the same fixture."""
     with CaptureQueriesContext(connection) as ctx:
-        resp = _auth(five_courses["learner"]).get("/api/lms/course/")
+        resp = _auth(five_courses["learner"]).get("/api/course/")
         assert resp.status_code == 200
     # Sanity: every course we expect is in the response.
     body = resp.json()

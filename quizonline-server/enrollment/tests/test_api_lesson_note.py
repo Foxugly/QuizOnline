@@ -1,8 +1,8 @@
 """Tests for the private per-learner lesson notes endpoint.
 
-GET /api/lms/lesson/{id}/note/  → returns the caller's note or an
+GET /api/lesson/{id}/note/  → returns the caller's note or an
                                   empty one if no note exists yet.
-PUT /api/lms/lesson/{id}/note/  → upserts the content.
+PUT /api/lesson/{id}/note/  → upserts the content.
 
 Notes are strictly private: a learner only ever reads/writes their
 own row.

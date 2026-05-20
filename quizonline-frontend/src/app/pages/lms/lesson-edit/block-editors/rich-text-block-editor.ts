@@ -18,7 +18,7 @@ import {getLmsBlockEditorsUiText} from './block-editors.i18n';
  *
  * One Quill instance per available language; we debounce keystrokes
  * (500 ms) before emitting a ``Partial<ContentBlock>`` patch that the
- * lesson-edit shell PATCHes against ``/api/lms/block/{id}/``. Field
+ * lesson-edit shell PATCHes against ``/api/block/{id}/``. Field
  * naming mirrors the serializer wire shape — translations live under
  * ``translations[lang].rich_text`` so the renderer and editor agree.
  */

@@ -1,4 +1,4 @@
-"""Tests for the draft-friendly ``POST /api/lms/block/`` flow.
+"""Tests for the draft-friendly ``POST /api/block/`` flow.
 
 The frontend block-builder UX creates a block as soon as the author
 clicks "+ Add <type>" — at which point the payload genuinely has no
@@ -54,7 +54,7 @@ def _draft_payload(lesson, block_type, order=0):
 def test_create_rich_text_block_with_empty_payload_succeeds(visible_lesson, owner):
     """POST with the minimal draft payload (no per-type content) must 201."""
     r = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
@@ -67,7 +67,7 @@ def test_create_rich_text_block_with_empty_payload_succeeds(visible_lesson, owne
 def test_create_code_block_with_empty_payload_succeeds(visible_lesson, owner):
     """Same draft flow for a different block type to cover the pattern."""
     r = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_CODE),
         format="json",
     )
@@ -86,7 +86,7 @@ def test_create_block_succeeds_when_domain_has_no_allowed_languages(visible_less
     """
     course.domain.allowed_languages.clear()
     r = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
@@ -97,7 +97,7 @@ def test_create_block_succeeds_when_domain_has_no_allowed_languages(visible_less
 def test_patch_rich_text_block_with_empty_translations_still_fails(visible_lesson, owner):
     """PATCHing back an empty translation map keeps the per-type check active."""
     create = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
@@ -105,7 +105,7 @@ def test_patch_rich_text_block_with_empty_translations_still_fails(visible_lesso
     block_id = create.data["id"]
 
     r = _auth(owner).patch(
-        f"/api/lms/block/{block_id}/",
+        f"/api/block/{block_id}/",
         {"translations": {"fr": {"rich_text": ""}}},
         format="json",
     )
@@ -116,7 +116,7 @@ def test_patch_rich_text_block_with_empty_translations_still_fails(visible_lesso
 def test_patch_rich_text_block_with_content_succeeds(visible_lesson, owner):
     """The end-to-end "create empty -> patch real content" flow."""
     create = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT),
         format="json",
     )
@@ -124,7 +124,7 @@ def test_patch_rich_text_block_with_content_succeeds(visible_lesson, owner):
     block_id = create.data["id"]
 
     r = _auth(owner).patch(
-        f"/api/lms/block/{block_id}/",
+        f"/api/block/{block_id}/",
         {"translations": {"fr": {"rich_text": "<p>hi</p>"}}},
         format="json",
     )
@@ -138,7 +138,7 @@ def test_patch_rich_text_block_with_content_succeeds(visible_lesson, owner):
 def test_patch_code_block_with_content_succeeds(visible_lesson, owner):
     """Mirror the rich_text flow on a non-translated payload field."""
     create = _auth(owner).post(
-        "/api/lms/block/",
+        "/api/block/",
         _draft_payload(visible_lesson, Block.TYPE_CODE),
         format="json",
     )
@@ -146,7 +146,7 @@ def test_patch_code_block_with_content_succeeds(visible_lesson, owner):
     block_id = create.data["id"]
 
     r = _auth(owner).patch(
-        f"/api/lms/block/{block_id}/",
+        f"/api/block/{block_id}/",
         {"code_content": "print('hi')", "code_language": "python"},
         format="json",
     )

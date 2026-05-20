@@ -1,4 +1,4 @@
-"""Coverage for the ``GET /api/lms/course/?manageable_only=1`` filter.
+"""Coverage for the ``GET /api/course/?manageable_only=1`` filter.
 
 The instructor-side ``/lms/course/list`` Angular page relies on this
 to scope the paginated result to courses the caller actually manages.
@@ -81,25 +81,25 @@ def test_manageable_only_filters_to_owned_and_managed_courses(
 
     # Sanity: without the filter, ``owner`` sees both courses
     # (instructor on ``owned``, member of ``foreign``).
-    plain = client.get("/api/lms/course/").json()
+    plain = client.get("/api/course/").json()
     slugs = {row["slug"] for row in plain["results"]}
     assert slugs == {"owned-1", "foreign-1"}
 
     # With ``manageable_only=1`` only the course in the domain the
     # caller owns or manages remains.
-    filtered = client.get("/api/lms/course/?manageable_only=1").json()
+    filtered = client.get("/api/course/?manageable_only=1").json()
     assert filtered["count"] == 1
     assert filtered["results"][0]["slug"] == "owned-1"
 
     # The second_user is a manager of ``owned`` — same scope as owner.
     client.force_authenticate(second_user)
-    filtered = client.get("/api/lms/course/?manageable_only=1").json()
+    filtered = client.get("/api/course/?manageable_only=1").json()
     assert filtered["count"] == 1
     assert filtered["results"][0]["slug"] == "owned-1"
 
     # The third_user only owns ``foreign``.
     client.force_authenticate(third_user)
-    filtered = client.get("/api/lms/course/?manageable_only=1").json()
+    filtered = client.get("/api/course/?manageable_only=1").json()
     assert filtered["count"] == 1
     assert filtered["results"][0]["slug"] == "foreign-1"
 
@@ -119,7 +119,7 @@ def test_manageable_only_returns_empty_for_pure_member(
 
     client = APIClient()
     client.force_authenticate(pure)
-    body = client.get("/api/lms/course/?manageable_only=1").json()
+    body = client.get("/api/course/?manageable_only=1").json()
     assert body["count"] == 0
     assert body["results"] == []
 
@@ -133,6 +133,6 @@ def test_manageable_only_superuser_sees_everything(two_domains):
     )
     client = APIClient()
     client.force_authenticate(su)
-    body = client.get("/api/lms/course/?manageable_only=1").json()
+    body = client.get("/api/course/?manageable_only=1").json()
     slugs = {row["slug"] for row in body["results"]}
     assert slugs == {"owned-1", "foreign-1"}

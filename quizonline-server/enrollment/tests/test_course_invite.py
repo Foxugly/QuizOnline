@@ -535,7 +535,7 @@ def test_endpoint_accept_creates_enrollment(invite_course, learner, owner):
 def test_endpoint_my_invitations_returns_pending_only_by_default(
     invite_course, learner, owner,
 ):
-    """``GET /api/lms/me/invitations/`` defaults to ``status=pending``
+    """``GET /api/me/invitations/`` defaults to ``status=pending``
     so the page surfaces actionable rows. Other-status rows leak in
     only when ``?status=all`` is passed."""
     pending = invite_user_to_course(

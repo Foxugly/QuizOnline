@@ -23,7 +23,7 @@ def _make(domain, fr_lang, translations, slug=None):
     }
     if slug is not None:
         payload["slug"] = slug
-    request = APIRequestFactory().post("/api/lms/course/", payload, format="json")
+    request = APIRequestFactory().post("/api/course/", payload, format="json")
     ser = CourseWriteSerializer(data=payload, context={"request": request})
     assert ser.is_valid(), ser.errors
     return ser.save()

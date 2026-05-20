@@ -49,7 +49,7 @@ def test_section_title_and_position(owner, course_with_two_sections):
     s1l2.section.title = "Premiers pas"
     s1l2.section.save()
 
-    resp = _auth(owner).get(f"/api/lms/lesson/{s1l2.id}/")
+    resp = _auth(owner).get(f"/api/lesson/{s1l2.id}/")
     assert resp.status_code == 200
     body = resp.json()
     assert body["section_title"] == "Premiers pas"
@@ -59,7 +59,7 @@ def test_section_title_and_position(owner, course_with_two_sections):
 @pytest.mark.django_db
 def test_neighbours_at_course_start(owner, course_with_two_sections):
     """First lesson of the course: prev null, next is the next lesson in same section."""
-    resp = _auth(owner).get(f"/api/lms/lesson/{course_with_two_sections['s1l1'].id}/")
+    resp = _auth(owner).get(f"/api/lesson/{course_with_two_sections['s1l1'].id}/")
     assert resp.status_code == 200
     body = resp.json()
     assert body["prev_lesson"] is None
@@ -69,7 +69,7 @@ def test_neighbours_at_course_start(owner, course_with_two_sections):
 @pytest.mark.django_db
 def test_neighbours_at_section_boundary(owner, course_with_two_sections):
     """Last lesson of section 1: next jumps to first lesson of section 2."""
-    resp = _auth(owner).get(f"/api/lms/lesson/{course_with_two_sections['s1l2'].id}/")
+    resp = _auth(owner).get(f"/api/lesson/{course_with_two_sections['s1l2'].id}/")
     assert resp.status_code == 200
     body = resp.json()
     assert body["prev_lesson"]["id"] == course_with_two_sections["s1l1"].id
@@ -79,7 +79,7 @@ def test_neighbours_at_section_boundary(owner, course_with_two_sections):
 @pytest.mark.django_db
 def test_neighbours_at_course_end(owner, course_with_two_sections):
     """Last lesson of the course: prev is the previous lesson, next null."""
-    resp = _auth(owner).get(f"/api/lms/lesson/{course_with_two_sections['s2l2'].id}/")
+    resp = _auth(owner).get(f"/api/lesson/{course_with_two_sections['s2l2'].id}/")
     assert resp.status_code == 200
     body = resp.json()
     assert body["prev_lesson"]["id"] == course_with_two_sections["s2l1"].id
@@ -91,7 +91,7 @@ def test_neighbours_solo_lesson(owner, course):
     """A course with one lesson exposes both prev and next as null."""
     section = Section.objects.create(course=course, order=0, is_published=True)
     solo = Lesson.objects.create(section=section, slug="solo", order=0, is_published=True)
-    resp = _auth(owner).get(f"/api/lms/lesson/{solo.id}/")
+    resp = _auth(owner).get(f"/api/lesson/{solo.id}/")
     assert resp.status_code == 200
     body = resp.json()
     assert body["prev_lesson"] is None

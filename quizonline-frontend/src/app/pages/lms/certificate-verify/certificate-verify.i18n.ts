@@ -3,7 +3,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 /**
  * Per-language UI text for the PUBLIC certificate verification page.
  *
- * Anonymous endpoint ``GET /api/lms/verify/{token}/`` returns
+ * Anonymous endpoint ``GET /api/verify/{token}/`` returns
  * ``{valid, certificate_number, course_title, user_display_name,
  * issued_at, revoked}``. The page reflects three states:
  *

@@ -26,7 +26,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 import {getLmsCourseListUiText} from './course-list.i18n';
 
-/** Course shape returned by ``GET /api/lms/course/`` — narrow subset
+/** Course shape returned by ``GET /api/course/`` — narrow subset
  *  of :class:`CourseListSerializer` fields the admin table actually
  *  consumes. ``unknown[]`` from :class:`LmsCatalogService.list` is
  *  narrowed at the call site. */

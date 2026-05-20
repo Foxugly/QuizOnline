@@ -33,8 +33,8 @@ def test_verify_endpoint_uses_anon_throttle(course, settings):
         user=user, course=course, certificate_number="QO-T-2", verification_token="tok2",
     )
     c = APIClient()
-    r1 = c.get("/api/lms/verify/tok2/")
-    r2 = c.get("/api/lms/verify/tok2/")
+    r1 = c.get("/api/verify/tok2/")
+    r2 = c.get("/api/verify/tok2/")
     assert r1.status_code == 200
     assert r2.status_code == 429
 

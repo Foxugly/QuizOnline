@@ -40,7 +40,7 @@ import {getLmsLessonViewUiText} from '../lesson-view.i18n';
  * row with a Retry button so the rest of the lesson keeps rendering.
  * This is in-line formative quizzing — it is NOT wired to the
  * ``LessonQuiz`` validation-gate (those are a separate block type and
- * use the ``/api/lms/lesson-quiz/`` endpoints).
+ * use the ``/api/lesson-quiz/`` endpoints).
  */
 type ActionState =
   | {kind: 'start'}

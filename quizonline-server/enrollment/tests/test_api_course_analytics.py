@@ -1,6 +1,6 @@
 """Tests for the instructor analytics endpoint.
 
-GET /api/lms/course/{id}/analytics/ aggregates KPIs the course-edit
+GET /api/course/{id}/analytics/ aggregates KPIs the course-edit
 "Analytics" tab consumes. The endpoint is instructor-gated (super
 user / owner / manager) so non-instructors must see a 403.
 """

@@ -9,7 +9,7 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
  *
  * The image and file block-editors call into this service when the
  * author selects a new asset; under the hood it issues a multipart
- * ``PATCH /api/lms/block/{id}/`` with a single file field, which the
+ * ``PATCH /api/block/{id}/`` with a single file field, which the
  * backend serializer accepts in both JSON and multipart form. Keeping
  * the surface deliberately tiny (two methods) mirrors the existing
  * :class:`LmsCatalogService` pattern: the editors do their own toast
@@ -20,7 +20,7 @@ export class LmsUploadService {
   private readonly http = inject(HttpClient);
 
   private buildUrl(blockId: number): string {
-    return `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/lms/block/${blockId}/`;
+    return `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/block/${blockId}/`;
   }
 
   /** Upload a replacement image for the ``image`` block ``blockId``. */

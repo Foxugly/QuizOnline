@@ -13,7 +13,7 @@ import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service
 import {getLmsCertificateListUiText} from './certificate-list.i18n';
 
 /**
- * Shape returned by ``GET /api/lms/certificate/`` — see
+ * Shape returned by ``GET /api/certificate/`` — see
  * ``CertificateSerializer``. ``course_title`` is a localized
  * ``SerializerMethodField`` (slug fallback on the backend), so it is
  * always a non-empty string.

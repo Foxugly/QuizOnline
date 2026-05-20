@@ -12,7 +12,7 @@ import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service
 import {getLmsCertificateVerifyUiText} from './certificate-verify.i18n';
 
 /**
- * Payload shape returned by the PUBLIC ``GET /api/lms/verify/{token}/``
+ * Payload shape returned by the PUBLIC ``GET /api/verify/{token}/``
  * endpoint (``CertificateVerifySerializer``). The endpoint is anonymous
  * and always returns 200 with ``valid: boolean`` — even when the token
  * is unknown — so we treat HTTP errors as "invalid" too.

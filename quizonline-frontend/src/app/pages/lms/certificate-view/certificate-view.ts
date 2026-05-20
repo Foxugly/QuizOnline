@@ -14,7 +14,7 @@ import {LmsEnrollmentService} from '../../../services/lms/lms-enrollment.service
 import {getLmsCertificateViewUiText} from './certificate-view.i18n';
 
 /**
- * Payload returned by ``GET /api/lms/certificate/{id}/``. The
+ * Payload returned by ``GET /api/certificate/{id}/``. The
  * ``CertificateSerializer`` exposes the FK ids, the certificate number,
  * the localized ``course_title`` (slug fallback applied server-side),
  * the issue date, the PDF url, the verification token, and the

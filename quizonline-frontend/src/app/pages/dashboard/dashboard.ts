@@ -16,7 +16,7 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 import {getDashboardUiText} from './dashboard.i18n';
 
-/** Shape rendered from ``GET /api/lms/progress/``. The serializer is
+/** Shape rendered from ``GET /api/progress/``. The serializer is
  *  the canonical ``CourseProgressSerializer`` with ``course_title``
  *  filled server-side — see the LMS progress page for the same type. */
 interface ProgressRow {
@@ -27,7 +27,7 @@ interface ProgressRow {
   updated_at: string;
 }
 
-/** Shape rendered from ``GET /api/lms/certificate/``. Only the count
+/** Shape rendered from ``GET /api/certificate/``. Only the count
  *  is consumed here — the certificates tile is a counter + CTA. */
 interface CertificateRow {
   id: number;
