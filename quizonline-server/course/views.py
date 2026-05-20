@@ -35,7 +35,7 @@ from .services import (
                 name="manageable_only",
                 description=(
                     "Scope to courses the caller owns or manages. "
-                    "Used by the instructor /lms/course/list page; "
+                    "Used by the instructor /course/list page; "
                     "drops courses where the caller is only a member."
                 ),
                 required=False, type=bool, location="query",
@@ -73,7 +73,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         # Optional ``?manageable_only=1`` scopes the queryset to
         # courses the caller can manage (owner / manager of the
         # course's domain — superusers see everything). The instructor
-        # /lms/course/list page uses this so paginator slicing reflects
+        # /course/list page uses this so paginator slicing reflects
         # only manageable rows; without it the frontend was filtering a
         # page client-side and could legitimately render an empty page
         # when manageable rows happened to live in a later page.

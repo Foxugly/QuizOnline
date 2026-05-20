@@ -92,12 +92,12 @@ def notify_course_completed_on_commit(*, user, course) -> None:
 def _build_invite_accept_url(invite) -> str:
     """Absolute URL the invitee clicks to land on the acceptance page.
 
-    The frontend route lives under ``/lms/course-invite/<token>/`` —
+    The frontend route lives under ``/course-invite/<token>/`` —
     we prefix it with the configured ``FRONTEND_BASE_URL`` so emails
     work whether the mail server resolves relative links or not.
     """
     base = getattr(settings, "FRONTEND_BASE_URL", "").rstrip("/")
-    return f"{base}/lms/course-invite/{invite.token}"
+    return f"{base}/course-invite/{invite.token}"
 
 
 def _on_commit(callable_) -> None:
@@ -184,7 +184,7 @@ def _build_course_inscriptions_url(course) -> str:
     selection so a future tab redesign that survives the slug stays
     backward-compatible."""
     base = getattr(settings, "FRONTEND_BASE_URL", "").rstrip("/")
-    return f"{base}/lms/course/{course.id}/edit?tab=enrollment"
+    return f"{base}/course/{course.id}/edit?tab=enrollment"
 
 
 def make_course_enrollment_request_email_callable(enrollment, instructor):

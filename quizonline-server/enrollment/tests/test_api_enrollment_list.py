@@ -1,6 +1,6 @@
 """End-to-end tests for ``GET /api/enrollment/`` — verifies the
 instructor-aware ``?course=<id>`` filter introduced for the Angular
-enrollment-tab on ``/lms/course/:id/edit`` plus the ``?status=<value>``
+enrollment-tab on ``/course/:id/edit`` plus the ``?status=<value>``
 narrowing helper."""
 
 import pytest

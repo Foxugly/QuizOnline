@@ -688,7 +688,7 @@ def course_invite_revoke(request, pk: int):
 @permission_classes([IsAuthenticated])
 def my_course_invitations(request):
     """Every ``CourseInvite`` row addressed to the calling user,
-    most recent first. Powers the ``/lms/me/invitations`` page so a
+    most recent first. Powers the ``/me/invitations`` page so a
     learner with several pending invitations can find them all in
     one place without trawling through email.
 
@@ -714,7 +714,7 @@ def my_course_invitations(request):
 def course_invite_detail(request, token: str):
     """Token-keyed lookup. Returns the invitation (any status) for the
     invitee or any instructor of the course — used by the
-    ``/lms/course-invite/{token}/`` acceptance page to render the
+    ``/course-invite/{token}/`` acceptance page to render the
     invitation card before the user clicks Accept or Decline."""
     invite = (
         CourseInvite.objects

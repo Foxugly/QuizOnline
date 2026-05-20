@@ -1,6 +1,6 @@
 """Coverage for the ``GET /api/course/?manageable_only=1`` filter.
 
-The instructor-side ``/lms/course/list`` Angular page relies on this
+The instructor-side ``/course/list`` Angular page relies on this
 to scope the paginated result to courses the caller actually manages.
 Without the filter the same endpoint also leaks published courses the
 caller is merely a member of, which would either pollute the admin

@@ -15,7 +15,7 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     # endpoint just to look up the parent course id.
     course_id = serializers.SerializerMethodField()
     # Slug of the parent course — the public lesson-view back button
-    # uses ``/lms/course/{slug}`` rather than the id-based edit route.
+    # uses ``/course/{slug}`` rather than the id-based edit route.
     course_slug = serializers.SerializerMethodField()
     # Domain id of the parent course — surfaced so the lesson-edit
     # shell can filter quiz-template pickers (and any future

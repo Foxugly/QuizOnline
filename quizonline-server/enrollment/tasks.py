@@ -75,7 +75,7 @@ def send_course_invite_reminders() -> int:
         # row is still flagged — we want at-most-once delivery, since
         # a duplicate reminder is worse than an occasional missed
         # one (and the invitee can still see the invitation in
-        # /lms/me/invitations regardless).
+        # /me/invitations regardless).
         CourseInvite.objects.filter(pk=invite.pk).update(reminder_sent_at=now)
         invite.reminder_sent_at = now
         notify(

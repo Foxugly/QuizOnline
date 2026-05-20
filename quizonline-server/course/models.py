@@ -93,7 +93,7 @@ class CourseAuditLog(models.Model):
 
     The ``(course, -created_at)`` index supports the common
     "show me the last N actions on this course" query that backs the
-    audit-log tab in ``/lms/course/{id}/edit``.
+    audit-log tab in ``/course/{id}/edit``.
     """
     from django.conf import settings as _settings
 
