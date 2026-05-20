@@ -102,9 +102,21 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
   private routeSub: Subscription | null = null;
 
-  protected readonly title = computed(() =>
-    pickTranslation(this.lesson()?.translations, this.currentLang(), 'title'),
-  );
+  /** One-line composite page-header title:
+   *  ``SECTION TITLE - Leçon x/y : titre leçon`` when the lesson is
+   *  surfaced with its section and its position in the course. Falls
+   *  back to just the lesson title at the course boundaries (or when
+   *  ``section_title`` / ``position_in_section`` were not yet shipped
+   *  by the backend). */
+  protected readonly title = computed(() => {
+    const l = this.lesson();
+    const lessonTitle = pickTranslation(l?.translations, this.currentLang(), 'title');
+    if (!l?.section_title || !l?.position_in_section) {
+      return lessonTitle;
+    }
+    const pos = this.ui().positionInSection(l.position_in_section.current, l.position_in_section.total);
+    return `${l.section_title.toUpperCase()} - ${pos} : ${lessonTitle}`;
+  });
 
   protected readonly blocks = computed<ContentBlock[]>(() => this.lesson()?.blocks ?? []);
 
@@ -133,17 +145,6 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
    *  ``null`` at the course boundary — the template hides the button. */
   protected readonly prevLesson = computed(() => this.lesson()?.prev_lesson ?? null);
   protected readonly nextLesson = computed(() => this.lesson()?.next_lesson ?? null);
-
-  /** "Lesson 2/5 — Setup" subtitle text. Returns ``null`` when the
-   *  position payload is missing (defensive against an older backend). */
-  protected readonly positionSubtitle = computed<string | null>(() => {
-    const l = this.lesson();
-    if (!l?.position_in_section || !l?.section_title) {
-      return null;
-    }
-    const pos = this.ui().positionInSection(l.position_in_section.current, l.position_in_section.total);
-    return `${pos} — ${l.section_title}`;
-  });
 
   protected lessonHref(id: number): ReturnType<typeof LESSON_VIEW> {
     return LESSON_VIEW(id);

@@ -5,17 +5,6 @@
   margin: 0 auto;
 }
 
-/* "Lesson 2/5 — Setup" — rendered above the page header so the learner
- * always sees their position in the course before the title. */
-.lesson-position {
-  margin: 0 0 0.4rem;
-  text-align: center;
-  color: var(--text-color-secondary, #6b7280);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-}
-
 /* Pin the lesson title to a single centered line. The shared
  * PageHeader's title wraps by default — that's fine on pages with
  * short titles and chunky side slots, but a learner-facing lesson
