@@ -5,6 +5,3 @@ class EnrollmentConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "enrollment"
     verbose_name = "Enrollment"
-
-    def ready(self):
-        pass
