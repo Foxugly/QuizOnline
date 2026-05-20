@@ -61,17 +61,17 @@ Production-grade moderation, invitations and observability on every `Domain`:
 
 ## Domain features (Phase E — LMS)
 
-LMS lives in three split Django apps under `/api/lms/`:
+LMS lives in flat Django apps mounted at `/api/` (no `/api/lms/` prefix):
 
-- `lms_catalog/` : `Course / Section / Lesson / ContentBlock` (parler-translated). All content scoped to a `Domain`. ContentBlock has 8 types (`rich_text / image / video / file / quiz / callout / code / embed`) validated by `.clean()`. HTML in `rich_text` is sanitised via `nh3` on save (XSS-safe whitelist).
-- `lms_enrollment/` : `CourseEnrollment / LessonProgress / CourseProgress / Certificate / CertificateSequence`. Services handle the lifecycle: `enroll_user_to_course` (3 modes), `mark_lesson_completed`, `calculate_course_progress`, `issue_certificate_if_eligible`. Celery + `reportlab` render the certificate PDF on-commit. On-commit notifications send 5 email templates (enrollment created/approved/rejected, course completed, certificate issued) localised via `gettext` + `.po`.
-- `lms_assessment/` : `LessonQuiz` bridge to `quiz.QuizTemplate`. `post_save` signal on `quiz.Quiz` propagates passing scores (`>= required_score_percent`) to `lms_enrollment.mark_lesson_completed` and to `issue_certificate_if_eligible` for course-level final quizzes.
+- `course/` + `lesson/` + `block/` : `Course / Section / Lesson / Block` (parler-translated). All content scoped to a `Domain`. `Block` has 8 types (`rich_text / image / video / file / quiz / callout / code / embed`) validated by `.clean()`. HTML in `rich_text` is sanitised via `nh3` on save (XSS-safe whitelist).
+- `enrollment/` + `certificate/` : `CourseEnrollment / LessonProgress / CourseProgress / Certificate / CertificateSequence`. Services handle the lifecycle: `enroll_user_to_course` (3 modes), `mark_lesson_completed`, `calculate_course_progress`, `issue_certificate_if_eligible`. Celery + `reportlab` render the certificate PDF on-commit. On-commit notifications send 5 email templates (enrollment created/approved/rejected, course completed, certificate issued) localised via `gettext` + `.po`.
+- `assessment/` : `LessonQuiz` bridge to `quiz.QuizTemplate`. `post_save` signal on `quiz.Quiz` propagates passing scores (`>= required_score_percent`) to `enrollment.mark_lesson_completed` and to `issue_certificate_if_eligible` for course-level final quizzes.
 
 Roles map directly onto existing Domain roles: superuser = admin; Domain owner/manager = instructor; Domain member = learner. No new permission tables.
 
 A Course's primary `language` and parler translations are constrained to `Domain.allowed_languages` — enforced at the model `.clean()` level AND in `TranslationsField.to_internal_value()`.
 
-Key endpoints under `/api/lms/` (`config/api_urls.py`):
+Key endpoints under `/api/` (`config/api_urls.py`):
 - `course/`, `section/`, `lesson/`, `block/` — CRUD + `reorder` actions + `publish` / `unpublish` / `clone` on courses
 - `course/?domain=<id>&level=<lvl>` — list filters consumed by the catalog dropdowns
 - `course/{id}/analytics/` — instructor-gated aggregated KPIs (enrollment counts, completion rate, median progress, certificates issued, 30-day enrollment trend) used by the course-edit "Analytics" tab
@@ -88,14 +88,14 @@ Key endpoints under `/api/lms/` (`config/api_urls.py`):
 
 `ContentBlock` exposes a translatable `title` field on every type (including `rich_text`, `quiz`, `code` — previously they had none). The title feeds the lesson-view block outline and the in-content card heading. Empty payload draft creates are explicitly allowed (`ContentBlockSerializer.validate` skips `full_clean` when `self.instance is None`, and `_filter_allowed_lang_codes` short-circuits on empty input so a domain with no `allowed_languages` does not 400 the empty-translation draft).
 
-Frontend pages under `pages/lms/` :
+Frontend pages live directly under `pages/` (no `lms/` prefix):
 - Learner: `catalog` (search + level + domain filters), `course-detail`, `lesson-view` (left block outline + prev/next footer + position subtitle), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
-- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/lms/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs + inline translate button per editor + view-as-learner eye button)
+- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs + inline translate button per editor + view-as-learner eye button)
 - Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated)
 
-Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `LmsUploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.
+Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `UploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.
 
-The rich-text sanitizer (`lms_catalog/sanitizer.py`) allows inline `style` attributes on a small set of formatting tags with a strict CSS allowlist (`color`, `background-color`, `text-align`, `text-decoration`, `font-weight/style/size`) so Quill colour / alignment round-trips through save — anything else (including `url(...)` and `expression(...)` payloads) is scrubbed.
+The rich-text sanitizer (`block/sanitizer.py`) allows inline `style` attributes on a small set of formatting tags with a strict CSS allowlist (`color`, `background-color`, `text-align`, `text-decoration`, `font-weight/style/size`) so Quill colour / alignment round-trips through save — anything else (including `url(...)` and `expression(...)` payloads) is scrubbed.
 
 Throttle scopes env-overridable + SSM-seedable (`/quizonline/prod/THROTTLE_LMS_*`):
 - `lms_enroll` (default 20/min)
