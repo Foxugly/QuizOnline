@@ -7,15 +7,13 @@
       icon="pi pi-arrow-left"
       [routerLink]="catalogHref"
       [label]="editorUi().common.back" />
-    @if (canManage()) {
-      @if (editHref(); as href) {
-        <p-button slot="right"
-          [routerLink]="href"
-          [label]="ui().editButton"
-          icon="pi pi-pencil"
-          severity="secondary"
-          [outlined]="true" />
-      }
+    @if (canManage() && editHref(); as href) {
+      <p-button slot="right"
+        [routerLink]="href"
+        [label]="ui().editButton"
+        icon="pi pi-pencil"
+        severity="secondary"
+        [outlined]="true" />
     }
     @if (continueHref(); as href) {
       <p-button slot="right"
@@ -38,17 +36,13 @@
         icon="pi pi-user-plus"
         [disabled]="enrolling()" />
     }
+    @if (showStatusBadge() && isPublished()) {
+      <p-tag slot="title-after" severity="success" [value]="statusBadgeLabel()" icon="pi pi-check-circle" />
+    }
+    @if (showStatusBadge() && !isPublished()) {
+      <p-tag slot="title-after" severity="secondary" [value]="statusBadgeLabel()" icon="pi pi-file-edit" />
+    }
   </app-page-header>
-
-  @if (showStatusBadge()) {
-    <div class="status-badge-row">
-      @if (isPublished()) {
-        <p-tag severity="success" [value]="statusBadgeLabel()" icon="pi pi-eye" />
-      } @else {
-        <p-tag severity="secondary" [value]="statusBadgeLabel()" icon="pi pi-pencil" />
-      }
-    </div>
-  }
 
   @if (pendingInviteInviter(); as inviter) {
     <p-message severity="info" [closable]="false" styleClass="invite-banner">

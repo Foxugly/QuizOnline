@@ -79,9 +79,9 @@
               <span class="course-card__level">{{ course.levelLabel }}</span>
               @if (course.statusLabel; as statusLabel) {
                 @if (course.statusIsPublished) {
-                  <p-tag [value]="statusLabel" severity="success" icon="pi pi-eye" />
+                  <p-tag [value]="statusLabel" severity="success" icon="pi pi-check-circle" />
                 } @else {
-                  <p-tag [value]="statusLabel" severity="secondary" icon="pi pi-pencil" />
+                  <p-tag [value]="statusLabel" severity="secondary" icon="pi pi-file-edit" />
                 }
               }
               @if (course.isEnrolled) {

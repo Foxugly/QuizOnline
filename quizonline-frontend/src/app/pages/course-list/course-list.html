@@ -91,9 +91,9 @@
           <td style="text-align: center;">{{ row.enrollmentLabel }}</td>
           <td style="text-align: center;">
             @if (row.isPublished) {
-              <p-tag severity="success" [value]="row.statusLabel" icon="pi pi-eye" />
+              <p-tag severity="success" [value]="row.statusLabel" icon="pi pi-check-circle" />
             } @else {
-              <p-tag severity="secondary" [value]="row.statusLabel" icon="pi pi-pencil" />
+              <p-tag severity="secondary" [value]="row.statusLabel" icon="pi pi-file-edit" />
             }
           </td>
           <td style="text-align: center;">{{ row.lessonCount }}</td>

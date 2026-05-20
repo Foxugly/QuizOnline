@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -8,7 +8,7 @@ import {TabsModule} from 'primeng/tabs';
 import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 
-import {CATALOG, COURSE_EDIT} from '../../app.routes-paths';
+import {CATALOG, COURSE_DETAIL, COURSE_EDIT} from '../../app.routes-paths';
 import {CourseDetailDto} from '../../api/generated/model/course-detail';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {logApiError} from '../../shared/api/api-errors';
@@ -38,6 +38,7 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
 @Component({
   selector: 'app-course-edit',
   imports: [
+    RouterLink,
     ButtonModule,
     ConfirmDialogModule,
     TabsModule,
@@ -67,6 +68,14 @@ export class CourseEdit implements OnInit, OnDestroy {
   protected readonly editorUi = this.uiSvc.editor;
   protected readonly courseId = signal<number>(0);
   protected readonly course = signal<CourseDetailDto | null>(null);
+  /** Public learner-view URL for the current course. Drives the
+   *  preview eye button in the page header — opens the same
+   *  ``/course/<slug>`` route a regular learner would land on, so the
+   *  author sees the rendered course exactly as the audience does. */
+  protected readonly previewHref = computed(() => {
+    const slug = this.course()?.slug;
+    return slug ? COURSE_DETAIL(slug) : null;
+  });
   protected readonly loading = signal<boolean>(false);
   protected readonly publishing = signal<boolean>(false);
   protected readonly cloning = signal<boolean>(false);

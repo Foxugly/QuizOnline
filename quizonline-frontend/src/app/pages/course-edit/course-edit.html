@@ -9,12 +9,24 @@
       (onClick)="back()">
     </p-button>
 
+    @if (previewHref(); as href) {
+      <p-button slot="right"
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-eye"
+        [routerLink]="href"
+        [pTooltip]="editorUi().common.view"
+        tooltipPosition="bottom"
+        [attr.aria-label]="editorUi().common.view">
+      </p-button>
+    }
     @if (course()?.is_published) {
       <p-button slot="right"
         type="button"
         severity="secondary"
         [outlined]="true"
-        icon="pi pi-eye-slash"
+        icon="pi pi-file-edit"
         [pTooltip]="ui().unpublishButton"
         tooltipPosition="bottom"
         [attr.aria-label]="ui().unpublishButton"
@@ -26,7 +38,7 @@
       <p-button slot="right"
         type="button"
         severity="primary"
-        icon="pi pi-eye"
+        icon="pi pi-check-circle"
         [pTooltip]="ui().publishButton"
         tooltipPosition="bottom"
         [attr.aria-label]="ui().publishButton"
@@ -70,13 +82,13 @@
       [disabled]="!course() || cloning() || deleting() || publishing() || loading()"
       (onClick)="confirmDelete()">
     </p-button>
+    @if (course()?.is_published === true) {
+      <p-tag slot="title-after" severity="success" [value]="ui().publishedBadge" icon="pi pi-check-circle" />
+    }
+    @if (course()?.is_published === false) {
+      <p-tag slot="title-after" severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-file-edit" />
+    }
   </app-page-header>
-
-  @if (course() && !course()?.is_published) {
-    <div class="draft-banner">
-      <p-tag severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-pencil" />
-    </div>
-  }
 
   <p-confirmDialog></p-confirmDialog>
 
