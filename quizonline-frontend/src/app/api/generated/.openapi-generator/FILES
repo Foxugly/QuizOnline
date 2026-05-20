@@ -38,8 +38,10 @@ model/action-enum.ts
 model/alert-thread-status-enum.ts
 model/answer-correctness-state-enum.ts
 model/blank-enum.ts
+model/block-block-role-enum.ts
+model/block-reorder-request-block-role-enum.ts
+model/block-reorder-request-request.ts
 model/block-request.ts
-model/block-role-enum.ts
 model/block-type-enum.ts
 model/block.ts
 model/bulk-create-from-template-input-request.ts
@@ -95,6 +97,7 @@ model/enrollment-mode-enum.ts
 model/error-detail.ts
 model/format-enum.ts
 model/generate-from-subjects-input-request.ts
+model/host-type-enum.ts
 model/join-policy-enum.ts
 model/join-request-status-enum.ts
 model/language-enum.ts

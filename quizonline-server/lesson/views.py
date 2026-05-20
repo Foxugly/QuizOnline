@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from course.permissions import IsLmsInstructorOrReadOnly
 
@@ -21,13 +19,10 @@ class LessonViewSet(viewsets.ModelViewSet):
             .select_related("section", "section__course")
         )
 
-    @action(detail=True, methods=["post"], url_path="block/reorder")
-    def reorder_blocks_action(self, request, pk=None):
-        from block.services import reorder_blocks
-        lesson = self.get_object()
-        ids = request.data.get("ids", [])
-        reorder_blocks(lesson=lesson, block_ids_in_order=ids)
-        return Response(LessonDetailSerializer(lesson).data)
+    # Block reorder for lesson hosts now goes through the generic
+    # ``POST /api/block/reorder/`` endpoint exposed by BlockViewSet,
+    # so the per-host action that used to live here is gone — one
+    # endpoint handles every host type.
 
     def perform_destroy(self, instance):
         section = instance.section

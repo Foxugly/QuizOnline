@@ -279,6 +279,55 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/block/reorder/:
+    post:
+      operationId: block_reorder_create
+      description: |-
+        Atomic bulk reorder for any block host.
+
+        Body shape: ``{host_type, host_id, ids, block_role}``.
+        ``host_type`` is one of ``lesson`` / ``question`` /
+        ``answer_option``; ``block_role`` defaults to ``body`` and is
+        only consequential when the host can hold multiple disjoint
+        block lists (Question splits into ``prompt`` + ``explanation``).
+
+        Replaces three host-specific endpoints from earlier phases by a
+        single source of truth — the frontend
+        ``<app-block-list-editor>`` calls this once regardless of host.
+        The two-phase reorder primitive in ``block.services`` already
+        accepts any host via the polymorphic ``_host_filter`` helper, so
+        this view just resolves the host instance + checks write
+        permission and delegates.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlockList'
+          description: ''
   /api/certificate/:
     get:
       operationId: certificate_list
@@ -2913,39 +2962,6 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/lesson/{id}/block/reorder/:
-    post:
-      operationId: lesson_block_reorder_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson.
-        required: true
-      tags:
-      - lesson
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonDetail'
-          description: ''
   /api/mail/test/:
     post:
       operationId: mail_test_create
@@ -6117,7 +6133,7 @@ components:
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
-          $ref: '#/components/schemas/BlockRoleEnum'
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -6169,6 +6185,16 @@ components:
       - block_type
       - id
       - translations
+    BlockBlockRoleEnum:
+      enum:
+      - body
+      - prompt
+      - explanation
+      type: string
+      description: |-
+        * `body` - Body
+        * `prompt` - Prompt
+        * `explanation` - Explanation
     BlockRequest:
       type: object
       description: |-
@@ -6199,7 +6225,7 @@ components:
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
-          $ref: '#/components/schemas/BlockRoleEnum'
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -6250,16 +6276,6 @@ components:
       required:
       - block_type
       - translations
-    BlockRoleEnum:
-      enum:
-      - body
-      - prompt
-      - explanation
-      type: string
-      description: |-
-        * `body` - Body
-        * `prompt` - Prompt
-        * `explanation` - Explanation
     BlockTypeEnum:
       enum:
       - rich_text
@@ -7815,6 +7831,16 @@ components:
       - domain_id
       - subject_ids
       - title
+    HostTypeEnum:
+      enum:
+      - lesson
+      - question
+      - answer_option
+      type: string
+      description: |-
+        * `lesson` - lesson
+        * `question` - question
+        * `answer_option` - answer_option
     JoinPolicyEnum:
       enum:
       - auto
@@ -9003,7 +9029,7 @@ components:
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
-          $ref: '#/components/schemas/BlockRoleEnum'
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -11178,6 +11204,38 @@ components:
         * `immediate` - Immédiat
         * `scheduled` - À partir d'une date
         * `never` - Jamais
+    _BlockReorderRequestBlockRoleEnum:
+      enum:
+      - body
+      - prompt
+      - explanation
+      type: string
+      description: |-
+        * `body` - body
+        * `prompt` - prompt
+        * `explanation` - explanation
+    _BlockReorderRequestRequest:
+      type: object
+      description: Wire shape of the generic bulk-reorder endpoint.
+      properties:
+        host_type:
+          $ref: '#/components/schemas/HostTypeEnum'
+        host_id:
+          type: integer
+          minimum: 1
+        ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        block_role:
+          allOf:
+          - $ref: '#/components/schemas/_BlockReorderRequestBlockRoleEnum'
+          default: body
+      required:
+      - host_id
+      - host_type
+      - ids
     _DomainStats:
       type: object
       properties:

@@ -8,7 +8,7 @@
  * Do not edit the class manually.
  */
 import { BlockTypeEnumDto } from './block-type-enum';
-import { BlockRoleEnumDto } from './block-role-enum';
+import { BlockBlockRoleEnumDto } from './block-block-role-enum';
 
 
 /**
@@ -19,7 +19,7 @@ export interface PatchedBlockRequestDto {
     question?: number | null;
     answer_option?: number | null;
     block_type?: BlockTypeEnumDto;
-    block_role?: BlockRoleEnumDto;
+    block_role?: BlockBlockRoleEnumDto;
     order?: number;
     is_required?: boolean;
     image?: Blob | null;

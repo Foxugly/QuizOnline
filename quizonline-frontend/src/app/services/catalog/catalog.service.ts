@@ -161,9 +161,8 @@ export class CatalogService {
     return this.http.post<unknown>(`${this.baseUrl}/section/${sectionId}/lesson/reorder/`, {ids});
   }
 
-  reorderBlocks(lessonId: number, ids: number[]): Observable<unknown> {
-    return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/block/reorder/`, {ids});
-  }
+  // Block reorder now goes through the generic ``POST /api/block/reorder/``
+  // endpoint — see ``<app-block-list-editor>`` for the call site.
 
   // -- Section CRUD --------------------------------------------------------
 

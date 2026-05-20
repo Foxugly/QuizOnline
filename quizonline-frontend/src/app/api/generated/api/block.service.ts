@@ -19,6 +19,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { BlockDto } from '../model/block';
 // @ts-ignore
+import { BlockReorderRequestRequestDto } from '../model/block-reorder-request-request';
+// @ts-ignore
 import { BlockRequestDto } from '../model/block-request';
 // @ts-ignore
 import { PaginatedBlockListDto } from '../model/paginated-block-list';
@@ -49,6 +51,12 @@ export interface BlockPartialUpdateRequestParams {
     /** A unique integer value identifying this block. */
     id: number;
     patchedBlockRequestDto?: PatchedBlockRequestDto;
+}
+
+export interface BlockReorderCreateRequestParams {
+    blockReorderRequestRequestDto: BlockReorderRequestRequestDto;
+    /** A page number within the paginated result set. */
+    page?: number;
 }
 
 export interface BlockRetrieveRequestParams {
@@ -331,6 +339,91 @@ export class BlockApi extends BaseService {
             {
                 context: localVarHttpContext,
                 body: patchedBlockRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Atomic bulk reorder for any block host.  Body shape: &#x60;&#x60;{host_type, host_id, ids, block_role}&#x60;&#x60;. &#x60;&#x60;host_type&#x60;&#x60; is one of &#x60;&#x60;lesson&#x60;&#x60; / &#x60;&#x60;question&#x60;&#x60; / &#x60;&#x60;answer_option&#x60;&#x60;; &#x60;&#x60;block_role&#x60;&#x60; defaults to &#x60;&#x60;body&#x60;&#x60; and is only consequential when the host can hold multiple disjoint block lists (Question splits into &#x60;&#x60;prompt&#x60;&#x60; + &#x60;&#x60;explanation&#x60;&#x60;).  Replaces three host-specific endpoints from earlier phases by a single source of truth — the frontend &#x60;&#x60;&lt;app-block-list-editor&gt;&#x60;&#x60; calls this once regardless of host. The two-phase reorder primitive in &#x60;&#x60;block.services&#x60;&#x60; already accepts any host via the polymorphic &#x60;&#x60;_host_filter&#x60;&#x60; helper, so this view just resolves the host instance + checks write permission and delegates.
+     * @endpoint post /api/block/reorder/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public blockReorderCreate(requestParameters: BlockReorderCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PaginatedBlockListDto>;
+    public blockReorderCreate(requestParameters: BlockReorderCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PaginatedBlockListDto>>;
+    public blockReorderCreate(requestParameters: BlockReorderCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PaginatedBlockListDto>>;
+    public blockReorderCreate(requestParameters: BlockReorderCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const blockReorderRequestRequestDto = requestParameters?.blockReorderRequestRequestDto;
+        if (blockReorderRequestRequestDto === null || blockReorderRequestRequestDto === undefined) {
+            throw new Error('Required parameter blockReorderRequestRequestDto was null or undefined when calling blockReorderCreate.');
+        }
+        const page = requestParameters?.page;
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/block/reorder/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<PaginatedBlockListDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: blockReorderRequestRequestDto,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
