@@ -151,12 +151,14 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             return Subject.objects.create(name=name)
 
     def _make_question(self, title: str, subjects=None, active=True) -> Question:
+        # Phase 3 LMS refactor: description / explanation / content
+        # migrated from parler fields to polymorphic block lists. Quiz
+        # tests don't care about the question text — only the answer
+        # option structure and correctness flags.
         subjects = subjects or []
         q = Question.objects.create(
             domain=self.domain,
             title=title,
-            description="desc",
-            explanation="expl",
             allow_multiple_correct=False,
             active=active,
             is_mode_practice=True,
@@ -168,8 +170,8 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             QuestionSubject.objects.create(question=q, subject=subj, sort_order=i)
 
         # 2 options minimum + 1 correcte
-        AnswerOption.objects.create(question=q, content="A", is_correct=True, sort_order=1)
-        AnswerOption.objects.create(question=q, content="B", is_correct=False, sort_order=2)
+        AnswerOption.objects.create(question=q, is_correct=True, sort_order=1)
+        AnswerOption.objects.create(question=q, is_correct=False, sort_order=2)
         return q
 
     def _set_translation(self, obj, lang: str, **fields):
@@ -627,16 +629,14 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         other_question = Question.objects.create(
             domain=other_domain,
             title="Q_OTHER",
-            description="desc",
-            explanation="expl",
             allow_multiple_correct=False,
             active=True,
             is_mode_practice=True,
             is_mode_exam=True,
         )
         QuestionSubject.objects.create(question=other_question, subject=other_subject, sort_order=1)
-        AnswerOption.objects.create(question=other_question, content="A", is_correct=True, sort_order=1)
-        AnswerOption.objects.create(question=other_question, content="B", is_correct=False, sort_order=2)
+        AnswerOption.objects.create(question=other_question, is_correct=True, sort_order=1)
+        AnswerOption.objects.create(question=other_question, is_correct=False, sort_order=2)
 
         list_url = self._rev(
             "api:quiz-api:quiz-template-question-list",
@@ -1475,25 +1475,13 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
     def test_quiz_retrieve_uses_accept_language_for_answer_options(self):
         quiz = self._create_quiz(self.qt_ok, self.u1, active=True, started_at=timezone.now())
 
-        self._set_translation(
-            self.qq1.question,
-            "fr",
-            title="Question FR",
-            description="Desc FR",
-            explanation="Expl FR",
-        )
-        self._set_translation(
-            self.qq1.question,
-            "en",
-            title="Question EN",
-            description="Desc EN",
-            explanation="Expl EN",
-        )
+        # Phase 3 LMS refactor: only ``title`` remains as a parler field
+        # on Question. Answer option content moved to block rows.
+        self._set_translation(self.qq1.question, "fr", title="Question FR")
+        self._set_translation(self.qq1.question, "en", title="Question EN")
 
         first_option = self.qq1.question.answer_options.order_by("id").first()
         self.assertIsNotNone(first_option)
-        self._set_translation(first_option, "fr", content="Reponse FR")
-        self._set_translation(first_option, "en", content="Answer EN")
 
         url = self._rev(
             "api:quiz-api:quiz-detail",
@@ -1510,7 +1498,6 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.data["answer_correctness_state"], "unknown")
         question_payload = res.data["questions"][0]["question"]
         self.assertEqual(question_payload["translations"]["en"]["title"], "Question EN")
-        self.assertEqual(question_payload["answer_options"][0]["content"], "Answer EN")
         self.assertIn("is_correct", question_payload["answer_options"][0])
         self.assertIsNone(question_payload["answer_options"][0]["is_correct"])
 

@@ -56,14 +56,13 @@ def make_domain(owner, name="Test domain", description=""):
 
 
 def make_question(domain, title="Q", active=True):
-    # Question est TranslatableModel + domain NOT NULL
+    # Phase 3 LMS refactor: Question only carries ``title`` as a parler
+    # field — description / explanation moved to block rows.
     if translation.get_language() is None:
         translation.activate("fr")
     q = Question.objects.create(
         domain=domain,
         title=title,
-        description="desc",
-        explanation="expl",
         active=active,
         allow_multiple_correct=False,
         is_mode_practice=True,
@@ -73,10 +72,12 @@ def make_question(domain, title="Q", active=True):
 
 
 def make_option(question, content="A", is_correct=False, sort_order=1):
-    # AnswerOption est TranslatableModel
+    # Phase 3 LMS refactor: AnswerOption no longer carries a parler
+    # ``content`` field — the ``content`` parameter is ignored and kept
+    # for backward signature compatibility (quiz tests don't read it).
     if translation.get_language() is None:
         translation.activate("fr")
-    return AnswerOption.objects.create(question=question, content=content, is_correct=is_correct, sort_order=sort_order)
+    return AnswerOption.objects.create(question=question, is_correct=is_correct, sort_order=sort_order)
 
 
 def make_template(domain, **kwargs):

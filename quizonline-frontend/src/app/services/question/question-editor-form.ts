@@ -284,7 +284,11 @@ export function populateQuestionEditorForm(
       }),
     );
 
-    const answerTranslations = (answer.translations ?? {}) as Record<string, { content?: string }>;
+    // Phase 3 LMS refactor (backend): AnswerOption.content moved to a
+    // block list. The editor still has a per-language ``content``
+    // textarea — left empty here until the editor is rewritten in the
+    // follow-up branch.
+    const answerTranslations: Record<string, { content?: string }> = {};
     for (const lang of langs) {
       getLangAnswerOptions(form, lang).push(
         fb.group({

@@ -64,7 +64,7 @@ class BlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Block
         fields = [
-            "id", "lesson", "block_type", "order", "is_required",
+            "id", "lesson", "block_type", "block_role", "order", "is_required",
             "image", "video_url", "video_provider", "file", "external_url",
             "code_language", "code_content", "quiz_template",
             "metadata", "translations",

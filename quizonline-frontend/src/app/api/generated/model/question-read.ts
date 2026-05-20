@@ -18,6 +18,8 @@ export interface QuestionReadDto {
     readonly id: number;
     readonly domain: DomainReadDto;
     readonly translations: { [key: string]: LocalizedQuestionTranslationDto; };
+    readonly prompt_blocks: Array<{ [key: string]: any; }>;
+    readonly explanation_blocks: Array<{ [key: string]: any; }>;
     readonly allow_multiple_correct: boolean;
     readonly active: boolean;
     readonly is_mode_practice: boolean;

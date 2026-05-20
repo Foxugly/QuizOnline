@@ -17,13 +17,21 @@ export interface QuestionWriteRequestDto {
      * Object or JSON string (multipart). Dict keyed by language code.
      */
     translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    /**
+     * Block payloads forming the question prompt (text/media/code/...).
+     */
+    prompt_blocks?: Array<{ [key: string]: any; }>;
+    /**
+     * Block payloads forming the answer explanation.
+     */
+    explanation_blocks?: Array<{ [key: string]: any; }>;
     allow_multiple_correct?: boolean;
     active?: boolean;
     is_mode_practice?: boolean;
     is_mode_exam?: boolean;
     subject_ids?: Array<number>;
     /**
-     * List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}
+     * List or JSON string (multipart). Each item: {is_correct, sort_order, blocks: [{block_type, order, translations}]}
      */
     answer_options?: Array<QuestionAnswerOptionWriteRequestDto>;
     /**

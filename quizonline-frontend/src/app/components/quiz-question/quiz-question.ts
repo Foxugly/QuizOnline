@@ -260,18 +260,23 @@ export class QuizQuestionComponent {
   }
 
   protected getAnswerContent(option: QuestionAnswerOptionReadDto): string {
+    // Phase 3 LMS refactor: AnswerOption content moved from a parler
+    // translation to a polymorphic block list. Until the frontend
+    // question editor is rewritten (follow-up branch), surface the
+    // first non-empty rich_text translation from the option's blocks.
     const lang = this.currentLang();
-    const current = option.translations?.[lang]?.content?.trim();
-
-    if (current) {
-      return current;
+    const blocks = (option as { blocks?: ReadonlyArray<{ translations?: Record<string, { rich_text?: string }> }> }).blocks ?? [];
+    for (const block of blocks) {
+      const current = block.translations?.[lang]?.rich_text?.trim();
+      if (current) return current;
     }
-
-    const fallback = Object.values(option.translations ?? {})
-      .map((translation) => translation.content?.trim())
-      .find((content) => !!content);
-
-    return fallback ?? option.content ?? '';
+    for (const block of blocks) {
+      for (const translation of Object.values(block.translations ?? {})) {
+        const value = translation.rich_text?.trim();
+        if (value) return value;
+      }
+    }
+    return '';
   }
 
   protected canShowCorrectionState(): boolean {

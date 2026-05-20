@@ -72,19 +72,19 @@ class QuizAlertsApiTestCase(APITestCase):
             return Subject.objects.create(name=name)
 
     def _make_question(self, title: str) -> Question:
+        # Phase 3 LMS refactor: description / explanation / content are
+        # no longer parler fields — they live as block rows now.
         question = Question.objects.create(
             domain=self.domain,
             title=title,
-            description="desc",
-            explanation="exp",
             allow_multiple_correct=False,
             active=True,
             is_mode_practice=True,
             is_mode_exam=True,
         )
         QuestionSubject.objects.create(question=question, subject=self.subject, sort_order=1)
-        AnswerOption.objects.create(question=question, content="A", is_correct=True, sort_order=1)
-        AnswerOption.objects.create(question=question, content="B", is_correct=False, sort_order=2)
+        AnswerOption.objects.create(question=question, is_correct=True, sort_order=1)
+        AnswerOption.objects.create(question=question, is_correct=False, sort_order=2)
         return question
 
     def _rev(self, name: str, **kwargs) -> str:

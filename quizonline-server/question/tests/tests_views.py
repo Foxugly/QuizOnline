@@ -68,16 +68,16 @@ class QuestionViewSetTests(APITestCase):
         s.save()
         return s
 
-    def _set_question_translation(self, question: Question, language_code: str, *, title: str, description: str = "", explanation: str = "") -> Question:
+    def _set_question_translation(self, question: Question, language_code: str, *, title: str) -> Question:
+        # Phase 3 LMS refactor: only ``title`` remains as a parler field
+        # on Question. ``description`` / ``explanation`` migrated to
+        # block rows under the ``prompt`` / ``explanation`` roles —
+        # tests that need them build blocks explicitly.
         translation_model = question._parler_meta.root_model
         translation_model.objects.update_or_create(
             master_id=question.pk,
             language_code=language_code,
-            defaults={
-                "title": title,
-                "description": description,
-                "explanation": explanation,
-            },
+            defaults={"title": title},
         )
         question.refresh_from_db()
         return question
@@ -89,8 +89,8 @@ class QuestionViewSetTests(APITestCase):
         return {
             "domain": domain.pk,
             "translations": {
-                "fr": {"title": "Titre FR", "description": "Desc FR", "explanation": "Expl FR"},
-                "nl": {"title": "Titel NL", "description": "Desc NL", "explanation": "Expl NL"},
+                "fr": {"title": "Titre FR"},
+                "nl": {"title": "Titel NL"},
             },
             "allow_multiple_correct": False,
             "active": True,
@@ -101,12 +101,18 @@ class QuestionViewSetTests(APITestCase):
                 {
                     "is_correct": True,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "A"}, "nl": {"content": "A"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A"}, "nl": {"rich_text": "A"}},
+                    }],
                 },
                 {
                     "is_correct": False,
                     "sort_order": 2,
-                    "translations": {"fr": {"content": "B"}, "nl": {"content": "B"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B"}, "nl": {"rich_text": "B"}},
+                    }],
                 },
             ],
             "media_asset_ids": media_asset_ids,
@@ -429,10 +435,10 @@ class QuestionViewSetTests(APITestCase):
         # show_correct=True for staff => is_correct present
         self.assertIn("answer_options", resp.json())
         self.assertIn("is_correct", resp.json()["answer_options"][0])
-        self.assertEqual(
-            resp.json()["answer_options"][0]["translations"]["fr"]["content"],
-            "A",
-        )
+        # Phase 3 LMS refactor: option content surfaces as a nested
+        # block list, not a per-language translation map.
+        first_blocks = resp.json()["answer_options"][0]["blocks"]
+        self.assertEqual(first_blocks[0]["translations"]["fr"]["rich_text"], "A")
 
     def test_create_json_sets_created_by(self):
         s1 = self._mk_subject(self.domain, name_fr="S1")

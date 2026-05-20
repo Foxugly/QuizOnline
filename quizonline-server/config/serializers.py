@@ -26,12 +26,15 @@ class LocalizedNameDescriptionTranslationSerializer(serializers.Serializer):
 
 class LocalizedQuestionTranslationSerializer(serializers.Serializer):
     title = serializers.CharField()
-    description = serializers.CharField()
-    explanation = serializers.CharField()
 
 
 class LocalizedAnswerOptionTranslationSerializer(serializers.Serializer):
-    content = serializers.CharField()
+    # Placeholder serializer kept for OpenAPI schema continuity — answer
+    # option content is now hosted as block rows under the option's
+    # GenericRelation. The legacy ``content`` field is kept here as a
+    # nullable string so old frontend clients that still POST it don't
+    # 500 (server-side it is silently dropped by the write serializer).
+    content = serializers.CharField(required=False, allow_blank=True)
 
 
 class LocalizedQuestionTitleTranslationSerializer(serializers.Serializer):

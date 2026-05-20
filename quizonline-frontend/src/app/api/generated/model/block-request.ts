@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { BlockTypeEnumDto } from './block-type-enum';
+import { BlockRoleEnumDto } from './block-role-enum';
 
 
 /**
@@ -16,6 +17,7 @@ import { BlockTypeEnumDto } from './block-type-enum';
 export interface BlockRequestDto { 
     lesson: number;
     block_type: BlockTypeEnumDto;
+    block_role?: BlockRoleEnumDto;
     order?: number;
     is_required?: boolean;
     image?: Blob | null;

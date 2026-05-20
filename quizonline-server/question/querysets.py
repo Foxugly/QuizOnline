@@ -8,7 +8,17 @@ def question_queryset():
     return (
         Question.objects
         .select_related("domain")
-        .prefetch_related("subjects", "translations", "answer_options__translations", "media__asset")
+        .prefetch_related(
+            "subjects",
+            "translations",
+            # Phase 3 LMS refactor: AnswerOption is no longer parler-
+            # translated — content lives as Block rows. Prefetch the
+            # option blocks (+ their translations) so the read serializer
+            # never hits a N+1 walking option content.
+            "answer_options__blocks__translations",
+            "blocks__translations",
+            "media__asset",
+        )
     )
 
 

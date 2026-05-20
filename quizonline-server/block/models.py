@@ -49,7 +49,20 @@ class Block(TranslatableModel):
         ("upload", _("Self-hosted")),
     ]
 
-    # Generic host: Lesson today, Question / AnswerOption in Phase 3.
+    # Role discriminator: a single host can carry several disjoint block
+    # lists (Phase 3). Lesson and AnswerOption hosts only use BODY today;
+    # Question hosts split their blocks into a PROMPT list (the question
+    # text/media) and an EXPLANATION list (the answer rationale).
+    ROLE_BODY = "body"
+    ROLE_PROMPT = "prompt"
+    ROLE_EXPLANATION = "explanation"
+    ROLE_CHOICES = [
+        (ROLE_BODY, _("Body")),
+        (ROLE_PROMPT, _("Prompt")),
+        (ROLE_EXPLANATION, _("Explanation")),
+    ]
+
+    # Generic host: Lesson, Question or AnswerOption.
     target_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -59,6 +72,9 @@ class Block(TranslatableModel):
     target = GenericForeignKey("target_content_type", "target_object_id")
 
     block_type = models.CharField(max_length=16, choices=TYPE_CHOICES)
+    block_role = models.CharField(
+        max_length=16, choices=ROLE_CHOICES, default=ROLE_BODY,
+    )
     order = models.PositiveIntegerField(default=0, db_index=True)
     is_required = models.BooleanField(default=False)
 
@@ -84,11 +100,11 @@ class Block(TranslatableModel):
     objects = TranslatableManager.from_queryset(BlockQuerySet)()
 
     class Meta:
-        ordering = ["target_content_type", "target_object_id", "order"]
+        ordering = ["target_content_type", "target_object_id", "block_role", "order"]
         constraints = [
             models.UniqueConstraint(
-                fields=["target_content_type", "target_object_id", "order"],
-                name="uniq_block_order_per_target",
+                fields=["target_content_type", "target_object_id", "block_role", "order"],
+                name="uniq_block_order_per_target_role",
             ),
         ]
         indexes = [

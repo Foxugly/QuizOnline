@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('target_object_id', models.BigIntegerField()),
                 ('block_type', models.CharField(choices=[('rich_text', 'Rich text'), ('image', 'Image'), ('video', 'Video'), ('file', 'File'), ('quiz', 'Quiz'), ('callout', 'Callout'), ('code', 'Code'), ('embed', 'Embed')], max_length=16)),
+                ('block_role', models.CharField(choices=[('body', 'Body'), ('prompt', 'Prompt'), ('explanation', 'Explanation')], default='body', max_length=16)),
                 ('order', models.PositiveIntegerField(db_index=True, default=0)),
                 ('is_required', models.BooleanField(default=False)),
                 ('image', models.ImageField(blank=True, null=True, upload_to='lms/blocks/img/')),
@@ -48,7 +49,7 @@ class Migration(migrations.Migration):
                 ('target_content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='block_hosts', to='contenttypes.contenttype')),
             ],
             options={
-                'ordering': ['target_content_type', 'target_object_id', 'order'],
+                'ordering': ['target_content_type', 'target_object_id', 'block_role', 'order'],
             },
             bases=(parler.models.TranslatableModelMixin, models.Model),
         ),
@@ -77,7 +78,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='block',
-            constraint=models.UniqueConstraint(fields=('target_content_type', 'target_object_id', 'order'), name='uniq_block_order_per_target'),
+            constraint=models.UniqueConstraint(fields=('target_content_type', 'target_object_id', 'block_role', 'order'), name='uniq_block_order_per_target_role'),
         ),
         migrations.AlterUniqueTogether(
             name='blocktranslation',

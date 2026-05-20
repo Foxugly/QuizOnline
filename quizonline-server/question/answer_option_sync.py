@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
 from .models import AnswerOption, Question
@@ -11,9 +12,17 @@ def sync_question_answer_options(
     *,
     question: Question,
     answer_options_data: Iterable[dict],
-    allowed_langs: set[str],
-    upsert_translations,
 ) -> None:
+    """Reconcile a question's ``answer_options`` collection with the
+    incoming payload. Phase 3 of the LMS refactor: each option's
+    multilingual ``content`` migrated to its own block list, so the
+    legacy ``translations`` argument is gone. Block payloads on each
+    option are applied via :func:`_sync_host_blocks` after the option
+    row exists (PK known).
+    """
+    from .serializers import _sync_host_blocks  # local import to avoid cycle
+    from block.models import Block
+
     existing_options = {option.id: option for option in question.answer_options.all()}
     referenced_existing_ids = set(
         AnswerOption.objects.filter(question=question, quiz_answers__isnull=False)
@@ -22,23 +31,16 @@ def sync_question_answer_options(
     )
     retained_ids: set[int] = set()
 
-    # Separate new vs existing, validate inline, collect (instance, translations) pairs.
-    new_pairs: list[tuple[AnswerOption, dict]] = []
-    update_pairs: list[tuple[AnswerOption, dict]] = []
+    new_pairs: list[tuple[AnswerOption, list]] = []
+    update_pairs: list[tuple[AnswerOption, list | None]] = []
 
     for i, raw_option in enumerate(answer_options_data):
         if not isinstance(raw_option, dict):
             raise serializers.ValidationError({f"answer_options[{i}]": "Each item must be an object."})
 
-        option_translations = raw_option.get("translations") or {}
-        if not isinstance(option_translations, dict):
-            raise serializers.ValidationError(
-                {f"answer_options[{i}].translations": "Must be an object keyed by language code."}
-            )
-
         option_payload = dict(raw_option)
         option_id = option_payload.pop("id", None)
-        option_payload.pop("translations", None)
+        block_payloads = option_payload.pop("blocks", None)
 
         if option_id is not None:
             option = existing_options.get(option_id)
@@ -63,10 +65,10 @@ def sync_question_answer_options(
             for attr, value in option_payload.items():
                 setattr(option, attr, value)
             retained_ids.add(option_id)
-            update_pairs.append((option, option_translations))
+            update_pairs.append((option, block_payloads))
         else:
             option = AnswerOption(question=question, **option_payload)
-            new_pairs.append((option, option_translations))
+            new_pairs.append((option, block_payloads if block_payloads is not None else []))
 
     # Bulk create new options (sets PKs on instances in-place).
     if new_pairs:
@@ -107,12 +109,23 @@ def sync_question_answer_options(
         raise serializers.ValidationError({"answer_options": "Une seule réponse correcte est autorisée."})
 
     if removable_ids:
+        # Walk through the GFK and delete each option's hosted blocks
+        # before deleting the rows themselves — the ContentType
+        # framework does not cascade GFK deletes.
+        option_ct = ContentType.objects.get_for_model(AnswerOption)
+        Block.objects.filter(
+            target_content_type=option_ct, target_object_id__in=removable_ids,
+        ).delete()
         AnswerOption.objects.filter(id__in=removable_ids).delete()
 
-    # Apply translations after all DB writes so PKs are guaranteed to exist.
-    for opt, translations in update_pairs + new_pairs:
-        upsert_translations(
-            opt,
-            {lang_code: translations.get(lang_code, {}) for lang_code in allowed_langs},
-            fields=["content"],
+    # Apply block payloads after all DB writes so option PKs exist. A
+    # missing ``blocks`` key on the wire means "leave this option's
+    # blocks alone"; an empty list means "wipe them".
+    for opt, block_payloads in update_pairs + new_pairs:
+        if block_payloads is None:
+            continue
+        _sync_host_blocks(
+            host=opt,
+            block_payloads=block_payloads,
+            block_role="body",
         )

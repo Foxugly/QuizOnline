@@ -33,11 +33,13 @@ class BlockViewSet(viewsets.ModelViewSet):
         return []
 
     def perform_destroy(self, instance):
-        # Capture the host before deletion so ``compact_blocks`` can
-        # renumber its surviving siblings. Today the host is always a
-        # Lesson; Phase 3 will extend ``compact_blocks`` to handle
-        # Question / AnswerOption hosts.
+        # Capture the host AND the role before deletion so
+        # ``compact_blocks`` can renumber surviving siblings within the
+        # same role bucket. Phase 3: a Question can host two disjoint
+        # block lists (prompt + explanation); compacting must stay
+        # scoped to the deleted block's role.
         host = instance.target
+        role = instance.block_role
         instance.delete()
         if host is not None:
-            compact_blocks(lesson=host)
+            compact_blocks(lesson=host, block_role=role)

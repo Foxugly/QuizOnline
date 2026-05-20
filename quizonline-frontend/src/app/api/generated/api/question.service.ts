@@ -58,12 +58,16 @@ export interface QuestionImportStructuredCreateRequestParams {
     domain: number;
     /** Object or JSON string (multipart). Dict keyed by language code. */
     translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    /** Block payloads forming the question prompt (text/media/code/...). */
+    promptBlocks?: Array<{ [key: string]: any; }>;
+    /** Block payloads forming the answer explanation. */
+    explanationBlocks?: Array<{ [key: string]: any; }>;
     allowMultipleCorrect?: boolean;
     active?: boolean;
     isModePractice?: boolean;
     isModeExam?: boolean;
     subjectIds?: Array<number>;
-    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
+    /** List or JSON string (multipart). Each item: {is_correct, sort_order, blocks: [{block_type, order, translations}]} */
     answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
     /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
     mediaAssetIds?: Array<number>;
@@ -98,12 +102,16 @@ export interface QuestionMediaUploadCreateRequestParams {
     domain: number;
     /** Object or JSON string (multipart). Dict keyed by language code. */
     translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    /** Block payloads forming the question prompt (text/media/code/...). */
+    promptBlocks?: Array<{ [key: string]: any; }>;
+    /** Block payloads forming the answer explanation. */
+    explanationBlocks?: Array<{ [key: string]: any; }>;
     allowMultipleCorrect?: boolean;
     active?: boolean;
     isModePractice?: boolean;
     isModeExam?: boolean;
     subjectIds?: Array<number>;
-    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
+    /** List or JSON string (multipart). Each item: {is_correct, sort_order, blocks: [{block_type, order, translations}]} */
     answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
     /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
     mediaAssetIds?: Array<number>;
@@ -339,6 +347,8 @@ export class QuestionApi extends BaseService {
             throw new Error('Required parameter domain was null or undefined when calling questionImportStructuredCreate.');
         }
         const translations = requestParameters?.translations;
+        const promptBlocks = requestParameters?.promptBlocks;
+        const explanationBlocks = requestParameters?.explanationBlocks;
         const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
         const active = requestParameters?.active;
         const isModePractice = requestParameters?.isModePractice;
@@ -386,6 +396,24 @@ export class QuestionApi extends BaseService {
         }
         if (translations !== undefined) {
             localVarFormParams = localVarFormParams.append('translations', <any>translations) as any || localVarFormParams;
+        }
+        if (promptBlocks) {
+            if (localVarUseForm) {
+                promptBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('prompt_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('prompt_blocks', [...promptBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
+        }
+        if (explanationBlocks) {
+            if (localVarUseForm) {
+                explanationBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('explanation_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('explanation_blocks', [...explanationBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
         }
         if (allowMultipleCorrect !== undefined) {
             localVarFormParams = localVarFormParams.append('allow_multiple_correct', <any>allowMultipleCorrect) as any || localVarFormParams;
@@ -770,6 +798,8 @@ export class QuestionApi extends BaseService {
             throw new Error('Required parameter domain was null or undefined when calling questionMediaUploadCreate.');
         }
         const translations = requestParameters?.translations;
+        const promptBlocks = requestParameters?.promptBlocks;
+        const explanationBlocks = requestParameters?.explanationBlocks;
         const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
         const active = requestParameters?.active;
         const isModePractice = requestParameters?.isModePractice;
@@ -816,6 +846,24 @@ export class QuestionApi extends BaseService {
         }
         if (translations !== undefined) {
             localVarFormParams = localVarFormParams.append('translations', <any>translations) as any || localVarFormParams;
+        }
+        if (promptBlocks) {
+            if (localVarUseForm) {
+                promptBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('prompt_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('prompt_blocks', [...promptBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
+        }
+        if (explanationBlocks) {
+            if (localVarUseForm) {
+                explanationBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('explanation_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('explanation_blocks', [...explanationBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
         }
         if (allowMultipleCorrect !== undefined) {
             localVarFormParams = localVarFormParams.append('allow_multiple_correct', <any>allowMultipleCorrect) as any || localVarFormParams;

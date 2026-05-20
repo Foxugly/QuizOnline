@@ -12,7 +12,7 @@ from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportMixin
 
-from parler.admin import TranslatableAdmin, TranslatableTabularInline
+from parler.admin import TranslatableAdmin
 
 from .structured_export import export_questions
 from .structured_import import import_questions, StructuredImportError, StructuredImportPermissionError
@@ -60,11 +60,17 @@ class AnswerOptionInlineFormSet(BaseInlineFormSet):
 # Inlines
 # ==========================================================
 
-class AnswerOptionInline(TranslatableTabularInline):
+class AnswerOptionInline(admin.TabularInline):
+    """Answer option inline (Phase 3 LMS refactor): the multilingual
+    ``content`` field is now hosted as polymorphic block rows, so the
+    inline only exposes the structural fields (``is_correct`` /
+    ``sort_order``). Authors edit the block content through the
+    ``/api/block/`` endpoints in the Question editor UI.
+    """
     model = AnswerOption
     formset = AnswerOptionInlineFormSet
     extra = 0
-    fields = ("content", "is_correct", "sort_order")
+    fields = ("is_correct", "sort_order")
     ordering = ("sort_order", "id")
 
 
@@ -170,8 +176,6 @@ class QuestionAdmin(ImportExportMixin, TranslatableAdmin):
     )
     search_fields = (
         "translations__title",
-        "translations__description",
-        "translations__explanation",
     )
     date_hierarchy = "created_at"
     ordering = ("-pk",)
@@ -182,7 +186,7 @@ class QuestionAdmin(ImportExportMixin, TranslatableAdmin):
         (_("Référence"), {"fields": ("domain", "active")}),
         (_("Modes"), {"fields": ("is_mode_practice", "is_mode_exam")}),
         (_("Réponses"), {"fields": ("allow_multiple_correct",)}),
-        (_("Traductions"), {"fields": ("title", "description", "explanation")}),
+        (_("Traductions"), {"fields": ("title",)}),
     )
 
     inlines = (
@@ -245,17 +249,12 @@ class MediaAssetAdmin(admin.ModelAdmin):
 # ==========================================================
 
 @admin.register(AnswerOption)
-class AnswerOptionAdmin(ImportExportMixin, TranslatableAdmin):
+class AnswerOptionAdmin(ImportExportMixin, admin.ModelAdmin):
     resource_classes = [AnswerOptionResource]
-    list_display = ("id", "question", "content_any", "is_correct", "sort_order")
+    list_display = ("id", "question", "is_correct", "sort_order")
     list_filter = ("is_correct",)
-    search_fields = ("translations__content", "question__translations__title")
+    search_fields = ("question__translations__title",)
     ordering = ("question_id", "sort_order", "id")
     autocomplete_fields = ("question",)
 
-    fields = ("question", "content", "is_correct", "sort_order")
-
-    def content_any(self, obj: AnswerOption) -> str:
-        txt = obj.safe_translation_getter("content", any_language=True) or ""
-        return (txt[:60] + "…") if len(txt) > 60 else txt
-    content_any.short_description = _("content")
+    fields = ("question", "is_correct", "sort_order")

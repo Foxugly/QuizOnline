@@ -6106,6 +6106,8 @@ components:
           type: integer
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -6177,6 +6179,8 @@ components:
           type: integer
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -6228,6 +6232,16 @@ components:
       - block_type
       - lesson
       - translations
+    BlockRoleEnum:
+      enum:
+      - body
+      - prompt
+      - explanation
+      type: string
+      description: |-
+        * `body` - Body
+        * `prompt` - Prompt
+        * `explanation` - Explanation
     BlockTypeEnum:
       enum:
       - rich_text
@@ -8087,25 +8101,11 @@ components:
         * `beginner` - Beginner
         * `intermediate` - Intermediate
         * `advanced` - Advanced
-    LocalizedAnswerOptionTranslation:
-      type: object
-      properties:
-        content:
-          type: string
-      required:
-      - content
     LocalizedAnswerOptionTranslationRequest:
       type: object
       properties:
         content:
           type: string
-          minLength: 1
-      required:
-      - content
-    LocalizedAnswerOptionTranslations:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LocalizedAnswerOptionTranslation'
     LocalizedNameDescriptionTranslation:
       type: object
       properties:
@@ -8148,13 +8148,7 @@ components:
       properties:
         title:
           type: string
-        description:
-          type: string
-        explanation:
-          type: string
       required:
-      - description
-      - explanation
       - title
     LocalizedQuestionTranslationRequest:
       type: object
@@ -8162,15 +8156,7 @@ components:
         title:
           type: string
           minLength: 1
-        description:
-          type: string
-          minLength: 1
-        explanation:
-          type: string
-          minLength: 1
       required:
-      - description
-      - explanation
       - title
     LocalizedQuestionTranslations:
       type: object
@@ -8988,6 +8974,8 @@ components:
           type: integer
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
@@ -9415,12 +9403,11 @@ components:
         id:
           type: integer
           readOnly: true
-        content:
-          type: string
-          readOnly: true
-        translations:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedAnswerOptionTranslations'
+        blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         is_correct:
           type: boolean
@@ -9432,10 +9419,9 @@ components:
           minimum: 0
           format: int64
       required:
-      - content
+      - blocks
       - id
       - is_correct
-      - translations
     QuestionAnswerOptionWrite:
       type: object
       properties:
@@ -9475,13 +9461,13 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-        translations:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
+        blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           writeOnly: true
-      required:
-      - translations
+          description: List of block payloads forming this option's content.
     QuestionInQuizQuestion:
       type: object
       properties:
@@ -9544,6 +9530,18 @@ components:
           allOf:
           - $ref: '#/components/schemas/LocalizedQuestionTranslations'
           readOnly: true
+        prompt_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+        explanation_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
         allow_multiple_correct:
           type: boolean
           readOnly: true
@@ -9584,10 +9582,12 @@ components:
       - answer_options
       - created_at
       - domain
+      - explanation_blocks
       - id
       - is_mode_exam
       - is_mode_practice
       - media
+      - prompt_blocks
       - subjects
       - translations
     QuestionWrite:
@@ -9661,6 +9661,20 @@ components:
             $ref: '#/components/schemas/LocalizedQuestionTranslationRequest'
           writeOnly: true
           description: Object or JSON string (multipart). Dict keyed by language code.
+        prompt_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          writeOnly: true
+          description: Block payloads forming the question prompt (text/media/code/...).
+        explanation_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          writeOnly: true
+          description: Block payloads forming the answer explanation.
         allow_multiple_correct:
           type: boolean
           title: Plusieurs bonnes réponses ?
@@ -9683,7 +9697,7 @@ components:
             $ref: '#/components/schemas/QuestionAnswerOptionWriteRequest'
           writeOnly: true
           description: 'List or JSON string (multipart). Each item: {is_correct, sort_order,
-            translations{lang:{content}}}'
+            blocks: [{block_type, order, translations}]}'
         media_asset_ids:
           type: array
           items:

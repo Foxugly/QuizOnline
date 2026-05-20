@@ -233,13 +233,17 @@ export class QuestionService {
       active: !!question.active,
       isModePractice: !!question.is_mode_practice,
       isModeExam: !!question.is_mode_exam,
+      // Phase 3 LMS refactor (backend): description / explanation /
+      // content are no longer parler-translated strings. The frontend
+      // question editor rewrite is the next branch's job — until then
+      // duplicate just preserves the title and structural metadata.
       translations: Object.fromEntries(
         Object.entries(question.translations ?? {}).map(([lang, value]) => [
           lang,
           {
-            title: value?.title ?? '',
-            description: value?.description ?? '',
-            explanation: value?.explanation ?? '',
+            title: (value as { title?: string } | undefined)?.title ?? '',
+            description: '',
+            explanation: '',
           },
         ]),
       ) as Record<LangCode, QuestionTranslationForm>,
@@ -248,12 +252,7 @@ export class QuestionService {
         .map((answer, index) => ({
           is_correct: !!answer.is_correct,
           sort_order: answer.sort_order ?? index + 1,
-          translations: Object.fromEntries(
-            Object.entries(answer.translations ?? {}).map(([lang, value]) => [
-              lang,
-              {content: value?.content ?? ''},
-            ]),
-          ) as Record<LangCode, { content: string }>,
+          translations: {} as Record<LangCode, { content: string }>,
         })),
       media: (question.media ?? []).map((media, index) => ({
         id: media.asset.id,

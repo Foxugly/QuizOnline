@@ -35,7 +35,6 @@ from question.serializers import (
     QuestionInQuizQuestionSerializer,
     QuestionReadSerializer,
     QuestionWriteSerializer,
-    _upsert_translations,
 )
 from question.answer_option_sync import sync_question_answer_options
 
@@ -121,20 +120,12 @@ class QuestionSerializersTestCase(TestCase):
     def _mk_question_with_translations(self, *, allow_multiple=False) -> Question:
         q = Question.objects.create(domain=self.domain, allow_multiple_correct=allow_multiple)
 
-        self._set_parler_translation(
-            q,
-            "fr",
-            title="Titre FR",
-            description="Desc FR",
-            explanation="Expl FR",
-        )
-        self._set_parler_translation(
-            q,
-            "en",
-            title="Title EN",
-            description="Desc EN",
-            explanation="Expl EN",
-        )
+        # Phase 3 LMS refactor: only ``title`` remains as a parler field
+        # on Question — ``description`` and ``explanation`` now live as
+        # block rows. Tests that care about prompt/explanation content
+        # build blocks via ``_mk_question_blocks`` below.
+        self._set_parler_translation(q, "fr", title="Titre FR")
+        self._set_parler_translation(q, "en", title="Title EN")
 
         return (
             Question.objects
@@ -143,9 +134,25 @@ class QuestionSerializersTestCase(TestCase):
         )
 
     def _mk_answer_option(self, q: Question, *, is_correct: bool, sort_order: int, fr: str, en: str) -> AnswerOption:
+        """Phase 3 LMS refactor: AnswerOption.content is now a block
+        list. Helper creates the option row and a single rich_text
+        block under the ``body`` role with the per-language content.
+        """
+        from block.models import Block
+        from django.contrib.contenttypes.models import ContentType
+
         ao = AnswerOption.objects.create(question=q, is_correct=is_correct, sort_order=sort_order)
-        self._set_parler_translation(ao, "fr", content=fr)
-        self._set_parler_translation(ao, "en", content=en)
+        option_ct = ContentType.objects.get_for_model(AnswerOption)
+        block = Block.objects.create(
+            target_content_type=option_ct,
+            target_object_id=ao.pk,
+            block_type=Block.TYPE_RICH_TEXT,
+            block_role=Block.ROLE_BODY,
+            order=0,
+        )
+        translation_model = block._parler_meta.root_model
+        translation_model.objects.create(master=block, language_code="fr", rich_text=fr)
+        translation_model.objects.create(master=block, language_code="en", rich_text=en)
         return AnswerOption.objects.get(pk=ao.pk)
 
     def _mk_external_asset(self, url="https://www.youtube.com/watch?v=dQw4w9WgXcQ") -> MediaAsset:
@@ -254,7 +261,10 @@ class QuestionSerializersTestCase(TestCase):
         ao = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
         data = QuestionAnswerOptionPublicReadSerializer(ao).data
         self.assertNotIn("is_correct", data)
-        self.assertEqual(data["content"], "A FR")
+        # Phase 3 LMS refactor: option content now lives in nested
+        # blocks; the FR translation surfaces from the rich_text field.
+        self.assertEqual(len(data["blocks"]), 1)
+        self.assertEqual(data["blocks"][0]["translations"]["fr"]["rich_text"], "A FR")
 
     def test_answer_option_read_serializer_includes_is_correct(self):
         q = self._mk_question_with_translations()
@@ -262,21 +272,23 @@ class QuestionSerializersTestCase(TestCase):
         data = QuestionAnswerOptionReadSerializer(ao, context={"show_correct": True}).data
         self.assertIn("is_correct", data)
         self.assertTrue(data["is_correct"])
-        self.assertEqual(data["translations"]["fr"]["content"], "A FR")
-        self.assertEqual(data["translations"]["en"]["content"], "A EN")
+        block = data["blocks"][0]
+        self.assertEqual(block["translations"]["fr"]["rich_text"], "A FR")
+        self.assertEqual(block["translations"]["en"]["rich_text"], "A EN")
 
-    def test_answer_option_write_serializer_validate_translations_shape(self):
-        payload = {"is_correct": True, "sort_order": 0, "translations": {"fr": {"content": "A"}, "en": {"content": "A"}}}
+    def test_answer_option_write_serializer_validates_blocks_shape(self):
+        # Valid: blocks is a list of dicts.
+        payload = {
+            "is_correct": True, "sort_order": 0,
+            "blocks": [{"block_type": "rich_text", "translations": {"fr": {"rich_text": "A"}}}],
+        }
         s = QuestionAnswerOptionWriteSerializer(data=payload)
         self.assertTrue(s.is_valid(), s.errors)
 
-        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0, "translations": "oops"})
-        self.assertFalse(s.is_valid())
-        self.assertIn("translations", s.errors)
-
-        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0, "translations": {"fr": "oops"}})
-        self.assertFalse(s.is_valid())
-        self.assertIn("translations", s.errors)
+        # ``blocks`` is optional now — content can be left blank on create
+        # and filled in later through the Block ViewSet.
+        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0})
+        self.assertTrue(s.is_valid(), s.errors)
 
     # ---------------------------------------------------------------------
     # QuestionInQuizQuestionSerializer: switch show_correct + swagger
@@ -286,7 +298,7 @@ class QuestionSerializersTestCase(TestCase):
         self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A", en="A")
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
 
-        q = Question.objects.prefetch_related("answer_options__translations", "translations").get(pk=q.pk)
+        q = Question.objects.prefetch_related("answer_options__blocks__translations", "translations").get(pk=q.pk)
 
         view = SimpleNamespace(swagger_fake_view=False)
 
@@ -314,7 +326,7 @@ class QuestionSerializersTestCase(TestCase):
         # Refetch clean + prefetched
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
             .get(pk=q.pk)
         )
 
@@ -326,6 +338,9 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("translations", data)
         self.assertIn("fr", data["translations"])
         self.assertEqual(data["translations"]["fr"]["title"], "Titre FR")
+        # Phase 3 LMS refactor: prompt / explanation surface as block lists.
+        self.assertIn("prompt_blocks", data)
+        self.assertIn("explanation_blocks", data)
 
         self.assertEqual(data["media"][0]["asset"]["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
         self.assertNotIn("is_correct", data["answer_options"][0])
@@ -333,8 +348,8 @@ class QuestionSerializersTestCase(TestCase):
         s2 = QuestionReadSerializer(q, context={"show_correct": True, "view": view})
         data2 = s2.data
         self.assertIn("is_correct", data2["answer_options"][0])
-        self.assertEqual(data2["answer_options"][0]["translations"]["fr"]["content"], "A")
-        self.assertEqual(data2["answer_options"][1]["translations"]["en"]["content"], "B")
+        self.assertEqual(data2["answer_options"][0]["blocks"][0]["translations"]["fr"]["rich_text"], "A")
+        self.assertEqual(data2["answer_options"][1]["blocks"][0]["translations"]["en"]["rich_text"], "B")
 
     def test_question_read_serializer_hides_correctness_without_explicit_context(self):
         q = self._mk_question_with_translations()
@@ -342,7 +357,7 @@ class QuestionSerializersTestCase(TestCase):
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
             .get(pk=q.pk)
         )
 
@@ -357,8 +372,8 @@ class QuestionSerializersTestCase(TestCase):
         return {
             "domain": self.domain.id,
             "translations": {
-                "fr": {"title": "Titre FR", "description": "Desc FR", "explanation": "Expl FR"},
-                "en": {"title": "Title EN", "description": "Desc EN", "explanation": "Expl EN"},
+                "fr": {"title": "Titre FR"},
+                "en": {"title": "Title EN"},
             },
             "allow_multiple_correct": False,
             "active": True,
@@ -366,25 +381,35 @@ class QuestionSerializersTestCase(TestCase):
             "is_mode_exam": False,
             "subject_ids": [self.subj1.id, self.subj2.id],
             "answer_options": [
-                {"is_correct": True, "sort_order": 0, "translations": {"fr": {"content": "A"}, "en": {"content": "A"}}},
-                {"is_correct": False, "sort_order": 1, "translations": {"fr": {"content": "B"}, "en": {"content": "B"}}},
+                {
+                    "is_correct": True, "sort_order": 0,
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {
+                            "fr": {"rich_text": "A"},
+                            "en": {"rich_text": "A"},
+                        },
+                    }],
+                },
+                {
+                    "is_correct": False, "sort_order": 1,
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {
+                            "fr": {"rich_text": "B"},
+                            "en": {"rich_text": "B"},
+                        },
+                    }],
+                },
             ],
         }
 
-    def test_question_write_serializer_validate_answer_options_translations_shape(self):
+    def test_question_write_serializer_validate_answer_options_blocks_shape(self):
         payload = self._base_question_payload()
-        payload["answer_options"][0]["translations"] = "oops"
+        payload["answer_options"][0]["blocks"] = "oops"
         s = QuestionWriteSerializer(data=payload)
         self.assertFalse(s.is_valid())
-        self.assertIn("answer_options[0].translations", s.errors)
-
-    def test_question_write_serializer_validate_answer_options_missing_lang(self):
-        payload = self._base_question_payload()
-        payload["answer_options"][0]["translations"].pop("en")
-        s = QuestionWriteSerializer(data=payload)
-        self.assertFalse(s.is_valid())
-        self.assertIn("answer_options[0].translations", s.errors)
-        self.assertIn("Langues manquantes", str(s.errors["answer_options[0].translations"]))
+        self.assertIn("answer_options[0].blocks", s.errors)
 
     def test_question_write_serializer_rejects_subject_from_other_domain(self):
         payload = self._base_question_payload()
@@ -428,7 +453,7 @@ class QuestionSerializersTestCase(TestCase):
 
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset", "subjects")
+            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset", "subjects")
             .get(pk=q.pk)
         )
 
@@ -466,13 +491,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": False,
                     "sort_order": 2,
-                    "translations": {"fr": {"content": "A2 FR"}, "en": {"content": "A2 EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A2 FR"}, "en": {"rich_text": "A2 EN"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": True,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B2 FR"}, "en": {"content": "B2 EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B2 FR"}, "en": {"rich_text": "B2 EN"}},
+                    }],
                 },
             ]
         }
@@ -487,9 +518,11 @@ class QuestionSerializersTestCase(TestCase):
         second.refresh_from_db()
         self.assertEqual(first.sort_order, 2)
         self.assertFalse(first.is_correct)
-        self.assertEqual(first.safe_translation_getter("content", language_code="fr"), "A2 FR")
+        first_block = first.blocks.get()
+        self.assertEqual(first_block.translations.get(language_code="fr").rich_text, "A2 FR")
         self.assertTrue(second.is_correct)
-        self.assertEqual(second.safe_translation_getter("content", language_code="en"), "B2 EN")
+        second_block = second.blocks.get()
+        self.assertEqual(second_block.translations.get(language_code="en").rich_text, "B2 EN")
 
     def test_question_write_serializer_update_rejects_removal_of_answer_option_used_in_quiz(self):
         from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
@@ -516,7 +549,10 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                    }],
                 }
             ]
         }
@@ -541,11 +577,12 @@ class QuestionSerializersTestCase(TestCase):
                         "id": first.id,
                         "is_correct": True,
                         "sort_order": 0,
-                        "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                        }],
                     }
                 ],
-                allowed_langs={"fr", "en"},
-                upsert_translations=_upsert_translations,
             )
 
         self.assertIn("answer_options", ctx.exception.detail)
@@ -565,17 +602,21 @@ class QuestionSerializersTestCase(TestCase):
                         "id": first.id,
                         "is_correct": True,
                         "sort_order": 0,
-                        "translations": {"fr": {"content": "A FR mod"}, "en": {"content": "A EN mod"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "A FR mod"}, "en": {"rich_text": "A EN mod"}},
+                        }],
                     },
                     {
                         "id": second.id,
                         "is_correct": False,
                         "sort_order": 1,
-                        "translations": {"fr": {"content": "B FR mod"}, "en": {"content": "B EN mod"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "B FR mod"}, "en": {"rich_text": "B EN mod"}},
+                        }],
                     },
                 ],
-                allowed_langs={"fr", "en"},
-                upsert_translations=_upsert_translations,
             )
 
     def test_question_write_serializer_update_allows_text_change_for_answer_option_used_in_quiz(self):
@@ -603,13 +644,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR mod"}, "en": {"content": "A EN mod"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR mod"}, "en": {"rich_text": "A EN mod"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": False,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B FR mod"}, "en": {"content": "B EN mod"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B FR mod"}, "en": {"rich_text": "B EN mod"}},
+                    }],
                 },
             ],
         }
@@ -621,7 +668,8 @@ class QuestionSerializersTestCase(TestCase):
         updated.refresh_from_db()
         second.refresh_from_db()
         self.assertTrue(updated.is_mode_exam)
-        self.assertEqual(second.safe_translation_getter("content", language_code="fr"), "B FR mod")
+        block = second.blocks.get()
+        self.assertEqual(block.translations.get(language_code="fr").rich_text, "B FR mod")
         self.assertFalse(second.is_correct)
 
     def test_question_write_serializer_update_rejects_correctness_change_for_answer_option_used_in_quiz(self):
@@ -649,13 +697,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": True,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B FR"}, "en": {"content": "B EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B FR"}, "en": {"rich_text": "B EN"}},
+                    }],
                 },
             ]
         }
@@ -674,7 +728,7 @@ class QuestionSerializersTestCase(TestCase):
 
         prefetched = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
             .get(pk=q.pk)
         )
         serializer = QuestionReadSerializer()

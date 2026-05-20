@@ -271,10 +271,8 @@ class QuestionModelsTestCase(TestCase):
             is_correct=True,
             sort_order=1,
         )
-        ao.set_current_language("fr")
-        ao.content = "Bonne réponse"
-        ao.save()
-
+        # Phase 3 LMS refactor: AnswerOption no longer carries a parler
+        # ``content`` field — multilingual content moved to block rows.
         self.assertIn("✔", str(ao))
 
     def test_answer_option_str_incorrect(self):
@@ -284,8 +282,4 @@ class QuestionModelsTestCase(TestCase):
             is_correct=False,
             sort_order=2,
         )
-        ao.set_current_language("fr")
-        ao.content = "Mauvaise réponse"
-        ao.save()
-
         self.assertIn("✗", str(ao))

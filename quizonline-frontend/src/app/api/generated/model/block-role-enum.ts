@@ -9,7 +9,15 @@
  */
 
 
-export interface LocalizedAnswerOptionTranslationRequestDto { 
-    content?: string;
+/**
+ * * `body` - Body * `prompt` - Prompt * `explanation` - Explanation
+ */
+export enum BlockRoleEnumDto {
+
+    Body = 'body',
+
+    Prompt = 'prompt',
+
+    Explanation = 'explanation'
 }
 

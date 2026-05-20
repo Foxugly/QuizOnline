@@ -5,6 +5,7 @@ from typing import List, Any
 import filetype
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.utils import translation
@@ -14,10 +15,12 @@ from rest_framework import serializers
 from subject.models import Subject
 from subject.serializers import SubjectReadSerializer
 
+from block.models import Block
+from block.sanitizer import sanitize_rich_text
+
 from .answer_option_sync import sync_question_answer_options
 from .models import Question, QuestionMedia, AnswerOption, MediaAsset
 from config.serializers import (
-    LocalizedAnswerOptionTranslationSerializer,
     LocalizedTranslationsJSONField,
     LocalizedQuestionTranslationSerializer,
     SerializerListJSONField,
@@ -62,6 +65,128 @@ def _upsert_translations(obj, translations: dict, *, fields: list[str]) -> None:
             language_code=language_code,
             defaults=defaults,
         )
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Block payload helpers (Phase 3 of the LMS refactor)
+#
+# Question and AnswerOption now host their multilingual content as
+# polymorphic :class:`block.Block` rows reached via GenericForeignKey.
+# These helpers serialize / deserialize the wire shape:
+#
+#   {
+#     "id": <int>?,
+#     "block_type": "rich_text" | "image" | ...,
+#     "order": <int>,
+#     "is_required": <bool>,
+#     "video_url": ..., "video_provider": ...,
+#     "external_url": ..., "code_language": ..., "code_content": ...,
+#     "metadata": {...},
+#     "translations": {<lang>: {"title": "...", "rich_text": "...", "callout_text": "..."}},
+#   }
+#
+# Image / file uploads are NOT handled here — they still go through the
+# Block ViewSet under ``/api/block/``. The Question payload only carries
+# rich_text / code / embed / video / quiz / callout blocks.
+# ──────────────────────────────────────────────────────────────────────
+
+_BLOCK_SCALAR_FIELDS = (
+    "block_type",
+    "order",
+    "is_required",
+    "video_url",
+    "video_provider",
+    "external_url",
+    "code_language",
+    "code_content",
+    "metadata",
+)
+_BLOCK_TRANSLATABLE_FIELDS = ("title", "rich_text", "callout_text")
+
+
+def _serialize_block(block: Block) -> dict:
+    """Serialize one Block row into the wire-shape dict consumed by
+    QuestionRead / AnswerOptionRead serializers."""
+    payload: dict[str, Any] = {
+        "id": block.pk,
+        "block_type": block.block_type,
+        "block_role": block.block_role,
+        "order": block.order,
+        "is_required": block.is_required,
+        "video_url": block.video_url,
+        "video_provider": block.video_provider,
+        "external_url": block.external_url,
+        "code_language": block.code_language,
+        "code_content": block.code_content,
+        "metadata": block.metadata or {},
+        "image": block.image.url if block.image else None,
+        "file": block.file.url if block.file else None,
+        "quiz_template": block.quiz_template_id,
+        "translations": _serialized_translations(block, list(_BLOCK_TRANSLATABLE_FIELDS)),
+    }
+    return payload
+
+
+def _sync_host_blocks(
+    *,
+    host,
+    block_payloads: list[dict],
+    block_role: str,
+) -> None:
+    """Reconcile a host's block list with the incoming wire payload.
+
+    Strategy: bulk-delete every existing block in this (host, role)
+    bucket and recreate from the payload. The block-builder UX (and the
+    Question editor) treats the list as a value, not an entity stream,
+    so wholesale replacement is the simplest correct behaviour. The
+    BlockViewSet (``/api/block/``) is the canonical write surface for
+    individual edits — this Question/AnswerOption-scoped path is only
+    used when callers send a full nested payload.
+    """
+    host_ct = ContentType.objects.get_for_model(type(host))
+    Block.objects.filter(
+        target_content_type=host_ct,
+        target_object_id=host.pk,
+        block_role=block_role,
+    ).delete()
+
+    for index, raw in enumerate(block_payloads or []):
+        if not isinstance(raw, dict):
+            raise serializers.ValidationError({"blocks": f"Item {index} must be an object."})
+        block_type = raw.get("block_type") or Block.TYPE_RICH_TEXT
+        translations_payload = raw.get("translations") or {}
+        scalar_kwargs = {
+            field: raw[field]
+            for field in _BLOCK_SCALAR_FIELDS
+            if field in raw and field != "block_type"
+        }
+        scalar_kwargs.setdefault("order", index)
+        block = Block.objects.create(
+            target_content_type=host_ct,
+            target_object_id=host.pk,
+            block_type=block_type,
+            block_role=block_role,
+            **scalar_kwargs,
+        )
+        if isinstance(translations_payload, dict):
+            translation_model = block._parler_meta.root_model
+            for lang_code, fields in translations_payload.items():
+                if not isinstance(fields, dict):
+                    continue
+                defaults = {
+                    key: (
+                        sanitize_rich_text(fields[key])
+                        if key == "rich_text"
+                        else fields[key]
+                    )
+                    for key in _BLOCK_TRANSLATABLE_FIELDS
+                    if key in fields
+                }
+                translation_model.objects.update_or_create(
+                    master_id=block.pk,
+                    language_code=lang_code,
+                    defaults=defaults,
+                )
 
 
 class QuestionLiteSerializer(serializers.ModelSerializer):
@@ -155,30 +280,41 @@ def _infer_kind_from_upload(f: UploadedFile) -> str:
     )
 
 
+def _answer_option_blocks(option: AnswerOption) -> list[dict]:
+    """Read the AnswerOption's hosted block list as wire dicts.
+
+    Each option owns a single block list under
+    ``Block.block_role == 'body'``. Ordering is by ``order`` for stable
+    serialization.
+    """
+    return [_serialize_block(b) for b in option.blocks.all().order_by("order", "id")]
+
+
 class QuestionAnswerOptionPublicReadSerializer(serializers.ModelSerializer):
-    content = serializers.SerializerMethodField()
+    blocks = serializers.SerializerMethodField()
 
     class Meta:
         model = AnswerOption
-        fields = ["id", "content", "sort_order"]
+        fields = ["id", "blocks", "sort_order"]
         read_only_fields = ["id"]
 
-    def get_content(self, obj) -> str:
-        return _translated_value(obj, "content")
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_blocks(self, obj) -> list[dict]:
+        return _answer_option_blocks(obj)
 
 
 class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
-    content = serializers.SerializerMethodField()
-    translations = serializers.SerializerMethodField()
+    blocks = serializers.SerializerMethodField()
     is_correct = serializers.SerializerMethodField()
 
     class Meta:
-        model = AnswerOption  # adapte si ton modèle s'appelle autrement
-        fields = ["id", "content", "translations", "is_correct", "sort_order"]
+        model = AnswerOption
+        fields = ["id", "blocks", "is_correct", "sort_order"]
         read_only_fields = ["id"]
 
-    def get_content(self, obj) -> str:
-        return _translated_value(obj, "content")
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_blocks(self, obj) -> list[dict]:
+        return _answer_option_blocks(obj)
 
     @extend_schema_field(serializers.BooleanField(allow_null=True))
     def get_is_correct(self, obj) -> bool | None:
@@ -192,34 +328,28 @@ class QuestionAnswerOptionReadSerializer(serializers.ModelSerializer):
 
         return None
 
-    @extend_schema_field(
-        localized_translations_map_schema(
-            LocalizedAnswerOptionTranslationSerializer,
-            "LocalizedAnswerOptionTranslations",
-        )
-    )
-    def get_translations(self, obj) -> dict:
-        return _serialized_translations(obj, ["content"])
-
 
 class QuestionAnswerOptionWriteSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    translations = LocalizedTranslationsJSONField(
-        value_serializer=LocalizedAnswerOptionTranslationSerializer,
+    blocks = serializers.ListField(
+        child=serializers.DictField(),
         write_only=True,
+        required=False,
+        help_text="List of block payloads forming this option's content.",
     )
 
     class Meta:
         model = AnswerOption
-        fields = ["id", "is_correct", "sort_order", "translations"]
+        fields = ["id", "is_correct", "sort_order", "blocks"]
 
-    def validate_translations(self, value: dict) -> dict:
-        # (optionnel) contrôle minimal de forme
-        if not isinstance(value, dict):
-            raise serializers.ValidationError("translations must be an object keyed by language code.")
-        for lang_code, payload in value.items():
-            if not isinstance(payload, dict):
-                raise serializers.ValidationError(f"translations['{lang_code}'] must be an object.")
+    def validate_blocks(self, value):
+        if value is None:
+            return []
+        if not isinstance(value, list):
+            raise serializers.ValidationError("blocks must be a list.")
+        for index, block_payload in enumerate(value):
+            if not isinstance(block_payload, dict):
+                raise serializers.ValidationError(f"blocks[{index}] must be an object.")
         return value
 
 
@@ -257,6 +387,8 @@ class QuestionInQuizQuestionSerializer(serializers.ModelSerializer):
 
 class QuestionReadSerializer(serializers.ModelSerializer):
     translations = serializers.SerializerMethodField()
+    prompt_blocks = serializers.SerializerMethodField()
+    explanation_blocks = serializers.SerializerMethodField()
     subjects = SubjectReadSerializer(many=True, read_only=True)
     answer_options = serializers.SerializerMethodField()
     media = QuestionMediaReadSerializer(many=True, read_only=True)
@@ -268,6 +400,8 @@ class QuestionReadSerializer(serializers.ModelSerializer):
             "id",
             "domain",
             "translations",
+            "prompt_blocks",
+            "explanation_blocks",
             "allow_multiple_correct",
             "active",
             "is_mode_practice",
@@ -286,8 +420,15 @@ class QuestionReadSerializer(serializers.ModelSerializer):
         )
     )
     def get_translations(self, obj: Question) -> dict:
-        return _serialized_translations(obj, ["title", "description", "explanation"])
+        return _serialized_translations(obj, ["title"])
 
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_prompt_blocks(self, obj: Question) -> list[dict]:
+        return [_serialize_block(b) for b in obj.prompt_blocks()]
+
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_explanation_blocks(self, obj: Question) -> list[dict]:
+        return [_serialize_block(b) for b in obj.explanation_blocks()]
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:
@@ -307,7 +448,22 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         item_serializer=QuestionAnswerOptionWriteSerializer,
         write_only=True,
         required=False,
-        help_text="List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}}"
+        help_text=(
+            "List or JSON string (multipart). Each item: "
+            "{is_correct, sort_order, blocks: [{block_type, order, translations}]}"
+        ),
+    )
+    prompt_blocks = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False,
+        help_text="Block payloads forming the question prompt (text/media/code/...).",
+    )
+    explanation_blocks = serializers.ListField(
+        child=serializers.DictField(),
+        write_only=True,
+        required=False,
+        help_text="Block payloads forming the answer explanation.",
     )
     media_asset_ids = serializers.ListField(
         child=serializers.IntegerField(),
@@ -331,6 +487,8 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
             "id",
             "domain",
             "translations",
+            "prompt_blocks",
+            "explanation_blocks",
             "allow_multiple_correct",
             "active",
             "is_mode_practice",
@@ -386,7 +544,7 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         _upsert_translations(
             question,
             translations,
-            fields=["title", "description", "explanation"],
+            fields=["title"],
         )
         question.refresh_from_db()
 
@@ -398,6 +556,8 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         subject_ids = validated_data.pop("subject_ids", [])
         answer_options_data = validated_data.pop("answer_options", [])
         asset_ids = validated_data.pop("media_asset_ids", [])
+        prompt_blocks_data = validated_data.pop("prompt_blocks", None)
+        explanation_blocks_data = validated_data.pop("explanation_blocks", None)
         translations = validated_data.pop("translations", None)
         if not translations:
             raise serializers.ValidationError({"translations": "Au moins une traduction est requise."})
@@ -411,13 +571,23 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
 
         self._apply_question_translations(question, translations)
 
-        allowed = set(question.domain.allowed_languages.values_list("code", flat=True))
+        if prompt_blocks_data is not None:
+            _sync_host_blocks(
+                host=question,
+                block_payloads=prompt_blocks_data,
+                block_role=Block.ROLE_PROMPT,
+            )
+        if explanation_blocks_data is not None:
+            _sync_host_blocks(
+                host=question,
+                block_payloads=explanation_blocks_data,
+                block_role=Block.ROLE_EXPLANATION,
+            )
+
         if answer_options_data:
             sync_question_answer_options(
                 question=question,
                 answer_options_data=answer_options_data,
-                allowed_langs=allowed,
-                upsert_translations=_upsert_translations,
             )
         if asset_ids:
             self._set_media_assets(question, asset_ids, replace=False)
@@ -432,6 +602,8 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         subject_ids = validated_data.pop("subject_ids", None)
         asset_ids = validated_data.pop("media_asset_ids", None)
         answer_options_data = validated_data.pop("answer_options", None)
+        prompt_blocks_data = validated_data.pop("prompt_blocks", None)
+        explanation_blocks_data = validated_data.pop("explanation_blocks", None)
         # 1) champs simples
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -444,13 +616,23 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         if translations is not None:
             self._apply_question_translations(instance, translations)
 
+        if prompt_blocks_data is not None:
+            _sync_host_blocks(
+                host=instance,
+                block_payloads=prompt_blocks_data,
+                block_role=Block.ROLE_PROMPT,
+            )
+        if explanation_blocks_data is not None:
+            _sync_host_blocks(
+                host=instance,
+                block_payloads=explanation_blocks_data,
+                block_role=Block.ROLE_EXPLANATION,
+            )
+
         if answer_options_data is not None:
-            allowed = set(instance.domain.allowed_languages.values_list("code", flat=True))
             sync_question_answer_options(
                 question=instance,
                 answer_options_data=answer_options_data,
-                allowed_langs=allowed,
-                upsert_translations=_upsert_translations,
             )
         # les médias sont gérés dans le ViewSet via _handle_media_upload()
         if asset_ids is not None:
@@ -505,20 +687,10 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
                 if not isinstance(ao, dict):
                     raise serializers.ValidationError({f"answer_options[{i}]": "Each item must be an object."})
 
-                tr = ao.get("translations") or {}
-                if not isinstance(tr, dict):
+                blocks_value = ao.get("blocks")
+                if blocks_value is not None and not isinstance(blocks_value, list):
                     raise serializers.ValidationError(
-                        {f"answer_options[{i}].translations": "Must be an object keyed by language code."})
-
-                p = set(tr.keys())
-
-                if allowed - p:
-                    raise serializers.ValidationError(
-                        {f"answer_options[{i}].translations": f"Langues manquantes: {sorted(allowed - p)}"}
-                    )
-                if p - allowed:
-                    raise serializers.ValidationError(
-                        {f"answer_options[{i}].translations": f"Langues non autorisées: {sorted(p - allowed)}"}
+                        {f"answer_options[{i}].blocks": "Must be a list of block payloads."}
                     )
 
                 correct_count += 1 if bool(ao.get("is_correct")) else 0

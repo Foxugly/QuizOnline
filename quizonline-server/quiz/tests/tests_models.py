@@ -62,19 +62,22 @@ class QuizModelsTestCase(TestCase):
         """
         Crée une question minimale + 2 options (1 correcte).
         ✅ Contrainte: Question.domain NOT NULL
+
+        Phase 3 LMS refactor: ``description`` / ``explanation`` /
+        ``content`` are no longer parler-translated fields — they live
+        as block rows. Quiz scoring tests don't need the prompt text,
+        so we just keep the structural skeleton.
         """
         q = Question.objects.create(
             domain=self.domain,
             title=title,
-            description="desc",
-            explanation="expl",
             active=True,
             allow_multiple_correct=False,
             is_mode_practice=True,
             is_mode_exam=True,
         )
-        AnswerOption.objects.create(question=q, content="A", is_correct=True, sort_order=1)
-        AnswerOption.objects.create(question=q, content="B", is_correct=False, sort_order=2)
+        AnswerOption.objects.create(question=q, is_correct=True, sort_order=1)
+        AnswerOption.objects.create(question=q, is_correct=False, sort_order=2)
         return q
 
     # ---------------------------------------------------------------------
