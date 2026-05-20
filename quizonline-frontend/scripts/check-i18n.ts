@@ -59,6 +59,8 @@ import {getCourseInviteAcceptUiText} from '../src/app/pages/course-invite-accept
 import {getMyInvitationsUiText} from '../src/app/pages/my-invitations/my-invitations.i18n';
 import {getLessonEditUiText} from '../src/app/pages/lesson-edit/lesson-edit.i18n';
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
+import {getBlockListEditorUiText} from '../src/app/shared/learning/block-list-editor/block-list-editor.i18n';
+import {getQuestionEditorFormUiText} from '../src/app/components/question-editor-form/question-editor-form.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -99,6 +101,8 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/my-invitations', get: getMyInvitationsUiText as Getter},
   {name: 'pages/lesson-edit', get: getLessonEditUiText as Getter},
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
+  {name: 'shared/learning/block-list-editor', get: getBlockListEditorUiText as Getter},
+  {name: 'components/question-editor-form', get: getQuestionEditorFormUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;

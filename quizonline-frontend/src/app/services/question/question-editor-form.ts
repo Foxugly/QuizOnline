@@ -17,12 +17,23 @@ import {MediaSelectorValue} from '../../components/media-selector/media-selector
 import {LangCode} from '../translation/translation';
 import {
   AnswerOptionForm,
-  AnswerTrGroup,
   QuestionDuplicateDraft,
   QuestionTrGroup,
   QuestionTranslationForm,
 } from './question';
 
+/**
+ * Reactive form shape consumed by ``<app-question-editor-form>``.
+ *
+ * Phase 3.5 of the LMS refactor: the rich-text ``description`` /
+ * ``explanation`` / per-answer ``content`` fields are gone. The
+ * editor now only owns the question's structural metadata (domain,
+ * subjects, mode flags, media, answer correctness) plus the
+ * translatable ``title``. All visible content — the prompt, the
+ * answer texts, the explanation — lives in the polymorphic
+ * :class:`block.Block` table and is edited by
+ * ``<app-question-block-tabs>`` through the ``/api/block/`` endpoint.
+ */
 export type QuestionEditorForm = FormGroup<{
   domain: FormControl<number>;
   subject_ids: FormControl<number[]>;
@@ -38,7 +49,7 @@ type QuestionMediaUploader = (params: {file?: Blob; externalUrl?: string; kind?:
 
 export function createQuestionEditorForm(
   fb: NonNullableFormBuilder,
-  options?: { domainDisabled?: boolean; subjectIdsDisabled?: boolean },
+  options?: {domainDisabled?: boolean; subjectIdsDisabled?: boolean},
 ): QuestionEditorForm {
   const form: QuestionEditorForm = fb.group({
     domain: fb.control<number>(0, {validators: [Validators.required]}),
@@ -84,19 +95,6 @@ export function getQuestionTrGroup(form: QuestionEditorForm, lang: LangCode): Qu
   return group;
 }
 
-export function getLangAnswerOptions(form: QuestionEditorForm, lang: LangCode): FormArray<AnswerTrGroup> {
-  return getLangGroup(form, lang).get('answer_options') as FormArray<AnswerTrGroup>;
-}
-
-export function getAnswerContentControl(
-  form: QuestionEditorForm,
-  index: number,
-  lang: LangCode,
-): FormControl<string> {
-  const row = getLangAnswerOptions(form, lang).at(index) as AnswerTrGroup;
-  return row.controls.content;
-}
-
 export function getAnswerMetaGroup(form: QuestionEditorForm, index: number): FormGroup {
   return getAnswerOptions(form).at(index) as FormGroup;
 }
@@ -129,9 +127,6 @@ export function ensureQuestionTranslationControls(
           title: fb.control('', {
             validators: [Validators.required, Validators.minLength(2), Validators.maxLength(200)],
           }),
-          description: fb.control(''),
-          explanation: fb.control(''),
-          answer_options: fb.array<AnswerTrGroup>([]),
         }),
       );
     }
@@ -143,41 +138,10 @@ export function resetQuestionTranslationsOnly(form: QuestionEditorForm): void {
   Object.keys(translationsGroup.controls).forEach((key) => translationsGroup.removeControl(key));
 }
 
-export function clearQuestionLangAnswerArrays(form: QuestionEditorForm, codes: LangCode[]): void {
-  for (const code of codes) {
-    const answers = getLangAnswerOptions(form, code);
-    while (answers.length > 0) {
-      answers.removeAt(answers.length - 1);
-    }
-  }
-}
-
-export function syncLangAnswerArraysWithRoot(
-  fb: NonNullableFormBuilder,
-  form: QuestionEditorForm,
-  langs: LangCode[],
-): void {
-  const needed = getAnswerOptions(form).length;
-
-  for (const lang of langs) {
-    const answers = getLangAnswerOptions(form, lang);
-    while (answers.length < needed) {
-      answers.push(
-        fb.group({
-          content: fb.control('', {validators: [Validators.required]}),
-        }) as AnswerTrGroup,
-      );
-    }
-    while (answers.length > needed) {
-      answers.removeAt(answers.length - 1);
-    }
-  }
-}
-
 export function addQuestionAnswerOption(
   fb: NonNullableFormBuilder,
   form: QuestionEditorForm,
-  langs: LangCode[],
+  _langs: LangCode[],
 ): void {
   const nextIndex = getAnswerOptions(form).length;
   getAnswerOptions(form).push(
@@ -187,19 +151,11 @@ export function addQuestionAnswerOption(
       sort_order: fb.control(nextIndex + 1),
     }),
   );
-
-  for (const lang of langs) {
-    getLangAnswerOptions(form, lang).push(
-      fb.group({
-        content: fb.control('', {validators: [Validators.required]}),
-      }) as AnswerTrGroup,
-    );
-  }
 }
 
 export function removeQuestionAnswerOption(
   form: QuestionEditorForm,
-  langs: LangCode[],
+  _langs: LangCode[],
   index: number,
   minCount = 2,
 ): void {
@@ -209,16 +165,20 @@ export function removeQuestionAnswerOption(
 
   getAnswerOptions(form).removeAt(index);
 
-  for (const lang of langs) {
-    getLangAnswerOptions(form, lang).removeAt(index);
-  }
-
   getAnswerOptions(form).controls.forEach((control, i) => {
     control.get('sort_order')?.setValue(i + 1);
   });
 }
 
 export function resolveQuestionDomainLanguages(question: QuestionReadDto): LangCode[] {
+  // Phase 3.5 wired ``available_lang_codes`` onto QuestionRead — prefer
+  // it when the backend surfaces it, fall back to the embedded domain
+  // for transitional schemas.
+  const fromSerializer = (question.available_lang_codes ?? []) as LangCode[];
+  if (fromSerializer.length) {
+    return fromSerializer;
+  }
+
   const allowed = (question.domain.allowed_languages ?? [])
     .filter((language) => !!language.active)
     .map((language) => language.code)
@@ -245,7 +205,6 @@ export function populateQuestionEditorForm(
 
   ensureQuestionTranslationControls(fb, form, langs);
   getAnswerOptions(form).clear();
-  clearQuestionLangAnswerArrays(form, langs);
 
   form.patchValue({
     domain: question.domain.id,
@@ -266,8 +225,6 @@ export function populateQuestionEditorForm(
   for (const lang of langs) {
     getQuestionTrGroup(form, lang).patchValue({
       title: translations[lang]?.title ?? '',
-      description: translations[lang]?.description ?? '',
-      explanation: translations[lang]?.explanation ?? '',
     });
   }
 
@@ -283,22 +240,6 @@ export function populateQuestionEditorForm(
         sort_order: fb.control(answer.sort_order ?? index + 1),
       }),
     );
-
-    // Phase 3 LMS refactor (backend): AnswerOption.content moved to a
-    // block list. The editor still has a per-language ``content``
-    // textarea — left empty here until the editor is rewritten in the
-    // follow-up branch.
-    const answerTranslations: Record<string, { content?: string }> = {};
-    for (const lang of langs) {
-      getLangAnswerOptions(form, lang).push(
-        fb.group({
-          content: fb.control(
-            answerTranslations[lang]?.content ?? '',
-            {validators: [Validators.required]},
-          ),
-        }) as AnswerTrGroup,
-      );
-    }
   }
 
   return langs;
@@ -312,7 +253,6 @@ export function populateQuestionEditorFormFromDraft(
 ): void {
   ensureQuestionTranslationControls(fb, form, langs);
   getAnswerOptions(form).clear();
-  clearQuestionLangAnswerArrays(form, langs);
 
   form.patchValue({
     domain: draft.domainId,
@@ -326,8 +266,6 @@ export function populateQuestionEditorFormFromDraft(
   for (const lang of langs) {
     getQuestionTrGroup(form, lang).patchValue({
       title: draft.translations[lang]?.title ?? '',
-      description: draft.translations[lang]?.description ?? '',
-      explanation: draft.translations[lang]?.explanation ?? '',
     });
   }
 
@@ -339,17 +277,6 @@ export function populateQuestionEditorFormFromDraft(
         sort_order: fb.control(answer.sort_order ?? index + 1),
       }),
     );
-
-    for (const lang of langs) {
-      getLangAnswerOptions(form, lang).push(
-        fb.group({
-          content: fb.control(
-            answer.translations[lang]?.content ?? '',
-            {validators: [Validators.required]},
-          ),
-        }) as AnswerTrGroup,
-      );
-    }
   }
 }
 
@@ -359,24 +286,13 @@ export function clearQuestionTranslationTab(
 ): void {
   const group = getQuestionTrGroup(form, lang);
   group.controls.title.setValue('');
-  group.controls.description.setValue('');
-  group.controls.explanation.setValue('');
   group.controls.title.markAsDirty();
-  group.controls.description.markAsDirty();
-  group.controls.explanation.markAsDirty();
-
-  const answers = getLangAnswerOptions(form, lang);
-  for (let i = 0; i < answers.length; i += 1) {
-    const control = getAnswerContentControl(form, i, lang);
-    control.setValue('');
-    control.markAsDirty();
-  }
 }
 
 export function isQuestionEditorFormValid(
   form: QuestionEditorForm,
   langs: LangCode[],
-  options?: { requireDomain?: boolean },
+  options?: {requireDomain?: boolean},
 ): boolean {
   if (options?.requireDomain && !form.controls.domain.value) {
     return false;
@@ -386,26 +302,9 @@ export function isQuestionEditorFormValid(
     return false;
   }
 
-  if (getAnswerOptions(form).length < 2) {
-    return false;
-  }
-
   const titlesValid = langs.every((lang) => getQuestionTrGroup(form, lang).controls.title.valid);
   if (!titlesValid) {
     return false;
-  }
-
-  for (const lang of langs) {
-    const answers = getLangAnswerOptions(form, lang);
-    if (answers.length !== getAnswerOptions(form).length) {
-      return false;
-    }
-
-    for (let i = 0; i < answers.length; i += 1) {
-      if (getAnswerContentControl(form, i, lang).invalid) {
-        return false;
-      }
-    }
   }
 
   return true;
@@ -425,32 +324,21 @@ function buildQuestionTranslations(
     const group = getQuestionTrGroup(form, lang);
     translations[lang] = {
       title: group.controls.title.value ?? '',
-      description: group.controls.description.value ?? '',
-      explanation: group.controls.explanation.value ?? '',
     };
   }
 
   return translations;
 }
 
-function buildAnswerOptionsPayload(form: QuestionEditorForm, langs: LangCode[]): AnswerOptionForm[] {
+function buildAnswerOptionsPayload(form: QuestionEditorForm): AnswerOptionForm[] {
   const answerOptions: AnswerOptionForm[] = [];
 
   for (let i = 0; i < getAnswerOptions(form).length; i += 1) {
     const meta = getAnswerMetaGroup(form, i);
-    const perLang = {} as AnswerOptionForm['translations'];
-
-    for (const lang of langs) {
-      perLang[lang] = {
-        content: getAnswerContentControl(form, i, lang).value ?? '',
-      };
-    }
-
     answerOptions.push({
       id: Number(meta.get('id')?.value) || undefined,
       is_correct: !!meta.get('is_correct')?.value,
       sort_order: Number(meta.get('sort_order')?.value ?? i + 1),
-      translations: perLang,
     });
   }
 
@@ -472,7 +360,7 @@ export function buildQuestionCreatePayload(
     is_mode_practice: !!form.controls.is_mode_practice.value,
     is_mode_exam: !!form.controls.is_mode_exam.value,
     translations: buildQuestionTranslations(form, langs),
-    answer_options: buildAnswerOptionsPayload(form, langs),
+    answer_options: buildAnswerOptionsPayload(form),
     media_asset_ids: mediaAssetIds,
   };
 }
@@ -491,7 +379,7 @@ export function buildQuestionPatchPayload(
     is_mode_practice: !!form.controls.is_mode_practice.value,
     is_mode_exam: !!form.controls.is_mode_exam.value,
     subject_ids: form.controls.subject_ids.value ?? [],
-    answer_options: buildAnswerOptionsPayload(form, langs),
+    answer_options: buildAnswerOptionsPayload(form),
     media_asset_ids: mediaAssetIds,
   };
 }

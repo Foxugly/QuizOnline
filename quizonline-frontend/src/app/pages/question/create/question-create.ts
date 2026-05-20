@@ -1,8 +1,8 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
-import {FormControl, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
+import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
@@ -21,25 +21,33 @@ import {
   clearQuestionTranslationTab,
   createQuestionEditorForm,
   ensureQuestionTranslationControls,
-  getAnswerContentControl,
   getQuestionCorrectCount,
-  getQuestionTrGroup,
-  isEmptyQuestionHtml,
   isQuestionEditorFormValid,
   populateQuestionEditorFormFromDraft,
   QuestionEditorForm,
   resetQuestionTranslationsOnly,
-  syncLangAnswerArraysWithRoot,
   uploadQuestionEditorMediaAssets,
-  removeQuestionAnswerOption,
 } from '../../../services/question/question-editor-form';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
-import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
+import {LangCode} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
+/**
+ * ``/question/add`` page.
+ *
+ * Phase 3.5: the create flow is now a context-only step. The user
+ * picks a domain, optional subjects, the mode flags, fills the
+ * per-language title and (optionally) checks correct answers / adds
+ * empty answer rows. On save we POST the question and immediately
+ * redirect to ``/question/<id>/edit`` where the full 3-tab block
+ * editor surfaces. This pattern mirrors the LMS lesson flow (create
+ * via course-edit, content via lesson-edit) and avoids the
+ * impedance-mismatch between "the user is editing blocks" and "the
+ * question doesn't have an id yet".
+ */
 @Component({
   selector: 'app-question-create',
   templateUrl: './question-create.html',
@@ -75,7 +83,6 @@ export class QuestionCreate implements OnInit {
   domainLangs = signal<LangCode[]>([]);
   activeLang = signal<LangCode | null>(null);
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.En);
-  translateOverwrite = signal(false);
 
   readonly domainOptions = computed<DomainOption[]>(() => {
     const lang = this.currentLang();
@@ -93,11 +100,11 @@ export class QuestionCreate implements OnInit {
     return this.subjects().filter((subject) => subject.domain === domainId);
   });
 
-  readonly subjectOptions = computed<Array<{ name: string; code: number }>>(() => {
+  readonly subjectOptions = computed<Array<{name: string; code: number}>>(() => {
     const lang = this.currentLang();
     return this.filteredSubjects().map((subject) => {
-      const translation = selectTranslation<{ name: string }>(
-        subject.translations as Record<string, { name: string }>,
+      const translation = selectTranslation<{name: string}>(
+        subject.translations as Record<string, {name: string}>,
         lang,
       );
       return {
@@ -105,10 +112,6 @@ export class QuestionCreate implements OnInit {
         code: subject.id,
       };
     });
-  });
-
-  readonly subjectsDisabled = computed(() => {
-    return this.isLocked() || !this.selectedDomainId() || this.subjectOptions().length === 0;
   });
 
   private fb = inject(NonNullableFormBuilder);
@@ -119,7 +122,6 @@ export class QuestionCreate implements OnInit {
   private domainService = inject(DomainService);
   private subjectService = inject(SubjectService);
   private questionService = inject(QuestionService);
-  private translator = inject(TranslationService);
   private userService = inject(UserService);
   private toast = inject(AppToastService);
   private pendingDuplicateDraft = this.questionService.consumeDuplicateDraft();
@@ -220,113 +222,6 @@ export class QuestionCreate implements OnInit {
     this.activeLang.set(code);
   }
 
-  addOption(): void {
-    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
-  }
-
-  removeOption(index: number): void {
-    removeQuestionAnswerOption(this.form, this.domainLangs(), index);
-  }
-
-  answerContentCtrl(index: number, lang: LangCode): FormControl<string> {
-    return getAnswerContentControl(this.form, index, lang);
-  }
-
-  async translateFromActiveTab(): Promise<void> {
-    const source = this.activeLang();
-    if (!source) {
-      return;
-    }
-    await this.translateFrom(source);
-  }
-
-  async translateFrom(sourceLang: LangCode): Promise<void> {
-    const codes = this.tabCodes();
-    if (!codes.includes(sourceLang)) {
-      return;
-    }
-
-    this.translating.set(true);
-    this.submitError.set(null);
-
-    try {
-      const sourceGroup = getQuestionTrGroup(this.form, sourceLang);
-      const sourceTitle = sourceGroup.controls.title.value ?? '';
-      const sourceDescription = sourceGroup.controls.description.value ?? '';
-      const sourceExplanation = sourceGroup.controls.explanation.value ?? '';
-      const overwrite = this.translateOverwrite();
-
-      for (const targetLang of codes) {
-        if (targetLang === sourceLang) {
-          continue;
-        }
-
-        const targetGroup = getQuestionTrGroup(this.form, targetLang);
-        const items: TranslateBatchItem[] = [];
-
-        const needsTitle = overwrite || !(targetGroup.controls.title.value ?? '').trim();
-        if (needsTitle) {
-          items.push({key: 'title', text: sourceTitle, format: 'text'});
-        }
-
-        const needsDescription = overwrite || isEmptyQuestionHtml(targetGroup.controls.description.value ?? '');
-        if (needsDescription) {
-          items.push({key: 'description', text: sourceDescription, format: 'html'});
-        }
-
-        const needsExplanation = overwrite || isEmptyQuestionHtml(targetGroup.controls.explanation.value ?? '');
-        if (needsExplanation) {
-          items.push({key: 'explanation', text: sourceExplanation, format: 'html'});
-        }
-
-        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
-          const targetControl = this.answerContentCtrl(i, targetLang);
-          const needsAnswer = overwrite || isEmptyQuestionHtml(targetControl.value ?? '');
-          if (!needsAnswer) {
-            continue;
-          }
-
-          const sourceControl = this.answerContentCtrl(i, sourceLang);
-          items.push({key: `ans_${i}`, text: sourceControl.value ?? '', format: 'html'});
-        }
-
-        if (!items.length) {
-          continue;
-        }
-
-        const translated = await this.translator.translateBatch(sourceLang, targetLang, items);
-
-        if (needsTitle && translated['title'] !== undefined) {
-          targetGroup.controls.title.setValue(translated['title']);
-          targetGroup.controls.title.markAsDirty();
-        }
-        if (needsDescription && translated['description'] !== undefined) {
-          targetGroup.controls.description.setValue(translated['description']);
-          targetGroup.controls.description.markAsDirty();
-        }
-        if (needsExplanation && translated['explanation'] !== undefined) {
-          targetGroup.controls.explanation.setValue(translated['explanation']);
-          targetGroup.controls.explanation.markAsDirty();
-        }
-
-        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
-          const key = `ans_${i}`;
-          if (translated[key] === undefined) {
-            continue;
-          }
-          const targetControl = this.answerContentCtrl(i, targetLang);
-          targetControl.setValue(translated[key]);
-          targetControl.markAsDirty();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      this.submitError.set(this.ui().pages.questionCreate.errors.translationFailed);
-    } finally {
-      this.translating.set(false);
-    }
-  }
-
   async save(): Promise<void> {
     const errors = this.ui().pages.questionCreate.errors;
     this.error.set(null);
@@ -354,8 +249,12 @@ export class QuestionCreate implements OnInit {
       );
       const payload = buildQuestionCreatePayload(this.form, this.domainLangs(), mediaAssetIds);
 
-      await firstValueFrom(this.questionService.create(payload));
-      this.goList();
+      const created = await firstValueFrom(this.questionService.create(payload));
+      // Phase 3.5: question content (prompt / answers / explanation
+      // blocks) is now edited from the dedicated 3-tab editor on
+      // ``/question/<id>/edit``. Send the author there right away so
+      // they can fill in the actual blocks.
+      this.questionService.goEdit(created.id);
     } catch (error) {
       console.error('Erreur creation question', error);
       this.submitError.set(errors.saveFailed);
@@ -409,8 +308,6 @@ export class QuestionCreate implements OnInit {
           if (this.form.controls.answer_options.length === 0) {
             addQuestionAnswerOption(this.fb, this.form, langs);
             addQuestionAnswerOption(this.fb, this.form, langs);
-          } else {
-            syncLangAnswerArraysWithRoot(this.fb, this.form, langs);
           }
 
           const draft = this.pendingDuplicateDraft;

@@ -21,7 +21,7 @@
 
   @if (loading()) {
     <div class="card">
-      <p class="muted">Chargement...</p>
+      <p class="muted">{{ ui().common.loading }}</p>
     </div>
   } @else {
     @if (error()) {
@@ -39,19 +39,14 @@
       [examTooltip]="ui().questionForm.examHint"
       [saving]="saving()"
       [showDomainSelect]="true"
-      [showTranslateAction]="true"
       [subjectOptions]="subjectOptions()"
       [submitError]="submitError()"
       [submitLabel]="ui().common.add"
       [tabCodes]="tabCodes()"
       [translating]="translating()"
-      (addOptionClicked)="addOption()"
       (cancelClicked)="goBack()"
-      (cleanActiveClicked)="clearActiveTab()"
-      (removeOptionClicked)="removeOption($event)"
       (submitted)="save()"
-      (tabChanged)="onTabChange($event)"
-      (translateActive)="translateFromActiveTab()">
+      (tabChanged)="onTabChange($event)">
     </app-question-editor-form>
   }
 </div>

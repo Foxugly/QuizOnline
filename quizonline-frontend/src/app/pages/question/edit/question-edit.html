@@ -44,25 +44,33 @@
       [saving]="saving()"
       [showDuplicateAction]="true"
       [showDeleteAction]="true"
-      [showCleanAction]="true"
       [showDomainSelect]="false"
-      [showTranslateAction]="true"
       [subjectOptions]="subjectOptions()"
       [submitError]="submitError()"
       [submitLabel]="ui().common.save"
       [tabCodes]="tabCodes()"
-      [translating]="translating()"
       [practiceTooltip]="ui().questionForm.practiceHint"
       [examTooltip]="ui().questionForm.examHint"
-      (addOptionClicked)="addOption()"
       (cancelClicked)="goBack()"
-      (cleanActiveClicked)="clearActiveTab()"
       (deleteClicked)="deleteQuestion()"
       (duplicateClicked)="duplicateQuestion()"
-      (removeOptionClicked)="removeOption($event)"
       (submitted)="save()"
-      (tabChanged)="onTabChange($event)"
-      (translateActive)="translateFromActiveTab()">
+      (tabChanged)="onTabChange($event)">
     </app-question-editor-form>
+
+    @if (tabCodes().length > 0) {
+      <app-question-block-tabs
+        [questionId]="q.id"
+        [domainId]="q.domain.id"
+        [availableLangs]="tabCodes()"
+        [promptBlocks]="promptBlocks()"
+        [explanationBlocks]="explanationBlocks()"
+        [answerRows]="answerRows()"
+        (blocksChanged)="onBlocksChanged()"
+        (correctChanged)="onCorrectChanged($event)"
+        (removeAnswerClicked)="onRemoveAnswer($event)"
+        (addAnswerClicked)="onAddAnswer()">
+      </app-question-block-tabs>
+    }
   }
 </div>

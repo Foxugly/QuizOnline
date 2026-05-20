@@ -13,7 +13,6 @@ import {
   ensureQuestionTranslationControls,
   getQuestionCorrectCount,
   getQuestionTrGroup,
-  isEmptyQuestionHtml,
   isQuestionEditorFormValid,
   QuestionEditorForm,
   uploadQuestionEditorMediaAssets,
@@ -131,10 +130,6 @@ export class QuizCreateInlineQuestionController {
     }
 
     this.form.controls.answer_options.removeAt(index);
-    for (const lang of this.langs()) {
-      const answers = getQuestionTrGroup(this.form, lang).controls.answer_options;
-      answers.removeAt(index);
-    }
 
     this.form.controls.answer_options.controls.forEach((control, controlIndex) => {
       control.get('sort_order')?.setValue(controlIndex + 1);
@@ -182,10 +177,13 @@ export class QuizCreateInlineQuestionController {
     this.submitError.set(null);
 
     try {
+      // Phase 3.5: the inline question dialog only collects the
+      // structural metadata + per-language ``title``. The
+      // description / explanation / answer-content rich-text fields
+      // are gone — the user fills those via the full editor on
+      // ``/question/<id>/edit`` after the dialog saves.
       const sourceGroup = getQuestionTrGroup(this.form, sourceLang);
-      const sourceTitle = sourceGroup.controls['title'].value ?? '';
-      const sourceDescription = sourceGroup.controls['description'].value ?? '';
-      const sourceExplanation = sourceGroup.controls.explanation.value ?? '';
+      const sourceTitle = sourceGroup.controls.title.value ?? '';
 
       for (const targetLang of this.langs()) {
         if (targetLang === sourceLang) {
@@ -195,22 +193,8 @@ export class QuizCreateInlineQuestionController {
         const targetGroup = getQuestionTrGroup(this.form, targetLang);
         const items: TranslateBatchItem[] = [];
 
-        if (!(targetGroup.controls['title'].value ?? '').trim()) {
+        if (!(targetGroup.controls.title.value ?? '').trim() && sourceTitle.trim()) {
           items.push({key: 'title', text: sourceTitle, format: 'text'});
-        }
-        if (isEmptyQuestionHtml(targetGroup.controls['description'].value ?? '')) {
-          items.push({key: 'description', text: sourceDescription, format: 'html'});
-        }
-        if (isEmptyQuestionHtml(targetGroup.controls.explanation.value ?? '')) {
-          items.push({key: 'explanation', text: sourceExplanation, format: 'html'});
-        }
-
-        for (let index = 0; index < this.form.controls.answer_options.length; index += 1) {
-          const control = targetGroup.controls.answer_options.at(index).controls.content;
-          if (!(control.value ?? '').trim()) {
-            const sourceContent = sourceGroup.controls.answer_options.at(index).controls.content.value ?? '';
-            items.push({key: `ans_${index}`, text: sourceContent, format: 'html'});
-          }
         }
 
         if (!items.length) {
@@ -219,20 +203,7 @@ export class QuizCreateInlineQuestionController {
 
         const translated = await this.translationService.translateBatch(sourceLang, targetLang, items);
         if (translated['title'] !== undefined) {
-          targetGroup.controls['title'].setValue(translated['title']);
-        }
-        if (translated['description'] !== undefined) {
-          targetGroup.controls['description'].setValue(translated['description']);
-        }
-        if (translated['explanation'] !== undefined) {
-          targetGroup.controls.explanation.setValue(translated['explanation']);
-        }
-
-        for (let index = 0; index < this.form.controls.answer_options.length; index += 1) {
-          const key = `ans_${index}`;
-          if (translated[key] !== undefined) {
-            targetGroup.controls.answer_options.at(index).controls.content.setValue(translated[key]);
-          }
+          targetGroup.controls.title.setValue(translated['title']);
         }
       }
     } catch (error) {

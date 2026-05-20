@@ -167,5 +167,6 @@
   "pages/course-edit/info-tab:fields.description",
   "pages/course-edit/info-tab:enrollmentLabels.open",
   "pages/course-edit/info-tab:toasts.errorSummary",
-  "pages/course-edit/analytics-tab:kpiHints.neverYet"
+  "pages/course-edit/analytics-tab:kpiHints.neverYet",
+  "components/question-editor-form:tabQuestion"
 ]

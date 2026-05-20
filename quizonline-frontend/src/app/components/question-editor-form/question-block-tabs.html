@@ -1,0 +1,94 @@
+<div class="card form-card">
+  <p-tabs [value]="'question'" class="tabs">
+    <p-tablist>
+      <p-tab value="question">{{ ui().tabQuestion }}</p-tab>
+      <p-tab value="answers">{{ ui().tabAnswers }}</p-tab>
+      <p-tab value="explanation">{{ ui().tabExplanation }}</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- Question prompt tab -->
+      <p-tabpanel value="question">
+        <h3 class="zone-heading">{{ ui().promptHeading }}</h3>
+        <p class="zone-hint">{{ ui().promptHint }}</p>
+        <app-block-list-editor
+          hostType="question"
+          [hostId]="questionId()"
+          blockRole="prompt"
+          [blocks]="promptBlocks()"
+          [availableLangs]="availableLangs()"
+          [domainId]="domainId()"
+          (blocksChanged)="onBlocksChanged()" />
+      </p-tabpanel>
+
+      <!-- Answers tab -->
+      <p-tabpanel value="answers">
+        <h3 class="zone-heading">{{ ui().answersHeading }}</h3>
+        <p class="zone-hint">{{ ui().answersHint }}</p>
+
+        @if (answerRows().length === 0) {
+          <div class="empty-state">{{ ui().noAnswersYet }}</div>
+        }
+
+        <div class="answers-stack">
+          @for (row of answerRows(); track row.id; let i = $index) {
+            <div class="answer-card" [class.answer-card--correct]="row.is_correct">
+              <header class="answer-card__header">
+                <span class="answer-card__title">{{ ui().answerHeading(i + 1) }}</span>
+                <label class="answer-card__correct">
+                  <p-checkbox
+                    [binary]="true"
+                    [ngModel]="row.is_correct"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="onCorrectToggle(row.id, $event)" />
+                  <span>{{ ui().correctAnswer }}</span>
+                </label>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  variant="text"
+                  [pTooltip]="ui().removeAnswer"
+                  [attr.aria-label]="ui().removeAnswer"
+                  (onClick)="onRemoveAnswer(row.id)" />
+              </header>
+              <div class="answer-card__body">
+                <app-block-list-editor
+                  hostType="answer_option"
+                  [hostId]="row.id"
+                  blockRole="body"
+                  [blocks]="row.blocks"
+                  [availableLangs]="availableLangs()"
+                  [domainId]="domainId()"
+                  (blocksChanged)="onBlocksChanged()" />
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="answers-cta">
+          <p-button
+            icon="pi pi-plus"
+            [label]="ui().addAnswer"
+            severity="primary"
+            variant="outlined"
+            (onClick)="onAddAnswer()" />
+        </div>
+      </p-tabpanel>
+
+      <!-- Explanation tab -->
+      <p-tabpanel value="explanation">
+        <h3 class="zone-heading">{{ ui().explanationHeading }}</h3>
+        <p class="zone-hint">{{ ui().explanationHint }}</p>
+        <app-block-list-editor
+          hostType="question"
+          [hostId]="questionId()"
+          blockRole="explanation"
+          [blocks]="explanationBlocks()"
+          [availableLangs]="availableLangs()"
+          [domainId]="domainId()"
+          (blocksChanged)="onBlocksChanged()" />
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

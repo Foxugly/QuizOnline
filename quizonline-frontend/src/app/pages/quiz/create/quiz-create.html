@@ -357,18 +357,14 @@
     [examTooltip]="editorUi().questionForm.examHint"
     [saving]="questionDialog.saving()"
     [showDomainSelect]="false"
-    [showTranslateAction]="true"
     [subjectOptions]="subjectOptions()"
     [submitError]="questionDialog.submitError()"
     [submitLabel]="editorUi().pages.quizCreate.createQuestion"
     [tabCodes]="questionDialog.langs()"
     [translating]="questionDialog.translating()"
-    (addOptionClicked)="questionDialog.addOption()"
     (cancelClicked)="questionDialog.close()"
-    (removeOptionClicked)="questionDialog.removeOption($event)"
     (submitted)="questionDialog.save()"
-    (tabChanged)="questionDialog.onTabChange($event)"
-    (translateActive)="questionDialog.translate()">
+    (tabChanged)="questionDialog.onTabChange($event)">
   </app-question-editor-form>
 </p-dialog>
 

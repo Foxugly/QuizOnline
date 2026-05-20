@@ -83,168 +83,59 @@
   </div>
 
   @if (hasContentContext()) {
-    <div class="split-grid">
-      <div class="card form-card split-left">
-        @if (tabCodes().length > 0) {
-          <div class="card-head">
-            <h2 class="card-title">{{ ui().questionForm.content }}</h2>
-          </div>
-
-          <p-tabs
-            (valueChange)="onTabChange($event)"
-            [value]="activeLang() ?? undefined"
-            class="tabs tabs--tight">
-
-            <p-tablist>
-              @for (lang of tabCodes(); track lang) {
-                <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
-              }
-              @if (showTranslateAction() || showCleanAction()) {
-                <div class="tablist-actions">
-                  @if (showTranslateAction()) {
-                    <p-button
-                      (click)="onTranslateActive()"
-                      [disabled]="translating()"
-                      [loading]="translating()"
-                      icon="pi pi-language"
-                      [label]="ui().common.translateOthers"
-                      severity="info"
-                      size="small"
-                      type="button">
-                    </p-button>
-                  }
-                  @if (showCleanAction()) {
-                    <p-button
-                      (click)="onCleanActive()"
-                      icon="pi pi-eraser"
-                      [label]="ui().common.clean"
-                      severity="secondary"
-                      size="small"
-                      type="button"
-                      variant="outlined">
-                    </p-button>
-                  }
-                </div>
-              }
-            </p-tablist>
-
-            <p-tabpanels class="tabpanels-tight">
-              @for (lang of tabCodes(); track lang) {
-                <p-tabpanel [value]="lang">
-                  <div class="lang-panel">
-                    <div formGroupName="translations">
-                      @if (translationsGroup().contains(lang)) {
-                        <div [formGroupName]="lang" class="meta-grid">
-                          <div class="meta-item meta-item--full">
-                            <label class="meta-label">{{ ui().questionForm.title }} ({{ lang.toUpperCase() }})</label>
-                            <div class="meta-value">
-                              <input formControlName="title" pInputText [placeholder]="ui().questionForm.titlePlaceholder" />
-                            </div>
-                            @if (form().get(['translations', lang, 'title'])?.invalid && form().get(['translations', lang, 'title'])?.touched) {
-                              <div class="meta-hint meta-hint--error">{{ ui().questionForm.titleRequired }}</div>
-                            }
-                          </div>
-
-                          <div class="meta-item meta-item--full">
-                            <label class="meta-label">{{ ui().questionForm.description }} ({{ lang.toUpperCase() }})</label>
-                            <div class="meta-value">
-                              <p-editor class="editor-compact" formControlName="description"></p-editor>
-                            </div>
-                          </div>
-
-                        </div>
-                      }
-                    </div>
-
-                    @if (translating()) {
-                      <div class="inline-status">
-                        <i class="pi pi-spin pi-spinner"></i>
-                        <span>{{ ui().common.translating }}</span>
-                      </div>
-                    }
-                  </div>
-                </p-tabpanel>
-              }
-            </p-tabpanels>
-          </p-tabs>
-
-          @if (activeLang(); as lang) {
-            <div class="answers-block">
-              <label class="meta-label">{{ ui().questionForm.answers }} ({{ lang.toUpperCase() }})</label>
-
-              <p-panel class="answers">
-                @for (group of answerOptions.controls; track i; let i = $index) {
-                  <div class="answer">
-                    <div class="answer__correct">
-                      <label class="meta-label">{{ ui().questionForm.correctAnswer }}</label>
-                      <p-checkbox [binary]="true" [formControl]="answerCorrectCtrl(i)"></p-checkbox>
-                    </div>
-
-                    <div class="answer__content">
-                      <label class="meta-label">{{ ui().questionForm.answerContent }} ({{ lang.toUpperCase() }})</label>
-                      <p-editor
-                        [formControl]="answerContentCtrl(i, lang)"
-                        class="editor-compact">
-                      </p-editor>
-                    </div>
-
-                    <div class="answer__delete">
-                      <p-button
-                        (click)="onRemoveOption(i)"
-                        icon="pi pi-trash"
-                        [pTooltip]="ui().questionForm.deleteAnswer"
-                        severity="danger"
-                        size="small"
-                        type="button"
-                        variant="text">
-                      </p-button>
-                    </div>
-                  </div>
-
-                  <p-divider></p-divider>
-                }
-
-                <p-button
-                  (click)="onAddOption()"
-                  icon="pi pi-plus"
-                  [label]="ui().questionForm.addAnswer"
-                  severity="primary"
-                  size="small"
-                  type="button"
-                  variant="outlined">
-                </p-button>
-              </p-panel>
-
-              <div formGroupName="translations">
-                @if (translationsGroup().contains(lang)) {
-                  <div [formGroupName]="lang" class="meta-grid">
-                    <div class="meta-item meta-item--full">
-                      <label class="meta-label">{{ ui().questionForm.explanation }} ({{ lang.toUpperCase() }})</label>
-                      <div class="meta-value">
-                        <p-editor class="editor-compact" formControlName="explanation"></p-editor>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        } @else {
-          <div class="status-card">{{ emptyLanguagesMessage() || ui().questionForm.noActiveLanguages }}</div>
-        }
+    <div class="card form-card">
+      <div class="card-head">
+        <h2 class="card-title">{{ ui().questionForm.content }}</h2>
       </div>
 
-      <div class="card form-card split-right">
-        <div class="card-head">
-          <h2 class="card-title">{{ ui().questionForm.media }}</h2>
-        </div>
+      @if (hasTabs()) {
+        <p-tabs
+          (valueChange)="onTabChange($event)"
+          [value]="activeLang() ?? undefined"
+          class="tabs tabs--tight">
 
-        <div class="meta-grid">
-          <div class="meta-item meta-item--full">
-            <label class="meta-label">{{ ui().questionForm.media }}</label>
-            <div class="meta-value widget-center">
-              <app-media-selector formControlName="media"></app-media-selector>
-            </div>
+          <p-tablist>
+            @for (lang of tabCodes(); track lang) {
+              <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+            }
+          </p-tablist>
+
+          <p-tabpanels class="tabpanels-tight">
+            @for (lang of tabCodes(); track lang) {
+              <p-tabpanel [value]="lang">
+                <div class="lang-panel" formGroupName="translations">
+                  @if (translationsGroup().contains(lang)) {
+                    <div [formGroupName]="lang" class="meta-grid">
+                      <div class="meta-item meta-item--full">
+                        <label class="meta-label">{{ ui().questionForm.title }} ({{ lang.toUpperCase() }})</label>
+                        <div class="meta-value">
+                          <input formControlName="title" pInputText [placeholder]="ui().questionForm.titlePlaceholder" />
+                        </div>
+                        @if (titleCtrl(lang).invalid && titleCtrl(lang).touched) {
+                          <div class="meta-hint meta-hint--error">{{ ui().questionForm.titleRequired }}</div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      } @else {
+        <div class="status-card">{{ emptyLanguagesMessage() || ui().questionForm.noActiveLanguages }}</div>
+      }
+    </div>
+
+    <div class="card form-card">
+      <div class="card-head">
+        <h2 class="card-title">{{ ui().questionForm.media }}</h2>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item meta-item--full">
+          <div class="meta-value widget-center">
+            <app-media-selector formControlName="media"></app-media-selector>
           </div>
         </div>
       </div>
