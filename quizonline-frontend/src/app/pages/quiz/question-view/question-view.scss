@@ -4,7 +4,10 @@
   gap: 1rem;
 }
 
-/* Colonne gauche : nav sticky */
+/* Colonne gauche : nav sticky.
+ * ``top: 4rem`` clears the global ``app-topmenu`` (sticky, ~60 px on
+ * desktop / 56 px on mobile) so the timer + quiz nav land just below
+ * it instead of disappearing behind it. */
 .layout__left {
   flex: 0 0 25%;
   min-width: 240px;
@@ -16,8 +19,8 @@
 
   /* le panel reste visible quand on scrolle */
   position: sticky;
-  top: 0;
-  max-height: 100vh;
+  top: 4rem;
+  max-height: calc(100vh - 4rem);
   overflow-y: auto;
 }
 
@@ -56,17 +59,28 @@
   color: #1d2a35;
 }
 
-/* 🔁 Responsive : en mobile, une seule colonne, plus de sticky */
+/* 🔁 Responsive : en mobile, une seule colonne — le panneau gauche
+ * (timer + quiz-nav) RESTE sticky en haut de la fenêtre pour que la
+ * personne qui swipe le contenu de la question voie toujours soit son
+ * timer, soit la grille de navigation des questions. On limite la
+ * hauteur à ~45 vh pour ne pas manger la moitié de l'écran ; le
+ * contenu interne (grille de questions) scrolle dans la zone sticky
+ * si besoin. */
 @media (max-width: 768px) {
   .layout {
     flex-direction: column;
   }
 
   .layout__left {
-    position: static;
     width: 100%;
-    max-height: none;
+    max-width: none;
+    max-height: 45vh;
     order: 1;
+    /* fond opaque pour que le contenu de la question qui scrolle
+     * dessous ne transparaisse pas à travers le panneau sticky. */
+    background: var(--p-surface-0, #fff);
+    border-bottom: 1px solid var(--p-surface-border, #e5e7eb);
+    padding-bottom: 0.5rem;
   }
 
   .layout__right {
