@@ -2,6 +2,15 @@
 
 @include detail.detail-page-shell(1440px);
 
+/* Pull the page header closer to the global topbar. The shared
+ * ``detail-page-shell`` mixin leaves 1.5 rem of breathing room at the
+ * top of every detail page; on the question editor that left a visible
+ * blank strip between the sticky ``<app-topmenu>`` and the back-button
+ * row. Halve it so the header sits right under the topbar. */
+.page {
+  padding-top: 0.5rem;
+}
+
 .error {
   @include detail.banner-state(rgba(220, 38, 38, 0.25), rgba(220, 38, 38, 0.03), #dc2626);
 }
@@ -12,4 +21,50 @@
 
 .status-card {
   @include detail.banner-state(var(--border), var(--surface), inherit);
+}
+
+/* Phase 3.5 unified card frame hosting the question's context form
+ * AND the 3-tab block editor inside a single ``.card form-card``.
+ * Header carries the high-level actions (Dupliquer / Preview /
+ * Supprimer) on the right side; footer carries the save flow on the
+ * right. The two sub-components have their own card chrome stripped
+ * so the page reads as a single bordered surface. */
+/* Icon-only action cluster on the right of the page header — gap
+ * between buttons so they don't visually mash together. */
+.question-edit-page__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.question-edit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.question-edit-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.question-edit-card__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.question-edit-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.question-edit-card__footer .actions__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }

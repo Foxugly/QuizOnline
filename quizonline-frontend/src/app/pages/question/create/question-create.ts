@@ -26,7 +26,6 @@ import {
   populateQuestionEditorFormFromDraft,
   QuestionEditorForm,
   resetQuestionTranslationsOnly,
-  uploadQuestionEditorMediaAssets,
 } from '../../../services/question/question-editor-form';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
@@ -243,11 +242,7 @@ export class QuestionCreate implements OnInit {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionCreatePayload(this.form, this.domainLangs(), mediaAssetIds);
+      const payload = buildQuestionCreatePayload(this.form, this.domainLangs());
 
       const created = await firstValueFrom(this.questionService.create(payload));
       // Phase 3.5: question content (prompt / answers / explanation

@@ -1,4 +1,4 @@
-<div class="card form-card">
+<div class="question-block-tabs">
   <p-tabs [value]="'question'" class="tabs">
     <p-tablist>
       <p-tab value="question">{{ ui().tabQuestion }}</p-tab>
@@ -9,8 +9,61 @@
     <p-tabpanels>
       <!-- Question prompt tab -->
       <p-tabpanel value="question">
-        <h3 class="zone-heading">{{ ui().promptHeading }}</h3>
-        <p class="zone-hint">{{ ui().promptHint }}</p>
+        <!-- Per-language title input + inline translate button. Lives here (next to the prompt
+             blocks it labels) since the legacy "Content" card is gone.
+             Each language tab carries one title control; the language
+             list mirrors ``availableLangs`` so it stays consistent with
+             the block editor's own language sub-tabs below. -->
+        <form [formGroup]="form()" class="prompt-title">
+          <p-tabs
+            [value]="availableLangs()[0]"
+            (valueChange)="onTitleTabChange($event)"
+            class="tabs tabs--tight prompt-title__tabs">
+            <p-tablist>
+              @for (lang of availableLangs(); track lang) {
+                <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+              }
+              @if (availableLangs().length > 1) {
+                <div class="tablist-actions">
+                  <p-button
+                    type="button"
+                    severity="info"
+                    size="small"
+                    icon="pi pi-language"
+                    class="prompt-title__translate"
+                    [label]="blockEditorsUi().translateButton"
+                    [autofocus]="false"
+                    [attr.autofocus]="null"
+                    [disabled]="titleTranslating()"
+                    [loading]="titleTranslating()"
+                    (onClick)="runTitleTranslate()" />
+                </div>
+              }
+            </p-tablist>
+            <p-tabpanels class="tabpanels-tight">
+              @for (lang of availableLangs(); track lang) {
+                <p-tabpanel [value]="lang">
+                  <div class="prompt-title__panel" formGroupName="translations">
+                    @if (langHasTranslation(lang)) {
+                      <div [formGroupName]="lang" class="meta-grid">
+                        <div class="meta-item meta-item--full">
+                          <label class="meta-label">{{ editorUi().questionForm.title }} ({{ lang.toUpperCase() }})</label>
+                          <div class="meta-value">
+                            <input
+                              formControlName="title"
+                              pInputText
+                              [placeholder]="editorUi().questionForm.titlePlaceholder" />
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </p-tabpanel>
+              }
+            </p-tabpanels>
+          </p-tabs>
+        </form>
+
         <app-block-list-editor
           hostType="question"
           [hostId]="questionId()"
@@ -18,14 +71,13 @@
           [blocks]="promptBlocks()"
           [availableLangs]="availableLangs()"
           [domainId]="domainId()"
+          [hideBlockTitles]="true"
+          [richTextAutogrow]="true"
           (blocksChanged)="onBlocksChanged()" />
       </p-tabpanel>
 
       <!-- Answers tab -->
       <p-tabpanel value="answers">
-        <h3 class="zone-heading">{{ ui().answersHeading }}</h3>
-        <p class="zone-hint">{{ ui().answersHint }}</p>
-
         @if (answerRows().length === 0) {
           <div class="empty-state">{{ ui().noAnswersYet }}</div>
         }
@@ -44,10 +96,18 @@
                   <span>{{ ui().correctAnswer }}</span>
                 </label>
                 <p-button
+                  icon="pi pi-copy"
+                  severity="secondary"
+                  size="small"
+                  variant="outlined"
+                  [pTooltip]="editorUi().common.duplicate"
+                  [attr.aria-label]="editorUi().common.duplicate"
+                  (onClick)="onDuplicateAnswer(row.id)" />
+                <p-button
                   icon="pi pi-trash"
                   severity="danger"
                   size="small"
-                  variant="text"
+                  variant="outlined"
                   [pTooltip]="ui().removeAnswer"
                   [attr.aria-label]="ui().removeAnswer"
                   (onClick)="onRemoveAnswer(row.id)" />
@@ -60,6 +120,8 @@
                   [blocks]="row.blocks"
                   [availableLangs]="availableLangs()"
                   [domainId]="domainId()"
+                  [hideBlockTitles]="true"
+                  [richTextAutogrow]="true"
                   (blocksChanged)="onBlocksChanged()" />
               </div>
             </div>
@@ -78,8 +140,6 @@
 
       <!-- Explanation tab -->
       <p-tabpanel value="explanation">
-        <h3 class="zone-heading">{{ ui().explanationHeading }}</h3>
-        <p class="zone-hint">{{ ui().explanationHint }}</p>
         <app-block-list-editor
           hostType="question"
           [hostId]="questionId()"
@@ -87,6 +147,8 @@
           [blocks]="explanationBlocks()"
           [availableLangs]="availableLangs()"
           [domainId]="domainId()"
+          [hideBlockTitles]="true"
+          [richTextAutogrow]="true"
           (blocksChanged)="onBlocksChanged()" />
       </p-tabpanel>
     </p-tabpanels>

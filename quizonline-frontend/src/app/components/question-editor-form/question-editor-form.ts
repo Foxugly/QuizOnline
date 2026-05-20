@@ -12,7 +12,6 @@ import {TabsModule} from 'primeng/tabs';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {MediaSelectorComponent} from '../media-selector/media-selector';
 import {QuestionEditorForm, getTranslationsGroup} from '../../services/question/question-editor-form';
 import {LangCode} from '../../services/translation/translation';
 
@@ -28,11 +27,13 @@ type SubjectOption = {code: number; name: string};
  * - the domain / subjects / active / mode meta grid
  * - a per-language tab strip that lets the author fill the question
  *   ``title`` field for every language allowed by the domain
- * - the media gallery (legacy ``QuestionMedia`` rows)
  *
  * The block-based content (prompt blocks, answer-option blocks,
  * explanation blocks) lives in its own ``<app-question-block-tabs>``
  * host because it can only render once the question has an id.
+ * Question media used to live in this card too (legacy
+ * ``QuestionMedia`` rows) — that pipeline is gone; image / video /
+ * file content is now authored inside content blocks.
  *
  * Output ``submitted`` is emitted on form submit, leaving the parent
  * page in charge of POST / PATCH wiring + redirect.
@@ -52,7 +53,6 @@ type SubjectOption = {code: number; name: string};
     ButtonModule,
     CardModule,
     TooltipModule,
-    MediaSelectorComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -7,8 +7,6 @@ import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
 import {QuestionApi as QuestionApiService} from '../../api/generated/api/question.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import {MediaAssetDto} from '../../api/generated/model/media-asset';
-import {MediaAssetUploadKindEnumDto} from '../../api/generated/model/media-asset-upload-kind-enum';
 import {PaginatedQuestionReadListDto} from '../../api/generated/model/paginated-question-read-list';
 import {PatchedQuestionPartialWritePayloadRequestDto} from '../../api/generated/model/patched-question-partial-write-payload-request';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
@@ -58,7 +56,6 @@ export type QuestionCreateJsonPayload = {
   is_mode_exam: boolean;
   translations: Partial<Record<LangCode, QuestionTranslationForm>>;
   answer_options: Array<AnswerOptionForm>;
-  media_asset_ids: number[];
 };
 
 export type QuestionDuplicateDraft = {
@@ -71,13 +68,6 @@ export type QuestionDuplicateDraft = {
   answerOptions: Array<{
     is_correct: boolean;
     sort_order: number;
-  }>;
-  media: Array<{
-    id: number;
-    kind: MediaAssetDto['kind'];
-    sort_order: number;
-    file: string | null;
-    external_url: string | null;
   }>;
 };
 
@@ -271,13 +261,6 @@ export class QuestionService {
           is_correct: !!answer.is_correct,
           sort_order: answer.sort_order ?? index + 1,
         })),
-      media: (question.media ?? []).map((media, index) => ({
-        id: media.asset.id,
-        kind: media.asset.kind,
-        sort_order: media.sort_order ?? index + 1,
-        file: media.asset.file ?? null,
-        external_url: media.asset.external_url ?? null,
-      })),
     };
 
     this.duplicateDraft = draft;
@@ -319,10 +302,6 @@ export class QuestionService {
       selectTranslation<QuestionTranslationForm>(tr ?? {}, lang) ??
       {title: ''}
     );
-  }
-
-  questionMediaCreate(param: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnumDto}): Observable<MediaAssetDto> {
-    return this.api.questionMediaCreate({file: param.file, externalUrl: param.externalUrl, kind: param.kind});
   }
 
   exportStructured(domainId: number, questionIds?: number[]): Observable<{blob: Blob; filename: string}> {

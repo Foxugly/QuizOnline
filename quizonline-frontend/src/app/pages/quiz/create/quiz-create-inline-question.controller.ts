@@ -15,7 +15,6 @@ import {
   getQuestionTrGroup,
   isQuestionEditorFormValid,
   QuestionEditorForm,
-  uploadQuestionEditorMediaAssets,
 } from '../../../services/question/question-editor-form';
 import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -238,15 +237,7 @@ export class QuizCreateInlineQuestionController {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionCreatePayload(
-        this.form,
-        this.langs(),
-        mediaAssetIds,
-      );
+      const payload = buildQuestionCreatePayload(this.form, this.langs());
 
       const createdQuestion = await firstValueFrom(this.questionService.create(payload));
       binding?.onQuestionCreated(createdQuestion);

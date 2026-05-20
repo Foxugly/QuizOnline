@@ -8,12 +8,14 @@ import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
 import {AnswerRowVm, QuestionBlockTabs} from '../../../components/question-editor-form/question-block-tabs';
+import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {
   addQuestionAnswerOption,
   buildQuestionCreatePayload,
@@ -25,7 +27,6 @@ import {
   isQuestionEditorFormValid,
   populateQuestionEditorForm,
   QuestionEditorForm,
-  uploadQuestionEditorMediaAssets,
 } from '../../../services/question/question-editor-form';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
@@ -64,6 +65,8 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
     ButtonModule,
     QuestionEditorFormComponent,
     QuestionBlockTabs,
+    QuestionPreviewDialogComponent,
+    TooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -89,6 +92,19 @@ export class QuestionEdit implements OnInit {
   protected readonly promptBlocks = signal<ContentBlock[]>([]);
   protected readonly explanationBlocks = signal<ContentBlock[]>([]);
   protected readonly answerRows = signal<AnswerRowVm[]>([]);
+  /** Drives the visibility of ``<app-question-preview-dialog>`` — a
+   *  modal that renders the question as a learner would see it via the
+   *  shared ``<app-block-card>`` stack, reusing the production
+   *  ``QuizQuestionComponent``. */
+  protected readonly previewVisible = signal(false);
+
+  protected openPreview(): void {
+    this.previewVisible.set(true);
+  }
+
+  protected onPreviewVisibleChange(visible: boolean): void {
+    this.previewVisible.set(visible);
+  }
 
   private fb = inject(NonNullableFormBuilder);
   form: QuestionEditorForm = createQuestionEditorForm(this.fb, {domainDisabled: true});
@@ -232,11 +248,7 @@ export class QuestionEdit implements OnInit {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionPatchPayload(this.form, this.domainLangs(), mediaAssetIds);
+      const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
 
       const updated = await firstValueFrom(this.questionService.updatePartial(this.id, payload));
       this.question.set(updated);
@@ -297,13 +309,7 @@ export class QuestionEdit implements OnInit {
     meta?.get('is_correct')?.setValue(event.isCorrect);
 
     // Persist by patching the question with the new answer list.
-    const payload = buildQuestionPatchPayload(
-      this.form,
-      this.domainLangs(),
-      (this.form.controls.media.value ?? [])
-        .map((m) => m.id)
-        .filter((id): id is number => typeof id === 'number'),
-    );
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
     this.questionService.updatePartial(this.id, payload).subscribe({
       next: (question) => {
         this.question.set(question);
@@ -321,13 +327,7 @@ export class QuestionEdit implements OnInit {
    *  list without exposing a dedicated endpoint). */
   protected onAddAnswer(): void {
     addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
-    const payload = buildQuestionPatchPayload(
-      this.form,
-      this.domainLangs(),
-      (this.form.controls.media.value ?? [])
-        .map((m) => m.id)
-        .filter((id): id is number => typeof id === 'number'),
-    );
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
     this.questionService.updatePartial(this.id, payload).subscribe({
       next: (question) => {
         this.question.set(question);
@@ -335,6 +335,34 @@ export class QuestionEdit implements OnInit {
       },
       error: (err: unknown) => {
         logApiError('question.edit.add-answer', err);
+        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+      },
+    });
+  }
+
+  /** Duplicate an AnswerOption: clones the source row's ``is_correct``
+   *  flag into a fresh row appended at the end of the list, then
+   *  PATCHes the question. Blocks are NOT carried over yet — the
+   *  author can re-author them in the new row (a future bulk-clone
+   *  endpoint on the backend would let us deep-copy automatically). */
+  protected onDuplicateAnswer(answerId: number): void {
+    const controls = getAnswerOptions(this.form).controls;
+    const sourceCtrl = controls.find((ctrl) => Number(ctrl.get('id')?.value) === answerId);
+    if (!sourceCtrl) {
+      return;
+    }
+    const isCorrect = !!sourceCtrl.get('is_correct')?.value;
+    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
+    const all = getAnswerOptions(this.form).controls;
+    all[all.length - 1].get('is_correct')?.setValue(isCorrect);
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
+    this.questionService.updatePartial(this.id, payload).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.duplicate-answer', err);
         this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
       },
     });
@@ -358,13 +386,7 @@ export class QuestionEdit implements OnInit {
       ctrl.get('sort_order')?.setValue(i + 1);
     });
 
-    const payload = buildQuestionPatchPayload(
-      this.form,
-      this.domainLangs(),
-      (this.form.controls.media.value ?? [])
-        .map((m) => m.id)
-        .filter((id): id is number => typeof id === 'number'),
-    );
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
     this.questionService.updatePartial(this.id, payload).subscribe({
       next: (question) => {
         this.question.set(question);
@@ -446,11 +468,7 @@ export class QuestionEdit implements OnInit {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionCreatePayload(this.form, this.domainLangs(), mediaAssetIds);
+      const payload = buildQuestionCreatePayload(this.form, this.domainLangs());
 
       payload.answer_options = (payload.answer_options ?? []).map((answer) => ({
         is_correct: answer.is_correct,

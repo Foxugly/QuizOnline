@@ -1,15 +1,20 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {CheckboxModule} from 'primeng/checkbox';
+import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {TooltipModule} from 'primeng/tooltip';
 
+import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {AppToastService} from '../../shared/toast/app-toast.service';
 import {ContentBlock} from '../../shared/learning/content-block.types';
 import {BlockListEditor} from '../../shared/learning/block-list-editor/block-list-editor';
+import {TranslateBatchItem, TranslationService} from '../../services/translation/translation';
 
+import {getBlockEditorsUiText} from '../../pages/lesson-edit/block-editors/block-editors.i18n';
 import {getQuestionEditorFormUiText} from './question-editor-form.i18n';
 
 /**
@@ -51,8 +56,10 @@ export interface AnswerRowVm {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     ButtonModule,
     CheckboxModule,
+    InputTextModule,
     TabsModule,
     TooltipModule,
     BlockListEditor,
@@ -70,6 +77,23 @@ export class QuestionBlockTabs {
   readonly promptBlocks = input.required<ContentBlock[]>();
   readonly explanationBlocks = input.required<ContentBlock[]>();
   readonly answerRows = input.required<AnswerRowVm[]>();
+  /** Reactive form host owned by the parent ``<app-question-editor-form>``
+   *  context card. Used by the Question tab to render a per-language
+   *  title input at the top, next to the prompt blocks it labels — the
+   *  legacy "Content" card is gone, so the title lives here. */
+  readonly form = input.required<FormGroup>();
+  readonly editorUi = inject(UiTextService).editor;
+
+  /** Form helper: ``translations`` is a nested ``FormGroup`` whose keys
+   *  are the language codes. Mirrors ``QuestionEditorFormComponent.translationsGroup``. */
+  protected translationsGroup(): FormGroup {
+    return this.form().get('translations') as FormGroup;
+  }
+
+  protected langHasTranslation(lang: string): boolean {
+    const group = this.translationsGroup();
+    return group ? group.contains(lang) : false;
+  }
 
   /** Fired after a block create / update / delete / reorder so the
    *  parent can refetch the question and refresh every block list. */
@@ -80,6 +104,79 @@ export class QuestionBlockTabs {
   readonly removeAnswerClicked = output<number>();
   /** Fired when the author clicks the "add answer" CTA. */
   readonly addAnswerClicked = output<void>();
+  /** Fired when the author clicks the "duplicate answer" row button. */
+  readonly duplicateAnswerClicked = output<number>();
+
+  private readonly translator = inject(TranslationService);
+  private readonly toast = inject(AppToastService);
+  protected readonly blockEditorsUi = inject(UiTextService).localized(getBlockEditorsUiText);
+  protected readonly titleActiveLang = signal<string>('');
+  protected readonly titleTranslating = signal(false);
+
+  onTitleTabChange(value: string | number | undefined): void {
+    if (value === undefined || value === null) {
+      return;
+    }
+    this.titleActiveLang.set(String(value));
+  }
+
+  /** Inline translate button next to the title language tabs. Reads
+   *  the title from the active source tab, then fills any blank
+   *  target-tab title via :class:`TranslationService`. Mirrors the
+   *  ``<app-block-translate-button>`` UX but operates on the form's
+   *  ``translations.<lang>.title`` controls instead of on a Block
+   *  payload. */
+  async runTitleTranslate(): Promise<void> {
+    if (this.titleTranslating()) {
+      return;
+    }
+    const source = this.titleActiveLang() || this.availableLangs()[0];
+    if (!source) {
+      return;
+    }
+    const targets = this.availableLangs().filter((l) => l !== source);
+    if (targets.length === 0) {
+      return;
+    }
+    const translationsGroup = this.translationsGroup();
+    const sourceTitle = (translationsGroup?.get([source, 'title'])?.value ?? '').toString().trim();
+    if (!sourceTitle) {
+      return;
+    }
+
+    this.titleTranslating.set(true);
+    try {
+      let touched = false;
+      for (const target of targets) {
+        if (!translationsGroup.contains(target)) {
+          continue;
+        }
+        const targetCtrl = translationsGroup.get([target, 'title']);
+        if (!targetCtrl) {
+          continue;
+        }
+        const current = (targetCtrl.value ?? '').toString().trim();
+        if (current) {
+          continue;
+        }
+        const items: TranslateBatchItem[] = [{key: 'title', text: sourceTitle, format: 'text'}];
+        const out = await this.translator.translateBatch(source, target, items);
+        if (out['title']) {
+          targetCtrl.setValue(out['title']);
+          targetCtrl.markAsDirty();
+          touched = true;
+        }
+      }
+      if (touched) {
+        this.toast.add({severity: 'success', summary: this.blockEditorsUi().translateSuccessToast});
+      }
+    } catch (err) {
+      logApiError('question.title-translate', err);
+      this.toast.addApiError(err, this.blockEditorsUi().translateErrorToast);
+    } finally {
+      this.titleTranslating.set(false);
+    }
+  }
 
   protected readonly tabs = ['question', 'answers', 'explanation'] as const;
   protected readonly activeTab = computed(() => this.tabs[0]);
@@ -96,6 +193,10 @@ export class QuestionBlockTabs {
 
   protected onAddAnswer(): void {
     this.addAnswerClicked.emit();
+  }
+
+  protected onDuplicateAnswer(answerId: number): void {
+    this.duplicateAnswerClicked.emit(answerId);
   }
 
   protected onBlocksChanged(): void {

@@ -1,4 +1,3 @@
-import {firstValueFrom, Observable} from 'rxjs';
 import {
   FormArray,
   FormControl,
@@ -8,12 +7,9 @@ import {
 } from '@angular/forms';
 
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import {MediaAssetDto} from '../../api/generated/model/media-asset';
-import {MediaAssetUploadKindEnumDto} from '../../api/generated/model/media-asset-upload-kind-enum';
 import {PatchedQuestionPartialWritePayloadRequestDto} from '../../api/generated/model/patched-question-partial-write-payload-request';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionWritePayloadRequestDto} from '../../api/generated/model/question-write-payload-request';
-import {MediaSelectorValue} from '../../components/media-selector/media-selector';
 import {LangCode} from '../translation/translation';
 import {
   AnswerOptionForm,
@@ -28,11 +24,13 @@ import {
  * Phase 3.5 of the LMS refactor: the rich-text ``description`` /
  * ``explanation`` / per-answer ``content`` fields are gone. The
  * editor now only owns the question's structural metadata (domain,
- * subjects, mode flags, media, answer correctness) plus the
- * translatable ``title``. All visible content — the prompt, the
- * answer texts, the explanation — lives in the polymorphic
- * :class:`block.Block` table and is edited by
+ * subjects, mode flags, answer correctness) plus the translatable
+ * ``title``. All visible content — the prompt, the answer texts, the
+ * explanation, plus any image / video / file media — lives in the
+ * polymorphic :class:`block.Block` table and is edited by
  * ``<app-question-block-tabs>`` through the ``/api/block/`` endpoint.
+ * The legacy ``QuestionMedia`` gallery (and its ``MediaSelector``
+ * picker) was retired with the block migration.
  */
 export type QuestionEditorForm = FormGroup<{
   domain: FormControl<number>;
@@ -40,12 +38,9 @@ export type QuestionEditorForm = FormGroup<{
   active: FormControl<boolean>;
   is_mode_practice: FormControl<boolean>;
   is_mode_exam: FormControl<boolean>;
-  media: FormControl<MediaSelectorValue[]>;
   translations: FormGroup;
   answer_options: FormArray<FormGroup>;
 }>;
-
-type QuestionMediaUploader = (params: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnumDto}) => Observable<MediaAssetDto>;
 
 export function createQuestionEditorForm(
   fb: NonNullableFormBuilder,
@@ -63,7 +58,6 @@ export function createQuestionEditorForm(
     active: fb.control(true),
     is_mode_practice: fb.control(true),
     is_mode_exam: fb.control(false),
-    media: fb.control<MediaSelectorValue[]>([]),
     translations: fb.group({}),
     answer_options: fb.array<FormGroup>([]),
   });
@@ -212,13 +206,6 @@ export function populateQuestionEditorForm(
     active: question.active,
     is_mode_practice: question.is_mode_practice,
     is_mode_exam: question.is_mode_exam,
-    media: (question.media ?? []).map((media, index) => ({
-      id: media.asset.id,
-      kind: media.asset.kind,
-      sort_order: media.sort_order ?? index + 1,
-      file: media.asset.file ?? null,
-      external_url: media.asset.external_url ?? null,
-    })),
   });
 
   const translations = (question.translations ?? {}) as Record<string, QuestionTranslationForm>;
@@ -260,7 +247,6 @@ export function populateQuestionEditorFormFromDraft(
     active: draft.active,
     is_mode_practice: draft.isModePractice,
     is_mode_exam: draft.isModeExam,
-    media: draft.media,
   });
 
   for (const lang of langs) {
@@ -348,7 +334,6 @@ function buildAnswerOptionsPayload(form: QuestionEditorForm): AnswerOptionForm[]
 export function buildQuestionCreatePayload(
   form: QuestionEditorForm,
   langs: LangCode[],
-  mediaAssetIds: number[],
 ): QuestionWritePayloadRequestDto {
   const correctCount = getQuestionCorrectCount(form);
 
@@ -361,14 +346,12 @@ export function buildQuestionCreatePayload(
     is_mode_exam: !!form.controls.is_mode_exam.value,
     translations: buildQuestionTranslations(form, langs),
     answer_options: buildAnswerOptionsPayload(form),
-    media_asset_ids: mediaAssetIds,
   };
 }
 
 export function buildQuestionPatchPayload(
   form: QuestionEditorForm,
   langs: LangCode[],
-  mediaAssetIds: number[],
 ): PatchedQuestionPartialWritePayloadRequestDto {
   const correctCount = getQuestionCorrectCount(form);
 
@@ -380,60 +363,7 @@ export function buildQuestionPatchPayload(
     is_mode_exam: !!form.controls.is_mode_exam.value,
     subject_ids: form.controls.subject_ids.value ?? [],
     answer_options: buildAnswerOptionsPayload(form),
-    media_asset_ids: mediaAssetIds,
   };
-}
-
-export async function uploadQuestionEditorMediaAssets(
-  media: MediaSelectorValue[],
-  uploadMedia: QuestionMediaUploader,
-): Promise<number[]> {
-  if (!media.length) {
-    return [];
-  }
-
-  const ids: number[] = [];
-
-  for (const item of media) {
-    if (item.id) {
-      ids.push(item.id);
-      continue;
-    }
-
-    if (item.kind === MediaAssetUploadKindEnumDto.External && item.external_url) {
-      const asset = await firstValueFrom(
-        uploadMedia({
-          kind: MediaAssetUploadKindEnumDto.External,
-          externalUrl: item.external_url,
-        }),
-      );
-      ids.push(asset.id);
-      continue;
-    }
-
-    if (
-      (item.kind === MediaAssetUploadKindEnumDto.Image || item.kind === MediaAssetUploadKindEnumDto.Video) &&
-      item.file instanceof File
-    ) {
-      const uploadKind =
-        item.kind === MediaAssetUploadKindEnumDto.Image
-          ? MediaAssetUploadKindEnumDto.Image
-          : MediaAssetUploadKindEnumDto.Video;
-
-      const asset = await firstValueFrom(
-        uploadMedia({
-          file: item.file,
-          kind: uploadKind,
-        }),
-      );
-      ids.push(asset.id);
-      continue;
-    }
-
-    throw new Error(`Media invalide: ${JSON.stringify(item)}`);
-  }
-
-  return [...new Set(ids)];
 }
 
 export function isEmptyQuestionHtml(html: string): boolean {

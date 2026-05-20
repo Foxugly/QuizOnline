@@ -73,3 +73,14 @@
   display: flex;
   justify-content: flex-start;
 }
+
+/* Pushes the title's translate button to the far right of the title's
+ * language tablist so it sits on the same row as the language tabs
+ * instead of stacking below them. Same trick as the block editors' own
+ * ``.tablist-actions`` wrapper. */
+.tablist-actions {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 0.5rem;
+}
