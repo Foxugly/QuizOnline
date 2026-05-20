@@ -15,6 +15,7 @@ import {logApiError} from '../../api/api-errors';
 import {resolveApiBaseUrl} from '../../api/runtime-api-base-url';
 import {UiTextService} from '../../i18n/ui-text.service';
 import {AppToastService} from '../../toast/app-toast.service';
+import {CatalogService} from '../../../services/catalog/catalog.service';
 import {BlockType, getLearningCommonUiText} from '../learning-common.i18n';
 import {BLOCK_ICONS} from '../block-icons';
 import {BlockRole, ContentBlock} from '../content-block.types';
@@ -85,6 +86,7 @@ export class BlockListEditor {
   private readonly http = inject(HttpClient);
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
+  private readonly catalog = inject(CatalogService);
 
   protected readonly common = this.uiSvc.localized(getLearningCommonUiText);
   protected readonly ui = this.uiSvc.localized(getBlockListEditorUiText);
@@ -163,11 +165,25 @@ export class BlockListEditor {
     const list = [...this.blocks()];
     moveItemInArray(list, event.previousIndex, event.currentIndex);
     // The backend exposes a Lesson-scoped bulk reorder endpoint
-    // (``/api/lesson/{id}/reorder-blocks/``). For Question /
-    // AnswerOption hosts no such endpoint exists yet — we patch each
-    // block's ``order`` individually. This is fine for the typical
-    // 3-10 blocks in a question editor and avoids piling more bespoke
-    // endpoints onto a path that's already low-volume.
+    // (``/api/lesson/{id}/block/reorder/``) that re-numbers every block
+    // in a single atomic call. For Question / AnswerOption hosts no
+    // such endpoint exists yet — we patch each block's ``order``
+    // individually. This is fine for the typical 3-10 blocks in a
+    // question editor and avoids piling more bespoke endpoints onto a
+    // path that's already low-volume.
+    if (this.hostType() === 'lesson') {
+      this.catalog.reorderBlocks(this.hostId(), list.map((b) => b.id)).subscribe({
+        next: () => {
+          this.blocksChanged.emit();
+          this.toast.add({severity: 'success', summary: this.ui().reorderSuccessToast});
+        },
+        error: (err: unknown) => {
+          logApiError('lms.block-list.reorder', err);
+          this.toast.addApiError(err, this.ui().reorderErrorToast);
+        },
+      });
+      return;
+    }
     let inFlight = list.length;
     let failed = false;
     list.forEach((block, index) => {
