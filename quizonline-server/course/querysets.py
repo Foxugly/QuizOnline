@@ -14,8 +14,8 @@ class CourseQuerySet(TranslatableQuerySet):
         - **Domain members** see published courses in their domain
           UNLESS the course is in ``ENROLL_INVITE`` mode — those are
           hidden by default and only become visible to a member if
-          they have a pending :class:`lms_enrollment.CourseInvite`
-          OR an existing :class:`lms_enrollment.CourseEnrollment`
+          they have a pending :class:`enrollment.CourseInvite`
+          OR an existing :class:`enrollment.CourseEnrollment`
           (even a ``cancelled`` one, so they can see the history
           of a course they were once in).
         - **Anyone else** (anon, non-member of the domain) sees

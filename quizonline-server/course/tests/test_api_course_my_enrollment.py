@@ -13,7 +13,7 @@ from rest_framework.test import APIClient
 from customuser.models import CustomUser
 from course.models import Section
 from lesson.models import Lesson
-from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+from enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
 
 
 def _auth(user):

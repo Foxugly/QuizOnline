@@ -2,7 +2,7 @@ import pytest
 
 from lms_assessment.models import LessonQuiz
 from lms_assessment.services import compute_score_percent, evaluate_lesson_quiz_attempt
-from lms_enrollment.models import LessonProgress
+from enrollment.models import LessonProgress
 from quiz.models import Quiz
 
 

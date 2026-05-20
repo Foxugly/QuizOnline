@@ -131,8 +131,9 @@ INSTALLED_APPS = [
     "course.apps.CourseConfig",
     "lesson.apps.LessonConfig",
     "block.apps.BlockConfig",
+    "enrollment.apps.EnrollmentConfig",
+    "certificate.apps.CertificateConfig",
     "lms_assessment.apps.LmsAssessmentConfig",
-    "lms_enrollment.apps.LmsEnrollmentConfig",
 ]
 
 MIDDLEWARE = [
@@ -320,11 +321,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 24 * 3600.0,  # once a day
     },
     "expire-pending-course-invites": {
-        "task": "lms_enrollment.tasks.expire_pending_course_invites",
+        "task": "enrollment.tasks.expire_pending_course_invites",
         "schedule": 3600.0,  # once an hour
     },
     "send-course-invite-reminders": {
-        "task": "lms_enrollment.tasks.send_course_invite_reminders",
+        "task": "enrollment.tasks.send_course_invite_reminders",
         "schedule": 3600.0,  # once an hour — idempotency comes from
         # the per-row ``reminder_sent_at`` stamp, not the cadence.
     },
@@ -342,7 +343,7 @@ LMS_COURSE_INVITES_ENABLED = env("LMS_COURSE_INVITES_ENABLED")
 # minutes.
 LMS_COURSE_INVITE_BULK_MAX = env("LMS_COURSE_INVITE_BULK_MAX")
 # Lead time (hours before ``expires_at``) for the J-3 reminder email
-# fired by :func:`lms_enrollment.tasks.send_course_invite_reminders`.
+# fired by :func:`enrollment.tasks.send_course_invite_reminders`.
 # Default 72 h matches the docs and gives invitees a full day to react
 # during a business week. Set to 0 to disable the reminder entirely
 # without touching the beat schedule (the task is a no-op when the

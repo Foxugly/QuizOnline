@@ -245,7 +245,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         # Retrieve / detail path: single-instance queries are cheap and
         # avoid forcing every caller to pre-build the context.
         from lesson.models import Lesson
-        from lms_enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+        from enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
         enrollment = CourseEnrollment.objects.filter(course=obj, user=user).first()
         if not enrollment:
             return None
@@ -297,7 +297,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             return None
         if "_pending_invites_by_course" in self.context:
             return self.context["_pending_invites_by_course"].get(obj.id)
-        from lms_enrollment.models import CourseInvite
+        from enrollment.models import CourseInvite
         invite = (
             CourseInvite.objects.filter(
                 course=obj,

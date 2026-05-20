@@ -150,7 +150,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             }
         # Lazy imports to avoid circulars at module load.
         from lesson.models import Lesson
-        from lms_enrollment.models import CourseEnrollment, CourseInvite, CourseProgress, LessonProgress
+        from enrollment.models import CourseEnrollment, CourseInvite, CourseProgress, LessonProgress
 
         enrollments_by_course = {
             e.course_id: e

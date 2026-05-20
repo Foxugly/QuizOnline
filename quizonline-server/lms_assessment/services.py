@@ -40,8 +40,8 @@ def evaluate_lesson_quiz_attempt(*, quiz_session) -> None:
         if score < binding.required_score_percent:
             continue
         if binding.lesson_id:
-            from lms_enrollment.services import mark_lesson_completed
+            from enrollment.services import mark_lesson_completed
             mark_lesson_completed(user=quiz_session.user, lesson=binding.lesson)
         elif binding.course_id:
-            from lms_enrollment.services import issue_certificate_if_eligible
+            from certificate.services import issue_certificate_if_eligible
             issue_certificate_if_eligible(user=quiz_session.user, course=binding.course)

@@ -18,7 +18,7 @@ from rest_framework.test import APIClient
 from customuser.models import CustomUser
 from course.models import Course, Section
 from lesson.models import Lesson
-from lms_enrollment.models import CourseEnrollment
+from enrollment.models import CourseEnrollment
 
 
 def _auth(user):

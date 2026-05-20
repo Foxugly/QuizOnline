@@ -1,7 +1,7 @@
 import pytest
 
 from lms_assessment.models import LessonQuiz
-from lms_enrollment.models import LessonProgress
+from enrollment.models import LessonProgress
 from quiz.models import Quiz
 
 

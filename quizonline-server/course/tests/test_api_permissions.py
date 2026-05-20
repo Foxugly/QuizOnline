@@ -79,7 +79,7 @@ def test_learner_cannot_publish_course(course, domain):
 def test_verify_anonymous_works(course):
     from customuser.models import CustomUser
     user = CustomUser.objects.create_user(username="u", email="u@x.com", password="x")
-    from lms_enrollment.models import Certificate
+    from certificate.models import Certificate
     Certificate.objects.create(
         user=user, course=course, certificate_number="QO-T-1", verification_token="abc",
     )

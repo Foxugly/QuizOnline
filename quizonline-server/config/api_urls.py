@@ -24,6 +24,7 @@ urlpatterns = [
         path("", include(("lesson.api_urls", "lesson"), namespace="lesson-api")),
         path("", include(("block.api_urls", "block"), namespace="block-api")),
         path("", include(("lms_assessment.api_urls", "lms_assessment"), namespace="lms-assessment-api")),
-        path("", include(("lms_enrollment.api_urls", "lms_enrollment"), namespace="lms-enrollment-api")),
+        path("", include(("enrollment.api_urls", "enrollment"), namespace="enrollment-api")),
+        path("", include(("certificate.api_urls", "certificate"), namespace="certificate-api")),
     ])),
 ]
