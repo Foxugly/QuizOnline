@@ -9,10 +9,6 @@ fixtures with the LMS seed so the two commands stay in sync.
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from django.conf import settings
-from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -20,18 +16,14 @@ from django.contrib.contenttypes.models import ContentType
 
 from block.models import Block
 from core.seed_e2e import (
-    MP4_PLACEHOLDER,
-    PNG_1X1,
     ensure_e2e_admin,
     ensure_e2e_domain,
     ensure_e2e_languages,
     ensure_e2e_testuser,
-    file_digest,
     upsert_translation,
 )
 from domain.models import Domain
-from question.models import AnswerOption, MediaAsset, Question, QuestionMedia
-from question.youtube import normalize_external_url
+from question.models import AnswerOption, Question
 from quiz.constants import VISIBILITY_IMMEDIATE
 from quiz.models import Quiz, QuizQuestion, QuizTemplate
 from subject.models import Subject
@@ -71,9 +63,6 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        media_dir = Path(settings.MEDIA_ROOT) / "question_media"
-        media_dir.mkdir(parents=True, exist_ok=True)
-
         ensure_e2e_languages()
         admin = ensure_e2e_admin()
         testuser = ensure_e2e_testuser()
@@ -149,25 +138,6 @@ class Command(BaseCommand):
                 "nl": "<p>Fout antwoord quiz 2</p>",
             },
         )
-
-        image_asset = self._upsert_file_asset(
-            kind=MediaAsset.IMAGE, filename="fullstack-e2e-image.png", content=PNG_1X1,
-        )
-        video_asset = self._upsert_file_asset(
-            kind=MediaAsset.VIDEO, filename="fullstack-e2e-video.mp4", content=MP4_PLACEHOLDER,
-        )
-        youtube_asset, _ = MediaAsset.objects.update_or_create(
-            kind=MediaAsset.EXTERNAL,
-            external_url=normalize_external_url("https://youtu.be/dQw4w9WgXcQ?t=43"),
-            defaults={"sha256": None, "file": None},
-        )
-
-        QuestionMedia.objects.filter(question=question).delete()
-        QuestionMedia.objects.bulk_create([
-            QuestionMedia(question=question, asset=image_asset, sort_order=0),
-            QuestionMedia(question=question, asset=video_asset, sort_order=1),
-            QuestionMedia(question=question, asset=youtube_asset, sort_order=2),
-        ])
 
         quiz_template = self._upsert_quiz_template(domain)
         QuizQuestion.objects.filter(quiz=quiz_template).exclude(
@@ -266,20 +236,6 @@ class Command(BaseCommand):
         quiz_session.save()
         quiz_session.answers.all().delete()
         return quiz_session
-
-    def _upsert_file_asset(self, *, kind: str, filename: str, content: bytes) -> MediaAsset:
-        digest = file_digest(content)
-        asset = MediaAsset.objects.filter(kind=kind, sha256=digest).first()
-        if asset:
-            file_missing = not asset.file or not asset.file.name or not Path(asset.file.path).exists()
-            if file_missing:
-                asset.file.save(filename, ContentFile(content), save=False)
-                asset.save(update_fields=["file", "updated_at"])
-            return asset
-        asset = MediaAsset(kind=kind, sha256=digest)
-        asset.file.save(filename, ContentFile(content), save=False)
-        asset.save()
-        return asset
 
     def _upsert_question(self, *, domain: Domain, index: int, allow_multiple_correct: bool) -> Question:
         question = (
