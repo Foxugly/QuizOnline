@@ -27,6 +27,7 @@ export interface QuestionReadDto {
     readonly subjects: Array<SubjectReadDto>;
     readonly answer_options: Array<QuestionAnswerOptionReadDto>;
     readonly media: Array<QuestionMediaReadDto>;
+    readonly available_lang_codes: Array<string>;
     readonly created_at: string;
 }
 

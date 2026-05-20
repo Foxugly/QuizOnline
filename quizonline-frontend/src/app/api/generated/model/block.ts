@@ -12,11 +12,13 @@ import { BlockRoleEnumDto } from './block-role-enum';
 
 
 /**
- * Serializer for :class:`Block`.  The wire shape keeps a plain ``lesson`` integer field even though the underlying model is now polymorphic (``target`` GFK). This is deliberate (Phase 2 plan, Option B): existing API clients continue to POST / PATCH ``{\"lesson\": <id>, ...}`` while the serializer quietly translates the value into the ``(target_content_type, target_object_id)`` pair the model now uses.  Phase 4 (URL flattening) will revisit whether to expose a more generic ``{\"target_type\", \"target_id\"}`` shape on the wire.
+ * Serializer for :class:`Block`.  The wire shape keeps a per-host integer field even though the underlying model is polymorphic (``target`` GFK). Each request body must include exactly one of ``lesson`` / ``question`` / ``answer_option`` on create — the serializer translates the value into the ``(target_content_type, target_object_id)`` pair the model now uses.  Read responses include the field that matches the host\'s content type (``lesson`` for Lesson-hosted blocks, ``question`` for Question prompt / explanation blocks, ``answer_option`` for answer option body blocks). The other host fields render as ``null`` to keep the wire schema stable.
  */
 export interface BlockDto { 
     readonly id: number;
-    lesson: number;
+    lesson?: number | null;
+    question?: number | null;
+    answer_option?: number | null;
     block_type: BlockTypeEnumDto;
     block_role?: BlockRoleEnumDto;
     order?: number;

@@ -36,7 +36,7 @@ export class MeApi extends BaseService {
     }
 
     /**
-     * Every &#x60;&#x60;CourseInvite&#x60;&#x60; row addressed to the calling user, most recent first. Powers the &#x60;&#x60;/lms/me/invitations&#x60;&#x60; page so a learner with several pending invitations can find them all in one place without trawling through email.  Defaults to &#x60;&#x60;status&#x3D;pending&#x60;&#x60; so the page surfaces actionable rows first; pass &#x60;&#x60;?status&#x3D;all&#x60;&#x60; to include accepted / declined / revoked / expired rows for a basic history view.
+     * Every &#x60;&#x60;CourseInvite&#x60;&#x60; row addressed to the calling user, most recent first. Powers the &#x60;&#x60;/me/invitations&#x60;&#x60; page so a learner with several pending invitations can find them all in one place without trawling through email.  Defaults to &#x60;&#x60;status&#x3D;pending&#x60;&#x60; so the page surfaces actionable rows first; pass &#x60;&#x60;?status&#x3D;all&#x60;&#x60; to include accepted / declined / revoked / expired rows for a basic history view.
      * @endpoint get /api/me/invitations/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

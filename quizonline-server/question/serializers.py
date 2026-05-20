@@ -393,6 +393,12 @@ class QuestionReadSerializer(serializers.ModelSerializer):
     answer_options = serializers.SerializerMethodField()
     media = QuestionMediaReadSerializer(many=True, read_only=True)
     domain = DomainReadSerializer(read_only=True)
+    # Sorted list of language codes this Question's owner domain
+    # allows. Surfaced so the question editor can render the right
+    # set of per-language tabs without a second round-trip through
+    # the domain endpoint. Mirrors ``LessonDetailSerializer
+    # .available_lang_codes``.
+    available_lang_codes = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -409,6 +415,7 @@ class QuestionReadSerializer(serializers.ModelSerializer):
             "subjects",
             "answer_options",
             "media",
+            "available_lang_codes",
             "created_at",
         ]
         read_only_fields = fields
@@ -429,6 +436,10 @@ class QuestionReadSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_explanation_blocks(self, obj: Question) -> list[dict]:
         return [_serialize_block(b) for b in obj.explanation_blocks()]
+
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_available_lang_codes(self, obj: Question) -> list[str]:
+        return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:

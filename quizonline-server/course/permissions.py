@@ -34,11 +34,18 @@ def _course_of(obj):
     if isinstance(obj, Lesson):
         return obj.section.course
     if isinstance(obj, Block):
-        # Polymorphic block — walk the GFK to the host. Today the host
-        # is always a Lesson; Phase 3 will add Question / AnswerOption.
+        # Polymorphic block — walk the GFK to the host. The host is
+        # either a Lesson (block-builder LMS payloads) or a Question /
+        # AnswerOption (Phase 3.5 question editor). Question hosts
+        # carry no Course parent — they hang off a Domain directly —
+        # so this helper returns ``None`` in that case and the caller
+        # falls back to the domain-scoped permission check.
         host = obj.target
         if isinstance(host, Lesson):
             return host.section.course
+        from question.models import AnswerOption, Question
+        if isinstance(host, (Question, AnswerOption)):
+            return None
         raise TypeError(
             f"_course_of: Block with unsupported host {type(host).__name__}"
         )
@@ -59,6 +66,12 @@ def _is_published_chain(obj) -> bool:
     from lesson.models import Lesson
     from .models import Section
     course = _course_of(obj)
+    # Question / AnswerOption-hosted blocks have no Course parent —
+    # they belong directly to a Domain. There's no "published" gate
+    # for those, so surface them as visible to anyone with read
+    # access at the IsLmsInstructorOrReadOnly layer.
+    if course is None:
+        return True
     if not course.is_published:
         return False
     if isinstance(obj, Section):
@@ -90,11 +103,46 @@ class IsLmsInstructorOrReadOnly(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         course = _course_of(obj)
+        if course is None:
+            # Question / AnswerOption-hosted Block (Phase 3.5): no
+            # Course parent — fall back to the host's Question.domain.
+            return _has_question_block_permission(request, obj)
         if request.method in SAFE_METHODS:
             if is_lms_instructor(request.user, course):
                 return True
             return is_lms_learner(request.user, course) and _is_published_chain(obj)
         return is_lms_instructor(request.user, course)
+
+
+def _has_question_block_permission(request, obj) -> bool:
+    """Resolve the domain that owns a Question / AnswerOption-hosted
+    Block and check whether the caller may read or write it.
+
+    Read access: any authenticated user (Questions are domain-scoped,
+    not globally visible, but the block read path is gated by the
+    question/answer-option list endpoints already; the block detail
+    endpoint mirrors that posture and lets anyone see the payload of a
+    block they could already fetch through the parent question).
+
+    Write access: domain manager (superuser, owner, manager).
+    """
+    from block.models import Block
+    from question.models import AnswerOption, Question
+    if not isinstance(obj, Block):
+        return False
+    host = obj.target
+    if isinstance(host, Question):
+        domain = host.domain
+    elif isinstance(host, AnswerOption):
+        domain = host.question.domain
+    else:
+        return False
+    user = request.user
+    if request.method in SAFE_METHODS:
+        return is_authenticated_user(user)
+    if is_django_admin(user):
+        return True
+    return bool(user and user.can_manage_domain(domain))
 
 
 def _can_create(user, data) -> bool:
@@ -126,6 +174,21 @@ def _can_create(user, data) -> bool:
     if lesson_id:
         lesson = Lesson.objects.filter(pk=lesson_id).select_related("section__course").first()
         return bool(lesson and is_lms_instructor(user, lesson.section.course))
+
+    # Phase 3.5 question editor: blocks may now be hosted by a Question
+    # (prompt / explanation) or an AnswerOption. Both ladder up to a
+    # Domain — domain managers (owner, manager, superuser) may create.
+    question_id = data.get("question")
+    if question_id:
+        from question.models import Question
+        q = Question.objects.filter(pk=question_id).select_related("domain").first()
+        return bool(q and user.can_manage_domain(q.domain))
+
+    answer_option_id = data.get("answer_option")
+    if answer_option_id:
+        from question.models import AnswerOption
+        opt = AnswerOption.objects.filter(pk=answer_option_id).select_related("question__domain").first()
+        return bool(opt and user.can_manage_domain(opt.question.domain))
 
     # No resolvable parent reference => deny create (DRF will return 403).
     return False

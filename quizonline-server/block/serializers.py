@@ -7,34 +7,27 @@ from lesson.models import Lesson
 from .models import Block
 
 
-class LessonHostField(serializers.PrimaryKeyRelatedField):
-    """Surface the polymorphic ``Block.target`` host as a plain
-    ``lesson`` integer field on the wire.
+class _GenericHostField(serializers.PrimaryKeyRelatedField):
+    """Base for the per-host wire fields (``lesson`` / ``question`` /
+    ``answer_option``). Each subclass binds the field to a single host
+    Django model and surfaces it as a flat PK on the wire while the
+    underlying model stores ``(target_content_type, target_object_id)``.
 
-    Read path: walks the GFK; returns the lesson PK when the host is a
-    Lesson (and ``None`` otherwise — Phase 3 will add Question /
-    AnswerOption hosts).
-
-    Write path: validates the value as a Lesson PK; the parent
-    serializer's ``create`` / ``update`` translates the Lesson back
-    into the ``(target_content_type, target_object_id)`` pair the
-    model stores.
-
-    Keeping the wire field named ``lesson`` (instead of inventing a
-    new ``target_id``) preserves the pre-Phase-2 OpenAPI contract so
-    no frontend client needs touching for Phase 2 — only the schema
-    name flips from ``ContentBlock`` to ``Block``.
+    The serializer's ``create`` / ``update`` translate the value back
+    into the GFK pair the model needs.
     """
 
+    host_model = None  # type: ignore[assignment]
+
     def __init__(self, **kwargs):
-        kwargs.setdefault("queryset", Lesson.objects.all())
+        if self.host_model is None:
+            raise NotImplementedError("Subclasses must set ``host_model``")
+        kwargs.setdefault("queryset", self.host_model.objects.all())
         super().__init__(**kwargs)
 
     def get_attribute(self, instance):
-        # ``instance`` is the Block; resolve the GFK and return the
-        # Lesson when the host is one — otherwise None.
-        lesson_ct = ContentType.objects.get_for_model(Lesson)
-        if instance.target_content_type_id != lesson_ct.id:
+        host_ct = ContentType.objects.get_for_model(self.host_model)
+        if instance.target_content_type_id != host_ct.id:
             return None
         return instance.target
 
@@ -44,32 +37,118 @@ class LessonHostField(serializers.PrimaryKeyRelatedField):
         return value.pk
 
 
+class LessonHostField(_GenericHostField):
+    """Surface the polymorphic ``Block.target`` host as a plain
+    ``lesson`` integer field on the wire when the host is a Lesson.
+
+    Read path: walks the GFK; returns the lesson PK when the host is a
+    Lesson (and ``None`` otherwise — for Question / AnswerOption hosts
+    one of the sibling host fields below will fire instead).
+
+    Write path: validates the value as a Lesson PK; the parent
+    serializer's ``create`` / ``update`` translates the Lesson back
+    into the ``(target_content_type, target_object_id)`` pair the
+    model stores.
+    """
+
+    host_model = Lesson
+
+
+class QuestionHostField(_GenericHostField):
+    """Wire field ``question`` for Question-hosted blocks (prompt or
+    explanation). Symmetric to :class:`LessonHostField`."""
+
+    @property
+    def host_model(self):  # lazy import to avoid app-load cycles
+        from question.models import Question
+
+        return Question
+
+
+class AnswerOptionHostField(_GenericHostField):
+    """Wire field ``answer_option`` for AnswerOption-hosted blocks."""
+
+    @property
+    def host_model(self):
+        from question.models import AnswerOption
+
+        return AnswerOption
+
+
+# Map of wire field name -> host resolver. Used both at write time
+# (to translate the incoming PK into a Django instance) and at read
+# time (to surface the right host PK on the rendered payload).
+_HOST_FIELDS: tuple[str, ...] = ("lesson", "question", "answer_option")
+
+
+def _resolve_host_model(field_name: str):
+    if field_name == "lesson":
+        return Lesson
+    if field_name == "question":
+        from question.models import Question
+
+        return Question
+    if field_name == "answer_option":
+        from question.models import AnswerOption
+
+        return AnswerOption
+    raise ValueError(f"Unknown host field {field_name!r}")
+
+
 class BlockSerializer(serializers.ModelSerializer):
     """Serializer for :class:`Block`.
 
-    The wire shape keeps a plain ``lesson`` integer field even though
-    the underlying model is now polymorphic (``target`` GFK). This is
-    deliberate (Phase 2 plan, Option B): existing API clients continue
-    to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
-    quietly translates the value into the ``(target_content_type,
-    target_object_id)`` pair the model now uses.
+    The wire shape keeps a per-host integer field even though the
+    underlying model is polymorphic (``target`` GFK). Each request body
+    must include exactly one of ``lesson`` / ``question`` /
+    ``answer_option`` on create — the serializer translates the value
+    into the ``(target_content_type, target_object_id)`` pair the
+    model now uses.
 
-    Phase 4 (URL flattening) will revisit whether to expose a more
-    generic ``{"target_type", "target_id"}`` shape on the wire.
+    Read responses include the field that matches the host's content
+    type (``lesson`` for Lesson-hosted blocks, ``question`` for
+    Question prompt / explanation blocks, ``answer_option`` for
+    answer option body blocks). The other host fields render as
+    ``null`` to keep the wire schema stable.
     """
 
-    lesson = LessonHostField()
+    lesson = LessonHostField(required=False, allow_null=True)
+    question = QuestionHostField(required=False, allow_null=True)
+    answer_option = AnswerOptionHostField(required=False, allow_null=True)
     translations = TranslationsField()
 
     class Meta:
         model = Block
         fields = [
-            "id", "lesson", "block_type", "block_role", "order", "is_required",
+            "id", "lesson", "question", "answer_option",
+            "block_type", "block_role", "order", "is_required",
             "image", "video_url", "video_provider", "file", "external_url",
             "code_language", "code_content", "quiz_template",
             "metadata", "translations",
         ]
         read_only_fields = ["id"]
+
+    # -- host plumbing ---------------------------------------------------
+
+    @staticmethod
+    def _pop_host(validated_data: dict):
+        """Pop the single non-null host value from ``validated_data``
+        and return ``(field_name, instance)`` or ``(None, None)`` when
+        none was provided. Raises if more than one was set, since the
+        polymorphic host is exclusive.
+        """
+        present = [
+            (name, validated_data.pop(name, None))
+            for name in _HOST_FIELDS
+        ]
+        non_null = [(name, value) for name, value in present if value is not None]
+        if len(non_null) > 1:
+            raise serializers.ValidationError(
+                "Provide exactly one of: lesson, question, answer_option."
+            )
+        if not non_null:
+            return None, None
+        return non_null[0]
 
     def validate(self, attrs):
         # On create (``self.instance is None``), allow the block to be saved as
@@ -81,15 +160,27 @@ class BlockSerializer(serializers.ModelSerializer):
         # Django admin keeps calling ``full_clean()`` directly, so the
         # per-type validators remain enforced everywhere else.
         if self.instance is None:
+            # On create, exactly one host must be provided. We don't pop
+            # it here (``create`` will), but we surface the validation
+            # error early so the caller gets a clean 400.
+            provided = [name for name in _HOST_FIELDS if attrs.get(name) is not None]
+            if not provided:
+                raise serializers.ValidationError(
+                    {"lesson": "Provide one of: lesson, question, answer_option."}
+                )
+            if len(provided) > 1:
+                raise serializers.ValidationError(
+                    "Provide exactly one of: lesson, question, answer_option."
+                )
             return attrs
 
         instance = self.instance
-        # ``lesson`` is the wire field — the model has no ``lesson``
-        # attribute (only the GFK ``target``). Translate before
-        # iterating and assigning the rest.
-        lesson_override = attrs.pop("lesson", None)
-        if lesson_override is not None:
-            instance.target = lesson_override
+        # ``lesson`` / ``question`` / ``answer_option`` are wire fields —
+        # the model has no such attributes (only the GFK ``target``).
+        # Translate before iterating and assigning the rest.
+        host_field, host_instance = self._pop_host(attrs)
+        if host_instance is not None:
+            instance.target = host_instance
 
         for k, v in attrs.items():
             if k != "translations":
@@ -112,8 +203,8 @@ class BlockSerializer(serializers.ModelSerializer):
                 for k, v in fields.items():
                     setattr(instance, k, v)
 
-        if lesson_override is not None:
-            attrs["lesson"] = lesson_override
+        if host_instance is not None:
+            attrs[host_field] = host_instance
 
         instance.full_clean(
             exclude=["target_content_type", "target_object_id"]
@@ -123,23 +214,25 @@ class BlockSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        lesson = validated_data.pop("lesson", None)
+        host_field, host_instance = self._pop_host(validated_data)
         tr = validated_data.pop("translations", {})
-        if lesson is None:
-            raise serializers.ValidationError({"lesson": "This field is required on create."})
-        lesson_ct = ContentType.objects.get_for_model(Lesson)
+        if host_instance is None:
+            raise serializers.ValidationError(
+                {"lesson": "Provide one of: lesson, question, answer_option on create."}
+            )
+        host_ct = ContentType.objects.get_for_model(_resolve_host_model(host_field))
         instance = Block.objects.create(
-            target_content_type=lesson_ct,
-            target_object_id=lesson.id,
+            target_content_type=host_ct,
+            target_object_id=host_instance.id,
             **validated_data,
         )
         return self._apply_translations(instance, tr)
 
     def update(self, instance, validated_data):
-        lesson = validated_data.pop("lesson", None)
+        _, host_instance = self._pop_host(validated_data)
         tr = validated_data.pop("translations", None)
-        if lesson is not None:
-            instance.target = lesson
+        if host_instance is not None:
+            instance.target = host_instance
         for k, v in validated_data.items():
             setattr(instance, k, v)
         instance.save()
@@ -149,12 +242,32 @@ class BlockSerializer(serializers.ModelSerializer):
 
     def _apply_translations(self, instance, tr_dict):
         from .sanitizer import sanitize_rich_text
-        # Today the host is always a Lesson; Phase 3 will branch on the
-        # GFK target type to fetch the host's allowed language set.
+        # Resolve the host's allowed-language set so translations land
+        # only on languages the host's domain supports. Lessons walk
+        # through their section / course; Question (and its
+        # AnswerOption children) carry their own domain FK.
         host = instance.target
         course = host.section.course if hasattr(host, "section") else None
         if course is not None:
             tr_dict = _filter_allowed_lang_codes(tr_dict, course)
+        else:
+            # Question and AnswerOption hosts have no Course parent —
+            # resolve the allowed language set directly from the
+            # owning Question's domain.
+            domain = None
+            from question.models import AnswerOption, Question
+            if isinstance(host, Question):
+                domain = host.domain
+            elif isinstance(host, AnswerOption):
+                domain = host.question.domain
+            if domain is not None:
+                allowed = set(domain.allowed_languages.values_list("code", flat=True))
+                if allowed:
+                    tr_dict = {
+                        lang: payload
+                        for lang, payload in tr_dict.items()
+                        if lang in allowed
+                    }
         for lang, fields in tr_dict.items():
             if "rich_text" in fields:
                 fields["rich_text"] = sanitize_rich_text(fields["rich_text"])

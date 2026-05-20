@@ -49,12 +49,26 @@ class QuestionListPagination(PageNumberPagination):
 
 @extend_schema_serializer(component_name="QuestionAnswerOptionWritePayload")
 class QuestionAnswerOptionWritePayloadSerializer(serializers.Serializer):
+    """OpenAPI doc serializer for one answer option in the question
+    write payload.
+
+    Phase 3.5: ``translations`` (the legacy per-language
+    ``content`` blob) is now optional — the answer's visible
+    content has migrated to polymorphic ``Block`` rows, so the
+    write payload only needs to carry the structural metadata
+    (``is_correct`` / ``sort_order``) and an optional ``id`` to
+    pin the row identity across an update. The translations
+    field is kept on the schema for backwards compatibility with
+    pre-3.5 frontend builds — when supplied, the backend silently
+    drops it.
+    """
+    id = serializers.IntegerField(required=False)
     is_correct = serializers.BooleanField(required=False)
     sort_order = serializers.IntegerField(required=False, min_value=0)
     translations = LocalizedTranslationsDictField(
         value_serializer=LocalizedAnswerOptionTranslationSerializer,
         write_only=True,
-        required=True,
+        required=False,
     )
 
 

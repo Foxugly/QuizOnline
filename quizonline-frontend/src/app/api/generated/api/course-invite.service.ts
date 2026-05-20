@@ -238,7 +238,7 @@ export class CourseInviteApi extends BaseService {
     }
 
     /**
-     * Token-keyed lookup. Returns the invitation (any status) for the invitee or any instructor of the course — used by the &#x60;&#x60;/lms/course-invite/{token}/&#x60;&#x60; acceptance page to render the invitation card before the user clicks Accept or Decline.
+     * Token-keyed lookup. Returns the invitation (any status) for the invitee or any instructor of the course — used by the &#x60;&#x60;/course-invite/{token}/&#x60;&#x60; acceptance page to render the invitation card before the user clicks Accept or Decline.
      * @endpoint get /api/course-invite/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

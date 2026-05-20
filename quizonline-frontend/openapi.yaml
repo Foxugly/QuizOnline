@@ -383,7 +383,7 @@ paths:
         schema:
           type: boolean
         description: Scope to courses the caller owns or manages. Used by the instructor
-          /lms/course/list page; drops courses where the caller is only a member.
+          /course/list page; drops courses where the caller is only a member.
       - name: ordering
         required: false
         in: query
@@ -486,7 +486,7 @@ paths:
       description: |-
         Token-keyed lookup. Returns the invitation (any status) for the
         invitee or any instructor of the course — used by the
-        ``/lms/course-invite/{token}/`` acceptance page to render the
+        ``/course-invite/{token}/`` acceptance page to render the
         invitation card before the user clicks Accept or Decline.
       parameters:
       - in: path
@@ -2998,7 +2998,7 @@ paths:
       operationId: me_invitations_list
       description: |-
         Every ``CourseInvite`` row addressed to the calling user,
-        most recent first. Powers the ``/lms/me/invitations`` page so a
+        most recent first. Powers the ``/me/invitations`` page so a
         learner with several pending invitations can find them all in
         one place without trawling through email.
 
@@ -6089,21 +6089,31 @@ components:
       description: |-
         Serializer for :class:`Block`.
 
-        The wire shape keeps a plain ``lesson`` integer field even though
-        the underlying model is now polymorphic (``target`` GFK). This is
-        deliberate (Phase 2 plan, Option B): existing API clients continue
-        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
-        quietly translates the value into the ``(target_content_type,
-        target_object_id)`` pair the model now uses.
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
 
-        Phase 4 (URL flattening) will revisit whether to expose a more
-        generic ``{"target_type", "target_id"}`` shape on the wire.
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
       properties:
         id:
           type: integer
           readOnly: true
         lesson:
           type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
@@ -6158,25 +6168,34 @@ components:
       required:
       - block_type
       - id
-      - lesson
       - translations
     BlockRequest:
       type: object
       description: |-
         Serializer for :class:`Block`.
 
-        The wire shape keeps a plain ``lesson`` integer field even though
-        the underlying model is now polymorphic (``target`` GFK). This is
-        deliberate (Phase 2 plan, Option B): existing API clients continue
-        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
-        quietly translates the value into the ``(target_content_type,
-        target_object_id)`` pair the model now uses.
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
 
-        Phase 4 (URL flattening) will revisit whether to expose a more
-        generic ``{"target_type", "target_id"}`` shape on the wire.
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
       properties:
         lesson:
           type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
@@ -6230,7 +6249,6 @@ components:
               title: Hello
       required:
       - block_type
-      - lesson
       - translations
     BlockRoleEnum:
       enum:
@@ -8960,18 +8978,28 @@ components:
       description: |-
         Serializer for :class:`Block`.
 
-        The wire shape keeps a plain ``lesson`` integer field even though
-        the underlying model is now polymorphic (``target`` GFK). This is
-        deliberate (Phase 2 plan, Option B): existing API clients continue
-        to POST / PATCH ``{"lesson": <id>, ...}`` while the serializer
-        quietly translates the value into the ``(target_content_type,
-        target_object_id)`` pair the model now uses.
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
 
-        Phase 4 (URL flattening) will revisit whether to expose a more
-        generic ``{"target_type", "target_id"}`` shape on the wire.
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
       properties:
         lesson:
           type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
         block_role:
@@ -9436,7 +9464,22 @@ components:
           format: int64
     QuestionAnswerOptionWritePayloadRequest:
       type: object
+      description: |-
+        OpenAPI doc serializer for one answer option in the question
+        write payload.
+
+        Phase 3.5: ``translations`` (the legacy per-language
+        ``content`` blob) is now optional — the answer's visible
+        content has migrated to polymorphic ``Block`` rows, so the
+        write payload only needs to carry the structural metadata
+        (``is_correct`` / ``sort_order``) and an optional ``id`` to
+        pin the row identity across an update. The translations
+        field is kept on the schema for backwards compatibility with
+        pre-3.5 frontend builds — when supplied, the backend silently
+        drops it.
       properties:
+        id:
+          type: integer
         is_correct:
           type: boolean
         sort_order:
@@ -9447,8 +9490,6 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
           writeOnly: true
-      required:
-      - translations
     QuestionAnswerOptionWriteRequest:
       type: object
       properties:
@@ -9572,6 +9613,11 @@ components:
           items:
             $ref: '#/components/schemas/QuestionMediaRead'
           readOnly: true
+        available_lang_codes:
+          type: array
+          items:
+            type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -9580,6 +9626,7 @@ components:
       - active
       - allow_multiple_correct
       - answer_options
+      - available_lang_codes
       - created_at
       - domain
       - explanation_blocks

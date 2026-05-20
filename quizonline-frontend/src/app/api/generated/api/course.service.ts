@@ -100,7 +100,7 @@ export interface CourseInvitesListRequestParams {
 }
 
 export interface CourseListRequestParams {
-    /** Scope to courses the caller owns or manages. Used by the instructor /lms/course/list page; drops courses where the caller is only a member. */
+    /** Scope to courses the caller owns or manages. Used by the instructor /course/list page; drops courses where the caller is only a member. */
     manageableOnly?: boolean;
     /** Which field to use when ordering the results. */
     ordering?: string;
