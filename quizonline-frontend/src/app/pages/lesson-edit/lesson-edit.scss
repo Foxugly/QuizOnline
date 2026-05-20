@@ -8,13 +8,6 @@
   margin: 0 auto;
 }
 
-.block-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  scroll-margin-top: 1rem;
-}
-
 /* Single-column by default (edit mode). In preview mode we switch to
  * a 2-column grid so the left-side block outline can sit next to the
  * stack of preview cards — same shape as the learner-facing
@@ -32,13 +25,6 @@
       grid-template-columns: 1fr;
     }
   }
-}
-
-/* Block-card anchor offset: when the user clicks an outline entry,
- * smooth-scroll lands a bit below the very top so the card doesn't
- * butt up against the sticky page header. */
-.block-card {
-  scroll-margin-top: 1rem;
 }
 
 /* Sticky outline panel. Mirrors lesson-view.scss so the author preview
@@ -123,35 +109,6 @@
   white-space: nowrap;
 }
 
-.block-card {
-  border: 1px solid var(--surface-border, #e5e7eb);
-  border-radius: 8px;
-  background: var(--surface-0, white);
-}
-
-.block-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--surface-border, #e5e7eb);
-  background: var(--surface-100, #f9fafb);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-
-.block-label {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 500;
-}
-
-.block-body {
-  padding: 0.75rem;
-}
-
 /* In preview mode the per-block content is rendered by
  * <app-block-card> directly inside .lesson-body; the shared
  * component owns the visual frame and all renderer containment.
@@ -163,66 +120,8 @@
   min-width: 0;
 }
 
-.add-block-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: var(--surface-50, #f3f4f6);
-  border-radius: 8px;
-  align-items: center;
-}
-
-.add-block-bar .hint {
-  flex-basis: 100%;
-  color: var(--text-color-secondary, #6b7280);
-  margin-bottom: 0.25rem;
-}
-
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
   color: var(--text-color-secondary, #6b7280);
-}
-
-/* The PrimeNG move button is wrapped in ``cdkDragHandle`` — show a
- * grab cursor (and a pulse on hover) so it reads as draggable. */
-:host ::ng-deep [cdkDragHandle] {
-  cursor: grab;
-
-  &:active {
-    cursor: grabbing;
-  }
-
-  &:hover .p-button {
-    background: var(--p-primary-100, #dbeafe);
-    border-color: var(--p-primary-color, #3b82f6);
-  }
-}
-
-.cdk-drag-placeholder {
-  opacity: 0.4;
-  background: var(--surface-100, #f9fafb);
-  border: 2px dashed var(--p-primary-color, #3b82f6);
-  border-radius: 8px;
-  min-height: 3rem;
-}
-
-.cdk-drag-preview {
-  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.22);
-  border-radius: 8px;
-  background: var(--surface-0, white);
-  border: 1px solid var(--p-primary-color, #3b82f6);
-}
-
-.cdk-drop-list-dragging .block-card:not(.cdk-drag-placeholder) {
-  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-/* Visual cue on the drop zone while a block is being dragged. */
-.cdk-drop-list-dragging .block-list {
-  outline: 2px dashed rgba(59, 130, 246, 0.25);
-  outline-offset: 4px;
-  border-radius: 12px;
 }

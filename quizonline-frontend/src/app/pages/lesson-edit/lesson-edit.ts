@@ -1,7 +1,6 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {Subscription} from 'rxjs';
 
@@ -12,24 +11,15 @@ import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 import {UserService} from '../../services/user/user';
-import {CatalogService} from '../../services/catalog/catalog.service';
 import {ContentBlock} from '../../shared/learning/content-block.types';
 import {BLOCK_ICONS} from '../../shared/learning/block-icons';
-import {BlockType, getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
+import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
 import {pickTranslation} from '../../shared/learning/learning-translations';
 
 import {BlockCard} from '../../shared/learning/block-card/block-card';
+import {BlockListEditor} from '../../shared/learning/block-list-editor/block-list-editor';
 
 import {getLessonEditUiText} from './lesson-edit.i18n';
-import {SavedIndicator} from './block-editors/saved-indicator';
-import {RichTextBlockEditor} from './block-editors/rich-text-block-editor';
-import {ImageBlockEditor} from './block-editors/image-block-editor';
-import {VideoBlockEditor} from './block-editors/video-block-editor';
-import {FileBlockEditor} from './block-editors/file-block-editor';
-import {QuizBlockEditor} from './block-editors/quiz-block-editor';
-import {CalloutBlockEditor} from './block-editors/callout-block-editor';
-import {CodeBlockEditor} from './block-editors/code-block-editor';
-import {EmbedBlockEditor} from './block-editors/embed-block-editor';
 
 /**
  * Shape consumed from ``GET /api/lesson/{id}/``. Mirrors the
@@ -68,20 +58,10 @@ interface BlockOutlineItem {
 @Component({
   selector: 'app-lesson-edit',
   imports: [
-    RouterLink,
-    DragDropModule,
     ButtonModule,
     PageHeader,
-    SavedIndicator,
-    RichTextBlockEditor,
-    ImageBlockEditor,
-    VideoBlockEditor,
-    FileBlockEditor,
-    QuizBlockEditor,
-    CalloutBlockEditor,
-    CodeBlockEditor,
-    EmbedBlockEditor,
     BlockCard,
+    BlockListEditor,
   ],
   templateUrl: './lesson-edit.html',
   styleUrl: './lesson-edit.scss',
@@ -91,7 +71,6 @@ export class LessonEdit implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
-  private readonly catalog = inject(CatalogService);
   private readonly toast = inject(AppToastService);
   private readonly userService = inject(UserService);
   protected readonly currentLang = this.userService.lang;
@@ -116,20 +95,6 @@ export class LessonEdit implements OnInit, OnDestroy {
    *  template picker so authors only see templates from the right
    *  domain. ``0`` while loading. */
   protected readonly domainId = signal(0);
-  /** Map of ``blockId -> lastSavedAt`` updated after every successful
-   *  PATCH. The block-header consumes it via ``<app-saved-indicator>``
-   *  so the author sees a "Saved at HH:MM" hint without opening the
-   *  network panel. ``Map`` value is a millisecond epoch — we build a
-   *  fresh ``Date`` at render time so the indicator stays serializable
-   *  even when the map is recreated on every signal update. */
-  protected readonly lastSavedAt = signal<Map<number, number>>(new Map());
-
-  protected readonly blockIcons = BLOCK_ICONS;
-  protected readonly blockTypes: ReadonlyArray<{value: BlockType}> = [
-    {value: 'rich_text'}, {value: 'image'}, {value: 'video'},
-    {value: 'file'}, {value: 'quiz'}, {value: 'callout'},
-    {value: 'code'}, {value: 'embed'},
-  ];
 
   /** True when the route resolved to a valid lesson id. */
   protected readonly hasLesson = computed(() => this.lessonId() > 0);
@@ -148,17 +113,23 @@ export class LessonEdit implements OnInit, OnDestroy {
    *  prefers the block's own translated ``title`` and falls back to
    *  the localised block-type name (e.g. "Texte enrichi"). Same
    *  shape and resolution rules as lesson-view's outline so the
-   *  author preview matches the learner view exactly. */
+   *  author preview matches the learner view exactly.
+   *
+   *  Anchor format mirrors the ``<app-block-list-editor>`` composite
+   *  scheme (``block-{hostType}-{hostId}-{blockId}``) so the outline
+   *  links land on the right card even with multiple block lists in
+   *  the same page (the question editor renders four sibling lists). */
   protected readonly outline = computed<BlockOutlineItem[]>(() => {
     const labels = this.common().blockTypeLabels;
     const lang = this.currentLang();
+    const lessonId = this.lessonId();
     return this.blocks().map((b) => {
       const customTitle = pickTranslation(b.translations, lang, 'title')?.trim();
       return {
         id: b.id,
         label: customTitle || labels[b.block_type] || b.block_type,
         icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
-        anchor: `block-${b.id}`,
+        anchor: `block-lesson-${lessonId}-${b.id}`,
       };
     });
   });
@@ -250,88 +221,19 @@ export class LessonEdit implements OnInit, OnDestroy {
     this.router.navigateByUrl(cid > 0 ? COURSE_EDIT(cid) : CATALOG);
   }
 
-  protected addBlock(type: BlockType): void {
-    // Pick max(existing order) + 1 rather than ``blocks.length`` so a
-    // sparse server-side ordering (left behind by a delete in the
-    // middle) cannot collide with the UNIQUE(lesson, order) constraint
-    // — that would surface as a 400 from the next POST.
-    const existing = this.blocks().map((b) => b.order);
-    const order = existing.length > 0 ? Math.max(...existing) + 1 : 0;
-    this.http.post(`${this.apiBaseUrl}/block/`, {
-      lesson: this.lessonId(),
-      block_type: type,
-      order,
-      translations: {},
-    }).subscribe({
-      next: () => {
-        this.reload();
-        this.toast.add({severity: 'success', summary: this.ui().blockAddedToast});
-      },
-      error: (err: unknown) => {
-        logApiError('lms.lesson-edit.add', err);
-        this.toast.addApiError(err, this.ui().blockErrorToast);
-      },
-    });
-  }
-
-  protected deleteBlock(id: number): void {
-    this.http.delete(`${this.apiBaseUrl}/block/${id}/`).subscribe({
-      next: () => {
-        this.reload();
-        this.toast.add({severity: 'success', summary: this.ui().blockDeletedToast});
-      },
-      error: (err: unknown) => {
-        logApiError('lms.lesson-edit.delete', err);
-        this.toast.addApiError(err, this.ui().blockErrorToast);
-      },
-    });
-  }
-
-  protected onDrop(event: CdkDragDrop<ContentBlock[]>): void {
-    if (event.previousIndex === event.currentIndex) {
-      return;
-    }
-    const list = [...this.blocks()];
-    moveItemInArray(list, event.previousIndex, event.currentIndex);
-    this.blocks.set(list);
-    this.catalog.reorderBlocks(this.lessonId(), list.map((b) => b.id)).subscribe({
-      next: () => this.toast.add({severity: 'success', summary: this.ui().reorderSuccessToast}),
-      error: (err: unknown) => {
-        logApiError('lms.lesson-edit.reorder', err);
-        this.toast.addApiError(err, this.ui().reorderErrorToast);
-      },
-    });
-  }
-
-  /** Build a fresh ``Date`` for the saved-at indicator of ``blockId``,
-   *  or ``null`` when no save has happened yet. Returns ``null`` early
-   *  so a brand-new block (just added, no PATCH yet) reads as
-   *  unsaved instead of "Saved at 1970-01-01". */
-  protected savedAtFor(blockId: number): Date | null {
-    const ts = this.lastSavedAt().get(blockId);
-    return ts ? new Date(ts) : null;
-  }
-
-  protected onBlockChanged(blockId: number, patch: Partial<ContentBlock>): void {
-    this.http.patch(`${this.apiBaseUrl}/block/${blockId}/`, patch).subscribe({
-      next: () => {
-        // Reflect the patch locally so a subsequent debounced patch starts
-        // from the freshly-applied state without forcing a full reload.
-        this.blocks.update((list) =>
-          list.map((b) => (b.id === blockId ? {...b, ...patch} : b)),
-        );
-        // Stamp the save so the block-header can render its
-        // "Saved at HH:MM" hint without a round-trip through reload().
-        this.lastSavedAt.update((m) => {
-          const next = new Map(m);
-          next.set(blockId, Date.now());
-          return next;
-        });
-      },
-      error: (err: unknown) => {
-        logApiError('lms.lesson-edit.patch', err);
-        this.toast.addApiError(err, this.ui().blockErrorToast);
-      },
-    });
+  /**
+   * Callback fired by ``<app-block-list-editor>`` after every successful
+   * add / delete / reorder / patch. Refetch the lesson so the outline
+   * and preview reflect the new state.
+   *
+   * Note: the shared editor refetch is unconditional, which means each
+   * PATCH from a debounced block editor triggers a GET. That's fine for
+   * the typical lesson size (10-30 blocks) — the alternative would be
+   * to lift the optimistic-merge back into lesson-edit and special-case
+   * it for the lesson host, which defeats the point of the shared
+   * abstraction.
+   */
+  protected onBlocksChanged(): void {
+    this.reload();
   }
 }
