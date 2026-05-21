@@ -21,12 +21,17 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
 @Component({
   selector: 'app-block-embed',
   template: `
-    @if (block().external_url) {
+    @if (block().external_url; as url) {
       <div class="embed-frame">
         <iframe [src]="safeUrl()" [title]="title()" frameborder="0" loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen></iframe>
       </div>
+      <a class="embed-open" [href]="url" target="_blank" rel="noopener noreferrer">
+        <i class="pi pi-external-link" aria-hidden="true"></i>
+        {{ ui().embedOpenInNewTab }}
+      </a>
     } @else {
       <p class="muted">{{ ui().embedNotAvailable }}</p>
     }
@@ -47,6 +52,24 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
       width: 100%;
       height: 100%;
       border: 0;
+    }
+    /* Escape-hatch link sitting under the iframe. Surfaces an explicit
+     * way out when the host site (YouTube, Vimeo, ...) refuses to play
+     * its own content inside an iframe — we can't detect cross-origin
+     * playback failure from script, so we always show the link. */
+    .embed-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--p-text-color-secondary, #6b7280);
+      text-decoration: none;
+    }
+    .embed-open:hover,
+    .embed-open:focus-visible {
+      color: var(--p-primary-color, #3b82f6);
+      text-decoration: underline;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

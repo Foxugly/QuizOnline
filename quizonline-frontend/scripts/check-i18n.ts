@@ -58,6 +58,7 @@ import {getCourseEditAnalyticsTabUiText} from '../src/app/pages/course-edit/tabs
 import {getCourseInviteAcceptUiText} from '../src/app/pages/course-invite-accept/course-invite-accept.i18n';
 import {getMyInvitationsUiText} from '../src/app/pages/my-invitations/my-invitations.i18n';
 import {getLessonEditUiText} from '../src/app/pages/lesson-edit/lesson-edit.i18n';
+import {getLessonViewUiText} from '../src/app/pages/lesson-view/lesson-view.i18n';
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
 import {getBlockListEditorUiText} from '../src/app/shared/learning/block-list-editor/block-list-editor.i18n';
 import {getQuestionEditorFormUiText} from '../src/app/components/question-editor-form/question-editor-form.i18n';
@@ -100,6 +101,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/course-invite-accept', get: getCourseInviteAcceptUiText as Getter},
   {name: 'pages/my-invitations', get: getMyInvitationsUiText as Getter},
   {name: 'pages/lesson-edit', get: getLessonEditUiText as Getter},
+  {name: 'pages/lesson-view', get: getLessonViewUiText as Getter},
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
   {name: 'shared/learning/block-list-editor', get: getBlockListEditorUiText as Getter},
   {name: 'components/question-editor-form', get: getQuestionEditorFormUiText as Getter},

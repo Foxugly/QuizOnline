@@ -20,6 +20,10 @@ export interface LessonViewUiText {
   downloadFileFallback: string;
   videoNotAvailable: string;
   embedNotAvailable: string;
+  /** Escape-hatch link surfaced under the embed iframe — used when the
+   *  third-party host (YouTube, etc.) refuses to play in an iframe and
+   *  the learner needs a way out to the original page. */
+  embedOpenInNewTab: string;
   /** Title fallback when the QuizTemplate translation lookup yields no string. */
   quizBlockFallbackTitle: (templateId: number | string) => string;
   /** Pluralized "{n} questions" label for the meta line. */
@@ -82,6 +86,7 @@ export function getLessonViewUiText(
         downloadFileFallback: 'Télécharger le fichier',
         videoNotAvailable: 'Vidéo indisponible',
         embedNotAvailable: 'Contenu intégré indisponible',
+        embedOpenInNewTab: 'Ouvrir dans un nouvel onglet',
         quizBlockFallbackTitle: (id) => `Quiz n° ${id}`,
         quizBlockQuestionsLabel: (n) => `${n} question${n > 1 ? 's' : ''}`,
         quizBlockDurationLabel: (n) => `${n} min`,
@@ -117,6 +122,7 @@ export function getLessonViewUiText(
         downloadFileFallback: 'Bestand downloaden',
         videoNotAvailable: 'Video niet beschikbaar',
         embedNotAvailable: 'Ingesloten inhoud niet beschikbaar',
+        embedOpenInNewTab: 'In nieuw tabblad openen',
         quizBlockFallbackTitle: (id) => `Quiz nr. ${id}`,
         quizBlockQuestionsLabel: (n) => `${n} vra${n > 1 ? 'gen' : 'ag'}`,
         quizBlockDurationLabel: (n) => `${n} min`,
@@ -152,6 +158,7 @@ export function getLessonViewUiText(
         downloadFileFallback: 'Scarica il file',
         videoNotAvailable: 'Video non disponibile',
         embedNotAvailable: 'Contenuto incorporato non disponibile',
+        embedOpenInNewTab: 'Apri in una nuova scheda',
         quizBlockFallbackTitle: (id) => `Quiz n° ${id}`,
         quizBlockQuestionsLabel: (n) => `${n} domand${n > 1 ? 'e' : 'a'}`,
         quizBlockDurationLabel: (n) => `${n} min`,
@@ -187,6 +194,7 @@ export function getLessonViewUiText(
         downloadFileFallback: 'Descargar archivo',
         videoNotAvailable: 'Vídeo no disponible',
         embedNotAvailable: 'Contenido incrustado no disponible',
+        embedOpenInNewTab: 'Abrir en una nueva pestaña',
         quizBlockFallbackTitle: (id) => `Cuestionario n.º ${id}`,
         quizBlockQuestionsLabel: (n) => `${n} pregunta${n > 1 ? 's' : ''}`,
         quizBlockDurationLabel: (n) => `${n} min`,
@@ -221,6 +229,7 @@ export function getLessonViewUiText(
         downloadFileFallback: 'Download file',
         videoNotAvailable: 'Video not available',
         embedNotAvailable: 'Embedded content not available',
+        embedOpenInNewTab: 'Open in a new tab',
         quizBlockFallbackTitle: (id) => `Quiz #${id}`,
         quizBlockQuestionsLabel: (n) => `${n} question${n > 1 ? 's' : ''}`,
         quizBlockDurationLabel: (n) => `${n} min`,
