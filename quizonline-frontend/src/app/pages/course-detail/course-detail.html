@@ -97,5 +97,5 @@
       [hint]="ui().emptyContentMessage" />
   }
 } @else {
-  <p>{{ ui().loading }}</p>
+  <app-loading-skeleton [rows]="3" [attr.aria-label]="ui().loading" />
 }

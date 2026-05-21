@@ -10,6 +10,7 @@ import {FormsModule} from '@angular/forms';
 import {CATALOG, COURSE_DETAIL, LESSON_EDIT, LESSON_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {BLOCK_ICONS} from '../../shared/learning/block-icons';
@@ -59,6 +60,7 @@ interface BlockOutlineItem {
     ButtonModule,
     TagModule,
     TextareaModule,
+    LoadingSkeleton,
     PageHeader,
     BlockCard,
   ],

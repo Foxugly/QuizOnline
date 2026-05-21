@@ -10,6 +10,7 @@ import {TagModule} from 'primeng/tag';
 import {CATALOG, COURSE_EDIT, LESSON_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
+import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
@@ -78,7 +79,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-course-detail',
-  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, EmptyStateComponent, PageHeader],
+  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, EmptyStateComponent, LoadingSkeleton, PageHeader],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

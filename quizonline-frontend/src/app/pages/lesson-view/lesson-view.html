@@ -106,5 +106,5 @@
     }
   </footer>
 } @else {
-  <p class="muted">{{ ui().pageLoading }}</p>
+  <app-loading-skeleton [rows]="4" [attr.aria-label]="ui().pageLoading" />
 }
