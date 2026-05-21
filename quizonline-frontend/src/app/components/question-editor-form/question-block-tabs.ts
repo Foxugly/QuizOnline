@@ -95,9 +95,13 @@ export class QuestionBlockTabs {
     return group ? group.contains(lang) : false;
   }
 
-  /** Fired after a block create / update / delete / reorder so the
-   *  parent can refetch the question and refresh every block list. */
+  /** Fired after a block CREATE / DELETE / REORDER so the parent
+   *  refetches the question and refreshes every block list. */
   readonly blocksChanged = output<void>();
+  /** Fired with the server's freshly-stored block after a PATCH —
+   *  the parent merges by id into its local list without refetching
+   *  the whole question (high-traffic on continuous typing). */
+  readonly blockUpdated = output<ContentBlock>();
   /** Fired when the author toggles an answer's "is_correct" checkbox. */
   readonly correctChanged = output<{answerId: number; isCorrect: boolean}>();
   /** Fired when the author clicks the "remove answer" trash button. */
@@ -146,24 +150,39 @@ export class QuestionBlockTabs {
 
     this.titleTranslating.set(true);
     try {
-      let touched = false;
-      for (const target of targets) {
+      // Pre-resolve every target lang's control + batch payload in
+      // one sync pass, then fire all ``translateBatch`` calls in
+      // parallel via ``Promise.all`` — wall time becomes max(call
+      // latency) instead of sum across targets.
+      const plans = targets.flatMap((target) => {
         if (!translationsGroup.contains(target)) {
-          continue;
+          return [];
         }
         const targetCtrl = translationsGroup.get([target, 'title']);
         if (!targetCtrl) {
-          continue;
+          return [];
         }
         const current = (targetCtrl.value ?? '').toString().trim();
         if (current) {
-          continue;
+          return [];
         }
         const items: TranslateBatchItem[] = [{key: 'title', text: sourceTitle, format: 'text'}];
-        const out = await this.translator.translateBatch(source, target, items);
+        return [{target, ctrl: targetCtrl, items}];
+      });
+
+      const results = await Promise.all(
+        plans.map((p) =>
+          this.translator
+            .translateBatch(source, p.target, p.items)
+            .then((out) => ({ctrl: p.ctrl, out})),
+        ),
+      );
+
+      let touched = false;
+      for (const {ctrl, out} of results) {
         if (out['title']) {
-          targetCtrl.setValue(out['title']);
-          targetCtrl.markAsDirty();
+          ctrl.setValue(out['title']);
+          ctrl.markAsDirty();
           touched = true;
         }
       }
@@ -201,5 +220,9 @@ export class QuestionBlockTabs {
 
   protected onBlocksChanged(): void {
     this.blocksChanged.emit();
+  }
+
+  protected onBlockUpdated(block: ContentBlock): void {
+    this.blockUpdated.emit(block);
   }
 }

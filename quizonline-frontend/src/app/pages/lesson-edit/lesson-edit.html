@@ -57,7 +57,8 @@
         [blocks]="blocks()"
         [availableLangs]="availableLangs()"
         [domainId]="domainId() || null"
-        (blocksChanged)="onBlocksChanged()" />
+        (blocksChanged)="onBlocksChanged()"
+        (blockUpdated)="onBlockUpdated($event)" />
     }
   }
 </div>

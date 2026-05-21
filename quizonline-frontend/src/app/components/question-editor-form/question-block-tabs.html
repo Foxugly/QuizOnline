@@ -71,7 +71,8 @@
           [domainId]="domainId()"
           [hideBlockTitles]="true"
           [richTextAutogrow]="true"
-          (blocksChanged)="onBlocksChanged()" />
+          (blocksChanged)="onBlocksChanged()"
+          (blockUpdated)="onBlockUpdated($event)" />
       </p-tabpanel>
 
       <!-- Answers tab -->
@@ -120,7 +121,8 @@
                   [domainId]="domainId()"
                   [hideBlockTitles]="true"
                   [richTextAutogrow]="true"
-                  (blocksChanged)="onBlocksChanged()" />
+                  (blocksChanged)="onBlocksChanged()"
+                  (blockUpdated)="onBlockUpdated($event)" />
               </div>
             </div>
           }
@@ -147,7 +149,8 @@
           [domainId]="domainId()"
           [hideBlockTitles]="true"
           [richTextAutogrow]="true"
-          (blocksChanged)="onBlocksChanged()" />
+          (blocksChanged)="onBlocksChanged()"
+          (blockUpdated)="onBlockUpdated($event)" />
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

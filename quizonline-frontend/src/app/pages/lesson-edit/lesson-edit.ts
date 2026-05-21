@@ -222,18 +222,22 @@ export class LessonEdit implements OnInit, OnDestroy {
   }
 
   /**
-   * Callback fired by ``<app-block-list-editor>`` after every successful
-   * add / delete / reorder / patch. Refetch the lesson so the outline
-   * and preview reflect the new state.
-   *
-   * Note: the shared editor refetch is unconditional, which means each
-   * PATCH from a debounced block editor triggers a GET. That's fine for
-   * the typical lesson size (10-30 blocks) — the alternative would be
-   * to lift the optimistic-merge back into lesson-edit and special-case
-   * it for the lesson host, which defeats the point of the shared
-   * abstraction.
+   * Callback fired by ``<app-block-list-editor>`` after a STRUCTURAL
+   * mutation (add / delete / reorder). Refetch the lesson so the
+   * outline and preview reflect the new state. PATCH-only payload
+   * updates take the cheaper ``onBlockUpdated`` path below.
    */
   protected onBlocksChanged(): void {
     this.reload();
+  }
+
+  /** Per-block PATCH succeeded server-side. Merge the response
+   *  into the local ``blocks`` signal by id instead of refetching
+   *  the whole lesson — the outline + preview read through the same
+   *  signal and re-render automatically. */
+  protected onBlockUpdated(updated: ContentBlock): void {
+    this.blocks.update((list) =>
+      list.map((b) => (b.id === updated.id ? updated : b)),
+    );
   }
 }

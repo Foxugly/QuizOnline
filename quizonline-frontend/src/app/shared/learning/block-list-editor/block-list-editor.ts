@@ -107,6 +107,14 @@ export class BlockListEditor {
   readonly richTextAutogrow = input<boolean>(false);
 
   readonly blocksChanged = output<void>();
+  /** Fired with the freshly-updated block payload after a successful
+   *  per-block PATCH (debounced keystroke save, etc.). Lets the parent
+   *  merge the response into its local list **without** round-tripping
+   *  through a full ``GET /api/<host>/{id}/`` after every save —
+   *  drastically reduces traffic on screens with several blocks
+   *  whose author types continuously. Structural mutations (add /
+   *  delete / reorder) still fall back on ``blocksChanged``. */
+  readonly blockUpdated = output<ContentBlock>();
 
   /** Map of ``blockId -> lastSavedAt`` (ms epoch). Built locally so
    *  every embedded block-list keeps its own saved-at indicator
@@ -237,19 +245,19 @@ export class BlockListEditor {
   }
 
   protected onBlockChanged(blockId: number, patch: Partial<ContentBlock>): void {
-    this.http.patch(`${this.apiBaseUrl}/block/${blockId}/`, patch).subscribe({
-      next: () => {
+    this.http.patch<ContentBlock>(`${this.apiBaseUrl}/block/${blockId}/`, patch).subscribe({
+      next: (updated) => {
         this.lastSavedAt.update((m) => {
           const next = new Map(m);
           next.set(blockId, Date.now());
           return next;
         });
-        // Trigger an upstream reload so other reactive views (the
-        // preview, the outline, the post-image url) pick up the new
-        // server state. Lesson-edit gets away without this because it
-        // applies a local optimistic merge; question-edit's nested
-        // lists make that brittle, so we just refetch.
-        this.blocksChanged.emit();
+        // Emit the server's freshly-stored representation so the
+        // parent can merge it into its local list. No full refetch
+        // is needed for a single-block payload change — every
+        // dependent view (preview, outline, post-upload URL) reads
+        // through the same signal we just updated.
+        this.blockUpdated.emit(updated);
       },
       error: (err: unknown) => {
         logApiError('lms.block-list.patch', err);

@@ -276,9 +276,11 @@ export class QuestionEdit implements OnInit {
   }
 
   protected onBlocksChanged(): void {
-    // A block-list editor reported a mutation — refetch the question
-    // so every dependent signal (the affected list, the outline, the
-    // preview if any) picks up the new server state.
+    // A block-list editor reported a STRUCTURAL mutation (add /
+    // delete / reorder) — refetch the question so every dependent
+    // signal (the affected list, the outline, the preview) picks up
+    // the new server state. PATCH-only updates take the cheaper
+    // ``onBlockUpdated`` path below.
     this.questionService.retrieve(this.id).subscribe({
       next: (question) => {
         this.question.set(question);
@@ -288,6 +290,28 @@ export class QuestionEdit implements OnInit {
         logApiError('question.edit.refresh', err);
       },
     });
+  }
+
+  /** Single-block payload PATCH succeeded server-side. Merge the
+   *  fresh ContentBlock into whichever local list owns it — prompt,
+   *  explanation, or one of the answer rows — keyed by ``block.id``.
+   *  Avoids the full ``GET /api/question/{id}/`` that ``onBlocksChanged``
+   *  fires for structural mutations: on a typical editing session
+   *  (debounced keystrokes on Quill, image alt-text typing, …) this
+   *  cuts the round-trips per save in half. */
+  protected onBlockUpdated(updated: ContentBlock): void {
+    this.promptBlocks.update((list) =>
+      list.map((b) => (b.id === updated.id ? updated : b)),
+    );
+    this.explanationBlocks.update((list) =>
+      list.map((b) => (b.id === updated.id ? updated : b)),
+    );
+    this.answerRows.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        blocks: row.blocks.map((b) => (b.id === updated.id ? updated : b)),
+      })),
+    );
   }
 
   /** Toggle the ``is_correct`` flag on a single answer option and

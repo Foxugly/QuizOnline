@@ -112,6 +112,7 @@
           [answerRows]="answerRows()"
           [form]="form"
           (blocksChanged)="onBlocksChanged()"
+          (blockUpdated)="onBlockUpdated($event)"
           (correctChanged)="onCorrectChanged($event)"
           (removeAnswerClicked)="onRemoveAnswer($event)"
           (addAnswerClicked)="onAddAnswer()"
