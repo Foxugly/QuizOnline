@@ -6,8 +6,8 @@ import {TabsModule} from 'primeng/tabs';
 import {TagModule} from 'primeng/tag';
 import {Subject, Subscription, debounceTime} from 'rxjs';
 
-import {QuizTemplateApi as QuizTemplateApiService} from '../../../api/generated/api/quiz-template.service';
 import {QuizTemplateListDto} from '../../../api/generated/model/quiz-template-list';
+import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -105,7 +105,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
 })
 export class QuizBlockEditor implements OnInit, OnDestroy {
   private readonly user = inject(UserService);
-  private readonly api = inject(QuizTemplateApiService);
+  private readonly quizTemplates = inject(QuizTemplateService);
   protected readonly ui = inject(UiTextService).localized(getBlockEditorsUiText);
 
   block = input.required<ContentBlock>();
@@ -166,17 +166,14 @@ export class QuizBlockEditor implements OnInit, OnDestroy {
   }
 
   /** Fetch the first page of quiz templates accessible to the user.
-   *  The backend already gates the list to the user's manageable
-   *  domains; we further narrow to ``domainId`` client-side so the
-   *  picker never surfaces a wrong-domain template. */
+   *  Delegates to the cached ``QuizTemplateService.listForPicker`` so
+   *  every quiz block on the same lesson shares one round-trip
+   *  (60 s TTL, busted on quiz-template writes). */
   private loadTemplates(): void {
-    this.api.quizTemplateList().subscribe({
-      next: (resp) => {
-        const list = resp?.results ?? [];
-        const dId = this.domainId();
-        const scoped = dId ? list.filter((t) => t.domain === dId) : list;
-        this.allTemplates.set(scoped);
-        this.suggestions.set(scoped);
+    this.quizTemplates.listForPicker(this.domainId()).subscribe({
+      next: (list) => {
+        this.allTemplates.set(list);
+        this.suggestions.set(list);
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-edit.quiz-picker.load', err);
