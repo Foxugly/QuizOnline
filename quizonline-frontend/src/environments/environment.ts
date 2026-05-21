@@ -2,6 +2,9 @@ export const environment = {
   production: false,
   apiBaseUrl: 'http://127.0.0.1:8000',
   appName: "QuizOnline",
+  // Keep in sync with ``package.json#version`` — surfaced in the
+  // footer so QA / users can report bugs against a precise build.
+  version: "1.1.0",
   author : "Foxugly",
   year : "2025",
   logoSvg : "/qna.svg",

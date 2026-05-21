@@ -2,6 +2,9 @@ export const environment = {
   production: true,
   apiBaseUrl: '',  // Resolved at runtime from window.__QUIZONLINE_API_BASE_URL or same-origin
   appName: 'QuizOnline',
+  // Keep in sync with ``package.json#version`` — surfaced in the
+  // footer so QA / users can report bugs against a precise build.
+  version: '1.1.0',
   author: 'Foxugly',
   year: '2025',
   logoSvg: '/qna.svg',

@@ -21,6 +21,7 @@ installPrimeNgAutofocusStripper();
 
 (window as any).__APP__ = {
   name: environment.appName,
+  version: environment.version,
   author: environment.author,
   year: environment.year,
   logoSvg : environment.logoSvg,
