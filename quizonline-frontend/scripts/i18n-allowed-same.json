@@ -168,5 +168,11 @@
   "pages/course-edit/info-tab:enrollmentLabels.open",
   "pages/course-edit/info-tab:toasts.errorSummary",
   "pages/course-edit/analytics-tab:kpiHints.neverYet",
-  "components/question-editor-form:tabQuestion"
+  "components/question-editor-form:tabQuestion",
+
+  "pages/course-list:columns.actions",
+  "pages/course-list:columns.status",
+  "pages/course-list:enrollmentBadge.open",
+  "pages/course-edit/analytics-tab:invite.heading",
+  "pages/course-invite-accept:levelChoices.beginner"
 ]
