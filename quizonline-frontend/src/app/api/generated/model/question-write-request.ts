@@ -34,9 +34,5 @@ export interface QuestionWriteRequestDto {
      * List or JSON string (multipart). Each item: {is_correct, sort_order, blocks: [{block_type, order, translations}]}
      */
     answer_options?: Array<QuestionAnswerOptionWriteRequestDto>;
-    /**
-     * IDs des MediaAsset uploadés au préalable. L\'ordre dans la liste définit l\'ordre d\'affichage des médias.
-     */
-    media_asset_ids?: Array<number>;
 }
 

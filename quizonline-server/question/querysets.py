@@ -17,7 +17,6 @@ def question_queryset():
             # never hits a N+1 walking option content.
             "answer_options__blocks__translations",
             "blocks__translations",
-            "media__asset",
         )
     )
 

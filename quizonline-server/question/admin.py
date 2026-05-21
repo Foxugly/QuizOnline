@@ -20,9 +20,7 @@ from .structured_import import import_questions, StructuredImportError, Structur
 from .models import (
     Question,
     AnswerOption,
-    QuestionMedia,
     QuestionSubject,
-    MediaAsset,
 )
 from .resources import AnswerOptionResource, QuestionResource
 
@@ -72,18 +70,6 @@ class AnswerOptionInline(admin.TabularInline):
     extra = 0
     fields = ("is_correct", "sort_order")
     ordering = ("sort_order", "id")
-
-
-class QuestionMediaInline(admin.TabularInline):
-    """
-    Lien Question ↔ MediaAsset (ordre uniquement).
-    Le MediaAsset est créé séparément.
-    """
-    model = QuestionMedia
-    extra = 0
-    fields = ("asset", "sort_order")
-    ordering = ("sort_order", "id")
-    autocomplete_fields = ("asset",)
 
 
 class QuestionSubjectInline(admin.TabularInline):
@@ -192,7 +178,6 @@ class QuestionAdmin(ImportExportMixin, TranslatableAdmin):
     inlines = (
         QuestionSubjectInline,
         AnswerOptionInline,
-        QuestionMediaInline,
     )
 
     def title_any(self, obj: Question) -> str:
@@ -220,28 +205,6 @@ class QuestionAdmin(ImportExportMixin, TranslatableAdmin):
                 level=messages.ERROR,
             )
             raise
-
-
-# ==========================================================
-# MediaAsset Admin (séparé)
-# ==========================================================
-
-@admin.register(MediaAsset)
-class MediaAssetAdmin(admin.ModelAdmin):
-    list_display = ("id", "kind", "file", "external_url", "sha256", "created_at")
-    list_filter = ("kind",)
-    search_fields = ("external_url", "sha256")
-    ordering = ("-created_at",)
-
-    fields = ("kind", "file", "external_url", "sha256")
-
-    def save_model(self, request, obj: MediaAsset, form, change):
-        try:
-            obj.full_clean()
-        except ValidationError as e:
-            form.add_error(None, e)
-            raise
-        super().save_model(request, obj, form, change)
 
 
 # ==========================================================

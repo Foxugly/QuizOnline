@@ -1,12 +1,7 @@
-import hashlib
-import os
 from typing import List, Any
-
-import filetype
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.utils import translation
 from domain.models import Domain
@@ -19,7 +14,7 @@ from block.models import Block
 from block.sanitizer import sanitize_rich_text
 
 from .answer_option_sync import sync_question_answer_options
-from .models import Question, QuestionMedia, AnswerOption, MediaAsset
+from .models import Question, AnswerOption
 from config.serializers import (
     LocalizedTranslationsJSONField,
     LocalizedQuestionTranslationSerializer,
@@ -200,86 +195,6 @@ class QuestionLiteSerializer(serializers.ModelSerializer):
         return _translated_value(obj, "title")
 
 
-class MediaAssetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MediaAsset
-        fields = ["id", "kind", "file", "external_url", "sha256", "created_at"]
-        read_only_fields = fields
-
-
-class QuestionMediaReadSerializer(serializers.ModelSerializer):
-    asset = MediaAssetSerializer(read_only=True)
-
-    class Meta:
-        model = QuestionMedia
-        fields = ["id", "sort_order", "asset"]
-        read_only_fields = fields
-
-
-class MediaAssetUploadSerializer(serializers.Serializer):
-    file = serializers.FileField(required=False)
-    external_url = serializers.URLField(required=False)
-    kind = serializers.ChoiceField(
-        choices=[MediaAsset.IMAGE, MediaAsset.VIDEO, MediaAsset.EXTERNAL],
-        required=False,
-    )
-
-    def validate(self, attrs):
-        f = attrs.get("file")
-        url = attrs.get("external_url")
-        if bool(f) == bool(url):
-            raise serializers.ValidationError("Provide exactly one of: file OR external_url.")
-        if f is not None and f.size > settings.MAX_UPLOAD_FILE_SIZE:
-            max_size_mb = settings.MAX_UPLOAD_FILE_SIZE / (1024 * 1024)
-            raise serializers.ValidationError(
-                {"file": f"File too large. Maximum allowed size is {max_size_mb:.0f} MB."}
-            )
-        return attrs
-
-
-def _sha256_file(f: UploadedFile) -> str:
-    h = hashlib.sha256()
-    for chunk in f.chunks():
-        h.update(chunk)
-    return h.hexdigest()
-
-
-def _infer_kind_from_upload(f: UploadedFile) -> str:
-    ct = (getattr(f, "content_type", "") or "").lower()
-    extension = os.path.splitext(getattr(f, "name", "") or "")[1].lower()
-
-    allowed_image_types = {"image/png", "image/jpeg", "image/webp", "image/gif"}
-    allowed_video_types = {"video/mp4", "video/webm", "video/ogg", "video/quicktime"}
-    allowed_image_extensions = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
-    allowed_video_extensions = {".mp4", ".webm", ".ogv", ".ogg", ".mov"}
-
-    header = f.read(512)
-    f.seek(0)
-    detected = filetype.guess(header)
-    detected_mime = detected.mime if detected else None
-
-    if ct in allowed_image_types and extension in allowed_image_extensions:
-        if detected_mime not in allowed_image_types:
-            raise serializers.ValidationError(
-                {"file": f"File content does not match declared type '{ct}'."}
-            )
-        return MediaAsset.IMAGE
-    if ct in allowed_video_types and extension in allowed_video_extensions:
-        if detected_mime not in allowed_video_types:
-            raise serializers.ValidationError(
-                {"file": f"File content does not match declared type '{ct}'."}
-            )
-        return MediaAsset.VIDEO
-    raise serializers.ValidationError(
-        {
-            "file": (
-                f"Unsupported file type '{ct}' / '{extension}'. "
-                "Only png, jpg, jpeg, webp, gif, mp4, webm, ogg and mov are allowed."
-            )
-        }
-    )
-
-
 def _answer_option_blocks(option: AnswerOption) -> list[dict]:
     """Read the AnswerOption's hosted block list as wire dicts.
 
@@ -391,7 +306,6 @@ class QuestionReadSerializer(serializers.ModelSerializer):
     explanation_blocks = serializers.SerializerMethodField()
     subjects = SubjectReadSerializer(many=True, read_only=True)
     answer_options = serializers.SerializerMethodField()
-    media = QuestionMediaReadSerializer(many=True, read_only=True)
     domain = DomainReadSerializer(read_only=True)
     # Sorted list of language codes this Question's owner domain
     # allows. Surfaced so the question editor can render the right
@@ -414,7 +328,6 @@ class QuestionReadSerializer(serializers.ModelSerializer):
             "is_mode_exam",
             "subjects",
             "answer_options",
-            "media",
             "available_lang_codes",
             "created_at",
         ]
@@ -476,16 +389,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
         required=False,
         help_text="Block payloads forming the answer explanation.",
     )
-    media_asset_ids = serializers.ListField(
-        child=serializers.IntegerField(),
-        write_only=True,
-        required=False,
-        help_text=(
-            "IDs des MediaAsset uploadés au préalable. "
-            "L'ordre dans la liste définit l'ordre d'affichage des médias."
-        ),
-    )
-
     subject_ids = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
@@ -506,25 +409,8 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
             "is_mode_exam",
             "subject_ids",
             "answer_options",
-            "media_asset_ids",
         ]
         read_only_fields = ["id"]
-
-    def _set_media_assets(self, question: Question, asset_ids: list[int], *, replace: bool):
-        if replace:
-            QuestionMedia.objects.filter(question=question).delete()
-
-        assets = list(MediaAsset.objects.filter(id__in=asset_ids))
-        found = {a.id for a in assets}
-        missing = set(asset_ids) - found
-        if missing:
-            raise serializers.ValidationError({"media_asset_ids": f"Assets inexistants: {sorted(missing)}"})
-        seen = set()
-        set_asset_ids = [x for x in asset_ids if not (x in seen or seen.add(x))]
-        QuestionMedia.objects.bulk_create([
-            QuestionMedia(question=question, asset_id=aid, sort_order=i)
-            for i, aid in enumerate(set_asset_ids)
-        ])
 
     def _validate_subject_ids_for_domain(self, domain: Domain, subject_ids: list[int]) -> None:
         if not subject_ids:
@@ -566,7 +452,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         subject_ids = validated_data.pop("subject_ids", [])
         answer_options_data = validated_data.pop("answer_options", [])
-        asset_ids = validated_data.pop("media_asset_ids", [])
         prompt_blocks_data = validated_data.pop("prompt_blocks", None)
         explanation_blocks_data = validated_data.pop("explanation_blocks", None)
         translations = validated_data.pop("translations", None)
@@ -600,8 +485,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
                 question=question,
                 answer_options_data=answer_options_data,
             )
-        if asset_ids:
-            self._set_media_assets(question, asset_ids, replace=False)
         return question
 
     # ---------------------------
@@ -611,7 +494,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         translations = validated_data.pop("translations", None)
         subject_ids = validated_data.pop("subject_ids", None)
-        asset_ids = validated_data.pop("media_asset_ids", None)
         answer_options_data = validated_data.pop("answer_options", None)
         prompt_blocks_data = validated_data.pop("prompt_blocks", None)
         explanation_blocks_data = validated_data.pop("explanation_blocks", None)
@@ -645,9 +527,6 @@ class QuestionWriteSerializer(serializers.ModelSerializer):
                 question=instance,
                 answer_options_data=answer_options_data,
             )
-        # les médias sont gérés dans le ViewSet via _handle_media_upload()
-        if asset_ids is not None:
-            self._set_media_assets(instance, asset_ids, replace=True)
         return instance
 
     def validate(self, attrs):

@@ -3263,18 +3263,12 @@ paths:
       description: |
         Crée une question.
 
-        ⚠️ Les médias NE sont PAS uploadés ici.
-
-        Workflow recommandé :
-        1. POST /api/question/media/ → upload fichier ou URL externe
-        2. Récupérer les `id` des MediaAsset retournés
-        3. POST /api/question/ avec `media_asset_ids: [1, 2, 3]`
-
-        Payload supporté : JSON ou multipart/form-data.
+        Payload : JSON.
         - `subject_ids`: liste d'IDs
-        - `answer_options`: JSON (liste)
-        - `media_asset_ids`: liste d'IDs MediaAsset
-      summary: Créer une question (multipart ou JSON)
+        - `answer_options`: liste
+
+        Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via `/api/block/`.
+      summary: Créer une question (JSON)
       tags:
       - Question
       requestBody:
@@ -3341,11 +3335,6 @@ paths:
           description: Forbidden (admin only)
     put:
       operationId: question_update
-      description: |
-        Met à jour une question.
-
-        Les médias sont gérés via `/api/question/media/`.
-        Utiliser `media_asset_ids` pour lier/délier les médias.
       summary: Mettre à jour une question (PUT)
       parameters:
       - in: path
@@ -3392,11 +3381,6 @@ paths:
           description: Forbidden (admin only)
     patch:
       operationId: question_partial_update
-      description: |
-        Met à jour une question.
-
-        Les médias sont gérés via `/api/question/media/`.
-        Utiliser `media_asset_ids` pour lier/délier les médias.
       summary: Mettre à jour une question (PATCH)
       parameters:
       - in: path
@@ -3495,8 +3479,8 @@ paths:
     post:
       operationId: question_import_structured_create
       description: |-
-        Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias).
-        Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
+        Importe des questions depuis un JSON structuré.
+        Accepte un fichier multipart (``json_file``) ou un body JSON direct.
       tags:
       - question
       requestBody:
@@ -3508,89 +3492,6 @@ paths:
             schema:
               $ref: '#/components/schemas/QuestionWriteRequest'
           application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QuestionWrite'
-          description: ''
-  /api/question/media/:
-    post:
-      operationId: question_media_create
-      description: |-
-        Upload un fichier (multipart) ou enregistre une URL externe.
-        - multipart: envoyer `file`
-        - json/form: envoyer `external_url`
-
-        Retourne un `MediaAsset` (id à réutiliser dans `media_asset_ids` lors de la création/màj d'une Question).
-      summary: Uploader un média (dédup sha256) ou enregistrer un média externe
-      tags:
-      - Question
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaAsset'
-          description: ''
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaAsset'
-          description: ''
-        '400':
-          description: Validation error
-  /api/question/media/external/:
-    post:
-      operationId: question_media_external_create
-      tags:
-      - question
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QuestionWrite'
-          description: ''
-  /api/question/media/upload/:
-    post:
-      operationId: question_media_upload_create
-      tags:
-      - question
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/QuestionWriteRequest'
         required: true
@@ -8296,73 +8197,6 @@ components:
           minLength: 1
       required:
       - email
-    MediaAsset:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        kind:
-          allOf:
-          - $ref: '#/components/schemas/MediaAssetKindEnum'
-          readOnly: true
-        file:
-          type: string
-          format: uri
-          readOnly: true
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          readOnly: true
-          nullable: true
-        sha256:
-          type: string
-          readOnly: true
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - created_at
-      - external_url
-      - file
-      - id
-      - kind
-      - sha256
-    MediaAssetKindEnum:
-      enum:
-      - image
-      - video
-      - external
-      type: string
-      description: |-
-        * `image` - Image
-        * `video` - Vidéo
-        * `external` - Externe
-    MediaAssetUploadKindEnum:
-      enum:
-      - image
-      - video
-      - external
-      type: string
-      description: |-
-        * `image` - image
-        * `video` - video
-        * `external` - external
-    MediaAssetUploadRequest:
-      type: object
-      properties:
-        file:
-          type: string
-          format: binary
-        external_url:
-          type: string
-          format: uri
-          minLength: 1
-        kind:
-          $ref: '#/components/schemas/MediaAssetUploadKindEnum'
     ModeEnum:
       enum:
       - practice
@@ -9298,12 +9132,6 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
           writeOnly: true
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: Ordered MediaAsset IDs linked to the question.
     PatchedQuizAlertThreadPartialRequest:
       type: object
       properties:
@@ -9566,23 +9394,6 @@ components:
       required:
       - id
       - title
-    QuestionMediaRead:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        sort_order:
-          type: integer
-          readOnly: true
-        asset:
-          allOf:
-          - $ref: '#/components/schemas/MediaAsset'
-          readOnly: true
-      required:
-      - asset
-      - id
-      - sort_order
     QuestionRead:
       type: object
       properties:
@@ -9634,11 +9445,6 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionRead'
           readOnly: true
-        media:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuestionMediaRead'
-          readOnly: true
         available_lang_codes:
           type: array
           items:
@@ -9659,7 +9465,6 @@ components:
       - id
       - is_mode_exam
       - is_mode_practice
-      - media
       - prompt_blocks
       - subjects
       - translations
@@ -9714,12 +9519,6 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
           writeOnly: true
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: Ordered MediaAsset IDs linked to the question.
       required:
       - domain
       - translations
@@ -9771,13 +9570,6 @@ components:
           writeOnly: true
           description: 'List or JSON string (multipart). Each item: {is_correct, sort_order,
             blocks: [{block_type, order, translations}]}'
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: IDs des MediaAsset uploadés au préalable. L'ordre dans la liste
-            définit l'ordre d'affichage des médias.
       required:
       - domain
     Quiz:

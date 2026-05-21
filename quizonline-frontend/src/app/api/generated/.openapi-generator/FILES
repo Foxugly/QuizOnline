@@ -123,10 +123,6 @@ model/localized-subject-translation.ts
 model/magic-link-exchange-request-request.ts
 model/magic-link-exchange-response.ts
 model/magic-link-request-request.ts
-model/media-asset-kind-enum.ts
-model/media-asset-upload-kind-enum.ts
-model/media-asset-upload-request.ts
-model/media-asset.ts
 model/mode-enum.ts
 model/models.ts
 model/moderation-summary-item.ts
@@ -180,7 +176,6 @@ model/question-answer-option-write-request.ts
 model/question-answer-option-write.ts
 model/question-in-quiz-question.ts
 model/question-in-subject.ts
-model/question-media-read.ts
 model/question-read.ts
 model/question-write-payload-request.ts
 model/question-write-request.ts

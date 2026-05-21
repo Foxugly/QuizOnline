@@ -1,12 +1,6 @@
-import io
 import json
 import logging
-import os
-import zipfile
 
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.db import transaction, IntegrityError
 from django.http import HttpResponse, QueryDict
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -31,13 +25,12 @@ from config.serializers import (
     LocalizedTranslationsDictField,
 )
 
-from .models import Question, MediaAsset
+from .models import Question
 from .permissions import IsQuestionDomainManager
 from .querysets import accessible_question_queryset
 from .structured_export import export_questions
 from .structured_import import import_questions, StructuredImportError, StructuredImportPermissionError
-from .serializers import QuestionReadSerializer, QuestionWriteSerializer, MediaAssetSerializer, \
-    MediaAssetUploadSerializer, _infer_kind_from_upload, _sha256_file
+from .serializers import QuestionReadSerializer, QuestionWriteSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -94,12 +87,6 @@ class QuestionWritePayloadSerializer(serializers.Serializer):
         many=True,
         write_only=True,
         required=False,
-    )
-    media_asset_ids = serializers.ListField(
-        child=serializers.IntegerField(),
-        write_only=True,
-        required=False,
-        help_text="Ordered MediaAsset IDs linked to the question.",
     )
 
 
@@ -170,18 +157,14 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
     ),
     create=extend_schema(
         tags=["Question"],
-        summary="Créer une question (multipart ou JSON)",
+        summary="Créer une question (JSON)",
         description=(
                 "Crée une question.\n\n"
-                "⚠️ Les médias NE sont PAS uploadés ici.\n\n"
-                "Workflow recommandé :\n"
-                "1. POST /api/question/media/ → upload fichier ou URL externe\n"
-                "2. Récupérer les `id` des MediaAsset retournés\n"
-                "3. POST /api/question/ avec `media_asset_ids: [1, 2, 3]`\n\n"
-                "Payload supporté : JSON ou multipart/form-data.\n"
+                "Payload : JSON.\n"
                 "- `subject_ids`: liste d'IDs\n"
-                "- `answer_options`: JSON (liste)\n"
-                "- `media_asset_ids`: liste d'IDs MediaAsset\n"
+                "- `answer_options`: liste\n\n"
+                "Les médias (image / vidéo / fichier) sont désormais "
+                "stockés sous forme de content blocks via `/api/block/`.\n"
         ),
         request=QuestionWritePayloadSerializer,
         responses={
@@ -193,11 +176,6 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
     update=extend_schema(
         tags=["Question"],
         summary="Mettre à jour une question (PUT)",
-        description=(
-                "Met à jour une question.\n\n"
-                "Les médias sont gérés via `/api/question/media/`.\n"
-                "Utiliser `media_asset_ids` pour lier/délier les médias.\n"
-        ),
         parameters=[
             OpenApiParameter(
                 name="question_id",
@@ -218,11 +196,6 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
     partial_update=extend_schema(
         tags=["Question"],
         summary="Mettre à jour une question (PATCH)",
-        description=(
-                "Met à jour une question.\n\n"
-                "Les médias sont gérés via `/api/question/media/`.\n"
-                "Utiliser `media_asset_ids` pour lier/délier les médias.\n"
-        ),
         parameters=[
             OpenApiParameter(
                 name="question_id",
@@ -256,22 +229,6 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
             204: OpenApiResponse(description="No Content"),
             404: OpenApiResponse(response=ErrorDetailSerializer, description="Not found"),
             403: OpenApiResponse(response=ErrorDetailSerializer, description="Forbidden (admin only)"),
-        },
-    ),
-    media= extend_schema(
-        tags=["Question"],
-        summary="Uploader un média (dédup sha256) ou enregistrer un média externe",
-        description=(
-                "Upload un fichier (multipart) ou enregistre une URL externe.\n"
-                "- multipart: envoyer `file`\n"
-                "- json/form: envoyer `external_url`\n\n"
-                "Retourne un `MediaAsset` (id à réutiliser dans `media_asset_ids` lors de la création/màj d'une Question)."
-        ),
-        request=MediaAssetUploadSerializer,
-        responses={
-            201: MediaAssetSerializer,
-            200: MediaAssetSerializer,
-            400: OpenApiResponse(description="Validation error"),
         },
     ),
 )
@@ -323,7 +280,7 @@ class QuestionViewSet(MyModelViewSet):
         if isinstance(data, QueryDict):
             mutable = {}
             for key in data.keys():
-                if key in ("subject_ids", "media_asset_ids"):
+                if key == "subject_ids":
                     raw = data.getlist(key)
                     ids: list[int] = []
                     for item in raw:
@@ -392,7 +349,7 @@ class QuestionViewSet(MyModelViewSet):
         self._log_call(
             method_name="create",
             endpoint="POST /api/question/",
-            input_expected="multipart/JSON (Question + subject_ids + answer_options + media_asset_ids)",
+            input_expected="JSON (Question + subject_ids + answer_options)",
             output="201 + QuestionSerializer | 400",
         )
         data = self._coerce_json_fields(request.data)
@@ -458,74 +415,6 @@ class QuestionViewSet(MyModelViewSet):
         return Response(QuestionReadSerializer(question, context=self.get_serializer_context()).data,
                         status=status.HTTP_200_OK)
 
-    # ==========================================================
-    # Gestion des médias
-    # ==========================================================
-    def _upsert_external_asset(self, external_url: str):
-        external_url = external_url.strip()
-
-        asset, created = MediaAsset.objects.get_or_create(
-            kind=MediaAsset.EXTERNAL,
-            external_url=external_url,
-            defaults={"sha256": None, "file": None},
-        )
-        return asset, created
-
-    def _upsert_file_asset(self, upload_file):
-        inferred_kind = _infer_kind_from_upload(upload_file)
-        digest = _sha256_file(upload_file)
-
-        try:
-            with transaction.atomic():
-                asset = MediaAsset.objects.create(
-                    kind=inferred_kind,
-                    file=upload_file,
-                    sha256=digest,
-                )
-            return asset, True
-        except (IntegrityError, ValidationError):
-            asset = MediaAsset.objects.get(kind=inferred_kind, sha256=digest)
-            return asset, False
-
-    @action(detail=False, methods=["post"], url_path="media",
-            parser_classes=[MultiPartParser, FormParser, JSONParser])
-    def media(self, request, *args, **kwargs):
-        s = MediaAssetUploadSerializer(data=request.data)
-        s.is_valid(raise_exception=True)
-
-        upload_file = s.validated_data.get("file")
-        external_url = s.validated_data.get("external_url")
-        explicit_kind = s.validated_data.get("kind")
-
-        if upload_file is not None:
-            inferred_kind = _infer_kind_from_upload(upload_file)
-            if explicit_kind and explicit_kind != inferred_kind:
-                return Response({"kind": "Mismatch."}, status=status.HTTP_400_BAD_REQUEST)
-            asset, created = self._upsert_file_asset(upload_file)
-        else:
-            if explicit_kind and explicit_kind != MediaAsset.EXTERNAL:
-                return Response({"kind": "Mismatch."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                asset, created = self._upsert_external_asset(external_url)
-            except ValidationError as exc:
-                error_payload = getattr(exc, "message_dict", None) or {"external_url": exc.messages}
-                return Response(error_payload, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(
-            MediaAssetSerializer(asset, context=self.get_serializer_context()).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-        )
-
-    @action(detail=False, methods=["post"], url_path="media/upload",
-            parser_classes=[MultiPartParser, FormParser])
-    def media_upload(self, request, *args, **kwargs):
-        return self.media(request, *args, **kwargs)
-
-    @action(detail=False, methods=["post"], url_path="media/external",
-            parser_classes=[JSONParser])
-    def media_external(self, request, *args, **kwargs):
-        return self.media(request, *args, **kwargs)
-
     # ── Export / Import structuré ──────────────────────────────────────────────
 
     @action(detail=False, methods=["get"], url_path="export-structured",
@@ -556,41 +445,9 @@ class QuestionViewSet(MyModelViewSet):
         domain_id_val = data["domain"]["id"]
         base_name = f"{timestamp}_{domain_id_val}_export"
 
-        # Collect media hashes from questions
-        media_hashes = set()
-        for q in data["questions"]:
-            for m in q.get("media", []):
-                if m.get("hash"):
-                    media_hashes.add(m["hash"])
-
-        if media_hashes:
-            # Build a ZIP containing the JSON + media files
-            hash_to_asset = {
-                a.sha256: a
-                for a in MediaAsset.objects.filter(
-                    sha256__in=media_hashes,
-                    kind__in=[MediaAsset.IMAGE, MediaAsset.VIDEO],
-                )
-                if a.file
-            }
-
-            buf = io.BytesIO()
-            with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-                zf.writestr(f"{base_name}.json", json.dumps(data, ensure_ascii=False, indent=2))
-                for sha256, asset in hash_to_asset.items():
-                    ext = os.path.splitext(asset.file.name)[1]
-                    media_path = f"media/{sha256}{ext}"
-                    try:
-                        with asset.file.open("rb") as f:
-                            zf.writestr(media_path, f.read())
-                    except OSError:
-                        logger.warning("export_structured: cannot read media file sha256=%s", sha256)
-
-            buf.seek(0)
-            response = HttpResponse(buf.read(), content_type="application/zip")
-            response["Content-Disposition"] = f'attachment; filename="{base_name}.zip"'
-            return response
-
+        # Image / video / file content lives in content blocks now —
+        # the legacy ``QuestionMedia`` + ZIP-bundled binaries path is
+        # gone. Export is always a single JSON file.
         content = json.dumps(data, ensure_ascii=False, indent=2)
         return HttpResponse(
             content,
@@ -603,27 +460,16 @@ class QuestionViewSet(MyModelViewSet):
             permission_classes=[IsQuestionDomainManager])
     def import_structured(self, request, *args, **kwargs):
         """
-        Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias).
-        Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
+        Importe des questions depuis un JSON structuré.
+        Accepte un fichier multipart (``json_file``) ou un body JSON direct.
         """
-        media_files: dict[str, bytes] | None = None
-
         uploaded = request.FILES.get("json_file")
         if uploaded:
             raw = uploaded.read()
-            # Detect ZIP by magic bytes (PK signature)
-            if raw[:2] == b"PK":
-                try:
-                    data, media_files = self._extract_zip(raw)
-                except zipfile.BadZipFile:
-                    return Response({"detail": "Fichier ZIP invalide."}, status=status.HTTP_400_BAD_REQUEST)
-                except ValueError as exc:
-                    return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                try:
-                    data = json.loads(raw.decode("utf-8"))
-                except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-                    return Response({"detail": f"Fichier JSON invalide : {exc}"}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                data = json.loads(raw.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                return Response({"detail": f"Fichier JSON invalide : {exc}"}, status=status.HTTP_400_BAD_REQUEST)
         elif isinstance(request.data, dict) and "version" in request.data:
             data = request.data
         else:
@@ -633,7 +479,7 @@ class QuestionViewSet(MyModelViewSet):
             )
 
         try:
-            result = import_questions(data, request.user, media_files=media_files)
+            result = import_questions(data, request.user)
         except StructuredImportPermissionError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
         except StructuredImportError as exc:
@@ -643,54 +489,3 @@ class QuestionViewSet(MyModelViewSet):
             return Response({"detail": f"Erreur inattendue : {exc}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(result, status=status.HTTP_200_OK)
-
-    @staticmethod
-    def _extract_zip(raw: bytes) -> tuple[dict, dict[str, bytes]]:
-        """
-        Extract JSON data and media files from a ZIP archive.
-        Returns (json_data, {filename_in_zip: bytes}).
-        Raises ValueError if the ZIP structure is invalid.
-        Raises ValueError if a media file's sha256 doesn't match the JSON.
-        """
-        data = None
-        media_files: dict[str, bytes] = {}
-
-        with zipfile.ZipFile(io.BytesIO(raw)) as zf:
-            for name in zf.namelist():
-                if name.endswith("/"):
-                    continue
-                if name.startswith("media/"):
-                    info = zf.getinfo(name)
-                    if info.file_size > settings.MAX_UPLOAD_FILE_SIZE:
-                        raise ValueError(
-                            f"Le fichier '{name}' dépasse la taille maximale autorisée après décompression."
-                        )
-                    media_files[name] = zf.read(name)
-                elif name.endswith(".json"):
-                    try:
-                        data = json.loads(zf.read(name).decode("utf-8"))
-                    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-                        raise ValueError(f"JSON invalide dans le ZIP : {exc}") from exc
-
-        if data is None:
-            raise ValueError("Aucun fichier JSON trouvé dans le ZIP.")
-
-        # Verify sha256 hashes for all media referenced in questions
-        import hashlib as _hashlib
-        for q_data in data.get("questions", []):
-            for m in q_data.get("media", []):
-                fname = m.get("filename")
-                expected = m.get("hash")
-                if not fname or not expected:
-                    continue
-                file_bytes = media_files.get(fname)
-                if file_bytes is None:
-                    raise ValueError(f"Fichier média manquant dans le ZIP : {fname}")
-                actual = _hashlib.sha256(file_bytes).hexdigest()
-                if actual != expected:
-                    raise ValueError(
-                        f"Hash SHA-256 invalide pour {fname} "
-                        f"(attendu : {expected}, obtenu : {actual})."
-                    )
-
-        return data, media_files

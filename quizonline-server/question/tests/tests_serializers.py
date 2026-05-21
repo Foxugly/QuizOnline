@@ -1,13 +1,11 @@
 # subject/tests/tests_serializers.py
 from __future__ import annotations
 
-import hashlib
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 from django.utils import translation
 from rest_framework import serializers
@@ -19,16 +17,9 @@ from subject.models import Subject
 from question.models import (
     Question,
     AnswerOption,
-    MediaAsset,
-    QuestionMedia,
 )
 from question.serializers import (
     QuestionLiteSerializer,
-    MediaAssetSerializer,
-    QuestionMediaReadSerializer,
-    MediaAssetUploadSerializer,
-    _sha256_file,
-    _infer_kind_from_upload,
     QuestionAnswerOptionPublicReadSerializer,
     QuestionAnswerOptionReadSerializer,
     QuestionAnswerOptionWriteSerializer,
@@ -155,81 +146,6 @@ class QuestionSerializersTestCase(TestCase):
         translation_model.objects.create(master=block, language_code="en", rich_text=en)
         return AnswerOption.objects.get(pk=ao.pk)
 
-    def _mk_external_asset(self, url="https://www.youtube.com/watch?v=dQw4w9WgXcQ") -> MediaAsset:
-        return MediaAsset.objects.create(kind=MediaAsset.EXTERNAL, external_url=url)
-
-    # Minimal PNG magic bytes (signature only — enough for filetype detection)
-    PNG_MAGIC = b'\x89PNG\r\n\x1a\n' + b'\x00' * 16
-    # Minimal MP4 magic bytes (ftyp box at offset 4)
-    MP4_MAGIC = b'\x00\x00\x00\x08ftypisom' + b'\x00' * 16
-
-    def _mk_image_upload(self, name="img.png", content=None) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content or self.PNG_MAGIC, content_type="image/png")
-
-    def _mk_video_upload(self, name="vid.mp4", content=None) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content or self.MP4_MAGIC, content_type="video/mp4")
-
-    # ---------------------------------------------------------------------
-    # MediaAssetUploadSerializer
-    # ---------------------------------------------------------------------
-    def test_media_asset_upload_serializer_requires_exactly_one_of_file_or_url(self):
-        s = MediaAssetUploadSerializer(data={})
-        self.assertFalse(s.is_valid())
-        self.assertIn("non_field_errors", s.errors)
-
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload(), "external_url": "https://x.com"})
-        self.assertFalse(s.is_valid())
-        self.assertIn("non_field_errors", s.errors)
-
-        s = MediaAssetUploadSerializer(data={"external_url": "https://x.com"})
-        self.assertTrue(s.is_valid(), s.errors)
-
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload()})
-        self.assertTrue(s.is_valid(), s.errors)
-
-    @override_settings(MAX_UPLOAD_FILE_SIZE=4)
-    def test_media_asset_upload_serializer_rejects_file_too_large(self):
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload(content=b"12345")})
-        self.assertFalse(s.is_valid())
-        self.assertIn("file", s.errors)
-        self.assertIn("Maximum allowed size", str(s.errors["file"]))
-
-    # ---------------------------------------------------------------------
-    # _sha256_file / _infer_kind_from_upload
-    # ---------------------------------------------------------------------
-    def test_sha256_file_matches_expected(self):
-        up = SimpleUploadedFile("a.bin", b"hello", content_type="application/octet-stream")
-        got = _sha256_file(up)
-        exp = hashlib.sha256(b"hello").hexdigest()
-        self.assertEqual(got, exp)
-
-    def test_infer_kind_from_upload_image(self):
-        up = self._mk_image_upload()
-        self.assertEqual(_infer_kind_from_upload(up), MediaAsset.IMAGE)
-
-    def test_infer_kind_from_upload_video(self):
-        up = self._mk_video_upload()
-        self.assertEqual(_infer_kind_from_upload(up), MediaAsset.VIDEO)
-
-    def test_infer_kind_from_upload_unsupported(self):
-        up = SimpleUploadedFile("x.bin", b"x", content_type="application/octet-stream")
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            _infer_kind_from_upload(up)
-        self.assertIn("Unsupported file type", str(ctx.exception.detail))
-
-    def test_infer_kind_from_upload_rejects_spoofed_image(self):
-        """A file with PNG extension/content-type but non-PNG content must be rejected."""
-        up = SimpleUploadedFile("evil.png", b"not-a-real-png", content_type="image/png")
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            _infer_kind_from_upload(up)
-        self.assertIn("does not match declared type", str(ctx.exception.detail))
-
-    def test_infer_kind_from_upload_resets_file_pointer(self):
-        """After _infer_kind_from_upload the file pointer must be back at 0."""
-        up = self._mk_image_upload()
-        _infer_kind_from_upload(up)
-        self.assertEqual(up.tell(), 0)
-
     # ---------------------------------------------------------------------
     # Read serializers basics
     # ---------------------------------------------------------------------
@@ -238,20 +154,6 @@ class QuestionSerializersTestCase(TestCase):
         data = QuestionLiteSerializer(q).data
         self.assertEqual(data["id"], q.id)
         self.assertIn(data["title"], ["Titre FR", "Title EN"])
-
-    def test_media_asset_serializer_read_only_fields(self):
-        asset = self._mk_external_asset()
-        data = MediaAssetSerializer(asset).data
-        self.assertEqual(data["kind"], MediaAsset.EXTERNAL)
-        self.assertEqual(data["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
-    def test_question_media_read_serializer_nests_asset(self):
-        q = self._mk_question_with_translations()
-        asset = self._mk_external_asset()
-        link = QuestionMedia.objects.create(question=q, asset=asset, sort_order=0)
-        data = QuestionMediaReadSerializer(link).data
-        self.assertEqual(data["sort_order"], 0)
-        self.assertEqual(data["asset"]["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
     # ---------------------------------------------------------------------
     # Answer option serializers
@@ -313,20 +215,17 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("is_correct", s3.data["answer_options"][0])
 
     # ---------------------------------------------------------------------
-    # QuestionReadSerializer: translations + media + switch answer_options
+    # QuestionReadSerializer: translations + switch answer_options
     # ---------------------------------------------------------------------
-    def test_question_read_serializer_translations_media_and_answer_options_switch(self):
+    def test_question_read_serializer_translations_and_answer_options_switch(self):
         q = self._mk_question_with_translations()
         self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A", en="A")
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
 
-        asset = self._mk_external_asset("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        QuestionMedia.objects.create(question=q, asset=asset, sort_order=0)
-
         # Refetch clean + prefetched
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
 
@@ -342,7 +241,6 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("prompt_blocks", data)
         self.assertIn("explanation_blocks", data)
 
-        self.assertEqual(data["media"][0]["asset"]["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
         self.assertNotIn("is_correct", data["answer_options"][0])
 
         s2 = QuestionReadSerializer(q, context={"show_correct": True, "view": view})
@@ -357,7 +255,7 @@ class QuestionSerializersTestCase(TestCase):
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
 
@@ -441,11 +339,7 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("nouveau domain", str(s.errors["subject_ids"]))
 
     def test_question_write_serializer_create_full(self):
-        a1 = self._mk_external_asset("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        a2 = self._mk_external_asset("https://www.youtube.com/watch?v=9bZkp7q19f0")
-
         payload = self._base_question_payload()
-        payload["media_asset_ids"] = [a1.id, a2.id, a1.id]  # duplicate => dedup
 
         s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
         self.assertTrue(s.is_valid(), s.errors)
@@ -453,31 +347,12 @@ class QuestionSerializersTestCase(TestCase):
 
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset", "subjects")
+            .prefetch_related("translations", "answer_options__blocks__translations", "subjects")
             .get(pk=q.pk)
         )
 
         self.assertEqual(q.safe_translation_getter("title", language_code="fr"), "Titre FR")
         self.assertEqual(set(q.subjects.values_list("id", flat=True)), {self.subj1.id, self.subj2.id})
-
-        media_urls = list(q.media.order_by("sort_order").values_list("asset__external_url", flat=True))
-        self.assertEqual(
-            media_urls,
-            [
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "https://www.youtube.com/watch?v=9bZkp7q19f0",
-            ],
-        )
-
-    def test_question_write_serializer_create_media_asset_ids_missing_raises(self):
-        payload = self._base_question_payload()
-        payload["media_asset_ids"] = [999999]
-
-        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
-        self.assertTrue(s.is_valid(), s.errors)
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            s.save()
-        self.assertIn("media_asset_ids", ctx.exception.detail)
 
     def test_question_write_serializer_update_preserves_existing_answer_option_ids(self):
         q = self._mk_question_with_translations()
@@ -728,7 +603,7 @@ class QuestionSerializersTestCase(TestCase):
 
         prefetched = (
             Question.objects
-            .prefetch_related("translations", "answer_options__blocks__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
         serializer = QuestionReadSerializer()

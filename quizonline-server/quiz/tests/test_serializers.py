@@ -598,7 +598,6 @@ class QuizSerializerTests(LocalizedTestCase):
 
         question = data["questions"][0]["question"]
         self.assertIn("translations", question)
-        self.assertIn("media", question)
         self.assertIn("subjects", question)
 
     def test_result_fields_hidden_when_template_forbids_and_user_not_admin(self):
