@@ -165,7 +165,10 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
   }
 
   protected onUrlChange(value: string | null | undefined): void {
-    const url = value ?? '';
+    // YouTube's Share → Embed dialog hands authors a full ``<iframe>``
+    // HTML snippet. Peel the ``src`` out when that's what was pasted so
+    // the bloc works without forcing the author to manually trim down.
+    const url = extractIframeSrc(value ?? '');
     const patch: Partial<ContentBlock> = {video_url: url};
     // Auto-detect provider when the URL matches a known host. Never
     // downgrade an explicit upload-mode pick; only set a provider when
@@ -190,6 +193,12 @@ function detectProvider(url: string): VideoProvider | null {
     return 'vimeo';
   }
   return null;
+}
+
+function extractIframeSrc(input: string): string {
+  const trimmed = input.trim();
+  const match = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
+  return match ? match[1] : trimmed;
 }
 
 function extractYouTubeId(url: string): string | null {

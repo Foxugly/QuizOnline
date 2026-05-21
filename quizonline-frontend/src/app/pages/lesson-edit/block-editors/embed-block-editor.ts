@@ -106,6 +106,17 @@ export class EmbedBlockEditor implements OnInit, OnDestroy {
   }
 
   protected onUrlChange(value: string | null | undefined): void {
-    this.debouncer$.next({external_url: value ?? ''});
+    this.debouncer$.next({external_url: extractIframeSrc(value ?? '')});
   }
+}
+
+/** YouTube's Share → Embed dialog hands authors a full ``<iframe ...>``
+ *  HTML snippet. The field only stores the URL — peel out the ``src``
+ *  if a full snippet was pasted so the bloc works regardless of which
+ *  form the author copied. Returns the raw value unchanged when no
+ *  iframe tag is detected. */
+function extractIframeSrc(input: string): string {
+  const trimmed = input.trim();
+  const match = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
+  return match ? match[1] : trimmed;
 }
