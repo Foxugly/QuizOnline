@@ -308,9 +308,11 @@ export class CourseEditInfoTab {
       const sourceDescription = sourceGroup.controls.description.value ?? '';
       const sourceObjectives = sourceGroup.controls.learning_objectives.value ?? '';
 
-      for (const target of codes) {
+      // Parallel fan-out across target languages — one network burst
+      // instead of (n_langs - 1) sequential round-trips.
+      const plans = codes.flatMap((target) => {
         if (target === sourceLang) {
-          continue;
+          return [];
         }
         const targetGroup = this.langGroup(target);
         const titleCtrl = targetGroup.controls.title;
@@ -327,21 +329,31 @@ export class CourseEditInfoTab {
         if (needObj) items.push({key: 'learning_objectives', text: sourceObjectives, format: 'html'});
 
         if (!items.length) {
-          continue;
+          return [];
         }
+        return [{target, titleCtrl, descCtrl, objCtrl, needTitle, needDesc, needObj, items}];
+      });
 
-        const out = await this.translator.translateBatch(sourceLang, target, items);
-        if (needTitle && out['title'] !== undefined) {
-          titleCtrl.setValue(out['title']);
-          titleCtrl.markAsDirty();
+      const results = await Promise.all(
+        plans.map((p) =>
+          this.translator
+            .translateBatch(sourceLang, p.target, p.items)
+            .then((out) => ({plan: p, out})),
+        ),
+      );
+
+      for (const {plan, out} of results) {
+        if (plan.needTitle && out['title'] !== undefined) {
+          plan.titleCtrl.setValue(out['title']);
+          plan.titleCtrl.markAsDirty();
         }
-        if (needDesc && out['description'] !== undefined) {
-          descCtrl.setValue(out['description']);
-          descCtrl.markAsDirty();
+        if (plan.needDesc && out['description'] !== undefined) {
+          plan.descCtrl.setValue(out['description']);
+          plan.descCtrl.markAsDirty();
         }
-        if (needObj && out['learning_objectives'] !== undefined) {
-          objCtrl.setValue(out['learning_objectives']);
-          objCtrl.markAsDirty();
+        if (plan.needObj && out['learning_objectives'] !== undefined) {
+          plan.objCtrl.setValue(out['learning_objectives']);
+          plan.objCtrl.markAsDirty();
         }
       }
     } catch (err) {

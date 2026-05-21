@@ -393,9 +393,11 @@ export class CourseEditStructureTab {
 
     this.translating.set('section');
     try {
-      for (const target of langs) {
+      // Parallel fan-out: build per-target plans, fire all calls at
+      // once, merge the responses into ``sectionDialog`` afterwards.
+      const plans = langs.flatMap((target) => {
         if (target === source) {
-          continue;
+          return [];
         }
         const targetRow = this.sectionDialog().translations[target] ?? {};
         const needTitle = !(targetRow['title'] ?? '').trim();
@@ -406,22 +408,32 @@ export class CourseEditStructureTab {
         if (needDesc) items.push({key: 'description', text: sourceDescription, format: 'html'});
 
         if (!items.length) {
-          continue;
+          return [];
         }
+        return [{target, needTitle, needDesc, items}];
+      });
 
-        const out = await this.translator.translateBatch(source, target, items);
+      const results = await Promise.all(
+        plans.map((p) =>
+          this.translator
+            .translateBatch(source, p.target, p.items)
+            .then((out) => ({plan: p, out})),
+        ),
+      );
+
+      for (const {plan, out} of results) {
         this.sectionDialog.update((s) => {
-          const existing = s.translations[target] ?? {};
+          const existing = s.translations[plan.target] ?? {};
           const next: Record<string, string> = {...existing};
-          if (needTitle && out['title'] !== undefined) {
+          if (plan.needTitle && out['title'] !== undefined) {
             next['title'] = out['title'];
           }
-          if (needDesc && out['description'] !== undefined) {
+          if (plan.needDesc && out['description'] !== undefined) {
             next['description'] = out['description'];
           }
           return {
             ...s,
-            translations: {...s.translations, [target]: next},
+            translations: {...s.translations, [plan.target]: next},
           };
         });
       }
@@ -595,21 +607,27 @@ export class CourseEditStructureTab {
 
     this.translating.set('lesson');
     try {
-      for (const target of langs) {
-        if (target === source) {
-          continue;
+      // Parallel fan-out across target languages.
+      const items: TranslateBatchItem[] = [
+        {key: 'title', text: sourceTitle, format: 'text'},
+      ];
+      const targets = langs.filter((t) => {
+        if (t === source) {
+          return false;
         }
-        const targetRow = this.lessonDialog().translations[target] ?? {};
-        const needTitle = !(targetRow['title'] ?? '').trim();
-        if (!needTitle) {
-          continue;
-        }
+        const targetRow = this.lessonDialog().translations[t] ?? {};
+        return !(targetRow['title'] ?? '').trim();
+      });
 
-        const items: TranslateBatchItem[] = [
-          {key: 'title', text: sourceTitle, format: 'text'},
-        ];
+      const results = await Promise.all(
+        targets.map((t) =>
+          this.translator
+            .translateBatch(source, t, items)
+            .then((out) => ({target: t, out})),
+        ),
+      );
 
-        const out = await this.translator.translateBatch(source, target, items);
+      for (const {target, out} of results) {
         if (out['title'] === undefined) {
           continue;
         }

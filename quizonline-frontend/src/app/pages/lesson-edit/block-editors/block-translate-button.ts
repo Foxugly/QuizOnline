@@ -67,7 +67,13 @@ export class BlockTranslateButton {
     this.translating.set(true);
     try {
       const merged: TranslationsMap = {...(this.block().translations ?? {})};
-      let touched = false;
+
+      // Pre-compute the per-target item lists in a single sync pass
+      // so we can fire every ``translateBatch`` call in parallel via
+      // ``Promise.all`` — wall time becomes ``max(call latency)``
+      // instead of ``sum``, which on a 5-language domain turns 4
+      // sequential round-trips into one network burst.
+      const plans: Array<{target: string; items: TranslateBatchItem[]}> = [];
       for (const target of targets) {
         const items: TranslateBatchItem[] = [];
         for (const f of fields) {
@@ -83,10 +89,21 @@ export class BlockTranslateButton {
           }
           items.push({key: f.key, text: sourceVal, format: f.format});
         }
-        if (!items.length) {
-          continue;
+        if (items.length) {
+          plans.push({target, items});
         }
-        const out = await this.translator.translateBatch(source, target, items);
+      }
+
+      const results = await Promise.all(
+        plans.map((p) =>
+          this.translator
+            .translateBatch(source, p.target, p.items)
+            .then((out) => ({target: p.target, out})),
+        ),
+      );
+
+      let touched = false;
+      for (const {target, out} of results) {
         const targetGroup = {...(merged[target] ?? {})};
         for (const f of fields) {
           const v = out[f.key];
