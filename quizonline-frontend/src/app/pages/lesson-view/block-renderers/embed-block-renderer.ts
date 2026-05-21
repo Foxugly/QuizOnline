@@ -86,6 +86,21 @@ export class EmbedBlockRenderer {
   );
 
   protected readonly safeUrl = computed<SafeResourceUrl>(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(this.block().external_url),
+    this.sanitizer.bypassSecurityTrustResourceUrl(rewriteYoutubeEmbedUrl(this.block().external_url)),
   );
+}
+
+/** When the author pasted a ``youtube.com/embed/<id>`` URL directly,
+ *  add ``rel=0`` so YouTube doesn't tail the embed with a grid of
+ *  unrelated recommendations (often competing videos). Returns the
+ *  URL unchanged for any non-YouTube-embed host (Vimeo, CodePen,
+ *  Figma, ...) and when the param is already present. */
+function rewriteYoutubeEmbedUrl(url: string): string {
+  if (!/youtube\.com\/embed\//i.test(url)) {
+    return url;
+  }
+  if (/[?&]rel=/.test(url)) {
+    return url;
+  }
+  return url + (url.includes('?') ? '&' : '?') + 'rel=0';
 }
