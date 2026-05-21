@@ -8,6 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from config.cache_mixins import ShortReadCacheMixin
+
 from .models import Course, CourseAuditLog, Section
 from .permissions import IsLmsInstructorOrReadOnly, is_lms_instructor
 from .serializers import (
@@ -43,7 +45,7 @@ from .services import (
         ],
     ),
 )
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["translations__title", "translations__description", "slug"]

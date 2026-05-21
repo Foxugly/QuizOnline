@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from rest_framework import viewsets
 
+from config.cache_mixins import ShortReadCacheMixin
 from course.permissions import IsLmsInstructorOrReadOnly
 
 from .models import Lesson
@@ -9,7 +10,7 @@ from .serializers import LessonDetailSerializer
 from .services import compact_lessons
 
 
-class LessonViewSet(viewsets.ModelViewSet):
+class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
     permission_classes = [IsLmsInstructorOrReadOnly]
     serializer_class = LessonDetailSerializer
 
