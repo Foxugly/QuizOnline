@@ -11,6 +11,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickDefaultLang} from '../../../shared/learning/default-lang';
 import {VideoProvider, getLearningCommonUiText} from '../../../shared/learning/learning-common.i18n';
+import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../../shared/media/youtube';
 
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
@@ -130,8 +131,7 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
     const provider = this.block().video_provider || detectProvider(url);
     let embed: string | null = null;
     if (provider === 'youtube') {
-      const id = extractYouTubeId(url);
-      embed = id ? `https://www.youtube.com/embed/${id}` : null;
+      embed = toYoutubeEmbedUrl(url);
     } else if (provider === 'vimeo') {
       const id = extractVimeoId(url);
       embed = id ? `https://player.vimeo.com/video/${id}` : null;
@@ -185,8 +185,12 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
   }
 }
 
+/** Provider detection delegated to the shared ``isYoutubeUrl`` URL
+ *  parser (handles every recognised YouTube host variant via
+ *  ``URL.hostname`` rather than a host-name regex). Vimeo stays a
+ *  local regex — there's no shared helper for it yet. */
 function detectProvider(url: string): VideoProvider | null {
-  if (/(?:youtube\.com|youtu\.be)/i.test(url)) {
+  if (isYoutubeUrl(url)) {
     return 'youtube';
   }
   if (/vimeo\.com/i.test(url)) {
@@ -199,22 +203,6 @@ function extractIframeSrc(input: string): string {
   const trimmed = input.trim();
   const match = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
   return match ? match[1] : trimmed;
-}
-
-function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /[?&]v=([\w-]{6,})/,
-    /youtu\.be\/([\w-]{6,})/,
-    /youtube\.com\/embed\/([\w-]{6,})/,
-    /youtube\.com\/shorts\/([\w-]{6,})/,
-  ];
-  for (const re of patterns) {
-    const m = url.match(re);
-    if (m && m[1]) {
-      return m[1];
-    }
-  }
-  return null;
 }
 
 function extractVimeoId(url: string): string | null {
