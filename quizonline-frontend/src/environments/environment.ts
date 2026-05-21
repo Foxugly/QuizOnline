@@ -13,7 +13,10 @@ export const environment = {
   // Error monitoring — empty in dev. Set via build-time replacement or
   // the runtime ``window.__QUIZONLINE_SENTRY_DSN`` injection.
   sentryDsn: '',
-  sentryRelease: '',
+  // Mirrors ``version`` above so every captured error in Sentry /
+  // GlitchTip is tagged with the precise build it came from. Update
+  // both in lockstep with ``package.json#version``.
+  sentryRelease: '1.1.0',
   //apiUserPath: 'user/',
   //apiUserPreferencesPath: 'user/me/',
   //apiSubjectPath: 'subject/',

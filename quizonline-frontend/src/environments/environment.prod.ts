@@ -18,5 +18,10 @@ export const environment = {
   // events/month) or a self-hosted GlitchTip — the SDK protocol is the
   // same, so swapping ingest providers is a single env-var change.
   sentryDsn: '',
-  sentryRelease: '',
+  // Mirrors ``version`` above so every captured error in Sentry /
+  // GlitchTip is tagged with the precise build it came from. Update
+  // both in lockstep with ``package.json#version``. Runtime override
+  // via ``window.__QUIZONLINE_SENTRY_RELEASE`` if the operator wants
+  // to disambiguate hot-fix builds without rebuilding.
+  sentryRelease: '1.1.0',
 };
