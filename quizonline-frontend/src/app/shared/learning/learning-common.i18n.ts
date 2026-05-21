@@ -41,7 +41,7 @@ export function getLearningCommonUiText(
       return {
         blockTypeLabels: {
           rich_text: 'Texte enrichi', image: 'Image', video: 'Vidéo', file: 'Fichier',
-          quiz: 'Quiz', callout: 'Encadré', code: 'Code', embed: 'Intégration',
+          quiz: 'Quiz', callout: 'Encadré', code: 'Code', embed: 'iframe',
         },
         enrollmentStatusLabels: {
           pending: 'En attente', active: 'Actif', completed: 'Terminé', cancelled: 'Annulé',
@@ -54,7 +54,7 @@ export function getLearningCommonUiText(
       return {
         blockTypeLabels: {
           rich_text: 'Opgemaakte tekst', image: 'Afbeelding', video: 'Video', file: 'Bestand',
-          quiz: 'Quiz', callout: 'Aandachtsblok', code: 'Code', embed: 'Insluiting',
+          quiz: 'Quiz', callout: 'Aandachtsblok', code: 'Code', embed: 'iframe',
         },
         enrollmentStatusLabels: {
           pending: 'In afwachting', active: 'Actief', completed: 'Voltooid', cancelled: 'Geannuleerd',
@@ -67,7 +67,7 @@ export function getLearningCommonUiText(
       return {
         blockTypeLabels: {
           rich_text: 'Testo formattato', image: 'Immagine', video: 'Video', file: 'File',
-          quiz: 'Quiz', callout: 'Riquadro', code: 'Codice', embed: 'Incorporazione',
+          quiz: 'Quiz', callout: 'Riquadro', code: 'Codice', embed: 'iframe',
         },
         enrollmentStatusLabels: {
           pending: 'In attesa', active: 'Attivo', completed: 'Completato', cancelled: 'Annullato',
@@ -80,7 +80,7 @@ export function getLearningCommonUiText(
       return {
         blockTypeLabels: {
           rich_text: 'Texto enriquecido', image: 'Imagen', video: 'Vídeo', file: 'Archivo',
-          quiz: 'Cuestionario', callout: 'Recuadro', code: 'Código', embed: 'Inserción',
+          quiz: 'Cuestionario', callout: 'Recuadro', code: 'Código', embed: 'iframe',
         },
         enrollmentStatusLabels: {
           pending: 'Pendiente', active: 'Activo', completed: 'Completado', cancelled: 'Cancelado',
@@ -92,7 +92,7 @@ export function getLearningCommonUiText(
       return {
         blockTypeLabels: {
           rich_text: 'Rich text', image: 'Image', video: 'Video', file: 'File',
-          quiz: 'Quiz', callout: 'Callout', code: 'Code', embed: 'Embed',
+          quiz: 'Quiz', callout: 'Callout', code: 'Code', embed: 'iframe',
         },
         enrollmentStatusLabels: {
           pending: 'Pending', active: 'Active', completed: 'Completed', cancelled: 'Cancelled',
