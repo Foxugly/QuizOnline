@@ -40,12 +40,24 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
                   referrerpolicy="strict-origin-when-cross-origin"
                   allowfullscreen></iframe>
         </div>
+        @if (block().video_url; as url) {
+          <a class="video-open" [href]="url" target="_blank" rel="noopener noreferrer">
+            <i class="pi pi-external-link" aria-hidden="true"></i>
+            {{ ui().embedOpenInNewTab }}
+          </a>
+        }
       }
       @case ('vimeo') {
         <div class="video-frame">
           <iframe [src]="embedUrl()" [title]="title()" frameborder="0" loading="lazy"
                   allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
+        @if (block().video_url; as url) {
+          <a class="video-open" [href]="url" target="_blank" rel="noopener noreferrer">
+            <i class="pi pi-external-link" aria-hidden="true"></i>
+            {{ ui().embedOpenInNewTab }}
+          </a>
+        }
       }
       @case ('upload') {
         <video controls preload="metadata" [src]="block().video_url"
@@ -79,6 +91,25 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
       display: block;
       background: #000;
       border-radius: 6px;
+    }
+    /* Escape-hatch link sitting under the iframe (symmetric to the
+     * iframe block's .embed-open). Surfaces an explicit way out
+     * when the embedded host refuses to play its own content inside
+     * the iframe (YouTube Error 153 on copyright-locked videos,
+     * Vimeo private videos, ...). */
+    .video-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--p-text-color-secondary, #6b7280);
+      text-decoration: none;
+    }
+    .video-open:hover,
+    .video-open:focus-visible {
+      color: var(--p-primary-color, #3b82f6);
+      text-decoration: underline;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
