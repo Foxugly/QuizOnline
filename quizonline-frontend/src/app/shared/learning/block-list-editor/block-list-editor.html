@@ -72,6 +72,8 @@
   <span class="hint">{{ ui().addBlockHint }}</span>
   @for (t of blockTypes(); track t.value) {
     <p-button [label]="common().blockTypeLabels[t.value]" [icon]="blockIcons[t.value]"
-              severity="secondary" size="small" (onClick)="addBlock(t.value)" />
+              severity="secondary" size="small"
+              [disabled]="creating()"
+              (onClick)="addBlock(t.value)" />
   }
 </div>

@@ -113,6 +113,15 @@ export class BlockListEditor {
    *  without colliding with sibling lists in the same view. */
   protected readonly lastSavedAt = signal<Map<number, number>>(new Map());
 
+  /** Guard against two rapid clicks on the same "+ <type>" button
+   *  racing two POSTs with the same ``order`` computed from the same
+   *  stale ``blocks()`` snapshot — the second would hit the
+   *  ``UNIQUE (target_content_type, target_object_id, block_role,
+   *  order)`` constraint and 500. Held for the duration of the
+   *  in-flight create; also gates the add-block bar UI so the buttons
+   *  read disabled rather than just silently no-op. */
+  protected readonly creating = signal<boolean>(false);
+
   protected readonly blockIcons = BLOCK_ICONS;
   private readonly ALL_BLOCK_TYPES: ReadonlyArray<{value: BlockType}> = [
     {value: 'rich_text'}, {value: 'image'}, {value: 'video'},
@@ -150,6 +159,9 @@ export class BlockListEditor {
     if (type === 'quiz' && this.hostType() !== 'lesson') {
       return;
     }
+    if (this.creating()) {
+      return;
+    }
     const existing = this.blocks().map((b) => b.order);
     const order = existing.length > 0 ? Math.max(...existing) + 1 : 0;
 
@@ -161,12 +173,15 @@ export class BlockListEditor {
     };
     payload[this.hostType()] = this.hostId();
 
+    this.creating.set(true);
     this.http.post(`${this.apiBaseUrl}/block/`, payload).subscribe({
       next: () => {
+        this.creating.set(false);
         this.blocksChanged.emit();
         this.toast.add({severity: 'success', summary: this.ui().blockAddedToast});
       },
       error: (err: unknown) => {
+        this.creating.set(false);
         logApiError('lms.block-list.add', err);
         this.toast.addApiError(err, this.ui().blockErrorToast);
       },
