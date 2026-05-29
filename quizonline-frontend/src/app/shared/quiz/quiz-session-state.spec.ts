@@ -53,13 +53,13 @@ describe('quiz session state helpers', () => {
         translations: {
           [LanguageEnumDto.Fr]: {
             title: 'Q1',
-            description: '',
-            explanation: '',
           },
         },
         subjects: [],
         answer_options: [],
-        media: [],
+        prompt_blocks: [],
+        explanation_blocks: [],
+        available_lang_codes: [],
       },
     },
     {
@@ -77,13 +77,13 @@ describe('quiz session state helpers', () => {
         translations: {
           [LanguageEnumDto.Fr]: {
             title: 'Q2',
-            description: '',
-            explanation: '',
           },
         },
         subjects: [],
         answer_options: [],
-        media: [],
+        prompt_blocks: [],
+        explanation_blocks: [],
+        available_lang_codes: [],
       },
     },
   ];

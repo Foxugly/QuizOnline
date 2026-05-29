@@ -90,7 +90,17 @@ export class QuizQuestionComponent {
   }
 
   get allowMultiple(): boolean {
-    return !!this.quizNavItem().question.allow_multiple_correct;
+    const q = this.quizNavItem().question;
+    if (q.allow_multiple_correct) {
+      return true;
+    }
+    // Defensive: the editor derives allow_multiple_correct from the
+    // correct-count at save time, but a question may also arrive via
+    // CSV import or direct API POST with a stale flag. When is_correct
+    // is exposed (preview / review / practice with correction), trust
+    // the live count over the stored flag.
+    const correctCount = (q.answer_options ?? []).filter(o => o.is_correct === true).length;
+    return correctCount > 1;
   }
 
   onSelectRadio(optionId: number | null): void {
