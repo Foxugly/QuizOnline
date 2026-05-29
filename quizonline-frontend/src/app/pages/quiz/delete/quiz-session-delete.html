@@ -1,5 +1,5 @@
 <section class="delete-page">
-  <h1>Supprimer le quiz</h1>
+  <h1>{{ ui().pages.quizSessionDelete.pageTitle }}</h1>
 
   @if (error()) {
     <p class="error">{{ error() }}</p>
@@ -7,11 +7,11 @@
 
   @if (quiz(); as currentQuiz) {
     <p class="intro">
-      Vous allez supprimer le quiz <strong>{{ currentQuiz.quiz_template_title }}</strong>
-      pour <strong>{{ currentQuiz.user_summary?.username || ('User #' + currentQuiz.user) }}</strong>.
+      {{ ui().pages.quizSessionDelete.introPrefix }} <strong>{{ currentQuiz.quiz_template_title }}</strong>
+      {{ ui().pages.quizSessionDelete.introSeparator }} <strong>{{ currentQuiz.user_summary?.username || (ui().pages.quizSessionDelete.userFallbackPrefix + currentQuiz.user) }}</strong>.
     </p>
   } @else if (!error()) {
-    <p class="intro">Chargement du quiz...</p>
+    <p class="intro">{{ ui().pages.quizSessionDelete.loading }}</p>
   }
 
   <div class="actions">

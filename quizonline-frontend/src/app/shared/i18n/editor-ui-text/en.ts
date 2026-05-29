@@ -263,6 +263,11 @@ export const EN: EditorUiText = {
       },
     },
     userDelete: {
+      pageTitle: 'Delete user',
+      irreversibleBadge: 'Irreversible',
+      confirmPrefix: 'Delete',
+      confirmSuffix: '?',
+      userFallbackPrefix: 'User #',
       errors: {
         invalidId: 'Invalid user id.',
         loadFailed: 'Unable to load the user.',
@@ -277,6 +282,11 @@ export const EN: EditorUiText = {
       },
     },
     quizSessionDelete: {
+      pageTitle: 'Delete quiz',
+      introPrefix: 'You are about to delete the quiz',
+      introSeparator: 'for',
+      loading: 'Loading the quiz…',
+      userFallbackPrefix: 'User #',
       errors: {
         invalidId: 'Invalid quiz id.',
         loadFailed: 'Unable to load the quiz.',
@@ -290,7 +300,7 @@ export const EN: EditorUiText = {
         deleteFailed: 'Unable to delete the question.',
       },
     },
-    userList: {title: 'Users', subtitle: 'User management', id: 'ID', username: 'Username', name: 'Name', email: 'Email', nbDomainMax: 'Max domains', active: 'Active', emailConfirmed: 'Email confirmed', actions: 'Actions'},
+    userList: {title: 'Users', subtitle: 'User management', id: 'ID', username: 'Username', name: 'Name', email: 'Email', nbDomainMax: 'Max domains', active: 'Active', emailConfirmed: 'Email confirmed', actions: 'Actions', bulkActionsPlaceholder: 'Bulk actions…', bulkActionsApply: 'Apply', selectedSingular: 'selected', selectedPlural: 'selected', searchPlaceholder: 'Search…'},
     quizTemplateResults: {
       title: 'Quiz results',
       titleWithTemplate: 'Quiz results: {title}',

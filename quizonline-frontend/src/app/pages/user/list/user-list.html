@@ -13,10 +13,10 @@
     <div class="card-head">
       <app-bulk-actions
         [options]="bulkActionOptions()"
-        placeholder="Actions groupées…"
-        applyLabel="Appliquer"
+        [placeholder]="ui().pages.userList.bulkActionsPlaceholder"
+        [applyLabel]="ui().pages.userList.bulkActionsApply"
         [count]="selectedCount()"
-        [countText]="selectedCount() > 1 ? selectedCount() + ' sélectionnés' : selectedCount() + ' sélectionné'"
+        [countText]="selectedCount() + ' ' + (selectedCount() > 1 ? ui().pages.userList.selectedPlural : ui().pages.userList.selectedSingular)"
         [applying]="applyingBulk()"
         (apply)="applyBulk($event)">
       </app-bulk-actions>
@@ -24,7 +24,7 @@
       <div class="card-actions">
         <input
           pInputText
-          placeholder="Search..."
+          [placeholder]="ui().pages.userList.searchPlaceholder"
           [ngModel]="q()"
           (ngModelChange)="q.set($event)"
         />

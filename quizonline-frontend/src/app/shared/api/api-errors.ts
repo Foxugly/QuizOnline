@@ -44,9 +44,14 @@ function extractApiDetail(error: unknown): string | null {
 }
 
 function isTestRuntime(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
+  // Vitest worker (current test runner per angular.json -> @angular/build:unit-test).
+  // The legacy Karma / Jasmine branches stay so the guard still works if the
+  // project ever rolls back to ng test on Karma.
+  if (typeof globalThis !== 'undefined' && '__vitest_worker__' in globalThis) {
+    return true;
   }
-
-  return '__karma__' in window || 'jasmine' in window;
+  if (typeof window !== 'undefined' && ('__karma__' in window || 'jasmine' in window)) {
+    return true;
+  }
+  return false;
 }
