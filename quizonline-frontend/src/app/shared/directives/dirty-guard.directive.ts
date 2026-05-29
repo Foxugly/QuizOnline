@@ -18,7 +18,6 @@ import {Directive, OnDestroy, input} from '@angular/core';
  */
 @Directive({
   selector: '[appDirtyGuard]',
-  standalone: true,
 })
 export class DirtyGuardDirective implements OnDestroy {
   readonly dirty = input.required<boolean>({alias: 'appDirtyGuard'});
