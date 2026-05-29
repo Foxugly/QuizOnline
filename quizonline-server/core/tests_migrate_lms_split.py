@@ -135,12 +135,18 @@ class MigrateLmsSplitArtifactsTests(TestCase):
             self.assertIn(f"'{app}'", sql, msg=f"missing legacy app {app}")
 
     def test_dry_run_prints_sql_without_executing(self) -> None:
-        # Capture stdout and assert the SQL header + body land there.
+        # Capture stdout and assert the dry-run mentions the canonical
+        # legacy -> new rename pair. On Postgres the raw SQL line reads
+        # ``ALTER TABLE ... RENAME TO course_course``; on SQLite (test DB)
+        # the management command prints a Python-driven summary that
+        # carries the same pair as ``lms_catalog_course  ->  course_course``.
+        # Asserting the presence of both names covers both backends.
         buf = StringIO()
         call_command("migrate_lms_split", "--dry-run", stdout=buf)
         out = buf.getvalue()
         self.assertIn("DRY-RUN", out)
-        self.assertIn("RENAME TO course_course", out)
+        self.assertIn("lms_catalog_course", out)
+        self.assertIn("course_course", out)
         self.assertIn(
             "DRY-RUN -- would then run `manage.py migrate`",
             out,
