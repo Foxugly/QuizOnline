@@ -264,6 +264,11 @@ export type EditorUiText = {
       };
     };
     userDelete: {
+      pageTitle: string;
+      irreversibleBadge: string;
+      confirmPrefix: string;
+      confirmSuffix: string;
+      userFallbackPrefix: string;
       errors: {
         invalidId: string;
         loadFailed: string;
@@ -278,6 +283,11 @@ export type EditorUiText = {
       };
     };
     quizSessionDelete: {
+      pageTitle: string;
+      introPrefix: string;
+      introSeparator: string;
+      loading: string;
+      userFallbackPrefix: string;
       errors: {
         invalidId: string;
         loadFailed: string;
@@ -291,7 +301,7 @@ export type EditorUiText = {
         deleteFailed: string;
       };
     };
-    userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string;};
+    userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string; bulkActionsPlaceholder: string; bulkActionsApply: string; selectedSingular: string; selectedPlural: string; searchPlaceholder: string;};
     quizTemplateResults: {
       title: string;
       titleWithTemplate: string;

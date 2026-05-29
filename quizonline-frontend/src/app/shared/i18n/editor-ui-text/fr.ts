@@ -263,6 +263,11 @@ export const FR: EditorUiText = {
       },
     },
     userDelete: {
+      pageTitle: 'Supprimer l\'utilisateur',
+      irreversibleBadge: 'Irréversible',
+      confirmPrefix: 'Supprimer',
+      confirmSuffix: '?',
+      userFallbackPrefix: 'Utilisateur n°',
       errors: {
         invalidId: 'Identifiant utilisateur invalide.',
         loadFailed: 'Impossible de charger cet utilisateur.',
@@ -277,6 +282,11 @@ export const FR: EditorUiText = {
       },
     },
     quizSessionDelete: {
+      pageTitle: 'Supprimer le quiz',
+      introPrefix: 'Vous allez supprimer le quiz',
+      introSeparator: 'pour',
+      loading: 'Chargement du quiz…',
+      userFallbackPrefix: 'Utilisateur n°',
       errors: {
         invalidId: 'Identifiant de quiz invalide.',
         loadFailed: 'Impossible de charger le quiz.',
@@ -290,7 +300,7 @@ export const FR: EditorUiText = {
         deleteFailed: 'Erreur lors de la suppression.',
       },
     },
-    userList: {title: 'Utilisateurs', subtitle: 'Gestion des utilisateurs', id: 'ID', username: 'Identifiant', name: 'Nom', email: 'Email', nbDomainMax: 'Domaines max', active: 'Actif', emailConfirmed: 'Email confirmé', actions: 'Actions'},
+    userList: {title: 'Utilisateurs', subtitle: 'Gestion des utilisateurs', id: 'ID', username: 'Identifiant', name: 'Nom', email: 'Email', nbDomainMax: 'Domaines max', active: 'Actif', emailConfirmed: 'Email confirmé', actions: 'Actions', bulkActionsPlaceholder: 'Actions groupées…', bulkActionsApply: 'Appliquer', selectedSingular: 'sélectionné', selectedPlural: 'sélectionnés', searchPlaceholder: 'Rechercher…'},
     quizTemplateResults: {
       title: 'Résultats du quiz',
       titleWithTemplate: 'Résultats du quiz : {title}',
