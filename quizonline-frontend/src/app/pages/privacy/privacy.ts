@@ -3,8 +3,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {DestroyRef} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 
-import {UserApi} from '../../api/generated/api/user.service';
 import {AuthService} from '../../services/auth/auth';
+import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getPrivacyUiText} from './privacy.i18n';
@@ -29,7 +29,7 @@ export class Privacy {
    *  the operator can change it without touching translation strings. */
   protected readonly contactEmail = 'privacy@foxugly.com';
 
-  private readonly userApi = inject(UserApi);
+  private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Hits ``GET /api/customuser/me/export/`` and downloads the JSON dump
@@ -40,7 +40,7 @@ export class Privacy {
       return;
     }
     this.downloading.set(true);
-    this.userApi.userMeExportRetrieve()
+    this.userService.exportMe()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (payload) => {

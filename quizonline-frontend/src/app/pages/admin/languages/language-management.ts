@@ -12,10 +12,10 @@ import {TableModule} from 'primeng/table';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {ConfirmationService} from 'primeng/api';
 
-import {LanguageApi as LanguageApiService} from '../../../api/generated/api/language.service';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {LanguageWriteRequestDto} from '../../../api/generated/model/language-write-request';
 import {PatchedLanguagePartialRequestDto} from '../../../api/generated/model/patched-language-partial-request';
+import {LanguageService} from '../../../services/language/language';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 
@@ -37,7 +37,7 @@ import {logApiError} from '../../../shared/api/api-errors';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageManagementPage implements OnInit {
-  private readonly api = inject(LanguageApiService);
+  private readonly languageService = inject(LanguageService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmationService = inject(ConfirmationService);
@@ -61,11 +61,10 @@ export class LanguageManagementPage implements OnInit {
   }
 
   load(): void {
-    this.api
-      .langList({})
+    this.languageService.list()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: any) => this.languages.set(response.results ?? []),
+        next: (languages) => this.languages.set(languages),
         error: (err: unknown) => {
           logApiError('languages.load', err);
           this.languages.set([]);
@@ -98,8 +97,8 @@ export class LanguageManagementPage implements OnInit {
 
     const edit = this.editing();
     const request$ = edit
-      ? this.api.langUpdate({langId: edit.id, languageWriteRequestDto: dto})
-      : this.api.langCreate({languageWriteRequestDto: dto});
+      ? this.languageService.update(edit.id, dto)
+      : this.languageService.create(dto);
 
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
@@ -112,8 +111,8 @@ export class LanguageManagementPage implements OnInit {
 
   onActiveToggle(lang: LanguageReadDto, active: boolean): void {
     const dto: PatchedLanguagePartialRequestDto = {active};
-    this.api
-      .langPartialUpdate({langId: lang.id, patchedLanguagePartialRequestDto: dto})
+    this.languageService
+      .partialUpdate(lang.id, dto)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.load(),
@@ -125,8 +124,8 @@ export class LanguageManagementPage implements OnInit {
     this.confirmationService.confirm({
       message: this.t().deleteConfirm,
       accept: () => {
-        this.api
-          .langDestroy({langId: lang.id})
+        this.languageService
+          .delete(lang.id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => this.load(),

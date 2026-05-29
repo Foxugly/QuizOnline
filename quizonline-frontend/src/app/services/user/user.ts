@@ -187,6 +187,18 @@ export class UserService {
     );
   }
 
+  /** GDPR data export — full per-user data dump as a JSON payload the
+   *  caller serialises and offers as a download. */
+  exportMe() {
+    return this.userApi.userMeExportRetrieve();
+  }
+
+  /** Account self-deletion ("delete my account" affordance on the
+   *  preferences page). Routes through the generated client. */
+  deleteMe() {
+    return this.userApi.userMeDestroy();
+  }
+
   setCurrentDomain(domainId: number | null): Observable<CustomUserReadDto> {
     return this.http.post<CustomUserReadDto>(`${this.apiBaseUrl}/me/current-domain/`, {
       domain_id: domainId,

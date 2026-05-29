@@ -5,6 +5,7 @@ import {map, Observable, of, shareReplay, tap} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
 import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
+import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-request-read';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
 import {DomainWriteRequestDto} from '../../api/generated/model/domain-write-request';
 import {PatchedDomainPartialRequestDto} from '../../api/generated/model/patched-domain-partial-request';
@@ -126,6 +127,92 @@ export class DomainService {
   /** Cancel one's own pending join request on a domain. */
   cancelJoinRequest(domainId: number, reqId: number): Observable<void> {
     return this.api.domainJoinRequestCancelCreate({domainId, reqId}).pipe(map(() => void 0));
+  }
+
+  /** Per-user moderation tile: aggregated counters across every domain
+   *  the caller may moderate. Cached server-side 60 s with proactive
+   *  invalidation, so we just forward the call. */
+  moderationSummary() {
+    return this.api.domainModerationSummaryList();
+  }
+
+  /** Lookup endpoint for the public invite-acceptance flow.
+   *  Returns the invite state including ``invited_email`` so the
+   *  unauthenticated page can prompt for sign-up vs sign-in. */
+  retrieveInviteByToken(token: string) {
+    return this.api.domainInviteAcceptRetrieve({token});
+  }
+
+  /** Final acceptance of a domain invitation by its signed token. */
+  acceptInviteByToken(token: string) {
+    return this.api.domainInviteAcceptCreate({token});
+  }
+
+  /** Lookup endpoint for the public join-request decision flow
+   *  (moderator clicked an approve/reject link from the email). */
+  retrieveJoinRequestDecisionByToken(token: string) {
+    return this.api.domainJoinRequestDecideRetrieve({token});
+  }
+
+  /** Apply the moderator's decision (approve or reject) carried in
+   *  the signed token. */
+  applyJoinRequestDecisionByToken(token: string) {
+    return this.api.domainJoinRequestDecideCreate({token});
+  }
+
+  /** Lookup endpoint for the public ownership-transfer-acceptance flow. */
+  retrieveTransferByToken(token: string) {
+    return this.api.domainTransferAcceptRetrieve({token});
+  }
+
+  /** Accept the ownership transfer signed by its token. */
+  acceptTransferByToken(token: string) {
+    return this.api.domainTransferAcceptCreate({token});
+  }
+
+  /** Instructor / moderator approves a single domain join request. */
+  approveJoinRequest(domainId: number, reqId: number) {
+    return this.api.domainJoinRequestApproveCreate({domainId, reqId});
+  }
+
+  /** Instructor / moderator rejects a single domain join request.
+   *  The reject endpoint accepts an optional ``reason`` body — the
+   *  current OpenAPI schema does not declare it so the generated
+   *  client wrapper cannot carry it, hence the direct ``http.post``
+   *  bypass. When the backend serializer is updated to expose the
+   *  field, regen and swap this body in. */
+  rejectJoinRequest(domainId: number, reqId: number, reason: string) {
+    const url = `${this.apiBaseUrl}/${domainId}/join-request/${reqId}/reject/`;
+    return this.http.post(url, {reason});
+  }
+
+  /** List the join requests for a domain, optionally filtered by
+   *  status. Wraps the no-pagination endpoint that returns either a
+   *  raw array or a ``{results}`` envelope. */
+  listJoinRequests(
+    domainId: number,
+    status?: string,
+  ): Observable<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]> {
+    const qs = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
+    return this.http.get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(
+      `${this.apiBaseUrl}/${domainId}/join-request/${qs}`,
+    );
+  }
+
+  /** Bulk-approve a batch of pending join requests in one atomic call. */
+  bulkApproveJoinRequests(domainId: number, requestIds: number[]) {
+    return this.api.domainJoinRequestBulkApproveCreate({
+      domainId,
+      domainJoinRequestBulkApproveRequestDto: {request_ids: requestIds},
+    });
+  }
+
+  /** Bulk-reject a batch of pending join requests with a shared reason. */
+  bulkRejectJoinRequests(domainId: number, requestIds: number[], reason: string) {
+    return this.api.domainJoinRequestBulkRejectCreate({
+      domainId,
+      domainJoinRequestBulkRejectRequestDto: {request_ids: requestIds, reason},
+    });
   }
 
   goNew(): void {
