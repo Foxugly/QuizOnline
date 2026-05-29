@@ -50,7 +50,7 @@ Verify:
 
 ```bash
 curl -i -X POST -H "Authorization: Bearer <jwt>" \
-  https://quizonline.foxugly.com/api/lms/course/1/invite/ \
+  https://quizonline.foxugly.com/api/course/1/invite/ \
   -d '{"invitee_id": 2}'
 # Expect: 503 Service Unavailable
 ```
@@ -74,42 +74,48 @@ git push                      # triggers CI → deploy
 
 Watch the GitHub Actions tab. Successful deploy takes ~3 min end-to-end.
 
-### Level 3 — Migration rollback (downtime, ~5-10 min)
+### Level 3 — Schema rollback (downtime, manual SQL post-LMS-extract)
 
-Only relevant if the bug is in a migration applied on prod. The
-course-invite feature shipped two:
+> **Post-refactor note (May 2026).** The LMS-extract refactor (PR #20)
+> collapsed every legacy `lms_enrollment` migration into a single
+> `enrollment/migrations/0001_initial.py`. Reverting a specific
+> migration via `manage.py migrate enrollment <name>` is no longer
+> possible — there is no intermediate state to migrate to. Level 3 is
+> kept as a reference for SQLite/Postgres hand-craft rollback only.
 
-* `lms_enrollment/migrations/0004_courseinvite.py` — additive, safe
-  to revert via `migrate lms_enrollment 0003_lessonnote` (drops the
-  table + every invite row).
-* `lms_enrollment/migrations/0005_remove_courseinvite_inviter.py` —
-  drops the `inviter` FK column. Reverting recreates the column but
-  with `NULL` values (the data was redundant with `created_by`, so
-  no loss).
+Only relevant if the bug is in the **DB schema** of a CourseInvite-
+related field (not the application code). For non-schema bugs, prefer
+level 2 — the schema is additive and tolerates the previous code
+shape just fine.
+
+If you must roll back the schema by hand:
 
 ```bash
 # 1. ALWAYS snapshot the DB first.
 sudo -u django /var/www/django_websites/QuizOnline/deploy/backup-db.sh
+# On the SQLite prod, ALSO take a literal copy for instant restore:
+sudo cp /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3 \
+        /var/backups/quizonline/db.sqlite3.pre-courseinvite-rollback-$(date +%Y%m%dT%H%M%S)
 
 # 2. SSH to box, activate venv.
 cd /var/www/django_websites/QuizOnline/quizonline-server
 sudo -u django bash
 source ../.venv/bin/activate
 
-# 3. Show what the revert would do (dry run).
-python manage.py migrate lms_enrollment 0003_lessonnote --plan
-
-# 4. Apply (this also stops gunicorn briefly when the table goes).
+# 3. Stop services (no writes during the schema change).
 sudo systemctl stop quizonline-gunicorn quizonline-celery quizonline-celery-beat
-python manage.py migrate lms_enrollment 0003_lessonnote
+
+# 4. Run the recovery SQL by hand (sqlite3 / psql), then restart.
+#    e.g. ``DROP TABLE enrollment_courseinvite;`` is the only safe path
+#    on the merged-initial schema. Then update ``django_migrations`` to
+#    mark a manual recovery sentinel so future migrate calls stay aligned.
 sudo systemctl start quizonline-gunicorn quizonline-celery quizonline-celery-beat
 ```
 
-After a level-3 rollback the catalog visibility filter still works
-(the `Q(invites__...)` branch becomes a dead JOIN on the missing
-table — Django catches the schema mismatch as a 500). In that
-situation, ALSO revert the application code (level 2) so the
-visibility filter stops referencing the dropped relation.
+After this kind of rollback the catalog visibility filter still
+references the (now-missing) `invites__...` relation — Django catches
+the schema mismatch as a 500. ALSO revert the application code (level 2)
+so the visibility filter stops referencing the dropped relation.
 
 ---
 
@@ -126,7 +132,7 @@ SELECT
   COUNT(*) FILTER (WHERE status = 'declined') AS declined,
   COUNT(*) FILTER (WHERE status = 'expired') AS expired,
   COUNT(*) FILTER (WHERE status = 'revoked') AS revoked
-FROM lms_enrollment_courseinvite
+FROM enrollment_courseinvite
 WHERE created_at >= NOW() - INTERVAL '30 days'
 GROUP BY 1
 ORDER BY 1 DESC;
@@ -140,7 +146,7 @@ Red flags:
 * **`accepted / (accepted + declined + expired)` < 30 %** — invites
   are not landing. Likely culprits: emails in spam (check the
   bounce rate on SES / your provider), or learners can't find the
-  link (recheck the topbar badge + `/lms/me/invitations` page on
+  link (recheck the topbar badge + `/me/invitations` page on
   prod).
 * **`pending` > 1000 on a single day** — a runaway bulk send. Lower
   `LMS_COURSE_INVITE_BULK_MAX` to 20 and investigate which
@@ -197,7 +203,7 @@ course-invite flow now carry the `course_id` / `invite_id` /
 The `LmsInvitationCountService` refreshes on accept / decline
 callbacks. If the badge is stale, the refresh signal didn't fire.
 Reproduce: open DevTools, accept an invite, watch for a
-`GET /api/lms/me/invitations/` request in the network tab — it
+`GET /api/me/invitations/` request in the network tab — it
 should fire right after the accept call. If missing, file a bug
 with the call sequence.
 
@@ -206,7 +212,7 @@ with the call sequence.
 Should NOT happen post-`d76014d` (select_for_update closes the
 race). If observed:
 
-1. Capture: `SELECT * FROM lms_enrollment_courseenrollment WHERE
+1. Capture: `SELECT * FROM enrollment_courseenrollment WHERE
    course_id = X AND user_id = Y;`
 2. Keep the older row (lower `enrolled_at`), delete the duplicate.
 3. Report the invite_id — the lock should have prevented this. We
@@ -221,7 +227,7 @@ race). If observed:
 ```bash
 sudo -u django /var/www/django_websites/QuizOnline/.venv/bin/python \
   /var/www/django_websites/QuizOnline/quizonline-server/manage.py shell -c \
-  'from lms_enrollment.tasks import expire_pending_course_invites; print(expire_pending_course_invites())'
+  'from enrollment.tasks import expire_pending_course_invites; print(expire_pending_course_invites())'
 ```
 
 Returns the count of rows updated. Useful when Celery beat skipped
@@ -231,8 +237,8 @@ a window.
 
 ```python
 # python manage.py shell
-from lms_enrollment.models import CourseInvite
-from lms_enrollment.services import resend_course_invite
+from enrollment.models import CourseInvite
+from enrollment.services import resend_course_invite
 from django.contrib.auth import get_user_model
 
 invite = CourseInvite.objects.get(id=42)
@@ -248,7 +254,7 @@ outbox.
 ```python
 # python manage.py shell
 from django.utils import timezone
-from lms_enrollment.models import CourseInvite
+from enrollment.models import CourseInvite
 
 CourseInvite.objects.filter(
     course_id=42,
@@ -264,8 +270,8 @@ CourseInvite.objects.filter(
 ## Related references
 
 * Backend feature commits: `fa2ffe6` → `e034b34` (May 2026)
-* Backend tests: `quizonline-server/lms_enrollment/tests/test_course_invite.py`
+* Backend tests: `quizonline-server/enrollment/tests/test_course_invite.py`
 * E2E spec: `quizonline-frontend/e2e/fullstack/course-invite-fullstack.spec.ts`
 * Notification kinds: `customuser/notifications.py` — `KIND_COURSE_INVITE_*` + `KIND_COURSE_ENROLLMENT_REQUEST`
 * Email templates: `quizonline-server/templates/emails/lms/course-invite-*`
-* Sweep task: `quizonline-server/lms_enrollment/tasks.py::expire_pending_course_invites`
+* Sweep task: `quizonline-server/enrollment/tasks.py::expire_pending_course_invites`
