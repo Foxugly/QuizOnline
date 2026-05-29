@@ -6,6 +6,11 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+# Re-exported for backward compatibility — these primitives moved to
+# ``core.services`` so ``lesson`` / ``block`` can import them without
+# pulling the whole ``course`` app at module-load time.
+from core.services import compact, two_phase_reorder  # noqa: F401
+
 from .models import Course, CourseAuditLog, Section
 
 
@@ -216,36 +221,6 @@ def unpublish_course(*, course: Course, by_user) -> Course:
     course.save(update_fields=["is_published", "updated_by"])
     record_course_audit(course=course, actor=by_user, action="course.unpublish")
     return course
-
-
-def two_phase_reorder(model, parent_filter, ids_in_order):
-    """Shared two-phase reorder primitive. Lives on ``course.services``
-    because every reorder helper in ``course / lesson / block`` builds
-    on the same primitive — keeping a single home avoids duplicating
-    the constraint-safe shuffle in three places."""
-    rows = list(model.objects.select_for_update().filter(parent_filter, id__in=ids_in_order))
-    if len(rows) != len(ids_in_order):
-        raise ValidationError(_("ID mismatch in reorder payload."))
-    model.objects.filter(parent_filter, id__in=ids_in_order).update(
-        order=models.F("order") + 1_000_000,
-    )
-    for new_order, pk in enumerate(ids_in_order):
-        model.objects.filter(pk=pk).update(order=new_order)
-    return list(model.objects.filter(parent_filter).order_by("order"))
-
-
-def compact(model, parent_filter):
-    """Renumber surviving rows to 0..N-1 in their current ``order``.
-
-    Run this after a delete so the next insertion picks a free slot
-    against the ``UNIQUE(parent, order)`` constraint without the
-    caller having to reason about gaps. Reuses ``two_phase_reorder``
-    so the constraint is never briefly violated mid-update.
-    """
-    ids = list(model.objects.filter(parent_filter).order_by("order").values_list("id", flat=True))
-    if not ids:
-        return []
-    return two_phase_reorder(model, parent_filter, ids)
 
 
 @transaction.atomic

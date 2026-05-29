@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db import models, transaction
 
-from course.services import compact, two_phase_reorder
+from core.services import compact, two_phase_reorder
 
 from .models import Lesson
 
