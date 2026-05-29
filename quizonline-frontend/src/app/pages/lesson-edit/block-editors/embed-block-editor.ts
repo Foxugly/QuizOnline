@@ -1,0 +1,122 @@
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {InputTextModule} from 'primeng/inputtext';
+import {TabsModule} from 'primeng/tabs';
+import {Subject, Subscription, debounceTime} from 'rxjs';
+
+import {UserService} from '../../../services/user/user';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {ContentBlock} from '../../../shared/learning/content-block.types';
+import {pickDefaultLang} from '../../../shared/learning/default-lang';
+
+import {BlockTranslateButton} from './block-translate-button';
+import {getBlockEditorsUiText} from './block-editors.i18n';
+
+/**
+ * Editor for the ``embed`` ContentBlock (generic third-party iframe).
+ *
+ * Translatable: per-language ``title`` shown as the iframe ``title``
+ * attribute by the renderer. Non-translatable: the canonical
+ * ``external_url`` that backs the ``<iframe src>``.
+ */
+@Component({
+  selector: 'app-embed-block-editor',
+  imports: [FormsModule, InputTextModule, TabsModule, BlockTranslateButton],
+  template: `
+    @if (!hideTitle()) {
+      <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
+        <p-tablist>
+          @for (lang of availableLangs(); track lang) {
+            <p-tab [value]="lang">{{ lang.toUpperCase() }}</p-tab>
+          }
+          <div class="tablist-actions">
+            <app-block-translate-button
+              [block]="block()"
+              [availableLangs]="availableLangs()"
+              [activeLang]="activeLang()"
+              (changed)="changed.emit($event)" />
+          </div>
+        </p-tablist>
+        <p-tabpanels>
+          @for (lang of availableLangs(); track lang) {
+            <p-tabpanel [value]="lang">
+              <label>
+                {{ ui().fieldTitle }}
+                <input pInputText type="text"
+                       [ngModel]="titleFor(lang)"
+                       (ngModelChange)="onTitleChange(lang, $event)" />
+              </label>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    }
+
+    <label>
+      {{ ui().fieldExternalUrl }}
+      <input pInputText type="url"
+             [ngModel]="block().external_url"
+             (ngModelChange)="onUrlChange($event)" />
+    </label>
+  `,
+  styles: [`
+    :host { display: block; }
+    label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; margin-top: 0.5rem; }
+    .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EmbedBlockEditor implements OnInit, OnDestroy {
+  private readonly user = inject(UserService);
+  protected readonly ui = inject(UiTextService).localized(getBlockEditorsUiText);
+
+  block = input.required<ContentBlock>();
+  availableLangs = input<string[]>(['fr', 'en']);
+  /** Hide the per-language title input (and its language tab strip,
+   *  since the title is the only translatable field on this block). */
+  hideTitle = input<boolean>(false);
+  changed = output<Partial<ContentBlock>>();
+
+  protected readonly activeLang = signal<string>('');
+  private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
+
+  private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
+  private sub: Subscription | null = null;
+
+  ngOnInit(): void {
+    this.activeLang.set(this.defaultLang());
+    this.sub = this.debouncer$
+      .pipe(debounceTime(500))
+      .subscribe((patch) => this.changed.emit(patch));
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+    this.sub = null;
+  }
+
+  protected titleFor(lang: string): string {
+    return this.block().translations?.[lang]?.['title'] ?? '';
+  }
+
+  protected onTitleChange(lang: string, value: string | null | undefined): void {
+    const tr = {...(this.block().translations ?? {})};
+    tr[lang] = {...(tr[lang] ?? {}), title: value ?? ''};
+    this.debouncer$.next({translations: tr});
+  }
+
+  protected onUrlChange(value: string | null | undefined): void {
+    this.debouncer$.next({external_url: extractIframeSrc(value ?? '')});
+  }
+}
+
+/** YouTube's Share → Embed dialog hands authors a full ``<iframe ...>``
+ *  HTML snippet. The field only stores the URL — peel out the ``src``
+ *  if a full snippet was pasted so the bloc works regardless of which
+ *  form the author copied. Returns the raw value unchanged when no
+ *  iframe tag is detected. */
+function extractIframeSrc(input: string): string {
+  const trimmed = input.trim();
+  const match = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
+  return match ? match[1] : trimmed;
+}

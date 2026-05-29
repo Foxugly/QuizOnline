@@ -21,10 +21,6 @@ import { ErrorDetailDto } from '../model/error-detail';
 // @ts-ignore
 import { LocalizedQuestionTranslationRequestDto } from '../model/localized-question-translation-request';
 // @ts-ignore
-import { MediaAssetDto } from '../model/media-asset';
-// @ts-ignore
-import { MediaAssetUploadKindEnumDto } from '../model/media-asset-upload-kind-enum';
-// @ts-ignore
 import { PaginatedQuestionReadListDto } from '../model/paginated-question-read-list';
 // @ts-ignore
 import { PatchedQuestionPartialWritePayloadRequestDto } from '../model/patched-question-partial-write-payload-request';
@@ -36,8 +32,6 @@ import { QuestionReadDto } from '../model/question-read';
 import { QuestionWriteDto } from '../model/question-write';
 // @ts-ignore
 import { QuestionWritePayloadRequestDto } from '../model/question-write-payload-request';
-// @ts-ignore
-import { QuestionWriteRequestDto } from '../model/question-write-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -58,15 +52,17 @@ export interface QuestionImportStructuredCreateRequestParams {
     domain: number;
     /** Object or JSON string (multipart). Dict keyed by language code. */
     translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
+    /** Block payloads forming the question prompt (text/media/code/...). */
+    promptBlocks?: Array<{ [key: string]: any; }>;
+    /** Block payloads forming the answer explanation. */
+    explanationBlocks?: Array<{ [key: string]: any; }>;
     allowMultipleCorrect?: boolean;
     active?: boolean;
     isModePractice?: boolean;
     isModeExam?: boolean;
     subjectIds?: Array<number>;
-    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
+    /** List or JSON string (multipart). Each item: {is_correct, sort_order, blocks: [{block_type, order, translations}]} */
     answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
-    /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
-    mediaAssetIds?: Array<number>;
 }
 
 export interface QuestionListRequestParams {
@@ -82,31 +78,6 @@ export interface QuestionListRequestParams {
     search?: string;
     /** Liste d\&#39;IDs de sujets pour filtrer les questions. */
     subjectIds?: Array<number>;
-}
-
-export interface QuestionMediaCreateRequestParams {
-    file?: Blob;
-    externalUrl?: string;
-    kind?: MediaAssetUploadKindEnumDto;
-}
-
-export interface QuestionMediaExternalCreateRequestParams {
-    questionWriteRequestDto: QuestionWriteRequestDto;
-}
-
-export interface QuestionMediaUploadCreateRequestParams {
-    domain: number;
-    /** Object or JSON string (multipart). Dict keyed by language code. */
-    translations?: { [key: string]: LocalizedQuestionTranslationRequestDto; };
-    allowMultipleCorrect?: boolean;
-    active?: boolean;
-    isModePractice?: boolean;
-    isModeExam?: boolean;
-    subjectIds?: Array<number>;
-    /** List or JSON string (multipart). Each item: {is_correct, sort_order, translations{lang:{content}}} */
-    answerOptions?: Array<QuestionAnswerOptionWriteRequestDto>;
-    /** IDs des MediaAsset uploadés au préalable. L\\\&#39;ordre dans la liste définit l\\\&#39;ordre d\\\&#39;affichage des médias. */
-    mediaAssetIds?: Array<number>;
 }
 
 export interface QuestionPartialUpdateRequestParams {
@@ -137,8 +108,8 @@ export class QuestionApi extends BaseService {
     }
 
     /**
-     * Créer une question (multipart ou JSON)
-     * Crée une question.  ⚠️ Les médias NE sont PAS uploadés ici.  Workflow recommandé : 1. POST /api/question/media/ → upload fichier ou URL externe 2. Récupérer les &#x60;id&#x60; des MediaAsset retournés 3. POST /api/question/ avec &#x60;media_asset_ids: [1, 2, 3]&#x60;  Payload supporté : JSON ou multipart/form-data. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: JSON (liste) - &#x60;media_asset_ids&#x60;: liste d\&#39;IDs MediaAsset 
+     * Créer une question (JSON)
+     * Crée une question.  Payload : JSON. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: liste  Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via &#x60;/api/block/&#x60;. 
      * @endpoint post /api/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -323,7 +294,7 @@ export class QuestionApi extends BaseService {
     }
 
     /**
-     * Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias). Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
+     * Importe des questions depuis un JSON structuré. Accepte un fichier multipart (&#x60;&#x60;json_file&#x60;&#x60;) ou un body JSON direct.
      * @endpoint post /api/question/import-structured/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -339,13 +310,14 @@ export class QuestionApi extends BaseService {
             throw new Error('Required parameter domain was null or undefined when calling questionImportStructuredCreate.');
         }
         const translations = requestParameters?.translations;
+        const promptBlocks = requestParameters?.promptBlocks;
+        const explanationBlocks = requestParameters?.explanationBlocks;
         const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
         const active = requestParameters?.active;
         const isModePractice = requestParameters?.isModePractice;
         const isModeExam = requestParameters?.isModeExam;
         const subjectIds = requestParameters?.subjectIds;
         const answerOptions = requestParameters?.answerOptions;
-        const mediaAssetIds = requestParameters?.mediaAssetIds;
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -387,6 +359,24 @@ export class QuestionApi extends BaseService {
         if (translations !== undefined) {
             localVarFormParams = localVarFormParams.append('translations', <any>translations) as any || localVarFormParams;
         }
+        if (promptBlocks) {
+            if (localVarUseForm) {
+                promptBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('prompt_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('prompt_blocks', [...promptBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
+        }
+        if (explanationBlocks) {
+            if (localVarUseForm) {
+                explanationBlocks.forEach((element) => {
+                    localVarFormParams = localVarFormParams.append('explanation_blocks', <any>element) as any || localVarFormParams;
+            })
+            } else {
+                localVarFormParams = localVarFormParams.append('explanation_blocks', [...explanationBlocks].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
+            }
+        }
         if (allowMultipleCorrect !== undefined) {
             localVarFormParams = localVarFormParams.append('allow_multiple_correct', <any>allowMultipleCorrect) as any || localVarFormParams;
         }
@@ -415,15 +405,6 @@ export class QuestionApi extends BaseService {
             })
             } else {
                 localVarFormParams = localVarFormParams.append('answer_options', [...answerOptions].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
-            }
-        }
-        if (mediaAssetIds) {
-            if (localVarUseForm) {
-                mediaAssetIds.forEach((element) => {
-                    localVarFormParams = localVarFormParams.append('media_asset_ids', <any>element) as any || localVarFormParams;
-            })
-            } else {
-                localVarFormParams = localVarFormParams.append('media_asset_ids', [...mediaAssetIds].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
             }
         }
 
@@ -595,298 +576,7 @@ export class QuestionApi extends BaseService {
     }
 
     /**
-     * Uploader un média (dédup sha256) ou enregistrer un média externe
-     * Upload un fichier (multipart) ou enregistre une URL externe. - multipart: envoyer &#x60;file&#x60; - json/form: envoyer &#x60;external_url&#x60;  Retourne un &#x60;MediaAsset&#x60; (id à réutiliser dans &#x60;media_asset_ids&#x60; lors de la création/màj d\&#39;une Question).
-     * @endpoint post /api/question/media/
-     * @param requestParameters
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MediaAssetDto>;
-    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MediaAssetDto>>;
-    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MediaAssetDto>>;
-    public questionMediaCreate(requestParameters?: QuestionMediaCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const file = requestParameters?.file;
-        const externalUrl = requestParameters?.externalUrl;
-        const kind = requestParameters?.kind;
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (jwtAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'multipart/form-data',
-            'application/x-www-form-urlencoded',
-            'application/json'
-        ];
-
-        const canConsumeForm = this.canConsumeForm(consumes);
-
-        let localVarFormParams: { append(param: string, value: any): any; };
-        let localVarUseForm = false;
-        let localVarConvertFormParamsToString = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-        localVarUseForm = canConsumeForm;
-        if (localVarUseForm) {
-            localVarFormParams = new FormData();
-        } else {
-            localVarFormParams = new HttpParams({encoder: this.encoder});
-        }
-
-        if (file !== undefined) {
-            localVarFormParams = localVarFormParams.append('file', <any>file) as any || localVarFormParams;
-        }
-        if (externalUrl !== undefined) {
-            localVarFormParams = localVarFormParams.append('external_url', <any>externalUrl) as any || localVarFormParams;
-        }
-        if (kind !== undefined) {
-            localVarFormParams = localVarFormParams.append('kind', <any>kind) as any || localVarFormParams;
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/question/media/`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<MediaAssetDto>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint post /api/question/media/external/
-     * @param requestParameters
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
-    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
-    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
-    public questionMediaExternalCreate(requestParameters: QuestionMediaExternalCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const questionWriteRequestDto = requestParameters?.questionWriteRequestDto;
-        if (questionWriteRequestDto === null || questionWriteRequestDto === undefined) {
-            throw new Error('Required parameter questionWriteRequestDto was null or undefined when calling questionMediaExternalCreate.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (jwtAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/question/media/external/`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: questionWriteRequestDto,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * @endpoint post /api/question/media/upload/
-     * @param requestParameters
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<QuestionWriteDto>;
-    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<QuestionWriteDto>>;
-    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<QuestionWriteDto>>;
-    public questionMediaUploadCreate(requestParameters: QuestionMediaUploadCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        const domain = requestParameters?.domain;
-        if (domain === null || domain === undefined) {
-            throw new Error('Required parameter domain was null or undefined when calling questionMediaUploadCreate.');
-        }
-        const translations = requestParameters?.translations;
-        const allowMultipleCorrect = requestParameters?.allowMultipleCorrect;
-        const active = requestParameters?.active;
-        const isModePractice = requestParameters?.isModePractice;
-        const isModeExam = requestParameters?.isModeExam;
-        const subjectIds = requestParameters?.subjectIds;
-        const answerOptions = requestParameters?.answerOptions;
-        const mediaAssetIds = requestParameters?.mediaAssetIds;
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (jwtAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'multipart/form-data',
-            'application/x-www-form-urlencoded'
-        ];
-
-        const canConsumeForm = this.canConsumeForm(consumes);
-
-        let localVarFormParams: { append(param: string, value: any): any; };
-        let localVarUseForm = false;
-        let localVarConvertFormParamsToString = false;
-        if (localVarUseForm) {
-            localVarFormParams = new FormData();
-        } else {
-            localVarFormParams = new HttpParams({encoder: this.encoder});
-        }
-
-        if (domain !== undefined) {
-            localVarFormParams = localVarFormParams.append('domain', <any>domain) as any || localVarFormParams;
-        }
-        if (translations !== undefined) {
-            localVarFormParams = localVarFormParams.append('translations', <any>translations) as any || localVarFormParams;
-        }
-        if (allowMultipleCorrect !== undefined) {
-            localVarFormParams = localVarFormParams.append('allow_multiple_correct', <any>allowMultipleCorrect) as any || localVarFormParams;
-        }
-        if (active !== undefined) {
-            localVarFormParams = localVarFormParams.append('active', <any>active) as any || localVarFormParams;
-        }
-        if (isModePractice !== undefined) {
-            localVarFormParams = localVarFormParams.append('is_mode_practice', <any>isModePractice) as any || localVarFormParams;
-        }
-        if (isModeExam !== undefined) {
-            localVarFormParams = localVarFormParams.append('is_mode_exam', <any>isModeExam) as any || localVarFormParams;
-        }
-        if (subjectIds) {
-            if (localVarUseForm) {
-                subjectIds.forEach((element) => {
-                    localVarFormParams = localVarFormParams.append('subject_ids', <any>element) as any || localVarFormParams;
-            })
-            } else {
-                localVarFormParams = localVarFormParams.append('subject_ids', [...subjectIds].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
-            }
-        }
-        if (answerOptions) {
-            if (localVarUseForm) {
-                answerOptions.forEach((element) => {
-                    localVarFormParams = localVarFormParams.append('answer_options', <any>element) as any || localVarFormParams;
-            })
-            } else {
-                localVarFormParams = localVarFormParams.append('answer_options', [...answerOptions].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
-            }
-        }
-        if (mediaAssetIds) {
-            if (localVarUseForm) {
-                mediaAssetIds.forEach((element) => {
-                    localVarFormParams = localVarFormParams.append('media_asset_ids', <any>element) as any || localVarFormParams;
-            })
-            } else {
-                localVarFormParams = localVarFormParams.append('media_asset_ids', [...mediaAssetIds].join(COLLECTION_FORMATS['csv'])) as any || localVarFormParams;
-            }
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/question/media/upload/`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Mettre à jour une question (PATCH)
-     * Met à jour une question.  Les médias sont gérés via &#x60;/api/question/media/&#x60;. Utiliser &#x60;media_asset_ids&#x60; pour lier/délier les médias. 
      * @endpoint patch /api/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1020,7 +710,6 @@ export class QuestionApi extends BaseService {
 
     /**
      * Mettre à jour une question (PUT)
-     * Met à jour une question.  Les médias sont gérés via &#x60;/api/question/media/&#x60;. Utiliser &#x60;media_asset_ids&#x60; pour lier/délier les médias. 
      * @endpoint put /api/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

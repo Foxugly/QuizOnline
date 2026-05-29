@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
-import {map, Observable, of, tap} from 'rxjs';
+import {map, Observable, of, shareReplay, tap} from 'rxjs';
 
 import {UserApi as UserApiService} from '../../api/generated/api/user.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
@@ -73,10 +73,37 @@ export class UserService {
     return !!user && user.email_confirmed === false;
   }
 
+  /** TTL cache for the unfiltered ``list()`` payload. Domain-edit
+   *  in particular fetches the user pool to populate owner / manager
+   *  pickers; once loaded the same data drives several pickers in
+   *  the same session. 60 s is enough to absorb the typical edit
+   *  flow without showing the author a pre-write snapshot — the
+   *  admin write paths below bust the cache. */
+  private readonly listCacheTtlMs = 60_000;
+  private listCache: {at: number; data: CustomUserReadDto[]} | null = null;
+
   list(): Observable<CustomUserReadDto[]> {
-    return this.http.get<CustomUserReadDto[] | {results?: CustomUserReadDto[]}>(`${this.apiBaseUrl}/`).pipe(
-      map((response) => Array.isArray(response) ? response : (response.results ?? [])),
-    );
+    const cached = this.listCache;
+    if (cached && Date.now() - cached.at < this.listCacheTtlMs) {
+      return of(cached.data);
+    }
+    return this.http
+      .get<CustomUserReadDto[] | {results?: CustomUserReadDto[]}>(`${this.apiBaseUrl}/`)
+      .pipe(
+        map((response) =>
+          Array.isArray(response) ? response : (response.results ?? []),
+        ),
+        tap((data) => {
+          this.listCache = {at: Date.now(), data};
+        }),
+        shareReplay({bufferSize: 1, refCount: true}),
+      );
+  }
+
+  /** Drop the user-list cache so the next ``list()`` reads the
+   *  post-write state. Wired into every admin write path below. */
+  private invalidateListCache(): void {
+    this.listCache = null;
   }
 
   listAdmin(): Observable<AdminUserDto[]> {
@@ -90,15 +117,21 @@ export class UserService {
   }
 
   createAdmin(payload: AdminUserCreatePayload): Observable<AdminUserDto> {
-    return this.http.post<AdminUserDto>(`${this.apiBaseUrl}/`, payload);
+    return this.http.post<AdminUserDto>(`${this.apiBaseUrl}/`, payload).pipe(
+      tap(() => this.invalidateListCache()),
+    );
   }
 
   updateAdmin(userId: number, payload: AdminUserUpdatePayload): Observable<AdminUserDto> {
-    return this.http.patch<AdminUserDto>(`${this.apiBaseUrl}/${userId}/`, payload);
+    return this.http.patch<AdminUserDto>(`${this.apiBaseUrl}/${userId}/`, payload).pipe(
+      tap(() => this.invalidateListCache()),
+    );
   }
 
   deleteAdmin(userId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiBaseUrl}/${userId}/`);
+    return this.http.delete<void>(`${this.apiBaseUrl}/${userId}/`).pipe(
+      tap(() => this.invalidateListCache()),
+    );
   }
 
   setLang(lang: SupportedLanguage) {

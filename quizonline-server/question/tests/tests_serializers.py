@@ -1,13 +1,11 @@
 # subject/tests/tests_serializers.py
 from __future__ import annotations
 
-import hashlib
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 from django.utils import translation
 from rest_framework import serializers
@@ -19,23 +17,15 @@ from subject.models import Subject
 from question.models import (
     Question,
     AnswerOption,
-    MediaAsset,
-    QuestionMedia,
 )
 from question.serializers import (
     QuestionLiteSerializer,
-    MediaAssetSerializer,
-    QuestionMediaReadSerializer,
-    MediaAssetUploadSerializer,
-    _sha256_file,
-    _infer_kind_from_upload,
     QuestionAnswerOptionPublicReadSerializer,
     QuestionAnswerOptionReadSerializer,
     QuestionAnswerOptionWriteSerializer,
     QuestionInQuizQuestionSerializer,
     QuestionReadSerializer,
     QuestionWriteSerializer,
-    _upsert_translations,
 )
 from question.answer_option_sync import sync_question_answer_options
 
@@ -121,20 +111,12 @@ class QuestionSerializersTestCase(TestCase):
     def _mk_question_with_translations(self, *, allow_multiple=False) -> Question:
         q = Question.objects.create(domain=self.domain, allow_multiple_correct=allow_multiple)
 
-        self._set_parler_translation(
-            q,
-            "fr",
-            title="Titre FR",
-            description="Desc FR",
-            explanation="Expl FR",
-        )
-        self._set_parler_translation(
-            q,
-            "en",
-            title="Title EN",
-            description="Desc EN",
-            explanation="Expl EN",
-        )
+        # Phase 3 LMS refactor: only ``title`` remains as a parler field
+        # on Question — ``description`` and ``explanation`` now live as
+        # block rows. Tests that care about prompt/explanation content
+        # build blocks via ``_mk_question_blocks`` below.
+        self._set_parler_translation(q, "fr", title="Titre FR")
+        self._set_parler_translation(q, "en", title="Title EN")
 
         return (
             Question.objects
@@ -143,85 +125,26 @@ class QuestionSerializersTestCase(TestCase):
         )
 
     def _mk_answer_option(self, q: Question, *, is_correct: bool, sort_order: int, fr: str, en: str) -> AnswerOption:
+        """Phase 3 LMS refactor: AnswerOption.content is now a block
+        list. Helper creates the option row and a single rich_text
+        block under the ``body`` role with the per-language content.
+        """
+        from block.models import Block
+        from django.contrib.contenttypes.models import ContentType
+
         ao = AnswerOption.objects.create(question=q, is_correct=is_correct, sort_order=sort_order)
-        self._set_parler_translation(ao, "fr", content=fr)
-        self._set_parler_translation(ao, "en", content=en)
+        option_ct = ContentType.objects.get_for_model(AnswerOption)
+        block = Block.objects.create(
+            target_content_type=option_ct,
+            target_object_id=ao.pk,
+            block_type=Block.TYPE_RICH_TEXT,
+            block_role=Block.ROLE_BODY,
+            order=0,
+        )
+        translation_model = block._parler_meta.root_model
+        translation_model.objects.create(master=block, language_code="fr", rich_text=fr)
+        translation_model.objects.create(master=block, language_code="en", rich_text=en)
         return AnswerOption.objects.get(pk=ao.pk)
-
-    def _mk_external_asset(self, url="https://www.youtube.com/watch?v=dQw4w9WgXcQ") -> MediaAsset:
-        return MediaAsset.objects.create(kind=MediaAsset.EXTERNAL, external_url=url)
-
-    # Minimal PNG magic bytes (signature only — enough for filetype detection)
-    PNG_MAGIC = b'\x89PNG\r\n\x1a\n' + b'\x00' * 16
-    # Minimal MP4 magic bytes (ftyp box at offset 4)
-    MP4_MAGIC = b'\x00\x00\x00\x08ftypisom' + b'\x00' * 16
-
-    def _mk_image_upload(self, name="img.png", content=None) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content or self.PNG_MAGIC, content_type="image/png")
-
-    def _mk_video_upload(self, name="vid.mp4", content=None) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name=name, content=content or self.MP4_MAGIC, content_type="video/mp4")
-
-    # ---------------------------------------------------------------------
-    # MediaAssetUploadSerializer
-    # ---------------------------------------------------------------------
-    def test_media_asset_upload_serializer_requires_exactly_one_of_file_or_url(self):
-        s = MediaAssetUploadSerializer(data={})
-        self.assertFalse(s.is_valid())
-        self.assertIn("non_field_errors", s.errors)
-
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload(), "external_url": "https://x.com"})
-        self.assertFalse(s.is_valid())
-        self.assertIn("non_field_errors", s.errors)
-
-        s = MediaAssetUploadSerializer(data={"external_url": "https://x.com"})
-        self.assertTrue(s.is_valid(), s.errors)
-
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload()})
-        self.assertTrue(s.is_valid(), s.errors)
-
-    @override_settings(MAX_UPLOAD_FILE_SIZE=4)
-    def test_media_asset_upload_serializer_rejects_file_too_large(self):
-        s = MediaAssetUploadSerializer(data={"file": self._mk_image_upload(content=b"12345")})
-        self.assertFalse(s.is_valid())
-        self.assertIn("file", s.errors)
-        self.assertIn("Maximum allowed size", str(s.errors["file"]))
-
-    # ---------------------------------------------------------------------
-    # _sha256_file / _infer_kind_from_upload
-    # ---------------------------------------------------------------------
-    def test_sha256_file_matches_expected(self):
-        up = SimpleUploadedFile("a.bin", b"hello", content_type="application/octet-stream")
-        got = _sha256_file(up)
-        exp = hashlib.sha256(b"hello").hexdigest()
-        self.assertEqual(got, exp)
-
-    def test_infer_kind_from_upload_image(self):
-        up = self._mk_image_upload()
-        self.assertEqual(_infer_kind_from_upload(up), MediaAsset.IMAGE)
-
-    def test_infer_kind_from_upload_video(self):
-        up = self._mk_video_upload()
-        self.assertEqual(_infer_kind_from_upload(up), MediaAsset.VIDEO)
-
-    def test_infer_kind_from_upload_unsupported(self):
-        up = SimpleUploadedFile("x.bin", b"x", content_type="application/octet-stream")
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            _infer_kind_from_upload(up)
-        self.assertIn("Unsupported file type", str(ctx.exception.detail))
-
-    def test_infer_kind_from_upload_rejects_spoofed_image(self):
-        """A file with PNG extension/content-type but non-PNG content must be rejected."""
-        up = SimpleUploadedFile("evil.png", b"not-a-real-png", content_type="image/png")
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            _infer_kind_from_upload(up)
-        self.assertIn("does not match declared type", str(ctx.exception.detail))
-
-    def test_infer_kind_from_upload_resets_file_pointer(self):
-        """After _infer_kind_from_upload the file pointer must be back at 0."""
-        up = self._mk_image_upload()
-        _infer_kind_from_upload(up)
-        self.assertEqual(up.tell(), 0)
 
     # ---------------------------------------------------------------------
     # Read serializers basics
@@ -232,20 +155,6 @@ class QuestionSerializersTestCase(TestCase):
         self.assertEqual(data["id"], q.id)
         self.assertIn(data["title"], ["Titre FR", "Title EN"])
 
-    def test_media_asset_serializer_read_only_fields(self):
-        asset = self._mk_external_asset()
-        data = MediaAssetSerializer(asset).data
-        self.assertEqual(data["kind"], MediaAsset.EXTERNAL)
-        self.assertEqual(data["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
-    def test_question_media_read_serializer_nests_asset(self):
-        q = self._mk_question_with_translations()
-        asset = self._mk_external_asset()
-        link = QuestionMedia.objects.create(question=q, asset=asset, sort_order=0)
-        data = QuestionMediaReadSerializer(link).data
-        self.assertEqual(data["sort_order"], 0)
-        self.assertEqual(data["asset"]["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
     # ---------------------------------------------------------------------
     # Answer option serializers
     # ---------------------------------------------------------------------
@@ -254,7 +163,10 @@ class QuestionSerializersTestCase(TestCase):
         ao = self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A FR", en="A EN")
         data = QuestionAnswerOptionPublicReadSerializer(ao).data
         self.assertNotIn("is_correct", data)
-        self.assertEqual(data["content"], "A FR")
+        # Phase 3 LMS refactor: option content now lives in nested
+        # blocks; the FR translation surfaces from the rich_text field.
+        self.assertEqual(len(data["blocks"]), 1)
+        self.assertEqual(data["blocks"][0]["translations"]["fr"]["rich_text"], "A FR")
 
     def test_answer_option_read_serializer_includes_is_correct(self):
         q = self._mk_question_with_translations()
@@ -262,21 +174,23 @@ class QuestionSerializersTestCase(TestCase):
         data = QuestionAnswerOptionReadSerializer(ao, context={"show_correct": True}).data
         self.assertIn("is_correct", data)
         self.assertTrue(data["is_correct"])
-        self.assertEqual(data["translations"]["fr"]["content"], "A FR")
-        self.assertEqual(data["translations"]["en"]["content"], "A EN")
+        block = data["blocks"][0]
+        self.assertEqual(block["translations"]["fr"]["rich_text"], "A FR")
+        self.assertEqual(block["translations"]["en"]["rich_text"], "A EN")
 
-    def test_answer_option_write_serializer_validate_translations_shape(self):
-        payload = {"is_correct": True, "sort_order": 0, "translations": {"fr": {"content": "A"}, "en": {"content": "A"}}}
+    def test_answer_option_write_serializer_validates_blocks_shape(self):
+        # Valid: blocks is a list of dicts.
+        payload = {
+            "is_correct": True, "sort_order": 0,
+            "blocks": [{"block_type": "rich_text", "translations": {"fr": {"rich_text": "A"}}}],
+        }
         s = QuestionAnswerOptionWriteSerializer(data=payload)
         self.assertTrue(s.is_valid(), s.errors)
 
-        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0, "translations": "oops"})
-        self.assertFalse(s.is_valid())
-        self.assertIn("translations", s.errors)
-
-        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0, "translations": {"fr": "oops"}})
-        self.assertFalse(s.is_valid())
-        self.assertIn("translations", s.errors)
+        # ``blocks`` is optional now — content can be left blank on create
+        # and filled in later through the Block ViewSet.
+        s = QuestionAnswerOptionWriteSerializer(data={"is_correct": True, "sort_order": 0})
+        self.assertTrue(s.is_valid(), s.errors)
 
     # ---------------------------------------------------------------------
     # QuestionInQuizQuestionSerializer: switch show_correct + swagger
@@ -286,7 +200,7 @@ class QuestionSerializersTestCase(TestCase):
         self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A", en="A")
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
 
-        q = Question.objects.prefetch_related("answer_options__translations", "translations").get(pk=q.pk)
+        q = Question.objects.prefetch_related("answer_options__blocks__translations", "translations").get(pk=q.pk)
 
         view = SimpleNamespace(swagger_fake_view=False)
 
@@ -301,20 +215,17 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("is_correct", s3.data["answer_options"][0])
 
     # ---------------------------------------------------------------------
-    # QuestionReadSerializer: translations + media + switch answer_options
+    # QuestionReadSerializer: translations + switch answer_options
     # ---------------------------------------------------------------------
-    def test_question_read_serializer_translations_media_and_answer_options_switch(self):
+    def test_question_read_serializer_translations_and_answer_options_switch(self):
         q = self._mk_question_with_translations()
         self._mk_answer_option(q, is_correct=True, sort_order=0, fr="A", en="A")
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
 
-        asset = self._mk_external_asset("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        QuestionMedia.objects.create(question=q, asset=asset, sort_order=0)
-
         # Refetch clean + prefetched
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
 
@@ -326,15 +237,17 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("translations", data)
         self.assertIn("fr", data["translations"])
         self.assertEqual(data["translations"]["fr"]["title"], "Titre FR")
+        # Phase 3 LMS refactor: prompt / explanation surface as block lists.
+        self.assertIn("prompt_blocks", data)
+        self.assertIn("explanation_blocks", data)
 
-        self.assertEqual(data["media"][0]["asset"]["external_url"], "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
         self.assertNotIn("is_correct", data["answer_options"][0])
 
         s2 = QuestionReadSerializer(q, context={"show_correct": True, "view": view})
         data2 = s2.data
         self.assertIn("is_correct", data2["answer_options"][0])
-        self.assertEqual(data2["answer_options"][0]["translations"]["fr"]["content"], "A")
-        self.assertEqual(data2["answer_options"][1]["translations"]["en"]["content"], "B")
+        self.assertEqual(data2["answer_options"][0]["blocks"][0]["translations"]["fr"]["rich_text"], "A")
+        self.assertEqual(data2["answer_options"][1]["blocks"][0]["translations"]["en"]["rich_text"], "B")
 
     def test_question_read_serializer_hides_correctness_without_explicit_context(self):
         q = self._mk_question_with_translations()
@@ -342,7 +255,7 @@ class QuestionSerializersTestCase(TestCase):
         self._mk_answer_option(q, is_correct=False, sort_order=1, fr="B", en="B")
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
 
@@ -357,8 +270,8 @@ class QuestionSerializersTestCase(TestCase):
         return {
             "domain": self.domain.id,
             "translations": {
-                "fr": {"title": "Titre FR", "description": "Desc FR", "explanation": "Expl FR"},
-                "en": {"title": "Title EN", "description": "Desc EN", "explanation": "Expl EN"},
+                "fr": {"title": "Titre FR"},
+                "en": {"title": "Title EN"},
             },
             "allow_multiple_correct": False,
             "active": True,
@@ -366,25 +279,35 @@ class QuestionSerializersTestCase(TestCase):
             "is_mode_exam": False,
             "subject_ids": [self.subj1.id, self.subj2.id],
             "answer_options": [
-                {"is_correct": True, "sort_order": 0, "translations": {"fr": {"content": "A"}, "en": {"content": "A"}}},
-                {"is_correct": False, "sort_order": 1, "translations": {"fr": {"content": "B"}, "en": {"content": "B"}}},
+                {
+                    "is_correct": True, "sort_order": 0,
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {
+                            "fr": {"rich_text": "A"},
+                            "en": {"rich_text": "A"},
+                        },
+                    }],
+                },
+                {
+                    "is_correct": False, "sort_order": 1,
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {
+                            "fr": {"rich_text": "B"},
+                            "en": {"rich_text": "B"},
+                        },
+                    }],
+                },
             ],
         }
 
-    def test_question_write_serializer_validate_answer_options_translations_shape(self):
+    def test_question_write_serializer_validate_answer_options_blocks_shape(self):
         payload = self._base_question_payload()
-        payload["answer_options"][0]["translations"] = "oops"
+        payload["answer_options"][0]["blocks"] = "oops"
         s = QuestionWriteSerializer(data=payload)
         self.assertFalse(s.is_valid())
-        self.assertIn("answer_options[0].translations", s.errors)
-
-    def test_question_write_serializer_validate_answer_options_missing_lang(self):
-        payload = self._base_question_payload()
-        payload["answer_options"][0]["translations"].pop("en")
-        s = QuestionWriteSerializer(data=payload)
-        self.assertFalse(s.is_valid())
-        self.assertIn("answer_options[0].translations", s.errors)
-        self.assertIn("Langues manquantes", str(s.errors["answer_options[0].translations"]))
+        self.assertIn("answer_options[0].blocks", s.errors)
 
     def test_question_write_serializer_rejects_subject_from_other_domain(self):
         payload = self._base_question_payload()
@@ -416,11 +339,7 @@ class QuestionSerializersTestCase(TestCase):
         self.assertIn("nouveau domain", str(s.errors["subject_ids"]))
 
     def test_question_write_serializer_create_full(self):
-        a1 = self._mk_external_asset("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-        a2 = self._mk_external_asset("https://www.youtube.com/watch?v=9bZkp7q19f0")
-
         payload = self._base_question_payload()
-        payload["media_asset_ids"] = [a1.id, a2.id, a1.id]  # duplicate => dedup
 
         s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
         self.assertTrue(s.is_valid(), s.errors)
@@ -428,31 +347,12 @@ class QuestionSerializersTestCase(TestCase):
 
         q = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset", "subjects")
+            .prefetch_related("translations", "answer_options__blocks__translations", "subjects")
             .get(pk=q.pk)
         )
 
         self.assertEqual(q.safe_translation_getter("title", language_code="fr"), "Titre FR")
         self.assertEqual(set(q.subjects.values_list("id", flat=True)), {self.subj1.id, self.subj2.id})
-
-        media_urls = list(q.media.order_by("sort_order").values_list("asset__external_url", flat=True))
-        self.assertEqual(
-            media_urls,
-            [
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "https://www.youtube.com/watch?v=9bZkp7q19f0",
-            ],
-        )
-
-    def test_question_write_serializer_create_media_asset_ids_missing_raises(self):
-        payload = self._base_question_payload()
-        payload["media_asset_ids"] = [999999]
-
-        s = QuestionWriteSerializer(data=payload, context={"request": SimpleNamespace(user=self.owner)})
-        self.assertTrue(s.is_valid(), s.errors)
-        with self.assertRaises(serializers.ValidationError) as ctx:
-            s.save()
-        self.assertIn("media_asset_ids", ctx.exception.detail)
 
     def test_question_write_serializer_update_preserves_existing_answer_option_ids(self):
         q = self._mk_question_with_translations()
@@ -466,13 +366,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": False,
                     "sort_order": 2,
-                    "translations": {"fr": {"content": "A2 FR"}, "en": {"content": "A2 EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A2 FR"}, "en": {"rich_text": "A2 EN"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": True,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B2 FR"}, "en": {"content": "B2 EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B2 FR"}, "en": {"rich_text": "B2 EN"}},
+                    }],
                 },
             ]
         }
@@ -487,9 +393,11 @@ class QuestionSerializersTestCase(TestCase):
         second.refresh_from_db()
         self.assertEqual(first.sort_order, 2)
         self.assertFalse(first.is_correct)
-        self.assertEqual(first.safe_translation_getter("content", language_code="fr"), "A2 FR")
+        first_block = first.blocks.get()
+        self.assertEqual(first_block.translations.get(language_code="fr").rich_text, "A2 FR")
         self.assertTrue(second.is_correct)
-        self.assertEqual(second.safe_translation_getter("content", language_code="en"), "B2 EN")
+        second_block = second.blocks.get()
+        self.assertEqual(second_block.translations.get(language_code="en").rich_text, "B2 EN")
 
     def test_question_write_serializer_update_rejects_removal_of_answer_option_used_in_quiz(self):
         from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
@@ -516,7 +424,10 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                    }],
                 }
             ]
         }
@@ -541,11 +452,12 @@ class QuestionSerializersTestCase(TestCase):
                         "id": first.id,
                         "is_correct": True,
                         "sort_order": 0,
-                        "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                        }],
                     }
                 ],
-                allowed_langs={"fr", "en"},
-                upsert_translations=_upsert_translations,
             )
 
         self.assertIn("answer_options", ctx.exception.detail)
@@ -565,17 +477,21 @@ class QuestionSerializersTestCase(TestCase):
                         "id": first.id,
                         "is_correct": True,
                         "sort_order": 0,
-                        "translations": {"fr": {"content": "A FR mod"}, "en": {"content": "A EN mod"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "A FR mod"}, "en": {"rich_text": "A EN mod"}},
+                        }],
                     },
                     {
                         "id": second.id,
                         "is_correct": False,
                         "sort_order": 1,
-                        "translations": {"fr": {"content": "B FR mod"}, "en": {"content": "B EN mod"}},
+                        "blocks": [{
+                            "block_type": "rich_text",
+                            "translations": {"fr": {"rich_text": "B FR mod"}, "en": {"rich_text": "B EN mod"}},
+                        }],
                     },
                 ],
-                allowed_langs={"fr", "en"},
-                upsert_translations=_upsert_translations,
             )
 
     def test_question_write_serializer_update_allows_text_change_for_answer_option_used_in_quiz(self):
@@ -603,13 +519,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR mod"}, "en": {"content": "A EN mod"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR mod"}, "en": {"rich_text": "A EN mod"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": False,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B FR mod"}, "en": {"content": "B EN mod"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B FR mod"}, "en": {"rich_text": "B EN mod"}},
+                    }],
                 },
             ],
         }
@@ -621,7 +543,8 @@ class QuestionSerializersTestCase(TestCase):
         updated.refresh_from_db()
         second.refresh_from_db()
         self.assertTrue(updated.is_mode_exam)
-        self.assertEqual(second.safe_translation_getter("content", language_code="fr"), "B FR mod")
+        block = second.blocks.get()
+        self.assertEqual(block.translations.get(language_code="fr").rich_text, "B FR mod")
         self.assertFalse(second.is_correct)
 
     def test_question_write_serializer_update_rejects_correctness_change_for_answer_option_used_in_quiz(self):
@@ -649,13 +572,19 @@ class QuestionSerializersTestCase(TestCase):
                     "id": first.id,
                     "is_correct": True,
                     "sort_order": 0,
-                    "translations": {"fr": {"content": "A FR"}, "en": {"content": "A EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "A FR"}, "en": {"rich_text": "A EN"}},
+                    }],
                 },
                 {
                     "id": second.id,
                     "is_correct": True,
                     "sort_order": 1,
-                    "translations": {"fr": {"content": "B FR"}, "en": {"content": "B EN"}},
+                    "blocks": [{
+                        "block_type": "rich_text",
+                        "translations": {"fr": {"rich_text": "B FR"}, "en": {"rich_text": "B EN"}},
+                    }],
                 },
             ]
         }
@@ -674,7 +603,7 @@ class QuestionSerializersTestCase(TestCase):
 
         prefetched = (
             Question.objects
-            .prefetch_related("translations", "answer_options__translations", "media__asset")
+            .prefetch_related("translations", "answer_options__blocks__translations")
             .get(pk=q.pk)
         )
         serializer = QuestionReadSerializer()

@@ -133,6 +133,1016 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
+  /api/block/:
+    get:
+      operationId: block_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - block
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlockList'
+          description: ''
+    post:
+      operationId: block_create
+      tags:
+      - block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+  /api/block/{id}/:
+    get:
+      operationId: block_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this block.
+        required: true
+      tags:
+      - block
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    put:
+      operationId: block_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this block.
+        required: true
+      tags:
+      - block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BlockRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    patch:
+      operationId: block_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this block.
+        required: true
+      tags:
+      - block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    delete:
+      operationId: block_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this block.
+        required: true
+      tags:
+      - block
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/block/reorder/:
+    post:
+      operationId: block_reorder_create
+      description: |-
+        Atomic bulk reorder for any block host.
+
+        Body shape: ``{host_type, host_id, ids, block_role}``.
+        ``host_type`` is one of ``lesson`` / ``question`` /
+        ``answer_option``; ``block_role`` defaults to ``body`` and is
+        only consequential when the host can hold multiple disjoint
+        block lists (Question splits into ``prompt`` + ``explanation``).
+
+        Replaces three host-specific endpoints from earlier phases by a
+        single source of truth — the frontend
+        ``<app-block-list-editor>`` calls this once regardless of host.
+        The two-phase reorder primitive in ``block.services`` already
+        accepts any host via the polymorphic ``_host_filter`` helper, so
+        this view just resolves the host instance + checks write
+        permission and delegates.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_BlockReorderRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlockList'
+          description: ''
+  /api/certificate/:
+    get:
+      operationId: certificate_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - certificate
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCertificateList'
+          description: ''
+  /api/certificate/{id}/:
+    get:
+      operationId: certificate_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - certificate
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/certificate/{id}/pdf/:
+    get:
+      operationId: certificate_pdf_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - certificate
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/certificate/{id}/revoke/:
+    post:
+      operationId: certificate_revoke_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - certificate
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/course/:
+    get:
+      operationId: course_list
+      description: |-
+        Override the default list flow to pre-aggregate the cards'
+        meta (lesson count, total duration) on the DB side and to
+        bulk-fetch the caller's enrollment / progress / lesson-
+        completion state in a fixed number of queries — irrespective
+        of the number of courses returned. Without this, the previous
+        ``SerializerMethodField`` pattern issued ~5 queries per course,
+        producing a quadratic blow-up on multi-course domains.
+
+        Ordering is pinned to ``(-published_at, -created_at, -id)``
+        so paginator slicing is deterministic — without an explicit
+        secondary tie-breaker DRF emits an ``UnorderedObjectList``
+        warning and consecutive pages may shuffle rows on courses
+        that share the same publish timestamp.
+      parameters:
+      - in: query
+        name: manageable_only
+        schema:
+          type: boolean
+        description: Scope to courses the caller owns or manages. Used by the instructor
+          /course/list page; drops courses where the caller is only a member.
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseListList'
+          description: ''
+    post:
+      operationId: course_create
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+  /api/course-invite/{id}/resend/:
+    post:
+      operationId: course_invite_resend_create
+      description: Instructor re-sends a pending invitation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course-invite
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course-invite/{id}/revoke/:
+    post:
+      operationId: course_invite_revoke_create
+      description: Instructor revokes a pending invitation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course-invite
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course-invite/{token}/:
+    get:
+      operationId: course_invite_retrieve
+      description: |-
+        Token-keyed lookup. Returns the invitation (any status) for the
+        invitee or any instructor of the course — used by the
+        ``/course-invite/{token}/`` acceptance page to render the
+        invitation card before the user clicks Accept or Decline.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - course-invite
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course-invite/{token}/accept/:
+    post:
+      operationId: course_invite_accept_create
+      description: |-
+        Invitee accepts a pending invitation. Creates the active
+        ``CourseEnrollment`` and notifies the inviter.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - course-invite
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/course-invite/{token}/decline/:
+    post:
+      operationId: course_invite_decline_create
+      description: Invitee declines a pending invitation.
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - course-invite
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course/{course_id}/analytics/:
+    get:
+      operationId: course_analytics_retrieve
+      description: |-
+        Aggregated analytics for a course's instructor dashboard.
+
+        Returns a single, pre-aggregated payload so the frontend "Analytics"
+        tab can render KPIs and a small trend chart without doing math in
+        Angular. Restricted to instructors of the course (superuser /
+        Domain owner / Domain manager) — non-instructors get a 403.
+
+        Payload shape::
+
+            {
+              "enrollment_counts": {
+                "total": int, "active": int, "pending": int,
+                "completed": int, "cancelled": int,
+              },
+              "completion_rate_pct": int,    # completed / (active + completed)
+              "last_enrolled_at": str | null,
+              "last_completed_at": str | null,
+              "median_progress_pct": int,    # median CourseProgress.progress_percent
+                                             # across non-cancelled enrollments;
+                                             # 0 when nobody has progress yet
+              "certificates_issued": int,    # certificates with revoked_at IS NULL
+              "enrollment_trend_30d": [
+                {"date": "YYYY-MM-DD", "count": int},  # one entry per day, 30 entries
+              ],
+            }
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/course/{course_id}/enroll/:
+    post:
+      operationId: course_enroll_create
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/course/{course_id}/invite/:
+    post:
+      operationId: course_invite_create
+      description: Instructor invites a domain member to an ``ENROLL_INVITE`` course.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseInviteSendRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course/{course_id}/invite-bulk/:
+    post:
+      operationId: course_invite_bulk_create
+      description: |-
+        Instructor sends invitations to several domain members in one go.
+
+        Body: ``{"invitee_ids": [int, ...]}``. The endpoint short-circuits
+        on the first permission failure (non-instructor / wrong course mode
+        / domain mismatch) so a bad caller can't squeeze through one
+        successful invite. Per-invitee failures (already enrolled, etc.)
+        are silently counted as ``skipped`` so the bulk-send doesn't get
+        derailed by stale picker rows.
+
+        Counts the whole call as ONE hit against the ``lms_enroll``
+        throttle bucket, so an instructor inviting 50 learners at once
+        doesn't trip the per-minute limit they would hit if they looped
+        client-side.
+
+        Caps the request at ``settings.LMS_COURSE_INVITE_BULK_MAX`` ids
+        (default 200) so a runaway paste cannot tie up a worker for
+        minutes — the cap is large enough to cover a "whole cohort"
+        invite in a single shot for any realistic course.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  skipped:
+                    type: integer
+                required:
+                - processed
+                - skipped
+          description: ''
+  /api/course/{course_id}/invite-bulk-resend/:
+    post:
+      operationId: course_invite_bulk_resend_create
+      description: |-
+        Resend every pending invitation on a course in one shot.
+
+        The instructor companion to ``course_invite_bulk_send``: when a
+        course already has a dozen pending invites and the cohort start
+        date slips, nobody wants to click "Resend" twelve times. This
+        endpoint pulls every ``CourseInvite`` in ``STATUS_PENDING`` for
+        the course, runs :func:`resend_course_invite` on each, and
+        reports a ``{processed, skipped}`` count.
+
+        ``skipped`` covers the narrow race window where a row flips out
+        of ``pending`` between the queryset and the per-row call
+        (someone accepting / declining / the expire sweep landing
+        simultaneously). Returns the bulk shape the catalog already
+        consumes for ``bulk_send`` so the same toast and refresh path
+        apply on the frontend side.
+
+        Counts the whole call as ONE hit against the ``lms_invite_send``
+        throttle bucket — same rationale as bulk_send.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  skipped:
+                    type: integer
+                required:
+                - processed
+                - skipped
+          description: ''
+  /api/course/{course_id}/invites/:
+    get:
+      operationId: course_invites_list
+      description: List invitations for a course. Instructor-only.
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseInvite'
+          description: ''
+  /api/course/{id}/:
+    get:
+      operationId: course_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+    put:
+      operationId: course_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+    patch:
+      operationId: course_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseWriteRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseWrite'
+          description: ''
+    delete:
+      operationId: course_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/course/{id}/audit-log/:
+    get:
+      operationId: course_audit_log_retrieve
+      description: |-
+        Read-only audit trail of administrative actions on the
+        course (publish / unpublish / clone / …). Instructor-gated so
+        a learner never gets to see who took which decision when.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/{id}/clone/:
+    post:
+      operationId: course_clone_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/{id}/export/:
+    get:
+      operationId: course_export_retrieve
+      description: |-
+        Return the full course (structure + translations) as a
+        JSON-serialisable dict the operator can save and re-import.
+        Instructor-gated so a learner doesn't end up exfiltrating
+        unpublished course content. Media + quiz FKs are dropped by
+        the exporter — see ``export_course_to_dict``.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/{id}/publish/:
+    post:
+      operationId: course_publish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/{id}/section/reorder/:
+    post:
+      operationId: course_section_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/{id}/unpublish/:
+    post:
+      operationId: course_unpublish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/by-slug/{slug}/:
+    get:
+      operationId: course_by_slug_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          pattern: ^[^/]+$
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
+  /api/course/import/:
+    post:
+      operationId: course_import_create
+      description: |-
+        Re-create a course from an export payload into a
+        caller-specified domain (or the caller's current domain when
+        ``target_domain_id`` is absent). The caller must be an
+        instructor of the target domain — the same gate that protects
+        manual create.
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+          description: ''
   /api/domain/:
     get:
       operationId: domain_list
@@ -1354,6 +2364,143 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
+  /api/enrollment/:
+    get:
+      operationId: enrollment_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - enrollment
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseEnrollmentList'
+          description: ''
+  /api/enrollment/{id}/:
+    get:
+      operationId: enrollment_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollment
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/enrollment/{id}/approve/:
+    post:
+      operationId: enrollment_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/enrollment/{id}/cancel/:
+    post:
+      operationId: enrollment_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
+  /api/enrollment/{id}/reject/:
+    post:
+      operationId: enrollment_reject_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseEnrollmentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseEnrollment'
+          description: ''
   /api/lang/:
     get:
       operationId: lang_list
@@ -1590,9 +2737,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/lms/block/:
+  /api/lesson/:
     get:
-      operationId: lms_block_list
+      operationId: lesson_list
       parameters:
       - name: page
         required: false
@@ -1601,1105 +2748,7 @@ paths:
         schema:
           type: integer
       tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedContentBlockList'
-          description: ''
-    post:
-      operationId: lms_block_create
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContentBlock'
-          description: ''
-  /api/lms/block/{id}/:
-    get:
-      operationId: lms_block_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this content block.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContentBlock'
-          description: ''
-    put:
-      operationId: lms_block_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this content block.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ContentBlockRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContentBlock'
-          description: ''
-    patch:
-      operationId: lms_block_partial_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this content block.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedContentBlockRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContentBlock'
-          description: ''
-    delete:
-      operationId: lms_block_destroy
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this content block.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /api/lms/certificate/:
-    get:
-      operationId: lms_certificate_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCertificateList'
-          description: ''
-  /api/lms/certificate/{id}/:
-    get:
-      operationId: lms_certificate_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Certificate'
-          description: ''
-  /api/lms/certificate/{id}/pdf/:
-    get:
-      operationId: lms_certificate_pdf_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Certificate'
-          description: ''
-  /api/lms/certificate/{id}/revoke/:
-    post:
-      operationId: lms_certificate_revoke_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Certificate'
-          description: ''
-  /api/lms/course/:
-    get:
-      operationId: lms_course_list
-      description: |-
-        Override the default list flow to pre-aggregate the cards'
-        meta (lesson count, total duration) on the DB side and to
-        bulk-fetch the caller's enrollment / progress / lesson-
-        completion state in a fixed number of queries — irrespective
-        of the number of courses returned. Without this, the previous
-        ``SerializerMethodField`` pattern issued ~5 queries per course,
-        producing a quadratic blow-up on multi-course domains.
-
-        Ordering is pinned to ``(-published_at, -created_at, -id)``
-        so paginator slicing is deterministic — without an explicit
-        secondary tie-breaker DRF emits an ``UnorderedObjectList``
-        warning and consecutive pages may shuffle rows on courses
-        that share the same publish timestamp.
-      parameters:
-      - in: query
-        name: manageable_only
-        schema:
-          type: boolean
-        description: Scope to courses the caller owns or manages. Used by the instructor
-          /lms/course/list page; drops courses where the caller is only a member.
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCourseListList'
-          description: ''
-    post:
-      operationId: lms_course_create
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseWrite'
-          description: ''
-  /api/lms/course-invite/{id}/resend/:
-    post:
-      operationId: lms_course_invite_resend_create
-      description: Instructor re-sends a pending invitation.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course-invite/{id}/revoke/:
-    post:
-      operationId: lms_course_invite_revoke_create
-      description: Instructor revokes a pending invitation.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course-invite/{token}/:
-    get:
-      operationId: lms_course_invite_retrieve
-      description: |-
-        Token-keyed lookup. Returns the invitation (any status) for the
-        invitee or any instructor of the course — used by the
-        ``/lms/course-invite/{token}/`` acceptance page to render the
-        invitation card before the user clicks Accept or Decline.
-      parameters:
-      - in: path
-        name: token
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course-invite/{token}/accept/:
-    post:
-      operationId: lms_course_invite_accept_create
-      description: |-
-        Invitee accepts a pending invitation. Creates the active
-        ``CourseEnrollment`` and notifies the inviter.
-      parameters:
-      - in: path
-        name: token
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseEnrollment'
-          description: ''
-  /api/lms/course-invite/{token}/decline/:
-    post:
-      operationId: lms_course_invite_decline_create
-      description: Invitee declines a pending invitation.
-      parameters:
-      - in: path
-        name: token
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course/{course_id}/analytics/:
-    get:
-      operationId: lms_course_analytics_retrieve
-      description: |-
-        Aggregated analytics for a course's instructor dashboard.
-
-        Returns a single, pre-aggregated payload so the frontend "Analytics"
-        tab can render KPIs and a small trend chart without doing math in
-        Angular. Restricted to instructors of the course (superuser /
-        Domain owner / Domain manager) — non-instructors get a 403.
-
-        Payload shape::
-
-            {
-              "enrollment_counts": {
-                "total": int, "active": int, "pending": int,
-                "completed": int, "cancelled": int,
-              },
-              "completion_rate_pct": int,    # completed / (active + completed)
-              "last_enrolled_at": str | null,
-              "last_completed_at": str | null,
-              "median_progress_pct": int,    # median CourseProgress.progress_percent
-                                             # across non-cancelled enrollments;
-                                             # 0 when nobody has progress yet
-              "certificates_issued": int,    # certificates with revoked_at IS NULL
-              "enrollment_trend_30d": [
-                {"date": "YYYY-MM-DD", "count": int},  # one entry per day, 30 entries
-              ],
-            }
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /api/lms/course/{course_id}/enroll/:
-    post:
-      operationId: lms_course_enroll_create
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /api/lms/course/{course_id}/invite/:
-    post:
-      operationId: lms_course_invite_create
-      description: Instructor invites a domain member to an ``ENROLL_INVITE`` course.
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseInviteSendRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseInviteSendRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseInviteSendRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course/{course_id}/invite-bulk/:
-    post:
-      operationId: lms_course_invite_bulk_create
-      description: |-
-        Instructor sends invitations to several domain members in one go.
-
-        Body: ``{"invitee_ids": [int, ...]}``. The endpoint short-circuits
-        on the first permission failure (non-instructor / wrong course mode
-        / domain mismatch) so a bad caller can't squeeze through one
-        successful invite. Per-invitee failures (already enrolled, etc.)
-        are silently counted as ``skipped`` so the bulk-send doesn't get
-        derailed by stale picker rows.
-
-        Counts the whole call as ONE hit against the ``lms_enroll``
-        throttle bucket, so an instructor inviting 50 learners at once
-        doesn't trip the per-minute limit they would hit if they looped
-        client-side.
-
-        Caps the request at ``settings.LMS_COURSE_INVITE_BULK_MAX`` ids
-        (default 200) so a runaway paste cannot tie up a worker for
-        minutes — the cap is large enough to cover a "whole cohort"
-        invite in a single shot for any realistic course.
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  processed:
-                    type: integer
-                  skipped:
-                    type: integer
-                required:
-                - processed
-                - skipped
-          description: ''
-  /api/lms/course/{course_id}/invite-bulk-resend/:
-    post:
-      operationId: lms_course_invite_bulk_resend_create
-      description: |-
-        Resend every pending invitation on a course in one shot.
-
-        The instructor companion to ``course_invite_bulk_send``: when a
-        course already has a dozen pending invites and the cohort start
-        date slips, nobody wants to click "Resend" twelve times. This
-        endpoint pulls every ``CourseInvite`` in ``STATUS_PENDING`` for
-        the course, runs :func:`resend_course_invite` on each, and
-        reports a ``{processed, skipped}`` count.
-
-        ``skipped`` covers the narrow race window where a row flips out
-        of ``pending`` between the queryset and the per-row call
-        (someone accepting / declining / the expire sweep landing
-        simultaneously). Returns the bulk shape the catalog already
-        consumes for ``bulk_send`` so the same toast and refresh path
-        apply on the frontend side.
-
-        Counts the whole call as ONE hit against the ``lms_invite_send``
-        throttle bucket — same rationale as bulk_send.
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  processed:
-                    type: integer
-                  skipped:
-                    type: integer
-                required:
-                - processed
-                - skipped
-          description: ''
-  /api/lms/course/{course_id}/invites/:
-    get:
-      operationId: lms_course_invites_list
-      description: List invitations for a course. Instructor-only.
-      parameters:
-      - in: path
-        name: course_id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/course/{id}/:
-    get:
-      operationId: lms_course_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-    put:
-      operationId: lms_course_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseWrite'
-          description: ''
-    patch:
-      operationId: lms_course_partial_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseWriteRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseWriteRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseWriteRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseWrite'
-          description: ''
-    delete:
-      operationId: lms_course_destroy
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /api/lms/course/{id}/audit-log/:
-    get:
-      operationId: lms_course_audit_log_retrieve
-      description: |-
-        Read-only audit trail of administrative actions on the
-        course (publish / unpublish / clone / …). Instructor-gated so
-        a learner never gets to see who took which decision when.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/{id}/clone/:
-    post:
-      operationId: lms_course_clone_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/{id}/export/:
-    get:
-      operationId: lms_course_export_retrieve
-      description: |-
-        Return the full course (structure + translations) as a
-        JSON-serialisable dict the operator can save and re-import.
-        Instructor-gated so a learner doesn't end up exfiltrating
-        unpublished course content. Media + quiz FKs are dropped by
-        the exporter — see ``export_course_to_dict``.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/{id}/publish/:
-    post:
-      operationId: lms_course_publish_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/{id}/section/reorder/:
-    post:
-      operationId: lms_course_section_reorder_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/{id}/unpublish/:
-    post:
-      operationId: lms_course_unpublish_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/by-slug/{slug}/:
-    get:
-      operationId: lms_course_by_slug_retrieve
-      parameters:
-      - in: path
-        name: slug
-        schema:
-          type: string
-          pattern: ^[^/]+$
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/course/import/:
-    post:
-      operationId: lms_course_import_create
-      description: |-
-        Re-create a course from an export payload into a
-        caller-specified domain (or the caller's current domain when
-        ``target_domain_id`` is absent). The caller must be an
-        instructor of the target domain — the same gate that protects
-        manual create.
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDetail'
-          description: ''
-  /api/lms/enrollment/:
-    get:
-      operationId: lms_enrollment_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCourseEnrollmentList'
-          description: ''
-  /api/lms/enrollment/{id}/:
-    get:
-      operationId: lms_enrollment_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseEnrollment'
-          description: ''
-  /api/lms/enrollment/{id}/approve/:
-    post:
-      operationId: lms_enrollment_approve_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseEnrollment'
-          description: ''
-  /api/lms/enrollment/{id}/cancel/:
-    post:
-      operationId: lms_enrollment_cancel_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseEnrollment'
-          description: ''
-  /api/lms/enrollment/{id}/reject/:
-    post:
-      operationId: lms_enrollment_reject_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseEnrollmentRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseEnrollment'
-          description: ''
-  /api/lms/lesson/:
-    get:
-      operationId: lms_lesson_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
@@ -2710,9 +2759,9 @@ paths:
                 $ref: '#/components/schemas/PaginatedLessonDetailList'
           description: ''
     post:
-      operationId: lms_lesson_create
+      operationId: lesson_create
       tags:
-      - lms
+      - lesson
       requestBody:
         content:
           application/json:
@@ -2734,9 +2783,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-  /api/lms/lesson/{lesson_id}/complete/:
+  /api/lesson/{lesson_id}/complete/:
     post:
-      operationId: lms_lesson_complete_create
+      operationId: lesson_complete_create
       parameters:
       - in: path
         name: lesson_id
@@ -2744,15 +2793,15 @@ paths:
           type: integer
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
         '200':
           description: No response body
-  /api/lms/lesson/{lesson_id}/note/:
+  /api/lesson/{lesson_id}/note/:
     get:
-      operationId: lms_lesson_note_retrieve
+      operationId: lesson_note_retrieve
       description: |-
         Read or upsert the calling user's private note for one lesson.
 
@@ -2768,14 +2817,14 @@ paths:
           type: integer
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
         '200':
           description: No response body
     put:
-      operationId: lms_lesson_note_update
+      operationId: lesson_note_update
       description: |-
         Read or upsert the calling user's private note for one lesson.
 
@@ -2791,15 +2840,15 @@ paths:
           type: integer
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
         '200':
           description: No response body
-  /api/lms/lesson/{lesson_id}/start/:
+  /api/lesson/{lesson_id}/start/:
     post:
-      operationId: lms_lesson_start_create
+      operationId: lesson_start_create
       parameters:
       - in: path
         name: lesson_id
@@ -2807,15 +2856,15 @@ paths:
           type: integer
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
         '200':
           description: No response body
-  /api/lms/lesson/{id}/:
+  /api/lesson/{id}/:
     get:
-      operationId: lms_lesson_retrieve
+      operationId: lesson_retrieve
       parameters:
       - in: path
         name: id
@@ -2824,7 +2873,7 @@ paths:
         description: A unique integer value identifying this lesson.
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
@@ -2835,7 +2884,7 @@ paths:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
     put:
-      operationId: lms_lesson_update
+      operationId: lesson_update
       parameters:
       - in: path
         name: id
@@ -2844,7 +2893,7 @@ paths:
         description: A unique integer value identifying this lesson.
         required: true
       tags:
-      - lms
+      - lesson
       requestBody:
         content:
           application/json:
@@ -2867,7 +2916,7 @@ paths:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
     patch:
-      operationId: lms_lesson_partial_update
+      operationId: lesson_partial_update
       parameters:
       - in: path
         name: id
@@ -2876,7 +2925,7 @@ paths:
         description: A unique integer value identifying this lesson.
         required: true
       tags:
-      - lms
+      - lesson
       requestBody:
         content:
           application/json:
@@ -2898,7 +2947,7 @@ paths:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
     delete:
-      operationId: lms_lesson_destroy
+      operationId: lesson_destroy
       parameters:
       - in: path
         name: id
@@ -2907,452 +2956,11 @@ paths:
         description: A unique integer value identifying this lesson.
         required: true
       tags:
-      - lms
+      - lesson
       security:
       - jwtAuth: []
       responses:
         '204':
-          description: No response body
-  /api/lms/lesson/{id}/block/reorder/:
-    post:
-      operationId: lms_lesson_block_reorder_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonDetailRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonDetail'
-          description: ''
-  /api/lms/me/invitations/:
-    get:
-      operationId: lms_me_invitations_list
-      description: |-
-        Every ``CourseInvite`` row addressed to the calling user,
-        most recent first. Powers the ``/lms/me/invitations`` page so a
-        learner with several pending invitations can find them all in
-        one place without trawling through email.
-
-        Defaults to ``status=pending`` so the page surfaces actionable
-        rows first; pass ``?status=all`` to include accepted / declined /
-        revoked / expired rows for a basic history view.
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseInvite'
-          description: ''
-  /api/lms/progress/:
-    get:
-      operationId: lms_progress_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCourseProgressList'
-          description: ''
-  /api/lms/progress/{id}/:
-    get:
-      operationId: lms_progress_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseProgress'
-          description: ''
-  /api/lms/section/:
-    get:
-      operationId: lms_section_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedSectionList'
-          description: ''
-    post:
-      operationId: lms_section_create
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Section'
-          description: ''
-  /api/lms/section/{id}/:
-    get:
-      operationId: lms_section_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this section.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Section'
-          description: ''
-    put:
-      operationId: lms_section_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this section.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Section'
-          description: ''
-    patch:
-      operationId: lms_section_partial_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this section.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedSectionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedSectionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedSectionRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Section'
-          description: ''
-    delete:
-      operationId: lms_section_destroy
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this section.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /api/lms/section/{id}/lesson/reorder/:
-    post:
-      operationId: lms_section_lesson_reorder_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this section.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SectionRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Section'
-          description: ''
-  /api/lms/validation-quiz/:
-    get:
-      operationId: lms_validation_quiz_list
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedLessonQuizList'
-          description: ''
-    post:
-      operationId: lms_validation_quiz_create
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonQuiz'
-          description: ''
-  /api/lms/validation-quiz/{id}/:
-    get:
-      operationId: lms_validation_quiz_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson quiz.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonQuiz'
-          description: ''
-    put:
-      operationId: lms_validation_quiz_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson quiz.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonQuizRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonQuiz'
-          description: ''
-    patch:
-      operationId: lms_validation_quiz_partial_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson quiz.
-        required: true
-      tags:
-      - lms
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonQuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonQuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonQuizRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LessonQuiz'
-          description: ''
-    delete:
-      operationId: lms_validation_quiz_destroy
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson quiz.
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /api/lms/verify/{token}/:
-    get:
-      operationId: lms_verify_retrieve
-      parameters:
-      - in: path
-        name: token
-        schema:
-          type: string
-        required: true
-      tags:
-      - lms
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
           description: No response body
   /api/mail/test/:
     post:
@@ -3401,6 +3009,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
+  /api/me/invitations/:
+    get:
+      operationId: me_invitations_list
+      description: |-
+        Every ``CourseInvite`` row addressed to the calling user,
+        most recent first. Powers the ``/me/invitations`` page so a
+        learner with several pending invitations can find them all in
+        one place without trawling through email.
+
+        Defaults to ``status=pending`` so the page surfaces actionable
+        rows first; pass ``?status=all`` to include accepted / declined /
+        revoked / expired rows for a basic history view.
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseInvite'
+          description: ''
   /api/notification/:
     get:
       operationId: notification_list
@@ -3515,6 +3148,47 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/progress/:
+    get:
+      operationId: progress_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseProgressList'
+          description: ''
+  /api/progress/{id}/:
+    get:
+      operationId: progress_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseProgress'
+          description: ''
   /api/question/:
     get:
       operationId: question_list
@@ -3589,18 +3263,12 @@ paths:
       description: |
         Crée une question.
 
-        ⚠️ Les médias NE sont PAS uploadés ici.
-
-        Workflow recommandé :
-        1. POST /api/question/media/ → upload fichier ou URL externe
-        2. Récupérer les `id` des MediaAsset retournés
-        3. POST /api/question/ avec `media_asset_ids: [1, 2, 3]`
-
-        Payload supporté : JSON ou multipart/form-data.
+        Payload : JSON.
         - `subject_ids`: liste d'IDs
-        - `answer_options`: JSON (liste)
-        - `media_asset_ids`: liste d'IDs MediaAsset
-      summary: Créer une question (multipart ou JSON)
+        - `answer_options`: liste
+
+        Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via `/api/block/`.
+      summary: Créer une question (JSON)
       tags:
       - Question
       requestBody:
@@ -3667,11 +3335,6 @@ paths:
           description: Forbidden (admin only)
     put:
       operationId: question_update
-      description: |
-        Met à jour une question.
-
-        Les médias sont gérés via `/api/question/media/`.
-        Utiliser `media_asset_ids` pour lier/délier les médias.
       summary: Mettre à jour une question (PUT)
       parameters:
       - in: path
@@ -3718,11 +3381,6 @@ paths:
           description: Forbidden (admin only)
     patch:
       operationId: question_partial_update
-      description: |
-        Met à jour une question.
-
-        Les médias sont gérés via `/api/question/media/`.
-        Utiliser `media_asset_ids` pour lier/délier les médias.
       summary: Mettre à jour une question (PATCH)
       parameters:
       - in: path
@@ -3821,8 +3479,8 @@ paths:
     post:
       operationId: question_import_structured_create
       description: |-
-        Importe des questions depuis un JSON structuré ou un ZIP (JSON + médias).
-        Accepte un fichier multipart (json_file), un ZIP multipart, ou un body JSON direct.
+        Importe des questions depuis un JSON structuré.
+        Accepte un fichier multipart (``json_file``) ou un body JSON direct.
       tags:
       - question
       requestBody:
@@ -3834,89 +3492,6 @@ paths:
             schema:
               $ref: '#/components/schemas/QuestionWriteRequest'
           application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QuestionWrite'
-          description: ''
-  /api/question/media/:
-    post:
-      operationId: question_media_create
-      description: |-
-        Upload un fichier (multipart) ou enregistre une URL externe.
-        - multipart: envoyer `file`
-        - json/form: envoyer `external_url`
-
-        Retourne un `MediaAsset` (id à réutiliser dans `media_asset_ids` lors de la création/màj d'une Question).
-      summary: Uploader un média (dédup sha256) ou enregistrer un média externe
-      tags:
-      - Question
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MediaAssetUploadRequest'
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaAsset'
-          description: ''
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaAsset'
-          description: ''
-        '400':
-          description: Validation error
-  /api/question/media/external/:
-    post:
-      operationId: question_media_external_create
-      tags:
-      - question
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QuestionWrite'
-          description: ''
-  /api/question/media/upload/:
-    post:
-      operationId: question_media_upload_create
-      tags:
-      - question
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/QuestionWriteRequest'
-          application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/QuestionWriteRequest'
         required: true
@@ -5020,6 +4595,185 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/section/:
+    get:
+      operationId: section_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - section
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSectionList'
+          description: ''
+    post:
+      operationId: section_create
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/section/{id}/:
+    get:
+      operationId: section_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    put:
+      operationId: section_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    patch:
+      operationId: section_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+    delete:
+      operationId: section_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/section/{id}/lesson/reorder/:
+    post:
+      operationId: section_lesson_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
   /api/stats/dashboard/:
     get:
       operationId: stats_dashboard_retrieve
@@ -6053,6 +5807,169 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Lien invalide / token invalide
+  /api/validation-quiz/:
+    get:
+      operationId: validation_quiz_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - validation-quiz
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLessonQuizList'
+          description: ''
+    post:
+      operationId: validation_quiz_create
+      tags:
+      - validation-quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+  /api/validation-quiz/{id}/:
+    get:
+      operationId: validation_quiz_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - validation-quiz
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    put:
+      operationId: validation_quiz_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - validation-quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonQuizRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    patch:
+      operationId: validation_quiz_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - validation-quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonQuizRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonQuiz'
+          description: ''
+    delete:
+      operationId: validation_quiz_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson quiz.
+        required: true
+      tags:
+      - validation-quiz
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/verify/{token}/:
+    get:
+      operationId: verify_retrieve
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - verify
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
 components:
   schemas:
     ActionEnum:
@@ -6084,6 +6001,182 @@ components:
     BlankEnum:
       enum:
       - ''
+    Block:
+      type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
+
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lesson:
+          type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: uri
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - id
+      - translations
+    BlockBlockRoleEnum:
+      enum:
+      - body
+      - prompt
+      - explanation
+      type: string
+      description: |-
+        * `body` - Body
+        * `prompt` - Prompt
+        * `explanation` - Explanation
+    BlockRequest:
+      type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
+
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
+      properties:
+        lesson:
+          type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
+        block_type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_required:
+          type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          maxLength: 200
+        video_provider:
+          oneOf:
+          - $ref: '#/components/schemas/VideoProviderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        file:
+          type: string
+          format: binary
+          nullable: true
+        external_url:
+          type: string
+          format: uri
+          maxLength: 200
+        code_language:
+          type: string
+          maxLength: 32
+        code_content:
+          type: string
+        quiz_template:
+          type: integer
+          nullable: true
+        metadata: {}
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+      required:
+      - block_type
+      - translations
     BlockTypeEnum:
       enum:
       - rich_text
@@ -6159,128 +6252,6 @@ components:
       - revoked_at
       - user
       - verification_token
-    ContentBlock:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        lesson:
-          type: integer
-        block_type:
-          $ref: '#/components/schemas/BlockTypeEnum'
-        order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          default: 0
-        is_required:
-          type: boolean
-        image:
-          type: string
-          format: uri
-          nullable: true
-        video_url:
-          type: string
-          format: uri
-          maxLength: 200
-        video_provider:
-          oneOf:
-          - $ref: '#/components/schemas/VideoProviderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        file:
-          type: string
-          format: uri
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          maxLength: 200
-        code_language:
-          type: string
-          maxLength: 32
-        code_content:
-          type: string
-        quiz_template:
-          type: integer
-          nullable: true
-        metadata: {}
-        translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
-          example:
-            fr:
-              title: Bonjour
-            en:
-              title: Hello
-      required:
-      - block_type
-      - id
-      - lesson
-      - translations
-    ContentBlockRequest:
-      type: object
-      properties:
-        lesson:
-          type: integer
-        block_type:
-          $ref: '#/components/schemas/BlockTypeEnum'
-        order:
-          type: integer
-          maximum: 9223372036854775807
-          minimum: 0
-          format: int64
-          default: 0
-        is_required:
-          type: boolean
-        image:
-          type: string
-          format: binary
-          nullable: true
-        video_url:
-          type: string
-          format: uri
-          maxLength: 200
-        video_provider:
-          oneOf:
-          - $ref: '#/components/schemas/VideoProviderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        file:
-          type: string
-          format: binary
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          maxLength: 200
-        code_language:
-          type: string
-          maxLength: 32
-        code_content:
-          type: string
-        quiz_template:
-          type: integer
-          nullable: true
-        metadata: {}
-        translations:
-          type: object
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: string
-          example:
-            fr:
-              title: Bonjour
-            en:
-              title: Hello
-      required:
-      - block_type
-      - lesson
-      - translations
     CourseDetail:
       type: object
       properties:
@@ -6630,7 +6601,7 @@ components:
     CourseInviteSendRequest:
       type: object
       description: |-
-        Write shape for ``POST /api/lms/course/{id}/invite/``. The
+        Write shape for ``POST /api/course/{id}/invite/``. The
         instructor picks an invitee by their ``user_id``; that user must
         already be a member of the course's domain (enforced by the
         service layer).
@@ -7761,6 +7732,16 @@ components:
       - domain_id
       - subject_ids
       - title
+    HostTypeEnum:
+      enum:
+      - lesson
+      - question
+      - answer_option
+      type: string
+      description: |-
+        * `lesson` - lesson
+        * `question` - question
+        * `answer_option` - answer_option
     JoinPolicyEnum:
       enum:
       - auto
@@ -7889,7 +7870,7 @@ components:
         blocks:
           type: array
           items:
-            $ref: '#/components/schemas/ContentBlock'
+            $ref: '#/components/schemas/Block'
           readOnly: true
         available_lang_codes:
           type: string
@@ -8065,25 +8046,11 @@ components:
         * `beginner` - Beginner
         * `intermediate` - Intermediate
         * `advanced` - Advanced
-    LocalizedAnswerOptionTranslation:
-      type: object
-      properties:
-        content:
-          type: string
-      required:
-      - content
     LocalizedAnswerOptionTranslationRequest:
       type: object
       properties:
         content:
           type: string
-          minLength: 1
-      required:
-      - content
-    LocalizedAnswerOptionTranslations:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LocalizedAnswerOptionTranslation'
     LocalizedNameDescriptionTranslation:
       type: object
       properties:
@@ -8126,13 +8093,7 @@ components:
       properties:
         title:
           type: string
-        description:
-          type: string
-        explanation:
-          type: string
       required:
-      - description
-      - explanation
       - title
     LocalizedQuestionTranslationRequest:
       type: object
@@ -8140,15 +8101,7 @@ components:
         title:
           type: string
           minLength: 1
-        description:
-          type: string
-          minLength: 1
-        explanation:
-          type: string
-          minLength: 1
       required:
-      - description
-      - explanation
       - title
     LocalizedQuestionTranslations:
       type: object
@@ -8244,73 +8197,6 @@ components:
           minLength: 1
       required:
       - email
-    MediaAsset:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        kind:
-          allOf:
-          - $ref: '#/components/schemas/MediaAssetKindEnum'
-          readOnly: true
-        file:
-          type: string
-          format: uri
-          readOnly: true
-          nullable: true
-        external_url:
-          type: string
-          format: uri
-          readOnly: true
-          nullable: true
-        sha256:
-          type: string
-          readOnly: true
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - created_at
-      - external_url
-      - file
-      - id
-      - kind
-      - sha256
-    MediaAssetKindEnum:
-      enum:
-      - image
-      - video
-      - external
-      type: string
-      description: |-
-        * `image` - Image
-        * `video` - Vidéo
-        * `external` - Externe
-    MediaAssetUploadKindEnum:
-      enum:
-      - image
-      - video
-      - external
-      type: string
-      description: |-
-        * `image` - image
-        * `video` - video
-        * `external` - external
-    MediaAssetUploadRequest:
-      type: object
-      properties:
-        file:
-          type: string
-          format: binary
-        external_url:
-          type: string
-          format: uri
-          minLength: 1
-        kind:
-          $ref: '#/components/schemas/MediaAssetUploadKindEnum'
     ModeEnum:
       enum:
       - practice
@@ -8366,6 +8252,29 @@ components:
       - kind
       - payload
       - read_at
+    PaginatedBlockList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
     PaginatedCertificateList:
       type: object
       required:
@@ -8389,29 +8298,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Certificate'
-    PaginatedContentBlockList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContentBlock'
     PaginatedCourseEnrollmentList:
       type: object
       required:
@@ -8947,19 +8833,42 @@ components:
           minLength: 1
       required:
       - email
-    PatchedContentBlockRequest:
+    PatchedBlockRequest:
       type: object
+      description: |-
+        Serializer for :class:`Block`.
+
+        The wire shape keeps a per-host integer field even though the
+        underlying model is polymorphic (``target`` GFK). Each request body
+        must include exactly one of ``lesson`` / ``question`` /
+        ``answer_option`` on create — the serializer translates the value
+        into the ``(target_content_type, target_object_id)`` pair the
+        model now uses.
+
+        Read responses include the field that matches the host's content
+        type (``lesson`` for Lesson-hosted blocks, ``question`` for
+        Question prompt / explanation blocks, ``answer_option`` for
+        answer option body blocks). The other host fields render as
+        ``null`` to keep the wire schema stable.
       properties:
         lesson:
           type: integer
+          nullable: true
+        question:
+          type: integer
+          nullable: true
+        answer_option:
+          type: integer
+          nullable: true
         block_type:
           $ref: '#/components/schemas/BlockTypeEnum'
+        block_role:
+          $ref: '#/components/schemas/BlockBlockRoleEnum'
         order:
           type: integer
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_required:
           type: boolean
         image:
@@ -9223,12 +9132,6 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
           writeOnly: true
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: Ordered MediaAsset IDs linked to the question.
     PatchedQuizAlertThreadPartialRequest:
       type: object
       properties:
@@ -9382,12 +9285,11 @@ components:
         id:
           type: integer
           readOnly: true
-        content:
-          type: string
-          readOnly: true
-        translations:
-          allOf:
-          - $ref: '#/components/schemas/LocalizedAnswerOptionTranslations'
+        blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         is_correct:
           type: boolean
@@ -9399,10 +9301,9 @@ components:
           minimum: 0
           format: int64
       required:
-      - content
+      - blocks
       - id
       - is_correct
-      - translations
     QuestionAnswerOptionWrite:
       type: object
       properties:
@@ -9417,7 +9318,22 @@ components:
           format: int64
     QuestionAnswerOptionWritePayloadRequest:
       type: object
+      description: |-
+        OpenAPI doc serializer for one answer option in the question
+        write payload.
+
+        Phase 3.5: ``translations`` (the legacy per-language
+        ``content`` blob) is now optional — the answer's visible
+        content has migrated to polymorphic ``Block`` rows, so the
+        write payload only needs to carry the structural metadata
+        (``is_correct`` / ``sort_order``) and an optional ``id`` to
+        pin the row identity across an update. The translations
+        field is kept on the schema for backwards compatibility with
+        pre-3.5 frontend builds — when supplied, the backend silently
+        drops it.
       properties:
+        id:
+          type: integer
         is_correct:
           type: boolean
         sort_order:
@@ -9428,8 +9344,6 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
           writeOnly: true
-      required:
-      - translations
     QuestionAnswerOptionWriteRequest:
       type: object
       properties:
@@ -9442,13 +9356,13 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-        translations:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/LocalizedAnswerOptionTranslationRequest'
+        blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           writeOnly: true
-      required:
-      - translations
+          description: List of block payloads forming this option's content.
     QuestionInQuizQuestion:
       type: object
       properties:
@@ -9480,23 +9394,6 @@ components:
       required:
       - id
       - title
-    QuestionMediaRead:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        sort_order:
-          type: integer
-          readOnly: true
-        asset:
-          allOf:
-          - $ref: '#/components/schemas/MediaAsset'
-          readOnly: true
-      required:
-      - asset
-      - id
-      - sort_order
     QuestionRead:
       type: object
       properties:
@@ -9510,6 +9407,18 @@ components:
         translations:
           allOf:
           - $ref: '#/components/schemas/LocalizedQuestionTranslations'
+          readOnly: true
+        prompt_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+        explanation_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         allow_multiple_correct:
           type: boolean
@@ -9536,10 +9445,10 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionRead'
           readOnly: true
-        media:
+        available_lang_codes:
           type: array
           items:
-            $ref: '#/components/schemas/QuestionMediaRead'
+            type: string
           readOnly: true
         created_at:
           type: string
@@ -9549,12 +9458,14 @@ components:
       - active
       - allow_multiple_correct
       - answer_options
+      - available_lang_codes
       - created_at
       - domain
+      - explanation_blocks
       - id
       - is_mode_exam
       - is_mode_practice
-      - media
+      - prompt_blocks
       - subjects
       - translations
     QuestionWrite:
@@ -9608,12 +9519,6 @@ components:
           items:
             $ref: '#/components/schemas/QuestionAnswerOptionWritePayloadRequest'
           writeOnly: true
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: Ordered MediaAsset IDs linked to the question.
       required:
       - domain
       - translations
@@ -9628,6 +9533,20 @@ components:
             $ref: '#/components/schemas/LocalizedQuestionTranslationRequest'
           writeOnly: true
           description: Object or JSON string (multipart). Dict keyed by language code.
+        prompt_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          writeOnly: true
+          description: Block payloads forming the question prompt (text/media/code/...).
+        explanation_blocks:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          writeOnly: true
+          description: Block payloads forming the answer explanation.
         allow_multiple_correct:
           type: boolean
           title: Plusieurs bonnes réponses ?
@@ -9650,14 +9569,7 @@ components:
             $ref: '#/components/schemas/QuestionAnswerOptionWriteRequest'
           writeOnly: true
           description: 'List or JSON string (multipart). Each item: {is_correct, sort_order,
-            translations{lang:{content}}}'
-        media_asset_ids:
-          type: array
-          items:
-            type: integer
-          writeOnly: true
-          description: IDs des MediaAsset uploadés au préalable. L'ordre dans la liste
-            définit l'ordre d'affichage des médias.
+            blocks: [{block_type, order, translations}]}'
       required:
       - domain
     Quiz:
@@ -11084,6 +10996,38 @@ components:
         * `immediate` - Immédiat
         * `scheduled` - À partir d'une date
         * `never` - Jamais
+    _BlockReorderRequestBlockRoleEnum:
+      enum:
+      - body
+      - prompt
+      - explanation
+      type: string
+      description: |-
+        * `body` - body
+        * `prompt` - prompt
+        * `explanation` - explanation
+    _BlockReorderRequestRequest:
+      type: object
+      description: Wire shape of the generic bulk-reorder endpoint.
+      properties:
+        host_type:
+          $ref: '#/components/schemas/HostTypeEnum'
+        host_id:
+          type: integer
+          minimum: 1
+        ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        block_role:
+          allOf:
+          - $ref: '#/components/schemas/_BlockReorderRequestBlockRoleEnum'
+          default: body
+      required:
+      - host_id
+      - host_type
+      - ids
     _DomainStats:
       type: object
       properties:

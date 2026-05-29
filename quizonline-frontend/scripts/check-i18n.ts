@@ -48,17 +48,20 @@ import {getSubjectListUiText} from '../src/app/pages/subject/list/subject-list.i
 import {getPrivacyUiText} from '../src/app/pages/privacy/privacy.i18n';
 import {getSubjectFormUiText} from '../src/app/pages/quiz/subject-form/subject-form.i18n';
 import {getSubjectCreateUiText} from '../src/app/pages/subject/create/subject-create.i18n';
-import {getLmsCatalogUiText} from '../src/app/pages/lms/catalog/catalog.i18n';
-import {getLmsCourseCreateUiText} from '../src/app/pages/lms/course-create/course-create.i18n';
-import {getLmsCourseEditUiText} from '../src/app/pages/lms/course-edit/course-edit.i18n';
-import {getLmsCourseListUiText} from '../src/app/pages/lms/course-list/course-list.i18n';
-import {getLmsCourseEditInfoTabUiText} from '../src/app/pages/lms/course-edit/tabs/info-tab/info-tab.i18n';
-import {getLmsCourseEditStructureTabUiText} from '../src/app/pages/lms/course-edit/tabs/structure-tab/structure-tab.i18n';
-import {getLmsCourseEditAnalyticsTabUiText} from '../src/app/pages/lms/course-edit/tabs/analytics-tab/analytics-tab.i18n';
-import {getLmsCourseInviteAcceptUiText} from '../src/app/pages/lms/course-invite-accept/course-invite-accept.i18n';
-import {getLmsMyInvitationsUiText} from '../src/app/pages/lms/my-invitations/my-invitations.i18n';
-import {getLmsLessonEditUiText} from '../src/app/pages/lms/lesson-edit/lesson-edit.i18n';
+import {getCatalogUiText} from '../src/app/pages/catalog/catalog.i18n';
+import {getCourseCreateUiText} from '../src/app/pages/course-create/course-create.i18n';
+import {getCourseEditUiText} from '../src/app/pages/course-edit/course-edit.i18n';
+import {getCourseListUiText} from '../src/app/pages/course-list/course-list.i18n';
+import {getCourseEditInfoTabUiText} from '../src/app/pages/course-edit/tabs/info-tab/info-tab.i18n';
+import {getCourseEditStructureTabUiText} from '../src/app/pages/course-edit/tabs/structure-tab/structure-tab.i18n';
+import {getCourseEditAnalyticsTabUiText} from '../src/app/pages/course-edit/tabs/analytics-tab/analytics-tab.i18n';
+import {getCourseInviteAcceptUiText} from '../src/app/pages/course-invite-accept/course-invite-accept.i18n';
+import {getMyInvitationsUiText} from '../src/app/pages/my-invitations/my-invitations.i18n';
+import {getLessonEditUiText} from '../src/app/pages/lesson-edit/lesson-edit.i18n';
+import {getLessonViewUiText} from '../src/app/pages/lesson-view/lesson-view.i18n';
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
+import {getBlockListEditorUiText} from '../src/app/shared/learning/block-list-editor/block-list-editor.i18n';
+import {getQuestionEditorFormUiText} from '../src/app/components/question-editor-form/question-editor-form.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -88,17 +91,20 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/privacy', get: getPrivacyUiText as Getter},
   {name: 'pages/quiz/subject-form', get: getSubjectFormUiText as Getter},
   {name: 'pages/subject/create', get: getSubjectCreateUiText as Getter},
-  {name: 'pages/lms/catalog', get: getLmsCatalogUiText as Getter},
-  {name: 'pages/lms/course-create', get: getLmsCourseCreateUiText as Getter},
-  {name: 'pages/lms/course-edit', get: getLmsCourseEditUiText as Getter},
-  {name: 'pages/lms/course-list', get: getLmsCourseListUiText as Getter},
-  {name: 'pages/lms/course-edit/info-tab', get: getLmsCourseEditInfoTabUiText as Getter},
-  {name: 'pages/lms/course-edit/structure-tab', get: getLmsCourseEditStructureTabUiText as Getter},
-  {name: 'pages/lms/course-edit/analytics-tab', get: getLmsCourseEditAnalyticsTabUiText as Getter},
-  {name: 'pages/lms/course-invite-accept', get: getLmsCourseInviteAcceptUiText as Getter},
-  {name: 'pages/lms/my-invitations', get: getLmsMyInvitationsUiText as Getter},
-  {name: 'pages/lms/lesson-edit', get: getLmsLessonEditUiText as Getter},
+  {name: 'pages/catalog', get: getCatalogUiText as Getter},
+  {name: 'pages/course-create', get: getCourseCreateUiText as Getter},
+  {name: 'pages/course-edit', get: getCourseEditUiText as Getter},
+  {name: 'pages/course-list', get: getCourseListUiText as Getter},
+  {name: 'pages/course-edit/info-tab', get: getCourseEditInfoTabUiText as Getter},
+  {name: 'pages/course-edit/structure-tab', get: getCourseEditStructureTabUiText as Getter},
+  {name: 'pages/course-edit/analytics-tab', get: getCourseEditAnalyticsTabUiText as Getter},
+  {name: 'pages/course-invite-accept', get: getCourseInviteAcceptUiText as Getter},
+  {name: 'pages/my-invitations', get: getMyInvitationsUiText as Getter},
+  {name: 'pages/lesson-edit', get: getLessonEditUiText as Getter},
+  {name: 'pages/lesson-view', get: getLessonViewUiText as Getter},
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
+  {name: 'shared/learning/block-list-editor', get: getBlockListEditorUiText as Getter},
+  {name: 'components/question-editor-form', get: getQuestionEditorFormUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;

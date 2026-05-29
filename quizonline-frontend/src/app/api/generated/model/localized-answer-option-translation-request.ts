@@ -10,6 +10,6 @@
 
 
 export interface LocalizedAnswerOptionTranslationRequestDto { 
-    content: string;
+    content?: string;
 }
 

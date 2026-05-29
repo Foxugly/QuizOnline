@@ -16,7 +16,44 @@
       <h1 class="title">{{ ui().pages.questionEdit.title }}</h1>
     </div>
 
-    <div class="header-line__right"></div>
+    <div class="header-line__right question-edit-page__header-actions">
+      @if (question(); as q) {
+        <p-button
+          (onClick)="duplicateQuestion()"
+          [disabled]="saving() || deleting()"
+          icon="pi pi-copy"
+          [pTooltip]="ui().common.duplicate"
+          [attr.aria-label]="ui().common.duplicate"
+          tooltipPosition="bottom"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+        <p-button
+          (onClick)="openPreview()"
+          [disabled]="saving() || deleting()"
+          icon="pi pi-eye"
+          [pTooltip]="ui().common.view"
+          [attr.aria-label]="ui().common.view"
+          tooltipPosition="bottom"
+          severity="secondary"
+          variant="outlined"
+          type="button">
+        </p-button>
+        <p-button
+          (onClick)="deleteQuestion()"
+          [disabled]="saving() || deleting()"
+          [loading]="deleting()"
+          icon="pi pi-trash"
+          [pTooltip]="ui().common.delete"
+          [attr.aria-label]="ui().common.delete"
+          tooltipPosition="bottom"
+          severity="danger"
+          variant="outlined"
+          type="button">
+        </p-button>
+      }
+    </div>
   </div>
 
   @if (error()) {
@@ -34,35 +71,81 @@
   @if (loading()) {
     <div class="status-card">{{ ui().common.loading }}</div>
   } @else if (question(); as q) {
-    <app-question-editor-form
-      [activeLang]="activeLang()"
-      [domainReadonlyLabel]="getDomainLabel(q.domain)"
-      [duplicateLabel]="ui().common.duplicate"
-      [emptyLanguagesMessage]="ui().pages.questionEdit.emptyLanguagesMessage"
-      [form]="form"
-      [deleting]="deleting()"
-      [saving]="saving()"
-      [showDuplicateAction]="true"
-      [showDeleteAction]="true"
-      [showCleanAction]="true"
-      [showDomainSelect]="false"
-      [showTranslateAction]="true"
-      [subjectOptions]="subjectOptions()"
-      [submitError]="submitError()"
-      [submitLabel]="ui().common.save"
-      [tabCodes]="tabCodes()"
-      [translating]="translating()"
-      [practiceTooltip]="ui().questionForm.practiceHint"
-      [examTooltip]="ui().questionForm.examHint"
-      (addOptionClicked)="addOption()"
-      (cancelClicked)="goBack()"
-      (cleanActiveClicked)="clearActiveTab()"
-      (deleteClicked)="deleteQuestion()"
-      (duplicateClicked)="duplicateQuestion()"
-      (removeOptionClicked)="removeOption($event)"
-      (submitted)="save()"
-      (tabChanged)="onTabChange($event)"
-      (translateActive)="translateFromActiveTab()">
-    </app-question-editor-form>
+    <!-- Single card frame hosting both the context form and the
+         3-tab block editor. Header carries the high-level actions
+         (Dupliquer / Preview / Supprimer) on the top right; footer
+         carries the save flow (Annuler / Enregistrer) on the bottom
+         right. The two sub-components below are rendered without
+         their own card chrome to honour the single-frame layout. -->
+    <div class="card form-card question-edit-card">
+      <app-question-editor-form
+        [activeLang]="activeLang()"
+        [domainReadonlyLabel]="getDomainLabel(q.domain)"
+        [duplicateLabel]="ui().common.duplicate"
+        [emptyLanguagesMessage]="ui().pages.questionEdit.emptyLanguagesMessage"
+        [form]="form"
+        [deleting]="deleting()"
+        [saving]="saving()"
+        [showDuplicateAction]="false"
+        [showDeleteAction]="false"
+        [showDomainSelect]="false"
+        [subjectOptions]="subjectOptions()"
+        [submitError]="submitError()"
+        [submitLabel]="ui().common.save"
+        [tabCodes]="tabCodes()"
+        [practiceTooltip]="ui().questionForm.practiceHint"
+        [examTooltip]="ui().questionForm.examHint"
+        (cancelClicked)="goBack()"
+        (deleteClicked)="deleteQuestion()"
+        (duplicateClicked)="duplicateQuestion()"
+        (submitted)="save()"
+        (tabChanged)="onTabChange($event)">
+      </app-question-editor-form>
+
+      @if (tabCodes().length > 0) {
+        <app-question-block-tabs
+          [questionId]="q.id"
+          [domainId]="q.domain.id"
+          [availableLangs]="tabCodes()"
+          [promptBlocks]="promptBlocks()"
+          [explanationBlocks]="explanationBlocks()"
+          [answerRows]="answerRows()"
+          [form]="form"
+          (blocksChanged)="onBlocksChanged()"
+          (blockUpdated)="onBlockUpdated($event)"
+          (correctChanged)="onCorrectChanged($event)"
+          (removeAnswerClicked)="onRemoveAnswer($event)"
+          (addAnswerClicked)="onAddAnswer()"
+          (duplicateAnswerClicked)="onDuplicateAnswer($event)">
+        </app-question-block-tabs>
+      }
+
+      <div class="actions question-edit-card__footer">
+        <div class="actions__group">
+          <p-button
+            (onClick)="goBack()"
+            [disabled]="deleting()"
+            icon="pi pi-times"
+            [label]="ui().common.cancel"
+            severity="secondary"
+            variant="outlined"
+            type="button">
+          </p-button>
+          <p-button
+            (onClick)="save()"
+            [disabled]="deleting()"
+            [loading]="saving()"
+            icon="pi pi-save"
+            [label]="ui().common.save"
+            type="button">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <app-question-preview-dialog
+      [questionId]="q.id"
+      [visible]="previewVisible()"
+      (visibleChange)="onPreviewVisibleChange($event)" />
   }
 </div>

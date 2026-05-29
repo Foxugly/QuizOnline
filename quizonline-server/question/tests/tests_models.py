@@ -1,16 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 from unittest.mock import patch
-import os
 
 from question.models import (
     Question,
     QuestionSubject,
-    MediaAsset,
-    QuestionMedia,
     AnswerOption,
 )
 from domain.models import Domain
@@ -103,164 +98,6 @@ class QuestionModelsTestCase(TestCase):
         self.assertIn("ord:3", s)
 
     # ==========================================================
-    # MediaAsset.clean()
-    # ==========================================================
-
-    def test_mediaasset_external_valid(self):
-        asset = MediaAsset(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-        asset.full_clean()  # ne doit pas lever
-
-    def test_mediaasset_external_non_youtube_url_is_rejected(self):
-        asset = MediaAsset(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://example.com/video",
-        )
-
-        with self.assertRaises(ValidationError) as ctx:
-            asset.full_clean()
-
-        self.assertIn("external_url", ctx.exception.message_dict)
-
-    def test_mediaasset_external_youtube_url_is_normalized(self):
-        asset = MediaAsset(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://youtu.be/dQw4w9WgXcQ?t=43",
-        )
-
-        asset.full_clean()
-
-        self.assertEqual(
-            asset.external_url,
-            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-
-    def test_mediaasset_external_invalid_youtube_url_is_rejected(self):
-        asset = MediaAsset(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?feature=share",
-        )
-
-        with self.assertRaises(ValidationError) as ctx:
-            asset.full_clean()
-
-        self.assertIn("external_url", ctx.exception.message_dict)
-
-    def test_mediaasset_external_invalid_with_file(self):
-        asset = MediaAsset(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-        asset.file = SimpleUploadedFile("x.txt", b"abc", content_type="text/plain")
-
-        self.assertEqual(MediaAsset.EXTERNAL, "external")
-        self.assertEqual(asset.kind, "external")
-        self.assertTrue(bool(asset.file))
-        with self.assertRaises(ValidationError):
-            asset.clean()
-
-    def test_mediaasset_file_valid(self):
-        asset = MediaAsset(
-            kind=MediaAsset.IMAGE,
-            file=SimpleUploadedFile("img.png", b"abc"),
-            sha256="a" * 64,
-        )
-        asset.full_clean()
-
-    def test_mediaasset_file_missing_sha256(self):
-        asset = MediaAsset(
-            kind=MediaAsset.IMAGE,
-            file=SimpleUploadedFile("img.png", b"abc"),
-        )
-        with self.assertRaises(ValidationError):
-            asset.full_clean()
-
-    def test_mediaasset_file_with_external_url_invalid(self):
-        asset = MediaAsset(
-            kind=MediaAsset.VIDEO,
-            file=SimpleUploadedFile("vid.mp4", b"abc"),
-            external_url="https://example.com",
-            sha256="b" * 64,
-        )
-        with self.assertRaises(ValidationError):
-            asset.full_clean()
-
-    def test_mediaasset_unique_sha256_constraint(self):
-        MediaAsset.objects.create(
-            kind=MediaAsset.IMAGE,
-            file=SimpleUploadedFile("a.png", b"a"),
-            sha256="c" * 64,
-        )
-
-        with self.assertRaises(ValidationError):
-            MediaAsset.objects.create(
-                kind=MediaAsset.IMAGE,
-                file=SimpleUploadedFile("b.png", b"b"),
-                sha256="c" * 64,
-            )
-
-    def test_mediaasset_file_is_renamed_with_max_16_characters_and_unique(self):
-        first = MediaAsset.objects.create(
-            kind=MediaAsset.IMAGE,
-            file=SimpleUploadedFile("very-long-original-file-name.png", b"first"),
-            sha256="d" * 64,
-        )
-        second = MediaAsset.objects.create(
-            kind=MediaAsset.IMAGE,
-            file=SimpleUploadedFile("very-long-original-file-name.png", b"second"),
-            sha256="e" * 64,
-        )
-
-        first_name = os.path.basename(first.file.name)
-        second_name = os.path.basename(second.file.name)
-
-        self.assertLessEqual(len(first_name), 16)
-        self.assertLessEqual(len(second_name), 16)
-        self.assertTrue(first_name.endswith(".png"))
-        self.assertTrue(second_name.endswith(".png"))
-        self.assertNotEqual(first_name, second_name)
-
-    def test_mediaasset_str_external(self):
-        asset = MediaAsset.objects.create(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-        self.assertIn("external", str(asset))
-
-    # ==========================================================
-    # QuestionMedia
-    # ==========================================================
-
-    def test_question_media_unique_constraint(self):
-        q = Question.objects.create(domain=self.domain)
-        asset = MediaAsset.objects.create(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-
-        QuestionMedia.objects.create(question=q, asset=asset)
-
-        with self.assertRaises(IntegrityError):
-            QuestionMedia.objects.create(question=q, asset=asset)
-
-    def test_question_media_str(self):
-        q = Question.objects.create(domain=self.domain)
-        asset = MediaAsset.objects.create(
-            kind=MediaAsset.EXTERNAL,
-            external_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        )
-        qm = QuestionMedia.objects.create(
-            question=q,
-            asset=asset,
-            sort_order=2,
-        )
-        s = str(qm)
-        self.assertIn("Q", s)
-        self.assertIn("ord:2", s)
-
-    # ==========================================================
     # AnswerOption
     # ==========================================================
 
@@ -271,10 +108,8 @@ class QuestionModelsTestCase(TestCase):
             is_correct=True,
             sort_order=1,
         )
-        ao.set_current_language("fr")
-        ao.content = "Bonne réponse"
-        ao.save()
-
+        # Phase 3 LMS refactor: AnswerOption no longer carries a parler
+        # ``content`` field — multilingual content moved to block rows.
         self.assertIn("✔", str(ao))
 
     def test_answer_option_str_incorrect(self):
@@ -284,8 +119,4 @@ class QuestionModelsTestCase(TestCase):
             is_correct=False,
             sort_order=2,
         )
-        ao.set_current_language("fr")
-        ao.content = "Mauvaise réponse"
-        ao.save()
-
         self.assertIn("✗", str(ao))

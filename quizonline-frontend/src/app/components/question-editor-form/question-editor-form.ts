@@ -1,36 +1,43 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
-import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {CheckboxModule} from 'primeng/checkbox';
-import {DividerModule} from 'primeng/divider';
-import {EditorModule} from 'primeng/editor';
-import {InputNumberModule} from 'primeng/inputnumber';
 import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
-import {PanelModule} from 'primeng/panel';
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
 import {TooltipModule} from 'primeng/tooltip';
 
-import {MediaSelectorComponent} from '../media-selector/media-selector';
-import {
-  getAnswerContentControl,
-  getAnswerCorrectControl,
-  getAnswerMetaGroup,
-  getAnswerOptions,
-  getTranslationsGroup,
-  QuestionEditorForm,
-} from '../../services/question/question-editor-form';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {QuestionEditorForm, getTranslationsGroup} from '../../services/question/question-editor-form';
 import {LangCode} from '../../services/translation/translation';
-import {UserService} from '../../services/user/user';
 
-type DomainOption = { id: number; name: string };
-type SubjectOption = { code: number; name: string };
+type DomainOption = {id: number; name: string};
+type SubjectOption = {code: number; name: string};
 
+/**
+ * Context card for the question editor — the part of the editor
+ * that lives ABOVE the 3-tab block editor (or, in the create flow,
+ * stands alone until the question gets its first ID).
+ *
+ * Renders:
+ * - the domain / subjects / active / mode meta grid
+ * - a per-language tab strip that lets the author fill the question
+ *   ``title`` field for every language allowed by the domain
+ *
+ * The block-based content (prompt blocks, answer-option blocks,
+ * explanation blocks) lives in its own ``<app-question-block-tabs>``
+ * host because it can only render once the question has an id.
+ * Question media used to live in this card too (legacy
+ * ``QuestionMedia`` rows) — that pipeline is gone; image / video /
+ * file content is now authored inside content blocks.
+ *
+ * Output ``submitted`` is emitted on form submit, leaving the parent
+ * page in charge of POST / PATCH wiring + redirect.
+ */
 @Component({
   selector: 'app-question-editor-form',
   templateUrl: './question-editor-form.html',
@@ -38,24 +45,18 @@ type SubjectOption = { code: number; name: string };
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    EditorModule,
     TabsModule,
     SelectModule,
     MultiSelectModule,
     CheckboxModule,
     InputTextModule,
-    InputNumberModule,
     ButtonModule,
-    PanelModule,
     CardModule,
     TooltipModule,
-    MediaSelectorComponent,
-    DividerModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionEditorFormComponent {
-  private readonly userService = inject(UserService);
   readonly form = input.required<QuestionEditorForm>();
   readonly tabCodes = input<LangCode[]>([]);
   readonly activeLang = input<LangCode | null | undefined>(undefined);
@@ -63,8 +64,6 @@ export class QuestionEditorFormComponent {
   readonly subjectOptions = input<SubjectOption[]>([]);
   readonly domainReadonlyLabel = input<string | null>(null);
   readonly showDomainSelect = input(true);
-  readonly showTranslateAction = input(true);
-  readonly showCleanAction = input(true);
   readonly translating = input(false);
   readonly saving = input(false);
   readonly deleting = input(false);
@@ -80,38 +79,24 @@ export class QuestionEditorFormComponent {
   readonly ui = inject(UiTextService).editor;
 
   readonly tabChanged = output<string | number | undefined>();
-  readonly translateActive = output<void>();
-  readonly addOptionClicked = output<void>();
-  readonly removeOptionClicked = output<number>();
   readonly cancelClicked = output<void>();
-  readonly cleanActiveClicked = output<void>();
   readonly deleteClicked = output<void>();
   readonly duplicateClicked = output<void>();
   readonly submitted = output<void>();
-
-  get answerOptions(): FormArray<FormGroup> {
-    return getAnswerOptions(this.form());
-  }
 
   translationsGroup(): FormGroup {
     return getTranslationsGroup(this.form());
   }
 
-  answerMetaGroup(index: number): FormGroup {
-    return getAnswerMetaGroup(this.form(), index);
-  }
-
-  answerCorrectCtrl(index: number): FormControl<boolean> {
-    return getAnswerCorrectControl(this.form(), index);
-  }
-
-  answerContentCtrl(index: number, lang: LangCode): FormControl<string> {
-    return getAnswerContentControl(this.form(), index, lang);
+  titleCtrl(lang: LangCode): FormControl<string> {
+    return this.translationsGroup().get([lang, 'title']) as FormControl<string>;
   }
 
   hasContentContext(): boolean {
     return !this.showDomainSelect() || !!this.form().controls.domain.value;
   }
+
+  protected readonly hasTabs = computed(() => this.tabCodes().length > 0);
 
   submit(): void {
     this.submitted.emit();
@@ -121,24 +106,12 @@ export class QuestionEditorFormComponent {
     this.tabChanged.emit(value);
   }
 
-  onTranslateActive(): void {
-    this.translateActive.emit();
-  }
-
   practiceTooltipText(): string | undefined {
     return this.practiceTooltip() ?? undefined;
   }
 
   examTooltipText(): string | undefined {
     return this.examTooltip() ?? undefined;
-  }
-
-  onAddOption(): void {
-    this.addOptionClicked.emit();
-  }
-
-  onRemoveOption(index: number): void {
-    this.removeOptionClicked.emit(index);
   }
 
   onCancel(): void {
@@ -151,9 +124,5 @@ export class QuestionEditorFormComponent {
 
   onDuplicate(): void {
     this.duplicateClicked.emit();
-  }
-
-  onCleanActive(): void {
-    this.cleanActiveClicked.emit();
   }
 }

@@ -55,9 +55,13 @@ export function toCanonicalYoutubeUrl(url: string): string | null {
 
 export function toYoutubeEmbedUrl(url: string): string | null {
   const videoId = extractYoutubeVideoId(url);
-  // Use youtube-nocookie.com to reduce cross-site tracking and to match the
-  // backend CSP frame-src policy (frame-src https://www.youtube-nocookie.com).
-  return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : null;
+  // Use youtube.com/embed/ rather than youtube-nocookie.com/embed/. The
+  // nocookie variant has stricter embedding rules: some videos with
+  // embedding allowed on youtube.com refuse to load on nocookie and
+  // surface "Vidéo non disponible" inside the iframe — even popular
+  // public videos. The standard embed host accepts these uniformly and
+  // still doesn't drop tracking cookies until the user presses play.
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
 function isValidVideoId(value: string | undefined): value is string {

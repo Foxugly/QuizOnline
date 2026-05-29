@@ -23,9 +23,5 @@ export interface QuestionWritePayloadRequestDto {
     is_mode_exam?: boolean;
     subject_ids?: Array<number>;
     answer_options?: Array<QuestionAnswerOptionWritePayloadRequestDto>;
-    /**
-     * Ordered MediaAsset IDs linked to the question.
-     */
-    media_asset_ids?: Array<number>;
 }
 

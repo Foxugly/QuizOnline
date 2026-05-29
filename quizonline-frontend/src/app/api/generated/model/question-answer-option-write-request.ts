@@ -7,13 +7,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LocalizedAnswerOptionTranslationRequestDto } from './localized-answer-option-translation-request';
 
 
 export interface QuestionAnswerOptionWriteRequestDto { 
     id?: number;
     is_correct?: boolean;
     sort_order?: number;
-    translations: { [key: string]: LocalizedAnswerOptionTranslationRequestDto; };
+    /**
+     * List of block payloads forming this option\'s content.
+     */
+    blocks?: Array<{ [key: string]: any; }>;
 }
 

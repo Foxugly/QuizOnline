@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
@@ -8,33 +8,53 @@ import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {QuestionEditorFormComponent} from '../../../components/question-editor-form/question-editor-form';
+import {AnswerRowVm, QuestionBlockTabs} from '../../../components/question-editor-form/question-block-tabs';
+import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
 import {
   addQuestionAnswerOption,
   buildQuestionCreatePayload,
   buildQuestionPatchPayload,
   clearQuestionTranslationTab,
   createQuestionEditorForm,
-  getAnswerContentControl,
+  getAnswerOptions,
   getQuestionCorrectCount,
-  getQuestionTrGroup,
-  isEmptyQuestionHtml,
   isQuestionEditorFormValid,
   populateQuestionEditorForm,
   QuestionEditorForm,
-  removeQuestionAnswerOption,
-  uploadQuestionEditorMediaAssets,
 } from '../../../services/question/question-editor-form';
 import {QuestionService} from '../../../services/question/question';
 import {SubjectService} from '../../../services/subject/subject';
-import {LangCode, TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
+import {LangCode} from '../../../services/translation/translation';
 import {UserService} from '../../../services/user/user';
+import {ContentBlock} from '../../../shared/learning/content-block.types';
+import {logApiError} from '../../../shared/api/api-errors';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 
+/**
+ * ``/question/<id>/edit`` page (Phase 3.5).
+ *
+ * Layout:
+ * 1. ``<app-question-editor-form>`` — the context card on top
+ *    (domain, subjects, mode flags, per-language title, media). Saved
+ *    via ``PATCH /api/question/<id>/``.
+ * 2. ``<app-question-block-tabs>`` — the 3-tab block editor below
+ *    (Question / Réponses / Explication). Each tab embeds an
+ *    ``<app-block-list-editor>`` that calls ``/api/block/`` directly,
+ *    so block-level changes are persisted independently of the
+ *    metadata form.
+ *
+ * The page reloads the full question after every block-level change
+ * (add / patch / delete / reorder) so the block lists stay in sync
+ * with what the backend just persisted. Block-level edits don't need
+ * the user to click "Save" — only the meta card does.
+ */
 @Component({
   selector: 'app-question-edit',
   templateUrl: './question-edit.html',
@@ -44,6 +64,9 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
     ReactiveFormsModule,
     ButtonModule,
     QuestionEditorFormComponent,
+    QuestionBlockTabs,
+    QuestionPreviewDialogComponent,
+    TooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -63,8 +86,25 @@ export class QuestionEdit implements OnInit {
   domainLangs = signal<LangCode[]>([]);
   activeLang = signal<LangCode | null>(null);
   currentLang = signal<LanguageEnumDto>(LanguageEnumDto.Fr);
-  translating = signal(false);
-  translateOverwrite = signal(false);
+
+  /** Prompt blocks, kept locally so block-level reloads don't have
+   *  to traverse the question signal each time. */
+  protected readonly promptBlocks = signal<ContentBlock[]>([]);
+  protected readonly explanationBlocks = signal<ContentBlock[]>([]);
+  protected readonly answerRows = signal<AnswerRowVm[]>([]);
+  /** Drives the visibility of ``<app-question-preview-dialog>`` — a
+   *  modal that renders the question as a learner would see it via the
+   *  shared ``<app-block-card>`` stack, reusing the production
+   *  ``QuizQuestionComponent``. */
+  protected readonly previewVisible = signal(false);
+
+  protected openPreview(): void {
+    this.previewVisible.set(true);
+  }
+
+  protected onPreviewVisibleChange(visible: boolean): void {
+    this.previewVisible.set(visible);
+  }
 
   private fb = inject(NonNullableFormBuilder);
   form: QuestionEditorForm = createQuestionEditorForm(this.fb, {domainDisabled: true});
@@ -73,8 +113,8 @@ export class QuestionEdit implements OnInit {
   private route = inject(ActivatedRoute);
   private questionService = inject(QuestionService);
   private subjectService = inject(SubjectService);
-  private translator = inject(TranslationService);
   private userService = inject(UserService);
+  private toast = inject(AppToastService);
 
   readonly filteredSubjects = computed(() => {
     const domainId = this.question()?.domain.id;
@@ -84,11 +124,11 @@ export class QuestionEdit implements OnInit {
     return this.subjects().filter((subject) => subject.domain === domainId);
   });
 
-  readonly subjectOptions = computed<Array<{ name: string; code: number }>>(() => {
+  readonly subjectOptions = computed<Array<{name: string; code: number}>>(() => {
     const lang = this.currentLang();
     return this.filteredSubjects().map((subject) => {
-      const translation = selectTranslation<{ name: string }>(
-        subject.translations as Record<string, { name: string }>,
+      const translation = selectTranslation<{name: string}>(
+        subject.translations as Record<string, {name: string}>,
         lang,
       );
       return {
@@ -97,6 +137,8 @@ export class QuestionEdit implements OnInit {
       };
     });
   });
+
+  protected readonly domainId = computed(() => this.question()?.domain.id ?? 0);
 
   ngOnInit(): void {
     this.currentLang.set(this.userService.currentLang ?? LanguageEnumDto.Fr);
@@ -135,14 +177,6 @@ export class QuestionEdit implements OnInit {
     this.activeLang.set(code);
   }
 
-  addOption(): void {
-    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
-  }
-
-  removeOption(index: number): void {
-    removeQuestionAnswerOption(this.form, this.domainLangs(), index);
-  }
-
   goBack(): void {
     this.questionService.goBack();
   }
@@ -152,7 +186,7 @@ export class QuestionEdit implements OnInit {
   }
 
   duplicateQuestion(): void {
-    if (this.saving() || this.deleting() || this.translating()) {
+    if (this.saving() || this.deleting()) {
       return;
     }
 
@@ -165,105 +199,6 @@ export class QuestionEdit implements OnInit {
       return;
     }
     clearQuestionTranslationTab(this.form, lang);
-  }
-
-  answerContentCtrl(index: number, lang: LangCode) {
-    return getAnswerContentControl(this.form, index, lang);
-  }
-
-  async translateFromActiveTab(): Promise<void> {
-    const source = this.activeLang();
-    if (!source) {
-      return;
-    }
-    await this.translateFrom(source);
-  }
-
-  async translateFrom(sourceLang: LangCode): Promise<void> {
-    const codes = this.tabCodes();
-    if (!codes.includes(sourceLang)) {
-      return;
-    }
-
-    this.translating.set(true);
-    this.submitError.set(null);
-
-    try {
-      const sourceGroup = getQuestionTrGroup(this.form, sourceLang);
-      const sourceTitle = sourceGroup.controls.title.value ?? '';
-      const sourceDescription = sourceGroup.controls.description.value ?? '';
-      const sourceExplanation = sourceGroup.controls.explanation.value ?? '';
-      const overwrite = this.translateOverwrite();
-
-      for (const targetLang of codes) {
-        if (targetLang === sourceLang) {
-          continue;
-        }
-
-        const targetGroup = getQuestionTrGroup(this.form, targetLang);
-        const items: TranslateBatchItem[] = [];
-
-        const needsTitle = overwrite || !(targetGroup.controls.title.value ?? '').trim();
-        if (needsTitle) {
-          items.push({key: 'title', text: sourceTitle, format: 'text'});
-        }
-
-        const needsDescription = overwrite || isEmptyQuestionHtml(targetGroup.controls.description.value ?? '');
-        if (needsDescription) {
-          items.push({key: 'description', text: sourceDescription, format: 'html'});
-        }
-
-        const needsExplanation = overwrite || isEmptyQuestionHtml(targetGroup.controls.explanation.value ?? '');
-        if (needsExplanation) {
-          items.push({key: 'explanation', text: sourceExplanation, format: 'html'});
-        }
-
-        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
-          const targetControl = this.answerContentCtrl(i, targetLang);
-          const needsAnswer = overwrite || isEmptyQuestionHtml(targetControl.value ?? '');
-          if (!needsAnswer) {
-            continue;
-          }
-
-          const sourceControl = this.answerContentCtrl(i, sourceLang);
-          items.push({key: `ans_${i}`, text: sourceControl.value ?? '', format: 'html'});
-        }
-
-        if (!items.length) {
-          continue;
-        }
-
-        const translated = await this.translator.translateBatch(sourceLang, targetLang, items);
-
-        if (needsTitle && translated['title'] !== undefined) {
-          targetGroup.controls.title.setValue(translated['title']);
-          targetGroup.controls.title.markAsDirty();
-        }
-        if (needsDescription && translated['description'] !== undefined) {
-          targetGroup.controls.description.setValue(translated['description']);
-          targetGroup.controls.description.markAsDirty();
-        }
-        if (needsExplanation && translated['explanation'] !== undefined) {
-          targetGroup.controls.explanation.setValue(translated['explanation']);
-          targetGroup.controls.explanation.markAsDirty();
-        }
-
-        for (let i = 0; i < this.form.controls.answer_options.length; i += 1) {
-          const key = `ans_${i}`;
-          if (translated[key] === undefined) {
-            continue;
-          }
-          const targetControl = this.answerContentCtrl(i, targetLang);
-          targetControl.setValue(translated[key]);
-          targetControl.markAsDirty();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      this.submitError.set(this.ui().pages.questionEdit.errors.translationFailed);
-    } finally {
-      this.translating.set(false);
-    }
   }
 
   async deleteQuestion(): Promise<void> {
@@ -313,16 +248,14 @@ export class QuestionEdit implements OnInit {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionPatchPayload(this.form, this.domainLangs(), mediaAssetIds);
+      const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
 
-      await firstValueFrom(this.questionService.updatePartial(this.id, payload));
+      const updated = await firstValueFrom(this.questionService.updatePartial(this.id, payload));
+      this.question.set(updated);
+      this.refreshBlockSignals(updated);
 
       this.success.set(errors.saveSuccess);
-      this.goView(this.id);
+      this.toast.add({severity: 'success', summary: errors.saveSuccess});
     } catch (err: any) {
       if (err?.error && typeof err.error === 'object') {
         this.submitError.set(JSON.stringify(err.error));
@@ -335,11 +268,159 @@ export class QuestionEdit implements OnInit {
   }
 
   getDomainLabel(domain: DomainReadDto): string {
-    const label = selectTranslation<{ name: string }>(
-      domain.translations as Record<string, { name: string }>,
+    const label = selectTranslation<{name: string}>(
+      domain.translations as Record<string, {name: string}>,
       this.currentLang(),
     );
     return label?.name ?? `Domain #${domain.id}`;
+  }
+
+  protected onBlocksChanged(): void {
+    // A block-list editor reported a STRUCTURAL mutation (add /
+    // delete / reorder) — refetch the question so every dependent
+    // signal (the affected list, the outline, the preview) picks up
+    // the new server state. PATCH-only updates take the cheaper
+    // ``onBlockUpdated`` path below.
+    this.questionService.retrieve(this.id).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.refresh', err);
+      },
+    });
+  }
+
+  /** Single-block payload PATCH succeeded server-side. Merge the
+   *  fresh ContentBlock into whichever local list owns it — prompt,
+   *  explanation, or one of the answer rows — keyed by ``block.id``.
+   *  Avoids the full ``GET /api/question/{id}/`` that ``onBlocksChanged``
+   *  fires for structural mutations: on a typical editing session
+   *  (debounced keystrokes on Quill, image alt-text typing, …) this
+   *  cuts the round-trips per save in half. */
+  protected onBlockUpdated(updated: ContentBlock): void {
+    this.promptBlocks.update((list) =>
+      list.map((b) => (b.id === updated.id ? updated : b)),
+    );
+    this.explanationBlocks.update((list) =>
+      list.map((b) => (b.id === updated.id ? updated : b)),
+    );
+    this.answerRows.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        blocks: row.blocks.map((b) => (b.id === updated.id ? updated : b)),
+      })),
+    );
+  }
+
+  /** Toggle the ``is_correct`` flag on a single answer option and
+   *  persist it. The reactive form mirrors the change so the parent
+   *  validation rule (at least one correct answer on save) still
+   *  sees the right count. */
+  protected onCorrectChanged(event: {answerId: number; isCorrect: boolean}): void {
+    const rows = this.answerRows();
+    const next = rows.map((row) =>
+      row.id === event.answerId ? {...row, is_correct: event.isCorrect} : row,
+    );
+    this.answerRows.set(next);
+
+    // Sync the FormArray so getQuestionCorrectCount() stays accurate
+    // when the user eventually clicks "Save".
+    const meta = getAnswerOptions(this.form).controls.find(
+      (ctrl) => Number(ctrl.get('id')?.value) === event.answerId,
+    );
+    meta?.get('is_correct')?.setValue(event.isCorrect);
+
+    // Persist by patching the question with the new answer list.
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
+    this.questionService.updatePartial(this.id, payload).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.correct-toggle', err);
+        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+      },
+    });
+  }
+
+  /** Add a fresh AnswerOption row by sending a question PATCH with
+   *  the new list (the simplest way to insert into the M2M-like
+   *  list without exposing a dedicated endpoint). */
+  protected onAddAnswer(): void {
+    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
+    this.questionService.updatePartial(this.id, payload).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.add-answer', err);
+        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+      },
+    });
+  }
+
+  /** Duplicate an AnswerOption: clones the source row's ``is_correct``
+   *  flag into a fresh row appended at the end of the list, then
+   *  PATCHes the question. Blocks are NOT carried over yet — the
+   *  author can re-author them in the new row (a future bulk-clone
+   *  endpoint on the backend would let us deep-copy automatically). */
+  protected onDuplicateAnswer(answerId: number): void {
+    const controls = getAnswerOptions(this.form).controls;
+    const sourceCtrl = controls.find((ctrl) => Number(ctrl.get('id')?.value) === answerId);
+    if (!sourceCtrl) {
+      return;
+    }
+    const isCorrect = !!sourceCtrl.get('is_correct')?.value;
+    addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
+    const all = getAnswerOptions(this.form).controls;
+    all[all.length - 1].get('is_correct')?.setValue(isCorrect);
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
+    this.questionService.updatePartial(this.id, payload).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.duplicate-answer', err);
+        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+      },
+    });
+  }
+
+  /** Remove an AnswerOption by id. Like ``onAddAnswer`` we patch the
+   *  question with the trimmed list so all the cascading deletes
+   *  (Block rows on the option, sort_order updates) happen
+   *  transactionally on the backend. */
+  protected onRemoveAnswer(answerId: number): void {
+    // Drop the row from the form and from the local rows signal so
+    // the patch payload reflects the new state.
+    const controls = getAnswerOptions(this.form).controls;
+    const idx = controls.findIndex((ctrl) => Number(ctrl.get('id')?.value) === answerId);
+    if (idx === -1) {
+      return;
+    }
+    getAnswerOptions(this.form).removeAt(idx);
+    // Renumber sort_orders to match.
+    getAnswerOptions(this.form).controls.forEach((ctrl, i) => {
+      ctrl.get('sort_order')?.setValue(i + 1);
+    });
+
+    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
+    this.questionService.updatePartial(this.id, payload).subscribe({
+      next: (question) => {
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      },
+      error: (err: unknown) => {
+        logApiError('question.edit.remove-answer', err);
+        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+      },
+    });
   }
 
   private loadData(): void {
@@ -366,16 +447,29 @@ export class QuestionEdit implements OnInit {
           const langs = populateQuestionEditorForm(this.fb, this.form, question);
           this.domainLangs.set(langs);
           this.activeLang.set(langs[0] ?? null);
-
-          if (this.form.controls.answer_options.length === 0) {
-            addQuestionAnswerOption(this.fb, this.form, langs);
-            addQuestionAnswerOption(this.fb, this.form, langs);
-          }
+          this.refreshBlockSignals(question);
         },
         error: () => {
           this.error.set(this.ui().pages.questionEdit.errors.loadFailed);
         },
       });
+  }
+
+  /** Repopulate the block-related signals from a freshly-fetched
+   *  question payload. Called after every successful question
+   *  read (initial load + every refetch triggered by block-level
+   *  mutations from the embedded editors). */
+  private refreshBlockSignals(question: QuestionReadDto): void {
+    this.promptBlocks.set((question.prompt_blocks ?? []) as unknown as ContentBlock[]);
+    this.explanationBlocks.set((question.explanation_blocks ?? []) as unknown as ContentBlock[]);
+    this.answerRows.set(
+      (question.answer_options ?? []).map((opt) => ({
+        id: opt.id,
+        is_correct: !!opt.is_correct,
+        sort_order: opt.sort_order ?? opt.id,
+        blocks: ((opt as unknown as {blocks?: ContentBlock[]}).blocks ?? []) as ContentBlock[],
+      })),
+    );
   }
 
   private async createDuplicateQuestion(): Promise<void> {
@@ -398,16 +492,11 @@ export class QuestionEdit implements OnInit {
     this.saving.set(true);
 
     try {
-      const mediaAssetIds = await uploadQuestionEditorMediaAssets(
-        this.form.controls.media.value ?? [],
-        (params) => this.questionService.questionMediaCreate(params),
-      );
-      const payload = buildQuestionCreatePayload(this.form, this.domainLangs(), mediaAssetIds);
+      const payload = buildQuestionCreatePayload(this.form, this.domainLangs());
 
       payload.answer_options = (payload.answer_options ?? []).map((answer) => ({
         is_correct: answer.is_correct,
         sort_order: answer.sort_order,
-        translations: answer.translations,
       }));
 
       payload.translations = Object.fromEntries(

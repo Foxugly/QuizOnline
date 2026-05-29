@@ -1,0 +1,64 @@
+<app-page-header [title]="ui().pageTitle">
+  <p-button slot="left"
+    type="button"
+    severity="secondary"
+    [outlined]="true"
+    icon="pi pi-arrow-left"
+    [label]="editorUi().common.back"
+    (onClick)="back()" />
+  <p-button slot="right"
+    type="button"
+    severity="secondary"
+    [outlined]="!previewMode()"
+    [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
+    [label]="previewMode() ? ui().editModeButton : ui().previewButton"
+    (onClick)="togglePreview()" />
+</app-page-header>
+
+@if (blocks().length === 0) {
+  <div class="empty-state">
+    <h3>{{ ui().emptyTitle }}</h3>
+    <p>{{ ui().emptyHint }}</p>
+  </div>
+}
+
+<div class="lesson-layout" [class.lesson-layout--preview]="previewMode()">
+  @if (previewMode() && outline().length > 0) {
+    <aside class="lesson-outline" [attr.aria-label]="ui().outlineHeading">
+      <h2 class="lesson-outline__heading">{{ ui().outlineHeading }}</h2>
+      <ol class="lesson-outline__list">
+        @for (item of outline(); track item.id; let i = $index) {
+          <li>
+            <a class="lesson-outline__link"
+               [href]="anchorHref(item.anchor)"
+               (click)="scrollToBlock($event, item.anchor)">
+              <span class="lesson-outline__index">{{ i + 1 }}</span>
+              <i [class]="item.icon"></i>
+              <span class="lesson-outline__label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ol>
+    </aside>
+  }
+
+  @if (previewMode()) {
+    <section class="lesson-body">
+      @for (block of blocks(); track block.id) {
+        <app-block-card [block]="block" />
+      }
+    </section>
+  } @else {
+    @if (hasLesson()) {
+      <app-block-list-editor
+        hostType="lesson"
+        [hostId]="lessonId()"
+        blockRole="body"
+        [blocks]="blocks()"
+        [availableLangs]="availableLangs()"
+        [domainId]="domainId() || null"
+        (blocksChanged)="onBlocksChanged()"
+        (blockUpdated)="onBlockUpdated($event)" />
+    }
+  }
+</div>

@@ -12,6 +12,13 @@ User = get_user_model()
 
 
 class AnswerOptionResourceTestCase(TestCase):
+    """Phase 3 LMS refactor: AnswerOption is no longer parler-translated
+    (its multilingual ``content`` moved to polymorphic block rows). The
+    import/export resource now only round-trips the structural columns
+    — block content travels through the structured-JSON exporter
+    instead. These tests cover the new contract.
+    """
+
     @classmethod
     def setUpTestData(cls):
         cls.owner = User.objects.create_user(
@@ -30,32 +37,31 @@ class AnswerOptionResourceTestCase(TestCase):
         cls.question.title = "Question FR"
         cls.question.save()
 
-    def test_export_includes_translated_content_columns(self):
+    def test_export_includes_structural_columns(self):
         option = AnswerOption.objects.create(
             question=self.question,
             is_correct=True,
             sort_order=1,
         )
-        option.set_current_language("fr")
-        option.content = "Bonne reponse"
-        option.save()
-        option.set_current_language("en")
-        option.content = "Correct answer"
-        option.save()
 
         dataset = AnswerOptionResource().export()
 
-        self.assertIn("content_fr", dataset.headers)
-        self.assertIn("content_en", dataset.headers)
-        self.assertEqual(dataset.dict[0]["content_fr"], "Bonne reponse")
-        self.assertEqual(dataset.dict[0]["content_en"], "Correct answer")
+        self.assertIn("id", dataset.headers)
+        self.assertIn("question", dataset.headers)
+        self.assertIn("is_correct", dataset.headers)
+        self.assertIn("sort_order", dataset.headers)
+        # Translated columns are gone after Phase 3.
+        self.assertNotIn("content_fr", dataset.headers)
+        self.assertNotIn("content_en", dataset.headers)
+        row = next(r for r in dataset.dict if str(r["id"]) == str(option.pk))
+        self.assertEqual(str(row["sort_order"]), "1")
 
-    def test_import_creates_translations(self):
+    def test_import_creates_option_row(self):
         resource = AnswerOptionResource()
         dataset = Dataset(
-            headers=("id", "question", "is_correct", "sort_order", "content_fr", "content_en")
+            headers=("id", "question", "is_correct", "sort_order"),
         )
-        dataset.append((101, self.question.id, True, 2, "Oui", "Yes"))
+        dataset.append((101, self.question.id, True, 2))
 
         result = resource.import_data(dataset, dry_run=False)
 
@@ -64,11 +70,3 @@ class AnswerOptionResourceTestCase(TestCase):
         option = AnswerOption.objects.get(pk=101)
         self.assertTrue(option.is_correct)
         self.assertEqual(option.sort_order, 2)
-        self.assertEqual(
-            option.safe_translation_getter("content", language_code="fr", any_language=False),
-            "Oui",
-        )
-        self.assertEqual(
-            option.safe_translation_getter("content", language_code="en", any_language=False),
-            "Yes",
-        )

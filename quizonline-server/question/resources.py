@@ -92,7 +92,11 @@ class SubjectsByNameWidget(ManyToManyWidget):
 
 
 def build_question_resource():
-    translated_fields = ("title", "description", "explanation")
+    # Phase 3 LMS refactor: ``description`` and ``explanation`` are no
+    # longer parler-translated fields on Question — they live as Block
+    # rows under ``prompt`` / ``explanation`` roles. Only ``title``
+    # remains exportable through the translations widget.
+    translated_fields = ("title",)
     translation_attrs, translation_columns = build_translation_resource_attrs(translated_fields)
     translation_field_names = tuple(translation_columns.keys())
 
@@ -171,27 +175,12 @@ QuestionResource = build_question_resource()
 
 
 def build_answer_option_resource():
-    translated_fields = ("content",)
-    translation_attrs, translation_columns = build_translation_resource_attrs(translated_fields)
-    translation_field_names = tuple(translation_columns.keys())
-
-    attrs = {
-        "question": fields.Field(
-            attribute="question",
-            column_name="question",
-            widget=ForeignKeyWidget(Question, "id"),
-        ),
-        "translation_columns": translation_columns,
-        "__module__": __name__,
-    }
-    attrs.update(translation_attrs)
-
-    for column_name, (language_code, field_name) in translation_columns.items():
-        def dehydrate(self, obj, lang=language_code, field=field_name):
-            return self._dehydrate_translation(obj, lang, field)
-
-        attrs[f"dehydrate_{column_name}"] = dehydrate
-
+    # Phase 3 LMS refactor: AnswerOption no longer carries a parler
+    # ``content`` translation — its multilingual content moved into
+    # polymorphic Block rows. The import/export resource keeps the
+    # structural columns (FK + flags + sort_order) so admin CSV
+    # round-trips still work, and the block content is exported via the
+    # structured JSON exporter instead.
     class Meta:
         model = AnswerOption
         import_id_fields = ("id",)
@@ -202,17 +191,22 @@ def build_answer_option_resource():
             "sort_order",
             "created_at",
             "updated_at",
-            *translation_field_names,
         )
         export_order = fields
         skip_unchanged = True
 
-    attrs["Meta"] = Meta
-
     return type(
         "AnswerOptionResource",
-        (ParlerTranslationResourceMixin, resources.ModelResource),
-        attrs,
+        (resources.ModelResource,),
+        {
+            "question": fields.Field(
+                attribute="question",
+                column_name="question",
+                widget=ForeignKeyWidget(Question, "id"),
+            ),
+            "Meta": Meta,
+            "__module__": __name__,
+        },
     )
 
 

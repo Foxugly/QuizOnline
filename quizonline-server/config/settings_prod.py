@@ -66,7 +66,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 # Content-Security-Policy should be enforced by django-csp or the reverse proxy.
 # Example:
-# default-src 'self'; frame-src https://www.youtube-nocookie.com; img-src 'self' data:;
+# default-src 'self'; frame-src https://www.youtube.com; img-src 'self' data:;
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])  # noqa: F405
 LOGGING = PROD_LOGGING  # noqa: F405
 
@@ -86,6 +86,8 @@ if SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
 
+    from .sentry_filters import drop_redis_loading_noise
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         environment=env("SENTRY_ENVIRONMENT", default="production"),  # noqa: F405
@@ -97,6 +99,10 @@ if SENTRY_DSN:
             # ``ERROR`` events get auto-captured as their own issues.
             LoggingIntegration(level=None, event_level="ERROR"),
         ],
+        # Drop known-transient Kombu reconnect noise emitted while Redis
+        # reloads its dump (e.g. after needrestart triggers a restart on
+        # ``unattended-upgrades``). The Celery worker auto-recovers.
+        before_send=drop_redis_loading_noise,
         # Conservative defaults — tune via env without redeploy. Defaults
         # to performance traces off (sentry tier cost) and full PII off
         # (GDPR safer; opt in via SENTRY_SEND_DEFAULT_PII=true once a

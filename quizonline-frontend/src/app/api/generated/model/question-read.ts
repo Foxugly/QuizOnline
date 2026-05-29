@@ -8,7 +8,6 @@
  * Do not edit the class manually.
  */
 import { QuestionAnswerOptionReadDto } from './question-answer-option-read';
-import { QuestionMediaReadDto } from './question-media-read';
 import { SubjectReadDto } from './subject-read';
 import { LocalizedQuestionTranslationDto } from './localized-question-translation';
 import { DomainReadDto } from './domain-read';
@@ -18,13 +17,15 @@ export interface QuestionReadDto {
     readonly id: number;
     readonly domain: DomainReadDto;
     readonly translations: { [key: string]: LocalizedQuestionTranslationDto; };
+    readonly prompt_blocks: Array<{ [key: string]: any; }>;
+    readonly explanation_blocks: Array<{ [key: string]: any; }>;
     readonly allow_multiple_correct: boolean;
     readonly active: boolean;
     readonly is_mode_practice: boolean;
     readonly is_mode_exam: boolean;
     readonly subjects: Array<SubjectReadDto>;
     readonly answer_options: Array<QuestionAnswerOptionReadDto>;
-    readonly media: Array<QuestionMediaReadDto>;
+    readonly available_lang_codes: Array<string>;
     readonly created_at: string;
 }
 

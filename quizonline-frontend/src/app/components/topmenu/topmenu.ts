@@ -9,7 +9,7 @@ import {UserService} from '../../services/user/user';
 import {LangSelectComponent} from '../lang-select/lang-select';
 import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
-import {LMS_CATALOG, LMS_ME_CERTIFICATES, LMS_ME_PROGRESS, ROUTES} from '../../app.routes-paths';
+import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
 import {NotificationService} from '../../services/notification/notification.service';
 import {NotificationsBellComponent} from '../notifications-bell/notifications-bell';
@@ -267,17 +267,17 @@ export class TopMenuComponent implements OnInit {
     return [
       {
         label: this.ui().topmenu.coursesMenuFormations,
-        link: [LMS_CATALOG] as const,
+        link: [CATALOG] as const,
         icon: 'pi pi-book',
       },
       {
         label: this.ui().topmenu.lmsMyProgress,
-        link: [LMS_ME_PROGRESS] as const,
+        link: [ME_PROGRESS] as const,
         icon: 'pi pi-chart-line',
       },
       {
         label: this.ui().topmenu.lmsMyCertificates,
-        link: [LMS_ME_CERTIFICATES] as const,
+        link: [ME_CERTIFICATES] as const,
         icon: 'pi pi-verified',
       },
     ];

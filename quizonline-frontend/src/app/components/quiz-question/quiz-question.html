@@ -28,57 +28,12 @@
       </div>
     </ng-template>
 
-    @if (question.media.length) {
-      <div class="quiz-question__media">
-        @for (m of question.media; track m.id ?? m.sort_order; let i = $index) {
-          @switch (m.asset.kind) {
-            @case ('image') {
-              <p-image
-                [alt]="getTitle(question)"
-                [preview]="true"
-                [src]="mediaSrc(m)"
-                class="quiz-question__media-image"
-              ></p-image>
-            }
-            @case ('video') {
-              <video
-                [src]="mediaSrc(m)"
-                class="quiz-question__media-video"
-                controls
-              >
-                Votre navigateur ne supporte pas la video.
-              </video>
-            }
-            @case ('external') {
-              @if (externalSafeUrl(m); as url) {
-                <div class="youtube-wrapper">
-                  <iframe
-                    [src]="url"
-                    allowfullscreen
-                    frameborder="0"
-                  ></iframe>
-                </div>
-              } @else if (externalLinkUrl(m); as link) {
-                <a
-                  [href]="link"
-                  class="quiz-question__external-link"
-                  rel="noopener"
-                  target="_blank"
-                >
-                  Ouvrir le lien video
-                </a>
-              }
-            }
-          }
+    @if (promptBlocks(question).length) {
+      <div class="quiz-question__prompt">
+        @for (block of promptBlocks(question); track block.id) {
+          <app-block-card [block]="block" />
         }
       </div>
-    }
-
-    @if (getDescription(question)) {
-      <div
-        [innerHTML]="stripOuterP(getDescription(question))"
-        class="quiz-question__description"
-      ></div>
     }
 
       <div class="quiz-question__answers">
@@ -113,18 +68,23 @@
           }
 
           <label [for]="'opt' + opt.id" class="answer-label">
-            <div class="answer-label__content" [innerHTML]="stripOuterP(getAnswerContent(opt))"></div>
+            <div class="answer-label__content">
+              @for (block of answerBlocks(opt); track block.id) {
+                <app-block-card [block]="block" />
+              }
+            </div>
           </label>
         </div>
       }
 
-      @if (canShowCorrectionState() && getExplanation(question)) {
+      @if (canShowCorrectionState() && explanationBlocks(question).length) {
         <section class="quiz-question__explanation">
-          <p class="quiz-question__explanation-label">Explication</p>
-          <div
-            [innerHTML]="stripOuterP(getExplanation(question))"
-            class="quiz-question__explanation-body"
-          ></div>
+          <p class="quiz-question__explanation-label">{{ editorUi().questionForm.explanation }}</p>
+          <div class="quiz-question__explanation-body">
+            @for (block of explanationBlocks(question); track block.id) {
+              <app-block-card [block]="block" />
+            }
+          </div>
         </section>
       }
     </div>

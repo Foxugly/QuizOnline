@@ -1,0 +1,140 @@
+<div class="lms-catalog">
+  <app-page-header [title]="ui().pageTitle">
+    @if (canCreateCourse()) {
+      <p-button slot="right"
+        [routerLink]="courseListHref"
+        icon="pi pi-list"
+        severity="secondary"
+        [outlined]="true"
+        [label]="ui().listButton"
+        type="button" />
+    }
+    @if (canCreateCourse()) {
+      <p-button slot="right"
+        [routerLink]="createCourseHref"
+        icon="pi pi-plus"
+        [label]="ui().createCourseButton"
+        type="button" />
+    }
+  </app-page-header>
+
+  <div class="catalog-toolbar">
+    <div class="filters">
+      <input
+        pInputText
+        type="search"
+        [placeholder]="ui().searchPlaceholder"
+        [ngModel]="search()"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <p-select
+        [options]="levelOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="levelFilter()"
+        (ngModelChange)="onLevelChange($event)"
+        [placeholder]="ui().filterByLevelLabel"
+        [showClear]="true"
+      />
+      @if (availableDomains().length > 1) {
+        <p-select
+          [options]="domainOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="domainFilter()"
+          (ngModelChange)="onDomainChange($event)"
+          [placeholder]="ui().filterByDomainLabel"
+          [showClear]="true"
+        />
+      }
+    </div>
+  </div>
+
+  @if (cards().length === 0) {
+    <div class="empty-state">
+      <h3>{{ ui().emptyTitle }}</h3>
+      <p>{{ ui().emptyMessage }}</p>
+    </div>
+  } @else {
+    <div class="grid-wrapper">
+      @for (course of cards(); track course.id) {
+        <article class="course-card" [class.course-card--enrolled]="course.isEnrolled">
+          @if (course.editHref; as editHref) {
+            <p-button
+              class="course-card__edit"
+              type="button"
+              severity="secondary"
+              [outlined]="true"
+              icon="pi pi-pencil"
+              size="small"
+              [routerLink]="editHref"
+              [pTooltip]="editorUi().common.edit"
+              tooltipPosition="bottom"
+              [attr.aria-label]="editorUi().common.edit" />
+          }
+          <header class="course-card__head">
+            <h3 class="course-card__title">{{ course.title }}</h3>
+            <div class="course-card__meta">
+              <p-tag [value]="course.enrollmentLabel" />
+              <span class="course-card__level">{{ course.levelLabel }}</span>
+              @if (course.statusLabel; as statusLabel) {
+                @if (course.statusIsPublished) {
+                  <p-tag [value]="statusLabel" severity="success" icon="pi pi-check-circle" />
+                } @else {
+                  <p-tag [value]="statusLabel" severity="secondary" icon="pi pi-file-edit" />
+                }
+              }
+              @if (course.isEnrolled) {
+                <p-tag [value]="ui().enrolledBadge" severity="success" icon="pi pi-check" />
+              }
+            </div>
+            @if (course.lessonCountLabel || course.durationLabel) {
+              <div class="course-card__stats">
+                @if (course.lessonCountLabel) {
+                  <span><i class="pi pi-list"></i> {{ course.lessonCountLabel }}</span>
+                }
+                @if (course.durationLabel) {
+                  <span><i class="pi pi-clock"></i> {{ course.durationLabel }}</span>
+                }
+              </div>
+            }
+          </header>
+          <div class="course-card__description" [innerHTML]="course.description"></div>
+          @if (course.isEnrolled) {
+            <div class="course-card__progress" [attr.aria-label]="course.progressPercent + '%'">
+              <div class="course-card__progress-bar" [style.width.%]="course.progressPercent"></div>
+              <span class="course-card__progress-pct">{{ course.progressPercent }} %</span>
+            </div>
+          }
+          <footer class="course-card__foot">
+            @if (course.continueHref; as continueHref) {
+              <p-button
+                [routerLink]="continueHref"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                [label]="ui().continueButton"
+                severity="primary" />
+            } @else {
+              <p-button
+                [routerLink]="course.href"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                [label]="ui().viewButton"
+                severity="primary"
+                [outlined]="true" />
+            }
+          </footer>
+        </article>
+      }
+    </div>
+
+    @if (totalCount() > pageSize) {
+      <p-paginator
+        styleClass="catalog-paginator"
+        [first]="first()"
+        [rows]="pageSize"
+        [totalRecords]="totalCount()"
+        (onPageChange)="onPageChange($event)" />
+    }
+  }
+</div>

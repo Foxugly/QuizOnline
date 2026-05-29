@@ -222,7 +222,7 @@ msgid "callout text"
 msgstr ""
 
 #, python-format
-msgid "ContentBlock of type %(t)s is missing its required payload."
+msgid "Block of type %(t)s is missing its required payload."
 msgstr ""
 
 msgid "Quiz must belong to the same domain as the course."

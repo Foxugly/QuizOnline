@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, OnInit, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {LMS_ME_INVITATIONS} from '../../app.routes-paths';
+import {ME_INVITATIONS} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
-import {LmsInvitationCountService} from '../../services/lms/lms-invitation-count.service';
+import {InvitationCountService} from '../../services/invitation/invitation-count.service';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
@@ -16,7 +16,7 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 export class UserMenuComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  protected readonly invitationCount = inject(LmsInvitationCountService);
+  protected readonly invitationCount = inject(InvitationCountService);
 
   protected readonly open = signal(false);
 
@@ -40,7 +40,7 @@ export class UserMenuComponent implements OnInit {
 
   goMyInvitations() {
     this.open.set(false);
-    void this.router.navigateByUrl(LMS_ME_INVITATIONS);
+    void this.router.navigateByUrl(ME_INVITATIONS);
   }
 
   logout() {

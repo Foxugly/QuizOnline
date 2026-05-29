@@ -93,7 +93,6 @@ def quiz_queryset_for_user(user, *, include_details: bool, include_manageable_te
             "quiz_template__quiz_questions",
             queryset=QuizQuestion.objects.select_related("question").prefetch_related(
                 "question__answer_options",
-                "question__media__asset",
                 "question__subjects",
             ),
         )

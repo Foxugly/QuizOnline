@@ -1,0 +1,101 @@
+@if (course(); as c) {
+  <app-page-header [title]="courseTitle()">
+    <p-button slot="left"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="catalogHref"
+      [label]="editorUi().common.back" />
+    @if (canManage() && editHref(); as href) {
+      <p-button slot="right"
+        [routerLink]="href"
+        [label]="ui().editButton"
+        icon="pi pi-pencil"
+        severity="secondary"
+        [outlined]="true" />
+    }
+    @if (continueHref(); as href) {
+      <p-button slot="right"
+        [routerLink]="href"
+        [label]="ui().continueButton"
+        icon="pi pi-bookmark"
+        severity="primary" />
+    } @else if (pendingInviteToken()) {
+      <p-button slot="right"
+        (onClick)="acceptInvite()"
+        [label]="ui().acceptInviteButton"
+        icon="pi pi-check"
+        severity="primary"
+        [loading]="acceptingInvite()"
+        [disabled]="acceptingInvite()" />
+    } @else if (!isEnrolled()) {
+      <p-button slot="right"
+        (onClick)="enroll()"
+        [label]="ui().enrollButton"
+        icon="pi pi-user-plus"
+        [disabled]="enrolling()" />
+    }
+    @if (showStatusBadge() && isPublished()) {
+      <p-tag slot="title-after" severity="success" [value]="statusBadgeLabel()" icon="pi pi-check-circle" />
+    }
+    @if (showStatusBadge() && !isPublished()) {
+      <p-tag slot="title-after" severity="secondary" [value]="statusBadgeLabel()" icon="pi pi-file-edit" />
+    }
+  </app-page-header>
+
+  @if (pendingInviteInviter(); as inviter) {
+    <p-message severity="info" [closable]="false" styleClass="invite-banner">
+      <i class="pi pi-envelope"></i>
+      <span>{{ ui().invitedByBanner(inviter) }}</span>
+    </p-message>
+  }
+
+  @if (hasDescription()) {
+    <div class="course-description" [innerHTML]="courseDescription()"></div>
+  }
+
+  @if (hasLearningObjectives()) {
+    <section class="course-objectives">
+      <h2>{{ ui().learningObjectivesHeading }}</h2>
+      <div class="rich-text" [innerHTML]="courseLearningObjectives()"></div>
+    </section>
+  }
+
+  <h2 class="sections-heading">{{ ui().sectionsHeading }}</h2>
+
+  @if (hasAnyContent()) {
+    <ol class="sections-list" data-card-bg="white">
+      @for (section of sectionsVm(); track section.id; let secIdx = $index) {
+        <li class="section">
+          <h3 class="section__title">
+            <span class="section__badge">{{ secIdx + 1 }}</span>
+            {{ section.title }}
+          </h3>
+          <ul class="lessons-list">
+            @for (lesson of section.lessons; track lesson.id; let lesIdx = $index) {
+              <li class="lesson">
+                <a class="lesson__link" [routerLink]="lesson.href">
+                  <i class="pi pi-play-circle lesson__icon"></i>
+                  <span class="lesson__index">{{ secIdx + 1 }}.{{ lesIdx + 1 }}</span>
+                  <span class="lesson__title">{{ lesson.title }}</span>
+                  @if (lesson.isPreview) {
+                    <p-tag [value]="ui().previewBadge" severity="info" />
+                  }
+                  <i class="pi pi-chevron-right lesson__chev"></i>
+                </a>
+              </li>
+            }
+          </ul>
+        </li>
+      }
+    </ol>
+  } @else {
+    <app-empty-state
+      icon="pi pi-book"
+      [title]="ui().emptyContentTitle"
+      [hint]="ui().emptyContentMessage" />
+  }
+} @else {
+  <app-loading-skeleton [rows]="3" [attr.aria-label]="ui().loading" />
+}

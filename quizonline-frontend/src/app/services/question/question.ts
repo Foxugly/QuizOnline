@@ -1,14 +1,12 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
-import {FormArray, FormControl, FormGroup} from '@angular/forms';
+import {FormControl, FormGroup} from '@angular/forms';
 import {Router} from '@angular/router';
 import {EMPTY, expand, map, Observable, reduce} from 'rxjs';
 
 import {ROUTES} from '../../app.routes-paths';
 import {QuestionApi as QuestionApiService} from '../../api/generated/api/question.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import {MediaAssetDto} from '../../api/generated/model/media-asset';
-import {MediaAssetUploadKindEnumDto} from '../../api/generated/model/media-asset-upload-kind-enum';
 import {PaginatedQuestionReadListDto} from '../../api/generated/model/paginated-question-read-list';
 import {PatchedQuestionPartialWritePayloadRequestDto} from '../../api/generated/model/patched-question-partial-write-payload-request';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
@@ -17,28 +15,36 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {selectTranslation} from '../../shared/i18n/select-translation';
 import {LangCode} from '../translation/translation';
 
+/**
+ * Reactive form group used per language inside
+ * ``QuestionEditorForm.translations``. Phase 3.5: the rich-text
+ * ``description`` / ``explanation`` siblings are gone — they now
+ * live as polymorphic ``Block`` rows on the Question host and are
+ * edited through the block-list editor instead of inline form
+ * controls. Only the short ``title`` remains here.
+ */
 export type QuestionTrGroup = FormGroup<{
   title: FormControl<string>;
-  description: FormControl<string>;
-  explanation: FormControl<string>;
-  answer_options: FormArray<AnswerTrGroup>;
-}>;
-
-export type AnswerTrGroup = FormGroup<{
-  content: FormControl<string>;
 }>;
 
 export type QuestionTranslationForm = {
   title: string;
-  description: string;
-  explanation: string;
 };
 
+/**
+ * Wire-shape for one answer option in the create / patch payload.
+ *
+ * Phase 3.5: the legacy per-language ``translations.{lang}.content``
+ * has migrated to the polymorphic block list — each option owns its
+ * own ``Block`` rows. The write payload now only carries the
+ * structural metadata (``is_correct``, ``sort_order``); the answer's
+ * visible content is patched through ``/api/block/`` once the
+ * option has its id.
+ */
 export type AnswerOptionForm = {
   id?: number;
   is_correct: boolean;
   sort_order: number;
-  translations: Partial<Record<LangCode, { content: string }>>;
 };
 
 export type QuestionCreateJsonPayload = {
@@ -50,7 +56,6 @@ export type QuestionCreateJsonPayload = {
   is_mode_exam: boolean;
   translations: Partial<Record<LangCode, QuestionTranslationForm>>;
   answer_options: Array<AnswerOptionForm>;
-  media_asset_ids: number[];
 };
 
 export type QuestionDuplicateDraft = {
@@ -63,19 +68,23 @@ export type QuestionDuplicateDraft = {
   answerOptions: Array<{
     is_correct: boolean;
     sort_order: number;
-    translations: Partial<Record<LangCode, { content: string }>>;
-  }>;
-  media: Array<{
-    id: number;
-    kind: MediaAssetDto['kind'];
-    sort_order: number;
-    file: string | null;
-    external_url: string | null;
   }>;
 };
 
-export type StructuredQuestionTranslations = Partial<Record<LangCode, QuestionTranslationForm>>;
-export type StructuredAnswerTranslations = Partial<Record<LangCode, { content: string }>>;
+/**
+ * Wire-shape consumed by the structured-import payload (different
+ * from :type:`QuestionTranslationForm` because the legacy file
+ * format may still carry the rich-text ``description`` /
+ * ``explanation`` fields that the backend's
+ * ``_legacy_content_translations_to_blocks`` helper converts to
+ * Block rows on import).
+ */
+export type StructuredQuestionTranslations = Partial<Record<LangCode, {
+  title: string;
+  description?: string;
+  explanation?: string;
+}>>;
+export type StructuredAnswerTranslations = Partial<Record<LangCode, {content: string}>>;
 
 export type StructuredQuestionAnswerOption = {
   id?: number;
@@ -233,13 +242,16 @@ export class QuestionService {
       active: !!question.active,
       isModePractice: !!question.is_mode_practice,
       isModeExam: !!question.is_mode_exam,
+      // Phase 3.5: ``description`` / ``explanation`` / answer
+      // ``content`` migrated to the polymorphic Block table. The
+      // duplicate draft keeps only the title and structural metadata
+      // — the user re-attaches block content in the duplicate's
+      // editor after the question is created.
       translations: Object.fromEntries(
         Object.entries(question.translations ?? {}).map(([lang, value]) => [
           lang,
           {
-            title: value?.title ?? '',
-            description: value?.description ?? '',
-            explanation: value?.explanation ?? '',
+            title: (value as { title?: string } | undefined)?.title ?? '',
           },
         ]),
       ) as Record<LangCode, QuestionTranslationForm>,
@@ -248,20 +260,7 @@ export class QuestionService {
         .map((answer, index) => ({
           is_correct: !!answer.is_correct,
           sort_order: answer.sort_order ?? index + 1,
-          translations: Object.fromEntries(
-            Object.entries(answer.translations ?? {}).map(([lang, value]) => [
-              lang,
-              {content: value?.content ?? ''},
-            ]),
-          ) as Record<LangCode, { content: string }>,
         })),
-      media: (question.media ?? []).map((media, index) => ({
-        id: media.asset.id,
-        kind: media.asset.kind,
-        sort_order: media.sort_order ?? index + 1,
-        file: media.asset.file ?? null,
-        external_url: media.asset.external_url ?? null,
-      })),
     };
 
     this.duplicateDraft = draft;
@@ -301,12 +300,8 @@ export class QuestionService {
     const tr = question.translations as Record<string, QuestionTranslationForm> | undefined;
     return (
       selectTranslation<QuestionTranslationForm>(tr ?? {}, lang) ??
-      {title: '', description: '', explanation: ''}
+      {title: ''}
     );
-  }
-
-  questionMediaCreate(param: {file?: Blob; externalUrl?: string; kind?: MediaAssetUploadKindEnumDto}): Observable<MediaAssetDto> {
-    return this.api.questionMediaCreate({file: param.file, externalUrl: param.externalUrl, kind: param.kind});
   }
 
   exportStructured(domainId: number, questionIds?: number[]): Observable<{blob: Blob; filename: string}> {

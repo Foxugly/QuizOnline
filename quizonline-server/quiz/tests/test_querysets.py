@@ -206,11 +206,12 @@ class QuizQuerysetsTests(TestCase):
         self.assertNotIn(exam_template.id, list(queryset.values_list("id", flat=True)))
 
     def test_quiz_template_queryset_annotates_questions_count_without_n_plus_one(self):
+        # Phase 3 LMS refactor: description / explanation moved to block
+        # rows. The questions_count annotation doesn't depend on the
+        # content, only on the row.
         question_a = Question.objects.create(
             domain=self.domain,
             title="Question A",
-            description="",
-            explanation="",
             active=True,
             allow_multiple_correct=False,
             is_mode_practice=True,
@@ -219,8 +220,6 @@ class QuizQuerysetsTests(TestCase):
         question_b = Question.objects.create(
             domain=self.domain,
             title="Question B",
-            description="",
-            explanation="",
             active=True,
             allow_multiple_correct=False,
             is_mode_practice=True,
@@ -244,14 +243,12 @@ class QuizQuerysetsTests(TestCase):
         question = Question.objects.create(
             domain=self.domain,
             title="Question Sessions",
-            description="",
-            explanation="",
             active=True,
             allow_multiple_correct=False,
             is_mode_practice=True,
             is_mode_exam=True,
         )
-        option = question.answer_options.create(content="A", is_correct=True, sort_order=1)
+        option = question.answer_options.create(is_correct=True, sort_order=1)
         quiz_question = QuizQuestion.objects.create(quiz=self.private_assigned, question=question, sort_order=1, weight=1)
         session = Quiz.objects.create(
             quiz_template=self.private_assigned,

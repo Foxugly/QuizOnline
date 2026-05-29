@@ -31,7 +31,10 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
       <div class="page-header__slot page-header__slot--left">
         <ng-content select="[slot=left]" />
       </div>
-      <h1 class="page-header__title">{{ title() }}</h1>
+      <div class="page-header__title-row">
+        <h1 class="page-header__title">{{ title() }}</h1>
+        <ng-content select="[slot=title-after]" />
+      </div>
       <div class="page-header__slot page-header__slot--right">
         <ng-content select="[slot=right]" />
       </div>
@@ -45,6 +48,16 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
       align-items: center;
       gap: 1rem;
       margin-bottom: 1.25rem;
+    }
+    /* Center cell wrapper so the [slot=title-after] content (a
+     * status badge, a small chip) sits inline with the H1 instead of
+     * stacking below it. */
+    .page-header__title-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      justify-self: center;
+      min-width: 0;
     }
     .page-header__title {
       margin: 0;

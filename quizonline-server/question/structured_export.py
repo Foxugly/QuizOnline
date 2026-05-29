@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 
 from django.utils import timezone
 
 from domain.models import Domain
 from subject.models import Subject
 
-from .models import AnswerOption, MediaAsset, Question
+from .models import AnswerOption, Question
 
 
 def translations_hash(translations: dict) -> str:
@@ -39,35 +38,46 @@ def _question_translations(question: Question) -> dict:
     return {
         t.language_code: {
             "title": t.title or "",
-            "description": t.description or "",
-            "explanation": t.explanation or "",
         }
         for t in question.translations.all()
     }
 
 
-def _answer_option_translations(option: AnswerOption) -> dict:
+def _block_translations(block) -> dict:
+    """Read every parler translation row of a Block into a wire dict
+    keyed by language code. Only the user-visible text fields are
+    exported — image / file / metadata stay where they live."""
     return {
-        t.language_code: {"content": t.content or ""}
-        for t in option.translations.all()
+        tr.language_code: {
+            "title": tr.title or "",
+            "rich_text": tr.rich_text or "",
+            "callout_text": tr.callout_text or "",
+        }
+        for tr in block.translations.all()
     }
 
 
-def _media_items(question: Question) -> list[dict]:
-    """Return serialisable media items for a question (image/video with file only)."""
-    items = []
-    for link in question.media.all():
-        asset = link.asset
-        if asset.kind not in (MediaAsset.IMAGE, MediaAsset.VIDEO) or not asset.file:
-            continue
-        ext = os.path.splitext(asset.file.name)[1]
-        items.append({
-            "type": asset.kind,
-            "hash": asset.sha256,
-            "filename": f"media/{asset.sha256}{ext}",
-            "sort_order": link.sort_order,
-        })
-    return items
+def _block_payload(block) -> dict:
+    """Export a Block row to a portable JSON-friendly dict. Mirrors the
+    write surface of :func:`question.serializers._sync_host_blocks` so
+    a round-trip through export → import re-creates the same block."""
+    return {
+        "block_type": block.block_type,
+        "block_role": block.block_role,
+        "order": block.order,
+        "is_required": block.is_required,
+        "video_url": block.video_url,
+        "video_provider": block.video_provider,
+        "external_url": block.external_url,
+        "code_language": block.code_language,
+        "code_content": block.code_content,
+        "metadata": block.metadata or {},
+        "translations": _block_translations(block),
+    }
+
+
+def _answer_option_blocks_payload(option: AnswerOption) -> list[dict]:
+    return [_block_payload(b) for b in option.blocks.all().order_by("order", "id")]
 
 
 def export_questions(queryset) -> dict:
@@ -82,8 +92,8 @@ def export_questions(queryset) -> dict:
             "domain__translations",
             "subjects__translations",
             "translations",
-            "answer_options__translations",
-            "media__asset",
+            "answer_options__blocks__translations",
+            "blocks__translations",
         )
         .order_by("pk")
     )
@@ -129,10 +139,12 @@ def export_questions(queryset) -> dict:
                 "id": opt.pk,
                 "sort_order": opt.sort_order,
                 "is_correct": opt.is_correct,
-                "translations": _answer_option_translations(opt),
+                "blocks": _answer_option_blocks_payload(opt),
             }
             for opt in sorted(q.answer_options.all(), key=lambda o: (o.sort_order, o.pk))
         ]
+        prompt_blocks = [_block_payload(b) for b in q.prompt_blocks()]
+        explanation_blocks = [_block_payload(b) for b in q.explanation_blocks()]
         questions_data.append({
             "id": q.pk,
             "domain_id": domain.pk,
@@ -142,8 +154,9 @@ def export_questions(queryset) -> dict:
             "is_mode_practice": q.is_mode_practice,
             "is_mode_exam": q.is_mode_exam,
             "translations": _question_translations(q),
+            "prompt_blocks": prompt_blocks,
+            "explanation_blocks": explanation_blocks,
             "answer_options": answer_options_data,
-            "media": _media_items(q),
         })
 
     return {

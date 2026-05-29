@@ -2,17 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 
-from django.core.files.base import ContentFile
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Count
 
+from block.models import Block
+from block.sanitizer import sanitize_rich_text
 from domain.models import Domain
 from language.models import Language
 from subject.models import Subject
 
-from .models import AnswerOption, MediaAsset, Question, QuestionMedia
+from .models import AnswerOption, Question
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -137,58 +138,115 @@ def _resolve_subject(subject_data: dict, domain: Domain, user) -> tuple[Subject,
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Sync media
-# ──────────────────────────────────────────────────────────────────────────────
-
-def _sync_question_media(
-    question: Question,
-    media_data: list[dict],
-    media_files: dict[str, bytes],
-) -> int:
-    """
-    Sync media assets for a question from ZIP media files.
-    Returns the number of new MediaAsset objects created.
-    media_data: list of {"type": ..., "hash": ..., "filename": ..., "sort_order": ...}
-    media_files: {filename_in_zip: bytes}
-    """
-    # Remove existing media links for this question
-    question.media.all().delete()
-
-    created_count = 0
-
-    for idx, item in enumerate(media_data):
-        sha256 = item.get("hash")
-        kind = item.get("type")
-        filename_in_zip = item.get("filename")
-        sort_order = item.get("sort_order", idx)
-
-        if not sha256 or not kind or not filename_in_zip:
-            continue
-
-        file_bytes = media_files.get(filename_in_zip)
-        if not file_bytes:
-            continue
-
-        # Find or create MediaAsset
-        asset = MediaAsset.objects.filter(sha256=sha256, kind=kind).first()
-        if asset is None:
-            ext = os.path.splitext(filename_in_zip)[1]
-            asset = MediaAsset(kind=kind, sha256=sha256)
-            asset.file.save(f"{sha256}{ext}", ContentFile(file_bytes), save=True)
-            created_count += 1
-
-        QuestionMedia.objects.get_or_create(
-            question=question,
-            asset=asset,
-            defaults={"sort_order": sort_order},
-        )
-
-    return created_count
-
-
-# ──────────────────────────────────────────────────────────────────────────────
 # Sync answer options
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _apply_blocks(host, block_payloads: list[dict], *, block_role: str) -> None:
+    """Replace the host's block list (within the given role bucket)
+    with the incoming payload. Mirrors
+    :func:`question.serializers._sync_host_blocks` but lives in the
+    structured-import module to keep import logic self-contained.
+    """
+    host_ct = ContentType.objects.get_for_model(type(host))
+    Block.objects.filter(
+        target_content_type=host_ct,
+        target_object_id=host.pk,
+        block_role=block_role,
+    ).delete()
+
+    for index, raw in enumerate(block_payloads or []):
+        if not isinstance(raw, dict):
+            continue
+        block = Block.objects.create(
+            target_content_type=host_ct,
+            target_object_id=host.pk,
+            block_type=raw.get("block_type") or Block.TYPE_RICH_TEXT,
+            block_role=block_role,
+            order=raw.get("order", index),
+            is_required=bool(raw.get("is_required", False)),
+            video_url=raw.get("video_url", ""),
+            video_provider=raw.get("video_provider", ""),
+            external_url=raw.get("external_url", ""),
+            code_language=raw.get("code_language", ""),
+            code_content=raw.get("code_content", ""),
+            metadata=raw.get("metadata", {}) or {},
+        )
+        translation_model = block._parler_meta.root_model
+        for lang_code, fields in (raw.get("translations") or {}).items():
+            if not isinstance(fields, dict):
+                continue
+            translation_model.objects.update_or_create(
+                master_id=block.pk,
+                language_code=lang_code,
+                defaults={
+                    "title": fields.get("title", ""),
+                    "rich_text": sanitize_rich_text(fields.get("rich_text", "") or ""),
+                    "callout_text": fields.get("callout_text", ""),
+                },
+            )
+
+
+def _legacy_richtext_translations_to_blocks(translations: dict, field: str) -> list[dict]:
+    """Adapt a pre-Phase-3 ``{lang: {<field>: "<html>"}}`` payload to
+    the new block-list shape. ``field`` is one of ``description`` or
+    ``explanation`` — both used to live as rich-text parler fields on
+    Question. Produces a single rich_text block carrying every
+    non-empty translation, or an empty list when nothing is present.
+    """
+    if not isinstance(translations, dict):
+        return []
+    block_translations: dict[str, dict[str, str]] = {}
+    for lang_code, payload in translations.items():
+        if not isinstance(payload, dict):
+            continue
+        value = (payload.get(field) or "").strip()
+        if not value:
+            continue
+        block_translations[lang_code] = {
+            "title": "",
+            "rich_text": value,
+            "callout_text": "",
+        }
+    if not block_translations:
+        return []
+    return [{
+        "block_type": "rich_text",
+        "order": 0,
+        "is_required": False,
+        "translations": block_translations,
+    }]
+
+
+def _legacy_content_translations_to_blocks(translations: dict) -> list[dict]:
+    """Adapt pre-Phase-3 ``{lang: {"content": "<html>"}}`` payloads to
+    the new block-list shape so legacy structured-JSON files still
+    import cleanly. Each legacy AO becomes a single rich_text block
+    carrying every non-empty content translation.
+    """
+    if not isinstance(translations, dict):
+        return []
+    block_translations: dict[str, dict[str, str]] = {}
+    for lang_code, payload in translations.items():
+        if not isinstance(payload, dict):
+            continue
+        content = (payload.get("content") or "").strip()
+        if not content:
+            continue
+        block_translations[lang_code] = {
+            "title": "",
+            "rich_text": content,
+            "callout_text": "",
+        }
+    if not block_translations:
+        return []
+    return [{
+        "block_type": "rich_text",
+        "block_role": "body",
+        "order": 0,
+        "is_required": False,
+        "translations": block_translations,
+    }]
+
 
 def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
     # Fix 6: validate answer options before applying changes
@@ -213,8 +271,8 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
     referenced_ids = {opt.pk for opt in all_opts if opt._answer_count > 0}
     kept_ids: set[int] = set()
 
-    new_pairs: list[tuple[AnswerOption, dict]] = []
-    update_pairs: list[tuple[AnswerOption, dict]] = []
+    new_pairs: list[tuple[AnswerOption, list]] = []
+    update_pairs: list[tuple[AnswerOption, list]] = []
 
     for opt_data in options_data:
         if opt_data.get("DELETE", False):
@@ -222,20 +280,27 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
         opt_id = opt_data.get("id")
         is_correct = opt_data.get("is_correct", False)
         sort_order = opt_data.get("sort_order", 0)
-        opt_translations = opt_data.get("translations", {})
+        opt_blocks = opt_data.get("blocks")
+        if opt_blocks is None:
+            # Back-compat: legacy export shape carried per-language
+            # ``content`` strings under ``translations``. Convert them
+            # to a single rich_text block on the fly.
+            opt_blocks = _legacy_content_translations_to_blocks(
+                opt_data.get("translations") or {}
+            )
 
         opt: AnswerOption | None = existing.get(opt_id) if opt_id else None
 
         if opt is None:
             new_pairs.append((
                 AnswerOption(question=question, is_correct=is_correct, sort_order=sort_order),
-                opt_translations,
+                opt_blocks,
             ))
         else:
             opt.sort_order = sort_order
             if opt.pk not in referenced_ids:
                 opt.is_correct = is_correct
-            update_pairs.append((opt, opt_translations))
+            update_pairs.append((opt, opt_blocks))
             kept_ids.add(opt.pk)
 
     # Bulk create new options (sets PKs on instances in-place).
@@ -251,13 +316,17 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
             fields=["is_correct", "sort_order"],
         )
 
-    # Apply translations after all DB writes so PKs are guaranteed to exist.
-    for opt, opt_translations in update_pairs + new_pairs:
-        _apply_translations(opt, opt_translations, ["content"])
+    # Apply blocks after all DB writes so PKs are guaranteed to exist.
+    for opt, opt_blocks in update_pairs + new_pairs:
+        _apply_blocks(opt, opt_blocks or [], block_role="body")
 
     # Supprime les options absentes du payload (sauf celles référencées)
     removable = set(existing) - kept_ids - referenced_ids
     if removable:
+        option_ct = ContentType.objects.get_for_model(AnswerOption)
+        Block.objects.filter(
+            target_content_type=option_ct, target_object_id__in=removable,
+        ).delete()
         AnswerOption.objects.filter(pk__in=removable).delete()
 
 
@@ -266,7 +335,13 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @transaction.atomic
-def import_questions(data: dict, user, media_files: dict[str, bytes] | None = None) -> dict:
+def import_questions(data: dict, user, media_files: dict[str, bytes] | None = None) -> dict:  # noqa: ARG001
+    # ``media_files`` is kept on the signature for backwards-compat
+    # with the admin / API callers that still pass it on legacy ZIP
+    # imports. The legacy ``QuestionMedia`` / ``MediaAsset`` pipeline
+    # is gone; image / video / file content now lives as content
+    # blocks, so the per-question ``media`` array (and the bundled
+    # binaries) is silently ignored.
     """
     Importe des questions depuis le format d'export structuré.
     Retourne un résumé de l'opération.
@@ -302,7 +377,6 @@ def import_questions(data: dict, user, media_files: dict[str, bytes] | None = No
     # ── Questions ──────────────────────────────────────────────────────────────
     questions_created = 0
     questions_updated = 0
-    media_created = 0
 
     for q_data in questions_data:
         real_domain_id = domain_id_map.get(q_data["domain_id"], q_data["domain_id"])
@@ -350,14 +424,29 @@ def import_questions(data: dict, user, media_files: dict[str, bytes] | None = No
             ])
             questions_updated += 1
 
-        _apply_translations(question, q_translations, ["title", "description", "explanation"])
+        _apply_translations(question, q_translations, ["title"])
         question.subjects.set(real_subject_ids)
-        _sync_answer_options(question, answer_options_data)
 
-        if media_files:
-            media_created += _sync_question_media(
-                question, q_data.get("media", []), media_files
+        # Phase 3 LMS refactor: ``description`` / ``explanation`` are no
+        # longer parler fields on Question — they're block lists scoped
+        # by ``block_role``. Accept both the new schema (``prompt_blocks``
+        # / ``explanation_blocks`` at the question level) and the legacy
+        # one (``description`` / ``explanation`` strings nested in the
+        # translations dict) so old export files import cleanly.
+        prompt_blocks_payload = q_data.get("prompt_blocks")
+        if prompt_blocks_payload is None:
+            prompt_blocks_payload = _legacy_richtext_translations_to_blocks(
+                q_translations, "description",
             )
+        explanation_blocks_payload = q_data.get("explanation_blocks")
+        if explanation_blocks_payload is None:
+            explanation_blocks_payload = _legacy_richtext_translations_to_blocks(
+                q_translations, "explanation",
+            )
+        _apply_blocks(question, prompt_blocks_payload, block_role="prompt")
+        _apply_blocks(question, explanation_blocks_payload, block_role="explanation")
+
+        _sync_answer_options(question, answer_options_data)
 
     return {
         "domain_created": domain_created,
@@ -367,5 +456,5 @@ def import_questions(data: dict, user, media_files: dict[str, bytes] | None = No
         "subject_remaps": {k: v for k, v in subject_id_map.items() if k != v},
         "questions_created": questions_created,
         "questions_updated": questions_updated,
-        "media_created": media_created,
+        "media_created": 0,
     }
