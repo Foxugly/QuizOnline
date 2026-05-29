@@ -124,38 +124,6 @@ const defaultQuestion = {
       explanation: '<p>Explication de test</p>',
     },
   },
-  media: [
-    {
-      id: 300,
-      sort_order: 1,
-      asset: {
-        id: 400,
-        kind: 'image',
-        file: 'https://cdn.example.test/image.png',
-        external_url: null,
-      },
-    },
-    {
-      id: 301,
-      sort_order: 2,
-      asset: {
-        id: 401,
-        kind: 'video',
-        file: 'https://cdn.example.test/video.mp4',
-        external_url: null,
-      },
-    },
-    {
-      id: 302,
-      sort_order: 3,
-      asset: {
-        id: 402,
-        kind: 'external',
-        file: null,
-        external_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      },
-    },
-  ],
   answer_options: [
     {
       id: 501,
@@ -315,7 +283,6 @@ function buildQuestionCreateResponse(body: JsonObject): JsonObject {
     translations: body.translations ?? {},
     subjects: [],
     answer_options: [],
-    media: [],
     domain: defaultQuestion.domain,
   };
 }
