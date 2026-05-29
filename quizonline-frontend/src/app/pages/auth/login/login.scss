@@ -101,16 +101,14 @@
   text-decoration: underline;
 }
 
-/* ``styleClass="login-submit"`` is applied to the inner ``<button>`` —
- * the wrapping ``<p-button>`` host element stays ``inline-block`` by
- * default, which would clamp the button to its content width. Force
- * the host to ``display: block; width: 100%`` so the inner button can
- * actually fill the card width. Targets every ``<p-button>`` directly
- * inside the login form or the body of the card (the magic-link
- * toggle + the password-mode submit + the magic-link submit + the
- * back-to-password toggle). */
-:host ::ng-deep .login-form > p-button,
-:host ::ng-deep .login-card > p-button {
+/* PrimeNG's ``<p-button>`` host element is inline-block by default, so
+ * the inner button cannot fill the card on its own — every submit /
+ * toggle button on this page tags its host with ``login-submit-host`` to
+ * stretch the host. ``styleClass="login-submit"`` then fills the inner
+ * ``<button>`` inside it. We don't ``::ng-deep`` since the class binding
+ * lands on the host element directly under the component's own
+ * encapsulation. */
+.login-submit-host {
   display: block;
   width: 100%;
 }

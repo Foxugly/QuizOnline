@@ -73,6 +73,7 @@
 
           <p-button
             type="submit"
+            class="login-submit-host"
             [label]="ui().login.submit"
             styleClass="login-submit"
             [disabled]="loading() || form.invalid"
@@ -84,6 +85,7 @@
 
         <p-button
           type="button"
+          class="login-submit-host"
           icon="pi pi-envelope"
           [label]="ui().login.magicLinkSwitch"
           severity="secondary"
@@ -110,6 +112,7 @@
 
           <p-button
             type="submit"
+            class="login-submit-host"
             [label]="ui().login.magicLinkSubmit"
             styleClass="login-submit"
             [disabled]="!magicLinkEmail().trim() || magicLinkSubmitting()"
@@ -121,6 +124,7 @@
 
         <p-button
           type="button"
+          class="login-submit-host"
           icon="pi pi-key"
           [label]="ui().login.magicLinkBackToPassword"
           severity="secondary"
