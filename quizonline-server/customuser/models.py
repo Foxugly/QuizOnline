@@ -268,15 +268,14 @@ class CustomUser(AbstractUser):
     # Qualité de vie (facultatif)
     # -------------------------
     @property
-    def current_domain_id_safe(self):
-        return self.current_domain_id  # None ou int
-
-    @property
     def has_current_domain(self) -> bool:
         return self.current_domain_id is not None
 
     @property
     def requires_password_change(self) -> bool:
+        # Public-facing alias of the storage column ``must_change_password`` —
+        # surfaced under this name by the user serializer and the admin
+        # readonly badge.
         return self.must_change_password
 
 
@@ -293,8 +292,11 @@ class Notification(models.Model):
     re-querying the database.
 
     Soft-delete via ``deleted_at`` and soft-read via ``read_at`` so
-    we never lose history and ``unread_count`` is a simple
-    ``COUNT(*) WHERE read_at IS NULL AND deleted_at IS NULL``.
+    we never lose history. The unread badge in the topmenu is served
+    by the ``unread_count`` action on ``NotificationViewSet`` (see
+    ``customuser/notification_views.py``), which runs the equivalent
+    of ``COUNT(*) WHERE read_at IS NULL AND deleted_at IS NULL``
+    over the caller's own rows.
     """
 
     KIND_MAX_LENGTH = 64

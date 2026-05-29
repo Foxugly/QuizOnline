@@ -351,14 +351,12 @@ class CustomUserModelTests(TestCase):
     # ---------------------------------------------------------------------
     # QoL properties
     # ---------------------------------------------------------------------
-    def test_current_domain_id_safe_and_has_current_domain(self):
+    def test_has_current_domain_reflects_fk_state(self):
         u = User.objects.create_user(username="u9", password="pass")
-        self.assertIsNone(u.current_domain_id_safe)
         self.assertFalse(u.has_current_domain)
 
         u.current_domain = self.d_active_owned
         u.save(update_fields=["current_domain"])
         u.refresh_from_db()
 
-        self.assertEqual(u.current_domain_id_safe, self.d_active_owned.id)
         self.assertTrue(u.has_current_domain)
