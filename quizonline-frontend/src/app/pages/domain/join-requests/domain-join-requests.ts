@@ -1,5 +1,4 @@
 import {CommonModule, DatePipe} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
@@ -12,15 +11,14 @@ import {TextareaModule} from 'primeng/textarea';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {TableModule} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
-import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
 import {DomainJoinRequestBulkResultDto} from '../../../api/generated/model/domain-join-request-bulk-result';
 import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join-request-read';
 import {JoinRequestStatusEnumDto} from '../../../api/generated/model/join-request-status-enum';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -50,12 +48,10 @@ type BulkAction = 'approve' | 'reject';
 })
 export class DomainJoinRequestsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly domainApi = inject(DomainApiService);
-  private readonly http = inject(HttpClient);
+  private readonly domainService = inject(DomainService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(AppToastService);
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
 
   readonly domainId = Number(this.route.snapshot.paramMap.get('domainId'));
 
@@ -157,11 +153,8 @@ export class DomainJoinRequestsPage implements OnInit {
       return;
     }
     this.applyingBulk.set(true);
-    this.domainApi
-      .domainJoinRequestBulkRejectCreate({
-        domainId: this.domainId,
-        domainJoinRequestBulkRejectRequestDto: {request_ids: ids, reason},
-      })
+    this.domainService
+      .bulkRejectJoinRequests(this.domainId, ids, reason)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.applyingBulk.set(false)),
@@ -193,11 +186,8 @@ export class DomainJoinRequestsPage implements OnInit {
       return;
     }
     this.applyingBulk.set(true);
-    this.domainApi
-      .domainJoinRequestBulkApproveCreate({
-        domainId: this.domainId,
-        domainJoinRequestBulkApproveRequestDto: {request_ids: ids},
-      })
+    this.domainService
+      .bulkApproveJoinRequests(this.domainId, ids)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.applyingBulk.set(false)),
@@ -265,7 +255,7 @@ export class DomainJoinRequestsPage implements OnInit {
   }
 
   approve(request: DomainJoinRequestReadDto): void {
-    this.domainApi.domainJoinRequestApproveCreate({domainId: this.domainId, reqId: request.id})
+    this.domainService.approveJoinRequest(this.domainId, request.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadDomain();
@@ -284,8 +274,7 @@ export class DomainJoinRequestsPage implements OnInit {
     if (!request) {
       return;
     }
-    const url = `${this.apiBaseUrl}/${this.domainId}/join-request/${request.id}/reject/`;
-    this.http.post<DomainJoinRequestReadDto>(url, {reason: this.rejectReason()})
+    this.domainService.rejectJoinRequest(this.domainId, request.id, this.rejectReason())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.rejectDialogVisible.set(false);
@@ -301,7 +290,7 @@ export class DomainJoinRequestsPage implements OnInit {
   }
 
   private loadDomain(): void {
-    this.domainApi.domainRetrieve({domainId: this.domainId})
+    this.domainService.retrieve(this.domainId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((domain) => {
         this.domain.set(domain);
@@ -325,12 +314,10 @@ export class DomainJoinRequestsPage implements OnInit {
   private loadRequests(): void {
     this.loading.set(true);
     const filter = this.statusFilter();
-    const statusParam = filter === 'all' ? '' : filter;
-    const url = `${this.apiBaseUrl}/${this.domainId}/join-request/${statusParam ? '?status=' + statusParam : ''}`;
     // The endpoint disables pagination, so the body is either a raw
     // array or — if pagination is re-enabled later — a ``{results}``
     // wrapper. Accept both shapes.
-    this.http.get<{results?: DomainJoinRequestReadDto[]} | DomainJoinRequestReadDto[]>(url)
+    this.domainService.listJoinRequests(this.domainId, filter)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),

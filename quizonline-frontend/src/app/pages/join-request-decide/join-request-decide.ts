@@ -17,10 +17,10 @@ import {MessageModule} from 'primeng/message';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {TagModule} from 'primeng/tag';
 
-import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {ActionEnumDto} from '../../api/generated/model/action-enum';
 import {DomainJoinRequestDecideResponseDto} from '../../api/generated/model/domain-join-request-decide-response';
 import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-status-enum';
+import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
@@ -46,7 +46,7 @@ type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'recipientMismatch'
 })
 export class JoinRequestDecidePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly domainApi = inject(DomainApiService);
+  private readonly domainService = inject(DomainService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -99,7 +99,7 @@ export class JoinRequestDecidePage implements OnInit {
       return;
     }
     this.submitting.set(true);
-    this.domainApi.domainJoinRequestDecideCreate({token})
+    this.domainService.applyJoinRequestDecisionByToken(token)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.submitting.set(false)),
@@ -116,7 +116,7 @@ export class JoinRequestDecidePage implements OnInit {
 
   private loadState(): void {
     this.loading.set(true);
-    this.domainApi.domainJoinRequestDecideRetrieve({token: this.token()})
+    this.domainService.retrieveJoinRequestDecisionByToken(this.token())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),

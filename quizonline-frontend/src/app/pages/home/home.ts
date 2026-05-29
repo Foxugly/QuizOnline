@@ -5,10 +5,10 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {Router, RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 
-import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {ModerationSummaryItemDto} from '../../api/generated/model/moderation-summary-item';
 import {ROUTES} from '../../app.routes-paths';
 import {AuthService} from '../../services/auth/auth';
+import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {openContactEmail} from '../../shared/contact';
@@ -24,7 +24,7 @@ export class Home implements OnInit {
   readonly app = window.__APP__!;
   private readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
-  private readonly domainApi = inject(DomainApiService);
+  private readonly domainService = inject(DomainService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   readonly ui = inject(UiTextService).ui;
@@ -64,7 +64,7 @@ export class Home implements OnInit {
   }
 
   private loadModerationSummary(): void {
-    this.domainApi.domainModerationSummaryList()
+    this.domainService.moderationSummary()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (rows) => this.moderationSummary.set(rows ?? []),

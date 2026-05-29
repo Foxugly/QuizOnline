@@ -14,8 +14,8 @@ import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
-import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {DomainInviteStateDto} from '../../api/generated/model/domain-invite-state';
+import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
@@ -39,7 +39,7 @@ type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'notFound' | 'generic';
 export class InviteAcceptPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly domainApi = inject(DomainApiService);
+  private readonly domainService = inject(DomainService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -67,7 +67,7 @@ export class InviteAcceptPage implements OnInit {
       return;
     }
     this.accepting.set(true);
-    this.domainApi.domainInviteAcceptCreate({token: this.token()})
+    this.domainService.acceptInviteByToken(this.token())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.accepting.set(false)),
@@ -95,7 +95,7 @@ export class InviteAcceptPage implements OnInit {
   }
 
   private fetchState(): void {
-    this.domainApi.domainInviteAcceptRetrieve({token: this.token()})
+    this.domainService.retrieveInviteByToken(this.token())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.loading.set(false)),
