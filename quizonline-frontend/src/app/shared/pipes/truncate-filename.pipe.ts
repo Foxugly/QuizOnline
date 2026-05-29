@@ -5,7 +5,6 @@ const ELLIPSIS = '...';
 
 @Pipe({
   name: 'truncateFilename',
-  standalone: true,
 })
 export class TruncateFilenamePipe implements PipeTransform {
   transform(value: string | null | undefined, maxLength: number = DEFAULT_MAX_LENGTH): string {

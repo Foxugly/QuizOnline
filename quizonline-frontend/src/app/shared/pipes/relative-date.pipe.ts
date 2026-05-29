@@ -21,7 +21,6 @@ import {UiTextService} from '../i18n/ui-text.service';
  */
 @Pipe({
   name: 'relativeDate',
-  standalone: true,
   pure: true,
 })
 export class RelativeDatePipe implements PipeTransform {
