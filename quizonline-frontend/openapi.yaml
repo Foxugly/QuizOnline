@@ -356,7 +356,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this certificate.
         required: true
       tags:
       - certificate
@@ -376,7 +377,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this certificate.
         required: true
       tags:
       - certificate
@@ -396,7 +398,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this certificate.
         required: true
       tags:
       - certificate
@@ -2392,7 +2395,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this course enrollment.
         required: true
       tags:
       - enrollment
@@ -2412,7 +2416,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this course enrollment.
         required: true
       tags:
       - enrollment
@@ -2444,7 +2449,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this course enrollment.
         required: true
       tags:
       - enrollment
@@ -2476,7 +2482,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this course enrollment.
         required: true
       tags:
       - enrollment
@@ -3176,7 +3183,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this course progress.
         required: true
       tags:
       - progress

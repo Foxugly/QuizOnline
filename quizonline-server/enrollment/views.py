@@ -52,6 +52,7 @@ from .services import (
 
 
 class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CourseEnrollment.objects.none()
     serializer_class = CourseEnrollmentSerializer
     permission_classes = [IsEnrollmentOwnerOrInstructor]
 
@@ -164,6 +165,7 @@ def complete_lesson(request, lesson_id: int):
 
 
 class CourseProgressViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CourseProgress.objects.none()
     serializer_class = CourseProgressSerializer
     permission_classes = [IsAuthenticated]
 

@@ -11,6 +11,7 @@ from .serializers import CertificateSerializer, CertificateVerifySerializer
 
 
 class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Certificate.objects.none()
     serializer_class = CertificateSerializer
     permission_classes = [IsAuthenticated]
 

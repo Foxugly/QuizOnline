@@ -33,15 +33,18 @@ export interface CertificateListRequestParams {
 }
 
 export interface CertificatePdfRetrieveRequestParams {
-    id: string;
+    /** A unique integer value identifying this certificate. */
+    id: number;
 }
 
 export interface CertificateRetrieveRequestParams {
-    id: string;
+    /** A unique integer value identifying this certificate. */
+    id: number;
 }
 
 export interface CertificateRevokeCreateRequestParams {
-    id: string;
+    /** A unique integer value identifying this certificate. */
+    id: number;
 }
 
 
@@ -166,7 +169,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/pdf/`;
+        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/pdf/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -225,7 +228,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -284,7 +287,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/revoke/`;
+        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('post', `${basePath}${localVarPath}`,
             {

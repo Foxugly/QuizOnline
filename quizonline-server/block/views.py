@@ -37,6 +37,7 @@ class _BlockReorderRequest(serializers.Serializer):
 
 
 class BlockViewSet(viewsets.ModelViewSet):
+    queryset = Block.objects.none()
     permission_classes = [IsLmsInstructorOrReadOnly]
     serializer_class = BlockSerializer
 
