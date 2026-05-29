@@ -11,6 +11,7 @@ from .services import compact_lessons
 
 
 class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
+    queryset = Lesson.objects.none()
     permission_classes = [IsLmsInstructorOrReadOnly]
     serializer_class = LessonDetailSerializer
 

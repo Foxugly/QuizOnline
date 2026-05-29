@@ -30,12 +30,14 @@ import { BaseService } from '../api.base.service';
 
 
 export interface EnrollmentApproveCreateRequestParams {
-    id: string;
+    /** A unique integer value identifying this course enrollment. */
+    id: number;
     courseEnrollmentRequestDto: CourseEnrollmentRequestDto;
 }
 
 export interface EnrollmentCancelCreateRequestParams {
-    id: string;
+    /** A unique integer value identifying this course enrollment. */
+    id: number;
     courseEnrollmentRequestDto: CourseEnrollmentRequestDto;
 }
 
@@ -45,12 +47,14 @@ export interface EnrollmentListRequestParams {
 }
 
 export interface EnrollmentRejectCreateRequestParams {
-    id: string;
+    /** A unique integer value identifying this course enrollment. */
+    id: number;
     courseEnrollmentRequestDto: CourseEnrollmentRequestDto;
 }
 
 export interface EnrollmentRetrieveRequestParams {
-    id: string;
+    /** A unique integer value identifying this course enrollment. */
+    id: number;
 }
 
 
@@ -122,7 +126,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/approve/`;
+        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -197,7 +201,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/cancel/`;
+        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -340,7 +344,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/reject/`;
+        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -400,7 +404,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('get', `${basePath}${localVarPath}`,
             {

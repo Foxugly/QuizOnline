@@ -33,7 +33,8 @@ export interface ProgressListRequestParams {
 }
 
 export interface ProgressRetrieveRequestParams {
-    id: string;
+    /** A unique integer value identifying this course progress. */
+    id: number;
 }
 
 
@@ -158,7 +159,7 @@ export class ProgressApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/progress/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/progress/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseProgressDto>('get', `${basePath}${localVarPath}`,
             {

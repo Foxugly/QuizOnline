@@ -46,6 +46,7 @@ from .services import (
     ),
 )
 class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
+    queryset = Course.objects.none()
     permission_classes = [IsLmsInstructorOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["translations__title", "translations__description", "slug"]
@@ -300,6 +301,7 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
 
 
 class SectionViewSet(viewsets.ModelViewSet):
+    queryset = Section.objects.none()
     permission_classes = [IsLmsInstructorOrReadOnly]
     serializer_class = SectionSerializer
 
