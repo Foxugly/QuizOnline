@@ -14,9 +14,9 @@
 #
 # Branch DB note: this file runs on a fresh, empty database when the
 # branch is being developed, so the ``RunPython`` step is a no-op
-# there. On prod (after the one-shot ``deploy/migrate-lms-split.sql``
-# moves the legacy ``lms_catalog_*`` tables into the split apps), this
-# same migration carries the real data conversion.
+# there. On prod (after ``manage.py migrate_lms_split`` has renamed
+# the legacy tables into the split apps — see deploy/MIGRATE-LMS-SPLIT.md),
+# this same migration carries the real data conversion.
 
 from django.db import migrations
 

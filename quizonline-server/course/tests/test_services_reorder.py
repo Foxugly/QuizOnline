@@ -13,7 +13,7 @@ from block.services import reorder_blocks
 def test_reorder_blocks_swaps_two(lesson):
     a = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="A", order=0)
     b = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="B", order=1)
-    reorder_blocks(lesson=lesson, block_ids_in_order=[b.id, a.id])
+    reorder_blocks(host=lesson, block_ids_in_order=[b.id, a.id])
     a.refresh_from_db()
     b.refresh_from_db()
     assert (a.order, b.order) == (1, 0)
@@ -23,7 +23,7 @@ def test_reorder_blocks_swaps_two(lesson):
 def test_reorder_blocks_rejects_unknown_id(lesson):
     a = Block.objects.create(target=lesson, block_type=Block.TYPE_CODE, code_content="A", order=0)
     with pytest.raises(ValidationError):
-        reorder_blocks(lesson=lesson, block_ids_in_order=[a.id, 999999])
+        reorder_blocks(host=lesson, block_ids_in_order=[a.id, 999999])
 
 
 @pytest.mark.django_db

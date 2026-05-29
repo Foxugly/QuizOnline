@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from course.serializers import TranslationsField, _filter_allowed_lang_codes
+from core.serializers import TranslationsField, filter_allowed_lang_codes
 
 from .models import Lesson
 
@@ -178,7 +178,7 @@ class LessonDetailSerializer(serializers.ModelSerializer):
 
     def _apply(self, instance, tr_dict):
         course = instance.section.course
-        tr_dict = _filter_allowed_lang_codes(tr_dict, course)
+        tr_dict = filter_allowed_lang_codes(tr_dict, course)
         for lang, fields in tr_dict.items():
             instance.set_current_language(lang)
             for k, v in fields.items():

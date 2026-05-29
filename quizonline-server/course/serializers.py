@@ -2,68 +2,17 @@ from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from core.serializers import TranslationsField, filter_allowed_lang_codes
 from language.models import Language
 
 from .models import Course, CourseAuditLog, Section
 
 
-@extend_schema_field({
-    "type": "object",
-    "additionalProperties": {"type": "object", "additionalProperties": {"type": "string"}},
-    "example": {"fr": {"title": "Bonjour"}, "en": {"title": "Hello"}},
-})
-class TranslationsField(serializers.Field):
-    """Serialize a parler ``TranslatableModel``'s translations as ``{lang: {field: value}}``.
-
-    Read path: enumerates every existing translation row and exposes its translated
-    fields (excluding the parler bookkeeping columns ``id``/``master``/``language_code``).
-
-    Write path: accepts an opaque dict that the parent serializer is expected to
-    consume in its ``create``/``update`` hook (see :func:`_filter_allowed_lang_codes`).
-    """
-
-    def to_representation(self, value):
-        # ``value`` may be either the model instance (when the field is called
-        # directly, e.g. ``TranslationsField().to_representation(course)``) or
-        # the parler ``RelatedManager`` (when invoked from a ModelSerializer
-        # bound to the ``translations`` source). The manager exposes the
-        # owning instance via ``.instance``.
-        if hasattr(value, "translations"):
-            instance = value
-        elif hasattr(value, "instance"):
-            instance = value.instance
-        else:
-            instance = self.parent.instance
-        result = {}
-        for tr in instance.translations.all():
-            row = {}
-            for field in tr._meta.get_fields():
-                if field.name in {"id", "master", "language_code"}:
-                    continue
-                row[field.name] = getattr(tr, field.name)
-            result[tr.language_code] = row
-        return result
-
-    def to_internal_value(self, data):
-        if not isinstance(data, dict):
-            raise serializers.ValidationError("Expected a dict of {lang_code: {field: value}}.")
-        return data
-
-
-def _filter_allowed_lang_codes(data: dict, course: Course) -> dict:
-    """Drop translation rows whose ``language_code`` is not in the course
-    domain's ``allowed_languages``. Returns the empty dict unchanged so
-    callers that intentionally pass ``{}`` (e.g. the "draft" create flow
-    where the frontend posts a block with no content yet) never trip on
-    a domain that has no language configured — that scenario should be
-    flagged where actual content needs to land, not at the empty-draft
-    handshake."""
-    if not data:
-        return data
-    allowed = set(course.domain.allowed_languages.values_list("code", flat=True))
-    if not allowed:
-        raise serializers.ValidationError("Domain has no allowed_languages configured.")
-    return {k: v for k, v in data.items() if k in allowed}
+# Backwards-compatible alias — the helper used to be private to
+# ``course/serializers.py`` (and is still imported by tests under that
+# name). Prefer ``filter_allowed_lang_codes`` from ``core.serializers``
+# in new code.
+_filter_allowed_lang_codes = filter_allowed_lang_codes
 
 
 class SectionSerializer(serializers.ModelSerializer):

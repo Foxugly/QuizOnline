@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from course.serializers import TranslationsField, _filter_allowed_lang_codes
+from core.serializers import TranslationsField, filter_allowed_lang_codes
 from lesson.models import Lesson
 
 from .models import Block
@@ -249,7 +249,7 @@ class BlockSerializer(serializers.ModelSerializer):
         host = instance.target
         course = host.section.course if hasattr(host, "section") else None
         if course is not None:
-            tr_dict = _filter_allowed_lang_codes(tr_dict, course)
+            tr_dict = filter_allowed_lang_codes(tr_dict, course)
         else:
             # Question and AnswerOption hosts have no Course parent —
             # resolve the allowed language set directly from the
