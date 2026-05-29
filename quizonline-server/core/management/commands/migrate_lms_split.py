@@ -216,8 +216,11 @@ class Command(BaseCommand):
                           "DELETE rows for lms_catalog / lms_enrollment / lms_assessment.")
 
     def _sqlite_table_exists(self, cur, table: str) -> bool:
+        # Use Django's ``%s`` placeholder rather than sqlite3's native ``?``
+        # so the debug_sql wrapper (DEBUG=True) does not crash when it tries
+        # to ``sql % params`` for the query log.
         cur.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=%s",
             (table,),
         )
         return cur.fetchone() is not None
@@ -254,15 +257,15 @@ class Command(BaseCommand):
             if new_model is None:
                 cur.execute(
                     "UPDATE django_content_type "
-                    "   SET app_label=? "
-                    " WHERE app_label=? AND model=?",
+                    "   SET app_label=%s "
+                    " WHERE app_label=%s AND model=%s",
                     (new_app, old_app, old_model),
                 )
             else:
                 cur.execute(
                     "UPDATE django_content_type "
-                    "   SET app_label=?, model=? "
-                    " WHERE app_label=? AND model=?",
+                    "   SET app_label=%s, model=%s "
+                    " WHERE app_label=%s AND model=%s",
                     (new_app, new_model, old_app, old_model),
                 )
             if cur.rowcount > 0:
@@ -295,7 +298,7 @@ class Command(BaseCommand):
         # Look up the Lesson ContentType id (must already exist; updated by step B).
         cur.execute(
             "SELECT id FROM django_content_type "
-            "WHERE app_label=? AND model=?",
+            "WHERE app_label=%s AND model=%s",
             ("lesson", "lesson"),
         )
         row = cur.fetchone()
@@ -338,7 +341,7 @@ class Command(BaseCommand):
             '  (id, target_object_id, target_content_type_id, block_type, block_role, '
             '   "order", is_required, image, video_url, video_provider, file, '
             '   external_url, code_language, code_content, metadata, quiz_template_id) '
-            'SELECT id, lesson_id, ?, block_type, ?, '
+            'SELECT id, lesson_id, %s, block_type, %s, '
             '   "order", is_required, image, video_url, video_provider, file, '
             '   external_url, code_language, code_content, metadata, quiz_template_id '
             '  FROM block_block',
@@ -373,14 +376,14 @@ class Command(BaseCommand):
         inserted = 0
         for app in self._NEW_APP_INITIALS:
             cur.execute(
-                "SELECT 1 FROM django_migrations WHERE app=? AND name=?",
+                "SELECT 1 FROM django_migrations WHERE app=%s AND name=%s",
                 (app, "0001_initial"),
             )
             if cur.fetchone() is not None:
                 continue
             cur.execute(
                 "INSERT INTO django_migrations (app, name, applied) "
-                "VALUES (?, ?, CURRENT_TIMESTAMP)",
+                "VALUES (%s, %s, CURRENT_TIMESTAMP)",
                 (app, "0001_initial"),
             )
             inserted += 1
