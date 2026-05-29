@@ -107,7 +107,7 @@ export class QuizQuestionView implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: ui.finishQuizButton,
       rejectLabel: this.editorUi().common.cancel,
-      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
       accept: () => {
         this.persistAnswer(payload, () => {
           this.closeQuizAndRedirect();
