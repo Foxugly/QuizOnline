@@ -162,11 +162,19 @@ class CustomUser(AbstractUser):
         return qs.filter(Q(owner=self) | Q(managers=self) | Q(members=self)).distinct()
 
     def set_current_domain(self, domain, *, allow_none: bool = True, save: bool = True) -> None:
-        """
-        Setter sûr:
-        - refuse un domain non gérable (sauf staff global/superuser via can_manage_domain)
-        - allow_none permet de reset (domain=None)
-        - save=True persiste en DB immédiatement
+        """Safe setter for the user's ``current_domain`` foreign key.
+
+        Visibility check, not management check: the user is allowed to
+        select any domain returned by :meth:`get_visible_domains`, which
+        includes ``members``-only links. This is intentional — a learner
+        linked to a learning domain needs to be able to set it as their
+        current domain even though they cannot edit its content. The
+        per-action authorization for writes still goes through
+        :meth:`can_manage_domain` at the view layer.
+
+        - ``allow_none=True`` lets the caller reset (``domain=None``)
+        - ``save=True`` persists immediately via
+          ``update_fields=["current_domain"]``
         """
         if domain is None:
             if not allow_none:
