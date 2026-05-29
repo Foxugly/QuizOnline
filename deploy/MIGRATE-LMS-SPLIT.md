@@ -8,10 +8,13 @@ polymorphic `block.Block` rows (Phase 3 of the refactor).
 
 The two artefacts that drive the migration:
 
-- **SQL** : [`deploy/migrate-lms-split.sql`](./migrate-lms-split.sql)
+- **PostgreSQL SQL** : [`deploy/migrate-lms-split.sql`](./migrate-lms-split.sql)
 - **Management command** :
-  `python manage.py migrate_lms_split` (wraps the SQL in a transaction,
-  then chains `manage.py migrate` to run the Phase 3 data migration).
+  `python manage.py migrate_lms_split` (wraps the SQL in a transaction
+  on Postgres, mirrors it in Python on SQLite, then chains
+  `manage.py migrate` to run the Phase 3 data migration).
+
+The command auto-detects `connection.vendor` and picks the right backend.
 
 ## What the migration does
 
@@ -57,6 +60,58 @@ DB rolls back to the pre-migration state.
 
 ## Migration steps
 
+### SQLite path (current prod)
+
+```bash
+# 0. ── DRY-RUN ON A COPY FIRST ─────────────────────────────────────────────
+#    Pull the current prod sqlite into a scratch location and replay the
+#    migration there before touching the live DB. ~5 min, no risk.
+sudo cp /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3 /tmp/prod-copy.sqlite3
+cd /var/www/django_websites/QuizOnline/quizonline-server
+source ../venv/bin/activate
+DATABASE_URL=sqlite:////tmp/prod-copy.sqlite3 python manage.py migrate_lms_split --verify | tee /tmp/pre-counts.txt
+DATABASE_URL=sqlite:////tmp/prod-copy.sqlite3 python manage.py migrate_lms_split 2>&1 | tee /tmp/dry.log
+DATABASE_URL=sqlite:////tmp/prod-copy.sqlite3 python manage.py migrate_lms_split --verify | tee /tmp/post-counts.txt
+# Inspect post-counts.txt; the "legacy=" column should be -- everywhere and
+# the "new=" column should match the pre-counts "legacy=" column.
+
+# 1. Stop services so nothing writes while we rename tables
+sudo systemctl stop quizonline-celery-beat.service
+sudo systemctl stop quizonline-celery.service
+sudo systemctl stop quizonline-gunicorn.service
+
+# 2. Take a final DB backup
+sudo -u django /var/www/django_websites/QuizOnline/deploy/backup-db.sh \
+    --label pre-lms-split
+# (Also keep a literal file copy for an instant rollback:)
+sudo cp /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3 \
+        /var/backups/quizonline/pre-lms-split-$(date +%Y%m%dT%H%M%S).sqlite3
+
+# 3. Activate the venv + the project's environment
+cd /var/www/django_websites/QuizOnline/quizonline-server
+source ../venv/bin/activate
+export DJANGO_ENV=prod
+source /etc/quizonline/env
+
+# 4. APPLY
+python manage.py migrate_lms_split 2>&1 | tee /tmp/migrate-lms-split.log
+
+# 5. Verify the legacy half is gone and the new half carries the data
+python manage.py migrate_lms_split --verify | tee /tmp/post-counts.txt
+
+# 6. Restart services (auto-deploy on the next push will work normally now)
+sudo systemctl start quizonline-gunicorn.service
+sudo systemctl start quizonline-celery.service
+sudo systemctl start quizonline-celery-beat.service
+
+# 7. Smoke-test (see Smoke tests section below)
+```
+
+Rollback on SQLite is one `cp` away — the literal file copy from step 2
+restores the pre-migration state in seconds.
+
+### PostgreSQL path (when prod moves to Postgres)
+
 ```bash
 # 1. Stop services so nothing writes while we rename tables
 sudo systemctl stop quizonline-celery-beat.service
@@ -94,9 +149,9 @@ sudo systemctl start quizonline-celery-beat.service
 # 9. Smoke-test (see Smoke tests section below)
 ```
 
-If step 6 fails, the SQL transaction rolls back automatically. The
-command prints the diagnostic in red — capture it, redeploy the previous
-code, and roll back per the section below.
+If step 6 fails on Postgres, the SQL transaction rolls back automatically.
+The command prints the diagnostic in red — capture it, redeploy the
+previous code, and roll back per the section below.
 
 ## Smoke tests
 
