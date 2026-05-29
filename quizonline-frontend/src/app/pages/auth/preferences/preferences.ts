@@ -14,7 +14,6 @@ import {MessageModule} from 'primeng/message';
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {UserApi} from '../../../api/generated/api/user.service';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -75,7 +74,6 @@ export class Preferences implements OnInit {
   readonly deleting = signal(false);
   readonly deleteBlockMessage = signal<string | null>(null);
 
-  private readonly userApi = inject(UserApi);
   private readonly auth = inject(AuthService);
 
   /** Sub-tab routing — keeps the URL deep-linkable via ``?tab=...``
@@ -292,7 +290,7 @@ export class Preferences implements OnInit {
     }
     this.deleting.set(true);
     this.deleteBlockMessage.set(null);
-    this.userApi.userMeDestroy()
+    this.userService.deleteMe()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
