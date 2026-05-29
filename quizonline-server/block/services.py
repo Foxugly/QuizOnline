@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 
-from course.services import compact, two_phase_reorder
+from core.services import compact, two_phase_reorder
 
 from .models import Block
 
@@ -22,22 +22,23 @@ def _host_filter(host, *, block_role: str | None = None) -> models.Q:
     return q
 
 
-# Backwards-compatible alias — every Lesson-only call site still works.
-_lesson_filter = _host_filter
+@transaction.atomic
+def reorder_blocks(*, host, block_ids_in_order: list[int], block_role: str | None = None) -> list[Block]:
+    """Reorder ``host``'s blocks (optionally restricted to a ``block_role``
+    bucket). ``host`` may be a Lesson, Question, AnswerOption — any model
+    that can carry blocks through the GFK.
+    """
+    return two_phase_reorder(Block, _host_filter(host, block_role=block_role), block_ids_in_order)
 
 
 @transaction.atomic
-def reorder_blocks(*, lesson, block_ids_in_order: list[int], block_role: str | None = None) -> list[Block]:
-    return two_phase_reorder(Block, _host_filter(lesson, block_role=block_role), block_ids_in_order)
-
-
-@transaction.atomic
-def compact_blocks(*, lesson, block_role: str | None = None):
+def compact_blocks(*, host, block_role: str | None = None):
+    """Renumber ``host``'s blocks so ``order`` is densely packed starting
+    at 0. If ``block_role`` is given, only that bucket is compacted —
+    otherwise every distinct role on the host is compacted independently.
+    """
     if block_role is not None:
-        return compact(Block, _host_filter(lesson, block_role=block_role))
-    # No role specified: compact each role bucket independently so the
-    # ``UNIQUE(target, block_role, order)`` constraint is preserved.
-    host = lesson
+        return compact(Block, _host_filter(host, block_role=block_role))
     host_ct = ContentType.objects.get_for_model(type(host))
     roles = (
         Block.objects.filter(

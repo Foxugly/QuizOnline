@@ -69,7 +69,7 @@ class BlockViewSet(viewsets.ModelViewSet):
         role = instance.block_role
         instance.delete()
         if host is not None:
-            compact_blocks(lesson=host, block_role=role)
+            compact_blocks(host=host, block_role=role)
 
     @extend_schema(
         request=_BlockReorderRequest,
@@ -135,7 +135,7 @@ class BlockViewSet(viewsets.ModelViewSet):
             })
 
         reorder_blocks(
-            lesson=host,  # kept named ``lesson`` for now — services helper accepts any host
+            host=host,
             block_ids_in_order=data["ids"],
             block_role=data["block_role"],
         )
