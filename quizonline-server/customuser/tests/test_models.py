@@ -168,10 +168,35 @@ class CustomUserModelTests(TestCase):
         self.assertIn(self.d_active_staffed.id, ids)  # staff membership
         self.assertNotIn(self.d_other_only.id, ids)  # pas visible
 
-    def test_get_visible_domains_is_alias_of_get_manageable_domains(self):
+    def test_get_visible_domains_matches_manageable_when_user_has_no_membership_only_link(self):
+        """When a user has no ``members``-only link, ``get_visible_domains``
+        and ``get_manageable_domains`` return the same set. This is the
+        common instructor path — but it must NOT be promoted to an
+        invariant (see :meth:`test_get_visible_domains_widens_with_members`)."""
         qs1 = self.owner.get_manageable_domains(active_only=True)
         qs2 = self.owner.get_visible_domains(active_only=True)
-        self.assertEqual(list(qs1.values_list("id", flat=True)), list(qs2.values_list("id", flat=True)))
+        self.assertEqual(set(qs1.values_list("id", flat=True)), set(qs2.values_list("id", flat=True)))
+
+    def test_get_visible_domains_widens_with_members_only_link(self):
+        """A learner who is linked to a domain only through ``members``
+        (no owner / manager status) must see that domain in
+        ``get_visible_domains`` but NOT in ``get_manageable_domains``.
+
+        This is the semantic the docstring on ``get_visible_domains``
+        promises and the gating ``set_current_domain`` /
+        ``ensure_current_domain_is_valid`` rely on. Without this
+        coverage a refactor that "unifies" the two methods would
+        silently break the learner dropdown.
+        """
+        learner = User.objects.create_user(username="learner", password="pass")
+        self.d_other_only.members.add(learner)
+
+        manageable = set(learner.get_manageable_domains(active_only=False).values_list("id", flat=True))
+        visible = set(learner.get_visible_domains(active_only=False).values_list("id", flat=True))
+
+        self.assertNotIn(self.d_other_only.id, manageable)
+        self.assertIn(self.d_other_only.id, visible)
+        self.assertEqual(visible - manageable, {self.d_other_only.id})
 
     # ---------------------------------------------------------------------
     # set_current_domain
