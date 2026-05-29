@@ -87,28 +87,34 @@ class CustomUser(AbstractUser):
             return True
 
         # Grâce à Domain.managers.related_name="managed_domains"
-        # => self.managed_domains est disponible
+        # => self.managed_domains est disponible. ``domain`` may be a
+        # SimpleNamespace passed by tests / hot paths, so resolve its
+        # id defensively the same way ``owner_id`` was read above.
+        domain_id = getattr(domain, "id", None)
+        if domain_id is None:
+            return False
         prefetched = getattr(self, "_prefetched_objects_cache", {})
         if "managed_domains" in prefetched:
-            return any(prefetched_domain.id == domain.id for prefetched_domain in prefetched["managed_domains"])
-        return self.managed_domains.filter(id=domain.id).exists()
+            return any(prefetched_domain.id == domain_id for prefetched_domain in prefetched["managed_domains"])
+        return self.managed_domains.filter(id=domain_id).exists()
 
     def get_manageable_domains(self, *, active_only: bool = False) -> QuerySet:
-        """
-        Retourne un QuerySet des domaines que le user peut gérer.
-        Pour un staff global/superuser: tous les domaines.
+        """Domains the user can edit / admin (owner or manager).
 
-        active_only=True => ne retourne que les domaines actifs.
+        Superusers see everything. ``active_only=True`` filters out
+        inactive rows.
         """
         Domain = self._domain_model()
-        qs = Domain.objects.all()
-
+        # Superusers have no JOIN -> no ``distinct()`` needed. Non-superuser
+        # path goes through the ``managers`` M2M which duplicates rows when
+        # the user has the manager link, hence the ``distinct()`` there only.
+        if self.is_superuser:
+            qs = Domain.objects.all()
+        else:
+            qs = Domain.objects.filter(Q(owner=self) | Q(managers=self)).distinct()
         if active_only:
             qs = qs.filter(active=True)
-
-        if self.is_superuser:
-            return qs.distinct()
-        return qs.filter(Q(owner=self) | Q(managers=self)).distinct()
+        return qs
 
     def can_create_domain(self) -> bool:
         """True quand l'utilisateur peut créer un nouveau domaine.
@@ -152,14 +158,17 @@ class CustomUser(AbstractUser):
         hide learner choices, depending on the direction.
         """
         Domain = self._domain_model()
-        qs = Domain.objects.all()
-
+        # Same shape as ``get_manageable_domains``: superuser short-circuit
+        # avoids a wasted ``distinct()`` on the no-JOIN path.
+        if self.is_superuser:
+            qs = Domain.objects.all()
+        else:
+            qs = Domain.objects.filter(
+                Q(owner=self) | Q(managers=self) | Q(members=self),
+            ).distinct()
         if active_only:
             qs = qs.filter(active=True)
-
-        if self.is_superuser:
-            return qs.distinct()
-        return qs.filter(Q(owner=self) | Q(managers=self) | Q(members=self)).distinct()
+        return qs
 
     def set_current_domain(self, domain, *, allow_none: bool = True, save: bool = True) -> None:
         """Safe setter for the user's ``current_domain`` foreign key.
@@ -186,7 +195,7 @@ class CustomUser(AbstractUser):
 
         if not self.get_visible_domains(active_only=False).filter(id=domain.id).exists():
             raise PermissionError("User cannot set this domain as current.")
-        if hasattr(domain, "active") and domain.active is False:
+        if domain.active is False:
             raise ValidationError({"current_domain": "This domain is inactive."})
 
         self.current_domain = domain
@@ -208,7 +217,7 @@ class CustomUser(AbstractUser):
                 self.pick_default_current_domain(save=True, active_only=active_only)
             return True
 
-        if active_only and hasattr(cd, "active") and cd.active is False:
+        if active_only and cd.active is False:
             if auto_fix:
                 self.pick_default_current_domain(save=True, active_only=active_only)
             return False
@@ -226,6 +235,10 @@ class CustomUser(AbstractUser):
         - premier domaine visible (actif si active_only=True)
         - sinon None
         """
+        # ``get_visible_domains`` already returns a distinct queryset; the
+        # ``order_by("translations__name")`` parler JOIN can still re-duplicate
+        # rows when a domain has translations in several allowed languages,
+        # so re-apply ``.distinct()`` once at the end.
         qs = self.get_visible_domains(active_only=active_only).order_by("translations__name", "id").distinct()
         domain = qs.first()
         self.current_domain = domain
@@ -248,7 +261,7 @@ class CustomUser(AbstractUser):
 
         if not self.get_visible_domains(active_only=False).filter(id=self.current_domain_id).exists():
             raise ValidationError({"current_domain": "This domain is not visible to the user."})
-        if hasattr(self.current_domain, "active") and self.current_domain.active is False:
+        if self.current_domain.active is False:
             raise ValidationError({"current_domain": "This domain is inactive."})
 
     # -------------------------
