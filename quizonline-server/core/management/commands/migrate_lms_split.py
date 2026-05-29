@@ -165,12 +165,31 @@ class Command(BaseCommand):
     def _handle_sqlite(self, options) -> None:
         self._print_header("Step 1/2 -- SQLite rename + reshape + bookkeeping")
         before_counts = self._collect_row_counts()
-        with transaction.atomic():
+
+        # Disable FK enforcement during the schema swap. The drop-then-rename
+        # pattern used in step C briefly leaves block_block_translation's FK
+        # to block_block pointing at a table that does not exist (between
+        # DROP TABLE and ALTER ... RENAME). With foreign_keys=ON the deferred
+        # check at COMMIT raises ``FOREIGN KEY constraint failed`` even
+        # though the data is consistent. We re-enable FKs at the end and
+        # call ``PRAGMA foreign_key_check`` to verify there are no genuine
+        # violations -- if there are, we raise so the transaction rolls back.
+        # PRAGMA foreign_keys cannot be flipped inside a transaction, so we
+        # run it through autocommit before opening atomic().
+        with connection.cursor() as cur:
+            cur.execute("PRAGMA foreign_keys = OFF")
+        try:
+            with transaction.atomic():
+                with connection.cursor() as cur:
+                    self._sqlite_rename_tables(cur)
+                    self._sqlite_update_content_types(cur)
+                    self._sqlite_reshape_block_table(cur)
+                    self._sqlite_fix_django_migrations(cur)
+                    self._sqlite_assert_fk_clean(cur)
+        finally:
             with connection.cursor() as cur:
-                self._sqlite_rename_tables(cur)
-                self._sqlite_update_content_types(cur)
-                self._sqlite_reshape_block_table(cur)
-                self._sqlite_fix_django_migrations(cur)
+                cur.execute("PRAGMA foreign_keys = ON")
+
         after_counts = self._collect_row_counts()
         self._report_row_movement(before_counts, after_counts)
 
@@ -366,6 +385,29 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(f"  - reshaped block_block ({moved} rows migrated to GFK)")
+
+    def _sqlite_assert_fk_clean(self, cur) -> None:
+        """After the schema swap, verify there is no row with a dangling
+        foreign-key reference. Triggers a rollback if anything is wrong --
+        much better than letting the dataset land in an inconsistent state.
+        """
+        self.stdout.write("\n[E] Verifying FK integrity (PRAGMA foreign_key_check)...")
+        cur.execute("PRAGMA foreign_key_check")
+        violations = cur.fetchall()
+        if not violations:
+            self.stdout.write("  - clean")
+            return
+        # PRAGMA foreign_key_check returns: (table, rowid, parent, fkid).
+        lines = "\n".join(
+            f"    table={v[0]!r:<32} rowid={v[1]!s:<8} "
+            f"parent_table={v[2]!r:<32} fk_index={v[3]}"
+            for v in violations
+        )
+        raise CommandError(
+            f"Foreign-key violations detected after the migration:\n{lines}\n"
+            "The transaction will roll back -- investigate the offending rows "
+            "before retrying."
+        )
 
     def _sqlite_fix_django_migrations(self, cur) -> None:
         """Mark the new apps' 0001_initial as applied so the next
