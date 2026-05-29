@@ -5,12 +5,10 @@
 # attached to its host via ``(target_content_type, target_object_id)``
 # and resolved through the ``target`` GenericForeignKey on the model.
 #
-# Production migration concern: this branch is fresh-DB; on merge to
-# main, existing ``lms_catalog_contentblock`` rows must be backfilled
-# with ``target_content_type=ContentType.objects.get_for_model(Lesson)``
-# and ``target_object_id=<lesson_id>`` before the old ``lesson`` FK
-# column is dropped. Write the backfill SQL in
-# ``deploy/migrate-lms-split.sql`` ahead of the merge.
+# The production schema swap from ``lms_catalog_contentblock`` to
+# ``block_block`` (with the new polymorphic columns backfilled) is
+# handled out-of-band by ``deploy/migrate-lms-split.sql`` and its
+# ``manage.py migrate_lms_split`` driver — see deploy/MIGRATE-LMS-SPLIT.md.
 
 import django.db.models.deletion
 import parler.fields
