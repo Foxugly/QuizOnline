@@ -133,9 +133,23 @@ class CustomUser(AbstractUser):
         return owned < quota
 
     def get_visible_domains(self, *, active_only: bool = True) -> QuerySet:
-        """
-        Alias "pratique": en général l’UI liste les domaines visibles/choisissables.
-        Par défaut on ne montre que les domaines actifs.
+        """Domains the user may see in a dropdown / set as ``current_domain``.
+
+        **Not** an alias of :meth:`get_manageable_domains` — the predicate
+        is wider here. A user can be a domain ``members`` link (a learner
+        linked to a learning domain without any admin right) and still
+        need that domain to show up in the "switch current domain" UI.
+        That is why we OR in ``Q(members=self)`` on top of the
+        ``owner | managers`` set returned by :meth:`get_manageable_domains`.
+
+        Stays separate from :meth:`get_manageable_domains` so the two
+        permission gates stay clear:
+
+        - **visible** ⇒ may select / read
+        - **manageable** ⇒ may edit / admin
+
+        Mixing the two would silently widen instructor surfaces or
+        hide learner choices, depending on the direction.
         """
         Domain = self._domain_model()
         qs = Domain.objects.all()
