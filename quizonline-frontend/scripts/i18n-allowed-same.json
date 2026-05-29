@@ -178,5 +178,29 @@
   "pages/course-list:columns.status",
   "pages/course-list:enrollmentBadge.open",
   "pages/course-edit/analytics-tab:invite.heading",
-  "pages/course-invite-accept:levelChoices.beginner"
+  "pages/course-invite-accept:levelChoices.beginner",
+
+  "shared/learning/learning-common:blockTypeLabels.*",
+  "shared/learning/learning-common:videoProviderLabels.*",
+  "shared/learning/learning-common:levelLabels.beginner",
+
+  "pages/certificate-list:colActions",
+
+  "pages/course-detail:durationLabel",
+
+  "pages/course-edit/enrollment-tab:columns.actions",
+  "pages/course-edit/enrollment-tab:columns.status",
+  "pages/course-edit/enrollment-tab:noCompletedAt",
+  "pages/course-edit/enrollment-tab:invite.columns.actions",
+  "pages/course-edit/enrollment-tab:invite.columns.status",
+  "pages/course-edit/enrollment-tab:filters.status.label",
+  "pages/course-edit/enrollment-tab:toasts.errorSummary",
+
+  "pages/lesson-edit/block-editors:fieldVideoProvider",
+
+  "pages/progress:colStatus",
+
+  "pages/quiz/alerts/list:statusOptions.open",
+  "pages/quiz/alerts/list:status.open",
+  "pages/quiz/alerts/list:topicQuiz"
 ]

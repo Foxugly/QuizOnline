@@ -61,7 +61,16 @@ import {getLessonEditUiText} from '../src/app/pages/lesson-edit/lesson-edit.i18n
 import {getLessonViewUiText} from '../src/app/pages/lesson-view/lesson-view.i18n';
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
 import {getBlockListEditorUiText} from '../src/app/shared/learning/block-list-editor/block-list-editor.i18n';
+import {getLearningCommonUiText} from '../src/app/shared/learning/learning-common.i18n';
 import {getQuestionEditorFormUiText} from '../src/app/components/question-editor-form/question-editor-form.i18n';
+import {getCertificateListUiText} from '../src/app/pages/certificate-list/certificate-list.i18n';
+import {getCertificateViewUiText} from '../src/app/pages/certificate-view/certificate-view.i18n';
+import {getCertificateVerifyUiText} from '../src/app/pages/certificate-verify/certificate-verify.i18n';
+import {getCourseDetailUiText} from '../src/app/pages/course-detail/course-detail.i18n';
+import {getCourseEditEnrollmentTabUiText} from '../src/app/pages/course-edit/tabs/enrollment-tab/enrollment-tab.i18n';
+import {getBlockEditorsUiText} from '../src/app/pages/lesson-edit/block-editors/block-editors.i18n';
+import {getProgressUiText} from '../src/app/pages/progress/progress.i18n';
+import {getQuizAlertListUiText} from '../src/app/pages/quiz/alerts/list/quiz-alert-list.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -104,7 +113,16 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/lesson-view', get: getLessonViewUiText as Getter},
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
   {name: 'shared/learning/block-list-editor', get: getBlockListEditorUiText as Getter},
+  {name: 'shared/learning/learning-common', get: getLearningCommonUiText as Getter},
   {name: 'components/question-editor-form', get: getQuestionEditorFormUiText as Getter},
+  {name: 'pages/certificate-list', get: getCertificateListUiText as Getter},
+  {name: 'pages/certificate-view', get: getCertificateViewUiText as Getter},
+  {name: 'pages/certificate-verify', get: getCertificateVerifyUiText as Getter},
+  {name: 'pages/course-detail', get: getCourseDetailUiText as Getter},
+  {name: 'pages/course-edit/enrollment-tab', get: getCourseEditEnrollmentTabUiText as Getter},
+  {name: 'pages/lesson-edit/block-editors', get: getBlockEditorsUiText as Getter},
+  {name: 'pages/progress', get: getProgressUiText as Getter},
+  {name: 'pages/quiz/alerts/list', get: getQuizAlertListUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;
