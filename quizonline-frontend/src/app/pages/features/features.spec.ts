@@ -33,8 +33,16 @@ describe('Features', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('exposes the five feature sections', () => {
+  it('exposes the seven feature sections', () => {
     const ui = fixture.componentInstance['ui']();
-    expect(ui.sections.map((s) => s.slug)).toEqual(['domains', 'subjects', 'questions', 'quizzes', 'platform']);
+    expect(ui.sections.map((s) => s.slug)).toEqual([
+      'domains',
+      'subjects',
+      'questions',
+      'quizzes',
+      'learning',
+      'enrollment',
+      'platform',
+    ]);
   });
 });
