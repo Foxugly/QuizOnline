@@ -12,6 +12,8 @@ export interface CertificateListUiText {
   colNumber: string;
   colCourse: string;
   colIssuedAt: string;
+  colExpiresAt: string;
+  expiresAtNever: string;
   colActions: string;
   downloadButton: string;
   viewButton: string;
@@ -31,6 +33,8 @@ export function getCertificateListUiText(
         colNumber: 'Numéro',
         colCourse: 'Cours',
         colIssuedAt: 'Émis le',
+        colExpiresAt: 'Expire le',
+        expiresAtNever: 'Sans expiration',
         colActions: 'Actions',
         downloadButton: 'Télécharger',
         viewButton: 'Voir',
@@ -45,6 +49,8 @@ export function getCertificateListUiText(
         colNumber: 'Nummer',
         colCourse: 'Cursus',
         colIssuedAt: 'Uitgegeven op',
+        colExpiresAt: 'Verloopt op',
+        expiresAtNever: 'Geen vervaldatum',
         colActions: 'Acties',
         downloadButton: 'Downloaden',
         viewButton: 'Bekijken',
@@ -59,6 +65,8 @@ export function getCertificateListUiText(
         colNumber: 'Numero',
         colCourse: 'Corso',
         colIssuedAt: 'Emesso il',
+        colExpiresAt: 'Scade il',
+        expiresAtNever: 'Senza scadenza',
         colActions: 'Azioni',
         downloadButton: 'Scarica',
         viewButton: 'Visualizza',
@@ -73,6 +81,8 @@ export function getCertificateListUiText(
         colNumber: 'Número',
         colCourse: 'Curso',
         colIssuedAt: 'Emitido el',
+        colExpiresAt: 'Vence el',
+        expiresAtNever: 'Sin caducidad',
         colActions: 'Acciones',
         downloadButton: 'Descargar',
         viewButton: 'Ver',
@@ -86,6 +96,8 @@ export function getCertificateListUiText(
         colNumber: 'Number',
         colCourse: 'Course',
         colIssuedAt: 'Issued on',
+        colExpiresAt: 'Expires on',
+        expiresAtNever: 'No expiration',
         colActions: 'Actions',
         downloadButton: 'Download',
         viewButton: 'View',

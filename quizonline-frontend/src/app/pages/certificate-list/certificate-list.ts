@@ -24,6 +24,7 @@ interface CertificateRow {
   course_title: string;
   certificate_number: string;
   issued_at: string;
+  expires_at: string | null;
   pdf_url: string | null;
   revoked_at: string | null;
 }
@@ -33,6 +34,7 @@ interface CertificateRowVm {
   certificateNumber: string;
   courseTitle: string;
   issuedAt: string;
+  expiresAt: string | null;
   pdfUrl: string | null;
   viewHref: string;
 }
@@ -57,6 +59,7 @@ export class CertificateList {
       certificateNumber: row.certificate_number,
       courseTitle: row.course_title,
       issuedAt: row.issued_at,
+      expiresAt: row.expires_at,
       pdfUrl: row.pdf_url,
       viewHref: CERTIFICATE_VIEW(row.id),
     })),

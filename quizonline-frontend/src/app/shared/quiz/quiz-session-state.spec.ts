@@ -35,6 +35,8 @@ describe('quiz session state helpers', () => {
     pending_join_requests_count: null,
     my_join_request_status: null,
     notification_settings: {},
+    certificate_logo: null,
+    certificate_signatory_name: '',
   };
 
   const questions: QuizQuestionReadDto[] = [

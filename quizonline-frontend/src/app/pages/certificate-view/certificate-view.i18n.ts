@@ -14,6 +14,7 @@ export interface CertificateViewUiText {
   certificateNumberLabel: string;
   courseLabel: string;
   issuedOnLabel: string;
+  expiresOnLabel: string;
   revokedOnLabel: string;
   downloadButton: string;
   backButton: string;
@@ -35,6 +36,7 @@ export function getCertificateViewUiText(
         certificateNumberLabel: 'Numéro de certificat',
         courseLabel: 'Cours',
         issuedOnLabel: 'Émis le',
+        expiresOnLabel: 'Expire le',
         revokedOnLabel: 'Révoqué le',
         downloadButton: 'Télécharger le PDF',
         backButton: 'Retour à mes certificats',
@@ -51,6 +53,7 @@ export function getCertificateViewUiText(
         certificateNumberLabel: 'Certificaatnummer',
         courseLabel: 'Cursus',
         issuedOnLabel: 'Uitgegeven op',
+        expiresOnLabel: 'Verloopt op',
         revokedOnLabel: 'Ingetrokken op',
         downloadButton: 'PDF downloaden',
         backButton: 'Terug naar mijn certificaten',
@@ -67,6 +70,7 @@ export function getCertificateViewUiText(
         certificateNumberLabel: 'Numero certificato',
         courseLabel: 'Corso',
         issuedOnLabel: 'Emesso il',
+        expiresOnLabel: 'Scade il',
         revokedOnLabel: 'Revocato il',
         downloadButton: 'Scarica il PDF',
         backButton: 'Torna ai miei certificati',
@@ -83,6 +87,7 @@ export function getCertificateViewUiText(
         certificateNumberLabel: 'Número de certificado',
         courseLabel: 'Curso',
         issuedOnLabel: 'Emitido el',
+        expiresOnLabel: 'Vence el',
         revokedOnLabel: 'Revocado el',
         downloadButton: 'Descargar el PDF',
         backButton: 'Volver a mis certificados',
@@ -98,6 +103,7 @@ export function getCertificateViewUiText(
         certificateNumberLabel: 'Certificate number',
         courseLabel: 'Course',
         issuedOnLabel: 'Issued on',
+        expiresOnLabel: 'Expires on',
         revokedOnLabel: 'Revoked on',
         downloadButton: 'Download PDF',
         backButton: 'Back to my certificates',

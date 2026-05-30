@@ -23,6 +23,10 @@ export interface CourseEditInfoTabUiText {
     enrollmentMode: string;
     estimatedDuration: string;
     estimatedDurationHint: string;
+    issuesCertificate: string;
+    issuesCertificateHint: string;
+    certificateValidity: string;
+    certificateValidityHint: string;
     coverImage: string;
     title: string;
     titlePlaceholder: string;
@@ -67,6 +71,10 @@ export function getCourseEditInfoTabUiText(
           enrollmentMode: 'Mode d’inscription',
           estimatedDuration: 'Durée estimée (minutes)',
           estimatedDurationHint: 'Temps total approximatif pour parcourir le cours.',
+          issuesCertificate: 'Délivrer un certificat',
+          issuesCertificateHint: 'Émettre un certificat PDF quand le cours est terminé (et le quiz final réussi, le cas échéant).',
+          certificateValidity: 'Validité du certificat (mois)',
+          certificateValidityHint: '0 = sans expiration. La date est figée à l\'émission ; modifier la valeur ne change pas les certificats déjà délivrés.',
           coverImage: 'Image de couverture',
           title: 'Titre',
           titlePlaceholder: 'Titre du cours',
@@ -107,6 +115,10 @@ export function getCourseEditInfoTabUiText(
           enrollmentMode: 'Inschrijvingsmodus',
           estimatedDuration: 'Geschatte duur (minuten)',
           estimatedDurationHint: 'Geschatte totale tijd om de cursus te doorlopen.',
+          issuesCertificate: 'Certificaat uitreiken',
+          issuesCertificateHint: 'Een PDF-certificaat uitreiken wanneer de cursus is voltooid (en de eindquiz geslaagd, indien aanwezig).',
+          certificateValidity: 'Geldigheid certificaat (maanden)',
+          certificateValidityHint: '0 = geen vervaldatum. De datum wordt vastgezet bij uitgifte; de waarde wijzigen heeft geen invloed op reeds uitgereikte certificaten.',
           coverImage: 'Omslagafbeelding',
           title: 'Titel',
           titlePlaceholder: 'Cursustitel',
@@ -147,6 +159,10 @@ export function getCourseEditInfoTabUiText(
           enrollmentMode: 'Modalità di iscrizione',
           estimatedDuration: 'Durata stimata (minuti)',
           estimatedDurationHint: 'Tempo totale approssimativo per completare il corso.',
+          issuesCertificate: 'Rilascia un certificato',
+          issuesCertificateHint: 'Emetti un certificato PDF al completamento del corso (e al superamento del quiz finale, se previsto).',
+          certificateValidity: 'Validità del certificato (mesi)',
+          certificateValidityHint: '0 = nessuna scadenza. La data è fissata al momento dell\'emissione; cambiare il valore non modifica i certificati già emessi.',
           coverImage: 'Immagine di copertina',
           title: 'Titolo',
           titlePlaceholder: 'Titolo del corso',
@@ -187,6 +203,10 @@ export function getCourseEditInfoTabUiText(
           enrollmentMode: 'Modo de inscripción',
           estimatedDuration: 'Duración estimada (minutos)',
           estimatedDurationHint: 'Tiempo total aproximado para completar el curso.',
+          issuesCertificate: 'Emitir un certificado',
+          issuesCertificateHint: 'Emitir un certificado PDF al completar el curso (y aprobar el cuestionario final, si existe).',
+          certificateValidity: 'Validez del certificado (meses)',
+          certificateValidityHint: '0 = sin caducidad. La fecha se congela al emitirse; cambiar el valor no modifica los certificados ya emitidos.',
           coverImage: 'Imagen de portada',
           title: 'Título',
           titlePlaceholder: 'Título del curso',
@@ -226,6 +246,10 @@ export function getCourseEditInfoTabUiText(
           enrollmentMode: 'Enrollment mode',
           estimatedDuration: 'Estimated duration (minutes)',
           estimatedDurationHint: 'Approximate total time to complete the course.',
+          issuesCertificate: 'Issue a certificate',
+          issuesCertificateHint: 'Emit a PDF certificate when the course is completed (and the final quiz passed, if any).',
+          certificateValidity: 'Certificate validity (months)',
+          certificateValidityHint: '0 = no expiration. The date is frozen at issue time; changing the value does not alter certificates already issued.',
           coverImage: 'Cover image',
           title: 'Title',
           titlePlaceholder: 'Course title',

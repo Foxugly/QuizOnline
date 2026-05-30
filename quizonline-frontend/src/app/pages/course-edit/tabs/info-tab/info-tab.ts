@@ -24,6 +24,7 @@ import {catchError} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
+import {CheckboxModule} from 'primeng/checkbox';
 import {EditorModule} from 'primeng/editor';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {InputTextModule} from 'primeng/inputtext';
@@ -89,6 +90,7 @@ type CourseLangGroup = FormGroup<{
     ReactiveFormsModule,
     ButtonModule,
     CardModule,
+    CheckboxModule,
     EditorModule,
     InputNumberModule,
     InputTextModule,
@@ -186,6 +188,10 @@ export class CourseEditInfoTab {
     }),
     estimated_duration: this.fb.control<number>(0, {
       validators: [Validators.required, Validators.min(0)],
+    }),
+    issues_certificate: this.fb.control<boolean>(true),
+    certificate_validity_months: this.fb.control<number>(0, {
+      validators: [Validators.min(0)],
     }),
     translations: this.fb.group({}),
   });
@@ -521,6 +527,8 @@ export class CourseEditInfoTab {
       level: course.level ?? LevelEnumDto.Beginner,
       enrollment_mode: course.enrollment_mode ?? EnrollmentModeEnumDto.Open,
       estimated_duration: course.estimated_duration ?? 0,
+      issues_certificate: course.issues_certificate ?? true,
+      certificate_validity_months: course.certificate_validity_months ?? 0,
     });
     this.form.markAsPristine();
 
@@ -547,6 +555,8 @@ export class CourseEditInfoTab {
       level: v.level,
       enrollment_mode: v.enrollment_mode,
       estimated_duration: v.estimated_duration ?? 0,
+      issues_certificate: v.issues_certificate ?? true,
+      certificate_validity_months: v.certificate_validity_months ?? 0,
       translations,
     };
     if (this.coverImageCleared() && !this.coverImageFile()) {

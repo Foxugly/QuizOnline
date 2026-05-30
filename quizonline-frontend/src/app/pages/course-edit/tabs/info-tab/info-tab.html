@@ -58,6 +58,38 @@
             <div class="meta-hint">{{ pageText().fields.estimatedDurationHint }}</div>
           </div>
 
+          <div class="meta-item">
+            <label class="meta-label" for="course-info-issues-cert">{{ pageText().fields.issuesCertificate }}</label>
+            <div class="meta-value cert-toggle">
+              <p-checkbox
+                inputId="course-info-issues-cert"
+                formControlName="issues_certificate"
+                [binary]="true" />
+              <span class="cert-toggle__hint">{{ pageText().fields.issuesCertificateHint }}</span>
+            </div>
+          </div>
+
+          @if (form.controls.issues_certificate.value) {
+            <div class="meta-item">
+              <label class="meta-label" for="course-info-cert-validity">{{ pageText().fields.certificateValidity }}</label>
+              <div class="meta-value">
+                <p-inputNumber
+                  inputId="course-info-cert-validity"
+                  formControlName="certificate_validity_months"
+                  [min]="0"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  decrementButtonClass="p-button-secondary"
+                  incrementButtonClass="p-button-secondary"
+                  decrementButtonIcon="pi pi-minus"
+                  incrementButtonIcon="pi pi-plus">
+                </p-inputNumber>
+              </div>
+              <div class="meta-hint">{{ pageText().fields.certificateValidityHint }}</div>
+            </div>
+          }
+
           <div class="meta-item meta-item--full">
             <label class="meta-label">{{ pageText().fields.coverImage }}</label>
             <div class="meta-value cover-image-control">

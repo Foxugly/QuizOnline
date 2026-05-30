@@ -13,6 +13,7 @@
         <th>{{ ui().colNumber }}</th>
         <th>{{ ui().colCourse }}</th>
         <th>{{ ui().colIssuedAt }}</th>
+        <th>{{ ui().colExpiresAt }}</th>
         <th class="cell-actions">{{ ui().colActions }}</th>
       </tr>
     </ng-template>
@@ -21,6 +22,7 @@
         <td>{{ row.certificateNumber }}</td>
         <td>{{ row.courseTitle }}</td>
         <td>{{ row.issuedAt | date:'medium' }}</td>
+        <td>{{ row.expiresAt ? (row.expiresAt | date:'medium') : ui().expiresAtNever }}</td>
         <td class="cell-actions">
           <p-button
             [routerLink]="row.viewHref"
@@ -43,7 +45,7 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="4" class="empty-cell">
+        <td colspan="5" class="empty-cell">
           <h3>{{ ui().emptyTitle }}</h3>
           <p>{{ ui().emptyMessage }}</p>
           <p-button
