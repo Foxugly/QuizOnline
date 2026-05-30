@@ -6,7 +6,7 @@ import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickTranslation} from '../../../shared/learning/learning-translations';
 import {toYoutubeEmbedUrl} from '../../../shared/media/youtube';
 import {UserService} from '../../../services/user/user';
-import {getLessonViewUiText} from '../lesson-view.i18n';
+import {getBlockRenderersUiText} from './block-renderers.i18n';
 
 /**
  * Renders the ``video`` ContentBlock, handling the three video providers
@@ -117,7 +117,7 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
 export class VideoBlockRenderer {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly user = inject(UserService);
-  protected readonly ui = inject(UiTextService).localized(getLessonViewUiText);
+  protected readonly ui = inject(UiTextService).localized(getBlockRenderersUiText);
 
   readonly block = input.required<ContentBlock>();
 

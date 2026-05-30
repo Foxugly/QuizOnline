@@ -20,14 +20,14 @@ import {BLOCK_ICONS} from '../block-icons';
 import {BlockRole, ContentBlock} from '../content-block.types';
 
 import {BlockCard} from '../block-card/block-card';
-import {RichTextBlockEditor} from '../../../pages/lesson-edit/block-editors/rich-text-block-editor';
-import {ImageBlockEditor} from '../../../pages/lesson-edit/block-editors/image-block-editor';
-import {VideoBlockEditor} from '../../../pages/lesson-edit/block-editors/video-block-editor';
-import {FileBlockEditor} from '../../../pages/lesson-edit/block-editors/file-block-editor';
-import {QuizBlockEditor} from '../../../pages/lesson-edit/block-editors/quiz-block-editor';
-import {CalloutBlockEditor} from '../../../pages/lesson-edit/block-editors/callout-block-editor';
-import {CodeBlockEditor} from '../../../pages/lesson-edit/block-editors/code-block-editor';
-import {EmbedBlockEditor} from '../../../pages/lesson-edit/block-editors/embed-block-editor';
+import {RichTextBlockEditor} from '../block-editors/rich-text-block-editor';
+import {ImageBlockEditor} from '../block-editors/image-block-editor';
+import {VideoBlockEditor} from '../block-editors/video-block-editor';
+import {FileBlockEditor} from '../block-editors/file-block-editor';
+import {QuizBlockEditor} from '../block-editors/quiz-block-editor';
+import {CalloutBlockEditor} from '../block-editors/callout-block-editor';
+import {CodeBlockEditor} from '../block-editors/code-block-editor';
+import {EmbedBlockEditor} from '../block-editors/embed-block-editor';
 
 import {getBlockListEditorUiText} from './block-list-editor.i18n';
 
