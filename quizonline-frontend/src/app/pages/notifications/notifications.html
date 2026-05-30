@@ -8,7 +8,6 @@
       pButton
       type="button"
       severity="secondary"
-      [outlined]="true"
       [label]="ui().notifications.bellMarkAllRead"
       (click)="markAllRead()"
       [disabled]="filter() !== 'unread' || rows().length === 0">
@@ -61,7 +60,6 @@
               type="button"
               size="small"
               severity="secondary"
-              [outlined]="true"
               icon="pi pi-check"
               [pTooltip]="ui().notifications.actionMarkRead"
               (click)="markRead(row)">
@@ -73,7 +71,6 @@
               type="button"
               size="small"
               severity="danger"
-              [outlined]="true"
               icon="pi pi-trash"
               [pTooltip]="ui().notifications.actionDelete"
               (click)="remove(row)">

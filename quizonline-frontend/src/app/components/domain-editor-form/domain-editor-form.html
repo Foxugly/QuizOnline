@@ -172,7 +172,6 @@
                   type="button"
                   icon="pi pi-times"
                   severity="danger"
-                  [outlined]="true"
                   [label]="ui().domainForm.certificateLogoRemove"
                   (onClick)="removeCurrentCertificateLogo()" />
               </div>
@@ -188,7 +187,6 @@
                 type="button"
                 icon="pi pi-upload"
                 severity="secondary"
-                [outlined]="true"
                 [label]="ui().domainForm.certificateLogoUpload"
                 (onClick)="logoInput.click()" />
               @if (certificateLogoFile(); as file) {

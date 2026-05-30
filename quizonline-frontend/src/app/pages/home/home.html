@@ -7,7 +7,7 @@
 
       <div class="hero__actions">
         <p-button [routerLink]="primaryCta()" icon="pi pi-arrow-right" [label]="primaryCtaLabel()"></p-button>
-        <p-button [routerLink]="secondaryCta()" icon="pi pi-info-circle" [label]="secondaryCtaLabel()" variant="outlined"></p-button>
+        <p-button [routerLink]="secondaryCta()" icon="pi pi-info-circle" [label]="secondaryCtaLabel()" severity="secondary"></p-button>
         <button (click)="contactClick()" class="hero__contact" type="button">
           <i class="pi pi-envelope"></i>
           <span>{{ ui().home.contactCta }}</span>

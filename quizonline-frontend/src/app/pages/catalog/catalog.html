@@ -5,7 +5,6 @@
         [routerLink]="courseListHref"
         icon="pi pi-list"
         severity="secondary"
-        [outlined]="true"
         [label]="ui().listButton"
         type="button" />
     }
@@ -64,7 +63,6 @@
               class="course-card__edit"
               type="button"
               severity="info"
-              [outlined]="true"
               icon="pi pi-pencil"
               [routerLink]="editHref"
               [pTooltip]="editorUi().common.edit"
@@ -119,8 +117,7 @@
                 icon="pi pi-arrow-right"
                 iconPos="right"
                 [label]="ui().viewButton"
-                severity="primary"
-                [outlined]="true" />
+                severity="primary" />
             }
           </footer>
         </article>

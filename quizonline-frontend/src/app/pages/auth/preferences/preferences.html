@@ -99,7 +99,6 @@
                     icon="pi pi-trash"
                     [label]="ui().preferences.deleteAccountCta"
                     severity="danger"
-                    [outlined]="true"
                     type="button">
                   </p-button>
                 </div>
@@ -193,7 +192,6 @@
                             [label]="ui().preferences.deleteDomain"
                             size="small"
                             severity="danger"
-                            [outlined]="true"
                             [disabled]="saving()"
                             (onClick)="deleteOwnedDomain(entry.id)"
                           ></p-button>
