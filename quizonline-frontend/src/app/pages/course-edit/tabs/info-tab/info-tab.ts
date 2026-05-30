@@ -64,16 +64,6 @@ type CourseLangGroup = FormGroup<{
 }>;
 
 /**
- * ``CourseDetailDto.available_lang_codes`` is generated as ``string`` by
- * OpenAPI because the backend ``SerializerMethodField`` doesn't carry a
- * schema. The actual payload is ``string[]`` — narrowed here to keep
- * the call sites readable without touching the generated client.
- */
-type CourseWithLangCodes = CourseDetailDto & {
-  available_lang_codes: string[] | string;
-};
-
-/**
  * Editable "Information" tab of ``/course/:id/edit``.
  *
  * Mirrors the recently-simplified ``course-create`` page but for an
@@ -150,17 +140,7 @@ export class CourseEditInfoTab {
 
   /** Allowed translation languages for the course (mirrors structure tab). */
   protected readonly availableLangs = computed<LangCode[]>(() => {
-    const c = this.course() as CourseWithLangCodes | null;
-    if (!c) {
-      return [];
-    }
-    const codes = c.available_lang_codes;
-    const list: string[] = Array.isArray(codes)
-      ? codes
-      : typeof codes === 'string' && codes.length > 0
-        ? codes.split(',').map((s) => s.trim()).filter(Boolean)
-        : [];
-    return list.filter(isLangCode);
+    return (this.course()?.available_lang_codes ?? []).filter(isLangCode);
   });
 
   /** Course primary language (``language_code``) — drives "title required" check. */

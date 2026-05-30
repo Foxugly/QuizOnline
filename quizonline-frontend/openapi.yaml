@@ -6354,10 +6354,12 @@ components:
             $ref: '#/components/schemas/Section'
           readOnly: true
         available_lang_codes:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         can_manage:
-          type: string
+          type: boolean
           readOnly: true
         created_at:
           type: string
@@ -7881,7 +7883,9 @@ components:
             $ref: '#/components/schemas/Block'
           readOnly: true
         available_lang_codes:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         can_manage:
           type: boolean
@@ -10717,7 +10721,9 @@ components:
             en:
               title: Hello
         available_lang_codes:
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         lessons:
           type: array
