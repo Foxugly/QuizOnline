@@ -2,9 +2,9 @@ import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angu
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {UserService} from '../../../services/user/user';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickTranslation} from '../../../shared/learning/learning-translations';
-import {nonBreakingHyphensInHtml} from '../../../shared/learning/non-break-hyphens';
+import {ContentBlock} from '../content-block.types';
+import {pickTranslation} from '../learning-translations';
+import {nonBreakingHyphensInHtml} from '../non-break-hyphens';
 
 /**
  * Renders the localized ``rich_text`` payload of a ``ContentBlock``.

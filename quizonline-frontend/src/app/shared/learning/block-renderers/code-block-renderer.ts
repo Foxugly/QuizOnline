@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
-import {ContentBlock} from '../../../shared/learning/content-block.types';
+import {ContentBlock} from '../content-block.types';
 
 /**
  * Renders the ``code`` ContentBlock as a monospace ``<pre><code>`` block.

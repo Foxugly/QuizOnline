@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
-import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickTranslation} from '../../../shared/learning/learning-translations';
-import {toYoutubeEmbedUrl} from '../../../shared/media/youtube';
+import {UiTextService} from '../../i18n/ui-text.service';
+import {ContentBlock} from '../content-block.types';
+import {pickTranslation} from '../learning-translations';
+import {toYoutubeEmbedUrl} from '../../media/youtube';
 import {UserService} from '../../../services/user/user';
 import {getBlockRenderersUiText} from './block-renderers.i18n';
 

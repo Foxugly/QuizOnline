@@ -1,13 +1,13 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 
-import {logApiError} from '../../../shared/api/api-errors';
-import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
-import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {TRANSLATABLE_FIELDS} from '../../../shared/learning/translatable-fields';
-import {TranslationsMap} from '../../../shared/learning/learning-translations';
-import {AppToastService} from '../../../shared/toast/app-toast.service';
+import {logApiError} from '../../api/api-errors';
+import {isEmptyRichText} from '../../html/is-empty-rich-text';
+import {UiTextService} from '../../i18n/ui-text.service';
+import {ContentBlock} from '../content-block.types';
+import {TRANSLATABLE_FIELDS} from '../translatable-fields';
+import {TranslationsMap} from '../learning-translations';
+import {AppToastService} from '../../toast/app-toast.service';
 import {TranslateBatchItem, TranslationService} from '../../../services/translation/translation';
 
 import {getBlockEditorsUiText} from './block-editors.i18n';
