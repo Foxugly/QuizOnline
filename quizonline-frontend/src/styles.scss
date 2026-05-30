@@ -9,6 +9,23 @@ $spacing-sm: 0.5rem;
 $spacing-md: 1rem;
 $radius: 6px;
 
+/* ----------------------------------------------------------------
+ * Width / display utilities.
+ *
+ * Many templates (login page, domain-invitations-tab, user-admin-form,
+ * ...) use ``class="w-full"`` and ``styleClass="w-full"`` on PrimeNG
+ * components. These look like Tailwind classes, but the project does
+ * NOT ship Tailwind — so without the rules below those usages are
+ * silently inert. Define them globally so the class can survive both
+ * the inline host application and the ``styleClass`` propagation onto
+ * a PrimeNG-rendered inner element (which lives outside the parent
+ * component's emulated encapsulation and therefore cannot be reached
+ * by a component-scoped selector).
+ * ---------------------------------------------------------------- */
+.w-full {
+  width: 100%;
+}
+
 .logo {
   //background-image: url('/qna.svg');
   background-size: contain;
