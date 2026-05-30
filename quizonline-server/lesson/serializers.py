@@ -58,7 +58,8 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         from block.serializers import BlockSerializer
         return BlockSerializer(obj.blocks.all(), many=True, context=self.context).data
 
-    def get_available_lang_codes(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_available_lang_codes(self, obj) -> list[str]:
         return sorted(obj.section.course.domain.allowed_languages.values_list("code", flat=True))
 
     @extend_schema_field(serializers.IntegerField())

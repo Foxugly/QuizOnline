@@ -25,7 +25,8 @@ class SectionSerializer(serializers.ModelSerializer):
         fields = ["id", "course", "order", "is_published", "translations", "available_lang_codes", "lessons"]
         read_only_fields = ["id", "lessons"]
 
-    def get_available_lang_codes(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_available_lang_codes(self, obj) -> list[str]:
         return sorted(obj.course.domain.allowed_languages.values_list("code", flat=True))
 
     @extend_schema_field({"type": "array", "items": {"$ref": "#/components/schemas/LessonDetail"}})
@@ -280,10 +281,12 @@ class CourseDetailSerializer(CourseListSerializer):
             "created_at", "updated_at",
         ]
 
-    def get_available_lang_codes(self, obj):
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_available_lang_codes(self, obj) -> list[str]:
         return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
 
-    def get_can_manage(self, obj):
+    @extend_schema_field(serializers.BooleanField())
+    def get_can_manage(self, obj) -> bool:
         from .permissions import is_lms_instructor
         request = self.context.get("request")
         return bool(request and is_lms_instructor(request.user, obj))
