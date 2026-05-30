@@ -72,6 +72,8 @@ class DomainSerializersTestCase(TestCase):
             "managers",
             "members",
             "notification_settings",
+            "certificate_logo",
+            "certificate_signatory_name",
             "created_at",
             "updated_at",
         }
