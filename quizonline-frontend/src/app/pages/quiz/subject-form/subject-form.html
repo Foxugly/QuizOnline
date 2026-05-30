@@ -94,6 +94,7 @@
         @if (cancelLabel()) {
           <p-button
             (onClick)="cancel.emit()"
+            icon="pi pi-times"
             [label]="cancelLabel()"
             severity="secondary"
             type="button"
