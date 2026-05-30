@@ -9,6 +9,7 @@
   <p-button slot="right"
     type="button"
     [severity]="previewMode() ? 'info' : 'success'"
+    [outlined]="true"
     [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
     [label]="previewMode() ? ui().editModeButton : ui().previewButton"
     (onClick)="togglePreview()" />
