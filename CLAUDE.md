@@ -35,8 +35,9 @@ Monorepo with two main modules:
 ## Shared UI building blocks
 
 - `<app-page-header [title]>` (under `shared/components/page-header/`) is the canonical page header used by every LMS shell. Three slots: `[slot=left]` / centered title / `[slot=right]`. Project content **directly** onto the slot (no inner wrapping `<div slot="left">`) so the slot's `gap: 0.5rem` applies between siblings. `@if` / `@for` work transparently — the projected elements still match the slot selector after the conditional resolves.
-- `<app-block-translate-button>` (under `pages/lms/lesson-edit/block-editors/block-translate-button.ts`) is the inline "translate from current tab" affordance every translatable block editor renders next to its language tabs. Reads the active tab as source, fills blanks only.
-- `shared/lms/default-lang.ts` exposes `pickDefaultLang(availableLangs, userLang)` — every multilingual editor uses this to pick the initial active tab (user's UI language when allowed, else first allowed language).
+- `<app-block-translate-button>` (under `shared/learning/block-editors/block-translate-button.ts`) is the inline "translate from current tab" affordance every translatable block editor renders next to its language tabs. Reads the active tab as source, fills blanks only.
+- `<app-lesson-reader>` (under `shared/learning/lesson-reader/`) is the shared outline + body + scroll-spy host used by both `/lesson/{id}` (with `scrollSpy=true`) and the preview mode of `/lesson/{id}/edit`. Owns the single `block-{id}` anchor scheme.
+- `shared/learning/default-lang.ts` exposes `pickDefaultLang(availableLangs, userLang)` — every multilingual editor uses this to pick the initial active tab (user's UI language when allowed, else first allowed language).
 
 ## Backend conventions
 
@@ -90,7 +91,7 @@ Key endpoints under `/api/` (`config/api_urls.py`):
 
 Frontend pages live directly under `pages/` (no `lms/` prefix):
 - Learner: `catalog` (search + level + domain filters), `course-detail`, `lesson-view` (left block outline + prev/next footer + position subtitle), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
-- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with debounced auto-save + per-language translation tabs + inline translate button per editor + view-as-learner eye button)
+- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with explicit Save / Cancel / Édit per block + per-language translation tabs + inline translate button per editor + view-as-learner eye button). Callout blocks carry a semantic variant (info / success / warning / error) stored in `metadata.variant` that drives the left-border colour.
 - Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated)
 
 Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `UploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.

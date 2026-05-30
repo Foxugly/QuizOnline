@@ -45,8 +45,6 @@ export interface BlockEditorsUiText {
   todoPlaceholder: string;
   /** Placeholder shown in the quiz-template autocomplete picker. */
   quizTemplatePlaceholder: string;
-  /** "Saved at HH:MM" indicator rendered in each editor's tablist. */
-  savedAt: (time: string) => string;
   /** Inline button label on the language tabs row of translatable editors. */
   translateButton: string;
   /** Success toast emitted by the inline per-block translate button. */
@@ -82,7 +80,6 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Impossible d\'envoyer le fichier.',
         todoPlaceholder: 'Éditeur à implémenter prochainement.',
         quizTemplatePlaceholder: 'Rechercher un quiz…',
-        savedAt: (time) => `Enregistré à ${time}`,
         translateButton: 'Traduire',
         translateSuccessToast: 'Traduction appliquée.',
         translateErrorToast: 'Échec de la traduction automatique.',
@@ -110,7 +107,6 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Kan het bestand niet uploaden.',
         todoPlaceholder: 'Editor volgt binnenkort.',
         quizTemplatePlaceholder: 'Een quiz zoeken…',
-        savedAt: (time) => `Opgeslagen om ${time}`,
         translateButton: 'Vertalen',
         translateSuccessToast: 'Vertaling toegepast.',
         translateErrorToast: 'Automatische vertaling mislukt.',
@@ -138,7 +134,6 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Impossibile caricare il file.',
         todoPlaceholder: 'Editor in arrivo a breve.',
         quizTemplatePlaceholder: 'Cerca un quiz…',
-        savedAt: (time) => `Salvato alle ${time}`,
         translateButton: 'Traduci',
         translateSuccessToast: 'Traduzione applicata.',
         translateErrorToast: 'Traduzione automatica non riuscita.',
@@ -166,7 +161,6 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'No se pudo enviar el archivo.',
         todoPlaceholder: 'Editor próximamente.',
         quizTemplatePlaceholder: 'Buscar un quiz…',
-        savedAt: (time) => `Guardado a las ${time}`,
         translateButton: 'Traducir',
         translateSuccessToast: 'Traducción aplicada.',
         translateErrorToast: 'La traducción automática falló.',
@@ -193,7 +187,6 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Could not upload the file.',
         todoPlaceholder: 'Editor coming soon.',
         quizTemplatePlaceholder: 'Search for a quiz…',
-        savedAt: (time) => `Saved at ${time}`,
         translateButton: 'Translate',
         translateSuccessToast: 'Translation applied.',
         translateErrorToast: 'Automatic translation failed.',
