@@ -73,9 +73,9 @@
 
           <p-button
             type="submit"
-            class="login-submit-host"
+            class="w-full"
+            styleClass="w-full"
             [label]="ui().login.submit"
-            styleClass="login-submit"
             [disabled]="loading() || form.invalid"
             [loading]="loading()"
           ></p-button>
@@ -85,12 +85,12 @@
 
         <p-button
           type="button"
-          class="login-submit-host"
+          class="w-full"
+          styleClass="w-full"
           icon="pi pi-envelope"
           [label]="ui().login.magicLinkSwitch"
           severity="secondary"
           [outlined]="true"
-          styleClass="login-submit"
           (onClick)="toggleMagicLinkMode()"
         ></p-button>
       } @else {
@@ -112,9 +112,9 @@
 
           <p-button
             type="submit"
-            class="login-submit-host"
+            class="w-full"
+            styleClass="w-full"
             [label]="ui().login.magicLinkSubmit"
-            styleClass="login-submit"
             [disabled]="!magicLinkEmail().trim() || magicLinkSubmitting()"
             [loading]="magicLinkSubmitting()"
           ></p-button>
@@ -124,12 +124,12 @@
 
         <p-button
           type="button"
-          class="login-submit-host"
+          class="w-full"
+          styleClass="w-full"
           icon="pi pi-key"
           [label]="ui().login.magicLinkBackToPassword"
           severity="secondary"
           [outlined]="true"
-          styleClass="login-submit"
           (onClick)="toggleMagicLinkMode()"
         ></p-button>
       }
