@@ -106,6 +106,30 @@ export class DomainService {
     );
   }
 
+  /** Replace a domain's ``certificate_logo`` via multipart form-data.
+   *  Single-field PATCH so DRF's parser negotiation can decode the
+   *  image without forcing us to JSON-encode binary content. Mirrors
+   *  the ``uploadCourseCoverImage`` pattern in CatalogService. */
+  uploadCertificateLogo(domainId: number, file: File): Observable<DomainReadDto> {
+    const fd = new FormData();
+    fd.append('certificate_logo', file);
+    return this.http.patch<DomainReadDto>(`${this.apiBaseUrl}/${domainId}/`, fd).pipe(
+      tap(() => this.invalidateListCache()),
+    );
+  }
+
+  /** Clear the ``certificate_logo`` field. Sends an explicit
+   *  ``cover_image: null`` JSON PATCH so DRF wipes the file storage
+   *  side without needing a separate "delete" endpoint. */
+  clearCertificateLogo(domainId: number): Observable<DomainReadDto> {
+    return this.http.patch<DomainReadDto>(
+      `${this.apiBaseUrl}/${domainId}/`,
+      {certificate_logo: null},
+    ).pipe(
+      tap(() => this.invalidateListCache()),
+    );
+  }
+
   updatePartial(domainId: number, payload:PatchedDomainPartialRequestDto): Observable<DomainReadDto> {
     return this.api.domainPartialUpdate({domainId, patchedDomainPartialRequestDto: payload}).pipe(
       tap(() => this.invalidateListCache()),

@@ -90,11 +90,17 @@
             [titleLabel]="ui().domainForm.titleLabel"
             [translating]="translating()"
             [lastSavedAt]="lastSavedAt()"
+            [showCertificateBranding]="true"
+            [currentLogoUrl]="currentLogoUrl()"
+            [certificateLogoFile]="certificateLogoFile()"
             (cancel)="goList()"
             (submitForm)="save()"
             (editOwner)="transfer.open()"
             (tabValueChange)="onTabValueChange($event)"
-            (translateClick)="translateFrom($event)">
+            (translateClick)="translateFrom($event)"
+            (certificateLogoSelected)="onCertificateLogoSelected($event)"
+            (certificateLogoRemoved)="removeCurrentCertificateLogo()"
+            (certificateLogoSelectionCleared)="clearSelectedCertificateLogo()">
           </app-domain-editor-form>
           </div>
         </p-tabpanel>

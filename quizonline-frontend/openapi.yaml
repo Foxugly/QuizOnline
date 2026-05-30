@@ -7209,6 +7209,14 @@ components:
           readOnly: true
         notification_settings:
           readOnly: true
+        certificate_logo:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        certificate_signatory_name:
+          type: string
+          readOnly: true
         pending_transfer:
           allOf:
           - $ref: '#/components/schemas/UserSummary'
@@ -7230,6 +7238,8 @@ components:
       required:
       - active
       - allowed_languages
+      - certificate_logo
+      - certificate_signatory_name
       - created_at
       - id
       - join_policy

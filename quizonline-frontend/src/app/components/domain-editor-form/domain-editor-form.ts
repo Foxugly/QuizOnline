@@ -6,6 +6,7 @@ import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {EditorModule} from 'primeng/editor';
+import {FieldsetModule} from 'primeng/fieldset';
 import {InputTextModule} from 'primeng/inputtext';
 import {MessageModule} from 'primeng/message';
 import {SelectModule} from 'primeng/select';
@@ -30,6 +31,7 @@ type JoinPolicyOption = { label: string; value: JoinPolicyEnumDto };
     ReactiveFormsModule,
     TabsModule,
     EditorModule,
+    FieldsetModule,
     InputTextModule,
     ButtonModule,
     ToggleSwitchModule,
@@ -61,6 +63,16 @@ export class DomainEditorFormComponent {
   readonly submitLabel = input('');
   readonly titleLabel = input('');
   readonly lastSavedAt = input<Date | null>(null);
+  /** Render the certificate-branding section (per-language signatory
+   *  title + signatory name + logo upload). Off in ``/domain/create``
+   *  where the domain doesn't have an id yet, on in ``/domain/{id}/edit``. */
+  readonly showCertificateBranding = input<boolean>(false);
+  /** Current logo URL — drives the preview block. ``null`` when no
+   *  logo is stored (or after the user clicked Remove). */
+  readonly currentLogoUrl = input<string | null>(null);
+  /** Newly-picked logo file (not yet uploaded). Drives the
+   *  "selected file" badge under the file picker. */
+  readonly certificateLogoFile = input<File | null>(null);
   readonly ui = inject(UiTextService).editor;
 
   readonly joinPolicyOptions = computed<JoinPolicyOption[]>(() => {
@@ -77,6 +89,15 @@ export class DomainEditorFormComponent {
   readonly submitForm = output<void>();
   readonly cancel = output<void>();
   readonly editOwner = output<void>();
+  /** Author picked a new logo file via the input element. The parent
+   *  handles the staging + post-save multipart upload. */
+  readonly certificateLogoSelected = output<Event>();
+  /** Author clicked the "Remove logo" button next to the preview. */
+  readonly certificateLogoRemoved = output<void>();
+  /** Author clicked the "Clear selection" button on the staged file
+   *  badge (drops the not-yet-uploaded file without touching the
+   *  stored one). */
+  readonly certificateLogoSelectionCleared = output<void>();
 
   submit(): void {
     this.submitForm.emit();
@@ -100,5 +121,17 @@ export class DomainEditorFormComponent {
 
   langGroup(code: string): FormGroup {
     return this.form().get(['translations', code]) as FormGroup;
+  }
+
+  onCertificateLogoSelected(event: Event): void {
+    this.certificateLogoSelected.emit(event);
+  }
+
+  removeCurrentCertificateLogo(): void {
+    this.certificateLogoRemoved.emit();
+  }
+
+  clearSelectedCertificateLogo(): void {
+    this.certificateLogoSelectionCleared.emit();
   }
 }

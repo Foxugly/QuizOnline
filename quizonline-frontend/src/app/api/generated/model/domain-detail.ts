@@ -27,6 +27,8 @@ export interface DomainDetailDto {
     readonly managers: Array<UserSummaryDto>;
     readonly members: Array<UserSummaryDto>;
     readonly notification_settings: any | null;
+    readonly certificate_logo: string | null;
+    readonly certificate_signatory_name: string;
     readonly pending_transfer: UserSummaryDto | null;
     readonly created_at: string;
     readonly updated_at: string;

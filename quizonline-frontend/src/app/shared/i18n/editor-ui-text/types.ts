@@ -345,6 +345,18 @@ export type EditorUiText = {
     joinPolicyHint: string;
     publicLabel: string;
     publicHint: string;
+    certificateBrandingLegend: string;
+    certificateSignatoryName: string;
+    certificateSignatoryNamePlaceholder: string;
+    certificateSignatoryNameHint: string;
+    certificateSignatoryTitle: string;
+    certificateSignatoryTitlePlaceholder: string;
+    certificateSignatoryTitleHint: string;
+    certificateLogo: string;
+    certificateLogoUpload: string;
+    certificateLogoRemove: string;
+    certificateLogoClearSelection: string;
+    certificateLogoHint: string;
   };
   subjectForm: {
     domain: string;

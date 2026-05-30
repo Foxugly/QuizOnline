@@ -76,6 +76,7 @@
   "editor-ui-text:domainForm.managers",
   "editor-ui-text:domainForm.readonly",
   "editor-ui-text:domainForm.publicLabel",
+  "editor-ui-text:domainForm.certificateLogo",
   "editor-ui-text:subjectForm.description",
   "editor-ui-text:pages.subjectEdit.questionsTitle",
   "editor-ui-text:pages.subjectEdit.actionsCol",

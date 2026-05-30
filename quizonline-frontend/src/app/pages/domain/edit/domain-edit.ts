@@ -67,6 +67,13 @@ type DomainWritePayload = DomainWriteRequestDto & {
   translations: DomainTranslations;
 };
 
+/** Per-language extra fields injected into the shared
+ *  ``localized-text-form`` helpers so the Domain edit form carries
+ *  ``certificate_signatory_title`` alongside ``name`` / ``description``
+ *  on every language tab. Subject, which uses the same helpers, does
+ *  not pass this — its translation groups keep their original shape. */
+const DOMAIN_TRANSLATION_EXTRAS = ['certificate_signatory_title'] as const;
+
 
 function asNumber(x: unknown): number | null {
   return typeof x === 'number' && Number.isFinite(x) ? x : null;
@@ -180,7 +187,27 @@ export class DomainEdit implements OnInit {
       validators: [Validators.required],
     }),
 
+    certificate_signatory_name: new FormControl<string>('', {nonNullable: true}),
+
     translations: this.fb.group({}) as FormGroup,
+  });
+
+  /** Newly-picked logo file (not yet uploaded). The save flow uploads
+   *  it via :meth:`DomainService.uploadCertificateLogo` after the JSON
+   *  PATCH succeeds — same two-step pattern the course-edit info tab
+   *  uses for cover_image. */
+  certificateLogoFile = signal<File | null>(null);
+  /** Author explicitly cleared the current logo: send a
+   *  ``{certificate_logo: null}`` PATCH so DRF wipes the storage even
+   *  when no new file is picked. */
+  certificateLogoCleared = signal(false);
+  /** Visible URL of the logo in the preview block. ``null`` when the
+   *  domain has no logo (or it was just cleared). */
+  currentLogoUrl = computed<string | null>(() => {
+    if (this.certificateLogoCleared()) {
+      return null;
+    }
+    return this.domain()?.certificate_logo ?? null;
   });
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -499,8 +526,26 @@ export class DomainEdit implements OnInit {
       return;
     }
 
+    // The certificate logo lives on a separate multipart endpoint
+    // because DRF cannot decode binary in a JSON PATCH. The sequence:
+    //   1. JSON PATCH for every other field (translations, signatory
+    //      name, allowed languages, ...);
+    //   2. if the author cleared the logo, send ``{certificate_logo: null}``;
+    //   3. if the author picked a new file, multipart-PATCH it;
+    //   4. refetch the domain detail so the page sees the canonical
+    //      logo URL the backend stored.
+    const logoFile = this.certificateLogoFile();
+    const logoCleared = this.certificateLogoCleared() && !logoFile;
     this.domainService.update(this.id, payload)
       .pipe(
+        switchMap(() => logoCleared
+          ? this.domainService.clearCertificateLogo(this.id)
+          : of(null),
+        ),
+        switchMap(() => logoFile
+          ? this.domainService.uploadCertificateLogo(this.id, logoFile)
+          : of(null),
+        ),
         switchMap(() => this.domainService.detail(this.id)),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -509,6 +554,8 @@ export class DomainEdit implements OnInit {
           this.domain.set(dto);
           this.lastSavedAt.set(new Date());
           this.form.markAsPristine();
+          this.certificateLogoFile.set(null);
+          this.certificateLogoCleared.set(false);
         },
         error: (err) => {
           logApiError('domain.edit.submit', err);
@@ -580,18 +627,24 @@ export class DomainEdit implements OnInit {
       owner: ownerId,
       managers: managerIds,
       join_policy: (dto.join_policy as JoinPolicyEnumDto | undefined) ?? JoinPolicyEnumDto.Auto,
+      certificate_signatory_name: dto.certificate_signatory_name ?? '',
     });
+    // Reset the logo-edit signals each time we reseed from the DTO —
+    // the file picker is per-edit-session and the "cleared" flag must
+    // be False when the underlying value has just been refreshed.
+    this.certificateLogoFile.set(null);
+    this.certificateLogoCleared.set(false);
   }
 
   private syncTranslationControls(codes: string[]): void {
     const tg = this.translationsGroup();
-    syncLocalizedTextControls(this.fb, tg, codes);
+    syncLocalizedTextControls(this.fb, tg, codes, {extraFields: DOMAIN_TRANSLATION_EXTRAS});
 
     // patch values from DTO for all wanted codes (stable, no emit)
     const dto = this.domain();
     if (dto) {
       const tr = (dto.translations ?? {}) as DomainTranslations;
-      patchLocalizedTextRecord(tg, codes, tr);
+      patchLocalizedTextRecord(tg, codes, tr, {extraFields: DOMAIN_TRANSLATION_EXTRAS});
     }
   }
 
@@ -604,7 +657,11 @@ export class DomainEdit implements OnInit {
       .map(c => idMap[String(c)])
       .filter((id): id is number => typeof id === 'number');
 
-    const translations = buildLocalizedTextRecord(this.translationsGroup()) as DomainTranslations;
+    const translations = buildLocalizedTextRecord(
+      this.translationsGroup(),
+      undefined,
+      {extraFields: DOMAIN_TRANSLATION_EXTRAS},
+    ) as DomainTranslations;
 
     return {
       active: this.form.controls.active.value,
@@ -613,8 +670,28 @@ export class DomainEdit implements OnInit {
       join_policy: this.form.controls.join_policy.value,
       allowed_languages,
       translations,
+      certificate_signatory_name: this.form.controls.certificate_signatory_name.value,
       ...(typeof owner === 'number' ? { owner } : {}),
     };
+  }
+
+  onCertificateLogoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (file) {
+      this.certificateLogoFile.set(file);
+      this.certificateLogoCleared.set(false);
+    }
+    input.value = '';
+  }
+
+  removeCurrentCertificateLogo(): void {
+    this.certificateLogoCleared.set(true);
+    this.certificateLogoFile.set(null);
+  }
+
+  clearSelectedCertificateLogo(): void {
+    this.certificateLogoFile.set(null);
   }
 
 }
