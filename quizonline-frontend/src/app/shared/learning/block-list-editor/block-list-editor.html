@@ -15,7 +15,7 @@
         </span>
         <span class="block-header__spacer"></span>
         @if (!isEditing(block.id)) {
-          <p-button icon="pi pi-pencil" severity="secondary" size="small"
+          <p-button icon="pi pi-pencil" severity="info" size="small"
                     (onClick)="editBlock(block.id)"
                     [attr.aria-label]="ui().editBlockAria" />
         }
