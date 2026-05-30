@@ -8,6 +8,7 @@ import {TagModule} from 'primeng/tag';
 
 import {CERTIFICATE_VERIFY, ME_CERTIFICATES} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
+import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 
@@ -35,7 +36,7 @@ interface CertificateDetail {
 
 @Component({
   selector: 'app-certificate-view',
-  imports: [DatePipe, RouterLink, ButtonModule, CardModule, TagModule],
+  imports: [DatePipe, RouterLink, ButtonModule, CardModule, TagModule, LoadingSkeleton],
   templateUrl: './certificate-view.html',
   styleUrl: './certificate-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

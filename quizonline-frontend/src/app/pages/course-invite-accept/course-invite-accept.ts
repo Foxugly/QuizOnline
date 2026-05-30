@@ -13,6 +13,7 @@ import {TagModule} from 'primeng/tag';
 
 import {CATALOG, COURSE_DETAIL} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
+import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {CourseInviteDto, EnrollmentService} from '../../services/enrollment/enrollment.service';
@@ -52,7 +53,7 @@ type ViewState =
  */
 @Component({
   selector: 'app-course-invite-accept',
-  imports: [DatePipe, RouterLink, ButtonModule, CardModule, ConfirmDialogModule, TagModule, PageHeader],
+  imports: [DatePipe, RouterLink, ButtonModule, CardModule, ConfirmDialogModule, TagModule, PageHeader, LoadingSkeleton],
   providers: [ConfirmationService],
   templateUrl: './course-invite-accept.html',
   styleUrl: './course-invite-accept.scss',

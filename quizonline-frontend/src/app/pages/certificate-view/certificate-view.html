@@ -1,6 +1,6 @@
 <section class="page">
   @if (loading()) {
-    <p class="page__loading">{{ ui().loadingMessage }}</p>
+    <app-loading-skeleton [rows]="2" [attr.aria-label]="ui().loadingMessage" />
   } @else if (notFound() || !certificate()) {
     <p-card>
       <h1>{{ ui().notFoundTitle }}</h1>
