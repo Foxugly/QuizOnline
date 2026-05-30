@@ -122,6 +122,16 @@
                 text
                 type="button">
               </p-button>
+              <p-button
+                (click)="goDelete(row.id)"
+                icon="pi pi-trash"
+                [pTooltip]="editorUi().common.delete"
+                [attr.aria-label]="editorUi().common.delete"
+                severity="danger"
+                size="small"
+                text
+                type="button">
+              </p-button>
             </div>
           </td>
         </tr>
