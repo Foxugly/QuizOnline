@@ -4,7 +4,6 @@ export const FR: EditorUiText = {
   common: {
     back: 'Retour',
     cancel: 'Annuler',
-    clean: 'Nettoyer',
     save: 'Enregistrer',
     add: 'Ajouter',
     create: 'Créer',
@@ -19,7 +18,7 @@ export const FR: EditorUiText = {
     reopen: 'Rouvrir',
     login: 'Se connecter',
     loading: 'Chargement...',
-    translateOthers: 'Traduire vers les autres langues',
+    translateOthers: 'Traduire depuis cet onglet',
     translating: 'Traduction en cours...',
     view: 'Voir',
     previous: 'Précédent',

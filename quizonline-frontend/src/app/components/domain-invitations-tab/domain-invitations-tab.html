@@ -211,7 +211,7 @@
     class="w-full">
   </textarea>
   <ng-template #footer>
-    <p-button [label]="adminLabels().reject" severity="danger" (onClick)="confirmReject()" type="button"></p-button>
+    <p-button icon="pi pi-times" [label]="adminLabels().reject" severity="danger" (onClick)="confirmReject()" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
@@ -231,6 +231,7 @@
   </textarea>
   <ng-template #footer>
     <p-button
+      icon="pi pi-times"
       [label]="adminLabels().bulkCancel"
       severity="secondary"
       [text]="true"
@@ -238,6 +239,7 @@
       type="button">
     </p-button>
     <p-button
+      icon="pi pi-times"
       [label]="adminLabels().bulkReject"
       severity="danger"
       [loading]="applyingBulk()"
@@ -315,7 +317,7 @@
   </div>
 
   <ng-template #footer>
-    <p-button [label]="text().members.inviteCancel" severity="secondary" [text]="true" (onClick)="closeInviteDialog()" type="button"></p-button>
+    <p-button icon="pi pi-times" [label]="text().members.inviteCancel" severity="secondary" [text]="true" (onClick)="closeInviteDialog()" type="button"></p-button>
     <p-button [label]="text().members.inviteSubmit" icon="pi pi-send" [loading]="inviting()" [disabled]="!inviteInput().trim() || inviting()" (onClick)="submitInvite()" type="button"></p-button>
   </ng-template>
 </p-dialog>

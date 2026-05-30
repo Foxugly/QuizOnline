@@ -2,7 +2,6 @@ export type EditorUiText = {
   common: {
     back: string;
     cancel: string;
-    clean: string;
     save: string;
     add: string;
     create: string;

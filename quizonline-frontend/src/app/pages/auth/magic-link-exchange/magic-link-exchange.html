@@ -8,12 +8,12 @@
     } @else if (error() === 'expired') {
       <p-message severity="warn" [closable]="false">{{ ui().login.magicLinkExpired }}</p-message>
       <div class="footer-actions">
-        <p-button routerLink="/login" [label]="ui().login.submit" severity="primary" type="button"></p-button>
+        <p-button routerLink="/login" icon="pi pi-sign-in" [label]="ui().login.submit" severity="primary" type="button"></p-button>
       </div>
     } @else if (error() === 'invalid') {
       <p-message severity="error" [closable]="false">{{ ui().login.magicLinkExchangeFailed }}</p-message>
       <div class="footer-actions">
-        <p-button routerLink="/login" [label]="ui().login.submit" severity="primary" type="button"></p-button>
+        <p-button routerLink="/login" icon="pi pi-sign-in" [label]="ui().login.submit" severity="primary" type="button"></p-button>
       </div>
     }
   </div>

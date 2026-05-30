@@ -136,6 +136,7 @@
                       <div class="domain-list__actions">
                         <p-button
                           type="button"
+                          icon="pi pi-sign-out"
                           [label]="ui().preferences.pendingRequestsCancel"
                           size="small"
                           severity="danger"
@@ -165,6 +166,7 @@
                         } @else if (entry.canSetCurrent) {
                           <p-button
                             type="button"
+                            icon="pi pi-check"
                             [label]="ui().preferences.setCurrent"
                             size="small"
                             [text]="true"
@@ -175,6 +177,7 @@
                         @if (entry.canUnlink) {
                           <p-button
                             type="button"
+                            icon="pi pi-sign-out"
                             [label]="ui().preferences.unlinkDomain"
                             size="small"
                             severity="danger"
@@ -186,6 +189,7 @@
                         @if (entry.canDelete) {
                           <p-button
                             type="button"
+                            icon="pi pi-trash"
                             [label]="ui().preferences.deleteDomain"
                             size="small"
                             severity="danger"
@@ -297,6 +301,7 @@
     <div class="link-dialog__footer">
       <p-button
         type="button"
+        icon="pi pi-times"
         [label]="ui().preferences.cancel"
         severity="secondary"
         [text]="true"
@@ -339,6 +344,7 @@
   }
   <ng-template #footer>
     <p-button
+      icon="pi pi-times"
       [label]="ui().preferences.deleteConfirmCancel"
       severity="secondary"
       [text]="true"

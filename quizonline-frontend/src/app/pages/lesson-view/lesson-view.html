@@ -13,7 +13,7 @@
     @if (editHref(); as href) {
       <p-button slot="right"
         type="button"
-        severity="secondary"
+        severity="info"
         [outlined]="true"
         icon="pi pi-pencil"
         [routerLink]="href"
@@ -61,6 +61,7 @@
     }
     <p-button
       class="lesson-footer__complete"
+      icon="pi pi-check-circle"
       [label]="ui().markCompletedButton"
       [disabled]="isCompleted() || completing()"
       (onClick)="completeLesson()" />

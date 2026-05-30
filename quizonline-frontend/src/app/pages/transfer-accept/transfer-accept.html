@@ -26,6 +26,7 @@
       <div class="footer-actions">
         <p-button
           routerLink="/"
+          icon="pi pi-home"
           [label]="text().buttons.backHome"
           severity="secondary"
           variant="outlined"
@@ -63,7 +64,7 @@
 
       @if (s.state === 'transferred' || s.state === 'no_longer_eligible') {
         <div class="footer-actions">
-          <p-button routerLink="/" [label]="text().buttons.backHome" severity="secondary" variant="outlined" type="button"></p-button>
+          <p-button routerLink="/" icon="pi pi-home" [label]="text().buttons.backHome" severity="secondary" variant="outlined" type="button"></p-button>
         </div>
       }
     }

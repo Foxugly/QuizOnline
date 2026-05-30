@@ -109,12 +109,14 @@
   <ng-template #footer>
     <p-button
       (onClick)="dialogVisible.set(false)"
+      icon="pi pi-times"
       [label]="editorUi().common.cancel"
       severity="secondary"
       type="button">
     </p-button>
     <p-button
       (onClick)="save()"
+      icon="pi pi-save"
       [label]="editorUi().common.confirm"
       severity="primary"
       type="button"

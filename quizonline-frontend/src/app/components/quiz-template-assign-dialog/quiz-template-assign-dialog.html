@@ -94,7 +94,7 @@
   }
 
   <ng-template pTemplate="footer">
-    <p-button (onClick)="onCancel()" [label]="texts().assignDialog.cancel" severity="secondary" text></p-button>
+    <p-button (onClick)="onCancel()" icon="pi pi-times" [label]="texts().assignDialog.cancel" severity="secondary" text></p-button>
     <p-button
       (onClick)="onSubmit()"
       [disabled]="!selectedRecipientIds().length"
