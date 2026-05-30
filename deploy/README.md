@@ -479,6 +479,9 @@ instance-level.
 - [`COURSE-INVITE-RUNBOOK.md`](COURSE-INVITE-RUNBOOK.md) —
   feature-specific rollback (3 levels), monitoring queries, and
   recovery commands for the LMS course-invite flow.
+- [`MIGRATE-TO-POSTGRES.md`](MIGRATE-TO-POSTGRES.md) — step-by-step
+  cut-over from SQLite to a local PostgreSQL instance on the EC2,
+  with rollback path and a `pgloader` variant for larger volumes.
 - [`env.production.example`](env.production.example) — reference
   `.env` shape for the backend.
 - [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example) —
