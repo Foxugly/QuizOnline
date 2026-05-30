@@ -29,5 +29,11 @@ installPrimeNgAutofocusStripper();
   logoPng : environment.logoPng,
 };
 
+// Single source of truth for the document title: ``environment.appName``.
+// Set synchronously here so the tab title flips from the placeholder to
+// the real app name as soon as the bundle runs, instead of waiting for
+// DOMContentLoaded.
+document.title = environment.appName;
+
 bootstrapApplication(App, {...appConfig, providers: [provideZoneChangeDetection(), ...appConfig.providers]})
   .catch(err => console.error(err));

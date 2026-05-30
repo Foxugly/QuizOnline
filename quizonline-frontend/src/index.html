@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>WprefFrontend</title>
+  <!-- Placeholder title — overwritten synchronously in ``main.ts`` from
+       ``environment.appName`` as soon as the application bundle runs.
+       Kept non-empty so browsers still have something to display in
+       the tab during the ~10–50 ms between parse and bundle exec. -->
+  <title>Loading…</title>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (window.__APP__) {
-        document.title = window.__APP__.name;
         const logo = document.getElementById('logo'); // <link id="logo" ...>
         if (logo) {
           logo.href = window.__APP__.logoIco;
