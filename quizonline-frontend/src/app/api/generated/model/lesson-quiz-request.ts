@@ -14,7 +14,6 @@ export interface LessonQuizRequestDto {
     course?: number | null;
     quiz_template: number;
     required_score_percent?: number;
-    is_required?: boolean;
     /**
      * 0 = unlimited.
      */

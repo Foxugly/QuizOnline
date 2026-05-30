@@ -8002,8 +8002,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-        is_required:
-          type: boolean
         max_attempts:
           type: integer
           maximum: 9223372036854775807
@@ -8036,8 +8034,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-        is_required:
-          type: boolean
         max_attempts:
           type: integer
           maximum: 9223372036854775807
@@ -9105,8 +9101,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-        is_required:
-          type: boolean
         max_attempts:
           type: integer
           maximum: 9223372036854775807
