@@ -10,6 +10,7 @@ import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
+import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 
 import {Router} from '@angular/router';
 
@@ -20,7 +21,7 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-notifications-page',
-  imports: [DatePipe, FormsModule, ButtonModule, SelectButtonModule, TableModule, TooltipModule, EmptyStateComponent],
+  imports: [DatePipe, FormsModule, ButtonModule, SelectButtonModule, TableModule, TooltipModule, EmptyStateComponent, TableSkeleton],
   templateUrl: './notifications.html',
   styleUrl: './notifications.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +38,7 @@ export class NotificationsPage implements OnInit {
   readonly rows = signal<NotificationReadDto[]>([]);
   readonly total = signal<number>(0);
   readonly loading = signal<boolean>(false);
+  readonly initialLoad = signal<boolean>(true);
   readonly now = signal<number>(Date.now());
 
   ngOnInit(): void {
@@ -134,6 +136,7 @@ export class NotificationsPage implements OnInit {
       .subscribe(({rows, total}) => {
         this.rows.set(rows);
         this.total.set(total);
+        this.initialLoad.set(false);
       });
   }
 }

@@ -24,7 +24,7 @@
 
 
   @if (loading()) {
-    <div class="question-detail__status">{{ editorUi().common.loading }}</div>
+    <app-loading-skeleton [rows]="2" [attr.aria-label]="editorUi().common.loading" />
   } @else if (error()) {
     <div class="question-detail__status question-detail__status--error">
       {{ error() }}

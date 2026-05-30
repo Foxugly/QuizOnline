@@ -3,9 +3,7 @@
 
   @switch (state()) {
     @case ('loading') {
-      <p-card>
-        <p class="muted">{{ ui().loadingMessage }}</p>
-      </p-card>
+      <app-loading-skeleton [rows]="3" [attr.aria-label]="ui().loadingMessage" />
     }
     @case ('pending') {
       @if (invite(); as inv) {

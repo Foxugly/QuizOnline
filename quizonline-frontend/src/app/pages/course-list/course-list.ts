@@ -18,6 +18,7 @@ import {CatalogService} from '../../services/catalog/catalog.service';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {BulkActionOption, BulkActionsComponent} from '../../shared/components/bulk-actions/bulk-actions';
+import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
@@ -76,6 +77,7 @@ const PAGE_SIZE = 20;
     TableModule,
     TagModule,
     BulkActionsComponent,
+    TableSkeleton,
   ],
   providers: [ConfirmationService],
   templateUrl: './course-list.html',
@@ -115,6 +117,7 @@ export class CourseList implements OnInit {
   protected readonly first = signal(0);
   protected readonly q = signal('');
   protected readonly loading = signal(false);
+  protected readonly initialLoad = signal(true);
   protected readonly selectedRows = signal<CourseListRow[]>([]);
   protected readonly applyingBulk = signal(false);
 
@@ -283,12 +286,14 @@ export class CourseList implements OnInit {
           this.courses.set((response?.results ?? []) as CourseListRowDto[]);
           this.totalCount.set(typeof response?.count === 'number' ? response.count : 0);
           this.loading.set(false);
+          this.initialLoad.set(false);
         },
         error: (err: unknown) => {
           logApiError('lms.course-list.load', err);
           this.courses.set([]);
           this.totalCount.set(0);
           this.loading.set(false);
+          this.initialLoad.set(false);
         },
       });
   }

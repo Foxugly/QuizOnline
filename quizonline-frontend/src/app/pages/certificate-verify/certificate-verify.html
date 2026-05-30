@@ -1,6 +1,6 @@
 <section class="verify-page">
   @if (loading()) {
-    <p class="verify-page__loading">{{ ui().loadingMessage }}</p>
+    <app-loading-skeleton [rows]="2" [attr.aria-label]="ui().loadingMessage" />
   } @else if (error() || !result()) {
     <p-card>
       <header class="verify-header">

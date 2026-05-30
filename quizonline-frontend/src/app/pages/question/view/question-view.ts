@@ -9,12 +9,13 @@ import {ToggleButtonModule} from 'primeng/togglebutton';
 import {FormsModule} from '@angular/forms';
 import {UserService} from '../../../services/user/user';
 import {QuizNavItem} from '../../../components/quiz-nav/quiz-nav';
+import {LoadingSkeleton} from '../../../shared/components/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-question-view',
   templateUrl: './question-view.html',
   styleUrl: './question-view.scss',
-  imports: [CommonModule, QuizQuestionComponent, ButtonModule, ToggleButtonModule, FormsModule],
+  imports: [CommonModule, QuizQuestionComponent, ButtonModule, ToggleButtonModule, FormsModule, LoadingSkeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionView implements OnInit {

@@ -7,6 +7,7 @@ import {TableModule} from 'primeng/table';
 import {CATALOG, CERTIFICATE_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 
@@ -41,7 +42,7 @@ interface CertificateRowVm {
 
 @Component({
   selector: 'app-certificate-list',
-  imports: [DatePipe, RouterLink, ButtonModule, TableModule, PageHeader],
+  imports: [DatePipe, RouterLink, ButtonModule, TableModule, PageHeader, TableSkeleton],
   templateUrl: './certificate-list.html',
   styleUrl: './certificate-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +52,7 @@ export class CertificateList {
   protected readonly ui = inject(UiTextService).localized(getCertificateListUiText);
 
   protected readonly rows = signal<CertificateRow[]>([]);
+  protected readonly loading = signal<boolean>(true);
   protected readonly catalogHref = CATALOG;
 
   protected readonly viewRows = computed<CertificateRowVm[]>(() =>
@@ -74,10 +76,12 @@ export class CertificateList {
         } else {
           this.rows.set(payload?.results ?? []);
         }
+        this.loading.set(false);
       },
       error: (err: unknown) => {
         logApiError('lms.certificate.list', err);
         this.rows.set([]);
+        this.loading.set(false);
       },
     });
   }

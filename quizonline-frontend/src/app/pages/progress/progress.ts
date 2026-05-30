@@ -9,6 +9,7 @@ import {TagModule} from 'primeng/tag';
 import {CATALOG} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
 import {RelativeDatePipe} from '../../shared/pipes/relative-date.pipe';
@@ -52,6 +53,7 @@ interface ProgressRowVm {
     TagModule,
     RelativeDatePipe,
     PageHeader,
+    TableSkeleton,
   ],
   templateUrl: './progress.html',
   styleUrl: './progress.scss',
@@ -64,6 +66,7 @@ export class Progress {
   protected readonly ui = this.uiSvc.localized(getProgressUiText);
   protected readonly common = this.uiSvc.localized(getLearningCommonUiText);
   protected readonly rows = signal<ProgressRow[]>([]);
+  protected readonly loading = signal<boolean>(true);
   protected readonly catalogHref = CATALOG;
 
   protected readonly viewRows = computed<ProgressRowVm[]>(() =>
@@ -85,10 +88,12 @@ export class Progress {
         } else {
           this.rows.set(payload?.results ?? []);
         }
+        this.loading.set(false);
       },
       error: (err: unknown) => {
         logApiError('lms.progress.list', err);
         this.rows.set([]);
+        this.loading.set(false);
       },
     });
   }

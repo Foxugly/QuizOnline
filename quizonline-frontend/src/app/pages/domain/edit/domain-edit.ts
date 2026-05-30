@@ -40,6 +40,7 @@ import {DomainEditorFormComponent} from '../../../components/domain-editor-form/
 import {DomainInvitationsTab} from '../../../components/domain-invitations-tab/domain-invitations-tab';
 import {DomainMembersTab} from '../../../components/domain-members-tab/domain-members-tab';
 import {EmptyStateComponent} from '../../../shared/components/empty-state/empty-state';
+import {LoadingSkeleton} from '../../../shared/components/loading-skeleton/loading-skeleton';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {runSave} from '../../../shared/forms/run-save';
@@ -105,6 +106,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     DomainInvitationsTab,
     DomainMembersTab,
     EmptyStateComponent,
+    LoadingSkeleton,
     RelativeDatePipe,
     DirtyGuardDirective,
     SavedAtComponent,

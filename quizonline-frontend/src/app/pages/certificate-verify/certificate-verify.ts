@@ -6,6 +6,7 @@ import {CardModule} from 'primeng/card';
 import {TagModule} from 'primeng/tag';
 
 import {logApiError} from '../../shared/api/api-errors';
+import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 
@@ -28,7 +29,7 @@ interface VerifyPayload {
 
 @Component({
   selector: 'app-certificate-verify',
-  imports: [DatePipe, CardModule, TagModule],
+  imports: [DatePipe, CardModule, TagModule, LoadingSkeleton],
   templateUrl: './certificate-verify.html',
   styleUrl: './certificate-verify.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
