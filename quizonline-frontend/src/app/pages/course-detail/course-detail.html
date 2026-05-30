@@ -10,7 +10,9 @@
     @if (canManage() && editHref(); as href) {
       <p-button slot="right"
         [routerLink]="href"
-        [label]="ui().editButton"
+        [pTooltip]="ui().editButton"
+        tooltipPosition="bottom"
+        [attr.aria-label]="ui().editButton"
         icon="pi pi-pencil"
         severity="info"
         [outlined]="true" />

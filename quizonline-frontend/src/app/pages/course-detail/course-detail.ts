@@ -6,6 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {CATALOG, COURSE_EDIT, LESSON_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
@@ -79,7 +80,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-course-detail',
-  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, EmptyStateComponent, LoadingSkeleton, PageHeader],
+  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, TooltipModule, EmptyStateComponent, LoadingSkeleton, PageHeader],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

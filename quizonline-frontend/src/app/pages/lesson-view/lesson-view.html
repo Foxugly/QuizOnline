@@ -17,7 +17,9 @@
         [outlined]="true"
         icon="pi pi-pencil"
         [routerLink]="href"
-        [label]="ui().editButton" />
+        [pTooltip]="ui().editButton"
+        tooltipPosition="bottom"
+        [attr.aria-label]="ui().editButton" />
     }
   </app-page-header>
 
