@@ -12,6 +12,11 @@ class Certificate(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="certificates")
     course = models.ForeignKey("course.Course", on_delete=models.PROTECT, related_name="certificates")
     issued_at = models.DateTimeField(auto_now_add=True)
+    # Frozen at issue time from ``course.certificate_validity_months``.
+    # ``NULL`` means "no expiration", matching ``validity_months == 0``.
+    # Changing the course policy later does NOT shift this date — already-
+    # issued certificates keep their original validity window.
+    expires_at = models.DateTimeField(null=True, blank=True)
     certificate_number = models.CharField(max_length=32, unique=True)
     verification_token = models.CharField(max_length=64, unique=True, db_index=True)
     pdf = models.FileField(upload_to="lms/certificates/", blank=True, null=True)

@@ -7,7 +7,6 @@ from language.serializers import LanguageReadSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from config.serializers import (
-    LocalizedNameDescriptionTranslationSerializer,
     LocalizedTranslationsDictField,
     UserSummarySerializer,
     localized_translations_map_schema,
@@ -18,6 +17,17 @@ from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
 LANG_CODES = {code for code, _ in settings.LANGUAGES}
+
+
+class LocalizedDomainTranslationSerializer(serializers.Serializer):
+    """Per-language payload for the Domain's translatable fields:
+    ``name``, ``description``, and the certificate-PDF
+    ``certificate_signatory_title`` (e.g. "President", "Directeur"). All
+    three are optional on PATCH — the writer fills in missing values
+    with empty strings, matching the legacy ``name + description`` API."""
+    name = serializers.CharField()
+    description = serializers.CharField(allow_blank=True, required=False, default="")
+    certificate_signatory_title = serializers.CharField(allow_blank=True, required=False, default="")
 
 
 class DomainReadSerializer(serializers.ModelSerializer):
@@ -48,6 +58,8 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "managers",
             "members",
             "notification_settings",
+            "certificate_logo",
+            "certificate_signatory_name",
             "created_at",
             "updated_at",
         ]
@@ -73,14 +85,18 @@ class DomainReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(
         localized_translations_map_schema(
-            LocalizedNameDescriptionTranslationSerializer,
-            "LocalizedNameDescriptionTranslations",
+            LocalizedDomainTranslationSerializer,
+            "LocalizedDomainTranslations",
         )
     )
     def get_translations(self, obj: Domain) -> dict[str, dict[str, str]]:
         data = {}
         for t in obj.translations.all():
-            data[t.language_code] = {"name": t.name or "", "description": t.description or ""}
+            data[t.language_code] = {
+                "name": t.name or "",
+                "description": t.description or "",
+                "certificate_signatory_title": t.certificate_signatory_title or "",
+            }
         return data
 
     def get_pending_join_requests_count(self, obj: Domain) -> int | None:
@@ -117,7 +133,7 @@ class DomainReadSerializer(serializers.ModelSerializer):
 class DomainWriteSerializer(serializers.ModelSerializer):
     allowed_languages = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all(), many=True, required=True)
     translations = LocalizedTranslationsDictField(
-        value_serializer=LocalizedNameDescriptionTranslationSerializer,
+        value_serializer=LocalizedDomainTranslationSerializer,
         write_only=True,
         required=True,
     )
@@ -136,6 +152,8 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "owner",
             "managers",
             "notification_settings",
+            "certificate_logo",
+            "certificate_signatory_name",
         ]
         # read_only_fields = ["id"]
 
@@ -151,6 +169,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
                 defaults={
                     "name": data.get("name", ""),
                     "description": data.get("description", ""),
+                    "certificate_signatory_title": data.get("certificate_signatory_title", ""),
                 },
             )
 
@@ -354,7 +373,7 @@ class DomainWriteSerializer(serializers.ModelSerializer):
 class DomainPartialSerializer(DomainWriteSerializer):
     allowed_languages = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all(), many=True, required=False)
     translations = LocalizedTranslationsDictField(
-        value_serializer=LocalizedNameDescriptionTranslationSerializer,
+        value_serializer=LocalizedDomainTranslationSerializer,
         write_only=True,
         required=False,
     )
