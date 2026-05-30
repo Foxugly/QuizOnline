@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
-import {Subject, Subscription, debounceTime} from 'rxjs';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -13,6 +13,7 @@ import {pickDefaultLang} from '../../../shared/learning/default-lang';
 import {VideoProvider, getLearningCommonUiText} from '../../../shared/learning/learning-common.i18n';
 import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../../shared/media/youtube';
 
+import {getBlockListEditorUiText} from '../../../shared/learning/block-list-editor/block-list-editor.i18n';
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
@@ -21,17 +22,11 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  *
  * Translatable: a per-language ``title`` (caption / aria-label).
  * Non-translatable: the canonical ``video_url`` and the
- * ``video_provider`` (``youtube`` / ``vimeo`` / ``upload``). The
- * provider is picked via a segmented control (one PrimeNG
- * ``p-selectButton`` row) rather than a dropdown so the three options
- * stay visible at a glance. The URL field auto-detects the provider
- * (YouTube / Vimeo host match) so the segment toggles itself as the
- * author types. When a valid YouTube / Vimeo URL is set, a preview
- * iframe is shown below for instant feedback.
+ * ``video_provider`` (``youtube`` / ``vimeo`` / ``upload``).
  */
 @Component({
   selector: 'app-video-block-editor',
-  imports: [FormsModule, InputTextModule, SelectButtonModule, TabsModule, BlockTranslateButton],
+  imports: [FormsModule, ButtonModule, InputTextModule, SelectButtonModule, TabsModule, BlockTranslateButton],
   template: `
     @if (!hideTitle()) {
       <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
@@ -41,10 +36,10 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
           }
           <div class="tablist-actions">
             <app-block-translate-button
-              [block]="block()"
+              [block]="currentBlock()"
               [availableLangs]="availableLangs()"
               [activeLang]="activeLang()"
-              (changed)="changed.emit($event)" />
+              (changed)="applyTranslationPatch($event)" />
           </div>
         </p-tablist>
         <p-tabpanels>
@@ -65,14 +60,14 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     <label class="field">
       {{ ui().fieldVideoUrl }}
       <input pInputText type="url" placeholder="https://www.youtube.com/watch?v=…"
-             [ngModel]="block().video_url"
+             [ngModel]="currentBlock().video_url"
              (ngModelChange)="onUrlChange($event)" />
     </label>
 
     <div class="field">
       <span>{{ ui().fieldVideoProvider }}</span>
       <p-selectButton [options]="providerOptions()"
-                      [ngModel]="block().video_provider || null"
+                      [ngModel]="currentBlock().video_provider || null"
                       optionLabel="label"
                       optionValue="value"
                       [allowEmpty]="false"
@@ -86,6 +81,18 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
                 [title]="ui().fieldVideoUrl"></iframe>
       </div>
     }
+
+    <div class="block-editor-footer">
+      <p-button type="button" severity="secondary" [outlined]="true"
+                [label]="listUi().cancelBlockLabel"
+                [disabled]="saving()"
+                (onClick)="cancel.emit()" />
+      <p-button type="button"
+                [label]="listUi().saveBlockLabel"
+                [loading]="saving()"
+                [disabled]="saving()"
+                (onClick)="save.emit(currentBlock())" />
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -93,21 +100,29 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     .preview { margin-top: 0.75rem; border: 1px solid var(--p-surface-border, #e5e7eb); border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 540px; }
     .preview iframe { width: 100%; height: 100%; border: 0; display: block; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
+    .block-editor-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VideoBlockEditor implements OnInit, OnDestroy {
+export class VideoBlockEditor implements OnInit {
   private readonly user = inject(UserService);
   private readonly sanitizer = inject(DomSanitizer);
   protected readonly ui = inject(UiTextService).localized(getBlockEditorsUiText);
   protected readonly common = inject(UiTextService).localized(getLearningCommonUiText);
+  protected readonly listUi = inject(UiTextService).localized(getBlockListEditorUiText);
 
-  block = input.required<ContentBlock>();
-  availableLangs = input<string[]>(['fr', 'en']);
+  readonly block = input.required<ContentBlock>();
+  readonly availableLangs = input<string[]>(['fr', 'en']);
   /** Hide the per-language title input (and its language tab strip,
    *  since the title is the only translatable field on this block). */
-  hideTitle = input<boolean>(false);
-  changed = output<Partial<ContentBlock>>();
+  readonly hideTitle = input<boolean>(false);
+  readonly saving = input<boolean>(false);
+
+  readonly save = output<ContentBlock>();
+  readonly cancel = output<void>();
+
+  private readonly localBlock = signal<ContentBlock | null>(null);
+  protected readonly currentBlock = computed(() => this.localBlock() ?? this.block());
 
   protected readonly activeLang = signal<string>('');
   private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
@@ -124,11 +139,12 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
    *  recognisable YouTube / Vimeo id can be extracted from the current
    *  ``video_url`` (or when the provider is ``upload``). */
   protected readonly previewUrl = computed<SafeResourceUrl | null>(() => {
-    const url = (this.block().video_url ?? '').trim();
+    const block = this.currentBlock();
+    const url = (block.video_url ?? '').trim();
     if (!url) {
       return null;
     }
-    const provider = this.block().video_provider || detectProvider(url);
+    const provider = block.video_provider || detectProvider(url);
     let embed: string | null = null;
     if (provider === 'youtube') {
       embed = toYoutubeEmbedUrl(url);
@@ -139,29 +155,19 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
     return embed ? this.sanitizer.bypassSecurityTrustResourceUrl(embed) : null;
   });
 
-  private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
-  private sub: Subscription | null = null;
-
   ngOnInit(): void {
     this.activeLang.set(this.defaultLang());
-    this.sub = this.debouncer$
-      .pipe(debounceTime(500))
-      .subscribe((patch) => this.changed.emit(patch));
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-    this.sub = null;
   }
 
   protected titleFor(lang: string): string {
-    return this.block().translations?.[lang]?.['title'] ?? '';
+    return this.currentBlock().translations?.[lang]?.['title'] ?? '';
   }
 
   protected onTitleChange(lang: string, value: string | null | undefined): void {
-    const tr = {...(this.block().translations ?? {})};
+    const current = this.currentBlock();
+    const tr = {...(current.translations ?? {})};
     tr[lang] = {...(tr[lang] ?? {}), title: value ?? ''};
-    this.debouncer$.next({translations: tr});
+    this.localBlock.set({...current, translations: tr});
   }
 
   protected onUrlChange(value: string | null | undefined): void {
@@ -169,19 +175,29 @@ export class VideoBlockEditor implements OnInit, OnDestroy {
     // HTML snippet. Peel the ``src`` out when that's what was pasted so
     // the bloc works without forcing the author to manually trim down.
     const url = extractIframeSrc(value ?? '');
-    const patch: Partial<ContentBlock> = {video_url: url};
+    const current = this.currentBlock();
     // Auto-detect provider when the URL matches a known host. Never
     // downgrade an explicit upload-mode pick; only set a provider when
     // we recognise the URL, leaving manual overrides untouched.
     const detected = detectProvider(url);
-    if (detected && this.block().video_provider !== detected) {
-      patch.video_provider = detected;
+    const next: ContentBlock = {...current, video_url: url};
+    if (detected && current.video_provider !== detected) {
+      next.video_provider = detected;
     }
-    this.debouncer$.next(patch);
+    this.localBlock.set(next);
   }
 
   protected onProviderChange(value: VideoProvider | '' | null | undefined): void {
-    this.debouncer$.next({video_provider: value ?? ''});
+    const current = this.currentBlock();
+    this.localBlock.set({...current, video_provider: value ?? ''});
+  }
+
+  protected applyTranslationPatch(patch: Partial<ContentBlock>): void {
+    if (!patch.translations) {
+      return;
+    }
+    const current = this.currentBlock();
+    this.localBlock.set({...current, translations: patch.translations});
   }
 }
 
