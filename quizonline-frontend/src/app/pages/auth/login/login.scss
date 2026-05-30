@@ -101,22 +101,6 @@
   text-decoration: underline;
 }
 
-/* PrimeNG's ``<p-button>`` host element is inline-block by default, so
- * the inner button cannot fill the card on its own — every submit /
- * toggle button on this page tags its host with ``login-submit-host`` to
- * stretch the host. ``styleClass="login-submit"`` then fills the inner
- * ``<button>`` inside it. We don't ``::ng-deep`` since the class binding
- * lands on the host element directly under the component's own
- * encapsulation. */
-.login-submit-host {
-  display: block;
-  width: 100%;
-}
-
-.login-submit {
-  width: 100%;
-}
-
 .login-page__divider {
   align-items: center;
   color: #94a3b8;
