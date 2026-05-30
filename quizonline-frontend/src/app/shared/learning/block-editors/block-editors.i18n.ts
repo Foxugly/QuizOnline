@@ -80,7 +80,7 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Impossible d\'envoyer le fichier.',
         todoPlaceholder: 'Éditeur à implémenter prochainement.',
         quizTemplatePlaceholder: 'Rechercher un quiz…',
-        translateButton: 'Traduire',
+        translateButton: 'Traduire depuis cet onglet',
         translateSuccessToast: 'Traduction appliquée.',
         translateErrorToast: 'Échec de la traduction automatique.',
       };
@@ -107,7 +107,7 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Kan het bestand niet uploaden.',
         todoPlaceholder: 'Editor volgt binnenkort.',
         quizTemplatePlaceholder: 'Een quiz zoeken…',
-        translateButton: 'Vertalen',
+        translateButton: 'Vertalen vanuit dit tabblad',
         translateSuccessToast: 'Vertaling toegepast.',
         translateErrorToast: 'Automatische vertaling mislukt.',
       };
@@ -134,7 +134,7 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Impossibile caricare il file.',
         todoPlaceholder: 'Editor in arrivo a breve.',
         quizTemplatePlaceholder: 'Cerca un quiz…',
-        translateButton: 'Traduci',
+        translateButton: 'Traduci da questa scheda',
         translateSuccessToast: 'Traduzione applicata.',
         translateErrorToast: 'Traduzione automatica non riuscita.',
       };
@@ -161,7 +161,7 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'No se pudo enviar el archivo.',
         todoPlaceholder: 'Editor próximamente.',
         quizTemplatePlaceholder: 'Buscar un quiz…',
-        translateButton: 'Traducir',
+        translateButton: 'Traducir desde esta pestaña',
         translateSuccessToast: 'Traducción aplicada.',
         translateErrorToast: 'La traducción automática falló.',
       };
@@ -187,7 +187,7 @@ export function getBlockEditorsUiText(
         uploadErrorToast: 'Could not upload the file.',
         todoPlaceholder: 'Editor coming soon.',
         quizTemplatePlaceholder: 'Search for a quiz…',
-        translateButton: 'Translate',
+        translateButton: 'Translate from this tab',
         translateSuccessToast: 'Translation applied.',
         translateErrorToast: 'Automatic translation failed.',
       };

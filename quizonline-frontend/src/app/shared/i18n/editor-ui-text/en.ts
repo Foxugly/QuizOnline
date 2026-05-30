@@ -19,7 +19,7 @@ export const EN: EditorUiText = {
     reopen: 'Reopen',
     login: 'Sign in',
     loading: 'Loading...',
-    translateOthers: 'Translate to other languages',
+    translateOthers: 'Translate from this tab',
     translating: 'Translating...',
     view: 'View',
     previous: 'Previous',

@@ -37,7 +37,6 @@
   "shell/ui-text:notifications.pageTitle",
   "shell/ui-text:preferences.tabNotifications",
 
-  "editor-ui-text:common.translateOthers",
   "editor-ui-text:common.translating",
   "editor-ui-text:quiz.questionLabel",
   "editor-ui-text:quiz.correctionLabel",

@@ -49,7 +49,7 @@ export const ES: EditorUiText = {
     required: 'Campo obligatorio.',
     emptyLanguages: 'Este dominio no tiene idiomas configurados.',
   },
-  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', delete: 'Eliminar', confirm: 'Confirmar', duplicate: 'Duplicar', edit: 'Editar', send: 'Enviar', sending: 'Enviando...', refresh: 'Actualizar', close: 'Cerrar', reopen: 'Reabrir', login: 'Iniciar sesión', loading: 'Cargando...', view: 'Ver', previous: 'Anterior', next: 'Siguiente', finish: 'Finalizar', quick: 'Rápido', downloadPdf: 'Descargar PDF', errorTitle: 'Error'},
+  common: {...EN.common, back: 'Volver', cancel: 'Cancelar', clean: 'Limpiar', save: 'Guardar', add: 'Agregar', create: 'Crear', delete: 'Eliminar', confirm: 'Confirmar', duplicate: 'Duplicar', edit: 'Editar', send: 'Enviar', sending: 'Enviando...', refresh: 'Actualizar', close: 'Cerrar', reopen: 'Reabrir', login: 'Iniciar sesión', loading: 'Cargando...', translateOthers: 'Traducir desde esta pestaña', view: 'Ver', previous: 'Anterior', next: 'Siguiente', finish: 'Finalizar', quick: 'Rápido', downloadPdf: 'Descargar PDF', errorTitle: 'Error'},
   questionForm: {
     ...EN.questionForm,
     context: 'Contexto',
