@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -61,7 +60,7 @@ interface BlockOutlineItem {
   styleUrl: './lesson-reader.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LessonReader implements AfterViewInit, OnDestroy {
+export class LessonReader implements OnDestroy {
   private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly zone = inject(NgZone);
   private readonly userService = inject(UserService);
@@ -105,12 +104,6 @@ export class LessonReader implements AfterViewInit, OnDestroy {
       this.scrollSpy();
       queueMicrotask(() => this.rewireScrollSpy());
     });
-  }
-
-  ngAfterViewInit(): void {
-    // The effect above already kicked off — nothing extra to do here,
-    // but the lifecycle hook is declared so the class composes
-    // cleanly with the DI-supplied ElementRef on first paint.
   }
 
   ngOnDestroy(): void {
