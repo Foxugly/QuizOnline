@@ -49,6 +49,9 @@
       </div>
     </div>
 
+    @if (initialLoad()) {
+      <app-table-skeleton [rows]="6" [columns]="8" />
+    } @else {
     <p-table
       [dataKey]="'id'"
       [lazy]="true"
@@ -127,6 +130,7 @@
         </tr>
       </ng-template>
     </p-table>
+    }
   </div>
 </div>
 

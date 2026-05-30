@@ -26,6 +26,9 @@
     </p-selectbutton>
   </div>
 
+  @if (initialLoad()) {
+    <app-table-skeleton [rows]="6" [columns]="3" />
+  } @else {
   <p-table
     [value]="rows()"
     [lazy]="true"
@@ -91,4 +94,5 @@
       </tr>
     </ng-template>
   </p-table>
+  }
 </div>
