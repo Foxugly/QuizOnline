@@ -2,11 +2,13 @@ import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, out
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
+import {SelectButtonModule} from 'primeng/selectbutton';
 import {TabsModule} from 'primeng/tabs';
 import {TextareaModule} from 'primeng/textarea';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {CALLOUT_VARIANTS, CalloutVariant, DEFAULT_CALLOUT_VARIANT, readCalloutVariant} from '../../../shared/learning/callout-variants';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickDefaultLang} from '../../../shared/learning/default-lang';
 
@@ -16,10 +18,10 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
 
 /**
  * Editor for the ``callout`` ContentBlock — an info / tip banner with
- * a localized ``title`` and a localized ``callout_text`` body. Both
- * fields are translatable; non-translatable callout colour / variant
- * is currently stored in ``metadata`` and not exposed by this MVP
- * editor.
+ * a localized ``title``, a localized ``callout_text`` body, and a
+ * semantic ``variant`` (``info`` / ``success`` / ``warning`` /
+ * ``error``) that drives the left-border colour. The variant is
+ * non-translatable and lives in ``block.metadata.variant``.
  *
  * Explicit-save model (see ``block-list-editor``):
  * - every input writes to a ``localBlock`` signal, never directly to
@@ -30,8 +32,19 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-callout-block-editor',
-  imports: [FormsModule, ButtonModule, InputTextModule, TabsModule, TextareaModule, BlockTranslateButton],
+  imports: [FormsModule, ButtonModule, InputTextModule, SelectButtonModule, TabsModule, TextareaModule, BlockTranslateButton],
   template: `
+    <div class="variant-row">
+      <span class="variant-row__label">{{ ui().fieldCalloutVariant }}</span>
+      <p-selectButton
+        [options]="variantOptions()"
+        [ngModel]="currentVariant()"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+        (ngModelChange)="onVariantChange($event)" />
+    </div>
+
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
       <p-tablist>
         @for (lang of availableLangs(); track lang) {
@@ -82,6 +95,8 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     :host { display: block; }
     label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; margin-top: 0.5rem; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
+    .variant-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .variant-row__label { color: var(--text-color-secondary, #6b7280); }
     .block-editor-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -114,6 +129,19 @@ export class CalloutBlockEditor implements OnInit {
 
   protected readonly currentBlock = computed(() => this.localBlock() ?? this.block());
 
+  protected readonly currentVariant = computed<CalloutVariant>(() => readCalloutVariant(this.currentBlock()));
+
+  protected readonly variantOptions = computed<Array<{value: CalloutVariant; label: string}>>(() => {
+    const t = this.ui();
+    const labelByVariant: Record<CalloutVariant, string> = {
+      info: t.calloutVariantInfo,
+      success: t.calloutVariantSuccess,
+      warning: t.calloutVariantWarning,
+      error: t.calloutVariantError,
+    };
+    return CALLOUT_VARIANTS.map((value) => ({value, label: labelByVariant[value]}));
+  });
+
   protected readonly activeLang = signal<string>('');
   private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
@@ -134,6 +162,15 @@ export class CalloutBlockEditor implements OnInit {
     const tr = {...(current.translations ?? {})};
     tr[lang] = {...(tr[lang] ?? {}), [field]: value ?? ''};
     this.localBlock.set({...current, translations: tr});
+  }
+
+  protected onVariantChange(value: CalloutVariant | null | undefined): void {
+    const next: CalloutVariant = value ?? DEFAULT_CALLOUT_VARIANT;
+    const current = this.currentBlock();
+    this.localBlock.set({
+      ...current,
+      metadata: {...(current.metadata ?? {}), variant: next},
+    });
   }
 
   /** Apply a partial patch produced by the inline ``Translate from
