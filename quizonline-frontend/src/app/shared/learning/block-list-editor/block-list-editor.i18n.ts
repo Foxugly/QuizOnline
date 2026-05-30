@@ -16,7 +16,6 @@ export interface BlockListEditorUiText {
   deleteBlockAria: string;
   /** Header button: switch a readonly block back to edit mode. */
   editBlockAria: string;
-  editBlockLabel: string;
   /** Bottom-right footer buttons of an editor in edit mode. */
   saveBlockLabel: string;
   cancelBlockLabel: string;
@@ -40,7 +39,6 @@ export function getBlockListEditorUiText(
         addBlockHint: 'Ajouter un bloc :',
         deleteBlockAria: 'Supprimer le bloc',
         editBlockAria: 'Éditer le bloc',
-        editBlockLabel: 'Éditer',
         saveBlockLabel: 'Enregistrer',
         cancelBlockLabel: 'Annuler',
         blockAddedToast: 'Bloc ajouté.',
@@ -58,7 +56,6 @@ export function getBlockListEditorUiText(
         addBlockHint: 'Een blok toevoegen:',
         deleteBlockAria: 'Blok verwijderen',
         editBlockAria: 'Blok bewerken',
-        editBlockLabel: 'Bewerken',
         saveBlockLabel: 'Opslaan',
         cancelBlockLabel: 'Annuleren',
         blockAddedToast: 'Blok toegevoegd.',
@@ -76,7 +73,6 @@ export function getBlockListEditorUiText(
         addBlockHint: 'Aggiungere un blocco:',
         deleteBlockAria: 'Elimina il blocco',
         editBlockAria: 'Modifica il blocco',
-        editBlockLabel: 'Modifica',
         saveBlockLabel: 'Salva',
         cancelBlockLabel: 'Annulla',
         blockAddedToast: 'Blocco aggiunto.',
@@ -94,7 +90,6 @@ export function getBlockListEditorUiText(
         addBlockHint: 'Añadir un bloque:',
         deleteBlockAria: 'Eliminar el bloque',
         editBlockAria: 'Editar el bloque',
-        editBlockLabel: 'Editar',
         saveBlockLabel: 'Guardar',
         cancelBlockLabel: 'Cancelar',
         blockAddedToast: 'Bloque añadido.',
@@ -111,7 +106,6 @@ export function getBlockListEditorUiText(
         addBlockHint: 'Add a block:',
         deleteBlockAria: 'Delete block',
         editBlockAria: 'Edit block',
-        editBlockLabel: 'Edit',
         saveBlockLabel: 'Save',
         cancelBlockLabel: 'Cancel',
         blockAddedToast: 'Block added.',
