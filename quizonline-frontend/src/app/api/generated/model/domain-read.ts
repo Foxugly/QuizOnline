@@ -9,13 +9,13 @@
  */
 import { JoinPolicyEnumDto } from './join-policy-enum';
 import { UserSummaryDto } from './user-summary';
+import { LocalizedDomainTranslationDto } from './localized-domain-translation';
 import { LanguageReadDto } from './language-read';
-import { LocalizedNameDescriptionTranslationDto } from './localized-name-description-translation';
 
 
 export interface DomainReadDto { 
     readonly id: number;
-    readonly translations: { [key: string]: LocalizedNameDescriptionTranslationDto; };
+    readonly translations: { [key: string]: LocalizedDomainTranslationDto; };
     readonly allowed_languages: Array<LanguageReadDto>;
     readonly active: boolean;
     readonly 'public': boolean;
@@ -28,6 +28,8 @@ export interface DomainReadDto {
     readonly managers: Array<UserSummaryDto>;
     readonly members: Array<UserSummaryDto>;
     readonly notification_settings: any | null;
+    readonly certificate_logo: string | null;
+    readonly certificate_signatory_name: string;
     readonly created_at: string;
     readonly updated_at: string;
 }

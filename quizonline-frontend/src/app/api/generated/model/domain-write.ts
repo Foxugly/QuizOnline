@@ -18,6 +18,8 @@ export interface DomainWriteDto {
     owner?: number;
     managers: Array<number>;
     notification_settings?: any | null;
+    certificate_logo?: string | null;
+    certificate_signatory_name?: string;
 }
 
 

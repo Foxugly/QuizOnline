@@ -27,6 +27,11 @@ export interface CourseWriteDto {
     cover_image?: string | null;
     domain: number;
     translations: { [key: string]: { [key: string]: string; }; };
+    issues_certificate?: boolean;
+    /**
+     * 0 = no expiration.
+     */
+    certificate_validity_months?: number;
 }
 
 

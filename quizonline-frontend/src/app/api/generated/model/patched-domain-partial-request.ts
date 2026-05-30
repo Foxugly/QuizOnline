@@ -8,11 +8,11 @@
  * Do not edit the class manually.
  */
 import { JoinPolicyEnumDto } from './join-policy-enum';
-import { LocalizedNameDescriptionTranslationRequestDto } from './localized-name-description-translation-request';
+import { LocalizedDomainTranslationRequestDto } from './localized-domain-translation-request';
 
 
 export interface PatchedDomainPartialRequestDto { 
-    translations?: { [key: string]: LocalizedNameDescriptionTranslationRequestDto; };
+    translations?: { [key: string]: LocalizedDomainTranslationRequestDto; };
     allowed_languages?: Array<number>;
     active?: boolean;
     'public'?: boolean;
@@ -20,6 +20,8 @@ export interface PatchedDomainPartialRequestDto {
     owner?: number;
     managers?: Array<number>;
     notification_settings?: any | null;
+    certificate_logo?: Blob | null;
+    certificate_signatory_name?: string;
 }
 
 
