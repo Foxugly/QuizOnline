@@ -23,28 +23,28 @@
         <div class="assign-toolbar__roles">
           <p-button
             [label]="texts().assignDialog.roleAll"
-            [outlined]="roleFilter() !== 'all'"
+            [severity]="roleFilter() === 'all' ? 'primary' : 'secondary'"
             size="small"
             type="button"
             (onClick)="setRoleFilter('all')"
           ></p-button>
           <p-button
             [label]="texts().assignDialog.roleOwner"
-            [outlined]="roleFilter() !== 'owner'"
+            [severity]="roleFilter() === 'owner' ? 'primary' : 'secondary'"
             size="small"
             type="button"
             (onClick)="setRoleFilter('owner')"
           ></p-button>
           <p-button
             [label]="texts().assignDialog.roleManager"
-            [outlined]="roleFilter() !== 'manager'"
+            [severity]="roleFilter() === 'manager' ? 'primary' : 'secondary'"
             size="small"
             type="button"
             (onClick)="setRoleFilter('manager')"
           ></p-button>
           <p-button
             [label]="texts().assignDialog.roleMember"
-            [outlined]="roleFilter() !== 'member'"
+            [severity]="roleFilter() === 'member' ? 'primary' : 'secondary'"
             size="small"
             type="button"
             (onClick)="setRoleFilter('member')"
