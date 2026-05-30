@@ -19,6 +19,7 @@ import {BlockType, getLearningCommonUiText} from '../learning-common.i18n';
 import {BLOCK_ICONS} from '../block-icons';
 import {BlockRole, ContentBlock} from '../content-block.types';
 
+import {BlockCard} from '../block-card/block-card';
 import {RichTextBlockEditor} from '../../../pages/lesson-edit/block-editors/rich-text-block-editor';
 import {ImageBlockEditor} from '../../../pages/lesson-edit/block-editors/image-block-editor';
 import {VideoBlockEditor} from '../../../pages/lesson-edit/block-editors/video-block-editor';
@@ -27,7 +28,6 @@ import {QuizBlockEditor} from '../../../pages/lesson-edit/block-editors/quiz-blo
 import {CalloutBlockEditor} from '../../../pages/lesson-edit/block-editors/callout-block-editor';
 import {CodeBlockEditor} from '../../../pages/lesson-edit/block-editors/code-block-editor';
 import {EmbedBlockEditor} from '../../../pages/lesson-edit/block-editors/embed-block-editor';
-import {SavedIndicator} from '../../../pages/lesson-edit/block-editors/saved-indicator';
 
 import {getBlockListEditorUiText} from './block-list-editor.i18n';
 
@@ -39,11 +39,24 @@ export type BlockHostType = 'lesson' | 'question' | 'answer_option';
 /**
  * Reusable block-list editor extracted from ``pages/lesson-edit``.
  *
- * Renders an ordered list of :class:`ContentBlock` rows with full DnD
- * reorder, per-type editor host, "saved at HH:MM" indicator, delete
- * button, and an "add block" bar at the bottom. Each editor patches
- * its block via debounced PATCH ``/api/block/{id}/`` calls (or the
- * matching multipart upload for image / file blocks).
+ * Each block has its own ``edit | readonly`` mode managed locally by
+ * this component. Newly added blocks land in **edit mode** and carry
+ * a "Save" + "Cancel" footer; existing blocks open **readonly** with
+ * an "Edit" affordance in the header. The author drives every save
+ * explicitly — there is no debounced auto-save on block content (only
+ * structural mutations like drag-and-drop reorder still go through
+ * silently).
+ *
+ * Cancel semantics:
+ *
+ * - On a *fresh draft* (a block created with ``+ Add`` but never
+ *   persisted to a non-empty state), Cancel issues a ``DELETE
+ *   /api/block/{id}/`` so the ghost row doesn't outlive the user
+ *   walking away from the screen.
+ * - On an existing block the user came back to edit, Cancel just
+ *   flips the mode back to readonly — the editor's local state is
+ *   discarded and the parent's ``ContentBlock`` snapshot keeps
+ *   winning. No DELETE.
  *
  * Inputs:
  * - ``blocks`` — the ordered list of blocks (controlled by the
@@ -61,13 +74,16 @@ export type BlockHostType = 'lesson' | 'question' | 'answer_option';
  * - ``blocksChanged`` — fired after every reload following a CRUD or
  *   reorder; the parent should reload its block list (typically by
  *   re-fetching the host).
+ * - ``blockUpdated`` — fired with the freshly-stored payload after
+ *   an explicit Save succeeds, so the parent can splice the response
+ *   into its local list without a full GET.
  */
 @Component({
   selector: 'app-block-list-editor',
   imports: [
     DragDropModule,
     ButtonModule,
-    SavedIndicator,
+    BlockCard,
     RichTextBlockEditor,
     ImageBlockEditor,
     VideoBlockEditor,
@@ -107,19 +123,28 @@ export class BlockListEditor {
   readonly richTextAutogrow = input<boolean>(false);
 
   readonly blocksChanged = output<void>();
-  /** Fired with the freshly-updated block payload after a successful
-   *  per-block PATCH (debounced keystroke save, etc.). Lets the parent
-   *  merge the response into its local list **without** round-tripping
-   *  through a full ``GET /api/<host>/{id}/`` after every save —
-   *  drastically reduces traffic on screens with several blocks
-   *  whose author types continuously. Structural mutations (add /
-   *  delete / reorder) still fall back on ``blocksChanged``. */
+  /** Fired with the freshly-stored block payload after a successful
+   *  per-block explicit Save. Lets the parent merge the response into
+   *  its local list without round-tripping through a full
+   *  ``GET /api/<host>/{id}/`` after every save. Structural mutations
+   *  (add / delete / reorder) still fall back on ``blocksChanged``. */
   readonly blockUpdated = output<ContentBlock>();
 
-  /** Map of ``blockId -> lastSavedAt`` (ms epoch). Built locally so
-   *  every embedded block-list keeps its own saved-at indicator
-   *  without colliding with sibling lists in the same view. */
-  protected readonly lastSavedAt = signal<Map<number, number>>(new Map());
+  /** Block ids currently in edit mode. Initially empty — every block
+   *  loaded from the parent's list opens readonly. ``addBlock`` adds
+   *  the new id here so the new block opens directly in edit mode. */
+  protected readonly editingIds = signal<Set<number>>(new Set());
+
+  /** Block ids that were created via ``+ Add`` but have not yet been
+   *  successfully saved. Used by ``cancelBlock`` to decide whether
+   *  Cancel = discard local edits (existing block) or Cancel =
+   *  delete the ghost draft (never-saved block). */
+  protected readonly freshDraftIds = signal<Set<number>>(new Set());
+
+  /** Block ids whose Save is currently in flight. Used to disable the
+   *  Save / Cancel footer buttons during the round-trip so a rapid
+   *  double-click can't fire two PATCHes against the same block. */
+  protected readonly savingIds = signal<Set<number>>(new Set());
 
   /** Guard against two rapid clicks on the same "+ <type>" button
    *  racing two POSTs with the same ``order`` computed from the same
@@ -158,6 +183,14 @@ export class BlockListEditor {
     return `block-${this.hostType()}-${this.hostId()}-${blockId}`;
   }
 
+  protected isEditing(blockId: number): boolean {
+    return this.editingIds().has(blockId);
+  }
+
+  protected isSaving(blockId: number): boolean {
+    return this.savingIds().has(blockId);
+  }
+
   protected addBlock(type: BlockType): void {
     // Defensive guard: the "+ Quiz" button is hidden on question and
     // answer-option hosts (``blockTypes`` filter), but if a stale view
@@ -182,9 +215,23 @@ export class BlockListEditor {
     payload[this.hostType()] = this.hostId();
 
     this.creating.set(true);
-    this.http.post(`${this.apiBaseUrl}/block/`, payload).subscribe({
-      next: () => {
+    this.http.post<ContentBlock>(`${this.apiBaseUrl}/block/`, payload).subscribe({
+      next: (created) => {
         this.creating.set(false);
+        // Flag the new block as a fresh draft + open it in edit mode.
+        // The parent will pick the new row up via ``blocksChanged``;
+        // by the time it lands in ``this.blocks()`` the editing /
+        // fresh-draft sets are already armed.
+        this.editingIds.update((s) => {
+          const next = new Set(s);
+          next.add(created.id);
+          return next;
+        });
+        this.freshDraftIds.update((s) => {
+          const next = new Set(s);
+          next.add(created.id);
+          return next;
+        });
         this.blocksChanged.emit();
         this.toast.add({severity: 'success', summary: this.ui().blockAddedToast});
       },
@@ -199,6 +246,16 @@ export class BlockListEditor {
   protected deleteBlock(id: number): void {
     this.http.delete(`${this.apiBaseUrl}/block/${id}/`).subscribe({
       next: () => {
+        this.editingIds.update((s) => {
+          const next = new Set(s);
+          next.delete(id);
+          return next;
+        });
+        this.freshDraftIds.update((s) => {
+          const next = new Set(s);
+          next.delete(id);
+          return next;
+        });
         this.blocksChanged.emit();
         this.toast.add({severity: 'success', summary: this.ui().blockDeletedToast});
       },
@@ -239,30 +296,78 @@ export class BlockListEditor {
     });
   }
 
-  protected savedAtFor(blockId: number): Date | null {
-    const ts = this.lastSavedAt().get(blockId);
-    return ts ? new Date(ts) : null;
+  /** User clicked "Édit" on a readonly block — flip its mode and let
+   *  the editor's local-state machinery kick in. No server hit. */
+  protected editBlock(blockId: number): void {
+    this.editingIds.update((s) => {
+      const next = new Set(s);
+      next.add(blockId);
+      return next;
+    });
   }
 
-  protected onBlockChanged(blockId: number, patch: Partial<ContentBlock>): void {
-    this.http.patch<ContentBlock>(`${this.apiBaseUrl}/block/${blockId}/`, patch).subscribe({
-      next: (updated) => {
-        this.lastSavedAt.update((m) => {
-          const next = new Map(m);
-          next.set(blockId, Date.now());
+  /** User clicked "Enregistrer" on an editor in edit mode. Send the
+   *  current local snapshot of the block to the backend. On 2xx, flip
+   *  the block back to readonly and clear the fresh-draft flag (if
+   *  set). On error, stay in edit mode and surface a toast.
+   */
+  protected saveBlock(blockId: number, snapshot: ContentBlock): void {
+    if (this.savingIds().has(blockId)) {
+      return;
+    }
+    this.savingIds.update((s) => {
+      const next = new Set(s);
+      next.add(blockId);
+      return next;
+    });
+    this.http.patch<ContentBlock>(`${this.apiBaseUrl}/block/${blockId}/`, snapshot).subscribe({
+      next: (saved) => {
+        this.savingIds.update((s) => {
+          const next = new Set(s);
+          next.delete(blockId);
           return next;
         });
-        // Emit the server's freshly-stored representation so the
-        // parent can merge it into its local list. No full refetch
-        // is needed for a single-block payload change — every
-        // dependent view (preview, outline, post-upload URL) reads
-        // through the same signal we just updated.
-        this.blockUpdated.emit(updated);
+        this.editingIds.update((s) => {
+          const next = new Set(s);
+          next.delete(blockId);
+          return next;
+        });
+        this.freshDraftIds.update((s) => {
+          const next = new Set(s);
+          next.delete(blockId);
+          return next;
+        });
+        this.blockUpdated.emit(saved);
+        this.toast.add({severity: 'success', summary: this.ui().blockSavedToast});
       },
       error: (err: unknown) => {
-        logApiError('lms.block-list.patch', err);
+        this.savingIds.update((s) => {
+          const next = new Set(s);
+          next.delete(blockId);
+          return next;
+        });
+        logApiError('lms.block-list.save', err);
         this.toast.addApiError(err, this.ui().blockErrorToast);
+        // Intentional: stay in edit mode so the author can fix the
+        // payload and click Save again without losing their edits.
       },
+    });
+  }
+
+  /** User clicked "Annuler" on an editor in edit mode.
+   *  - Fresh draft (never saved): DELETE the ghost row server-side.
+   *  - Existing block: flip mode back to readonly; the editor will
+   *    drop its local state and re-render from the parent's snapshot.
+   */
+  protected cancelBlock(blockId: number): void {
+    if (this.freshDraftIds().has(blockId)) {
+      this.deleteBlock(blockId);
+      return;
+    }
+    this.editingIds.update((s) => {
+      const next = new Set(s);
+      next.delete(blockId);
+      return next;
     });
   }
 }

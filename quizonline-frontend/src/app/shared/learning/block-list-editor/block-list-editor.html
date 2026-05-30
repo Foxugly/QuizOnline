@@ -13,55 +13,81 @@
           <i [class]="blockIcons[block.block_type]"></i>
           {{ common().blockTypeLabels[block.block_type] }}
         </span>
-        <app-saved-indicator [savedAt]="savedAtFor(block.id)" />
+        <span class="block-header__spacer"></span>
+        @if (!isEditing(block.id)) {
+          <p-button icon="pi pi-pencil" severity="secondary" size="small"
+                    [label]="ui().editBlockLabel"
+                    (onClick)="editBlock(block.id)"
+                    [attr.aria-label]="ui().editBlockAria" />
+        }
         <p-button icon="pi pi-trash" severity="danger" size="small"
                   (onClick)="deleteBlock(block.id)"
                   [attr.aria-label]="ui().deleteBlockAria" />
       </div>
       <div class="block-body">
-        @switch (block.block_type) {
-          @case ('rich_text') {
-            <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                        [hideTitle]="hideBlockTitles()"
-                                        [autogrow]="richTextAutogrow()"
-                                        (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('image') {
-            <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    [hideTitle]="hideBlockTitles()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('video') {
-            <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    [hideTitle]="hideBlockTitles()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('file') {
-            <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   [hideTitle]="hideBlockTitles()"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('quiz') {
-            <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   [domainId]="domainId() || null"
-                                   [hideTitle]="hideBlockTitles()"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('callout') {
-            <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+        @if (isEditing(block.id)) {
+          @switch (block.block_type) {
+            @case ('rich_text') {
+              <app-rich-text-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                          [hideTitle]="hideBlockTitles()"
+                                          [autogrow]="richTextAutogrow()"
+                                          [saving]="isSaving(block.id)"
+                                          (save)="saveBlock(block.id, $event)"
+                                          (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('image') {
+              <app-image-block-editor [block]="block" [availableLangs]="availableLangs()"
                                       [hideTitle]="hideBlockTitles()"
-                                      (changed)="onBlockChanged(block.id, $event)" />
+                                      [saving]="isSaving(block.id)"
+                                      (save)="saveBlock(block.id, $event)"
+                                      (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('video') {
+              <app-video-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      [hideTitle]="hideBlockTitles()"
+                                      [saving]="isSaving(block.id)"
+                                      (save)="saveBlock(block.id, $event)"
+                                      (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('file') {
+              <app-file-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     [hideTitle]="hideBlockTitles()"
+                                     [saving]="isSaving(block.id)"
+                                     (save)="saveBlock(block.id, $event)"
+                                     (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('quiz') {
+              <app-quiz-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     [domainId]="domainId() || null"
+                                     [hideTitle]="hideBlockTitles()"
+                                     [saving]="isSaving(block.id)"
+                                     (save)="saveBlock(block.id, $event)"
+                                     (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('callout') {
+              <app-callout-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                        [hideTitle]="hideBlockTitles()"
+                                        [saving]="isSaving(block.id)"
+                                        (save)="saveBlock(block.id, $event)"
+                                        (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('code') {
+              <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                     [hideTitle]="hideBlockTitles()"
+                                     [saving]="isSaving(block.id)"
+                                     (save)="saveBlock(block.id, $event)"
+                                     (cancel)="cancelBlock(block.id)" />
+            }
+            @case ('embed') {
+              <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
+                                      [hideTitle]="hideBlockTitles()"
+                                      [saving]="isSaving(block.id)"
+                                      (save)="saveBlock(block.id, $event)"
+                                      (cancel)="cancelBlock(block.id)" />
+            }
           }
-          @case ('code') {
-            <app-code-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                   [hideTitle]="hideBlockTitles()"
-                                   (changed)="onBlockChanged(block.id, $event)" />
-          }
-          @case ('embed') {
-            <app-embed-block-editor [block]="block" [availableLangs]="availableLangs()"
-                                    [hideTitle]="hideBlockTitles()"
-                                    (changed)="onBlockChanged(block.id, $event)" />
-          }
+        } @else {
+          <app-block-card [block]="block" />
         }
       </div>
     </div>
