@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, effect, inject, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {AutoCompleteModule, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
+import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {TagModule} from 'primeng/tag';
-import {Subject, Subscription, debounceTime} from 'rxjs';
 
 import {QuizTemplateListDto} from '../../../api/generated/model/quiz-template-list';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
@@ -14,6 +14,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickDefaultLang} from '../../../shared/learning/default-lang';
 
+import {getBlockListEditorUiText} from '../../../shared/learning/block-list-editor/block-list-editor.i18n';
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
@@ -30,7 +31,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-quiz-block-editor',
-  imports: [FormsModule, AutoCompleteModule, InputTextModule, TabsModule, TagModule, BlockTranslateButton],
+  imports: [FormsModule, AutoCompleteModule, ButtonModule, InputTextModule, TabsModule, TagModule, BlockTranslateButton],
   template: `
     @if (!hideTitle()) {
       <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
@@ -40,10 +41,10 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
           }
           <div class="tablist-actions">
             <app-block-translate-button
-              [block]="block()"
+              [block]="currentBlock()"
               [availableLangs]="availableLangs()"
               [activeLang]="activeLang()"
-              (changed)="changed.emit($event)" />
+              (changed)="applyTranslationPatch($event)" />
           </div>
         </p-tablist>
         <p-tabpanels>
@@ -92,6 +93,18 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
         </div>
       }
     </div>
+
+    <div class="block-editor-footer">
+      <p-button type="button" severity="secondary" [outlined]="true"
+                [label]="listUi().cancelBlockLabel"
+                [disabled]="saving()"
+                (onClick)="cancel.emit()" />
+      <p-button type="button"
+                [label]="listUi().saveBlockLabel"
+                [loading]="saving()"
+                [disabled]="saving()"
+                (onClick)="save.emit(currentBlock())" />
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -100,48 +113,38 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     .picker-item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-width: 18rem; }
     .picker-item__meta { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-color-secondary, #6b7280); font-size: 0.78rem; }
     .selected-preview { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-color-secondary, #6b7280); font-size: 0.78rem; margin-top: 0.3rem; }
+    .block-editor-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizBlockEditor implements OnInit, OnDestroy {
+export class QuizBlockEditor implements OnInit {
   private readonly user = inject(UserService);
   private readonly quizTemplates = inject(QuizTemplateService);
   protected readonly ui = inject(UiTextService).localized(getBlockEditorsUiText);
+  protected readonly listUi = inject(UiTextService).localized(getBlockListEditorUiText);
 
-  block = input.required<ContentBlock>();
-  availableLangs = input<string[]>(['fr', 'en']);
-  /** Domain id of the parent course — narrows the picker so authors
-   *  cannot pick a quiz from another domain (the backend rejects that
-   *  combo on save anyway, but pre-filtering keeps the picker honest). */
-  domainId = input<number | null>(null);
-  /** Hide the per-language title input (and its language tab strip,
-   *  since the title is the only translatable field on this block). */
-  hideTitle = input<boolean>(false);
-  changed = output<Partial<ContentBlock>>();
+  readonly block = input.required<ContentBlock>();
+  readonly availableLangs = input<string[]>(['fr', 'en']);
+  readonly domainId = input<number | null>(null);
+  readonly hideTitle = input<boolean>(false);
+  readonly saving = input<boolean>(false);
+
+  readonly save = output<ContentBlock>();
+  readonly cancel = output<void>();
 
   protected readonly activeLang = signal<string>('');
   private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
-  /** All quiz templates accessible to the user in the parent domain.
-   *  Loaded once when ``domainId`` resolves; suggestions are derived
-   *  from this cache so typing stays instant after the first fetch. */
+  private readonly localBlock = signal<ContentBlock | null>(null);
+  protected readonly currentBlock = computed(() => this.localBlock() ?? this.block());
+
   protected readonly allTemplates = signal<QuizTemplateListDto[]>([]);
   protected readonly suggestions = signal<QuizTemplateListDto[]>([]);
-  /** The currently-selected template view-model (or ``null`` until a
-   *  template is picked / loaded). Resolved by matching ``block.quiz_template``
-   *  against ``allTemplates()`` once both are present. */
   protected readonly selectedTemplate = signal<QuizTemplateListDto | null>(null);
 
-  private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
-  private sub: Subscription | null = null;
-
   constructor() {
-    // Whenever the cache or the block's quiz_template id changes, keep
-    // ``selectedTemplate`` in sync — handles both first-paint
-    // (templates load late) and external mutations (the shell may
-    // patch the block after a save).
     effect(() => {
-      const id = this.block().quiz_template;
+      const id = this.currentBlock().quiz_template;
       const cache = this.allTemplates();
       if (!id) {
         this.selectedTemplate.set(null);
@@ -154,21 +157,9 @@ export class QuizBlockEditor implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.activeLang.set(this.defaultLang());
-    this.sub = this.debouncer$
-      .pipe(debounceTime(500))
-      .subscribe((patch) => this.changed.emit(patch));
     this.loadTemplates();
   }
 
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-    this.sub = null;
-  }
-
-  /** Fetch the first page of quiz templates accessible to the user.
-   *  Delegates to the cached ``QuizTemplateService.listForPicker`` so
-   *  every quiz block on the same lesson shares one round-trip
-   *  (60 s TTL, busted on quiz-template writes). */
   private loadTemplates(): void {
     this.quizTemplates.listForPicker(this.domainId()).subscribe({
       next: (list) => {
@@ -194,21 +185,29 @@ export class QuizBlockEditor implements OnInit, OnDestroy {
   }
 
   protected titleFor(lang: string): string {
-    return this.block().translations?.[lang]?.['title'] ?? '';
+    return this.currentBlock().translations?.[lang]?.['title'] ?? '';
   }
 
   protected onTitleChange(lang: string, value: string | null | undefined): void {
-    const tr = {...(this.block().translations ?? {})};
+    const current = this.currentBlock();
+    const tr = {...(current.translations ?? {})};
     tr[lang] = {...(tr[lang] ?? {}), title: value ?? ''};
-    this.debouncer$.next({translations: tr});
+    this.localBlock.set({...current, translations: tr});
   }
 
   protected onTemplatePick(value: QuizTemplateListDto | string | null): void {
-    // ``forceSelection`` keeps the value object-shaped on commit, but a
-    // typed-yet-not-selected input arrives as a string — discard it.
     if (typeof value === 'string' || value === null) {
       return;
     }
-    this.debouncer$.next({quiz_template: value.id});
+    const current = this.currentBlock();
+    this.localBlock.set({...current, quiz_template: value.id});
+  }
+
+  protected applyTranslationPatch(patch: Partial<ContentBlock>): void {
+    if (!patch.translations) {
+      return;
+    }
+    const current = this.currentBlock();
+    this.localBlock.set({...current, translations: patch.translations});
   }
 }

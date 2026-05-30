@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {ButtonModule} from 'primeng/button';
 import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
-import {Subject, Subscription, debounceTime} from 'rxjs';
 
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
@@ -13,6 +13,7 @@ import {pickDefaultLang} from '../../../shared/learning/default-lang';
 import {UploadService} from '../../../services/upload/upload.service';
 import {UserService} from '../../../services/user/user';
 
+import {getBlockListEditorUiText} from '../../../shared/learning/block-list-editor/block-list-editor.i18n';
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
@@ -26,7 +27,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-file-block-editor',
-  imports: [FormsModule, FileUploadModule, InputTextModule, TabsModule, BlockTranslateButton],
+  imports: [FormsModule, ButtonModule, FileUploadModule, InputTextModule, TabsModule, BlockTranslateButton],
   template: `
     @if (!hideTitle()) {
       <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
@@ -36,10 +37,10 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
           }
           <div class="tablist-actions">
             <app-block-translate-button
-              [block]="block()"
+              [block]="currentBlock()"
               [availableLangs]="availableLangs()"
               [activeLang]="activeLang()"
-              (changed)="changed.emit($event)" />
+              (changed)="applyTranslationPatch($event)" />
           </div>
         </p-tablist>
         <p-tabpanels>
@@ -58,7 +59,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     }
 
     <div class="upload-area">
-      @if (block().file; as url) {
+      @if (currentBlock().file; as url) {
         <a class="current-file" [href]="url" target="_blank" rel="noopener noreferrer">
           <i class="pi pi-file"></i>
           <span class="current-file__name">{{ fileNameFromUrl(url) }}</span>
@@ -76,6 +77,18 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
         <span class="muted">{{ ui().uploading }}</span>
       }
     </div>
+
+    <div class="block-editor-footer">
+      <p-button type="button" severity="secondary" [outlined]="true"
+                [label]="listUi().cancelBlockLabel"
+                [disabled]="saving()"
+                (onClick)="cancel.emit()" />
+      <p-button type="button"
+                [label]="listUi().saveBlockLabel"
+                [loading]="saving()"
+                [disabled]="saving()"
+                (onClick)="save.emit(currentBlock())" />
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -87,54 +100,56 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     .current-file__hint { font-size: 0.75rem; color: var(--text-color-secondary, #6b7280); }
     .muted { color: var(--text-color-secondary, #6b7280); font-size: 0.85rem; }
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
+    .block-editor-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FileBlockEditor implements OnInit, OnDestroy {
+export class FileBlockEditor implements OnInit {
   private readonly uploads = inject(UploadService);
   private readonly toast = inject(AppToastService);
   private readonly user = inject(UserService);
 
   protected readonly ui = inject(UiTextService).localized(getBlockEditorsUiText);
+  protected readonly listUi = inject(UiTextService).localized(getBlockListEditorUiText);
 
-  block = input.required<ContentBlock>();
-  availableLangs = input<string[]>(['fr', 'en']);
-  /** Hide the per-language title input (and its language tab strip,
-   *  since the title is the only translatable field on this block). */
-  hideTitle = input<boolean>(false);
-  changed = output<Partial<ContentBlock>>();
+  readonly block = input.required<ContentBlock>();
+  readonly availableLangs = input<string[]>(['fr', 'en']);
+  readonly hideTitle = input<boolean>(false);
+  readonly saving = input<boolean>(false);
+
+  readonly save = output<ContentBlock>();
+  readonly cancel = output<void>();
 
   protected readonly uploading = signal(false);
   protected readonly activeLang = signal<string>('');
   private readonly defaultLang = computed(() => pickDefaultLang(this.availableLangs(), this.user.lang()));
 
-  private readonly debouncer$ = new Subject<Partial<ContentBlock>>();
-  private sub: Subscription | null = null;
+  private readonly localBlock = signal<ContentBlock | null>(null);
+  protected readonly currentBlock = computed(() => this.localBlock() ?? this.block());
 
   ngOnInit(): void {
     this.activeLang.set(this.defaultLang());
-    this.sub = this.debouncer$
-      .pipe(debounceTime(500))
-      .subscribe((patch) => this.changed.emit(patch));
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-    this.sub = null;
   }
 
   protected titleFor(lang: string): string {
-    return this.block().translations?.[lang]?.['title'] ?? '';
+    return this.currentBlock().translations?.[lang]?.['title'] ?? '';
   }
 
   protected onTitleChange(lang: string, value: string | null | undefined): void {
-    const tr = {...(this.block().translations ?? {})};
+    const current = this.currentBlock();
+    const tr = {...(current.translations ?? {})};
     tr[lang] = {...(tr[lang] ?? {}), title: value ?? ''};
-    this.debouncer$.next({translations: tr});
+    this.localBlock.set({...current, translations: tr});
   }
 
-  /** Extract a human-readable name from the stored file URL — the
-   *  trailing path segment with any query string stripped. */
+  protected applyTranslationPatch(patch: Partial<ContentBlock>): void {
+    if (!patch.translations) {
+      return;
+    }
+    const current = this.currentBlock();
+    this.localBlock.set({...current, translations: patch.translations});
+  }
+
   protected fileNameFromUrl(url: string): string {
     try {
       const u = new URL(url, window.location.origin);
@@ -156,7 +171,8 @@ export class FileBlockEditor implements OnInit, OnDestroy {
       next: (resp) => {
         const url = (resp as {file?: string} | null)?.file ?? '';
         if (url) {
-          this.changed.emit({file: url});
+          const current = this.currentBlock();
+          this.localBlock.set({...current, file: url});
         }
         this.toast.add({severity: 'success', summary: this.ui().uploadSuccessToast});
       },
