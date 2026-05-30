@@ -127,12 +127,89 @@
                     <p-editor class="editor-compact" formControlName="description"></p-editor>
                   </div>
                 </div>
+
+                @if (showCertificateBranding()) {
+                  <div class="meta-item meta-item--full">
+                    <label class="meta-label">{{ ui().domainForm.certificateSignatoryTitle }} ({{ code.toUpperCase() }})</label>
+                    <div class="meta-value">
+                      <input
+                        formControlName="certificate_signatory_title"
+                        pInputText
+                        [placeholder]="ui().domainForm.certificateSignatoryTitlePlaceholder" />
+                    </div>
+                    <div class="meta-hint">{{ ui().domainForm.certificateSignatoryTitleHint }}</div>
+                  </div>
+                }
               </div>
             </div>
           </p-tabpanel>
         }
       </p-tabpanels>
     </p-tabs>
+  }
+
+  @if (showCertificateBranding()) {
+    <p-fieldset [legend]="ui().domainForm.certificateBrandingLegend" [toggleable]="true" [collapsed]="true" class="cert-branding">
+      <div class="meta-grid">
+        <div class="meta-item meta-item--full">
+          <label class="meta-label">{{ ui().domainForm.certificateSignatoryName }}</label>
+          <div class="meta-value">
+            <input
+              formControlName="certificate_signatory_name"
+              pInputText
+              [placeholder]="ui().domainForm.certificateSignatoryNamePlaceholder" />
+          </div>
+          <div class="meta-hint">{{ ui().domainForm.certificateSignatoryNameHint }}</div>
+        </div>
+
+        <div class="meta-item meta-item--full">
+          <label class="meta-label">{{ ui().domainForm.certificateLogo }}</label>
+          <div class="meta-value cert-logo-control">
+            @if (currentLogoUrl(); as url) {
+              <div class="cert-logo-preview">
+                <img [src]="url" [alt]="ui().domainForm.certificateLogo" class="cert-logo-preview__img" />
+                <p-button
+                  type="button"
+                  icon="pi pi-times"
+                  severity="danger"
+                  [outlined]="true"
+                  [label]="ui().domainForm.certificateLogoRemove"
+                  (onClick)="removeCurrentCertificateLogo()" />
+              </div>
+            }
+            <div class="cert-logo-picker">
+              <input
+                #logoInput
+                type="file"
+                accept="image/*"
+                class="cert-logo-picker__input"
+                (change)="onCertificateLogoSelected($event)" />
+              <p-button
+                type="button"
+                icon="pi pi-upload"
+                severity="secondary"
+                [outlined]="true"
+                [label]="ui().domainForm.certificateLogoUpload"
+                (onClick)="logoInput.click()" />
+              @if (certificateLogoFile(); as file) {
+                <div class="cert-logo-picker__selected">
+                  <i class="pi pi-image"></i>
+                  <span class="cert-logo-picker__filename">{{ file.name }}</span>
+                  <p-button
+                    type="button"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [text]="true"
+                    [label]="ui().domainForm.certificateLogoClearSelection"
+                    (onClick)="clearSelectedCertificateLogo()" />
+                </div>
+              }
+            </div>
+            <div class="meta-hint">{{ ui().domainForm.certificateLogoHint }}</div>
+          </div>
+        </div>
+      </div>
+    </p-fieldset>
   }
 
   @if (submitError()) {
