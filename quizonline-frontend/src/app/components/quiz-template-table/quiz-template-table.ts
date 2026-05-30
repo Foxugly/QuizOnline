@@ -36,6 +36,35 @@ export class QuizTemplateTableComponent {
     return !!template.active && !!template.can_answer;
   }
 
+  /** When the template is "showable" — i.e. the owner has it active. We
+   *  still render the play button in this case, but it is disabled when
+   *  ``can_answer`` is false (typically a daterange already expired or
+   *  not yet started). The tooltip on the disabled button explains
+   *  which side of the window we are on. */
+  shouldRenderStartButton(template: QuizTemplateListItem): boolean {
+    return !!template.active;
+  }
+
+  /** Returns the tooltip string for the play button. When the button
+   *  is enabled, returns the regular "Start this quiz" copy; otherwise
+   *  derives the reason from ``started_at`` / ``ended_at`` so the user
+   *  sees *why* the action is disabled (not yet open / closed on …). */
+  startTooltip(template: QuizTemplateListItem): string {
+    if (template.can_answer) {
+      return this.uiText().templates.actions.start;
+    }
+    const now = Date.now();
+    const start = template.started_at ? Date.parse(template.started_at) : NaN;
+    const end = template.ended_at ? Date.parse(template.ended_at) : NaN;
+    if (Number.isFinite(start) && now < start) {
+      return this.uiText().templates.actions.startDisabledNotYet(this.formatDateTime(template.started_at));
+    }
+    if (Number.isFinite(end) && now > end) {
+      return this.uiText().templates.actions.startDisabledExpired(this.formatDateTime(template.ended_at));
+    }
+    return this.uiText().templates.actions.startDisabledGeneric;
+  }
+
   modeLabel(mode: string | null | undefined): string {
     if (mode === 'exam') {
       return this.uiText().templates.modeExam;

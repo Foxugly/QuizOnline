@@ -33,6 +33,9 @@ export type QuizListUiText = {
     no: string;
     actions: {
       start: string;
+      startDisabledNotYet: (when: string) => string;
+      startDisabledExpired: (when: string) => string;
+      startDisabledGeneric: string;
       assign: string;
       results: string;
       edit: string;
@@ -114,6 +117,9 @@ const FR: QuizListUiText = {
     no: 'Non',
     actions: {
       start: 'Commencer ce quiz',
+      startDisabledNotYet: (when) => `Pas encore disponible (ouvre le ${when})`,
+      startDisabledExpired: (when) => `Disponibilité expirée le ${when}`,
+      startDisabledGeneric: 'Indisponible actuellement',
       assign: 'Envoyer ce quiz à un utilisateur lié au domaine',
       results: 'Voir les résultats des quiz envoyés',
       edit: 'Modifier ce template',
@@ -195,6 +201,9 @@ const EN: QuizListUiText = {
     no: 'No',
     actions: {
       start: 'Start this quiz',
+      startDisabledNotYet: (when) => `Not yet available (opens on ${when})`,
+      startDisabledExpired: (when) => `No longer available (closed on ${when})`,
+      startDisabledGeneric: 'Not available right now',
       assign: 'Send this quiz to a user linked to the domain',
       results: 'View results for assigned quizzes',
       edit: 'Edit this template',
@@ -276,6 +285,9 @@ const NL: QuizListUiText = {
     no: 'Nee',
     actions: {
       start: 'Deze quiz starten',
+      startDisabledNotYet: (when) => `Nog niet beschikbaar (opent op ${when})`,
+      startDisabledExpired: (when) => `Niet meer beschikbaar (gesloten op ${when})`,
+      startDisabledGeneric: 'Momenteel niet beschikbaar',
       assign: 'Deze quiz naar een gebruiker sturen die aan het domein gekoppeld is',
       results: 'Resultaten van verzonden quizzen bekijken',
       edit: 'Dit template bewerken',
@@ -357,6 +369,9 @@ const IT: QuizListUiText = {
     no: 'No',
     actions: {
       start: 'Avvia questo quiz',
+      startDisabledNotYet: (when) => `Non ancora disponibile (apre il ${when})`,
+      startDisabledExpired: (when) => `Non più disponibile (chiuso il ${when})`,
+      startDisabledGeneric: 'Non disponibile al momento',
       assign: 'Invia questo quiz a un utente collegato al dominio',
       results: 'Vedi i risultati dei quiz inviati',
       edit: 'Modifica questo template',
@@ -438,6 +453,9 @@ const ES: QuizListUiText = {
     no: 'No',
     actions: {
       start: 'Iniciar este cuestionario',
+      startDisabledNotYet: (when) => `Aún no disponible (abre el ${when})`,
+      startDisabledExpired: (when) => `Ya no disponible (cerrado el ${when})`,
+      startDisabledGeneric: 'No disponible actualmente',
       assign: 'Enviar este cuestionario a un usuario vinculado al dominio',
       results: 'Ver resultados de los cuestionarios enviados',
       edit: 'Editar esta plantilla',

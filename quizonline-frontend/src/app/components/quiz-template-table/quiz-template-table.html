@@ -59,12 +59,13 @@
         </td>
         <td>{{ availabilityLabel(template) }}</td>
         <td class="row-actions">
-          @if (canStartTemplate(template)) {
+          @if (shouldRenderStartButton(template)) {
             <p-button
               (onClick)="createFromTemplate.emit(template.id)"
+              [disabled]="!template.can_answer || creatingTemplateId() === template.id"
               [loading]="creatingTemplateId() === template.id"
-              [attr.aria-label]="uiText().templates.actions.start + ' ' + template.title"
-              [pTooltip]="uiText().templates.actions.start"
+              [attr.aria-label]="startTooltip(template) + ' — ' + template.title"
+              [pTooltip]="startTooltip(template)"
               icon="pi pi-play"
               severity="primary"
               size="small"
