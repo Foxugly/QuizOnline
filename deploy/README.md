@@ -472,6 +472,89 @@ instance-level.
 
 ---
 
+## Compression (gzip / brotli)
+
+### What's active in prod
+
+- **gzip:** ``on`` at the http {} level (Ubuntu default) **plus** an
+  explicit ``gzip_types`` block in the server {} so JS / CSS / JSON
+  / SVG / woff2 are gzipped (not just text/html). See
+  ``deploy/nginx.conf`` — the gzip block ships ready-to-use.
+- **brotli:** ``on``, ``brotli_comp_level 5``. Opt-in — see
+  "Enable brotli on a fresh host" below.
+
+### Measured impact (Angular main.js, 183 439 bytes raw)
+
+| Encoding | Bytes on wire | Saving |
+|---|---|---|
+| identity (raw) | 183 439 | — |
+| gzip (level 6) | 34 402 | **-81 %** |
+| brotli (level 5) | 32 804 | **-82 %** |
+
+The marginal brotli-vs-gzip gain at level 5 is small on already-
+minified JS. Level 11 would shave another ~10-15 % but at a real
+CPU cost per request; for QuizOnline's traffic profile, level 5 is
+the right CPU/size trade-off. Pre-compression (``brotli_static on``
++ ``.br`` files produced at build time) would unlock level 11
+without runtime CPU cost — left as a future Angular-build-side
+investment.
+
+### Enable brotli on a fresh host
+
+After ``nginx`` and the sites-available config are in place:
+
+```bash
+# 1. Install the brotli filter module (Ubuntu 24.04 / noble).
+sudo apt-get install -y \
+    libnginx-mod-http-brotli-filter \
+    libnginx-mod-http-brotli-static
+
+# 2. Verify the module wired itself into /etc/nginx/modules-enabled/
+ls /etc/nginx/modules-enabled/ | grep brotli
+# expect: 50-mod-http-brotli-filter.conf, 50-mod-http-brotli-static.conf
+
+# 3. Uncomment the brotli block in the live sites-available file.
+#    deploy/nginx.conf ships it commented out — the sed below
+#    uncomments both the top-level directives and the indented
+#    brotli_types list in one pass.
+LIVE=/etc/nginx/sites-available/quizonline.foxugly.com
+sudo cp "$LIVE" "${LIVE}.bak-pre-brotli-$(date -u +%Y%m%dT%H%M%S)"
+sudo sed -i 's/^    # brotli/    brotli/'   "$LIVE"
+sudo sed -i 's/^    #     /        /'       "$LIVE"
+
+# 4. Verify the block now reads as code, not comments.
+sudo grep -A 16 "^    brotli" "$LIVE"
+
+# 5. Test syntax + reload.
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Smoke-test compression
+
+The bundle hash changes on every deploy. Resolve the current one
+then probe with each encoding:
+
+```bash
+BUNDLE=$(curl -sL https://quizonline.foxugly.com/ | grep -oE 'main-[^"]*\.js' | head -1)
+echo "current bundle: $BUNDLE"
+
+# Expected: Content-Encoding: gzip (or br when client supports it)
+curl -H 'Accept-Encoding: br'   -sI "https://quizonline.foxugly.com/$BUNDLE" | grep -i content-encoding
+curl -H 'Accept-Encoding: gzip' -sI "https://quizonline.foxugly.com/$BUNDLE" | grep -i content-encoding
+
+# Wire-size comparison
+echo "identity: $(curl -H 'Accept-Encoding: identity' -s "https://quizonline.foxugly.com/$BUNDLE" | wc -c)"
+echo "gzip:     $(curl -H 'Accept-Encoding: gzip'     -s "https://quizonline.foxugly.com/$BUNDLE" | wc -c)"
+echo "brotli:   $(curl -H 'Accept-Encoding: br'       -s "https://quizonline.foxugly.com/$BUNDLE" | wc -c)"
+```
+
+If any of the encoded sizes equals the identity size, the
+corresponding compression isn't active on that asset type — re-check
+``gzip_types`` / ``brotli_types`` in the live sites-available file.
+
+---
+
 ## Related docs
 
 - [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md) — per-credential
