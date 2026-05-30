@@ -99,8 +99,11 @@
                 (click)="goEdit(s.id)"
                 icon="pi pi-pencil"
                 id="btn_edit_subject"
+                [pTooltip]="editorUi().common.edit"
+                [attr.aria-label]="editorUi().common.edit"
                 severity="info"
                 size="small"
+                text
                 type="button">
               </p-button>
 
@@ -108,8 +111,11 @@
                 (click)="goDelete(s.id)"
                 icon="pi pi-trash"
                 id="btn_delete_subject"
+                [pTooltip]="editorUi().common.delete"
+                [attr.aria-label]="editorUi().common.delete"
                 severity="danger"
                 size="small"
+                text
                 type="button">
               </p-button>
             </div>

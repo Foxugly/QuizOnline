@@ -9,6 +9,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule, type TableLazyLoadEvent} from 'primeng/table';
 import {TagModule} from 'primeng/tag';
+import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {CATALOG, COURSE_DETAIL, COURSE_EDIT, COURSE_NEW} from '../../app.routes-paths';
@@ -78,6 +79,7 @@ const PAGE_SIZE = 20;
     TagModule,
     BulkActionsComponent,
     TableSkeleton,
+    TooltipModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './course-list.html',

@@ -9,6 +9,7 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
@@ -39,6 +40,7 @@ type SubjectListRow = SubjectReadDto & {
     InputTextModule,
     PaginatorModule,
     TableModule,
+    TooltipModule,
     BulkActionsComponent,
   ],
   providers: [ConfirmationService],

@@ -10,6 +10,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {SelectModule} from 'primeng/select';
 import {CheckboxModule} from 'primeng/checkbox';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -58,6 +59,7 @@ type QuestionListRow = {
     MultiSelectModule,
     SelectModule,
     TableModule,
+    TooltipModule,
     BulkActionsComponent,
     QuestionPreviewDialogComponent,
   ],
@@ -68,6 +70,7 @@ type QuestionListRow = {
 })
 export class QuestionList implements OnInit {
   readonly text = inject(UiTextService).localized(getQuestionListUiText);
+  readonly editorUi = inject(UiTextService).editor;
   totalRecords = signal(0);
   rows = signal(10);
   first = signal(0);

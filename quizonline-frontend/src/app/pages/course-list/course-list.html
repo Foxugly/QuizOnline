@@ -105,16 +105,21 @@
               <p-button
                 (click)="goView(row.slug)"
                 icon="pi pi-eye"
+                [pTooltip]="editorUi().common.view"
+                [attr.aria-label]="editorUi().common.view"
                 severity="success"
-                [outlined]="true"
                 size="small"
+                text
                 type="button">
               </p-button>
               <p-button
                 (click)="goEdit(row.id)"
                 icon="pi pi-pencil"
+                [pTooltip]="editorUi().common.edit"
+                [attr.aria-label]="editorUi().common.edit"
                 severity="info"
                 size="small"
+                text
                 type="button">
               </p-button>
             </div>
