@@ -54,6 +54,7 @@
     <p-table
       [dataKey]="'id'"
       [lazy]="true"
+      [lazyLoadOnInit]="false"
       [paginator]="totalCount() > pageSize"
       [rows]="pageSize"
       [totalRecords]="totalCount()"
