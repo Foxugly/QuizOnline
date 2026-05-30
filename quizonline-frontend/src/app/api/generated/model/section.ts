@@ -16,7 +16,7 @@ export interface SectionDto {
     order?: number;
     is_published?: boolean;
     translations: { [key: string]: { [key: string]: string; }; };
-    readonly available_lang_codes: string;
+    readonly available_lang_codes: Array<string>;
     readonly lessons: Array<LessonDetailDto>;
 }
 

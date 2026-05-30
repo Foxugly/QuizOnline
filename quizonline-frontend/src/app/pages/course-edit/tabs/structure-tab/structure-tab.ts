@@ -57,18 +57,6 @@ function slugify(input: string): string {
     .slice(0, 220);
 }
 
-/**
- * The course-detail DTO exposes ``available_lang_codes`` as a flat
- * string on the generated type because the backend
- * ``SerializerMethodField`` doesn't carry a schema, but the actual
- * payload is ``string[]`` (mirrors :class:`CourseDetailSerializer`).
- * Narrowed locally so we can pull it cleanly without polluting the
- * generated client.
- */
-type CourseWithLangCodes = CourseDetailDto & {
-  available_lang_codes: string[] | string;
-};
-
 /** Per-lang form state used by both the section and lesson dialogs. */
 type TranslationsMap = Record<string, Record<string, string>>;
 
@@ -160,23 +148,9 @@ export class CourseEditStructureTab {
   readonly course = input<CourseDetailDto | null>(null);
   readonly changed = output<void>();
 
-  /** Allowed languages of the parent course's domain. Defaults to ``['en']`` to keep the tab usable while the shell is still loading. */
+  /** Allowed languages of the parent course's domain. Empty while the shell is still loading. */
   protected readonly languages = computed<string[]>(() => {
-    const c = this.course() as CourseWithLangCodes | null;
-    if (!c) {
-      return [];
-    }
-    const codes = c.available_lang_codes;
-    if (Array.isArray(codes) && codes.length > 0) {
-      return codes;
-    }
-    if (typeof codes === 'string' && codes.length > 0) {
-      // Defensive: handle the legacy ``"en,fr"`` shape some old
-      // serializers fell back to. The backend currently returns a
-      // proper list but the generated DTO types it as ``string``.
-      return codes.split(',').map((s) => s.trim()).filter(Boolean);
-    }
-    return [];
+    return this.course()?.available_lang_codes ?? [];
   });
 
   /** Primary (course-language) code; falls back to first allowed. */

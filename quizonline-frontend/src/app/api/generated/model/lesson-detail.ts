@@ -25,7 +25,7 @@ export interface LessonDetailDto {
     estimated_duration?: number;
     translations: { [key: string]: { [key: string]: string; }; };
     readonly blocks: Array<BlockDto>;
-    readonly available_lang_codes: string;
+    readonly available_lang_codes: Array<string>;
     readonly can_manage: boolean;
     prev_lesson: LessonDetailPrevLessonDto | null;
     next_lesson: LessonDetailPrevLessonDto | null;

@@ -37,8 +37,8 @@ export interface CourseDetailDto {
     my_enrollment: CourseDetailMyEnrollmentDto | null;
     my_pending_invite: CourseDetailMyPendingInviteDto | null;
     readonly sections: Array<SectionDto>;
-    readonly available_lang_codes: string;
-    readonly can_manage: string;
+    readonly available_lang_codes: Array<string>;
+    readonly can_manage: boolean;
     readonly created_at: string;
     readonly updated_at: string;
 }
