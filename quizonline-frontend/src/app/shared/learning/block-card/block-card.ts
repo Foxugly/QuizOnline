@@ -97,13 +97,27 @@ import {EmbedBlockRenderer} from '../../../pages/lesson-view/block-renderers/emb
      * Angular 21 — there is no replacement yet for this pattern of
      * parent-styling-child-component CSS.
      * --------------------------------------------------------------- */
+    /* Callouts: white background + a semantic accent stripe on the
+     * left edge. The data-variant attribute is emitted by
+     * <app-block-callout> and falls back to "info" (blue) when the
+     * underlying block has no metadata.variant set — preserving
+     * the visual of every callout authored before the picker existed. */
     :host ::ng-deep .callout {
-      border-left: 4px solid var(--p-primary-color, #3b82f6);
-      background: var(--p-surface-100, #f9fafb);
+      border-left: 4px solid var(--p-blue-500, #3b82f6);
+      background: var(--p-surface-0, #fff);
       padding: 0.75rem 1rem;
       margin: 0;
       border-top-right-radius: 10px;
       border-bottom-right-radius: 10px;
+    }
+    :host ::ng-deep .callout[data-variant="success"] {
+      border-left-color: var(--p-green-500, #22c55e);
+    }
+    :host ::ng-deep .callout[data-variant="warning"] {
+      border-left-color: var(--p-amber-500, #f59e0b);
+    }
+    :host ::ng-deep .callout[data-variant="error"] {
+      border-left-color: var(--p-red-500, #ef4444);
     }
     :host ::ng-deep .callout p {
       margin: 0.25rem 0 0;

@@ -197,6 +197,8 @@
   "pages/course-edit/enrollment-tab:toasts.errorSummary",
 
   "pages/lesson-edit/block-editors:fieldVideoProvider",
+  "pages/lesson-edit/block-editors:fieldCalloutVariant",
+  "pages/lesson-edit/block-editors:calloutVariantError",
 
   "pages/progress:colStatus",
 

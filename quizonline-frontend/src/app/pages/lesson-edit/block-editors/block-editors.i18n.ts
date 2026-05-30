@@ -12,6 +12,13 @@ export interface BlockEditorsUiText {
   fieldTitle: string;
   /** Body of a callout block (translatable). */
   fieldCalloutBody: string;
+  /** Label of the variant picker on a callout block. */
+  fieldCalloutVariant: string;
+  /** Localised labels of the 4 callout variants — fed to the SelectButton. */
+  calloutVariantInfo: string;
+  calloutVariantSuccess: string;
+  calloutVariantWarning: string;
+  calloutVariantError: string;
   /** External URL field on embed / video blocks. */
   fieldExternalUrl: string;
   /** Video URL (raw / embed) on a video block. */
@@ -57,6 +64,11 @@ export function getBlockEditorsUiText(
       return {
         fieldTitle: 'Titre',
         fieldCalloutBody: 'Texte',
+        fieldCalloutVariant: 'Type',
+        calloutVariantInfo: 'Information',
+        calloutVariantSuccess: 'Succès',
+        calloutVariantWarning: 'Avertissement',
+        calloutVariantError: 'Erreur',
         fieldExternalUrl: 'URL externe',
         fieldVideoUrl: 'URL de la vidéo',
         fieldVideoProvider: 'Hébergeur',
@@ -80,6 +92,11 @@ export function getBlockEditorsUiText(
       return {
         fieldTitle: 'Titel',
         fieldCalloutBody: 'Tekst',
+        fieldCalloutVariant: 'Type',
+        calloutVariantInfo: 'Informatie',
+        calloutVariantSuccess: 'Succes',
+        calloutVariantWarning: 'Waarschuwing',
+        calloutVariantError: 'Fout',
         fieldExternalUrl: 'Externe URL',
         fieldVideoUrl: 'Video-URL',
         fieldVideoProvider: 'Provider',
@@ -103,6 +120,11 @@ export function getBlockEditorsUiText(
       return {
         fieldTitle: 'Titolo',
         fieldCalloutBody: 'Testo',
+        fieldCalloutVariant: 'Tipo',
+        calloutVariantInfo: 'Informazione',
+        calloutVariantSuccess: 'Successo',
+        calloutVariantWarning: 'Avviso',
+        calloutVariantError: 'Errore',
         fieldExternalUrl: 'URL esterno',
         fieldVideoUrl: 'URL del video',
         fieldVideoProvider: 'Provider',
@@ -126,6 +148,11 @@ export function getBlockEditorsUiText(
       return {
         fieldTitle: 'Título',
         fieldCalloutBody: 'Texto',
+        fieldCalloutVariant: 'Tipo',
+        calloutVariantInfo: 'Información',
+        calloutVariantSuccess: 'Éxito',
+        calloutVariantWarning: 'Advertencia',
+        calloutVariantError: 'Error',
         fieldExternalUrl: 'URL externa',
         fieldVideoUrl: 'URL del vídeo',
         fieldVideoProvider: 'Proveedor',
@@ -148,6 +175,11 @@ export function getBlockEditorsUiText(
       return {
         fieldTitle: 'Title',
         fieldCalloutBody: 'Body',
+        fieldCalloutVariant: 'Type',
+        calloutVariantInfo: 'Info',
+        calloutVariantSuccess: 'Success',
+        calloutVariantWarning: 'Warning',
+        calloutVariantError: 'Error',
         fieldExternalUrl: 'External URL',
         fieldVideoUrl: 'Video URL',
         fieldVideoProvider: 'Provider',
