@@ -4,7 +4,6 @@ export const FR: EditorUiText = {
   common: {
     back: 'Retour',
     cancel: 'Annuler',
-    clean: 'Nettoyer',
     save: 'Enregistrer',
     add: 'Ajouter',
     create: 'Créer',
