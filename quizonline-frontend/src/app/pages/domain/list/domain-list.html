@@ -98,9 +98,11 @@
                   icon="pi pi-hammer"
                   id="btn_moderate_join_requests"
                   [pTooltip]="ui().admin.joinRequests.moderate"
+                  [attr.aria-label]="ui().admin.joinRequests.moderate"
                   [disabled]="d.pendingJoinRequests === 0"
                   severity="warn"
                   size="small"
+                  text
                   type="button">
                 </p-button>
               }
@@ -109,8 +111,11 @@
                 (click)="goEdit(d.id)"
                 icon="pi pi-pencil"
                 id="btn_edit_domain"
+                [pTooltip]="editorUi().common.edit"
+                [attr.aria-label]="editorUi().common.edit"
                 severity="info"
                 size="small"
+                text
                 type="button">
               </p-button>
 
@@ -118,8 +123,11 @@
                 (click)="goDelete(d.id)"
                 icon="pi pi-trash"
                 id="btn_delete_domain"
+                [pTooltip]="editorUi().common.delete"
+                [attr.aria-label]="editorUi().common.delete"
                 severity="danger"
                 size="small"
+                text
                 type="button">
               </p-button>
             </div>
