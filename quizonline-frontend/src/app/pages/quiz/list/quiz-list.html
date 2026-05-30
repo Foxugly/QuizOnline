@@ -16,6 +16,9 @@
   }
 
   <div class="card">
+    @if (initialLoad()) {
+      <app-table-skeleton [rows]="5" [columns]="9" />
+    } @else {
     <p-tabs [value]="activeTab()" (valueChange)="setActiveTab($event)" class="quiz-tabs">
       <p-tablist>
         <p-tab value="templates">
@@ -147,6 +150,7 @@
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
+    }
   </div>
 </div>
 

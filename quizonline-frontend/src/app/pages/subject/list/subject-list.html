@@ -39,6 +39,9 @@
       </div>
     </div>
 
+    @if (initialLoad()) {
+      <app-table-skeleton [rows]="6" [columns]="6" />
+    } @else {
     <p-table
       [dataKey]="'id'"
       [paginator]="rowsData().length > rows"
@@ -122,6 +125,7 @@
         </tr>
       </ng-template>
     </p-table>
+    }
 
   </div>
 </div>

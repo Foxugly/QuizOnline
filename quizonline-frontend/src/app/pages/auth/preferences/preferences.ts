@@ -23,6 +23,7 @@ import {UserService} from '../../../services/user/user';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
+import {LoadingSkeleton} from '../../../shared/components/loading-skeleton/loading-skeleton';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {SavedAtComponent} from '../../../shared/components/saved-at/saved-at';
 import {runSave} from '../../../shared/forms/run-save';
@@ -45,6 +46,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
     ToggleSwitchModule,
     RelativeDatePipe,
     DirtyGuardDirective,
+    LoadingSkeleton,
     SavedAtComponent,
   ],
   templateUrl: './preferences.html',

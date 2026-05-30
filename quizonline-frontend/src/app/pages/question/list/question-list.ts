@@ -23,6 +23,7 @@ import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {BulkActionsComponent} from '../../../shared/components/bulk-actions/bulk-actions';
+import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getQuestionListUiText} from './question-list.i18n';
@@ -62,6 +63,7 @@ type QuestionListRow = {
     TooltipModule,
     BulkActionsComponent,
     QuestionPreviewDialogComponent,
+    TableSkeleton,
   ],
   providers: [ConfirmationService],
   templateUrl: './question-list.html',
@@ -75,6 +77,7 @@ export class QuestionList implements OnInit {
   rows = signal(10);
   first = signal(0);
   selectingAll = signal(false);
+  initialLoad = signal<boolean>(true);
 
   questions = signal<QuestionReadDto[]>([]);
   subjects = signal<SubjectReadDto[]>([]);
@@ -154,11 +157,13 @@ export class QuestionList implements OnInit {
       next: (questions) => {
         this.questions.set(questions.results ?? []);
         this.totalRecords.set(questions.count ?? 0);
+        this.initialLoad.set(false);
       },
       error: (err: unknown) => {
         logApiError('question.list.load', err);
         this.questions.set([]);
         this.totalRecords.set(0);
+        this.initialLoad.set(false);
       }
     });
   }
