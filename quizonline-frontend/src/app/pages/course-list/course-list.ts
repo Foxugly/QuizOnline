@@ -180,8 +180,14 @@ export class CourseList implements OnInit {
         this.load();
       });
     this.loadDomains();
-    // Initial load is driven by the table's ``onLazyLoad`` firing once
-    // on first render, so we don't double-fetch.
+    // First fetch has to be driven from here: the table is rendered
+    // inside an ``@if (initialLoad())`` else-branch so its own
+    // ``onLazyLoad`` does not fire until ``initialLoad`` flips to
+    // false — which only happens after ``load()`` resolves. The
+    // table's ``[lazyLoadOnInit]="false"`` then suppresses the
+    // auto-fire that would otherwise re-fetch the same page once it
+    // finally renders.
+    this.load();
   }
 
   protected onSearchChange(value: string): void {
