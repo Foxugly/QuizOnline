@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, computed, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subject, Subscription, debounceTime} from 'rxjs';
@@ -13,15 +13,13 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {BLOCK_ICONS} from '../../shared/learning/block-icons';
 import {ContentBlock} from '../../shared/learning/content-block.types';
-import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {UserService} from '../../services/user/user';
 
-import {BlockCard} from '../../shared/learning/block-card/block-card';
+import {LessonReader} from '../../shared/learning/lesson-reader/lesson-reader';
 import {getLessonViewUiText} from './lesson-view.i18n';
 
 /**
@@ -45,13 +43,6 @@ interface LessonDetailDto {
   position_in_section?: {current: number; total: number};
 }
 
-interface BlockOutlineItem {
-  id: number;
-  label: string;
-  icon: string;
-  anchor: string;
-}
-
 @Component({
   selector: 'app-lesson-view',
   imports: [
@@ -62,13 +53,13 @@ interface BlockOutlineItem {
     TextareaModule,
     LoadingSkeleton,
     PageHeader,
-    BlockCard,
+    LessonReader,
   ],
   templateUrl: './lesson-view.html',
   styleUrl: './lesson-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LessonView implements OnInit, OnDestroy, AfterViewInit {
+export class LessonView implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly enrollment = inject(EnrollmentService);
@@ -76,12 +67,6 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
   private readonly hostElement: ElementRef<HTMLElement> = inject(ElementRef);
-  private readonly zone = inject(NgZone);
-
-  /** Anchor id of the block currently in the viewport — drives the
-   *  highlighted entry in the left outline (scroll-spy). */
-  protected readonly activeAnchor = signal<string | null>(null);
-  private observer: IntersectionObserver | null = null;
 
   /** Caller's private note for the current lesson. ``content`` is the
    *  live textarea value; ``savedAt`` is set after every successful
@@ -94,8 +79,6 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
   protected readonly ui = this.uiSvc.localized(getLessonViewUiText);
   /** Shared "Back" label — same source as every other LMS page. */
   protected readonly editorUi = this.uiSvc.editor;
-  /** Localized block-type labels used for the left-side outline. */
-  protected readonly common = this.uiSvc.localized(getLearningCommonUiText);
   protected readonly currentLang = this.userService.lang;
 
   protected readonly lesson = signal<LessonDetailDto | null>(null);
@@ -152,25 +135,6 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
     return LESSON_VIEW(id);
   }
 
-  /** One outline entry per block. The label is the block's own
-   *  translated ``title`` when available, falling back to the
-   *  ``block_type`` localized name (e.g. "Texte enrichi"). Anchor is a
-   *  stable ``block-<id>`` consumed by both the ``[id]`` on the block
-   *  card and the side-nav ``href``. */
-  protected readonly outline = computed<BlockOutlineItem[]>(() => {
-    const labels = this.common().blockTypeLabels;
-    const lang = this.currentLang();
-    return this.blocks().map((b) => {
-      const customTitle = pickTranslation(b.translations, lang, 'title')?.trim();
-      return {
-        id: b.id,
-        label: customTitle || labels[b.block_type] || b.block_type,
-        icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
-        anchor: `block-${b.id}`,
-      };
-    });
-  });
-
   ngOnInit(): void {
     this.routeSub = this.route.paramMap.subscribe((params) => {
       const idRaw = params.get('id');
@@ -192,28 +156,11 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
       .subscribe((value) => this.persistNote(value));
   }
 
-  ngAfterViewInit(): void {
-    // Re-wire the IntersectionObserver whenever the rendered block list
-    // changes (a new lesson loads, or the user reaches the page on
-    // first paint with the blocks already cached). The observer runs
-    // outside Angular's zone to avoid kicking off a CD pass on every
-    // pixel scrolled — we only touch the ``activeAnchor`` signal
-    // (which schedules its own CD via signal reactivity).
-    effect(() => {
-      // Track the blocks signal so the effect re-runs when they change.
-      this.blocks();
-      // Defer until the DOM has rendered the new ``[id]="block-X"`` cards.
-      queueMicrotask(() => this.rewireScrollSpy());
-    });
-  }
-
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.routeSub = null;
     this.noteSub?.unsubscribe();
     this.noteSub = null;
-    this.observer?.disconnect();
-    this.observer = null;
   }
 
   protected onNoteChange(value: string): void {
@@ -256,83 +203,6 @@ export class LessonView implements OnInit, OnDestroy, AfterViewInit {
         logApiError('lms.lesson-view.note.save', err);
       },
     });
-  }
-
-  /** Tear down the previous observer and register a fresh one against
-   *  the currently-rendered block cards. ``rootMargin`` shifts the
-   *  intersection window so a card counts as "active" when its top
-   *  enters the upper third of the viewport — feels natural even on
-   *  long content blocks. */
-  private rewireScrollSpy(): void {
-    this.observer?.disconnect();
-    const cards = this.hostElement.nativeElement.querySelectorAll<HTMLElement>('.block-card');
-    if (cards.length === 0) {
-      this.observer = null;
-      this.activeAnchor.set(null);
-      return;
-    }
-    const visibility = new Map<string, number>();
-    this.zone.runOutsideAngular(() => {
-      this.observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const id = entry.target.id;
-            if (!id) {
-              continue;
-            }
-            visibility.set(id, entry.intersectionRatio);
-          }
-          // Pick the most-visible card; ties resolve by document order
-          // since ``IntersectionObserver`` keeps insertion order.
-          let bestId: string | null = null;
-          let bestRatio = 0;
-          for (const [id, ratio] of visibility) {
-            if (ratio > bestRatio) {
-              bestRatio = ratio;
-              bestId = id;
-            }
-          }
-          if (bestId !== this.activeAnchor()) {
-            this.zone.run(() => this.activeAnchor.set(bestId));
-          }
-        },
-        {threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '-30% 0px -40% 0px'},
-      );
-      cards.forEach((c: HTMLElement) => this.observer!.observe(c));
-    });
-  }
-
-  /** Absolute href for a block anchor — combines the current
-   *  ``location.pathname`` (+ optional query string) with ``#anchor``
-   *  so the browser's link preview / copy-link / right-click menu
-   *  produce ``/lesson/{id}#block-X`` instead of the SPA root
-   *  (``<base href="/">`` would otherwise resolve a bare ``#anchor``
-   *  to ``/#anchor``). */
-  protected anchorHref(anchor: string): string {
-    return `${location.pathname}${location.search}#${anchor}`;
-  }
-
-  /**
-   * Scroll to the target ``#block-<id>`` anchor on the current page.
-   *
-   * Plain ``<a href="#block-1">`` would also be intercepted by the
-   * Angular Router as a navigation to ``/#block-1`` — the empty path
-   * matched the home route and teleported the learner away. Handling
-   * the click manually keeps the navigation SPA-local and gives us
-   * smooth scrolling for free.
-   */
-  protected scrollToBlock(event: MouseEvent, anchor: string): void {
-    event.preventDefault();
-    const target = document.getElementById(anchor);
-    if (!target) {
-      return;
-    }
-    target.scrollIntoView({behavior: 'smooth', block: 'start'});
-    // Keep the URL fragment in sync so the back/forward stack works
-    // and the user can copy a deep-link to a specific block. Use an
-    // absolute path so the document ``<base href>`` does not collapse
-    // the URL to ``/#anchor``.
-    history.replaceState(history.state, '', this.anchorHref(anchor));
   }
 
   protected completeLesson(): void {

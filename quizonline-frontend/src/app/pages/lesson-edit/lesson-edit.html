@@ -22,43 +22,18 @@
   </div>
 }
 
-<div class="lesson-layout" [class.lesson-layout--preview]="previewMode()">
-  @if (previewMode() && outline().length > 0) {
-    <aside class="lesson-outline" [attr.aria-label]="ui().outlineHeading">
-      <h2 class="lesson-outline__heading">{{ ui().outlineHeading }}</h2>
-      <ol class="lesson-outline__list">
-        @for (item of outline(); track item.id; let i = $index) {
-          <li>
-            <a class="lesson-outline__link"
-               [href]="anchorHref(item.anchor)"
-               (click)="scrollToBlock($event, item.anchor)">
-              <span class="lesson-outline__index">{{ i + 1 }}</span>
-              <i [class]="item.icon"></i>
-              <span class="lesson-outline__label">{{ item.label }}</span>
-            </a>
-          </li>
-        }
-      </ol>
-    </aside>
+@if (previewMode()) {
+  <app-lesson-reader [blocks]="blocks()" />
+} @else {
+  @if (hasLesson()) {
+    <app-block-list-editor
+      hostType="lesson"
+      [hostId]="lessonId()"
+      blockRole="body"
+      [blocks]="blocks()"
+      [availableLangs]="availableLangs()"
+      [domainId]="domainId() || null"
+      (blocksChanged)="onBlocksChanged()"
+      (blockUpdated)="onBlockUpdated($event)" />
   }
-
-  @if (previewMode()) {
-    <section class="lesson-body">
-      @for (block of blocks(); track block.id) {
-        <app-block-card [block]="block" />
-      }
-    </section>
-  } @else {
-    @if (hasLesson()) {
-      <app-block-list-editor
-        hostType="lesson"
-        [hostId]="lessonId()"
-        blockRole="body"
-        [blocks]="blocks()"
-        [availableLangs]="availableLangs()"
-        [domainId]="domainId() || null"
-        (blocksChanged)="onBlocksChanged()"
-        (blockUpdated)="onBlockUpdated($event)" />
-    }
-  }
-</div>
+}

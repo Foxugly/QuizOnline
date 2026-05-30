@@ -56,8 +56,6 @@ export interface LessonViewUiText {
   lessonCompletedErrorToast: string;
   /** Label for the right-side "Edit" button shown only to instructors. */
   editButton: string;
-  /** Heading of the left-side block-outline navigation. */
-  outlineHeading: string;
   /** Footer button: previous lesson. */
   prevLessonButton: string;
   /** Footer button: next lesson. */
@@ -104,7 +102,6 @@ export function getLessonViewUiText(
         lessonCompletedToast: 'Leçon marquée comme terminée.',
         lessonCompletedErrorToast: 'Impossible de marquer la leçon comme terminée.',
         editButton: 'Modifier',
-        outlineHeading: 'Plan de la leçon',
         prevLessonButton: 'Leçon précédente',
         nextLessonButton: 'Leçon suivante',
         positionInSection: (c, t) => `Leçon ${c}/${t}`,
@@ -140,7 +137,6 @@ export function getLessonViewUiText(
         lessonCompletedToast: 'Les gemarkeerd als voltooid.',
         lessonCompletedErrorToast: 'Kon les niet als voltooid markeren.',
         editButton: 'Bewerken',
-        outlineHeading: 'Lesoverzicht',
         prevLessonButton: 'Vorige les',
         nextLessonButton: 'Volgende les',
         positionInSection: (c, t) => `Les ${c}/${t}`,
@@ -176,7 +172,6 @@ export function getLessonViewUiText(
         lessonCompletedToast: 'Lezione segnata come completata.',
         lessonCompletedErrorToast: 'Impossibile segnare la lezione come completata.',
         editButton: 'Modifica',
-        outlineHeading: 'Indice della lezione',
         prevLessonButton: 'Lezione precedente',
         nextLessonButton: 'Lezione successiva',
         positionInSection: (c, t) => `Lezione ${c}/${t}`,
@@ -212,7 +207,6 @@ export function getLessonViewUiText(
         lessonCompletedToast: 'Lección marcada como completada.',
         lessonCompletedErrorToast: 'No se pudo marcar la lección como completada.',
         editButton: 'Editar',
-        outlineHeading: 'Índice de la lección',
         prevLessonButton: 'Lección anterior',
         nextLessonButton: 'Lección siguiente',
         positionInSection: (c, t) => `Lección ${c}/${t}`,
@@ -247,7 +241,6 @@ export function getLessonViewUiText(
         lessonCompletedToast: 'Lesson marked as completed.',
         lessonCompletedErrorToast: 'Could not mark lesson as completed.',
         editButton: 'Edit',
-        outlineHeading: 'Lesson outline',
         prevLessonButton: 'Previous lesson',
         nextLessonButton: 'Next lesson',
         positionInSection: (c, t) => `Lesson ${c}/${t}`,

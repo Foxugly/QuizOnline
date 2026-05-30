@@ -62,6 +62,7 @@ import {getLessonViewUiText} from '../src/app/pages/lesson-view/lesson-view.i18n
 import {getDashboardUiText} from '../src/app/pages/dashboard/dashboard.i18n';
 import {getBlockListEditorUiText} from '../src/app/shared/learning/block-list-editor/block-list-editor.i18n';
 import {getLearningCommonUiText} from '../src/app/shared/learning/learning-common.i18n';
+import {getLessonReaderUiText} from '../src/app/shared/learning/lesson-reader/lesson-reader.i18n';
 import {getQuestionEditorFormUiText} from '../src/app/components/question-editor-form/question-editor-form.i18n';
 import {getCertificateListUiText} from '../src/app/pages/certificate-list/certificate-list.i18n';
 import {getCertificateViewUiText} from '../src/app/pages/certificate-view/certificate-view.i18n';
@@ -114,6 +115,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/dashboard', get: getDashboardUiText as Getter},
   {name: 'shared/learning/block-list-editor', get: getBlockListEditorUiText as Getter},
   {name: 'shared/learning/learning-common', get: getLearningCommonUiText as Getter},
+  {name: 'shared/learning/lesson-reader', get: getLessonReaderUiText as Getter},
   {name: 'components/question-editor-form', get: getQuestionEditorFormUiText as Getter},
   {name: 'pages/certificate-list', get: getCertificateListUiText as Getter},
   {name: 'pages/certificate-view', get: getCertificateViewUiText as Getter},
