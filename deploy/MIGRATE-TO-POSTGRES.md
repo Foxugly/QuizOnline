@@ -6,16 +6,45 @@ the small-volume case (`< 50 MB` SQLite); above that, swap step 7
 (`dumpdata` / `loaddata`) for `pgloader` — see the *Larger volumes*
 section at the bottom.
 
-All commands run as `root` on the EC2 unless prefixed with
-`sudo -u django` (or `sudo -u postgres`). The project root is
+All commands run as `root` on the EC2 (`sudo -s`) unless prefixed
+with `sudo -u <user>`. The project root is
 `/var/www/django_websites/QuizOnline/`.
+
+---
+
+## Architecture notes (read before starting)
+
+- **Venv:** `/var/www/django_websites/QuizOnline/quizonline-server/.venv/`
+  (inside the server subdir, not at the repo root).
+- **Env file:** `/run/quizonline/.env` (tmpfs, populated at boot by
+  `quizonline-env-fetch.service` from AWS SSM Parameter Store under
+  the `/quizonline/prod/` prefix). There is **no on-disk
+  `quizonline-server/.env`** — Django's `read_env()` finds nothing
+  there, all env vars arrive via the systemd process environment.
+- **Why not `set -a; source /run/quizonline/.env`:** the file contains
+  secrets with shell-special characters (`&`, `$`, backticks, …) that
+  bash interprets when sourcing — `SECRET_KEY=foo&bar` gets parsed
+  as a background job. Always load the env via systemd-run's
+  `--property=EnvironmentFile=…` (which uses systemd's own parser,
+  the same one gunicorn already uses), never `source` it in a shell.
 
 ---
 
 ## 0. Pre-flight (a few minutes, no downtime)
 
-1. Confirm `psycopg` is present in `requirements.txt` (this PR adds it).
+1. Confirm `psycopg` is present in the venv (PR #48 added it to
+   `requirements.txt`):
+
+   ```bash
+   /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python \
+     -c "import psycopg; print('psycopg', psycopg.__version__)"
+   ```
+
+   You should see `psycopg 3.2.6` or later. If not → run the deploy
+   pipeline once (it does a fresh `pip install -r requirements.txt`).
+
 2. Open a second SSH session to the EC2 so you can rollback quickly.
+
 3. Check the SQLite size — large dumps need `pgloader` instead of
    `dumpdata`:
 
@@ -23,11 +52,17 @@ All commands run as `root` on the EC2 unless prefixed with
    du -h /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3
    ```
 
-4. Confirm the systemd backup timer fired recently (or run it now):
+4. Run a fresh backup of the live SQLite (the backup dir may not
+   exist yet — the daily timer might never have run). The script
+   needs `ENV_FILE=` overridden because the default points at a
+   path that doesn't exist in this deployment:
 
    ```bash
-   sudo systemctl list-timers quizonline-backup
-   sudo -u django bash /var/www/django_websites/QuizOnline/deploy/backup-db.sh
+   mkdir -p /var/backups/quizonline
+   chown django:www-data /var/backups/quizonline
+   chmod 770 /var/backups/quizonline
+   sudo -u django ENV_FILE=/run/quizonline/.env \
+     bash /var/www/django_websites/QuizOnline/deploy/backup-db.sh
    ls -lh /var/backups/quizonline | tail -3
    ```
 
@@ -38,9 +73,9 @@ All commands run as `root` on the EC2 unless prefixed with
 ## 1. Install PostgreSQL on the host
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y postgresql postgresql-contrib
-sudo systemctl enable --now postgresql
+apt-get update
+apt-get install -y postgresql postgresql-contrib
+systemctl enable --now postgresql
 sudo -u postgres psql -c '\conninfo'
 ```
 
@@ -51,11 +86,11 @@ auth on the local socket — exactly what we want.
 
 ## 2. Create the `quizonline` role + database
 
-Generate a strong password locally (don't reuse `SECRET_KEY`):
+Generate a strong password (don't reuse `SECRET_KEY`):
 
 ```bash
 PG_PASSWORD=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
-echo "PG_PASSWORD=$PG_PASSWORD"   # write this down for step 3
+echo "PG_PASSWORD=$PG_PASSWORD"   # note it down for step 3
 ```
 
 Then create the role and DB:
@@ -81,82 +116,66 @@ PGPASSWORD="$PG_PASSWORD" psql -h 127.0.0.1 -U quizonline -d quizonline -c 'SELE
 
 ---
 
-## 3. Stage the new `DATABASE_URL` in the env file
+## 3. Stage the new `DATABASE_URL` in the runtime env
 
-The prod app fetches `.env` from AWS SSM Parameter Store at boot via
-`deploy/fetch-env-from-ssm.sh`. There are two ways to roll out the new
-URL — pick one:
-
-### Option A (recommended for first run): edit the live `.env` directly
-
-This sidesteps the SSM round-trip and is faster to iterate on. After
-the migration succeeds, push the same value back to SSM with the
-`seed-parameter-store` script so a future re-deploy doesn't revert.
+The prod app reads `/run/quizonline/.env` at boot. We edit the file
+in place (it's a tmpfs file, gets re-fetched from SSM on next boot —
+step 10 pushes the new value to SSM so the change survives a reboot).
 
 ```bash
-sudo -u django bash -c '
-  set -e
-  cd /var/www/django_websites/QuizOnline/quizonline-server
-  cp .env .env.before-postgres
-  sed -i "s#^DATABASE_URL=.*#DATABASE_URL=postgres://quizonline:'$PG_PASSWORD'@localhost:5432/quizonline#" .env
-  grep ^DATABASE_URL .env
-'
+# Backup the current /run env file (for rollback)
+cp /run/quizonline/.env /run/quizonline/.env.before-postgres
+
+# Replace the DATABASE_URL line
+sed -i "s#^DATABASE_URL=.*#DATABASE_URL=postgres://quizonline:$PG_PASSWORD@localhost:5432/quizonline#" /run/quizonline/.env
+
+# Verify
+grep ^DATABASE_URL /run/quizonline/.env
 ```
 
-### Option B (SSM-first): seed Parameter Store, then re-fetch
-
-```bash
-aws ssm put-parameter \
-  --name /quizonline/prod/DATABASE_URL \
-  --value "postgres://quizonline:$PG_PASSWORD@localhost:5432/quizonline" \
-  --type SecureString \
-  --overwrite
-sudo systemctl restart quizonline-env-fetch.service
-```
-
-In both cases, leave the SQLite file untouched — it's the rollback
-path.
+⚠️ At this point gunicorn is still running on SQLite — `EnvironmentFile=`
+loads the file once at process start, so the running process keeps
+the old value. The next `manage.py` command we run will be the first
+to hit postgres.
 
 ---
 
-## 4. Install the psycopg driver in the venv
+## 4. Confirm the driver loads
 
-The driver is already in `requirements.txt`, so a regular `pip install`
-picks it up. Run it as the `django` user (the venv is owned by them):
-
-```bash
-sudo -u django bash -c '
-  cd /var/www/django_websites/QuizOnline &&
-  source .venv/bin/activate &&
-  pip install -r quizonline-server/requirements.txt
-'
-```
-
-Verify the driver loads cleanly:
+(The driver was installed in pre-flight. This is a 1-line smoke
+test that Django can boot with the new URL.)
 
 ```bash
-sudo -u django /var/www/django_websites/QuizOnline/.venv/bin/python -c \
-  "import psycopg; print(psycopg.__version__)"
+systemd-run --pipe --wait --quiet --collect \
+  --uid=django --gid=www-data \
+  --property=EnvironmentFile=/run/quizonline/.env \
+  --working-directory=/var/www/django_websites/QuizOnline/quizonline-server \
+  /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python manage.py check
 ```
+
+Expect `System check identified no issues`. If you see a Python
+traceback referencing `psycopg.errors.OperationalError`, the
+connection string is wrong — re-check step 3.
 
 ---
 
 ## 5. Create the schema on the empty PostgreSQL database
 
 ```bash
-sudo -u django bash -c '
-  cd /var/www/django_websites/QuizOnline/quizonline-server &&
-  source /var/www/django_websites/QuizOnline/.venv/bin/activate &&
-  python manage.py migrate --noinput
-'
+systemd-run --pipe --wait --quiet --collect \
+  --uid=django --gid=www-data \
+  --property=EnvironmentFile=/run/quizonline/.env \
+  --working-directory=/var/www/django_websites/QuizOnline/quizonline-server \
+  /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python manage.py migrate --noinput
 ```
 
-The `migrate --noinput` should run all migrations cleanly against the
-empty postgres DB. Spot-check a table or two:
+Expect 60+ `Applying <app>.<migration>... OK` lines. Spot-check a
+couple of tables (the user table is `customuser_customuser`, not
+`auth_user` — the project ships a custom user model):
 
 ```bash
 sudo -u postgres psql -d quizonline -c '\dt' | head
-sudo -u postgres psql -d quizonline -c 'SELECT COUNT(*) FROM auth_user;'
+sudo -u postgres psql -d quizonline -c 'SELECT COUNT(*) FROM customuser_customuser;'
 ```
 
 The user count is zero — the data load comes next.
@@ -168,90 +187,140 @@ The user count is zero — the data load comes next.
 This is the start of the downtime window (~3-10 min for a < 50 MB DB).
 
 ```bash
-sudo systemctl stop quizonline-celery-beat quizonline-celery quizonline-gunicorn
+systemctl stop quizonline-celery-beat quizonline-celery quizonline-gunicorn
+```
+
+Verify gunicorn is `inactive (dead)`:
+
+```bash
+systemctl status quizonline-gunicorn --no-pager | head -3
 ```
 
 ---
 
-## 7. Dump from SQLite and load into PostgreSQL
+## 7. Dump from SQLite, load into PostgreSQL, reset sequences
 
-The cleanest path for small volumes: re-point Django at the SQLite file
-just for the `dumpdata`, then load with the new URL.
+### 7a. Dump from SQLite
 
-```bash
-sudo -u django bash -c '
-  set -e
-  cd /var/www/django_websites/QuizOnline/quizonline-server
-  source /var/www/django_websites/QuizOnline/.venv/bin/activate
+`systemd-run --setenv=DATABASE_URL=…` does NOT reliably override the
+value loaded from `--property=EnvironmentFile=` (the file wins). Use
+a Python wrapper that parses `.env` line-by-line (handling
+shell-special characters cleanly) and overrides `DATABASE_URL` in
+`os.environ` before invoking `dumpdata`.
 
-  # 7a. Dump every app, naturalize FKs/PKs (skip system tables Django
-  #     re-creates on migrate).
-  DATABASE_URL=sqlite:///db.sqlite3 python manage.py dumpdata \
-    --natural-foreign --natural-primary \
-    --exclude=contenttypes --exclude=auth.permission \
-    --exclude=sessions --exclude=admin.logentry \
-    --indent=2 \
-    --output=/tmp/quizonline-data.json
-
-  echo "dump size: $(du -h /tmp/quizonline-data.json | cut -f1)"
-
-  # 7b. Load into the new postgres DB (uses the current .env URL).
-  python manage.py loaddata /tmp/quizonline-data.json
-'
-```
-
-`loaddata` writes every row with explicit primary keys, which leaves
-the postgres auto-increment sequences at zero. Without a reset, the
-next `INSERT` collides with the loaded ids. Reset every app's
-sequences in one shot:
+Create `/tmp/dump-sqlite.py`:
 
 ```bash
-sudo -u django bash -c '
-  cd /var/www/django_websites/QuizOnline/quizonline-server &&
-  source /var/www/django_websites/QuizOnline/.venv/bin/activate &&
-  python <<PY
-import django
-django.setup()
-from django.apps import apps
-from django.core.management import call_command
-labels = [a.label for a in apps.get_app_configs() if a.models_module]
-print(f"resetting sequences for: {labels}")
-call_command("sqlsequencereset", *labels, stdout=open("/tmp/sqlreset.sql", "w"))
-PY
-python manage.py dbshell < /tmp/sqlreset.sql
-'
+cat > /tmp/dump-sqlite.py <<'PYEOF'
+import os, subprocess, sys
+with open('/run/quizonline/.env') as f:
+    for line in f:
+        line = line.rstrip('\n')
+        if not line or line.startswith('#'):
+            continue
+        k, _, v = line.partition('=')
+        os.environ[k] = v
+os.environ['DATABASE_URL'] = 'sqlite:///db.sqlite3'
+os.chdir('/var/www/django_websites/QuizOnline/quizonline-server')
+subprocess.run([
+    sys.executable, 'manage.py', 'dumpdata',
+    '--natural-foreign', '--natural-primary',
+    '--exclude=contenttypes', '--exclude=auth.permission',
+    '--exclude=sessions', '--exclude=admin.logentry',
+    '--indent=2', '--output=/tmp/quizonline-data.json',
+], check=True)
+PYEOF
 ```
 
-Quick verification — the postgres counts should match the SQLite
-counts. Spot-check the heavy tables:
+Run it:
+
+```bash
+sudo -u django /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python /tmp/dump-sqlite.py
+ls -lh /tmp/quizonline-data.json
+head -c 300 /tmp/quizonline-data.json
+```
+
+The JSON should weigh several hundred KB (roughly ~50–80% of the
+SQLite size) and start with real fixture lines like
+`{"model": "core.outboundemail", "pk": 1, ...`. If the file is 4
+bytes (`[]\n`), the override didn't take and dumpdata ran against
+the empty postgres DB — re-check the script.
+
+### 7b. Load into PostgreSQL
+
+Postgres is already in `/run/quizonline/.env`, no override needed:
+
+```bash
+systemd-run --pipe --wait --quiet --collect \
+  --uid=django --gid=www-data \
+  --property=EnvironmentFile=/run/quizonline/.env \
+  --working-directory=/var/www/django_websites/QuizOnline/quizonline-server \
+  /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python manage.py loaddata /tmp/quizonline-data.json
+```
+
+Expect `Installed XXXX object(s) from 1 fixture(s)`. Spot-check:
 
 ```bash
 sudo -u postgres psql -d quizonline -c "
-  SELECT 'auth_user' AS t, COUNT(*) FROM auth_user
-  UNION ALL SELECT 'domain', COUNT(*) FROM domain_domain
-  UNION ALL SELECT 'course', COUNT(*) FROM course_course
-  UNION ALL SELECT 'lesson', COUNT(*) FROM lesson_lesson
-  UNION ALL SELECT 'block',  COUNT(*) FROM block_block;
+  SELECT 'customuser' AS t, COUNT(*) FROM customuser_customuser
+  UNION ALL SELECT 'domain',     COUNT(*) FROM domain_domain
+  UNION ALL SELECT 'course',     COUNT(*) FROM course_course
+  UNION ALL SELECT 'lesson',     COUNT(*) FROM lesson_lesson
+  UNION ALL SELECT 'block',      COUNT(*) FROM block_block;
 "
 ```
+
+Counts should match the live data you remember (or what was in the
+pre-migration SQLite).
+
+### 7c. Reset the postgres sequences
+
+`loaddata` writes every row with explicit primary keys, which leaves
+the postgres auto-increment sequences at zero. Without a reset, the
+next `INSERT` collides with the loaded ids. List every app explicitly
+(`manage.py sqlsequencereset` takes app labels as positional args):
+
+```bash
+systemd-run --pipe --wait --quiet --collect \
+  --uid=django --gid=www-data \
+  --property=EnvironmentFile=/run/quizonline/.env \
+  --working-directory=/var/www/django_websites/QuizOnline/quizonline-server \
+  /var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/python manage.py sqlsequencereset \
+    admin assessment auth block certificate contenttypes core course customuser domain enrollment language lesson question quiz sessions subject token_blacklist \
+  > /tmp/reset-seq.sql
+
+wc -l /tmp/reset-seq.sql
+head -3 /tmp/reset-seq.sql
+```
+
+Should be 30+ lines starting with `BEGIN;`. Apply via psql:
+
+```bash
+PG_PASSWORD=$(grep ^DATABASE_URL /run/quizonline/.env | sed 's|.*//quizonline:||; s|@.*||')
+PGPASSWORD="$PG_PASSWORD" psql -h 127.0.0.1 -U quizonline -d quizonline -f /tmp/reset-seq.sql 2>&1 | tail -5
+```
+
+Expect a stream of `setval` results then `COMMIT`.
 
 ---
 
 ## 8. Restart the app + smoke test
 
 ```bash
-sudo systemctl start quizonline-gunicorn quizonline-celery quizonline-celery-beat
-sleep 5
-curl -sI http://127.0.0.1:8000/api/health/ | head -1
-sudo journalctl -u quizonline-gunicorn -n 50 --no-pager
+systemctl start quizonline-gunicorn quizonline-celery quizonline-celery-beat
+sleep 3
+systemctl status quizonline-gunicorn --no-pager | head -5
+journalctl -u quizonline-gunicorn -n 20 --no-pager | tail -10
 ```
 
-Then in a browser, hit the live URL and walk through:
+Then in a browser, hit the live URL (cache-busting reload) and walk
+through:
 
 - Login (existing user, password unchanged)
 - Catalog + open a course detail
 - Lesson view with quiz block
 - Admin panel (`/admin/`)
+- At least one write action (create / edit something)
 
 If anything blows up → **rollback** (next section).
 
@@ -263,51 +332,124 @@ The SQLite file at `quizonline-server/db.sqlite3` is untouched
 throughout. To revert:
 
 ```bash
-sudo systemctl stop quizonline-celery-beat quizonline-celery quizonline-gunicorn
-sudo -u django cp /var/www/django_websites/QuizOnline/quizonline-server/.env.before-postgres \
-  /var/www/django_websites/QuizOnline/quizonline-server/.env
-sudo systemctl start quizonline-gunicorn quizonline-celery quizonline-celery-beat
+systemctl stop quizonline-celery-beat quizonline-celery quizonline-gunicorn
+cp /run/quizonline/.env.before-postgres /run/quizonline/.env
+systemctl start quizonline-gunicorn quizonline-celery quizonline-celery-beat
 ```
 
-Then push the SQLite URL back to SSM if Option B was used in step 3,
-so a fresh deploy doesn't re-pull the postgres URL.
+Push the SQLite URL back to SSM (see step 10.1) so a fresh deploy or
+reboot doesn't re-pull the postgres URL.
 
 ---
 
 ## 10. Post-cutover housekeeping (no downtime)
 
-1. **Persist the URL to SSM** (if step 3 used Option A):
+### 10.1 — Persist the URL to SSM (critical)
 
-   ```bash
-   aws ssm put-parameter \
-     --name /quizonline/prod/DATABASE_URL \
-     --value "postgres://quizonline:$PG_PASSWORD@localhost:5432/quizonline" \
-     --type SecureString \
-     --overwrite
-   ```
+Without this, the next reboot or deploy fires
+`quizonline-env-fetch.service` which re-pulls `sqlite:///db.sqlite3`
+from SSM and overwrites `/run/quizonline/.env` — the app boots on
+empty SQLite. **Do this before logging off.**
 
-2. **Test the backup script against the new DB**:
+The EC2 default shell credentials may not have `ssm:PutParameter`
+permission (the IAM identity attached to the shell is different
+from the EC2 instance role that env-fetch uses). The simplest
+reliable path is the AWS console:
 
-   ```bash
-   sudo -u django bash /var/www/django_websites/QuizOnline/deploy/backup-db.sh
-   ls -lh /var/backups/quizonline | tail -3
-   ```
+1. AWS Console → Systems Manager → Parameter Store.
+2. Find `/quizonline/prod/DATABASE_URL`.
+3. Edit, change value to
+   `postgres://quizonline:<PASSWORD>@localhost:5432/quizonline`,
+   set type to `SecureString` (the value now contains a password).
+4. Save.
 
-   You should see a `*.sql.gz` (postgres dump) alongside the older
-   `*.sqlite3.gz` archives. The script already handles both schemes.
+Verify the new value survives an env-fetch (which mirrors what
+happens at every boot):
 
-3. **Tune PostgreSQL for the host's RAM** — Debian's default
-   `shared_buffers = 128MB` is fine for the first weeks. Re-visit
-   when concurrent users climb above 50.
+```bash
+systemctl restart quizonline-env-fetch.service
+grep ^DATABASE_URL /run/quizonline/.env
+```
 
-4. **Keep the SQLite file for a week** before deleting:
+Must print the postgres URL, NOT `sqlite:///db.sqlite3`.
 
-   ```bash
-   sudo -u django mv /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3 \
-     /var/backups/quizonline/db.sqlite3.pre-postgres-$(date -u +%Y%m%d)
-   ```
+If you happen to have the right IAM perms in your CLI session, the
+equivalent CLI call is:
 
-   Then delete after a week's clean operation.
+```bash
+aws ssm put-parameter \
+  --name /quizonline/prod/DATABASE_URL \
+  --value "postgres://quizonline:$PG_PASSWORD@localhost:5432/quizonline" \
+  --type SecureString \
+  --overwrite \
+  --region eu-west-1
+```
+
+### 10.2 — Test the backup script against postgres
+
+```bash
+sudo -u django ENV_FILE=/run/quizonline/.env \
+  bash /var/www/django_websites/QuizOnline/deploy/backup-db.sh
+ls -lh /var/backups/quizonline/ | tail -3
+```
+
+You should see a fresh `quizonline-*.sql.gz` (postgres dump via
+`pg_dump`) alongside the pre-migration `*.sqlite3.gz`. The script
+auto-detects the URL scheme and uses the right dumper.
+
+### 10.3 — Make sure the daily backup timer is enabled
+
+Earlier installs may never have enabled the systemd timer:
+
+```bash
+systemctl is-enabled quizonline-backup.timer
+```
+
+If `not-found` (the units were never copied to `/etc/systemd/system/`)
+or `disabled`:
+
+```bash
+cp /var/www/django_websites/QuizOnline/deploy/quizonline-backup.service /etc/systemd/system/
+cp /var/www/django_websites/QuizOnline/deploy/quizonline-backup.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now quizonline-backup.timer
+systemctl list-timers quizonline-backup --no-pager
+```
+
+The service unit carries `Environment="ENV_FILE=/run/quizonline/.env"`
+so the script reads the right env on every fire — no additional
+override needed.
+
+Smoke-test by triggering a manual run:
+
+```bash
+systemctl start quizonline-backup.service
+journalctl -u quizonline-backup.service -n 10 --no-pager | tail -5
+```
+
+Expect a fresh `*.sql.gz` in `/var/backups/quizonline/`.
+
+### 10.4 — Keep the SQLite file for a week, then archive
+
+The pre-migration `db.sqlite3` is your safety net while the new
+postgres install settles. After ~7 days of clean operation:
+
+```bash
+sudo -u django mv \
+  /var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3 \
+  /var/backups/quizonline/db.sqlite3.pre-postgres-$(date -u +%Y%m%d)
+```
+
+Delete entirely once you're confident.
+
+### 10.5 — Tune PostgreSQL when usage grows
+
+Debian's default `shared_buffers = 128MB` is fine for the first
+weeks. Re-visit when concurrent users climb above 50 or when
+the working set exceeds a few hundred MB. The standard knobs to
+revisit are in `/etc/postgresql/16/main/postgresql.conf`:
+`shared_buffers`, `work_mem`, `effective_cache_size`,
+`max_connections`.
 
 ---
 
@@ -317,7 +459,7 @@ so a fresh deploy doesn't re-pull the postgres URL.
 Python). Replace step 7 with `pgloader`:
 
 ```bash
-sudo apt-get install -y pgloader
+apt-get install -y pgloader
 echo "load database
   from sqlite:///var/www/django_websites/QuizOnline/quizonline-server/db.sqlite3
   into postgresql://quizonline:$PG_PASSWORD@localhost/quizonline
@@ -327,5 +469,5 @@ echo "load database
 pgloader /tmp/migrate.load
 ```
 
-`pgloader` resets sequences on its own — skip the `sqlsequencereset`
-step. Everything else (smoke test / rollback) is unchanged.
+`pgloader` resets sequences on its own — skip step 7c. Everything
+else (smoke test / rollback / housekeeping) is unchanged.

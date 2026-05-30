@@ -9,7 +9,16 @@ Type=oneshot
 User=django
 Group=www-data
 
-# Override these by editing the unit, or via systemctl edit quizonline-backup.service:
+# Point the script at the live runtime env file populated by
+# quizonline-env-fetch.service. The script's default
+# (``${PROJECT_DIR}/.env``) doesn't exist in this deployment because
+# the prod ``.env`` is fetched from SSM Parameter Store into a tmpfs
+# at /run/quizonline/.env (see deploy/fetch-env-from-ssm.sh). Without
+# this override the timer fails on every fire with
+# ``ERROR: env file not found``.
+Environment="ENV_FILE=/run/quizonline/.env"
+
+# Other overrides — uncomment + edit, or via systemctl edit quizonline-backup.service:
 # Environment="PROJECT_DIR=/var/www/django_websites/QuizOnline/quizonline-server"
 # Environment="BACKUP_DIR=/var/backups/quizonline"
 # Environment="RETENTION_DAYS=14"
