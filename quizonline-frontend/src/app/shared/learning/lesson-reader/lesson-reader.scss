@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+
+.lesson-reader {
+  display: block;
+
+  &--has-outline {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+
+    @media (max-width: 860px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+/* Sticky on viewports wide enough to host two columns. The ``top``
+ * value clears the app's sticky topbar (~60px) plus a small breathing
+ * gap, so the outline header never disappears under the topbar as
+ * the user scrolls. ``max-height`` + internal ``overflow-y: auto``
+ * keep the panel inside the viewport even when the outline lists
+ * 20+ blocks. */
+.lesson-outline {
+  position: sticky;
+  top: 84px;
+  align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  border: 1px solid var(--p-surface-border, #e5e7eb);
+  border-radius: 10px;
+  background: var(--p-surface-0, #fff);
+  padding: 0.85rem 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+  @media (max-width: 860px) {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.lesson-outline__heading {
+  margin: 0 0 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.lesson-outline__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.lesson-outline__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.9rem;
+  transition: background-color 120ms ease, color 120ms ease;
+
+  &:hover {
+    background: var(--p-surface-100, #f3f4f6);
+  }
+
+  /* Active outline entry — only ever set when ``scrollSpy`` is on
+   * (learner page). In edit-preview mode the IntersectionObserver
+   * is not registered and ``activeAnchor`` stays null. */
+  &--active {
+    background: var(--p-primary-50, #eff6ff);
+    color: var(--p-primary-color, #3b82f6);
+    font-weight: 600;
+
+    .lesson-outline__index {
+      background: var(--p-primary-color, #3b82f6);
+      color: #fff;
+    }
+  }
+}
+
+.lesson-outline__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--p-surface-100, #f3f4f6);
+  color: var(--text-color-secondary, #6b7280);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-outline__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  scroll-margin-top: 1rem;
+}

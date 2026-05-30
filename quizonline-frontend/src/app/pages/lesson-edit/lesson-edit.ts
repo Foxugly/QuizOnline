@@ -10,14 +10,10 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
-import {UserService} from '../../services/user/user';
 import {ContentBlock} from '../../shared/learning/content-block.types';
-import {BLOCK_ICONS} from '../../shared/learning/block-icons';
-import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
-import {pickTranslation} from '../../shared/learning/learning-translations';
 
-import {BlockCard} from '../../shared/learning/block-card/block-card';
 import {BlockListEditor} from '../../shared/learning/block-list-editor/block-list-editor';
+import {LessonReader} from '../../shared/learning/lesson-reader/lesson-reader';
 
 import {getLessonEditUiText} from './lesson-edit.i18n';
 
@@ -37,16 +33,6 @@ interface LessonDetailDto {
   domain_id?: number;
 }
 
-/** Shape consumed by the left-side block outline in preview mode —
- *  mirrors the lesson-view ``BlockOutlineItem`` so authors see the
- *  same navigation experience as their learners. */
-interface BlockOutlineItem {
-  id: number;
-  label: string;
-  icon: string;
-  anchor: string;
-}
-
 /**
  * Lesson-author shell: ordered list of content blocks with
  * ``@angular/cdk`` drag-and-drop reorder, per-type editor host, and
@@ -54,14 +40,19 @@ interface BlockOutlineItem {
  * via ``HttpClient + resolveApiBaseUrl()`` to match the rest of the
  * LMS pages; reorder funnels through :class:`CatalogService`
  * which already knows the bulk-reorder route.
+ *
+ * Preview mode reuses the shared ``<app-lesson-reader>`` component
+ * (without scroll-spy) so the outline + body render verbatim the
+ * same way as the learner-facing ``/lesson/{id}`` page — same anchors,
+ * same outline derivation, same block card visuals.
  */
 @Component({
   selector: 'app-lesson-edit',
   imports: [
     ButtonModule,
     PageHeader,
-    BlockCard,
     BlockListEditor,
+    LessonReader,
   ],
   templateUrl: './lesson-edit.html',
   styleUrl: './lesson-edit.scss',
@@ -72,12 +63,9 @@ export class LessonEdit implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly toast = inject(AppToastService);
-  private readonly userService = inject(UserService);
-  protected readonly currentLang = this.userService.lang;
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getLessonEditUiText);
-  protected readonly common = this.uiSvc.localized(getLearningCommonUiText);
   /** Editor-scoped UI dictionary, used for ``common.back`` on the header back button. */
   protected readonly editorUi = this.uiSvc.editor;
 
@@ -100,61 +88,12 @@ export class LessonEdit implements OnInit, OnDestroy {
   protected readonly hasLesson = computed(() => this.lessonId() > 0);
 
   /** Toggle between the per-type editors and the in-page learner
-   *  preview. The preview reuses the lesson-view block renderers so
-   *  the author sees the exact same render the apprenant gets,
-   *  without a route change or a tab. */
+   *  preview. The preview reuses ``<app-lesson-reader>`` so the
+   *  author sees the exact same render the apprenant gets — without
+   *  a route change or a tab. */
   protected readonly previewMode = signal(false);
   protected togglePreview(): void {
     this.previewMode.update((v) => !v);
-  }
-
-  /** Outline entries derived from the blocks list — feeds the
-   *  left-side sticky navigation rendered in preview mode. Label
-   *  prefers the block's own translated ``title`` and falls back to
-   *  the localised block-type name (e.g. "Texte enrichi"). Same
-   *  shape and resolution rules as lesson-view's outline so the
-   *  author preview matches the learner view exactly.
-   *
-   *  Anchor format mirrors the ``<app-block-list-editor>`` composite
-   *  scheme (``block-{hostType}-{hostId}-{blockId}``) so the outline
-   *  links land on the right card even with multiple block lists in
-   *  the same page (the question editor renders four sibling lists). */
-  protected readonly outline = computed<BlockOutlineItem[]>(() => {
-    const labels = this.common().blockTypeLabels;
-    const lang = this.currentLang();
-    const lessonId = this.lessonId();
-    return this.blocks().map((b) => {
-      const customTitle = pickTranslation(b.translations, lang, 'title')?.trim();
-      return {
-        id: b.id,
-        label: customTitle || labels[b.block_type] || b.block_type,
-        icon: BLOCK_ICONS[b.block_type] ?? 'pi pi-file',
-        anchor: `block-lesson-${lessonId}-${b.id}`,
-      };
-    });
-  });
-
-  /** Absolute href for a block anchor — combines the current path
-   *  with ``#anchor`` so the browser's link preview / right-click
-   *  "copy link" produce ``/lesson/{id}/edit#block-X`` instead
-   *  of the SPA root (``<base href="/">`` would otherwise collapse
-   *  a bare ``#anchor`` to ``/#anchor``). */
-  protected anchorHref(anchor: string): string {
-    return `${location.pathname}${location.search}#${anchor}`;
-  }
-
-  /** Smooth-scroll to a block by anchor. Plain ``<a href="#x">`` is
-   *  intercepted by the Angular Router and teleports to the home
-   *  route — we handle the click ourselves to stay in-page and get
-   *  smooth scrolling for free. */
-  protected scrollToBlock(event: MouseEvent, anchor: string): void {
-    event.preventDefault();
-    const target = document.getElementById(anchor);
-    if (!target) {
-      return;
-    }
-    target.scrollIntoView({behavior: 'smooth', block: 'start'});
-    history.replaceState(history.state, '', this.anchorHref(anchor));
   }
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
