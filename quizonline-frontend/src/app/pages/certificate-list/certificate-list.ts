@@ -3,6 +3,7 @@ import {DatePipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {CATALOG, CERTIFICATE_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
@@ -42,7 +43,7 @@ interface CertificateRowVm {
 
 @Component({
   selector: 'app-certificate-list',
-  imports: [DatePipe, RouterLink, ButtonModule, TableModule, PageHeader, TableSkeleton],
+  imports: [DatePipe, RouterLink, ButtonModule, TableModule, TooltipModule, PageHeader, TableSkeleton],
   templateUrl: './certificate-list.html',
   styleUrl: './certificate-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

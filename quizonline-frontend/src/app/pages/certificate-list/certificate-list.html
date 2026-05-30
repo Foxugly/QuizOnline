@@ -30,10 +30,12 @@
           <p-button
             [routerLink]="row.viewHref"
             icon="pi pi-eye"
-            [label]="ui().viewButton"
-            size="small"
+            [pTooltip]="ui().viewButton"
+            [attr.aria-label]="ui().viewButton"
             severity="success"
-            [outlined]="true" />
+            size="small"
+            text
+            type="button" />
           @if (row.pdfUrl) {
             <a
               class="p-button p-button-sm p-button-secondary"

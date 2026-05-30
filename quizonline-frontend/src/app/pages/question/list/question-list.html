@@ -156,8 +156,11 @@
                 (click)="goView(row.question.id)"
                 icon="pi pi-eye"
                 id="btn_view_question"
+                [pTooltip]="editorUi().common.view"
+                [attr.aria-label]="editorUi().common.view"
                 severity="success"
                 size="small"
+                text
                 type="button">
               </p-button>
 
@@ -165,8 +168,11 @@
                 (click)="goEdit(row.question.id)"
                 icon="pi pi-pencil"
                 id="btn_edit_question"
+                [pTooltip]="editorUi().common.edit"
+                [attr.aria-label]="editorUi().common.edit"
                 severity="info"
                 size="small"
+                text
                 type="button">
               </p-button>
 
@@ -174,8 +180,11 @@
                 (click)="goDelete(row.question.id)"
                 icon="pi pi-trash"
                 id="btn_delete_question"
+                [pTooltip]="editorUi().common.delete"
+                [attr.aria-label]="editorUi().common.delete"
                 severity="danger"
                 size="small"
+                text
                 type="button">
               </p-button>
             </div>
