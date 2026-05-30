@@ -2,8 +2,8 @@ import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angu
 import {ImageModule} from 'primeng/image';
 
 import {UserService} from '../../../services/user/user';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickTranslation} from '../../../shared/learning/learning-translations';
+import {ContentBlock} from '../content-block.types';
+import {pickTranslation} from '../learning-translations';
 
 /**
  * Renders the ``image`` ContentBlock via PrimeNG's ``<p-image>`` so the

@@ -7,13 +7,13 @@ import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 
 import {UserService} from '../../../services/user/user';
-import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickDefaultLang} from '../../../shared/learning/default-lang';
-import {VideoProvider, getLearningCommonUiText} from '../../../shared/learning/learning-common.i18n';
-import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../../shared/media/youtube';
+import {UiTextService} from '../../i18n/ui-text.service';
+import {ContentBlock} from '../content-block.types';
+import {pickDefaultLang} from '../default-lang';
+import {VideoProvider, getLearningCommonUiText} from '../learning-common.i18n';
+import {isYoutubeUrl, toYoutubeEmbedUrl} from '../../media/youtube';
 
-import {getBlockListEditorUiText} from '../../../shared/learning/block-list-editor/block-list-editor.i18n';
+import {getBlockListEditorUiText} from '../block-list-editor/block-list-editor.i18n';
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 

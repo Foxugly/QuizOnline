@@ -12,10 +12,10 @@ import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {QuizService} from '../../../services/quiz/quiz';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
 import {UserService} from '../../../services/user/user';
-import {logApiError} from '../../../shared/api/api-errors';
-import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickTranslation, type TranslationsMap} from '../../../shared/learning/learning-translations';
+import {logApiError} from '../../api/api-errors';
+import {UiTextService} from '../../i18n/ui-text.service';
+import {ContentBlock} from '../content-block.types';
+import {pickTranslation, type TranslationsMap} from '../learning-translations';
 import {getBlockRenderersUiText} from './block-renderers.i18n';
 
 /**

@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
 
 import {UserService} from '../../../services/user/user';
-import {readCalloutVariant} from '../../../shared/learning/callout-variants';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickTranslation} from '../../../shared/learning/learning-translations';
+import {readCalloutVariant} from '../callout-variants';
+import {ContentBlock} from '../content-block.types';
+import {pickTranslation} from '../learning-translations';
 
 /**
  * Renders the ``callout`` ContentBlock — an aside with optional bold

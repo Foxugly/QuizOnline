@@ -7,12 +7,12 @@ import {TabsModule} from 'primeng/tabs';
 import {TextareaModule} from 'primeng/textarea';
 
 import {UserService} from '../../../services/user/user';
-import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {CALLOUT_VARIANTS, CalloutVariant, DEFAULT_CALLOUT_VARIANT, readCalloutVariant} from '../../../shared/learning/callout-variants';
-import {ContentBlock} from '../../../shared/learning/content-block.types';
-import {pickDefaultLang} from '../../../shared/learning/default-lang';
+import {UiTextService} from '../../i18n/ui-text.service';
+import {CALLOUT_VARIANTS, CalloutVariant, DEFAULT_CALLOUT_VARIANT, readCalloutVariant} from '../callout-variants';
+import {ContentBlock} from '../content-block.types';
+import {pickDefaultLang} from '../default-lang';
 
-import {getBlockListEditorUiText} from '../../../shared/learning/block-list-editor/block-list-editor.i18n';
+import {getBlockListEditorUiText} from '../block-list-editor/block-list-editor.i18n';
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
