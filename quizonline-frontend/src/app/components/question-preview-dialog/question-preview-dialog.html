@@ -4,11 +4,11 @@
   [visible]="visible()"
   [header]="pageText().header"
   (visibleChange)="onVisibleChange($event)">
-  @if (loading) {
+  @if (loading()) {
     <div class="question-preview-dialog__state">{{ pageText().loading }}</div>
-  } @else if (error) {
-    <div class="alert alert--error">{{ error }}</div>
-  } @else if (previewItem; as item) {
+  } @else if (error(); as err) {
+    <div class="alert alert--error">{{ err }}</div>
+  } @else if (previewItem(); as item) {
     <app-quiz-question
       [quizNavItem]="item"
       [readonlyMode]="true"

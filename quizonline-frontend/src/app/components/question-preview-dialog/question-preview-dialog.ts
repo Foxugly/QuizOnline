@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, DestroyRef, effect, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, computed, effect, inject, input, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
@@ -30,9 +30,28 @@ export class QuestionPreviewDialogComponent {
 
   readonly pageText = inject(UiTextService).localized(getQuestionPreviewDialogUiText);
 
-  loading = false;
-  error: string | null = null;
-  question: QuestionReadDto | null = null;
+  // Signals (OnPush): the template only re-renders when these change.
+  // Plain class fields here would render once on dialog open and then
+  // never update when the question fetch resolves — the user would see
+  // an empty preview until the next CD tick (e.g. a click).
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly question = signal<QuestionReadDto | null>(null);
+
+  readonly previewItem = computed<QuizNavItem | null>(() => {
+    const q = this.question();
+    if (!q) {
+      return null;
+    }
+    return {
+      index: 1,
+      id: q.id,
+      answered: false,
+      flagged: false,
+      question: q,
+      selectedOptionIds: [],
+    };
+  });
 
   private readonly questionService = inject(QuestionService);
   private readonly destroyRef = inject(DestroyRef);
@@ -51,21 +70,6 @@ export class QuestionPreviewDialogComponent {
     });
   }
 
-  get previewItem(): QuizNavItem | null {
-    if (!this.question) {
-      return null;
-    }
-
-    return {
-      index: 1,
-      id: this.question.id,
-      answered: false,
-      flagged: false,
-      question: this.question,
-      selectedOptionIds: [],
-    };
-  }
-
   onVisibleChange(visible: boolean): void {
     if (!visible) {
       this.resetState();
@@ -75,37 +79,37 @@ export class QuestionPreviewDialogComponent {
 
   private loadQuestion(questionId: number | null): void {
     if (!questionId) {
-      this.error = this.pageText().notFound;
-      this.question = null;
-      this.loading = false;
+      this.error.set(this.pageText().notFound);
+      this.question.set(null);
+      this.loading.set(false);
       return;
     }
 
-    this.loading = true;
-    this.error = null;
-    this.question = null;
+    this.loading.set(true);
+    this.error.set(null);
+    this.question.set(null);
 
     this.questionService.retrieve(questionId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
-          this.loading = false;
+          this.loading.set(false);
         }),
       )
       .subscribe({
         next: (question) => {
-          this.question = question;
+          this.question.set(question);
         },
         error: (error) => {
           console.error(error);
-          this.error = this.pageText().loadFailed;
+          this.error.set(this.pageText().loadFailed);
         },
       });
   }
 
   private resetState(): void {
-    this.loading = false;
-    this.error = null;
-    this.question = null;
+    this.loading.set(false);
+    this.error.set(null);
+    this.question.set(null);
   }
 }
