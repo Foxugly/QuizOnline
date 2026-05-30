@@ -2,7 +2,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 
 /**
  * Shared label dictionary for every block-editor under
- * ``pages/lesson-edit/block-editors/``. Each editor injects this
+ * ``shared/learning/block-editors/``. Each editor injects this
  * via :func:`UiTextService.localized` so the field labels stay
  * consistent across editors without duplicating five-language switches
  * inside every component file.

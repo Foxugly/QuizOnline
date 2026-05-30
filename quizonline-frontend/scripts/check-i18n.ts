@@ -69,7 +69,8 @@ import {getCertificateViewUiText} from '../src/app/pages/certificate-view/certif
 import {getCertificateVerifyUiText} from '../src/app/pages/certificate-verify/certificate-verify.i18n';
 import {getCourseDetailUiText} from '../src/app/pages/course-detail/course-detail.i18n';
 import {getCourseEditEnrollmentTabUiText} from '../src/app/pages/course-edit/tabs/enrollment-tab/enrollment-tab.i18n';
-import {getBlockEditorsUiText} from '../src/app/pages/lesson-edit/block-editors/block-editors.i18n';
+import {getBlockEditorsUiText} from '../src/app/shared/learning/block-editors/block-editors.i18n';
+import {getBlockRenderersUiText} from '../src/app/shared/learning/block-renderers/block-renderers.i18n';
 import {getProgressUiText} from '../src/app/pages/progress/progress.i18n';
 import {getQuizAlertListUiText} from '../src/app/pages/quiz/alerts/list/quiz-alert-list.i18n';
 
@@ -122,7 +123,8 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/certificate-verify', get: getCertificateVerifyUiText as Getter},
   {name: 'pages/course-detail', get: getCourseDetailUiText as Getter},
   {name: 'pages/course-edit/enrollment-tab', get: getCourseEditEnrollmentTabUiText as Getter},
-  {name: 'pages/lesson-edit/block-editors', get: getBlockEditorsUiText as Getter},
+  {name: 'shared/learning/block-editors', get: getBlockEditorsUiText as Getter},
+  {name: 'shared/learning/block-renderers', get: getBlockRenderersUiText as Getter},
   {name: 'pages/progress', get: getProgressUiText as Getter},
   {name: 'pages/quiz/alerts/list', get: getQuizAlertListUiText as Getter},
 ];

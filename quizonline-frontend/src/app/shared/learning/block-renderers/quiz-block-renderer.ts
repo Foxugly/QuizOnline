@@ -16,7 +16,7 @@ import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickTranslation, type TranslationsMap} from '../../../shared/learning/learning-translations';
-import {getLessonViewUiText} from '../lesson-view.i18n';
+import {getBlockRenderersUiText} from './block-renderers.i18n';
 
 /**
  * Launcher card for the ``quiz`` ContentBlock.
@@ -147,7 +147,7 @@ export class QuizBlockRenderer implements OnInit {
   private readonly templateService = inject(QuizTemplateService);
   private readonly userService = inject(UserService);
 
-  protected readonly ui = inject(UiTextService).localized(getLessonViewUiText);
+  protected readonly ui = inject(UiTextService).localized(getBlockRenderersUiText);
 
   readonly block = input.required<ContentBlock>();
 

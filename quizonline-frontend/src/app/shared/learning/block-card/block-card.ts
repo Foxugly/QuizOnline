@@ -1,14 +1,14 @@
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 
 import {ContentBlock} from '../content-block.types';
-import {RichTextBlockRenderer} from '../../../pages/lesson-view/block-renderers/rich-text-block-renderer';
-import {ImageBlockRenderer} from '../../../pages/lesson-view/block-renderers/image-block-renderer';
-import {VideoBlockRenderer} from '../../../pages/lesson-view/block-renderers/video-block-renderer';
-import {FileBlockRenderer} from '../../../pages/lesson-view/block-renderers/file-block-renderer';
-import {QuizBlockRenderer} from '../../../pages/lesson-view/block-renderers/quiz-block-renderer';
-import {CalloutBlockRenderer} from '../../../pages/lesson-view/block-renderers/callout-block-renderer';
-import {CodeBlockRenderer} from '../../../pages/lesson-view/block-renderers/code-block-renderer';
-import {EmbedBlockRenderer} from '../../../pages/lesson-view/block-renderers/embed-block-renderer';
+import {RichTextBlockRenderer} from '../block-renderers/rich-text-block-renderer';
+import {ImageBlockRenderer} from '../block-renderers/image-block-renderer';
+import {VideoBlockRenderer} from '../block-renderers/video-block-renderer';
+import {FileBlockRenderer} from '../block-renderers/file-block-renderer';
+import {QuizBlockRenderer} from '../block-renderers/quiz-block-renderer';
+import {CalloutBlockRenderer} from '../block-renderers/callout-block-renderer';
+import {CodeBlockRenderer} from '../block-renderers/code-block-renderer';
+import {EmbedBlockRenderer} from '../block-renderers/embed-block-renderer';
 
 /**
  * Shared visual frame for every rendered content block.

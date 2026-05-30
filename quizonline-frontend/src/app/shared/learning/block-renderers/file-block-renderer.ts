@@ -4,7 +4,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {UserService} from '../../../services/user/user';
 import {ContentBlock} from '../../../shared/learning/content-block.types';
 import {pickTranslation} from '../../../shared/learning/learning-translations';
-import {getLessonViewUiText} from '../lesson-view.i18n';
+import {getBlockRenderersUiText} from './block-renderers.i18n';
 
 /**
  * Renders the ``file`` ContentBlock as a download link. The visible label
@@ -25,7 +25,7 @@ import {getLessonViewUiText} from '../lesson-view.i18n';
 })
 export class FileBlockRenderer {
   private readonly user = inject(UserService);
-  protected readonly ui = inject(UiTextService).localized(getLessonViewUiText);
+  protected readonly ui = inject(UiTextService).localized(getBlockRenderersUiText);
 
   readonly block = input.required<ContentBlock>();
 

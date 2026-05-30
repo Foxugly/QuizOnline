@@ -14,7 +14,7 @@ import {ContentBlock} from '../../shared/learning/content-block.types';
 import {BlockListEditor} from '../../shared/learning/block-list-editor/block-list-editor';
 import {TranslateBatchItem, TranslationService} from '../../services/translation/translation';
 
-import {getBlockEditorsUiText} from '../../pages/lesson-edit/block-editors/block-editors.i18n';
+import {getBlockEditorsUiText} from '../../shared/learning/block-editors/block-editors.i18n';
 import {getQuestionEditorFormUiText} from './question-editor-form.i18n';
 
 /**
