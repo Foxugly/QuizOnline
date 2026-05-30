@@ -55,6 +55,15 @@
   min-width: 0;
 }
 
+// The footer-actions row in this form sits right under the
+// certificate-branding fieldset (or the previous field when the
+// fieldset is hidden). Without a top margin the action buttons
+// (Annuler / Enregistrer) butt right against the fieldset border —
+// add some breathing room so the page does not feel cramped.
+.footer-actions {
+  margin-top: 1.25rem;
+}
+
 @media (max-width: 768px) {
   .meta-grid--context {
     grid-template-columns: 1fr;

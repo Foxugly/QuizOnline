@@ -16,10 +16,12 @@
         <span class="block-header__spacer"></span>
         @if (!isEditing(block.id)) {
           <p-button icon="pi pi-pencil" severity="info" size="small"
+                    [outlined]="true"
                     (onClick)="editBlock(block.id)"
                     [attr.aria-label]="ui().editBlockAria" />
         }
         <p-button icon="pi pi-trash" severity="danger" size="small"
+                  [outlined]="true"
                   (onClick)="deleteBlock(block.id)"
                   [attr.aria-label]="ui().deleteBlockAria" />
       </div>

@@ -8,9 +8,7 @@
   </div>
 
   @if (loading()) {
-    <div class="card">
-      <p class="muted">{{ ui().preferences.loading }}</p>
-    </div>
+    <app-loading-skeleton [rows]="5" [attr.aria-label]="ui().preferences.loading" />
   } @else {
     <div class="card form-card builder-stack">
       <p-tabs [value]="activeSection()" (valueChange)="onSectionChange($event)" class="builder-tabs">

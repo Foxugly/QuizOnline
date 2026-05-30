@@ -21,6 +21,7 @@ import {QuizTemplateService} from '../../../services/quiz-template/quiz-template
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
+import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
 import {AssignableRecipient, QuizTemplateListItem, UserQuizListItem} from './quiz-list.models';
 import {DomainService} from '../../../services/domain/domain';
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
@@ -52,6 +53,7 @@ type BulkAction = 'activate' | 'deactivate' | 'delete';
     QuizSessionTableComponent,
     QuizTemplateAssignDialogComponent,
     BulkActionsComponent,
+    TableSkeleton,
   ],
   providers: [ConfirmationService],
   templateUrl: './quiz-list.html',
@@ -67,6 +69,7 @@ export class QuizListPage implements OnInit {
   currentUserId = signal<number | null>(null);
   q = signal('');
   loading = signal(false);
+  initialLoad = signal<boolean>(true);
   success = signal<string | null>(null);
   error = signal<string | null>(null);
   creatingTemplateId = signal<number | null>(null);
@@ -198,6 +201,7 @@ export class QuizListPage implements OnInit {
           this.templates.set([]);
           this.myQuizzes.set([]);
           this.loading.set(false);
+          this.initialLoad.set(false);
         },
       });
   }
@@ -209,7 +213,10 @@ export class QuizListPage implements OnInit {
     })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false)),
+        finalize(() => {
+          this.loading.set(false);
+          this.initialLoad.set(false);
+        }),
       )
       .subscribe({
         next: ({templates, quizzes}) => {

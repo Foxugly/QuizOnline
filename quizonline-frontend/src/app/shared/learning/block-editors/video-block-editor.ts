@@ -84,10 +84,12 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
 
     <div class="block-editor-footer">
       <p-button type="button" severity="secondary" [outlined]="true"
+                icon="pi pi-times"
                 [label]="listUi().cancelBlockLabel"
                 [disabled]="saving()"
                 (onClick)="cancel.emit()" />
       <p-button type="button"
+                icon="pi pi-save"
                 [label]="listUi().saveBlockLabel"
                 [loading]="saving()"
                 [disabled]="saving()"

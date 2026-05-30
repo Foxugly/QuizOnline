@@ -18,6 +18,7 @@ import {ROUTES} from '../../../app.routes-paths';
 import {AdminUserDto, UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
+import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
 
@@ -37,6 +38,7 @@ type UserListRow = AdminUserDto & {
     TableModule,
     TooltipModule,
     BulkActionsComponent,
+    TableSkeleton,
   ],
   providers: [ConfirmationService],
   templateUrl: './user-list.html',
@@ -51,6 +53,7 @@ export class UserListPage implements OnInit {
 
   readonly ui = inject(UiTextService).editor;
   readonly users = signal<AdminUserDto[]>([]);
+  readonly initialLoad = signal<boolean>(true);
   readonly q = signal('');
   readonly rows = 10;
 
@@ -93,10 +96,14 @@ export class UserListPage implements OnInit {
 
   load(): void {
     this.userService.listAdmin().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (users) => this.users.set(users),
+      next: (users) => {
+        this.users.set(users);
+        this.initialLoad.set(false);
+      },
       error: (err) => {
         logApiError('user.list.load', err);
         this.users.set([]);
+        this.initialLoad.set(false);
       },
     });
   }

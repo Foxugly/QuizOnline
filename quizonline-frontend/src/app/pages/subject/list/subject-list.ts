@@ -15,6 +15,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
+import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
@@ -42,6 +43,7 @@ type SubjectListRow = SubjectReadDto & {
     TableModule,
     TooltipModule,
     BulkActionsComponent,
+    TableSkeleton,
   ],
   providers: [ConfirmationService],
   templateUrl: './subject-list.html',
@@ -58,6 +60,7 @@ export class SubjectList implements OnInit {
   readonly pageText = inject(UiTextService).localized(getSubjectListUiText);
   subjects = signal<SubjectReadDto[]>([]);
   questionCounts = signal<Record<number, number>>({});
+  initialLoad = signal<boolean>(true);
   q = signal('');
   currentLang = computed((): LanguageEnumDto => this.userService.currentLang);
   rowsData = computed<SubjectListRow[]>(() => this.subjects().map((subject) => this.toRow(subject)));
@@ -115,6 +118,7 @@ export class SubjectList implements OnInit {
     }).subscribe({
       next: (subjects) => {
         this.subjects.set(subjects);
+        this.initialLoad.set(false);
 
         if (!subjects.length) {
           this.questionCounts.set({});
@@ -137,6 +141,7 @@ export class SubjectList implements OnInit {
         logApiError('subject.list.load', err);
         this.subjects.set([]);
         this.questionCounts.set({});
+        this.initialLoad.set(false);
       }
     });
   }

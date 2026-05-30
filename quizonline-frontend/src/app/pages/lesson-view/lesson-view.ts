@@ -5,6 +5,7 @@ import {Subject, Subscription, debounceTime} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {TextareaModule} from 'primeng/textarea';
+import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 
 import {CATALOG, COURSE_DETAIL, LESSON_EDIT, LESSON_VIEW} from '../../app.routes-paths';
@@ -51,6 +52,7 @@ interface LessonDetailDto {
     ButtonModule,
     TagModule,
     TextareaModule,
+    TooltipModule,
     LoadingSkeleton,
     PageHeader,
     LessonReader,
