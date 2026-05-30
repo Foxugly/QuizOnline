@@ -17,7 +17,6 @@ class LessonQuiz(models.Model):
         "quiz.QuizTemplate", on_delete=models.PROTECT, related_name="lesson_validations",
     )
     required_score_percent = models.PositiveSmallIntegerField(default=70)
-    is_required = models.BooleanField(default=True)
     max_attempts = models.PositiveIntegerField(default=0, help_text=_("0 = unlimited."))
     unlock_next_lesson_on_success = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

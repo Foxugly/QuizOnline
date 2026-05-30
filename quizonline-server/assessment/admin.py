@@ -10,10 +10,9 @@ class LessonQuizAdmin(admin.ModelAdmin):
         "target_display",
         "quiz_template",
         "required_score_percent",
-        "is_required",
         "max_attempts",
     )
-    list_filter = ("is_required", "lesson__section__course__domain")
+    list_filter = ("lesson__section__course__domain",)
     autocomplete_fields = ("lesson", "course", "quiz_template")
 
     @admin.display(description="Target")

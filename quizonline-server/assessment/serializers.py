@@ -8,7 +8,7 @@ class LessonQuizSerializer(serializers.ModelSerializer):
         model = LessonQuiz
         fields = [
             "id", "lesson", "course", "quiz_template",
-            "required_score_percent", "is_required", "max_attempts",
+            "required_score_percent", "max_attempts",
             "unlock_next_lesson_on_success", "created_at",
         ]
         read_only_fields = ["id", "created_at"]
