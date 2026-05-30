@@ -2,9 +2,9 @@ import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, out
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
-import {SelectButtonModule} from 'primeng/selectbutton';
 import {TabsModule} from 'primeng/tabs';
 import {TextareaModule} from 'primeng/textarea';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../i18n/ui-text.service';
@@ -32,17 +32,24 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-callout-block-editor',
-  imports: [FormsModule, ButtonModule, InputTextModule, SelectButtonModule, TabsModule, TextareaModule, BlockTranslateButton],
+  imports: [FormsModule, ButtonModule, InputTextModule, TabsModule, TextareaModule, TooltipModule, BlockTranslateButton],
   template: `
     <div class="variant-row">
       <span class="variant-row__label">{{ ui().fieldCalloutVariant }}</span>
-      <p-selectButton
-        [options]="variantOptions()"
-        [ngModel]="currentVariant()"
-        optionLabel="label"
-        optionValue="value"
-        [allowEmpty]="false"
-        (ngModelChange)="onVariantChange($event)" />
+      <div class="variant-picker" role="radiogroup" [attr.aria-label]="ui().fieldCalloutVariant">
+        @for (opt of variantOptions(); track opt.value) {
+          <button type="button"
+                  class="variant-swatch"
+                  [class]="'variant-swatch--' + opt.value"
+                  [class.is-active]="currentVariant() === opt.value"
+                  role="radio"
+                  [attr.aria-checked]="currentVariant() === opt.value"
+                  [attr.aria-label]="opt.label"
+                  [pTooltip]="opt.label"
+                  tooltipPosition="top"
+                  (click)="onVariantChange(opt.value)"></button>
+        }
+      </div>
     </div>
 
     <p-tabs [value]="activeLang()" (valueChange)="activeLang.set($any($event))">
@@ -81,10 +88,12 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     </p-tabs>
     <div class="block-editor-footer">
       <p-button type="button" severity="secondary" [outlined]="true"
+                icon="pi pi-times"
                 [label]="listUi().cancelBlockLabel"
                 [disabled]="saving()"
                 (onClick)="cancel.emit()" />
       <p-button type="button"
+                icon="pi pi-save"
                 [label]="listUi().saveBlockLabel"
                 [loading]="saving()"
                 [disabled]="saving()"
@@ -97,6 +106,29 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
     .tablist-actions { display: inline-flex; align-items: center; margin-left: auto; padding-left: 0.5rem; }
     .variant-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; margin-bottom: 0.5rem; }
     .variant-row__label { color: var(--text-color-secondary, #6b7280); }
+    .variant-picker { display: inline-flex; gap: 0.4rem; }
+    .variant-swatch {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+    }
+    .variant-swatch:hover { transform: scale(1.08); }
+    .variant-swatch:focus-visible {
+      outline: 2px solid var(--p-primary-color, #2563eb);
+      outline-offset: 2px;
+    }
+    .variant-swatch.is-active {
+      border-color: var(--text-color, #1f2937);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+    .variant-swatch--info { background: #3b82f6; }
+    .variant-swatch--success { background: #16a34a; }
+    .variant-swatch--warning { background: #f59e0b; }
+    .variant-swatch--error { background: #dc2626; }
     .block-editor-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
