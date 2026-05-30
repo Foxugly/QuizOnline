@@ -212,6 +212,13 @@ export class CourseList implements OnInit {
     void this.router.navigateByUrl(COURSE_DETAIL(slug));
   }
 
+  /** Row-level delete: reuse the same confirmation flow as the bulk
+   *  action with a single-id array. Keeps the destructive path
+   *  centralised through ``runBulk(ids, 'delete')``. */
+  protected goDelete(courseId: number): void {
+    this.confirmDelete([courseId]);
+  }
+
   protected applyBulk(action: string): void {
     if (this.selectedCount() === 0 || this.applyingBulk()) {
       return;
