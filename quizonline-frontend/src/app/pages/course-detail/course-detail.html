@@ -12,20 +12,23 @@
         [routerLink]="href"
         [label]="ui().editButton"
         icon="pi pi-pencil"
-        severity="info" />
+        severity="info"
+        [outlined]="true" />
     }
     @if (continueHref(); as href) {
       <p-button slot="right"
         [routerLink]="href"
         [label]="ui().continueButton"
         icon="pi pi-bookmark"
-        severity="primary" />
+        severity="primary"
+        [outlined]="true" />
     } @else if (pendingInviteToken()) {
       <p-button slot="right"
         (onClick)="acceptInvite()"
         [label]="ui().acceptInviteButton"
         icon="pi pi-check"
         severity="primary"
+        [outlined]="true"
         [loading]="acceptingInvite()"
         [disabled]="acceptingInvite()" />
     } @else if (!isEnrolled()) {
@@ -33,6 +36,7 @@
         (onClick)="enroll()"
         [label]="ui().enrollButton"
         icon="pi pi-user-plus"
+        [outlined]="true"
         [disabled]="enrolling()" />
     }
     @if (showStatusBadge() && isPublished()) {

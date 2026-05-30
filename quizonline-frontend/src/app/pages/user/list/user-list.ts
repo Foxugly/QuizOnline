@@ -11,6 +11,7 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule} from 'primeng/table';
+import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {ROUTES} from '../../../app.routes-paths';
@@ -34,6 +35,7 @@ type UserListRow = AdminUserDto & {
     InputTextModule,
     PaginatorModule,
     TableModule,
+    TooltipModule,
     BulkActionsComponent,
   ],
   providers: [ConfirmationService],
