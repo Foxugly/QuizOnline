@@ -416,6 +416,8 @@ class DomainDetailSerializer(DomainReadSerializer):
             "managers",
             "members",
             "notification_settings",
+            "certificate_logo",
+            "certificate_signatory_name",
             "pending_transfer",
             "created_at",
             "updated_at",
