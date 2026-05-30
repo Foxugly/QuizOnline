@@ -98,6 +98,7 @@
                   icon="pi pi-copy"
                   severity="warn"
                   size="small"
+                  [outlined]="true"
                   [pTooltip]="editorUi().common.duplicate"
                   [attr.aria-label]="editorUi().common.duplicate"
                   (onClick)="onDuplicateAnswer(row.id)" />
@@ -105,6 +106,7 @@
                   icon="pi pi-trash"
                   severity="danger"
                   size="small"
+                  [outlined]="true"
                   [pTooltip]="ui().removeAnswer"
                   [attr.aria-label]="ui().removeAnswer"
                   (onClick)="onRemoveAnswer(row.id)" />
