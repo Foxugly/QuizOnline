@@ -4,7 +4,6 @@ import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {TabsModule} from 'primeng/tabs';
 import {TextareaModule} from 'primeng/textarea';
-import {TooltipModule} from 'primeng/tooltip';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../i18n/ui-text.service';
@@ -32,7 +31,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
  */
 @Component({
   selector: 'app-callout-block-editor',
-  imports: [FormsModule, ButtonModule, InputTextModule, TabsModule, TextareaModule, TooltipModule, BlockTranslateButton],
+  imports: [FormsModule, ButtonModule, InputTextModule, TabsModule, TextareaModule, BlockTranslateButton],
   template: `
     <div class="variant-row">
       <span class="variant-row__label">{{ ui().fieldCalloutVariant }}</span>
@@ -45,8 +44,6 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
                   role="radio"
                   [attr.aria-checked]="currentVariant() === opt.value"
                   [attr.aria-label]="opt.label"
-                  [pTooltip]="opt.label"
-                  tooltipPosition="top"
                   (click)="onVariantChange(opt.value)"></button>
         }
       </div>
