@@ -6242,8 +6242,15 @@ components:
           type: string
           format: date-time
           readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
         pdf_url:
           type: string
+          format: uri
+          nullable: true
           readOnly: true
         revoked_at:
           type: string
@@ -6254,6 +6261,7 @@ components:
       - certificate_number
       - course
       - course_title
+      - expires_at
       - id
       - issued_at
       - pdf_url
@@ -6307,6 +6315,14 @@ components:
               title: Hello
         domain:
           type: integer
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
         lesson_count:
           type: integer
           readOnly: true
@@ -6425,6 +6441,14 @@ components:
               title: Hello
         domain:
           type: integer
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
       required:
       - domain
       - slug
@@ -6681,6 +6705,14 @@ components:
               title: Hello
         domain:
           type: integer
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
         lesson_count:
           type: integer
           readOnly: true
@@ -6809,6 +6841,14 @@ components:
               title: Bonjour
             en:
               title: Hello
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
       required:
       - domain
       - id
@@ -6852,6 +6892,14 @@ components:
               title: Bonjour
             en:
               title: Hello
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
       required:
       - domain
       - language_code
@@ -7120,7 +7168,7 @@ components:
           readOnly: true
         translations:
           allOf:
-          - $ref: '#/components/schemas/LocalizedNameDescriptionTranslations'
+          - $ref: '#/components/schemas/LocalizedDomainTranslations'
           readOnly: true
         allowed_languages:
           type: array
@@ -7501,7 +7549,7 @@ components:
           readOnly: true
         translations:
           allOf:
-          - $ref: '#/components/schemas/LocalizedNameDescriptionTranslations'
+          - $ref: '#/components/schemas/LocalizedDomainTranslations'
           readOnly: true
         allowed_languages:
           type: array
@@ -7548,6 +7596,14 @@ components:
           readOnly: true
         notification_settings:
           readOnly: true
+        certificate_logo:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        certificate_signatory_name:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -7559,6 +7615,8 @@ components:
       required:
       - active
       - allowed_languages
+      - certificate_logo
+      - certificate_signatory_name
       - created_at
       - id
       - join_policy
@@ -7634,6 +7692,13 @@ components:
           items:
             type: integer
         notification_settings: {}
+        certificate_logo:
+          type: string
+          format: uri
+          nullable: true
+        certificate_signatory_name:
+          type: string
+          maxLength: 200
       required:
       - allowed_languages
       - managers
@@ -7643,7 +7708,7 @@ components:
         translations:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/LocalizedNameDescriptionTranslationRequest'
+            $ref: '#/components/schemas/LocalizedDomainTranslationRequest'
           writeOnly: true
         allowed_languages:
           type: array
@@ -7662,6 +7727,13 @@ components:
           items:
             type: integer
         notification_settings: {}
+        certificate_logo:
+          type: string
+          format: binary
+          nullable: true
+        certificate_signatory_name:
+          type: string
+          maxLength: 200
       required:
       - allowed_languages
       - managers
@@ -8059,16 +8131,49 @@ components:
       properties:
         content:
           type: string
-    LocalizedNameDescriptionTranslation:
+    LocalizedDomainTranslation:
       type: object
+      description: |-
+        Per-language payload for the Domain's translatable fields:
+        ``name``, ``description``, and the certificate-PDF
+        ``certificate_signatory_title`` (e.g. "President", "Directeur"). All
+        three are optional on PATCH — the writer fills in missing values
+        with empty strings, matching the legacy ``name + description`` API.
       properties:
         name:
           type: string
         description:
           type: string
+          default: ''
+        certificate_signatory_title:
+          type: string
+          default: ''
       required:
-      - description
       - name
+    LocalizedDomainTranslationRequest:
+      type: object
+      description: |-
+        Per-language payload for the Domain's translatable fields:
+        ``name``, ``description``, and the certificate-PDF
+        ``certificate_signatory_title`` (e.g. "President", "Directeur"). All
+        three are optional on PATCH — the writer fills in missing values
+        with empty strings, matching the legacy ``name + description`` API.
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          default: ''
+        certificate_signatory_title:
+          type: string
+          default: ''
+      required:
+      - name
+    LocalizedDomainTranslations:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/LocalizedDomainTranslation'
     LocalizedNameDescriptionTranslationRequest:
       type: object
       properties:
@@ -8081,10 +8186,6 @@ components:
       required:
       - description
       - name
-    LocalizedNameDescriptionTranslations:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/LocalizedNameDescriptionTranslation'
     LocalizedQuestionTitleTranslation:
       type: object
       properties:
@@ -8957,6 +9058,14 @@ components:
               title: Bonjour
             en:
               title: Hello
+        issues_certificate:
+          type: boolean
+        certificate_validity_months:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: 0 = no expiration.
     PatchedCustomUserAdminUpdateRequest:
       type: object
       properties:
@@ -9019,7 +9128,7 @@ components:
         translations:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/LocalizedNameDescriptionTranslationRequest'
+            $ref: '#/components/schemas/LocalizedDomainTranslationRequest'
           writeOnly: true
         allowed_languages:
           type: array
@@ -9038,6 +9147,13 @@ components:
           items:
             type: integer
         notification_settings: {}
+        certificate_logo:
+          type: string
+          format: binary
+          nullable: true
+        certificate_signatory_name:
+          type: string
+          maxLength: 200
     PatchedLanguagePartialRequest:
       type: object
       properties:

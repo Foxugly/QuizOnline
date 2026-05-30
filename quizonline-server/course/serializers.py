@@ -137,6 +137,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             "id", "slug", "level", "language_code", "estimated_duration",
             "enrollment_mode", "is_published", "published_at",
             "cover_image", "translations", "domain",
+            "issues_certificate", "certificate_validity_months",
             "lesson_count", "total_duration_minutes", "my_enrollment",
             "my_pending_invite",
         ]
@@ -305,6 +306,7 @@ class CourseWriteSerializer(serializers.ModelSerializer):
         fields = [
             "id", "slug", "level", "language_code", "estimated_duration",
             "enrollment_mode", "cover_image", "domain", "translations",
+            "issues_certificate", "certificate_validity_months",
         ]
         read_only_fields = ["id"]
 

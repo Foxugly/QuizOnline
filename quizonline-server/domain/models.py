@@ -27,7 +27,22 @@ class Domain(AuditMixin, TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(_("name"), max_length=120),
         description=models.TextField(_("description"), blank=True),
+        # Title rendered under the signatory name on the certificate PDF
+        # (e.g. "President", "Directeur"). Personal names are not
+        # translatable (a name is a name), but the role title is.
+        certificate_signatory_title=models.CharField(
+            _("certificate signatory title"), max_length=120, blank=True,
+        ),
     )
+
+    # Per-domain certificate branding. ``logo`` and ``signatory_name``
+    # are non-translatable (a logo is a single image, a personal name
+    # doesn't translate). ``certificate_signatory_title`` lives in the
+    # parler ``translations`` block above.
+    certificate_logo = models.ImageField(
+        upload_to="domain/certificate-logos/", blank=True, null=True,
+    )
+    certificate_signatory_name = models.CharField(max_length=200, blank=True)
 
     allowed_languages = models.ManyToManyField(
         "language.Language",

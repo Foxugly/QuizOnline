@@ -9,14 +9,14 @@
  */
 import { JoinPolicyEnumDto } from './join-policy-enum';
 import { UserSummaryDto } from './user-summary';
+import { LocalizedDomainTranslationDto } from './localized-domain-translation';
 import { SubjectReadDto } from './subject-read';
 import { LanguageReadDto } from './language-read';
-import { LocalizedNameDescriptionTranslationDto } from './localized-name-description-translation';
 
 
 export interface DomainDetailDto { 
     readonly id: number;
-    readonly translations: { [key: string]: LocalizedNameDescriptionTranslationDto; };
+    readonly translations: { [key: string]: LocalizedDomainTranslationDto; };
     readonly allowed_languages: Array<LanguageReadDto>;
     readonly active: boolean;
     readonly 'public': boolean;

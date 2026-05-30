@@ -26,6 +26,11 @@ export interface CourseWriteRequestDto {
     cover_image?: Blob | null;
     domain: number;
     translations: { [key: string]: { [key: string]: string; }; };
+    issues_certificate?: boolean;
+    /**
+     * 0 = no expiration.
+     */
+    certificate_validity_months?: number;
 }
 
 

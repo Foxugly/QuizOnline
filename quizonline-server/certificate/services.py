@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import secrets
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from django.db import transaction
 from django.utils import timezone
@@ -40,8 +42,30 @@ def _final_quiz_passed(user, course: Course) -> bool:
     )
 
 
+def _compute_expires_at(course: Course, *, now: datetime | None = None) -> datetime | None:
+    """Compute the certificate expiration timestamp from the course's
+    ``certificate_validity_months`` policy. Returns ``None`` when the
+    policy is ``0`` (no expiration) — preserving the legacy behaviour
+    for any course whose instructor never sets a validity window.
+
+    Uses :class:`relativedelta` so ``13 months from 2026-01-31`` lands
+    on ``2027-02-28`` (last day of February) rather than rolling over
+    to March — the most natural interpretation for a calendar-aware
+    "expires N months from issue" rule."""
+    months = course.certificate_validity_months or 0
+    if months <= 0:
+        return None
+    return (now or timezone.now()) + relativedelta(months=months)
+
+
 @transaction.atomic
 def issue_certificate_if_eligible(*, user, course: Course) -> Certificate | None:
+    if not course.issues_certificate:
+        # Opt-out: instructor disabled certificate emission for this
+        # course (informational / optional content). Skip silently — the
+        # learner still gets the completion email; only the certificate
+        # row is not created.
+        return None
     if not _course_completed(user, course):
         return None
     if not _final_quiz_passed(user, course):
@@ -56,6 +80,7 @@ def issue_certificate_if_eligible(*, user, course: Course) -> Certificate | None
         course=course,
         certificate_number=_generate_certificate_number(),
         verification_token=secrets.token_urlsafe(32),
+        expires_at=_compute_expires_at(course),
     )
     notify_certificate_issued_on_commit(cert)
     from .tasks import render_certificate_pdf

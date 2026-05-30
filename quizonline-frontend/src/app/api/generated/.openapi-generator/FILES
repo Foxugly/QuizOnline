@@ -111,8 +111,9 @@ model/lesson-quiz-request.ts
 model/lesson-quiz.ts
 model/level-enum.ts
 model/localized-answer-option-translation-request.ts
+model/localized-domain-translation-request.ts
+model/localized-domain-translation.ts
 model/localized-name-description-translation-request.ts
-model/localized-name-description-translation.ts
 model/localized-question-title-translation.ts
 model/localized-question-translation-request.ts
 model/localized-question-translation.ts

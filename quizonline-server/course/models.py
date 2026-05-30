@@ -44,6 +44,19 @@ class Course(AuditMixin, TranslatableModel):
     enrollment_mode = models.CharField(
         max_length=16, choices=ENROLLMENT_MODE_CHOICES, default=ENROLL_OPEN,
     )
+    # When False, completing the course does NOT issue a certificate even
+    # if the learner reaches 100 % progress + final-quiz pass. Useful for
+    # informational / optional courses where a certificate would be
+    # misleading. Default True preserves the legacy behaviour.
+    issues_certificate = models.BooleanField(default=True)
+    # Validity window for the certificate, in months. ``0`` means
+    # "no expiration" (current behaviour). The value is read once at
+    # certificate issue time and frozen on the row — changing the policy
+    # later does NOT retroactively expire already-issued certificates.
+    certificate_validity_months = models.PositiveSmallIntegerField(
+        default=0,
+        help_text=_("0 = no expiration."),
+    )
     is_published = models.BooleanField(default=False, db_index=True)
     published_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

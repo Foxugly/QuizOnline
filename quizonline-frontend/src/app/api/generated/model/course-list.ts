@@ -31,6 +31,11 @@ export interface CourseListDto {
     cover_image?: string | null;
     translations: { [key: string]: { [key: string]: string; }; };
     domain: number;
+    issues_certificate?: boolean;
+    /**
+     * 0 = no expiration.
+     */
+    certificate_validity_months?: number;
     readonly lesson_count: number;
     readonly total_duration_minutes: number;
     my_enrollment: CourseDetailMyEnrollmentDto | null;

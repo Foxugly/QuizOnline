@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import Certificate
@@ -23,14 +24,15 @@ class CertificateSerializer(serializers.ModelSerializer):
         model = Certificate
         fields = [
             "id", "user", "course", "course_title", "certificate_number",
-            "verification_token", "issued_at", "pdf_url", "revoked_at",
+            "verification_token", "issued_at", "expires_at", "pdf_url", "revoked_at",
         ]
         read_only_fields = [
             "id", "user", "course", "course_title", "certificate_number",
-            "verification_token", "issued_at", "pdf_url", "revoked_at",
+            "verification_token", "issued_at", "expires_at", "pdf_url", "revoked_at",
         ]
 
-    def get_pdf_url(self, obj):
+    @extend_schema_field(serializers.URLField(allow_null=True))
+    def get_pdf_url(self, obj) -> str | None:
         if obj.pdf:
             return obj.pdf.url
         return None

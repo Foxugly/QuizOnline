@@ -17,7 +17,8 @@ export interface CertificateDto {
     readonly certificate_number: string;
     readonly verification_token: string;
     readonly issued_at: string;
-    readonly pdf_url: string;
+    readonly expires_at: string | null;
+    readonly pdf_url: string | null;
     readonly revoked_at: string | null;
 }
 

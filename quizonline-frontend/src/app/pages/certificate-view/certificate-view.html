@@ -30,6 +30,11 @@
         <dt>{{ ui().issuedOnLabel }}</dt>
         <dd>{{ cert.issued_at | date:'medium' }}</dd>
 
+        @if (cert.expires_at) {
+          <dt>{{ ui().expiresOnLabel }}</dt>
+          <dd>{{ cert.expires_at | date:'medium' }}</dd>
+        }
+
         @if (cert.revoked_at) {
           <dt>{{ ui().revokedOnLabel }}</dt>
           <dd>{{ cert.revoked_at | date:'medium' }}</dd>

@@ -27,6 +27,7 @@ interface CertificateDetail {
   course_title: string;
   certificate_number: string;
   issued_at: string;
+  expires_at: string | null;
   pdf_url: string | null;
   revoked_at: string | null;
   verification_token?: string | null;
