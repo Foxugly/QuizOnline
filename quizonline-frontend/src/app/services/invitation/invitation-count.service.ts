@@ -31,12 +31,24 @@ export class InvitationCountService {
   private loaded = false;
 
   /** Idempotent: the topmenu calls this on init, follow-up navigation
-   *  events are no-ops once the count has loaded once. */
+   *  events are no-ops once the count has loaded once. Since the
+   *  coalesced ``UnreadBadgesService`` poller now populates the
+   *  count on its first tick, this is mostly a no-op — kept so the
+   *  topmenu lifecycle does not need to know about the new poller. */
   ensureLoaded(): void {
     if (this.loaded) return;
     if (!this.auth.isLoggedIn()) return;
     this.loaded = true;
-    this.refresh();
+    // The coalesced poller (UnreadBadgesService) populates the count
+    // via setPending() on its first tick — no per-page fetch needed.
+  }
+
+  /** Cross-service setter — used by ``UnreadBadgesService`` to push
+   *  the coalesced poll result into our signal. */
+  setPending(count: number): void {
+    const value = typeof count === 'number' && Number.isFinite(count) ? count : 0;
+    this._pendingCount.set(Math.max(0, value));
+    this.loaded = true;
   }
 
   /** Explicit re-fetch. Use after accept / decline / revoke flows or

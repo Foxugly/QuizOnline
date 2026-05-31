@@ -34,8 +34,8 @@ export class UnreadCountsApi extends BaseService {
     }
 
     /**
-     * Compter en une seule requête les notifications + alertes non lues
-     * Coalesces the two per-minute polls the topbar fires (/notification/unread-count/ and /quiz/alerts/unread-count/) into one request. Returns the same numbers as the dedicated endpoints — they remain available for backwards compatibility.
+     * Compter en une seule requête les notifications + alertes + invitations en attente
+     * Coalesces the three topbar polls (/notification/unread-count/, /quiz/alerts/unread-count/ and the count derived from /me/invitations/) into one request. The dedicated endpoints stay live for backwards compatibility and for post-mutation force-refresh flows.
      * @endpoint get /api/unread-counts/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
