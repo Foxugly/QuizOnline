@@ -57,4 +57,30 @@
       justify-self: start;
     }
   }
+
+  /* Card-head on list pages mixes ``<app-bulk-actions>`` (select +
+   * apply button), a search input, and an "Ajouter" CTA on one
+   * flex row. Default ``justify-content: space-between`` keeps
+   * everything inline and the row balloons past the viewport on
+   * narrow screens. Allow wrapping + let ``.card-actions`` (search
+   * input + add button) stack on its own row. */
+  .card-head {
+    flex-wrap: wrap;
+  }
+
+  .card-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  /* Search input inside ``.card-actions`` had a hard-coded
+   * ``width: 240px`` and ``max-width: 40vw`` (40 % of 375 px = 150 px
+   * — too narrow to type into comfortably once the row wraps). Free
+   * it to grow with the available row width. */
+  .card-actions input[pInputText],
+  .card-actions input {
+    width: auto;
+    max-width: none;
+    flex: 1 1 auto;
+  }
 }
