@@ -5259,6 +5259,25 @@ paths:
           description: Forbidden
         '502':
           description: DeepL upstream error
+  /api/unread-counts/:
+    get:
+      operationId: unread_counts_retrieve
+      description: Coalesces the two per-minute polls the topbar fires (/notification/unread-count/
+        and /quiz/alerts/unread-count/) into one request. Returns the same numbers
+        as the dedicated endpoints — they remain available for backwards compatibility.
+      summary: Compter en une seule requête les notifications + alertes non lues
+      tags:
+      - UnreadCounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: '{"notifications": int, "quiz_alerts": int}'
   /api/user/:
     get:
       operationId: user_list

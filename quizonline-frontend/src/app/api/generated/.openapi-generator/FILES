@@ -27,6 +27,7 @@ api/section.service.ts
 api/subject.service.ts
 api/token.service.ts
 api/translation.service.ts
+api/unread-counts.service.ts
 api/user.service.ts
 api/validation-quiz.service.ts
 api/verify.service.ts

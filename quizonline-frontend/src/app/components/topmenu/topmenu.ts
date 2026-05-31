@@ -11,7 +11,7 @@ import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
 import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
 import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
-import {NotificationService} from '../../services/notification/notification.service';
+import {UnreadBadgesService} from '../../services/unread-badges/unread-badges.service';
 import {NotificationsBellComponent} from '../notifications-bell/notifications-bell';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {DomainService} from '../../services/domain/domain';
@@ -71,7 +71,7 @@ export class TopMenuComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly domainService = inject(DomainService);
   private readonly quizAlertService = inject(QuizAlertService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly unreadBadges = inject(UnreadBadgesService);
   private readonly destroyRef = inject(DestroyRef);
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
@@ -328,12 +328,17 @@ export class TopMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Seed the user + start the badge pollers on first mount.
     this.refreshUserContext();
+    // On every navigation we only need to dismiss the mobile menu —
+    // the unread-count badges already self-update via their own 60 s
+    // polling (notification + quiz-alert services), and the visible
+    // domain list rarely changes between page changes (refreshed
+    // explicitly after any mutation that would alter it).
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this.refreshUserContext();
         this.mobileMenuOpen.set(false);
       });
   }
@@ -494,28 +499,24 @@ export class TopMenuComponent implements OnInit {
   private refreshUserContext(): void {
     const me = this.userService.currentUser();
     if (me) {
-      this.refreshUnreadCount();
-      this.notificationService.startPolling();
+      this.unreadBadges.startPolling();
       this.refreshVisibleDomains();
       return;
     }
 
     if (!this.authService.authenticated) {
-      this.quizAlertService.clearUnreadCount();
-      this.notificationService.stopPolling();
+      this.unreadBadges.stopPolling();
       this.visibleDomains.set([]);
       return;
     }
 
     this.userService.getMe().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        this.refreshUnreadCount();
-        this.notificationService.startPolling();
+        this.unreadBadges.startPolling();
         this.refreshVisibleDomains();
       },
       error: () => {
-        this.quizAlertService.clearUnreadCount();
-        this.notificationService.stopPolling();
+        this.unreadBadges.stopPolling();
         this.visibleDomains.set([]);
       },
     });
@@ -533,14 +534,4 @@ export class TopMenuComponent implements OnInit {
     });
   }
 
-  private refreshUnreadCount(): void {
-    if (!this.userService.currentUser()) {
-      this.quizAlertService.clearUnreadCount();
-      return;
-    }
-
-    this.quizAlertService.refreshUnreadCount().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      error: () => this.quizAlertService.clearUnreadCount(),
-    });
-  }
 }

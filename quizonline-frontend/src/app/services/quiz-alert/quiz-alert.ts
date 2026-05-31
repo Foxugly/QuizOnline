@@ -1,7 +1,13 @@
-import {Injectable, signal, inject} from '@angular/core';
+import {DestroyRef, Injectable, signal, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpClient} from '@angular/common/http';
-import {map, Observable, tap} from 'rxjs';
+import {interval, map, Observable, Subscription, tap} from 'rxjs';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+
+/** Polling cadence for the topbar unread badge. Matches the
+ *  ``NotificationService`` so both badges refresh together — and in a
+ *  later step the two endpoints can be fused into a single call. */
+const POLL_INTERVAL_MS = 60_000;
 
 export interface AlertUserSummary {
   id: number;
@@ -61,6 +67,31 @@ export class QuizAlertService {
   private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/quiz/alerts`;
 
     private readonly http = inject(HttpClient);
+    private readonly destroyRef = inject(DestroyRef);
+    private pollSubscription: Subscription | null = null;
+
+  /**
+   * Start a 60 s polling of ``/quiz/alerts/unread-count/`` so the topbar
+   * badge stays in sync. Idempotent — second+ calls return early. Pair
+   * with ``stopPolling()`` on logout. Same shape as ``NotificationService``.
+   */
+  startPolling(): void {
+    if (this.pollSubscription) {
+      return;
+    }
+    this.refreshUnreadCount().subscribe({error: () => this.clearUnreadCount()});
+    this.pollSubscription = interval(POLL_INTERVAL_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.refreshUnreadCount().subscribe({error: () => this.clearUnreadCount()});
+      });
+  }
+
+  stopPolling(): void {
+    this.pollSubscription?.unsubscribe();
+    this.pollSubscription = null;
+    this.clearUnreadCount();
+  }
 
   list(): Observable<QuizAlertThreadListDto[]> {
     return this.http
@@ -96,6 +127,13 @@ export class QuizAlertService {
     return this.http.get<{count: number}>(`${this.baseUrl}/unread-count/`).pipe(
       tap((response) => this.unreadCount.set(response.count ?? 0)),
     );
+  }
+
+  /** Cross-service setter — used by ``UnreadBadgesService`` to push
+   *  the coalesced poll result into our signal. */
+  setUnread(count: number): void {
+    const value = typeof count === 'number' && Number.isFinite(count) ? count : 0;
+    this.unreadCount.set(Math.max(0, value));
   }
 
   clearUnreadCount(): void {
