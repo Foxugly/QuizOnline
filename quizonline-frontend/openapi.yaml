@@ -5262,10 +5262,12 @@ paths:
   /api/unread-counts/:
     get:
       operationId: unread_counts_retrieve
-      description: Coalesces the two per-minute polls the topbar fires (/notification/unread-count/
-        and /quiz/alerts/unread-count/) into one request. Returns the same numbers
-        as the dedicated endpoints — they remain available for backwards compatibility.
-      summary: Compter en une seule requête les notifications + alertes non lues
+      description: Coalesces the three topbar polls (/notification/unread-count/,
+        /quiz/alerts/unread-count/ and the count derived from /me/invitations/) into
+        one request. The dedicated endpoints stay live for backwards compatibility
+        and for post-mutation force-refresh flows.
+      summary: Compter en une seule requête les notifications + alertes + invitations
+        en attente
       tags:
       - UnreadCounts
       security:
@@ -5277,7 +5279,8 @@ paths:
               schema:
                 type: object
                 additionalProperties: {}
-          description: '{"notifications": int, "quiz_alerts": int}'
+          description: '{"notifications": int, "quiz_alerts": int, "course_invitations":
+            int}'
   /api/user/:
     get:
       operationId: user_list
