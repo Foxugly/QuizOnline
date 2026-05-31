@@ -959,6 +959,100 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         res = self.client.get(detail_url)
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_quiztemplate_retrieve_public_exam_visible_to_domain_member(self):
+        """A manager-created public exam template must be retrievable by any
+        domain member, even without an existing Quiz assignment.
+
+        Sentry caught a real-world case where wpuser3 (member of Water-polo)
+        hit ``GET /api/quiz/template/6/`` and got a 404 even though the
+        template had ``is_public=True``, ``active=True``, ``permanent=True``
+        and ``mode=Examen``. Tracing ``user_can_access_template`` by hand
+        said it should return True, so this test pins the contract: if all
+        flags are set as above, a domain member retrieves with 200 — and if
+        it doesn't, we'll have a reproducer to diff against the prod state.
+        """
+        public_exam = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_PUBLIC_EXAM",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=True,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        QuizQuestion.objects.create(quiz=public_exam, question=self.q1, sort_order=1, weight=1)
+
+        self.domain.members.add(self.u1)
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=public_exam.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(detail_url)
+        self.assertEqual(
+            res.status_code,
+            status.HTTP_200_OK,
+            f"Domain member must retrieve a public exam template, got {res.status_code}: {res.content!r}",
+        )
+        self.assertEqual(res.data["id"], public_exam.id)
+        self.assertTrue(res.data["is_public"])
+        self.assertTrue(res.data["can_answer"])
+
+    def test_quiztemplate_retrieve_public_exam_visible_to_non_domain_member(self):
+        """Same shape but the member is NOT in the domain — still must
+        succeed because the template is public.
+
+        ``user_can_access_template`` falls through to ``_can_access_public_template``
+        which only checks ``is_public`` and ``can_answer``, with no domain
+        check. So a public template should be world-readable for any
+        authenticated user. Pins that contract too in case a future change
+        accidentally tightens the gate.
+        """
+        public_exam = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_PUBLIC_EXAM_NO_DOMAIN",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            started_at=None,
+            ended_at=None,
+            with_duration=True,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            result_available_at=None,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+            detail_available_at=None,
+        )
+        QuizQuestion.objects.create(quiz=public_exam, question=self.q1, sort_order=1, weight=1)
+        # u2 is not added to the domain — strictly a non-member authenticated user.
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=public_exam.id,
+        )
+
+        self._auth(self.u2)
+        res = self.client.get(detail_url)
+        self.assertEqual(
+            res.status_code,
+            status.HTTP_200_OK,
+            f"Public template should be retrievable even outside the domain, got {res.status_code}: {res.content!r}",
+        )
+
     # ---------------------------------------------------------------------
     # QuizViewSet: bulk_create_from_template (admin only)
     # ---------------------------------------------------------------------
