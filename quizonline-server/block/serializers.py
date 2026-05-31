@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django.db.models import Max
 from rest_framework import serializers
 
 from core.serializers import TranslationsField, filter_allowed_lang_codes
@@ -221,11 +223,28 @@ class BlockSerializer(serializers.ModelSerializer):
                 {"lesson": "Provide one of: lesson, question, answer_option on create."}
             )
         host_ct = ContentType.objects.get_for_model(_resolve_host_model(host_field))
-        instance = Block.objects.create(
-            target_content_type=host_ct,
-            target_object_id=host_instance.id,
-            **validated_data,
-        )
+        # Always append. The client used to compute ``order = max + 1``
+        # from its local snapshot of siblings, which races against any
+        # concurrent create / pending delete and crashed with
+        # ``uniq_block_order_per_target_role`` violations. Recompute it
+        # under a row lock so two parallel POSTs serialise cleanly.
+        block_role = validated_data.get("block_role") or Block.ROLE_BODY
+        with transaction.atomic():
+            existing_max = (
+                Block.objects.select_for_update()
+                .filter(
+                    target_content_type=host_ct,
+                    target_object_id=host_instance.id,
+                    block_role=block_role,
+                )
+                .aggregate(max_order=Max("order"))["max_order"]
+            )
+            validated_data["order"] = 0 if existing_max is None else existing_max + 1
+            instance = Block.objects.create(
+                target_content_type=host_ct,
+                target_object_id=host_instance.id,
+                **validated_data,
+            )
         return self._apply_translations(instance, tr)
 
     def update(self, instance, validated_data):

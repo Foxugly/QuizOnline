@@ -154,3 +154,25 @@ def test_patch_code_block_with_content_succeeds(visible_lesson, owner):
     block = Block.objects.get(pk=block_id)
     assert block.code_content == "print('hi')"
     assert block.code_language == "python"
+
+
+@pytest.mark.django_db
+def test_create_assigns_consecutive_order_when_client_sends_colliding_values(visible_lesson, owner):
+    """The client picks ``order = max(siblings.order) + 1`` from its local
+    snapshot, which races against pending creates / deletes and used to
+    crash with ``uniq_block_order_per_target_role`` integrity errors. The
+    server now ignores the client-supplied order and assigns the next
+    value atomically under a row lock — three POSTs with the same
+    ``order=0`` payload must each get a distinct, consecutive order.
+    """
+    client = _auth(owner)
+    received_orders = []
+    for _ in range(3):
+        r = client.post(
+            "/api/block/",
+            _draft_payload(visible_lesson, Block.TYPE_RICH_TEXT, order=0),
+            format="json",
+        )
+        assert r.status_code == 201, r.content
+        received_orders.append(r.data["order"])
+    assert received_orders == [0, 1, 2]
