@@ -1009,6 +1009,109 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertTrue(res.data["is_public"])
         self.assertTrue(res.data["can_answer"])
 
+    def test_quiztemplate_patch_is_public_persists_to_db(self):
+        """Toggling ``is_public`` via PATCH must end up persisted on the row.
+
+        Companion to the visibility tests: if a manager flips Publiek=on in
+        the edit form, the resulting ``PATCH /api/quiz/template/<id>/`` body
+        carries ``is_public: true`` and the DB must mirror that. Pins this
+        because Sentry caught a prod-side drift where the form toggle shows
+        ON but ``is_public`` is False in the DB.
+        """
+        private_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_FLIPPED_PUBLIC",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            with_duration=True,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+        )
+        QuizQuestion.objects.create(quiz=private_qt, question=self.q1, sort_order=1, weight=1)
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=private_qt.id,
+        )
+
+        self._auth(self.admin)
+        patch = self.client.patch(detail_url, {"is_public": True}, format="json")
+        self.assertEqual(patch.status_code, status.HTTP_200_OK, patch.content)
+        self.assertTrue(patch.data["is_public"])
+
+        private_qt.refresh_from_db()
+        self.assertTrue(private_qt.is_public, "is_public should be persisted as True in DB after PATCH")
+
+        # Round-trip via retrieve as a domain member — should now succeed.
+        self.domain.members.add(self.u1)
+        self._auth(self.u1)
+        retrieve = self.client.get(detail_url)
+        self.assertEqual(retrieve.status_code, status.HTTP_200_OK, retrieve.content)
+        self.assertTrue(retrieve.data["is_public"])
+
+    def test_quiztemplate_put_full_update_preserves_is_public_toggle(self):
+        """``quiz-create.ts`` saves via ``quizTemplateUpdate`` (PUT, full
+        replace) with ``is_public`` from the form. Pin that a PUT with
+        ``is_public: True`` actually persists — covers the same drift
+        from the PUT path instead of the PATCH path.
+        """
+        private_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_PUT_PUBLIC",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            with_duration=True,
+            duration=10,
+            is_public=False,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+        )
+        QuizQuestion.objects.create(quiz=private_qt, question=self.q1, sort_order=1, weight=1)
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=private_qt.id,
+        )
+
+        # Replicate the exact write payload shape the frontend builds in
+        # ``buildQuizTemplatePayload()`` — all fields the form holds.
+        payload = {
+            "domain": self.domain.id,
+            "title": "T_PUT_PUBLIC",
+            "description": "",
+            "mode": QuizTemplate.MODE_EXAM,
+            "max_questions": 10,
+            "permanent": True,
+            "started_at": None,
+            "ended_at": None,
+            "with_duration": True,
+            "duration": 10,
+            "active": True,
+            "is_public": True,
+            "shuffle_questions": False,
+            "result_visibility": VISIBILITY_IMMEDIATE,
+            "result_available_at": None,
+            "detail_visibility": VISIBILITY_IMMEDIATE,
+            "detail_available_at": None,
+            "translations": {"fr": {"title": "T_PUT_PUBLIC", "description": ""}},
+        }
+
+        self._auth(self.admin)
+        put = self.client.put(detail_url, payload, format="json")
+        self.assertEqual(put.status_code, status.HTTP_200_OK, put.content)
+        self.assertTrue(put.data["is_public"])
+
+        private_qt.refresh_from_db()
+        self.assertTrue(private_qt.is_public, "is_public should be persisted as True in DB after PUT")
+
     def test_quiztemplate_retrieve_public_exam_visible_to_non_domain_member(self):
         """Same shape but the member is NOT in the domain — still must
         succeed because the template is public.
