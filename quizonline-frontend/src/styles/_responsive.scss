@@ -5,3 +5,56 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --------------------------------------------------------------------
+ * Mobile shrink — narrow-viewport fixes for content that would
+ * otherwise push the page past the viewport width.
+ *
+ * The whole app uses ``<p-table>`` for every list page. PrimeNG sizes
+ * the inner ``<table>`` by its column count (no responsive collapsing
+ * by default), so on a 375 px viewport a 6-column table is rendered
+ * at ~700 px and the entire page acquires a horizontal scrollbar.
+ * That breaks ``position: sticky`` on the topbar too — the sticky
+ * element follows the horizontal scroll and ends up rendering
+ * "duplicated" mid-page on iOS/mobile browsers.
+ *
+ * Fix: let the table itself overflow inside its own scrollable
+ * wrapper, so the page outside stays the viewport width. PrimeNG
+ * v21 ships ``.p-datatable-table-container`` around the table; on
+ * older versions it is ``.p-datatable-wrapper``. We target both so
+ * the rule survives a PrimeNG bump.
+ * ------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .p-datatable-table-container,
+  .p-datatable-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Header rows on detail pages (``.header-line`` without ``--grid``)
+   * — used by question-edit, course-create, quiz-create, etc. The
+   * default flex with the back button on the left + title + an
+   * action cluster on the right does not fit on a 375 px viewport
+   * and pushes the page wider, which then triggers the sticky-topbar
+   * duplication bug. Stack vertically so each row hugs the viewport. */
+  .header-line:not(.header-line--grid) {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Same treatment for the grid variant (catalog, course-list etc.):
+   * the centred title + right-side actions collapse to one column. */
+  .header-line.header-line--grid {
+    grid-template-columns: 1fr;
+    text-align: left;
+
+    .header-center {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .header-actions {
+      justify-self: start;
+    }
+  }
+}
