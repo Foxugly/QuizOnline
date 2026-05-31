@@ -18,6 +18,16 @@ import {getBlockListEditorUiText} from '../block-list-editor/block-list-editor.i
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
+/** PrimeNG's ``p-autoComplete`` with ``forceSelection`` calls
+ *  ``getOptionLabel(option).toLocaleLowerCase()`` to match the typed text
+ *  against options. If a single template comes back with ``title`` as a dict
+ *  (translations object that escaped the serializer), the whole picker
+ *  crashes. Strip non-strings at the data layer so the picker stays alive
+ *  even when the backend serializer slips. */
+function coerceTitle(title: unknown): string {
+  return typeof title === 'string' ? title : '';
+}
+
 /**
  * Editor for the ``quiz`` ContentBlock.
  *
@@ -165,8 +175,9 @@ export class QuizBlockEditor implements OnInit {
   private loadTemplates(): void {
     this.quizTemplates.listForPicker(this.domainId()).subscribe({
       next: (list) => {
-        this.allTemplates.set(list);
-        this.suggestions.set(list);
+        const sanitized = list.map((t) => ({...t, title: coerceTitle(t.title)}));
+        this.allTemplates.set(sanitized);
+        this.suggestions.set(sanitized);
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-edit.quiz-picker.load', err);

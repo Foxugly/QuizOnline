@@ -179,10 +179,19 @@ class QuizTemplateSerializer(RequestUserMixin, serializers.ModelSerializer):
         read_only_fields = ["slug", "created_at", "questions_count", "can_answer"]
 
     def get_title(self, obj: QuizTemplate) -> str:
-        return obj.get_localized_content(self.preferred_language()).get("title", "")
+        # ``normalized_translations`` already casts to ``str`` but Sentry caught
+        # an autocomplete crash where a list-endpoint payload had ``title`` as
+        # a dict on the wire (the PrimeNG picker rendered the option with
+        # ``aria-label="[object Object]"`` and then ``forceSelection`` blew up
+        # on ``.toLocaleLowerCase()``). Belt-and-suspenders coerce here so a
+        # single legacy row with a malformed ``translations`` JSON cannot
+        # break the picker for every other template in the same response.
+        value = obj.get_localized_content(self.preferred_language()).get("title", "")
+        return value if isinstance(value, str) else str(value)
 
     def get_description(self, obj: QuizTemplate) -> str:
-        return obj.get_localized_content(self.preferred_language()).get("description", "")
+        value = obj.get_localized_content(self.preferred_language()).get("description", "")
+        return value if isinstance(value, str) else str(value)
 
     @extend_schema_field(
         localized_translations_map_schema(
