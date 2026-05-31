@@ -36,6 +36,7 @@ env = environ.Env(
     DATABASE_URL=(str, ""),
     CACHE_URL=(str, "locmemcache://"),
     DB_CONN_MAX_AGE=(int, 0),
+    DB_CONN_HEALTH_CHECKS=(bool, False),
     CELERY_BROKER_URL=(str, "redis://127.0.0.1:6379/0"),
     CELERY_RESULT_BACKEND=(str, "redis://127.0.0.1:6379/1"),
     CELERY_TASK_ALWAYS_EAGER=(bool, False),
