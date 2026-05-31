@@ -10948,10 +10948,15 @@ components:
           allOf:
           - $ref: '#/components/schemas/LocalizedSubjectTranslations'
           readOnly: true
+        questions_count:
+          type: integer
+          readOnly: true
+          default: 0
       required:
       - active
       - domain
       - id
+      - questions_count
       - translations
     SubjectWriteRequest:
       type: object

@@ -15,5 +15,6 @@ export interface SubjectReadDto {
     readonly domain: number;
     readonly active: boolean;
     readonly translations: { [key: string]: LocalizedSubjectTranslationDto; };
+    readonly questions_count: number;
 }
 

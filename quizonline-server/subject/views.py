@@ -1,5 +1,6 @@
 import logging
 
+from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema,
@@ -189,6 +190,12 @@ class SubjectViewSet(MyModelViewSet):
         qs = Subject.objects.all().select_related("domain").prefetch_related(
             "translations",
             "domain__translations",
+        ).annotate(
+            # Inlined on every list response so the frontend does not
+            # have to fire one /subject/<id>/details/ per row to count
+            # the related questions. The filter mirrors what the
+            # detail serializer already does (questions__active=True).
+            questions_count=Count("questions", filter=Q(questions__active=True), distinct=True),
         )
 
         if not getattr(user, "is_superuser", False):

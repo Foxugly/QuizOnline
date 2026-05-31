@@ -12,7 +12,6 @@ import {TableModule} from 'primeng/table';
 import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import {SubjectDetailDto} from '../../../api/generated/model/subject-detail';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
@@ -118,24 +117,12 @@ export class SubjectList implements OnInit {
     }).subscribe({
       next: (subjects) => {
         this.subjects.set(subjects);
+        // ``questions_count`` now ships inline on every ``SubjectRead``
+        // payload thanks to a DB annotation on the list queryset.
+        // Build the lookup directly from that field — no per-row
+        // ``/subject/<id>/details/`` round-trip needed.
+        this.questionCounts.set(this.buildQuestionCountsFromList(subjects));
         this.initialLoad.set(false);
-
-        if (!subjects.length) {
-          this.questionCounts.set({});
-          return;
-        }
-
-        forkJoin(
-          subjects.map((subject) => this.subjectService.detail(subject.id)),
-        ).subscribe({
-          next: (details) => {
-            this.questionCounts.set(this.buildSubjectQuestionCounts(details));
-          },
-          error: (err: unknown) => {
-            logApiError('subject.list.counts', err);
-            this.questionCounts.set({});
-          },
-        });
       },
       error: (err: unknown) => {
         logApiError('subject.list.load', err);
@@ -233,9 +220,9 @@ export class SubjectList implements OnInit {
     return this.questionCounts()[subjectId] ?? 0;
   }
 
-  private buildSubjectQuestionCounts(details: SubjectDetailDto[]): Record<number, number> {
-    return details.reduce<Record<number, number>>((counts, detail) => {
-      counts[detail.id] = detail.questions?.length ?? 0;
+  private buildQuestionCountsFromList(subjects: SubjectReadDto[]): Record<number, number> {
+    return subjects.reduce<Record<number, number>>((counts, subject) => {
+      counts[subject.id] = (subject as SubjectReadDto & {questions_count?: number}).questions_count ?? 0;
       return counts;
     }, {});
   }
