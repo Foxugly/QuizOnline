@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
-import {map, Observable, of, shareReplay, tap} from 'rxjs';
+import {finalize, map, Observable, of, shareReplay, tap} from 'rxjs';
 
 import {UserApi as UserApiService} from '../../api/generated/api/user.service';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
@@ -153,13 +153,31 @@ export class UserService {
     }
   }
 
+  /** In-flight ``GET /user/me/`` shared across all concurrent callers.
+   *  Several guards + the topmenu fire ``getMe()`` in parallel during a
+   *  cold page load (each waiting on ``currentUser()`` to be populated);
+   *  without this dedupe, the browser opens 3 identical HTTP requests
+   *  and the user pays the slowest one's latency. ``shareReplay(1)``
+   *  hands every subscriber the SAME response from a SINGLE request,
+   *  and the ``finalize`` clears the slot so the next *fresh* cold load
+   *  (e.g. after a logout/login cycle) refetches. */
+  private getMe$: Observable<CustomUserReadDto> | null = null;
+
   getMe(): Observable<CustomUserReadDto> {
-    return this.http.get<CustomUserReadDto>(`${this.apiBaseUrl}/me/`).pipe(
+    if (this.getMe$) {
+      return this.getMe$;
+    }
+    this.getMe$ = this.http.get<CustomUserReadDto>(`${this.apiBaseUrl}/me/`).pipe(
       tap((me) => {
         this.currentUser.set(me);
         this.syncLanguageFromMe(me);
       }),
+      finalize(() => {
+        this.getMe$ = null;
+      }),
+      shareReplay(1),
     );
+    return this.getMe$;
   }
 
   /**
