@@ -337,19 +337,27 @@ export class DomainEdit implements OnInit {
           !!me && (me.is_superuser
             || domain.owner?.id === me.id
             || (domain.managers ?? []).some(m => m.id === me.id));
-        if (canMod) {
-          this.joinRequestsCtrl.load();
-          this.invitations.loadAll();
-        }
+
+        // join-requests + invitations are no longer fetched eagerly here:
+        // ``onTopTabChange('invitations')`` triggers the load on first
+        // visit, and ``ensureInvitationsLoaded()`` runs when the user
+        // deep-links straight into that tab. Saves 3-4 HTTP round-trips
+        // per /domain/<id>/edit visit when the operator is just editing
+        // the config / languages / certificate branding.
 
         // Deep-link from /domain/list : ``?tab=analytics`` opens the
         // analytics tab directly. We only honour it once the domain is
         // loaded and the user actually has moderator rights, otherwise
-        // the tab is hidden.
+        // the tab is hidden. ``onTopTabChange`` would also handle this
+        // but we want the load to fire concurrently with the rest of
+        // the domain bootstrap, not after Angular ticks the tab.
         const requestedTab = this.route.snapshot.queryParamMap.get('tab');
         if (requestedTab === 'analytics' && canMod) {
           this.topTab.set('analytics');
           this.analytics.load();
+        } else if (requestedTab === 'invitations' && canMod) {
+          this.topTab.set('invitations');
+          this.ensureInvitationsLoaded();
         }
 
         // 2) Set global active languages
@@ -436,6 +444,9 @@ export class DomainEdit implements OnInit {
       if (value === 'analytics' && this.analytics.data() === null) {
         this.analytics.load();
       }
+      if (value === 'invitations') {
+        this.ensureInvitationsLoaded();
+      }
     }
   }
 
@@ -443,6 +454,18 @@ export class DomainEdit implements OnInit {
     const labelFn = this.editText().audit.actionLabel;
     return this.audit.actions().map((a) => ({label: labelFn(a), value: a}));
   });
+
+  /** Idempotent first-load of the join-requests + invitations data the
+   *  ``invitations`` tab consumes. Fires on first visit to that tab
+   *  (and on a ``?tab=invitations`` deep-link) instead of eagerly on
+   *  every /domain/<id>/edit visit. */
+  private invitationsLoaded = false;
+  private ensureInvitationsLoaded(): void {
+    if (this.invitationsLoaded) return;
+    this.invitationsLoaded = true;
+    this.joinRequestsCtrl.load();
+    this.invitations.loadAll();
+  }
 
   /** Hand-off used by the join-requests controller after an approve/reject
    *  to keep the page's ``domain`` signal — and therefore the moderation
