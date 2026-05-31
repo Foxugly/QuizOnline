@@ -135,10 +135,19 @@ class SubjectPartialSerializer(SubjectWriteSerializer):
 
 class SubjectReadSerializer(serializers.ModelSerializer):
     translations = serializers.SerializerMethodField()
+    # Populated by the ``annotate(questions_count=...)`` in
+    # ``SubjectViewSet.get_queryset`` so /subject/ list responses ship
+    # the count inline. Without it the frontend used to fire one
+    # ``/subject/<id>/details/`` per row just to count the
+    # ``questions`` array length — 19 sequential HTTPs on a typical
+    # /subject/list visit. The annotation is computed by the DB in
+    # the same query as the list page, so adding the field is
+    # essentially free server-side.
+    questions_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Subject
-        fields = ["id", "domain", "active", "translations"]
+        fields = ["id", "domain", "active", "translations", "questions_count"]
         read_only_fields = fields
 
     @extend_schema_field(
