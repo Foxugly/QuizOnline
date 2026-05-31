@@ -31,16 +31,16 @@ Trois rôles dans un domaine :
 
 ## 2. Configurer le domaine
 
-Page `/domain/<id>/edit`. Plusieurs onglets :
+Page `/domain/<id>/edit`. Onglets (visibles selon votre rôle) :
 
-- **Informations** — nom, description, langues autorisées, image (multilingue via les onglets de langue).
+- **Configuration** — nom, description, langues autorisées, image (multilingue via les onglets de langue), branding du certificat (logo + signataire).
+- **Notifications** — kill-switch global par catégorie (voir section 10). *Owner uniquement, les managers ne voient pas cet onglet.*
 - **Membres** — gestion des membres + managers.
-- **Demandes d'adhésion** — modération.
-- **Invitations** — invitations persistées, resend/revoke.
-- **Audit** — historique des actions.
-- **Analytics** — KPIs.
+- **Invitations & demandes** — invitations e-mail en cours + demandes d'adhésion en attente, avec bulk approve/decline/revoke. Les deux flux sont sur le même onglet.
+- **Journal** — historique des actions (audit log).
+- **Statistiques** — KPIs.
 
-![Screenshot : page d'édition d'un domaine](screenshots/admin-01-domain-edit.png)
+![Screenshot : page d'édition d'un domaine](../screenshots/fr/admin-01-domain-edit.png)
 
 ### Langues autorisées
 
@@ -52,7 +52,7 @@ Choix possibles : Français, Anglais, Néerlandais, Italien, Espagnol.
 
 Onglet « Membres » de la page d'édition du domaine. Les managers ont une section dédiée en haut. Ajoutez/retirez via le picker auto-complete.
 
-![Screenshot : section managers](screenshots/admin-02-managers.png)
+![Screenshot : section managers](../screenshots/fr/admin-02-managers.png)
 
 Un manager devient instructeur dans votre domaine : il peut créer, éditer, publier des cours, inviter des apprenants, etc. (voir le [manuel instructeur](instructor.md)).
 
@@ -70,14 +70,14 @@ Actions groupées (sélection par checkbox) :
 
 ## 5. Demandes d'adhésion
 
-Onglet « Demandes ». Liste toutes les demandes d'adhésion en attente avec :
+Onglet « Invitations & demandes ». Liste toutes les demandes d'adhésion en attente avec :
 
 - Pseudo et email du demandeur.
 - Message (s'il en a laissé un).
 - Date de la demande.
 - Boutons « Approuver » / « Refuser ».
 
-![Screenshot : demandes d'adhésion](screenshots/admin-03-join-requests.png)
+![Screenshot : demandes d'adhésion](../screenshots/fr/admin-03-join-requests.png)
 
 ### Approbation / refus en masse
 
@@ -89,9 +89,9 @@ Les demandes non décidées expirent automatiquement après 30 jours. Un avertis
 
 ## 6. Inviter des utilisateurs
 
-Onglet « Invitations ». Pour pré-inviter quelqu'un (par email) avant qu'il s'inscrive sur la plate-forme — utile pour les utilisateurs qui n'existent pas encore.
+Même onglet « Invitations & demandes », section invitations e-mail. Pour pré-inviter quelqu'un (par email) avant qu'il s'inscrive sur la plate-forme — utile pour les utilisateurs qui n'existent pas encore.
 
-![Screenshot : page d'invitations du domaine](screenshots/admin-04-domain-invites.png)
+![Screenshot : page d'invitations du domaine](../screenshots/fr/admin-04-domain-invites.png)
 
 ### Inviter
 
@@ -107,9 +107,9 @@ Chaque invitation envoyée apparaît dans la table avec date d'envoi, expiration
 
 ## 7. Analyses du domaine
 
-Onglet « Analyses » de la page d'édition.
+Onglet « Statistiques » de la page d'édition.
 
-![Screenshot : analytics du domaine](screenshots/admin-05-domain-analytics.png)
+![Screenshot : analytics du domaine](../screenshots/fr/admin-05-domain-analytics.png)
 
 KPIs :
 
@@ -122,9 +122,9 @@ Sparkline 30 jours sur les approbations / refus.
 
 ## 8. L'audit log
 
-Onglet « Audit » de la page d'édition. Liste les 200 dernières actions sur le domaine, triées du plus récent au plus ancien.
+Onglet « Journal » de la page d'édition. Liste les 200 dernières actions sur le domaine, triées du plus récent au plus ancien.
 
-![Screenshot : audit log du domaine](screenshots/admin-06-audit-log.png)
+![Screenshot : audit log du domaine](../screenshots/fr/admin-06-audit-log.png)
 
 Actions auditées : ajout/retrait de membre, approbation/refus de demande, envoi/révocation d'invitation, transfert de propriété, modification des langues autorisées, etc.
 
@@ -134,9 +134,9 @@ Chaque ligne porte : timestamp, acteur, action, métadonnées (JSON brut, dépli
 
 L'owner peut transférer le domaine à un autre utilisateur (membre du domaine, ou même externe via email). Action irréversible — soyez sûr.
 
-Bouton « Transférer la propriété » dans l'onglet « Informations ». Saisissez l'email du destinataire.
+Bouton « Transférer la propriété » dans l'onglet « Configuration ». Saisissez l'email du destinataire.
 
-![Screenshot : dialogue de transfert](screenshots/admin-07-transfer-ownership.png)
+![Screenshot : dialogue de transfert](../screenshots/fr/admin-07-transfer-ownership.png)
 
 Le destinataire reçoit un email avec un lien signé vers `/transfer/accept/<token>`. Tant qu'il n'a pas cliqué et confirmé, **vous restez owner**. À l'acceptation :
 
@@ -148,10 +148,47 @@ Le token expire dans 7 jours. Si le destinataire n'agit pas, il faut renvoyer.
 
 ## 10. Préférences de notification du domaine
 
-Onglet « Notifications » de la page d'édition.
+Onglet « Notifications » de la page d'édition. **Réservé au owner du domaine** — les managers ne voient pas cet onglet.
 
-Pour chaque type d'événement (demande d'adhésion, invitation acceptée, etc.), vous pouvez désactiver l'envoi d'email **pour tous les destinataires du domaine** ou de notification web.
+C'est un **kill-switch global par catégorie**, pas un réglage email-vs-cloche comme dans `/preferences` côté utilisateur. Chaque ligne porte un seul toggle ON/OFF : si vous le passez à OFF, **aucun** destinataire du domaine ne reçoit plus cette notification, peu importe ses préférences personnelles.
 
-⚠️ C'est une mise en sourdine côté domaine : si un utilisateur a activé une notification mais que le domaine l'a désactivée, **rien ne part**. La logique est l'intersection des deux opt-ins. Utile pour les domaines qui veulent garder le bruit au minimum.
+### Les 13 catégories couvertes
 
-![Screenshot : prefs de notification du domaine](screenshots/admin-08-notification-prefs.png)
+**Domaine :**
+
+- Demande d'adhésion reçue
+- Décision (acceptée / refusée) sur une demande
+- Avertissement avant expiration d'une demande en attente
+- Invitation à rejoindre un domaine
+- Transfert de propriété reçu
+
+**Quiz :**
+
+- Un quiz vient d'être assigné
+- Un quiz assigné est complété
+- Mon score est disponible
+- La correction détaillée est disponible
+
+**LMS (cours) :**
+
+- Invitation à un cours envoyée
+- Invitation à un cours reçue
+- Invitation à un cours acceptée
+- Demande d'inscription à un cours créée
+
+### La règle de l'intersection
+
+Une notification part **uniquement si les deux opt-ins sont ON** :
+
+```
+notification envoyée  ⇔  user-pref ON  ET  domain-pref ON
+```
+
+Donc :
+
+- Si vous coupez `Invitation à rejoindre un domaine` ici → **personne** dans le domaine ne reçoit plus cette notification, même les utilisateurs qui l'ont activée individuellement.
+- Si un utilisateur la coupe dans `/preferences` → **lui seul** ne la reçoit plus, les autres restent inchangés.
+
+Pratique pour les domaines qui veulent garder le bruit au minimum (par exemple « production » qui ne veut que les alertes critiques).
+
+![Screenshot : prefs de notification du domaine](../screenshots/fr/admin-08-notification-prefs.png)

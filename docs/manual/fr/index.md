@@ -20,10 +20,10 @@ Les superusers (côté plate-forme) ne sont pas couverts par ce manuel — leur 
 
 ## Conventions de ce manuel
 
-- Les chemins commencent par un slash : `/lms/catalog`, `/dashboard`, etc. Ce sont des routes du SPA Angular, pas des URLs absolues.
+- Les chemins commencent par un slash : `/catalog`, `/dashboard`, etc. Ce sont des routes du SPA Angular, pas des URLs absolues.
 - Les noms des composants UI sont entre guillemets : « Inviter un apprenant ».
 - Les actions critiques (suppression, transfert, etc.) sont précédées d'un avertissement explicite.
-- Les screenshots sont rendus à 1440 px de large, light theme, langue FR.
+- Les screenshots sont rendus à 1280 px de large, light theme, langue FR.
 
 ## Démarrage rapide
 

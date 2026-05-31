@@ -27,7 +27,7 @@ Deux façons d'arriver sur la plate-forme :
 - **Mot de passe classique** depuis `/login` : email + mot de passe.
 - **Magic-link** depuis `/login` : saisir l'email et cliquer sur « Recevoir un lien de connexion ». Un email vous arrive avec un lien à usage unique, valable quelques minutes. Pratique si vous avez oublié votre mot de passe et que vous voulez éviter la procédure de reset.
 
-![Screenshot : page de connexion](screenshots/learner-01-login.png)
+![Screenshot : page de connexion](../screenshots/fr/learner-01-login.png)
 
 ### Le tableau de bord
 
@@ -39,11 +39,11 @@ Après connexion vous arrivez sur `/dashboard`. C'est votre point de départ : i
 - **Invitations en attente** — vos invitations à des cours (n'apparaît que si vous avez au moins une invitation, ou si vous êtes vous-même instructeur quelque part).
 - **Catalogue** — raccourci vers le catalogue de cours.
 
-![Screenshot : dashboard apprenant](screenshots/learner-02-dashboard.png)
+![Screenshot : dashboard apprenant](../screenshots/fr/learner-02-dashboard.png)
 
 ## 2. Le catalogue de cours
 
-Le catalogue (`/lms/catalog`) liste tous les cours **publiés** qui vous sont visibles dans vos domaines.
+Le catalogue (`/catalog`) liste tous les cours **publiés** qui vous sont visibles dans vos domaines.
 
 ### Filtres
 
@@ -53,7 +53,7 @@ Trois filtres en haut de la page :
 - **Niveau** — Débutant / Intermédiaire / Avancé.
 - **Domaine** — n'apparaît que si vous êtes membre de plusieurs domaines.
 
-![Screenshot : catalogue avec filtres](screenshots/learner-03-catalog.png)
+![Screenshot : catalogue avec filtres](../screenshots/fr/learner-03-catalog.png)
 
 ### Lire une card de cours
 
@@ -67,9 +67,9 @@ Sous la grille, un paginator permet de naviguer si votre domaine contient plus d
 
 ## 3. S'inscrire à un cours
 
-La page de détail (`/lms/course/<slug>`) affiche le titre, la description, les objectifs d'apprentissage (si renseignés), et l'arbre des sections + leçons.
+La page de détail (`/course/<slug>`) affiche le titre, la description, les objectifs d'apprentissage (si renseignés), et l'arbre des sections + leçons.
 
-![Screenshot : page d'un cours](screenshots/learner-04-course-detail.png)
+![Screenshot : page d'un cours](../screenshots/fr/learner-04-course-detail.png)
 
 Le bouton à droite de l'en-tête dépend du mode d'inscription du cours et de votre statut :
 
@@ -83,24 +83,24 @@ Le bouton à droite de l'en-tête dépend du mode d'inscription du cours et de v
 
 Si vous avez reçu une invitation par email :
 
-1. Cliquez sur le lien dans l'email — vous arrivez sur `/lms/course-invite/<token>`.
+1. Cliquez sur le lien dans l'email — vous arrivez sur `/course-invite/<token>`.
 2. Une page d'acceptation affiche le cours, qui vous a invité, et la date d'expiration.
 3. Cliquez sur « Accepter l'invitation » pour vous inscrire et rejoindre le cours.
 
-![Screenshot : page d'acceptation d'invitation](screenshots/learner-05-invite-accept.png)
+![Screenshot : page d'acceptation d'invitation](../screenshots/fr/learner-05-invite-accept.png)
 
 L'invitation expire automatiquement 14 jours après envoi. Vous recevrez un rappel par email 3 jours avant l'expiration si vous n'avez pas encore accepté.
 
 ## 4. Suivre une leçon
 
-La page leçon (`/lms/lesson/<id>`) est divisée en :
+La page leçon (`/lesson/<id>`) est divisée en :
 
 - **Sommaire de blocs** (à gauche, sticky sur desktop) — liste numérotée des blocs de contenu de la leçon, avec scroll-spy : le bloc visible est mis en évidence dans le sommaire.
 - **Corps de la leçon** (à droite) — le contenu réel, un bloc par carte.
 - **Notes privées** (en bas) — un champ texte où vous pouvez prendre des notes personnelles, persistées automatiquement (debouncé 600 ms).
 - **Footer de navigation** — boutons « ← Leçon précédente », « Marquer comme terminée », « Leçon suivante → ».
 
-![Screenshot : page d'une leçon](screenshots/learner-06-lesson-view.png)
+![Screenshot : page d'une leçon](../screenshots/fr/learner-06-lesson-view.png)
 
 ### Les types de blocs
 
@@ -123,7 +123,7 @@ Le bouton « Marquer comme terminée » au centre du footer enregistre la compl�
 
 Si une leçon contient un bloc de type Quiz, vous verrez une card avec un bouton « Commencer le quiz ». Si vous avez déjà réussi le quiz, la card affiche votre score.
 
-![Screenshot : bloc quiz dans une leçon](screenshots/learner-07-quiz-block.png)
+![Screenshot : bloc quiz dans une leçon](../screenshots/fr/learner-07-quiz-block.png)
 
 La page du quiz (`/quiz/<id>`) propose les questions une par une. Selon le mode :
 
@@ -134,34 +134,34 @@ Réussir un quiz avec un score supérieur au seuil défini par l'instructeur mar
 
 ## 6. Suivre ma progression
 
-`/lms/me/progress` liste tous vos cours en cours (`enrollment` actif) avec leur barre de progression. Cliquez sur un cours pour reprendre.
+`/me/progress` liste tous vos cours en cours (`enrollment` actif) avec leur barre de progression. Cliquez sur un cours pour reprendre.
 
-![Screenshot : ma progression](screenshots/learner-08-progress.png)
+![Screenshot : ma progression](../screenshots/fr/learner-08-progress.png)
 
 ## 7. Mes certificats
 
-`/lms/me/certificates` liste les certificats que vous avez obtenus. Chaque certificat affiche le titre du cours, la date d'obtention, le numéro de certificat, et un bouton « Télécharger le PDF ».
+`/me/certificates` liste les certificats que vous avez obtenus. Chaque certificat affiche le titre du cours, la date d'obtention, le numéro de certificat, et un bouton « Télécharger le PDF ».
 
-![Screenshot : liste des certificats](screenshots/learner-09-certificates.png)
+![Screenshot : liste des certificats](../screenshots/fr/learner-09-certificates.png)
 
 ### Vérifier l'authenticité d'un certificat
 
-Chaque certificat porte un **token de vérification public** au format `https://quizonline.foxugly.com/lms/verify/<token>`. N'importe qui (même non connecté) peut ouvrir cette URL et confirmer que le certificat est authentique, qui l'a obtenu et quand. Pratique pour partager sur un CV ou LinkedIn.
+Chaque certificat porte un **token de vérification public** au format `https://quizonline.foxugly.com/verify/<token>`. N'importe qui (même non connecté) peut ouvrir cette URL et confirmer que le certificat est authentique, qui l'a obtenu et quand. Pratique pour partager sur un CV ou LinkedIn.
 
-![Screenshot : page de vérification publique](screenshots/learner-10-verify.png)
+![Screenshot : page de vérification publique](../screenshots/fr/learner-10-verify.png)
 
 ## 8. Gérer mes invitations
 
-`/lms/me/invitations` liste toutes vos invitations à des cours, organisées en deux onglets :
+`/me/invitations` liste toutes vos invitations à des cours, organisées en deux onglets :
 
 - **En attente** — invitations non encore acceptées (et non expirées). Bouton « Accepter » ou « Refuser » par ligne.
 - **Historique** — tout le reste (acceptées, refusées, révoquées, expirées). Si acceptée, un bouton « Aller au cours » permet d'y retourner.
 
-![Screenshot : mes invitations](screenshots/learner-11-my-invitations.png)
+![Screenshot : mes invitations](../screenshots/fr/learner-11-my-invitations.png)
 
 ## 9. Préférences personnelles
 
-`/user/edit` (depuis le menu utilisateur en haut à droite) : modifier votre nom, votre email, votre mot de passe, votre langue d'interface (FR/EN/NL/IT/ES).
+`/preferences` (depuis le menu utilisateur en haut à droite) : modifier votre nom, votre email, votre mot de passe, votre langue d'interface (FR/EN/NL/IT/ES).
 
 ### Préférences de notification
 
@@ -172,4 +172,4 @@ Pour chaque type d'événement (invitation reçue, inscription approuvée, certi
 
 Les préférences sont par-domaine ET par-utilisateur — la notification s'envoie seulement si les DEUX permettent. Donc si vous mutez la cloche pour les invitations, vous n'en aurez plus, peu importe ce que fait le domaine.
 
-![Screenshot : préférences de notification](screenshots/learner-12-notifications.png)
+![Screenshot : préférences de notification](../screenshots/fr/learner-12-notifications.png)
