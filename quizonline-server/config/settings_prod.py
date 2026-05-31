@@ -34,6 +34,13 @@ if not ALLOWED_HOSTS or ALLOWED_HOSTS == ["*"]:  # noqa: F405
 DATABASE_URL = require_env_value("DATABASE_URL")
 DATABASES = {"default": env.db("DATABASE_URL")}  # noqa: F405
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=600)  # noqa: F405
+# Verify a reused connection is still alive before serving the next
+# request from it. Without this Django re-uses a connection that
+# PostgreSQL has already closed (idle-timeout, restart, …) and the
+# first hit fails with ``InterfaceError`` until the worker restarts.
+# Costs one ``SELECT 1`` at connection acquisition, which is cheaper
+# than the 30-80 ms a brand-new TCP+TLS+auth handshake would burn.
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = env.bool("DB_CONN_HEALTH_CHECKS", default=True)  # noqa: F405
 
 CACHES = {"default": env.cache("CACHE_URL", default="redis://127.0.0.1:6379/2")}  # noqa: F405
 PARLER_ENABLE_CACHING = True
