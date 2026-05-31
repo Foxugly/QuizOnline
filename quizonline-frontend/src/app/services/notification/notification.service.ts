@@ -23,6 +23,14 @@ export class NotificationService {
   readonly unread = this._unread.asReadonly();
   readonly hasUnread = computed(() => this._unread() > 0);
 
+  /** Cross-service setter — used by ``UnreadBadgesService`` to push
+   *  the coalesced poll result into our signal. Clamped to non-negative
+   *  so a corrupt payload cannot show a negative badge. */
+  setUnread(count: number): void {
+    const value = typeof count === 'number' && Number.isFinite(count) ? count : 0;
+    this._unread.set(Math.max(0, value));
+  }
+
   private pollSubscription: Subscription | null = null;
 
   /**

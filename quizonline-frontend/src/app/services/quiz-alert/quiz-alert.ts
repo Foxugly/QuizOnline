@@ -129,6 +129,13 @@ export class QuizAlertService {
     );
   }
 
+  /** Cross-service setter — used by ``UnreadBadgesService`` to push
+   *  the coalesced poll result into our signal. */
+  setUnread(count: number): void {
+    const value = typeof count === 'number' && Number.isFinite(count) ? count : 0;
+    this.unreadCount.set(Math.max(0, value));
+  }
+
   clearUnreadCount(): void {
     this.unreadCount.set(0);
   }

@@ -4,10 +4,12 @@ from django.urls import path, include
 from admin_api.stats_views import DashboardStatsView
 from admin_api.system_views import SystemCheckView, SystemConfigView
 from core.views import TestEmailView
+from customuser.unread_counts_view import UnreadCountsView
 
 app_name = 'api'
 urlpatterns = [
     path("stats/dashboard/", DashboardStatsView.as_view(), name="stats-dashboard"),
+    path("unread-counts/", UnreadCountsView.as_view(), name="unread-counts"),
     path("mail/test/", TestEmailView.as_view(), name="mail-test"),
     path("admin/system-config/", SystemConfigView.as_view(), name="system-config"),
     path("admin/system-check/", SystemCheckView.as_view(), name="system-check"),
