@@ -19,7 +19,7 @@
             (ngModelChange)="selectedInvitees.set($event)"
             [suggestions]="memberSuggestions()"
             (completeMethod)="onMemberSearch($event)"
-            field="displayName"
+            [optionLabel]="optionLabel"
             [placeholder]="ui().invite.pickerPlaceholder"
             [dropdown]="true"
             [forceSelection]="true"

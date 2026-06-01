@@ -18,12 +18,23 @@ import {getBlockListEditorUiText} from '../block-list-editor/block-list-editor.i
 import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
-/** PrimeNG's ``p-autoComplete`` with ``forceSelection`` calls
- *  ``getOptionLabel(option).toLocaleLowerCase()`` to match the typed text
- *  against options. If a single template comes back with ``title`` as a dict
- *  (translations object that escaped the serializer), the whole picker
- *  crashes. Strip non-strings at the data layer so the picker stays alive
- *  even when the backend serializer slips. */
+/** Defensive option-label resolver passed to ``<p-autoComplete>`` via
+ *  ``[optionLabel]``. PrimeNG calls
+ *  ``getOptionLabel(option).toLocaleLowerCase()`` for ``forceSelection``
+ *  matching — if a single template comes back with ``title`` as a dict
+ *  (translations object that escaped the serializer) the whole picker
+ *  used to crash. Returning a guaranteed string from this callback keeps
+ *  the picker alive even when the backend slips. Used in addition to
+ *  the data-layer ``coerceTitle`` sanitize in ``loadTemplates`` so a
+ *  malformed row only loses its own label, not the entire dropdown. */
+function quizTemplateOptionLabel(option: QuizTemplateListDto | string): string {
+  if (typeof option === 'string') {
+    return option;
+  }
+  const t = (option as QuizTemplateListDto)?.title;
+  return typeof t === 'string' ? t : '';
+}
+
 function coerceTitle(title: unknown): string {
   return typeof title === 'string' ? title : '';
 }
@@ -82,7 +93,7 @@ function coerceTitle(title: unknown): string {
         [forceSelection]="true"
         [dropdown]="true"
         [delay]="200"
-        field="title"
+        [optionLabel]="optionLabel"
         appendTo="body"
         [placeholder]="ui().quizTemplatePlaceholder"
         emptyMessage="—">
@@ -153,6 +164,11 @@ export class QuizBlockEditor implements OnInit {
   protected readonly allTemplates = signal<QuizTemplateListDto[]>([]);
   protected readonly suggestions = signal<QuizTemplateListDto[]>([]);
   protected readonly selectedTemplate = signal<QuizTemplateListDto | null>(null);
+  /** Bound to ``[optionLabel]`` on the ``<p-autoComplete>``. Replaces the
+   *  legacy ``field="title"`` string binding so ``forceSelection``'s
+   *  ``getOptionLabel(option).toLocaleLowerCase()`` is always given a
+   *  string, even if a single template's ``title`` arrives as a dict. */
+  protected readonly optionLabel = quizTemplateOptionLabel;
 
   constructor() {
     effect(() => {

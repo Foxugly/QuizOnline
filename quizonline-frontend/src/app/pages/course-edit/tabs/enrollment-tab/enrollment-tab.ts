@@ -39,11 +39,24 @@ import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {getCourseEditEnrollmentTabUiText} from './enrollment-tab.i18n';
 
 /** Picker-friendly shape that wraps ``UserSummaryDto`` with a
- *  precomputed ``displayName`` so PrimeNG's ``<p-autoComplete>`` can
- *  bind to ``field="displayName"`` (the component does not support a
- *  function-valued ``field`` input). */
+ *  precomputed ``displayName``. The autocomplete binds to it via a
+ *  function-valued ``[optionLabel]`` rather than ``field=""`` so a
+ *  malformed row (non-string ``displayName``) cannot crash PrimeNG's
+ *  ``forceSelection`` validator — see ``inviteeOptionLabel`` below. */
 interface MemberPickerItem extends UserSummaryDto {
   displayName: string;
+}
+
+/** Defensive option-label resolver for the member picker. Identical
+ *  shape to ``quizTemplateOptionLabel`` — keep this pattern when adding
+ *  new ``<p-autoComplete>`` consumers so a single bad row only loses
+ *  its own label, never the whole dropdown. */
+function inviteeOptionLabel(option: MemberPickerItem | string): string {
+  if (typeof option === 'string') {
+    return option;
+  }
+  const name = (option as MemberPickerItem)?.displayName;
+  return typeof name === 'string' ? name : '';
 }
 
 /** Status filter options surfaced in the ``p-select`` above the table.
@@ -136,6 +149,9 @@ export class CourseEditEnrollmentTab {
   private readonly domainMembers = signal<MemberPickerItem[]>([]);
   /** The narrowed picker suggestions matching the current ``query``. */
   protected readonly memberSuggestions = signal<MemberPickerItem[]>([]);
+  /** Bound to ``[optionLabel]`` on the picker — see ``inviteeOptionLabel``
+   *  rationale for why this is a function reference, not a field path. */
+  protected readonly optionLabel = inviteeOptionLabel;
   /** Currently selected invitees — the picker is multi-select so a
    *  single bulk send invites everyone in this list at once. */
   protected readonly selectedInvitees = signal<MemberPickerItem[]>([]);
