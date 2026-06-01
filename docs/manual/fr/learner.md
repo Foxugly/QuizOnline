@@ -127,6 +127,8 @@ Si une leçon contient un bloc de type Quiz, vous verrez une card avec un bouton
 
 Une seconde entrée existe via `/quiz/list`, onglet « Modèles » : la liste de tous les quiz publics des domaines auxquels vous appartenez, avec un bouton « Démarrer » par carte. L'onglet « Mes sessions » liste vos sessions déjà créées (en cours ou terminées) pour les reprendre ou consulter le score.
 
+![Screenshot : /quiz/list — onglet Mes sessions](../screenshots/fr/learner-13-quiz-list.png)
+
 ### L'interface du joueur
 
 La page du joueur (`/quiz/<quizId>/questions`) est divisée en deux colonnes :
@@ -149,6 +151,8 @@ Cliquez un numéro pour sauter directement à cette question.
 - Bouton **Signaler un problème** — envoie une alerte à l'instructeur (typo, mauvaise réponse, ambiguïté). Ouvre une dialogue pour décrire le souci.
 - Boutons **Précédent** / **Suivant** / **Terminer** (sur la dernière question).
 
+![Screenshot : interface du joueur de quiz](../screenshots/fr/learner-14-quiz-player.png)
+
 ### Pratique vs Examen
 
 - **Pratique** — la correction s'affiche immédiatement après chaque « Suivant ». Vous voyez vos erreurs et pouvez ré-essayer sur une nouvelle session.
@@ -157,6 +161,8 @@ Cliquez un numéro pour sauter directement à cette question.
 ### Soumettre et consulter le score
 
 Bouton « Terminer » sur la dernière question (confirmation requise). Vous arrivez sur `/quiz/<quizId>`, le récap de session : date, durée, score, statut de réussite.
+
+![Screenshot : récap de session](../screenshots/fr/learner-15-quiz-recap.png)
 
 - Si la **visibilité du score** est immédiate, le score s'affiche ici. Si elle est planifiée, vous voyez un message « Disponible à partir du… » jusqu'à la date.
 - Si la **visibilité du détail** l'autorise, un bouton « Réviser les questions » ouvre la grille en lecture seule avec vos réponses et les bonnes.

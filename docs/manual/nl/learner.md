@@ -127,6 +127,8 @@ Als een les een quiz-blok bevat, zie je een kaart met de knop "Quiz starten". Al
 
 Een tweede ingang is `/quiz/list`, tab "Sjablonen": de lijst van elke publieke quiz in de domeinen waar je deel van uitmaakt, met een "Starten"-knop per kaart. De tab "Mijn sessies" toont de sessies die je al hebt aangemaakt (lopend of afgerond), om verder te gaan of de score te bekijken.
 
+![Screenshot: /quiz/list — tab Mijn sessies](../screenshots/nl/learner-13-quiz-list.png)
+
 ### De spelersinterface
 
 De spelerspagina (`/quiz/<quizId>/questions`) is verdeeld in twee kolommen:
@@ -149,6 +151,8 @@ Klik op een nummer om direct naar die vraag te springen.
 - **Probleem melden**-knop — stuurt een melding naar de instructeur (typfout, fout antwoord, dubbelzinnigheid). Opent een dialoog om het probleem te beschrijven.
 - Knoppen **Vorige** / **Volgende** / **Beëindigen** (Beëindigen verschijnt op de laatste vraag).
 
+![Screenshot: spelersinterface](../screenshots/nl/learner-14-quiz-player.png)
+
 ### Oefening vs. Examen
 
 - **Oefening** — de correctie verschijnt direct na elke "Volgende". Je ziet je fouten en kan opnieuw proberen op een nieuwe sessie.
@@ -157,6 +161,8 @@ Klik op een nummer om direct naar die vraag te springen.
 ### Indienen en de score bekijken
 
 "Beëindigen"-knop op de laatste vraag (bevestiging vereist). Je komt op `/quiz/<quizId>` terecht, het sessie-overzicht: datum, duur, score, geslaagd/niet-geslaagd.
+
+![Screenshot: sessie-overzicht](../screenshots/nl/learner-15-quiz-recap.png)
 
 - Als de **scorezichtbaarheid** onmiddellijk is, verschijnt de score hier. Als ze gepland is, zie je tot die datum een bericht "Beschikbaar vanaf…".
 - Als de **detailzichtbaarheid** het toelaat, opent een "Vragen herzien"-knop het raster alleen-lezen met jouw antwoorden en de juiste.

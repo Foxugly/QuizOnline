@@ -127,6 +127,8 @@ If a lesson contains a Quiz block, you see a card with a "Start the quiz" button
 
 A second entry point is `/quiz/list`, "Templates" tab: the list of every public quiz in the domains you belong to, with a "Start" button per card. The "My sessions" tab lists sessions you have already created (in-progress or completed) so you can resume or check the score.
 
+![Screenshot: /quiz/list — My sessions tab](../screenshots/en/learner-13-quiz-list.png)
+
 ### The player UI
 
 The player page (`/quiz/<quizId>/questions`) is split in two columns:
@@ -149,6 +151,8 @@ Click a number to jump straight to that question.
 - **Report an issue** button — sends an alert to the instructor (typo, wrong answer, ambiguity). Opens a dialog to describe the issue.
 - **Previous** / **Next** / **Finish** buttons (Finish appears on the last question).
 
+![Screenshot: quiz player UI](../screenshots/en/learner-14-quiz-player.png)
+
 ### Practice vs Exam
 
 - **Practice** — the correction appears immediately after each "Next". You see your mistakes and can retry on a new session.
@@ -157,6 +161,8 @@ Click a number to jump straight to that question.
 ### Submit and review the score
 
 "Finish" button on the last question (confirmation required). You land on `/quiz/<quizId>`, the session recap: date, duration, score, pass/fail status.
+
+![Screenshot: session recap](../screenshots/en/learner-15-quiz-recap.png)
 
 - If **score visibility** is immediate, the score shows here. If it is scheduled, you see an "Available from…" message until the date.
 - If **detail visibility** allows it, a "Review questions" button opens the grid read-only with your answers and the correct ones.
