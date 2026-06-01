@@ -10,10 +10,19 @@ Group=www-data
 WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 
 # Single source of truth: a tmpfs file written at boot by
-# quizonline-env-fetch.service from AWS SSM Parameter Store. The
-# Requires= above means a restart of this unit triggers a fresh
-# fetch — so ``aws ssm put-parameter --overwrite ... && systemctl
-# restart quizonline-gunicorn`` is the entire secret-rotation flow.
+# quizonline-env-fetch.service from AWS SSM Parameter Store.
+#
+# IMPORTANT: env-fetch is ``Type=oneshot RemainAfterExit=yes`` — the
+# unit is "active" forever after the first run, so the Requires=
+# barrier above is already satisfied and ``systemctl restart
+# quizonline-gunicorn`` alone does NOT re-fetch from SSM. The full
+# rotation flow is:
+#
+#   aws ssm put-parameter --overwrite ...
+#   sudo systemctl restart quizonline-env-fetch   # re-runs ExecStart
+#   sudo systemctl restart quizonline-gunicorn    # picks up new env
+#
+# Same applies to quizonline-celery / quizonline-celery-beat.
 EnvironmentFile=/run/quizonline/.env
 Environment="PYTHONUNBUFFERED=1"
 
