@@ -21,7 +21,6 @@ from config.tools import MyModelViewSet
 from .models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer, QuizAlertThread
 from .access import (
     template_access_decision,
-    user_can_access_template,
     user_can_create_quiz_from_template,
     user_can_edit_template,
     validate_target_user_domain,
