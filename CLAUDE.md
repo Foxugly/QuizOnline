@@ -20,6 +20,9 @@ Monorepo with two main modules:
   - Default (no `size`) for page-level primary/secondary actions: page hero CTAs, form submit/cancel, dialog footer, page toolbar primary actions.
   - Never `size="large"`.
 - **Empty states**: use `<app-empty-state>` (under `shared/components/empty-state/`) with `density="compact"` inside table empty rows and dropdowns, default density on page sections.
+- **State display & controls**:
+  - Display ANY state (`active`/`inactive`, `published`/`draft`, access mode `open`/`approval`/`invite`) with `<app-status-badge>` (under `shared/components/status-badge/`) — never a bare icon or an ad-hoc `<p-tag>`. Labels come from the shared `inject(UiTextService).ui` dictionary (`ui().status.*` / `ui().access.*`). `inactive` and `draft` are both grey (`secondary`) on purpose — "not live"; red is reserved for real errors.
+  - Toggle a binary state with `<p-toggleswitch>` (active, course/section/lesson publish). A publish toggle that fails a server pre-condition reverts and surfaces the reason via `AppToastService` — see `course-edit.ts onPublishToggle`.
 - **Dates in tables**: prefer `| relativeDate` over `| date:'short'` / `'medium'`. Keep the absolute date one hover away via `[attr.title]="value | date:'medium'"`. Keep `| date:` for genuinely future timestamps (e.g. `expires_at`) and for recap pages where exact dates matter.
 
 ## i18n
