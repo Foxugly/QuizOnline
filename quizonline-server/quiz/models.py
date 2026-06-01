@@ -358,6 +358,16 @@ class Quiz(models.Model):
         indexes = [
             models.Index(fields=["user", "active"], name="quiz_user_active_idx"),
             models.Index(fields=["user", "-created_at"], name="quiz_user_created_idx"),
+            # Backs the ``/api/quiz/template/<id>/sessions/`` endpoint's
+            # ordered scan (Quiz.quiz_template = X ORDER BY -created_at).
+            # The plain ``quiz_template_id`` auto-FK index alone forced
+            # Postgres to sort the matched rows; the compound (template,
+            # -created_at) index lets the planner walk the index in
+            # order and stop at the page boundary.
+            models.Index(
+                fields=["quiz_template", "-created_at"],
+                name="quiz_template_created_idx",
+            ),
         ]
 
     def __str__(self):
