@@ -47,17 +47,6 @@ export type AnswerOptionForm = {
   sort_order: number;
 };
 
-export type QuestionCreateJsonPayload = {
-  domain: number;
-  subject_ids: number[];
-  allow_multiple_correct: boolean;
-  active: boolean;
-  is_mode_practice: boolean;
-  is_mode_exam: boolean;
-  translations: Partial<Record<LangCode, QuestionTranslationForm>>;
-  answer_options: Array<AnswerOptionForm>;
-};
-
 export type QuestionDuplicateDraft = {
   domainId: number;
   subjectIds: number[];

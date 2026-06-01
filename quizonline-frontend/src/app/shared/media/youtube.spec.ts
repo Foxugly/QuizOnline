@@ -1,7 +1,6 @@
 import {
   extractYoutubeVideoId,
   isYoutubeUrl,
-  toCanonicalYoutubeUrl,
   toYoutubeEmbedUrl,
 } from './youtube';
 
@@ -18,15 +17,12 @@ describe('youtube helpers', () => {
     expect(extractYoutubeVideoId('https://www.youtube.com/shorts/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
   });
 
-  it('normalizes and converts valid youtube urls', () => {
-    expect(toCanonicalYoutubeUrl('https://youtu.be/dQw4w9WgXcQ?t=43'))
-      .toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  it('converts a valid youtube url to its embed form', () => {
     expect(toYoutubeEmbedUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
       .toBe('https://www.youtube.com/embed/dQw4w9WgXcQ');
   });
 
   it('rejects invalid youtube urls', () => {
-    expect(toCanonicalYoutubeUrl('https://www.youtube.com/watch?feature=share')).toBeNull();
     expect(toYoutubeEmbedUrl('https://example.com/video')).toBeNull();
   });
 });

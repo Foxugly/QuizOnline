@@ -77,10 +77,6 @@ export function getTranslationsGroup(form: QuestionEditorForm): FormGroup {
   return form.controls.translations;
 }
 
-export function getLangGroup(form: QuestionEditorForm, lang: LangCode): FormGroup {
-  return getTranslationsGroup(form).get(lang) as FormGroup;
-}
-
 export function getQuestionTrGroup(form: QuestionEditorForm, lang: LangCode): QuestionTrGroup {
   const group = getTranslationsGroup(form).get(lang) as QuestionTrGroup | null;
   if (!group) {
@@ -91,13 +87,6 @@ export function getQuestionTrGroup(form: QuestionEditorForm, lang: LangCode): Qu
 
 export function getAnswerMetaGroup(form: QuestionEditorForm, index: number): FormGroup {
   return getAnswerOptions(form).at(index) as FormGroup;
-}
-
-export function getAnswerCorrectControl(
-  form: QuestionEditorForm,
-  index: number,
-): FormControl<boolean> {
-  return getAnswerMetaGroup(form, index).get('is_correct') as FormControl<boolean>;
 }
 
 export function ensureQuestionTranslationControls(
@@ -145,23 +134,6 @@ export function addQuestionAnswerOption(
       sort_order: fb.control(nextIndex + 1),
     }),
   );
-}
-
-export function removeQuestionAnswerOption(
-  form: QuestionEditorForm,
-  _langs: LangCode[],
-  index: number,
-  minCount = 2,
-): void {
-  if (getAnswerOptions(form).length <= minCount) {
-    return;
-  }
-
-  getAnswerOptions(form).removeAt(index);
-
-  getAnswerOptions(form).controls.forEach((control, i) => {
-    control.get('sort_order')?.setValue(i + 1);
-  });
 }
 
 export function resolveQuestionDomainLanguages(question: QuestionReadDto): LangCode[] {
@@ -366,11 +338,3 @@ export function buildQuestionPatchPayload(
   };
 }
 
-export function isEmptyQuestionHtml(html: string): boolean {
-  const cleaned = (html ?? '')
-    .replace(/<br\s*\/?>/gi, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/<[^>]+>/g, '')
-    .trim();
-  return cleaned.length === 0;
-}

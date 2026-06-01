@@ -48,11 +48,6 @@ export function extractYoutubeVideoId(url: string): string | null {
   }
 }
 
-export function toCanonicalYoutubeUrl(url: string): string | null {
-  const videoId = extractYoutubeVideoId(url);
-  return videoId ? `https://www.youtube.com/watch?v=${videoId}` : null;
-}
-
 export function toYoutubeEmbedUrl(url: string): string | null {
   const videoId = extractYoutubeVideoId(url);
   // Use youtube.com/embed/ rather than youtube-nocookie.com/embed/. The

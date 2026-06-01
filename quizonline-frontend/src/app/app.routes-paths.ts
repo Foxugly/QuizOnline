@@ -64,11 +64,6 @@ export let ROUTES = {
   }
 };
 
-//goEdit(id: number) {
-//  this.router.navigate(ROUTES.question.edit(id));
-//}
-
-export const DASHBOARD = '/dashboard';
 export const CATALOG = '/catalog';
 export const COURSE_LIST = '/course/list';
 export const COURSE_NEW = '/course/new';

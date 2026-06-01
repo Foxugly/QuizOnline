@@ -1,6 +1,5 @@
 import {QuizListDto} from '../../../api/generated/model/quiz-list';
 import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
-import {QuizTemplateAssignmentSessionDto} from '../../../services/quiz/quiz';
 
 export interface UserQuizListItem extends QuizListDto {
   status: 'not_started' | 'in_progress' | 'answered';
@@ -23,14 +22,4 @@ export interface AssignableRecipient {
   id: number;
   username: string;
   role: 'owner' | 'manager' | 'member';
-}
-
-export interface QuizListToolbarState {
-  search: string;
-  isAdmin: boolean;
-}
-
-export interface QuizTemplateAssignDialogState {
-  users: AssignableRecipient[];
-  sessions: QuizTemplateAssignmentSessionDto[];
 }
