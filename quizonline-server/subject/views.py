@@ -196,7 +196,7 @@ class SubjectViewSet(MyModelViewSet):
             # the related questions. The filter mirrors what the
             # detail serializer already does (questions__active=True).
             questions_count=Count("questions", filter=Q(questions__active=True), distinct=True),
-        )
+        ).order_by("-pk")
 
         if not getattr(user, "is_superuser", False):
             qs = qs.filter(domain__in=user.get_visible_domains(active_only=False))

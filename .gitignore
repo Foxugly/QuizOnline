@@ -50,6 +50,7 @@ quizonline-frontend/playwright-report/
 /*.jpeg
 /*.jpg
 /*.md
+/*.pptx
 !/CLAUDE.md
 !/README.md
 
