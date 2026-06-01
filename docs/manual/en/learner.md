@@ -125,12 +125,43 @@ If a lesson contains a Quiz block, you see a card with a "Start the quiz" button
 
 ![Screenshot: quiz block inside a lesson](../screenshots/en/learner-07-quiz-block.png)
 
-The quiz page (`/quiz/<id>`) presents questions one by one. Depending on the mode:
+A second entry point is `/quiz/list`, "Templates" tab: the list of every public quiz in the domains you belong to, with a "Start" button per card. The "My sessions" tab lists sessions you have already created (in-progress or completed) so you can resume or check the score.
 
-- **Practice** — you see the correction immediately after each answer.
-- **Exam** — the score is revealed only at the end.
+### The player UI
 
-Passing a quiz with a score above the threshold set by the instructor automatically marks the lesson (or the course, for a final quiz) as completed.
+The player page (`/quiz/<quizId>/questions`) is split in two columns:
+
+**Left column**
+
+- **Countdown** if the quiz has a timer. On zero, the session is auto-submitted.
+- **Navigation grid** — one button per question, in a 5-column grid. Each button shows its state:
+  - empty — not seen yet;
+  - answered — you ticked at least one option;
+  - flagged for review (flag icon) — you want to come back.
+
+Click a number to jump straight to that question.
+
+**Right column** — the current question:
+
+- Statement (possibly with images, video, code, etc. — same block palette as a lesson).
+- Answer options to tick (radio when one correct answer, checkbox when several).
+- **Flag for review** button — toggles the flag so you can come back before submitting.
+- **Report an issue** button — sends an alert to the instructor (typo, wrong answer, ambiguity). Opens a dialog to describe the issue.
+- **Previous** / **Next** / **Finish** buttons (Finish appears on the last question).
+
+### Practice vs Exam
+
+- **Practice** — the correction appears immediately after each "Next". You see your mistakes and can retry on a new session.
+- **Exam** — no correction until you finish. **Single-attempt**: once the session is started, you cannot create another one on the same template (unless the instructor deletes your session).
+
+### Submit and review the score
+
+"Finish" button on the last question (confirmation required). You land on `/quiz/<quizId>`, the session recap: date, duration, score, pass/fail status.
+
+- If **score visibility** is immediate, the score shows here. If it is scheduled, you see an "Available from…" message until the date.
+- If **detail visibility** allows it, a "Review questions" button opens the grid read-only with your answers and the correct ones.
+
+Passing a quiz with a score ≥ the threshold set by the instructor automatically marks the lesson (or the course, for a final quiz) as completed.
 
 ## 6. Track my progress
 

@@ -116,7 +116,7 @@ KNOWN_PARAM_ROUTES = {
     "/domain/<id>/edit", "/domain/<id>/delete", "/domain/<domainId>/join-requests",
     "/subject/<id>/edit", "/subject/<id>/delete",
     "/question/<questionId>/edit", "/question/<questionId>/delete", "/question/<questionId>/view",
-    "/quiz/<id>",
+    "/quiz/<id>", "/quiz/<quizId>/questions",
     "/quiz/template/<templateId>/edit", "/quiz/template/<templateId>/delete", "/quiz/template/<templateId>/results",
     "/quiz/<quizId>/delete/<templateId>", "/quiz/<quizId>/delete",
     "/messages/<alertId>",

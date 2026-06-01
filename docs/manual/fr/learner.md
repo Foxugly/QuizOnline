@@ -125,12 +125,43 @@ Si une leçon contient un bloc de type Quiz, vous verrez une card avec un bouton
 
 ![Screenshot : bloc quiz dans une leçon](../screenshots/fr/learner-07-quiz-block.png)
 
-La page du quiz (`/quiz/<id>`) propose les questions une par une. Selon le mode :
+Une seconde entrée existe via `/quiz/list`, onglet « Modèles » : la liste de tous les quiz publics des domaines auxquels vous appartenez, avec un bouton « Démarrer » par carte. L'onglet « Mes sessions » liste vos sessions déjà créées (en cours ou terminées) pour les reprendre ou consulter le score.
 
-- **Practice** — vous voyez la correction immédiatement après chaque réponse.
-- **Exam** — le score n'est révélé qu'à la fin.
+### L'interface du joueur
 
-Réussir un quiz avec un score supérieur au seuil défini par l'instructeur marque automatiquement la leçon (ou le cours, pour un quiz final) comme terminée.
+La page du joueur (`/quiz/<quizId>/questions`) est divisée en deux colonnes :
+
+**Colonne gauche**
+
+- **Compte à rebours** si le quiz a un timer. À zéro, la session est soumise automatiquement.
+- **Grille de navigation** — un bouton par question, en grille de 5 colonnes. Chaque bouton indique l'état :
+  - vide — pas encore vu ;
+  - répondu — vous avez coché au moins une option ;
+  - marqué pour relecture (drapeau) — vous voulez y revenir.
+
+Cliquez un numéro pour sauter directement à cette question.
+
+**Colonne droite** — la question courante :
+
+- Énoncé (avec éventuellement images, vidéo, code, etc. — voir les blocs).
+- Options de réponse à cocher (radio si une seule bonne réponse, checkbox si plusieurs).
+- Bouton **Marquer pour relecture** — toggle du drapeau pour y revenir avant la soumission.
+- Bouton **Signaler un problème** — envoie une alerte à l'instructeur (typo, mauvaise réponse, ambiguïté). Ouvre une dialogue pour décrire le souci.
+- Boutons **Précédent** / **Suivant** / **Terminer** (sur la dernière question).
+
+### Pratique vs Examen
+
+- **Pratique** — la correction s'affiche immédiatement après chaque « Suivant ». Vous voyez vos erreurs et pouvez ré-essayer sur une nouvelle session.
+- **Examen** — pas de correction tant que vous n'avez pas terminé. **Single-attempt** : une fois la session démarrée, vous ne pouvez plus en créer une autre sur le même modèle (sauf si l'instructeur supprime votre session).
+
+### Soumettre et consulter le score
+
+Bouton « Terminer » sur la dernière question (confirmation requise). Vous arrivez sur `/quiz/<quizId>`, le récap de session : date, durée, score, statut de réussite.
+
+- Si la **visibilité du score** est immédiate, le score s'affiche ici. Si elle est planifiée, vous voyez un message « Disponible à partir du… » jusqu'à la date.
+- Si la **visibilité du détail** l'autorise, un bouton « Réviser les questions » ouvre la grille en lecture seule avec vos réponses et les bonnes.
+
+Réussir un quiz avec un score ≥ au seuil défini par l'instructeur marque automatiquement la leçon (ou le cours, pour un quiz final) comme terminée.
 
 ## 6. Suivre ma progression
 

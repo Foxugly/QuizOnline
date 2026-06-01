@@ -125,12 +125,43 @@ Als een les een quiz-blok bevat, zie je een kaart met de knop "Quiz starten". Al
 
 ![Screenshot: quiz-blok in een les](../screenshots/nl/learner-07-quiz-block.png)
 
-De quizpagina (`/quiz/<id>`) stelt de vragen één voor één voor. Afhankelijk van de modus:
+Een tweede ingang is `/quiz/list`, tab "Sjablonen": de lijst van elke publieke quiz in de domeinen waar je deel van uitmaakt, met een "Starten"-knop per kaart. De tab "Mijn sessies" toont de sessies die je al hebt aangemaakt (lopend of afgerond), om verder te gaan of de score te bekijken.
 
-- **Oefening** — je ziet meteen na elk antwoord de correctie.
-- **Examen** — de score wordt pas op het einde getoond.
+### De spelersinterface
 
-Een quiz halen met een score boven de drempel die de instructeur ingesteld heeft, markeert automatisch de les (of de cursus, voor een eindquiz) als voltooid.
+De spelerspagina (`/quiz/<quizId>/questions`) is verdeeld in twee kolommen:
+
+**Linker kolom**
+
+- **Aftelklok** als de quiz een timer heeft. Op nul wordt de sessie automatisch ingediend.
+- **Navigatieraster** — één knop per vraag, in een raster van 5 kolommen. Elke knop toont de status:
+  - leeg — nog niet bekeken;
+  - beantwoord — je hebt minstens één optie aangevinkt;
+  - gemarkeerd voor herziening (vlag) — je wil terugkomen.
+
+Klik op een nummer om direct naar die vraag te springen.
+
+**Rechter kolom** — de huidige vraag:
+
+- Vraagstelling (eventueel met afbeeldingen, video, code, enz. — zelfde blokpalet als een les).
+- Antwoordopties om aan te vinken (radio bij één juist antwoord, checkbox bij meerdere).
+- **Markeren voor herziening**-knop — schakelt de vlag aan/uit zodat je voor indienen kan terugkomen.
+- **Probleem melden**-knop — stuurt een melding naar de instructeur (typfout, fout antwoord, dubbelzinnigheid). Opent een dialoog om het probleem te beschrijven.
+- Knoppen **Vorige** / **Volgende** / **Beëindigen** (Beëindigen verschijnt op de laatste vraag).
+
+### Oefening vs. Examen
+
+- **Oefening** — de correctie verschijnt direct na elke "Volgende". Je ziet je fouten en kan opnieuw proberen op een nieuwe sessie.
+- **Examen** — geen correctie tot je beëindigt. **Single-attempt**: zodra de sessie gestart is, kan je geen nieuwe meer aanmaken op hetzelfde sjabloon (tenzij de instructeur je sessie verwijdert).
+
+### Indienen en de score bekijken
+
+"Beëindigen"-knop op de laatste vraag (bevestiging vereist). Je komt op `/quiz/<quizId>` terecht, het sessie-overzicht: datum, duur, score, geslaagd/niet-geslaagd.
+
+- Als de **scorezichtbaarheid** onmiddellijk is, verschijnt de score hier. Als ze gepland is, zie je tot die datum een bericht "Beschikbaar vanaf…".
+- Als de **detailzichtbaarheid** het toelaat, opent een "Vragen herzien"-knop het raster alleen-lezen met jouw antwoorden en de juiste.
+
+Een quiz halen met een score ≥ de drempel die de instructeur ingesteld heeft, markeert automatisch de les (of de cursus, voor een eindquiz) als voltooid.
 
 ## 6. Mijn voortgang volgen
 
