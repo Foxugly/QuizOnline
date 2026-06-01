@@ -174,6 +174,17 @@ export class CatalogService {
     return this.http.patch<unknown>(`${this.baseUrl}/section/${id}/`, payload);
   }
 
+  /** Audited publish via ``POST /api/section/{id}/publish/`` — flips
+   *  ``is_published`` and records a ``section.publish`` row on the
+   *  parent course's audit log (parity with the course-level action). */
+  publishSection(id: number): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/section/${id}/publish/`, {});
+  }
+
+  unpublishSection(id: number): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/section/${id}/unpublish/`, {});
+  }
+
   deleteSection(id: number): Observable<unknown> {
     return this.http.delete<unknown>(`${this.baseUrl}/section/${id}/`);
   }
@@ -186,6 +197,17 @@ export class CatalogService {
 
   updateLesson(id: number, payload: unknown): Observable<unknown> {
     return this.http.patch<unknown>(`${this.baseUrl}/lesson/${id}/`, payload);
+  }
+
+  /** Audited publish via ``POST /api/lesson/{id}/publish/`` — flips
+   *  ``is_published`` and records a ``lesson.publish`` row on the
+   *  parent course's audit log (parity with the course-level action). */
+  publishLesson(id: number): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/lesson/${id}/publish/`, {});
+  }
+
+  unpublishLesson(id: number): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/lesson/${id}/unpublish/`, {});
   }
 
   deleteLesson(id: number): Observable<unknown> {
