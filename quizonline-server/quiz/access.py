@@ -20,7 +20,20 @@ def user_manages_template_domain(user, quiz_template) -> bool:
     return quiz_template.domain_id in manageable_domain_ids(user)
 
 
-def _has_started_exam_attempt(user, quiz_template) -> bool:
+def _has_any_exam_attempt(user, quiz_template) -> bool:
+    """Truthy when the user has ever touched this exam template — started,
+    in progress, or completed. Exam mode is single-attempt, so this gate
+    blocks ``user_can_create_quiz_from_template`` from spawning a second
+    Quiz instance once the first has been opened.
+
+    Do NOT use this for read-side access (retrieve / list visibility):
+    once an authenticated user has any Quiz instance on a template
+    (completed exam included), ``quiz_template.quiz.filter(user=user)
+    .exists()`` already grants them read access on the next branch.
+    Treating the gate as a deny-read condition was the historical bug
+    that 404'd the lesson-view quiz block once the learner had taken
+    the exam — see ``test_user_can_access_template_after_completed_exam``.
+    """
     return bool(
         user
         and getattr(user, "is_authenticated", False)
@@ -30,11 +43,7 @@ def _has_started_exam_attempt(user, quiz_template) -> bool:
 
 
 def _can_access_public_template(user, quiz_template) -> bool:
-    if not quiz_template.is_public or not quiz_template.can_answer:
-        return False
-    if _has_started_exam_attempt(user, quiz_template):
-        return False
-    return True
+    return bool(quiz_template.is_public and quiz_template.can_answer)
 
 
 def user_can_access_template(user, quiz_template) -> bool:
@@ -45,8 +54,6 @@ def user_can_access_template(user, quiz_template) -> bool:
     if user_manages_template_domain(user, quiz_template):
         return True
     if not quiz_template.can_answer:
-        return False
-    if _has_started_exam_attempt(user, quiz_template):
         return False
     if quiz_template.quiz.filter(user=user).exists():
         return True
@@ -80,7 +87,7 @@ def user_can_create_quiz_from_template(user, quiz_template) -> bool:
         return True
     if not quiz_template.can_answer:
         return False
-    if _has_started_exam_attempt(user, quiz_template):
+    if _has_any_exam_attempt(user, quiz_template):
         return False
     if quiz_template.quiz.filter(user=user).exists():
         return True

@@ -1009,6 +1009,65 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertTrue(res.data["is_public"])
         self.assertTrue(res.data["can_answer"])
 
+    def test_quiztemplate_retrieve_after_completed_exam_attempt(self):
+        """**Real Sentry reproducer.** After completing an exam, the user
+        must still be able to retrieve the template — the lesson-view
+        quiz-block renderer calls ``GET /api/quiz/template/<id>/`` every
+        time the lesson loads, so blocking it leaves the block stuck on
+        "Impossible de charger le quiz".
+
+        Historical bug: ``user_can_access_template`` used to short-circuit
+        to False when ``_has_started_exam_attempt`` was True, and that
+        helper returned True for completed attempts (``started_at`` and
+        ``ended_at`` both set). The next branch
+        (``quiz.filter(user=user).exists() → return True``) would have
+        granted access correctly. Removing the early-deny lets that branch
+        do its job.
+        """
+        exam_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_EXAM_COMPLETED",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            with_duration=True,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+        )
+        QuizQuestion.objects.create(quiz=exam_qt, question=self.q1, sort_order=1, weight=1)
+
+        self.domain.members.add(self.u1)
+
+        # Simulate a completed exam attempt — both timestamps set, active False.
+        from django.utils import timezone
+        now = timezone.now()
+        Quiz.objects.create(
+            quiz_template=exam_qt,
+            user=self.u1,
+            started_at=now,
+            ended_at=now,
+            active=False,
+        )
+
+        detail_url = self._rev(
+            "api:quiz-api:quiz-template-detail",
+            "quiz-api:quiz-template-detail",
+            qt_id=exam_qt.id,
+        )
+
+        self._auth(self.u1)
+        res = self.client.get(detail_url)
+        self.assertEqual(
+            res.status_code,
+            status.HTTP_200_OK,
+            f"Completed exam must still resolve via retrieve (got {res.status_code}: {res.content!r}). "
+            f"Lesson-view quiz block needs the template payload to render the score/details link.",
+        )
+
     def test_quiztemplate_patch_is_public_persists_to_db(self):
         """Toggling ``is_public`` via PATCH must end up persisted on the row.
 
