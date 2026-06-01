@@ -5,7 +5,6 @@ import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TabsModule} from 'primeng/tabs';
-import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {CATALOG, COURSE_DETAIL, COURSE_EDIT} from '../../app.routes-paths';
@@ -13,6 +12,7 @@ import {CourseDetailDto} from '../../api/generated/model/course-detail';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
@@ -42,9 +42,9 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     ButtonModule,
     ConfirmDialogModule,
     TabsModule,
-    TagModule,
     TooltipModule,
     PageHeader,
+    StatusBadgeComponent,
     CourseEditInfoTab,
     CourseEditStructureTab,
     CourseEditEnrollmentTab,
@@ -64,6 +64,8 @@ export class CourseEdit implements OnInit, OnDestroy {
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getCourseEditUiText);
+  /** Shell-scoped status vocabulary for ``<app-status-badge>``. */
+  protected readonly shellUi = this.uiSvc.ui;
   /** Editor-scoped UI dictionary, used for ``common.back`` on the header back button. */
   protected readonly editorUi = this.uiSvc.editor;
   protected readonly courseId = signal<number>(0);

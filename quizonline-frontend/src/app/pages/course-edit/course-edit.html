@@ -84,10 +84,10 @@
       (onClick)="confirmDelete()">
     </p-button>
     @if (course()?.is_published === true) {
-      <p-tag slot="title-after" severity="success" [value]="ui().publishedBadge" icon="pi pi-check-circle" />
+      <app-status-badge slot="title-after" [kind]="'published'" [label]="shellUi().status.published" />
     }
     @if (course()?.is_published === false) {
-      <p-tag slot="title-after" severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-file-edit" />
+      <app-status-badge slot="title-after" [kind]="'draft'" [label]="shellUi().status.draft" />
     }
   </app-page-header>
 

@@ -15,6 +15,7 @@ import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
+import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -42,6 +43,7 @@ type DomainListRow = DomainReadDto & {
     TableModule,
     TooltipModule,
     BulkActionsComponent,
+    StatusBadgeComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './domain-list.html',

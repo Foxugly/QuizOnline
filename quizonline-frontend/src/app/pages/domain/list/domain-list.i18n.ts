@@ -6,6 +6,7 @@ export type DomainListUiText = {
   colName: string;
   colSubjects: string;
   colQuestions: string;
+  colStatus: string;
   colPendingRequests: string;
   colActions: string;
   bulkPlaceholder: string;
@@ -25,6 +26,7 @@ const FR: DomainListUiText = {
   colName: 'Nom',
   colSubjects: 'Sujets',
   colQuestions: 'Questions',
+  colStatus: 'Statut',
   colPendingRequests: 'Demandes',
   colActions: 'Actions',
   bulkPlaceholder: 'Actions groupées…',
@@ -44,6 +46,7 @@ const EN: DomainListUiText = {
   colName: 'Name',
   colSubjects: 'Topics',
   colQuestions: 'Questions',
+  colStatus: 'Status',
   colPendingRequests: 'Requests',
   colActions: 'Actions',
   bulkPlaceholder: 'Bulk actions…',
@@ -63,6 +66,7 @@ const NL: DomainListUiText = {
   colName: 'Naam',
   colSubjects: 'Onderwerpen',
   colQuestions: 'Vragen',
+  colStatus: 'Status',
   colPendingRequests: 'Aanvragen',
   colActions: 'Acties',
   bulkPlaceholder: 'Bulkacties…',
@@ -82,6 +86,7 @@ const IT: DomainListUiText = {
   colName: 'Nome',
   colSubjects: 'Argomenti',
   colQuestions: 'Domande',
+  colStatus: 'Stato',
   colPendingRequests: 'Richieste',
   colActions: 'Azioni',
   bulkPlaceholder: 'Azioni in blocco…',
@@ -101,6 +106,7 @@ const ES: DomainListUiText = {
   colName: 'Nombre',
   colSubjects: 'Temas',
   colQuestions: 'Preguntas',
+  colStatus: 'Estado',
   colPendingRequests: 'Solicitudes',
   colActions: 'Acciones',
   bulkPlaceholder: 'Acciones masivas…',

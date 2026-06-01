@@ -31,10 +31,6 @@ export interface CourseListUiText {
     lessons: string;
     actions: string;
   };
-  statusLabels: {
-    published: string;
-    draft: string;
-  };
   enrollmentBadge: Record<'open' | 'approval' | 'invite', string>;
   emptyMessage: string;
   catalogButton: string;
@@ -68,10 +64,6 @@ const FR: CourseListUiText = {
     status: 'Statut',
     lessons: 'Leçons',
     actions: 'Actions',
-  },
-  statusLabels: {
-    published: 'Publié',
-    draft: 'Brouillon',
   },
   enrollmentBadge: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
   emptyMessage: 'Aucun cours à gérer pour l\'instant.',
@@ -107,10 +99,6 @@ const EN: CourseListUiText = {
     lessons: 'Lessons',
     actions: 'Actions',
   },
-  statusLabels: {
-    published: 'Published',
-    draft: 'Draft',
-  },
   enrollmentBadge: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
   emptyMessage: 'No course to manage yet.',
   catalogButton: 'Catalog',
@@ -144,10 +132,6 @@ const NL: CourseListUiText = {
     status: 'Status',
     lessons: 'Lessen',
     actions: 'Acties',
-  },
-  statusLabels: {
-    published: 'Gepubliceerd',
-    draft: 'Concept',
   },
   enrollmentBadge: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
   emptyMessage: 'Nog geen cursus om te beheren.',
@@ -183,10 +167,6 @@ const IT: CourseListUiText = {
     lessons: 'Lezioni',
     actions: 'Azioni',
   },
-  statusLabels: {
-    published: 'Pubblicato',
-    draft: 'Bozza',
-  },
   enrollmentBadge: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
   emptyMessage: 'Nessun corso da gestire al momento.',
   catalogButton: 'Catalogo',
@@ -220,10 +200,6 @@ const ES: CourseListUiText = {
     status: 'Estado',
     lessons: 'Lecciones',
     actions: 'Acciones',
-  },
-  statusLabels: {
-    published: 'Publicado',
-    draft: 'Borrador',
   },
   enrollmentBadge: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
   emptyMessage: 'Aún no hay cursos para gestionar.',

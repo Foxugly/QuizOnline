@@ -13,6 +13,7 @@ import {logApiError} from '../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
 import {AppToastService} from '../../shared/toast/app-toast.service';
@@ -80,7 +81,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-course-detail',
-  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, TooltipModule, EmptyStateComponent, LoadingSkeleton, PageHeader],
+  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, TooltipModule, EmptyStateComponent, LoadingSkeleton, PageHeader, StatusBadgeComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -96,6 +97,8 @@ export class CourseDetail implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly ui = this.uiSvc.localized(getCourseDetailUiText);
+  /** Shell-scoped status / access vocabulary for ``<app-status-badge>``. */
+  protected readonly shellUi = this.uiSvc.ui;
   /** Shared "Back" label served by the editor-scoped i18n dictionary. */
   protected readonly editorUi = this.uiSvc.editor;
   protected readonly catalogHref = CATALOG;
@@ -140,10 +143,11 @@ export class CourseDetail implements OnInit, OnDestroy {
 
   protected readonly isPublished = computed(() => !!this.course()?.is_published);
 
-  protected readonly statusBadgeLabel = computed(() => {
-    const labels = this.ui().statusLabels;
-    return this.isPublished() ? labels.published : labels.draft;
-  });
+  /** Enrollment mode drives the access-mode badge next to the
+   *  publish badge. ``null`` when the DTO has not loaded yet. */
+  protected readonly accessMode = computed<'open' | 'approval' | 'invite' | null>(
+    () => this.course()?.enrollment_mode ?? null,
+  );
 
   protected readonly editHref = computed(() => {
     const c = this.course();
