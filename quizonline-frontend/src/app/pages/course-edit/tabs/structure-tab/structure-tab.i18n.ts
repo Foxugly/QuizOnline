@@ -86,7 +86,7 @@ export function getCourseEditStructureTabUiText(
         editButton: 'Modifier',
         deleteButton: 'Supprimer',
         editContentButton: 'Éditer le contenu',
-        isPublishedLabel: 'Publié',
+        isPublishedLabel: 'Publiée',
         isPreviewLabel: 'Aperçu',
         confirmDeleteSection: (title) =>
           `Supprimer la section « ${title} » ? Toutes les leçons et leurs blocs de contenu seront définitivement supprimés.`,
