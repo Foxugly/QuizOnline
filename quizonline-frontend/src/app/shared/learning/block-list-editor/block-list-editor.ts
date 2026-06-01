@@ -203,13 +203,13 @@ export class BlockListEditor {
     if (this.creating()) {
       return;
     }
-    const existing = this.blocks().map((b) => b.order);
-    const order = existing.length > 0 ? Math.max(...existing) + 1 : 0;
-
+    // ``order`` is computed server-side under a row lock — see
+    // ``block.serializers.BlockSerializer.create``. Sending one from the
+    // client used to race against pending deletes / parallel creates and
+    // crashed with ``uniq_block_order_per_target_role`` violations.
     const payload: Record<string, unknown> = {
       block_type: type,
       block_role: this.blockRole(),
-      order,
       translations: {},
     };
     payload[this.hostType()] = this.hostId();
