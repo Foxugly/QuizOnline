@@ -161,11 +161,6 @@ class SystemCheckRequestSerializer(serializers.Serializer):
     target = serializers.ChoiceField(choices=["db", "email", "upload", "deepl"])
 
 
-class SystemConfigSectionSerializer(serializers.Serializer):
-    label = serializers.CharField()
-    values = serializers.JSONField()
-
-
 class SystemCheckResponseSerializer(serializers.Serializer):
     target = serializers.CharField()
     status = serializers.ChoiceField(choices=["ok", "error", "skipped"])
