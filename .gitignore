@@ -65,5 +65,9 @@ AWS*
 *.ppk
 /*.csv
 
+# ── Generated user-manual PDFs (rebuild via `npm run manual:pdf`) ─────────────
+docs/manual/QuizOnline-Manuel-*.pdf
+docs/manual/**/.manual-build.html
+
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock
