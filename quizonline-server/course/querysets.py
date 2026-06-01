@@ -5,6 +5,9 @@ from config.permissions import is_authenticated_user, is_django_admin
 
 
 class CourseQuerySet(TranslatableQuerySet):
+    def published(self):
+        return self.filter(is_published=True)
+
     def visible_to(self, user):
         """
         Visibility resolution for a course:
@@ -45,6 +48,9 @@ class CourseQuerySet(TranslatableQuerySet):
 
 
 class SectionQuerySet(TranslatableQuerySet):
+    def published(self):
+        return self.filter(is_published=True)
+
     def visible_to(self, user):
         from .models import Course
         visible_courses = Course.objects.visible_to(user).values("id")

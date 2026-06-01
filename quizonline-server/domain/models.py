@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
-from config.models import AuditMixin
+from config.models import ActivatableMixin, AuditMixin
 
 User = get_user_model()
 
@@ -19,7 +19,7 @@ class JoinPolicy(models.TextChoices):
     OWNER_MANAGERS = "owner_managers", _("Owner or managers validation")
 
 
-class Domain(AuditMixin, TranslatableModel):
+class Domain(AuditMixin, ActivatableMixin, TranslatableModel):
     """
         Domain represents a logical grouping of subjects and questions,
         with multilingual support and language restrictions.

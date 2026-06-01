@@ -20,3 +20,36 @@ class AuditMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ActivatableMixin(models.Model):
+    """Shared behaviour for models with a boolean ``active`` flag.
+
+    Declares NO field (each model owns its own ``active`` column with its
+    existing options) — only convenience mutators."""
+
+    class Meta:
+        abstract = True
+
+    def activate(self):
+        self.active = True
+
+    def deactivate(self):
+        self.active = False
+
+
+class PublishableMixin(models.Model):
+    """Shared behaviour for models with a boolean ``is_published`` flag.
+
+    Declares NO field. ``publish``/``unpublish`` only flip the flag; models
+    that also track ``published_at`` (Course) override both to stamp /
+    clear it."""
+
+    class Meta:
+        abstract = True
+
+    def publish(self):
+        self.is_published = True
+
+    def unpublish(self):
+        self.is_published = False

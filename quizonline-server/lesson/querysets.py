@@ -5,6 +5,9 @@ from config.permissions import is_authenticated_user, is_django_admin
 
 
 class LessonQuerySet(TranslatableQuerySet):
+    def published(self):
+        return self.filter(is_published=True)
+
     def visible_to(self, user):
         from course.models import Course
         if not is_authenticated_user(user):
