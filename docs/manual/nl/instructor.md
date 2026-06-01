@@ -235,6 +235,8 @@ Standaard paginator onder de tabel — paginagrootte 20.
 
 `/subject/list` — tabel met vrije zoekopdracht en bulk-acties (activeren / deactiveren / verwijderen). Kolommen: naam, actief, domein, aantal gekoppelde vragen.
 
+![Screenshot: lijst van onderwerpen](../screenshots/nl/instructor-13-subject-list.png)
+
 ### Een onderwerp maken
 
 Knop "+ Toevoegen" rechtsboven → `/subject/add`. Velden: **naam**, **actief** (ja/nee), **domein** (vooraf ingevuld als je er maar één beheert, anders picker).
@@ -252,12 +254,16 @@ Potlood per rij — bewerkt naam, domein, actief-vlag. Prullenbak — verwijdert
 
 Kolommen: titel, actief, modi (Oefening / Examen / beide), onderwerpen, acties. Bulk-acties: activeren / deactiveren / verwijderen.
 
+![Screenshot: vragenlijst](../screenshots/nl/instructor-14-question-list.png)
+
 ### Een vraag maken
 
 Knop "Nieuwe vraag" bovenaan → `/question/add`. Het formulier heeft twee delen:
 
 1. **Metadata**: actief, domein, onderwerpen (multi-select), modi (vink Oefening en/of Examen aan).
 2. **Inhoud per taal**: één tab per toegestane taal van het domein. Je bewerkt de vraagstelling en dan de antwoordopties via dezelfde 8 bloktypes als een les (zie [hoofdstuk 4](#4-de-8-bloktypes)). "Vertaal vanuit deze tab" vult de lege talen.
+
+![Screenshot: formulier voor vraagcreatie](../screenshots/nl/instructor-15-question-create.png)
 
 Automatisch opgeslagen tijdens het bewerken.
 
@@ -279,6 +285,8 @@ Knop "Importeren" naast "Nieuwe vraag" → `/question/import`. Upload een bestan
 - **Sjablonen** — de lijst van `QuizTemplate`s in de domeinen die je beheert. Knoppen "Samenstellen" (volledige vorm) en "Snel aanmaken" rechtsboven.
 - **Mijn sessies** — je eigen `Quiz`-instanties (lopende of afgeronde sessies, ook als instructeur).
 
+![Screenshot: lijst van quizsjablonen](../screenshots/nl/instructor-16-quiz-list.png)
+
 ### De editor (`/quiz/add`)
 
 Drie tabs:
@@ -286,6 +294,8 @@ Drie tabs:
 #### Tab "Teksten"
 
 Titel + beschrijving per taal (één tab per toegestane taal), met de knop "Vertaal vanuit deze tab".
+
+![Screenshot: quizbewerker — tab Teksten](../screenshots/nl/instructor-17-quiz-edit-texts.png)
 
 #### Tab "Configuratie"
 
@@ -298,12 +308,16 @@ Zes configuratiesecties:
 - **Scorezichtbaarheid** — Onmiddellijk (bij indienen) / Gepland (vanaf een gekozen datum) / Nooit.
 - **Detailzichtbaarheid** (vragen + juiste antwoorden) — Onmiddellijk / Gepland / Nooit. Onafhankelijk van de scorezichtbaarheid.
 
+![Screenshot: quizbewerker — tab Configuratie](../screenshots/nl/instructor-18-quiz-edit-config.png)
+
 #### Tab "Vragen"
 
 Twee kolommen:
 
 - **Bibliotheek** (links) — vrije zoekopdracht + onderwerpfilter. "+"-knop op elke kaart om aan de compositie toe te voegen. Een "+ Aanmaken"-knop opent de vraageditor in een dialoogvenster zonder de quiz te verlaten.
 - **Compositie** (rechts) — je vragen op volgorde. Op/neer-knoppen om te herschikken, kruisje om te verwijderen, gewichtveld om te wegen (de score wordt gewogen berekend).
+
+![Screenshot: quizbewerker — tab Vragen](../screenshots/nl/instructor-19-quiz-edit-questions.png)
 
 Automatisch opgeslagen met een "Opgeslagen X geleden"-indicator onderaan het formulier.
 
@@ -314,5 +328,7 @@ Voor een eenvoudige eentalige quiz opent de knop "Snel aanmaken" in `/quiz/list`
 ## 14. Resultaten van een sjabloon volgen
 
 Vanuit de sjablonenlijst in `/quiz/list` brengt de actie "Resultaten" je naar `/quiz/template/<templateId>/results`: de lijst van elke sessie (`Quiz`) gestart op dit sjabloon, door om het even welke cursist in het domein.
+
+![Screenshot: resultaten van een quizsjabloon](../screenshots/nl/instructor-20-quiz-template-results.png)
 
 Kolommen: cursist, startdatum, einddatum, score, status. Gebruik dit om de cohorte van een quiz in een cursus op te volgen, of om een systematisch foutgemaakte vraag te ontdekken.

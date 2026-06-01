@@ -235,6 +235,8 @@ Les **sujets** regroupent les questions par thème (chapitre, compétence visée
 
 `/subject/list` — table avec recherche libre et actions groupées (activer / désactiver / supprimer). Colonnes : nom, actif, domaine, nombre de questions liées.
 
+![Screenshot : liste des sujets](../screenshots/fr/instructor-13-subject-list.png)
+
 ### Créer un sujet
 
 Bouton « + Ajouter » en haut à droite → `/subject/add`. Champs : **nom**, **actif** (oui/non), **domaine** (auto-rempli si vous n'en gérez qu'un, sinon picker).
@@ -252,12 +254,16 @@ Crayon par ligne — édite le nom, le domaine, l'état actif. Corbeille — sup
 
 Colonnes : titre, actif, modes (Pratique / Examen / les deux), sujets, actions. Action groupée : activer / désactiver / supprimer.
 
+![Screenshot : liste des questions](../screenshots/fr/instructor-14-question-list.png)
+
 ### Créer une question
 
 Bouton « Nouvelle question » en haut → `/question/add`. Le formulaire est en deux parties :
 
 1. **Métadonnées** : actif, domaine, sujets (multi-select), modes (cocher Pratique et/ou Examen).
 2. **Contenu par langue** : un onglet par langue autorisée du domaine. Vous éditez l'énoncé puis les options de réponse via les mêmes 8 types de blocs qu'une leçon (voir [chapitre 4](#4-les-8-types-de-blocs)). Bouton « Traduire depuis cet onglet » pour remplir les langues vides.
+
+![Screenshot : formulaire de création de question](../screenshots/fr/instructor-15-question-create.png)
 
 Sauvegarde automatique pendant l'édition.
 
@@ -279,6 +285,8 @@ Bouton « Importer » à côté de « Nouvelle question » → `/question/import
 - **Modèles** — la liste des `QuizTemplate` des domaines que vous gérez. Boutons « Composer » (forme complète) et « Création rapide » en haut à droite.
 - **Mes sessions** — vos propres `Quiz` (sessions en cours ou terminées, y compris en tant qu'instructeur).
 
+![Screenshot : liste des modèles de quiz](../screenshots/fr/instructor-16-quiz-list.png)
+
 ### L'éditeur (`/quiz/add`)
 
 Trois onglets :
@@ -286,6 +294,8 @@ Trois onglets :
 #### Onglet « Textes »
 
 Titre + description par langue (un onglet par langue autorisée), avec le bouton « Traduire depuis cet onglet ».
+
+![Screenshot : éditeur de quiz — onglet Textes](../screenshots/fr/instructor-17-quiz-edit-texts.png)
 
 #### Onglet « Configuration »
 
@@ -298,12 +308,16 @@ Six sections de réglages :
 - **Visibilité du résultat** — Immédiate (à la soumission) / Planifiée (à partir d'une date) / Jamais.
 - **Visibilité du détail** (questions + bonnes réponses) — Immédiate / Planifiée / Jamais. Indépendant de la visibilité du score.
 
+![Screenshot : éditeur de quiz — onglet Configuration](../screenshots/fr/instructor-18-quiz-edit-config.png)
+
 #### Onglet « Questions »
 
 Deux colonnes :
 
 - **Bibliothèque** (gauche) — recherche libre + filtre par sujet. Bouton « + » sur chaque carte pour ajouter à la composition. Un bouton « + Créer » ouvre l'éditeur de question dans une dialogue sans quitter le quiz.
 - **Composition** (droite) — vos questions dans l'ordre. Boutons haut/bas pour réordonner, croix pour retirer, champ de poids pour pondérer (le score est calculé pondéré).
+
+![Screenshot : éditeur de quiz — onglet Questions](../screenshots/fr/instructor-19-quiz-edit-questions.png)
 
 Sauvegarde automatique avec un indicateur « Enregistré il y a X » en bas du formulaire.
 
@@ -314,5 +328,7 @@ Pour un quiz mono-langue simple, le bouton « Création rapide » dans `/quiz/li
 ## 14. Suivre les résultats d'un modèle
 
 Depuis la liste des modèles dans `/quiz/list`, l'action « Résultats » mène à `/quiz/template/<templateId>/results` : la liste de toutes les sessions (`Quiz`) lancées sur ce modèle, par n'importe quel apprenant du domaine.
+
+![Screenshot : résultats d'un modèle de quiz](../screenshots/fr/instructor-20-quiz-template-results.png)
 
 Colonnes : apprenant, date de démarrage, date de fin, score, état. Idéal pour surveiller la cohorte d'un quiz utilisé dans un cours, ou repérer une question systématiquement ratée.

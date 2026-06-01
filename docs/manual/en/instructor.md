@@ -235,6 +235,8 @@ Standard paginator below the table — page size 20.
 
 `/subject/list` — table with free-text search and bulk actions (activate / deactivate / delete). Columns: name, active, domain, number of linked questions.
 
+![Screenshot: topics list](../screenshots/en/instructor-13-subject-list.png)
+
 ### Create a topic
 
 "+ Add" button in the top right → `/subject/add`. Fields: **name**, **active** (yes/no), **domain** (pre-filled if you only manage one, picker otherwise).
@@ -252,12 +254,16 @@ Pencil per row — edits name, domain, active flag. Trash — deletes; linked qu
 
 Columns: title, active, modes (Practice / Exam / both), topics, actions. Bulk actions: activate / deactivate / delete.
 
+![Screenshot: questions list](../screenshots/en/instructor-14-question-list.png)
+
 ### Create a question
 
 "New question" button at the top → `/question/add`. The form has two parts:
 
 1. **Metadata**: active, domain, topics (multi-select), modes (check Practice and/or Exam).
 2. **Content per language**: one tab per allowed language of the domain. You edit the statement then the answer options through the same 8 block types as a lesson (see [chapter 4](#4-the-8-block-types)). "Translate from this tab" fills the empty languages.
+
+![Screenshot: question creation form](../screenshots/en/instructor-15-question-create.png)
 
 Auto-saved while you edit.
 
@@ -279,6 +285,8 @@ A question can be flagged Practice **and** Exam — that's actually the default.
 - **Templates** — the list of `QuizTemplate`s in the domains you manage. "Compose" (full form) and "Quick create" buttons in the top right.
 - **My sessions** — your own `Quiz` instances (in-progress or completed sessions, including as an instructor).
 
+![Screenshot: quiz templates list](../screenshots/en/instructor-16-quiz-list.png)
+
 ### The editor (`/quiz/add`)
 
 Three tabs:
@@ -286,6 +294,8 @@ Three tabs:
 #### "Texts" tab
 
 Title + description per language (one tab per allowed language), with the "Translate from this tab" button.
+
+![Screenshot: quiz editor — Texts tab](../screenshots/en/instructor-17-quiz-edit-texts.png)
 
 #### "Configuration" tab
 
@@ -298,12 +308,16 @@ Six configuration sections:
 - **Result visibility** — Immediate (on submit) / Scheduled (from a chosen date) / Never.
 - **Detail visibility** (questions + correct answers) — Immediate / Scheduled / Never. Independent from result visibility.
 
+![Screenshot: quiz editor — Configuration tab](../screenshots/en/instructor-18-quiz-edit-config.png)
+
 #### "Questions" tab
 
 Two columns:
 
 - **Library** (left) — free-text search + topic filter. "+" button on each card to add to the composition. A "+ Create" button opens the question editor in a dialog without leaving the quiz.
 - **Composition** (right) — your questions in order. Up/down buttons to reorder, cross to remove, weight field to weight (the score is computed weighted).
+
+![Screenshot: quiz editor — Questions tab](../screenshots/en/instructor-19-quiz-edit-questions.png)
 
 Auto-saved with a "Saved X ago" indicator at the bottom of the form.
 
@@ -314,5 +328,7 @@ For a simple mono-language quiz, the "Quick create" button in `/quiz/list` opens
 ## 14. Monitor template results
 
 From the templates list in `/quiz/list`, the "Results" action takes you to `/quiz/template/<templateId>/results`: the list of every session (`Quiz`) launched on this template, by any learner in the domain.
+
+![Screenshot: quiz template results](../screenshots/en/instructor-20-quiz-template-results.png)
 
 Columns: learner, start date, end date, score, state. Use it to monitor the cohort of a quiz used in a course, or spot a systematically failed question.
