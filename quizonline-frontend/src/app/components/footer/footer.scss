@@ -44,6 +44,31 @@
   color: #cbd5e1;
 }
 
+.app-footer__copyright {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.app-footer__author-link {
+  align-items: center;
+  color: inherit;
+  display: inline-flex;
+  gap: 0.3rem;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: #1e293b;
+    text-decoration: underline;
+  }
+}
+
+.app-footer__author-logo {
+  height: 1rem;
+  width: auto;
+}
+
 @media (max-width: 720px) {
   .app-footer__inner {
     padding: 0.5rem 1rem;

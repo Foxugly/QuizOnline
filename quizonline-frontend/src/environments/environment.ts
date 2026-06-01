@@ -6,7 +6,7 @@ export const environment = {
   // footer so QA / users can report bugs against a precise build.
   version: "1.1.0",
   author : "Foxugly",
-  year : "2025",
+  year : "2025-2026",
   logoSvg : "/qna.svg",
   logoIco : "/favicon.ico",
   logoPng : "/qna.png",
