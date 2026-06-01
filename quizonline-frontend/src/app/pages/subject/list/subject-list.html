@@ -76,11 +76,9 @@
           <td>{{ s.name }}</td>
 
           <td style="text-align: center;">
-            @if (s.active) {
-              <i class="pi pi-check-circle" style="color: #16a34a;"></i>
-            } @else {
-              <i class="pi pi-times-circle" style="color: #dc2626;"></i>
-            }
+            <app-status-badge
+              [kind]="s.active ? 'active' : 'inactive'"
+              [label]="s.active ? ui().status.active : ui().status.inactive" />
           </td>
 
           <td style="text-align: center;">

@@ -24,6 +24,7 @@ import {UserService} from '../../../services/user/user';
 import {logApiError} from '../../../shared/api/api-errors';
 import {BulkActionsComponent} from '../../../shared/components/bulk-actions/bulk-actions';
 import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
+import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getQuestionListUiText} from './question-list.i18n';
@@ -64,6 +65,7 @@ type QuestionListRow = {
     BulkActionsComponent,
     QuestionPreviewDialogComponent,
     TableSkeleton,
+    StatusBadgeComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './question-list.html',
@@ -73,6 +75,7 @@ type QuestionListRow = {
 export class QuestionList implements OnInit {
   readonly text = inject(UiTextService).localized(getQuestionListUiText);
   readonly editorUi = inject(UiTextService).editor;
+  readonly ui = inject(UiTextService).ui;
   totalRecords = signal(0);
   rows = signal(10);
   first = signal(0);

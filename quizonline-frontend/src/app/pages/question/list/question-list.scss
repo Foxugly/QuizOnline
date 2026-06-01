@@ -94,14 +94,6 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   min-width: 18rem;
 }
 
-.active-icon {
-  color: #2e7d32;
-}
-
-.inactive-icon {
-  color: #b71c1c;
-}
-
 :host ::ng-deep .p-datatable thead > tr > th {
   text-align: center !important;
 }
