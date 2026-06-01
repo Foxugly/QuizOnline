@@ -165,7 +165,7 @@ Klik op een nummer om direct naar die vraag te springen.
 ![Screenshot: sessie-overzicht](../screenshots/nl/learner-15-quiz-recap.png)
 
 - Als de **scorezichtbaarheid** onmiddellijk is, verschijnt de score hier. Als ze gepland is, zie je tot die datum een bericht "Beschikbaar vanaf…".
-- Als de **detailzichtbaarheid** het toelaat, opent een "Vragen herzien"-knop het raster alleen-lezen met jouw antwoorden en de juiste.
+- Als de **detailzichtbaarheid** het toelaat, opent een "Correctie bekijken"-knop het raster alleen-lezen met jouw antwoorden en de juiste.
 
 Een quiz halen met een score ≥ de drempel die de instructeur ingesteld heeft, markeert automatisch de les (of de cursus, voor een eindquiz) als voltooid.
 

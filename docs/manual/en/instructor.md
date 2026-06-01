@@ -239,7 +239,7 @@ Standard paginator below the table — page size 20.
 
 ### Create a topic
 
-"+ Add" button in the top right → `/subject/add`. Fields: **name**, **active** (yes/no), **domain** (pre-filled if you only manage one, picker otherwise).
+"+ Add" button in the top right → `/subject/add`. Fields: **active** (yes/no), **domain** (picker, pre-filled with the active domain). Then, **per allowed language**, one tab with **name** + **description** (rich-text editor).
 
 ### Edit or delete
 
@@ -258,14 +258,17 @@ Columns: title, active, modes (Practice / Exam / both), topics, actions. Bulk ac
 
 ### Create a question
 
-"New question" button at the top → `/question/add`. The form has two parts:
-
-1. **Metadata**: active, domain, topics (multi-select), modes (check Practice and/or Exam).
-2. **Content per language**: one tab per allowed language of the domain. You edit the statement then the answer options through the same 8 block types as a lesson (see [chapter 4](#4-the-8-block-types)). "Translate from this tab" fills the empty languages.
+"New question" button at the top → `/question/add`. This is a **context-only step** where you pick the domain, topics (multi-select), modes (Practice and/or Exam), and type the **title** per language. On "Add", the question is created and you are redirected to `/question/<id>/edit`, the full editor.
 
 ![Screenshot: question creation form](../screenshots/en/instructor-15-question-create.png)
 
-Auto-saved while you edit.
+The editor (`/question/<id>/edit`) has **3 tabs** per language:
+
+- **Question** — the statement, via the same blocks as a lesson **minus the Quiz block** (forbidden to avoid recursion): rich text, image, video, file, callout, code, embed — **7 types** total.
+- **Answers** — the list of options to tick, each with a "correct answer" checkbox.
+- **Explanation** — the correction / rationale shown after the answer (immediately in Practice mode, at the recap in Exam mode).
+
+**Manual save** via the "Save" button at the bottom of the form. The "Translate from this tab" button fills the other languages from the active tab's content.
 
 ### Practice vs Exam modes
 
@@ -331,4 +334,4 @@ From the templates list in `/quiz/list`, the "Results" action takes you to `/qui
 
 ![Screenshot: quiz template results](../screenshots/en/instructor-20-quiz-template-results.png)
 
-Columns: learner, start date, end date, score, state. Use it to monitor the cohort of a quiz used in a course, or spot a systematically failed question.
+Columns: **learner**, **status**, **created at**, **started at**, **ended at**, **answers** (X/Y), **score**, **actions** (eye for details, download PDF, delete the session). Use it to monitor the cohort of a quiz used in a course, or spot a systematically failed question.

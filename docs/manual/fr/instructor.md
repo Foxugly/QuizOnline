@@ -239,7 +239,7 @@ Les **sujets** regroupent les questions par thème (chapitre, compétence visée
 
 ### Créer un sujet
 
-Bouton « + Ajouter » en haut à droite → `/subject/add`. Champs : **nom**, **actif** (oui/non), **domaine** (auto-rempli si vous n'en gérez qu'un, sinon picker).
+Bouton « + Ajouter » en haut à droite → `/subject/add`. Champs : **actif** (oui/non), **domaine** (sélecteur, pré-rempli sur le domaine actif). Puis, **par langue autorisée du domaine**, un onglet avec **nom** + **description** (éditeur rich-text).
 
 ### Éditer ou supprimer
 
@@ -258,14 +258,17 @@ Colonnes : titre, actif, modes (Pratique / Examen / les deux), sujets, actions. 
 
 ### Créer une question
 
-Bouton « Nouvelle question » en haut → `/question/add`. Le formulaire est en deux parties :
-
-1. **Métadonnées** : actif, domaine, sujets (multi-select), modes (cocher Pratique et/ou Examen).
-2. **Contenu par langue** : un onglet par langue autorisée du domaine. Vous éditez l'énoncé puis les options de réponse via les mêmes 8 types de blocs qu'une leçon (voir [chapitre 4](#4-les-8-types-de-blocs)). Bouton « Traduire depuis cet onglet » pour remplir les langues vides.
+Bouton « Nouvelle question » en haut → `/question/add`. C'est une **étape de contexte** où vous choisissez le domaine, les sujets (multi-select), les modes (Pratique et/ou Examen), et saisissez le **titre** par langue. Au clic sur « Ajouter », la question est créée et vous êtes redirigé vers `/question/<id>/edit`, l'éditeur complet.
 
 ![Screenshot : formulaire de création de question](../screenshots/fr/instructor-15-question-create.png)
 
-Sauvegarde automatique pendant l'édition.
+L'éditeur (`/question/<id>/edit`) est organisé en **3 onglets** par langue :
+
+- **Question** — l'énoncé, via les mêmes blocs qu'une leçon **moins le bloc Quiz** (interdit pour éviter la récursion) : rich text, image, vidéo, fichier, encadré, code, intégration — soit **7 types**.
+- **Réponses** — la liste des options à cocher, chacune avec une case « bonne réponse ».
+- **Explication** — le corrigé / la justification montrée après la réponse (immédiatement en mode Pratique, au récap en mode Examen).
+
+Sauvegarde **manuelle** via le bouton « Enregistrer » en bas du formulaire. Le bouton « Traduire depuis cet onglet » remplit les autres langues à partir du contenu de l'onglet actif.
 
 ### Modes Pratique vs Examen
 
@@ -331,4 +334,4 @@ Depuis la liste des modèles dans `/quiz/list`, l'action « Résultats » mène 
 
 ![Screenshot : résultats d'un modèle de quiz](../screenshots/fr/instructor-20-quiz-template-results.png)
 
-Colonnes : apprenant, date de démarrage, date de fin, score, état. Idéal pour surveiller la cohorte d'un quiz utilisé dans un cours, ou repérer une question systématiquement ratée.
+Colonnes : **apprenant**, **statut**, **créé le**, **démarré le**, **terminé le**, **réponses** (X/Y), **score**, **actions** (œil pour le détail, télécharger PDF, supprimer la session). Idéal pour surveiller la cohorte d'un quiz utilisé dans un cours, ou repérer une question systématiquement ratée.

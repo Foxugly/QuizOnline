@@ -239,7 +239,7 @@ Standaard paginator onder de tabel — paginagrootte 20.
 
 ### Een onderwerp maken
 
-Knop "+ Toevoegen" rechtsboven → `/subject/add`. Velden: **naam**, **actief** (ja/nee), **domein** (vooraf ingevuld als je er maar één beheert, anders picker).
+Knop "+ Toevoegen" rechtsboven → `/subject/add`. Velden: **actief** (ja/nee), **domein** (picker, vooraf ingevuld met het actieve domein). Daarna, **per toegestane taal**, één tab met **naam** + **beschrijving** (rich-text-editor).
 
 ### Bewerken of verwijderen
 
@@ -258,14 +258,17 @@ Kolommen: titel, actief, modi (Oefening / Examen / beide), onderwerpen, acties. 
 
 ### Een vraag maken
 
-Knop "Nieuwe vraag" bovenaan → `/question/add`. Het formulier heeft twee delen:
-
-1. **Metadata**: actief, domein, onderwerpen (multi-select), modi (vink Oefening en/of Examen aan).
-2. **Inhoud per taal**: één tab per toegestane taal van het domein. Je bewerkt de vraagstelling en dan de antwoordopties via dezelfde 8 bloktypes als een les (zie [hoofdstuk 4](#4-de-8-bloktypes)). "Vertaal vanuit deze tab" vult de lege talen.
+Knop "Nieuwe vraag" bovenaan → `/question/add`. Dit is een **contextstap**: je kiest het domein, de onderwerpen (multi-select), de modi (Oefening en/of Examen) en je typt de **titel** per taal in. Bij "Toevoegen" wordt de vraag aangemaakt en word je omgeleid naar `/question/<id>/edit`, de volledige editor.
 
 ![Screenshot: formulier voor vraagcreatie](../screenshots/nl/instructor-15-question-create.png)
 
-Automatisch opgeslagen tijdens het bewerken.
+De editor (`/question/<id>/edit`) heeft **3 tabs** per taal:
+
+- **Vraag** — de vraagstelling, via dezelfde blokken als een les **min het Quiz-blok** (verboden om recursie te vermijden): rijke tekst, afbeelding, video, bestand, kader, code, insluiting — in totaal **7 types**.
+- **Antwoorden** — de lijst van opties om aan te vinken, elk met een "juist antwoord"-vakje.
+- **Uitleg** — de correctie / motivatie die na het antwoord wordt getoond (onmiddellijk in Oefenmodus, op het overzicht in Examenmodus).
+
+**Handmatig opslaan** via de "Opslaan"-knop onderaan het formulier. De knop "Vertaal vanuit deze tab" vult de andere talen op basis van de inhoud van de actieve tab.
 
 ### Oefening vs. Examen
 
@@ -331,4 +334,4 @@ Vanuit de sjablonenlijst in `/quiz/list` brengt de actie "Resultaten" je naar `/
 
 ![Screenshot: resultaten van een quizsjabloon](../screenshots/nl/instructor-20-quiz-template-results.png)
 
-Kolommen: cursist, startdatum, einddatum, score, status. Gebruik dit om de cohorte van een quiz in een cursus op te volgen, of om een systematisch foutgemaakte vraag te ontdekken.
+Kolommen: **cursist**, **status**, **aangemaakt op**, **gestart op**, **beëindigd op**, **antwoorden** (X/Y), **score**, **acties** (oog voor het detail, PDF downloaden, sessie verwijderen). Gebruik dit om de cohorte van een quiz in een cursus op te volgen, of om een systematisch foutgemaakte vraag te ontdekken.

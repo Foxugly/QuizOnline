@@ -165,7 +165,7 @@ Click a number to jump straight to that question.
 ![Screenshot: session recap](../screenshots/en/learner-15-quiz-recap.png)
 
 - If **score visibility** is immediate, the score shows here. If it is scheduled, you see an "Available from…" message until the date.
-- If **detail visibility** allows it, a "Review questions" button opens the grid read-only with your answers and the correct ones.
+- If **detail visibility** allows it, a "See correction" button opens the grid read-only with your answers and the correct ones.
 
 Passing a quiz with a score ≥ the threshold set by the instructor automatically marks the lesson (or the course, for a final quiz) as completed.
 

@@ -165,7 +165,7 @@ Bouton « Terminer » sur la dernière question (confirmation requise). Vous arr
 ![Screenshot : récap de session](../screenshots/fr/learner-15-quiz-recap.png)
 
 - Si la **visibilité du score** est immédiate, le score s'affiche ici. Si elle est planifiée, vous voyez un message « Disponible à partir du… » jusqu'à la date.
-- Si la **visibilité du détail** l'autorise, un bouton « Réviser les questions » ouvre la grille en lecture seule avec vos réponses et les bonnes.
+- Si la **visibilité du détail** l'autorise, un bouton « Voir la correction » ouvre la grille en lecture seule avec vos réponses et les bonnes.
 
 Réussir un quiz avec un score ≥ au seuil défini par l'instructeur marque automatiquement la leçon (ou le cours, pour un quiz final) comme terminée.
 
