@@ -16,6 +16,10 @@ Je bent manager van een domein. Je kunt cursussen maken, hun inhoud structureren
 8. [Klonen, exporteren, verwijderen](#8-klonen-exporteren-verwijderen)
 9. [Cursusanalyses](#9-cursusanalyses)
 10. [Beheerderbeeld: de cursuslijst](#10-beheerderbeeld-de-cursuslijst)
+11. [De vragenbank: onderwerpen](#11-de-vragenbank-onderwerpen)
+12. [Vragen maken en importeren](#12-vragen-maken-en-importeren)
+13. [Een quizsjabloon samenstellen](#13-een-quizsjabloon-samenstellen)
+14. [Resultaten van een sjabloon volgen](#14-resultaten-van-een-sjabloon-volgen)
 
 ---
 
@@ -222,3 +226,93 @@ Bulk-acties (selectie via checkbox):
 - **Verwijderen** — verwijder in bulk (bevestiging vereist, certificaten beschermd).
 
 Standaard paginator onder de tabel — paginagrootte 20.
+
+## 11. De vragenbank: onderwerpen
+
+**Onderwerpen** groeperen vragen per thema (hoofdstuk, doelvaardigheid, enz.). Niet verplicht — een vraag kan zonder onderwerp bestaan — maar het is wat je toelaat om de bibliotheek in de quiz-editor en de vragenlijst te filteren.
+
+### Onderwerpen lijsten
+
+`/subject/list` — tabel met vrije zoekopdracht en bulk-acties (activeren / deactiveren / verwijderen). Kolommen: naam, actief, domein, aantal gekoppelde vragen.
+
+### Een onderwerp maken
+
+Knop "+ Toevoegen" rechtsboven → `/subject/add`. Velden: **naam**, **actief** (ja/nee), **domein** (vooraf ingevuld als je er maar één beheert, anders picker).
+
+### Bewerken of verwijderen
+
+Potlood per rij — bewerkt naam, domein, actief-vlag. Prullenbak — verwijdert; gekoppelde vragen worden losgekoppeld, niet verwijderd.
+
+## 12. Vragen maken en importeren
+
+`/question/list` — de vragenbank voor elk domein dat je beheert. Filters:
+
+- **Vrije zoekopdracht** op de titel.
+- **Onderwerpen** — multi-select. Toont enkel vragen met minstens één van de geselecteerde onderwerpen.
+
+Kolommen: titel, actief, modi (Oefening / Examen / beide), onderwerpen, acties. Bulk-acties: activeren / deactiveren / verwijderen.
+
+### Een vraag maken
+
+Knop "Nieuwe vraag" bovenaan → `/question/add`. Het formulier heeft twee delen:
+
+1. **Metadata**: actief, domein, onderwerpen (multi-select), modi (vink Oefening en/of Examen aan).
+2. **Inhoud per taal**: één tab per toegestane taal van het domein. Je bewerkt de vraagstelling en dan de antwoordopties via dezelfde 8 bloktypes als een les (zie [hoofdstuk 4](#4-de-8-bloktypes)). "Vertaal vanuit deze tab" vult de lege talen.
+
+Automatisch opgeslagen tijdens het bewerken.
+
+### Oefening vs. Examen
+
+- **Oefening** — de vraag is bruikbaar in een quiz in oefenmodus. Feedback verschijnt direct na elk antwoord; de cursist mag opnieuw proberen.
+- **Examen** — de vraag is bruikbaar in een quiz in examenmodus. De score wordt pas op het einde onthuld, en elk examensjabloon is **single-attempt** per cursist.
+
+Een vraag mag Oefening **en** Examen aangevinkt hebben — dat is zelfs de standaard.
+
+### Bulkimport
+
+Knop "Importeren" naast "Nieuwe vraag" → `/question/import`. Upload een bestand om meerdere vragen in één keer aan te maken — handig om een bestaande bank te migreren.
+
+## 13. Een quizsjabloon samenstellen
+
+`/quiz/list` — het startpunt. Twee tabs:
+
+- **Sjablonen** — de lijst van `QuizTemplate`s in de domeinen die je beheert. Knoppen "Samenstellen" (volledige vorm) en "Snel aanmaken" rechtsboven.
+- **Mijn sessies** — je eigen `Quiz`-instanties (lopende of afgeronde sessies, ook als instructeur).
+
+### De editor (`/quiz/add`)
+
+Drie tabs:
+
+#### Tab "Teksten"
+
+Titel + beschrijving per taal (één tab per toegestane taal), met de knop "Vertaal vanuit deze tab".
+
+#### Tab "Configuratie"
+
+Zes configuratiesecties:
+
+- **Status** — Actief (bruikbaar) / Publiek (zichtbaar in de catalogus voor elke domeingebruiker; anders enkel zichtbaar voor cursisten aan wie de instructeur expliciet een sessie toewees).
+- **Modus** — Oefening / Examen. **Timer**: aan/uit, duur in minuten. Bij verloop wordt de sessie automatisch ingediend.
+- **Volgorde** — "Vragen schudden": anders is de volgorde die van de Vragen-tab.
+- **Beschikbaarheid** — **Permanent** (altijd open) **of** een venster met "Begint op" / "Eindigt op". Buiten het venster is de quiz onzichtbaar in de catalogus.
+- **Scorezichtbaarheid** — Onmiddellijk (bij indienen) / Gepland (vanaf een gekozen datum) / Nooit.
+- **Detailzichtbaarheid** (vragen + juiste antwoorden) — Onmiddellijk / Gepland / Nooit. Onafhankelijk van de scorezichtbaarheid.
+
+#### Tab "Vragen"
+
+Twee kolommen:
+
+- **Bibliotheek** (links) — vrije zoekopdracht + onderwerpfilter. "+"-knop op elke kaart om aan de compositie toe te voegen. Een "+ Aanmaken"-knop opent de vraageditor in een dialoogvenster zonder de quiz te verlaten.
+- **Compositie** (rechts) — je vragen op volgorde. Op/neer-knoppen om te herschikken, kruisje om te verwijderen, gewichtveld om te wegen (de score wordt gewogen berekend).
+
+Automatisch opgeslagen met een "Opgeslagen X geleden"-indicator onderaan het formulier.
+
+### Snel aanmaken
+
+Voor een eenvoudige eentalige quiz opent de knop "Snel aanmaken" in `/quiz/list` `/quiz/quick`, een licht formulier: titel + vraagselectie. De quiz wordt aangemaakt met de standaardwaarden (actief, niet-publiek, oefening, geen timer, permanent).
+
+## 14. Resultaten van een sjabloon volgen
+
+Vanuit de sjablonenlijst in `/quiz/list` brengt de actie "Resultaten" je naar `/quiz/template/<templateId>/results`: de lijst van elke sessie (`Quiz`) gestart op dit sjabloon, door om het even welke cursist in het domein.
+
+Kolommen: cursist, startdatum, einddatum, score, status. Gebruik dit om de cohorte van een quiz in een cursus op te volgen, of om een systematisch foutgemaakte vraag te ontdekken.

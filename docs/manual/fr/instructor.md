@@ -16,6 +16,10 @@ Vous êtes manager d'un domaine. Vous pouvez créer des cours, structurer leur c
 8. [Cloner, exporter, supprimer](#8-cloner-exporter-supprimer)
 9. [Analyses du cours](#9-analyses-du-cours)
 10. [Vue admin : la liste des cours](#10-vue-admin--la-liste-des-cours)
+11. [La banque de questions : les sujets](#11-la-banque-de-questions--les-sujets)
+12. [Créer et importer des questions](#12-créer-et-importer-des-questions)
+13. [Composer un modèle de quiz](#13-composer-un-modèle-de-quiz)
+14. [Suivre les résultats d'un modèle](#14-suivre-les-résultats-dun-modèle)
 
 ---
 
@@ -222,3 +226,93 @@ Actions groupées (sélection par checkbox) :
 - **Supprimer** — supprime en bloc (confirmation requise, certificats protégés).
 
 Paginator standard sous la table — page size 20.
+
+## 11. La banque de questions : les sujets
+
+Les **sujets** regroupent les questions par thème (chapitre, compétence visée, etc.). Ce n'est pas obligatoire — une question peut exister sans sujet — mais c'est ce qui permet de filtrer la bibliothèque côté éditeur de quiz et la liste des questions.
+
+### Lister les sujets
+
+`/subject/list` — table avec recherche libre et actions groupées (activer / désactiver / supprimer). Colonnes : nom, actif, domaine, nombre de questions liées.
+
+### Créer un sujet
+
+Bouton « + Ajouter » en haut à droite → `/subject/add`. Champs : **nom**, **actif** (oui/non), **domaine** (auto-rempli si vous n'en gérez qu'un, sinon picker).
+
+### Éditer ou supprimer
+
+Crayon par ligne — édite le nom, le domaine, l'état actif. Corbeille — supprime ; les questions liées sont détachées, pas supprimées.
+
+## 12. Créer et importer des questions
+
+`/question/list` — la bibliothèque de toutes les questions des domaines que vous gérez. Filtres :
+
+- **Recherche libre** sur le titre.
+- **Sujets** — multi-select. Active uniquement les questions qui ont au moins un des sujets cochés.
+
+Colonnes : titre, actif, modes (Pratique / Examen / les deux), sujets, actions. Action groupée : activer / désactiver / supprimer.
+
+### Créer une question
+
+Bouton « Nouvelle question » en haut → `/question/add`. Le formulaire est en deux parties :
+
+1. **Métadonnées** : actif, domaine, sujets (multi-select), modes (cocher Pratique et/ou Examen).
+2. **Contenu par langue** : un onglet par langue autorisée du domaine. Vous éditez l'énoncé puis les options de réponse via les mêmes 8 types de blocs qu'une leçon (voir [chapitre 4](#4-les-8-types-de-blocs)). Bouton « Traduire depuis cet onglet » pour remplir les langues vides.
+
+Sauvegarde automatique pendant l'édition.
+
+### Modes Pratique vs Examen
+
+- **Pratique** — la question est utilisable dans un quiz en mode pratique. La correction s'affiche immédiatement après chaque réponse, l'apprenant peut ré-essayer.
+- **Examen** — la question est utilisable dans un quiz en mode examen. Le score n'est révélé qu'à la fin, et chaque modèle de quiz examen est **single-attempt** par apprenant.
+
+Une question peut être cochée Pratique **et** Examen — c'est même le cas par défaut.
+
+### Importer en masse
+
+Bouton « Importer » à côté de « Nouvelle question » → `/question/import`. Charge un fichier pour créer plusieurs questions en une fois — utile pour migrer une banque existante.
+
+## 13. Composer un modèle de quiz
+
+`/quiz/list` — la page d'entrée. Deux onglets :
+
+- **Modèles** — la liste des `QuizTemplate` des domaines que vous gérez. Boutons « Composer » (forme complète) et « Création rapide » en haut à droite.
+- **Mes sessions** — vos propres `Quiz` (sessions en cours ou terminées, y compris en tant qu'instructeur).
+
+### L'éditeur (`/quiz/add`)
+
+Trois onglets :
+
+#### Onglet « Textes »
+
+Titre + description par langue (un onglet par langue autorisée), avec le bouton « Traduire depuis cet onglet ».
+
+#### Onglet « Configuration »
+
+Six sections de réglages :
+
+- **Statut** — Actif (utilisable) / Public (visible dans le catalogue par tous les utilisateurs du domaine ; sinon visible uniquement par les apprenants à qui l'instructeur a affecté une session).
+- **Mode** — Pratique / Examen. **Timer** : on/off, durée en minutes. À l'expiration, la session est soumise automatiquement.
+- **Ordre** — « Mélanger les questions » : sinon, l'ordre est celui de l'onglet Questions.
+- **Disponibilité** — **Permanent** (toujours ouvert) **ou** fenêtre avec « Démarre le » / « Termine le ». Hors fenêtre, le quiz est invisible dans le catalogue.
+- **Visibilité du résultat** — Immédiate (à la soumission) / Planifiée (à partir d'une date) / Jamais.
+- **Visibilité du détail** (questions + bonnes réponses) — Immédiate / Planifiée / Jamais. Indépendant de la visibilité du score.
+
+#### Onglet « Questions »
+
+Deux colonnes :
+
+- **Bibliothèque** (gauche) — recherche libre + filtre par sujet. Bouton « + » sur chaque carte pour ajouter à la composition. Un bouton « + Créer » ouvre l'éditeur de question dans une dialogue sans quitter le quiz.
+- **Composition** (droite) — vos questions dans l'ordre. Boutons haut/bas pour réordonner, croix pour retirer, champ de poids pour pondérer (le score est calculé pondéré).
+
+Sauvegarde automatique avec un indicateur « Enregistré il y a X » en bas du formulaire.
+
+### Création rapide
+
+Pour un quiz mono-langue simple, le bouton « Création rapide » dans `/quiz/list` ouvre `/quiz/quick`, un formulaire allégé : titre + sélection de questions. Le quiz est créé avec les défauts (actif, non-public, pratique, sans timer, permanent).
+
+## 14. Suivre les résultats d'un modèle
+
+Depuis la liste des modèles dans `/quiz/list`, l'action « Résultats » mène à `/quiz/template/<templateId>/results` : la liste de toutes les sessions (`Quiz`) lancées sur ce modèle, par n'importe quel apprenant du domaine.
+
+Colonnes : apprenant, date de démarrage, date de fin, score, état. Idéal pour surveiller la cohorte d'un quiz utilisé dans un cours, ou repérer une question systématiquement ratée.

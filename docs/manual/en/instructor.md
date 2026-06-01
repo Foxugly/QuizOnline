@@ -16,6 +16,10 @@ You are a manager of a domain. You can create courses, structure their content, 
 8. [Clone, export, delete](#8-clone-export-delete)
 9. [Course analytics](#9-course-analytics)
 10. [Admin view: the course list](#10-admin-view-the-course-list)
+11. [The question bank: topics](#11-the-question-bank-topics)
+12. [Create and import questions](#12-create-and-import-questions)
+13. [Compose a quiz template](#13-compose-a-quiz-template)
+14. [Monitor template results](#14-monitor-template-results)
 
 ---
 
@@ -222,3 +226,93 @@ Bulk actions (checkbox selection):
 - **Delete** — bulk delete (confirmation required, certificates protected).
 
 Standard paginator below the table — page size 20.
+
+## 11. The question bank: topics
+
+**Topics** (the EN label for what the codebase calls `Subject`) group questions by theme (chapter, target skill, etc.). Optional — a question can live without a topic — but they are what lets you filter the library in the quiz editor and the questions list.
+
+### List topics
+
+`/subject/list` — table with free-text search and bulk actions (activate / deactivate / delete). Columns: name, active, domain, number of linked questions.
+
+### Create a topic
+
+"+ Add" button in the top right → `/subject/add`. Fields: **name**, **active** (yes/no), **domain** (pre-filled if you only manage one, picker otherwise).
+
+### Edit or delete
+
+Pencil per row — edits name, domain, active flag. Trash — deletes; linked questions are detached, not deleted.
+
+## 12. Create and import questions
+
+`/question/list` — the question bank for every domain you manage. Filters:
+
+- **Free-text search** on the title.
+- **Topics** — multi-select. Only shows questions that have at least one of the selected topics.
+
+Columns: title, active, modes (Practice / Exam / both), topics, actions. Bulk actions: activate / deactivate / delete.
+
+### Create a question
+
+"New question" button at the top → `/question/add`. The form has two parts:
+
+1. **Metadata**: active, domain, topics (multi-select), modes (check Practice and/or Exam).
+2. **Content per language**: one tab per allowed language of the domain. You edit the statement then the answer options through the same 8 block types as a lesson (see [chapter 4](#4-the-8-block-types)). "Translate from this tab" fills the empty languages.
+
+Auto-saved while you edit.
+
+### Practice vs Exam modes
+
+- **Practice** — the question can be used in a practice-mode quiz. Feedback appears immediately after each answer; the learner can retry.
+- **Exam** — the question can be used in an exam-mode quiz. The score is revealed at the end only, and each exam template is **single-attempt** per learner.
+
+A question can be flagged Practice **and** Exam — that's actually the default.
+
+### Bulk import
+
+"Import" button next to "New question" → `/question/import`. Uploads a file to create many questions at once — handy for migrating an existing bank.
+
+## 13. Compose a quiz template
+
+`/quiz/list` — the entry point. Two tabs:
+
+- **Templates** — the list of `QuizTemplate`s in the domains you manage. "Compose" (full form) and "Quick create" buttons in the top right.
+- **My sessions** — your own `Quiz` instances (in-progress or completed sessions, including as an instructor).
+
+### The editor (`/quiz/add`)
+
+Three tabs:
+
+#### "Texts" tab
+
+Title + description per language (one tab per allowed language), with the "Translate from this tab" button.
+
+#### "Configuration" tab
+
+Six configuration sections:
+
+- **Status** — Active (usable) / Public (visible in the catalog to every domain user; otherwise visible only to learners that the instructor has explicitly assigned a session to).
+- **Mode** — Practice / Exam. **Timer**: on/off, duration in minutes. On expiry, the session is auto-submitted.
+- **Order** — "Shuffle questions": otherwise the order is the one from the Questions tab.
+- **Availability** — **Permanent** (always open) **or** a window with "Starts at" / "Ends at". Outside the window the quiz is invisible in the catalog.
+- **Result visibility** — Immediate (on submit) / Scheduled (from a chosen date) / Never.
+- **Detail visibility** (questions + correct answers) — Immediate / Scheduled / Never. Independent from result visibility.
+
+#### "Questions" tab
+
+Two columns:
+
+- **Library** (left) — free-text search + topic filter. "+" button on each card to add to the composition. A "+ Create" button opens the question editor in a dialog without leaving the quiz.
+- **Composition** (right) — your questions in order. Up/down buttons to reorder, cross to remove, weight field to weight (the score is computed weighted).
+
+Auto-saved with a "Saved X ago" indicator at the bottom of the form.
+
+### Quick create
+
+For a simple mono-language quiz, the "Quick create" button in `/quiz/list` opens `/quiz/quick`, a lightweight form: title + question selection. The quiz is created with defaults (active, non-public, practice, no timer, permanent).
+
+## 14. Monitor template results
+
+From the templates list in `/quiz/list`, the "Results" action takes you to `/quiz/template/<templateId>/results`: the list of every session (`Quiz`) launched on this template, by any learner in the domain.
+
+Columns: learner, start date, end date, score, state. Use it to monitor the cohort of a quiz used in a course, or spot a systematically failed question.
