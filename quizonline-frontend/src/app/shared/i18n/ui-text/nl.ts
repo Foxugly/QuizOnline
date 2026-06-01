@@ -341,6 +341,8 @@ export const NL: UiText = {
         : `${processed} aanvra(a)g(en) verwerkt.`,
     },
   },
+  status: {active: 'Actief', inactive: 'Inactief', published: 'Gepubliceerd', draft: 'Concept'},
+  access: {open: 'Vrije inschrijving', approval: 'Na goedkeuring', invite: 'Alleen op uitnodiging'},
   a11y: {
     skipToContent: 'Naar hoofdinhoud',
   },
