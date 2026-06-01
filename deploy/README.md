@@ -370,10 +370,78 @@ env-fetch logs go to journald — `journalctl -u quizonline-celery`,
 
 Reverse proxy is **nginx** (the `apache.conf` template is kept for
 parity but unused on the live box). Live config lives at
-`/etc/nginx/sites-available/quizonline`, sourced from
-[`nginx.conf`](nginx.conf) in this directory. Optional frontend
-runtime snippet at `/etc/nginx/snippets/quizonline-frontend-runtime.conf`
-— see [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example).
+`/etc/nginx/sites-available/quizonline.foxugly.com` (symlinked from
+`sites-enabled/`), sourced from [`nginx.conf`](nginx.conf) in this
+directory. Optional frontend runtime snippet at
+`/etc/nginx/snippets/quizonline-frontend-runtime.conf` — see
+[`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example).
+
+---
+
+## Uptime monitoring
+
+External monitor: **UptimeRobot** (free tier, 5-min interval). Each
+prod node should be pinged on:
+
+```
+https://quizonline.foxugly.com/health/
+```
+
+Not `/`. The root returns 200 on the SPA shell even when the DB or
+Redis is dead — a stale uptime monitor would stay green while every
+real request 500s. `/health/` is the enriched check defined in
+[`config/views_health.py`](../quizonline-server/config/views_health.py):
+
+| Probe | Source | Effect on HTTP status |
+|-------|--------|-----------------------|
+| `db` | `SELECT 1` on the default connection | flips to **503** on failure |
+| `cache` | round-trip a probe key through Django cache (Redis) | flips to **503** on failure |
+| `celery` | `Inspect.ping` with 1 s timeout | informational only — stays 200 (the web tier still serves) |
+| `outbox_pending` | count of `OutboundEmail` rows not yet sent | counter only |
+
+Payload shape:
+
+```json
+{
+  "status": "ok" | "degraded",
+  "version": "quizonline-1.1.0",
+  "checks": {
+    "db":     {"ok": true},
+    "cache":  {"ok": true},
+    "celery": {"ok": true}
+  },
+  "outbox_pending": 0
+}
+```
+
+The `version` field is read from the `SENTRY_RELEASE` env var (so it
+matches the tag stamped on Sentry events). Useful sanity check after
+a deploy: `curl -s https://.../health/ | jq .version` should match
+the freshly-pushed `package.json#version`. If it doesn't, env-fetch
+didn't pick up the new SSM value — see "Secret rotation" in the
+[secrets runbook](SECRETS-ROTATION.md).
+
+### UptimeRobot configuration
+
+| Setting | Value |
+|---------|-------|
+| Monitor type | HTTP(s) |
+| URL | `https://quizonline.foxugly.com/health/` |
+| Interval | 5 min (free) / 1 min (Pro) |
+| Success status codes | `200` only |
+| Keyword (Pro only) | `"status": "ok"` — triggers an alert when Celery flips while DB/cache still serve, which the bare 503 check misses |
+
+Alerts notify `rvilain@foxugly.com`. Slack / SMS escalation is a Pro
+plan add-on — bridge when the first paying customer lands; until
+then the email channel is enough.
+
+### Nginx exposes the endpoint
+
+Django mounts `/health/` (not `/api/health/`) — see `config/urls.py`.
+The nginx site config has a dedicated `location = /health/` block
+that proxies to gunicorn so the SPA's catch-all `location /` does
+not swallow it and serve `index.html` to the monitor. If you ever
+move from this nginx template, port that block.
 
 ---
 
