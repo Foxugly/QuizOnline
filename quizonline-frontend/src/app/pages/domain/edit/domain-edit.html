@@ -29,7 +29,7 @@
           <i class="pi pi-cog tab-icon"></i>
           {{ editText().tabs.config }}
         </p-tab>
-        @if (canManageMembers()) {
+        @if (canInvite()) {
           <p-tab value="notifications">
             <i class="pi pi-bell tab-icon"></i>
             {{ editText().tabs.notifications }}
@@ -103,9 +103,17 @@
           </div>
         </p-tabpanel>
 
-        @if (canManageMembers()) {
+        @if (canInvite()) {
           <p-tabpanel value="notifications">
             <div class="builder-pane">
+              @if (!canManageMembers()) {
+                <p-message severity="info" [closable]="false">
+                  <span>
+                    <i class="pi pi-lock"></i>
+                    {{ editText().notifications.readOnlyForManagers }}
+                  </span>
+                </p-message>
+              }
               <div class="domain-notif__list">
                 @for (kind of notifications.KINDS; track kind) {
                   <div class="domain-notif__row">
@@ -114,14 +122,16 @@
                       [ngModel]="notifications.isEnabled(kind)"
                       (ngModelChange)="notifications.toggle(kind, $event)"
                       [attr.aria-label]="notifications.label(kind)"
-                      [disabled]="notifications.saving()">
+                      [disabled]="notifications.saving() || !canManageMembers()">
                     </p-toggleswitch>
                   </div>
                 }
               </div>
-              <div class="footer-actions">
-                <app-saved-at [at]="lastSavedAt()"></app-saved-at>
-              </div>
+              @if (canManageMembers()) {
+                <div class="footer-actions">
+                  <app-saved-at [at]="lastSavedAt()"></app-saved-at>
+                </div>
+              }
             </div>
           </p-tabpanel>
         }

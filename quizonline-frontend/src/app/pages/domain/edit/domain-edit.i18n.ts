@@ -130,6 +130,9 @@ export type DomainEditUiText = {
     errorGeneric: string;
     pendingTo: (username: string) => string;
   };
+  notifications: {
+    readOnlyForManagers: string;
+  };
 };
 
 const FR_ACTION_LABELS: Record<string, string> = {
@@ -366,6 +369,9 @@ const FR: DomainEditUiText = {
     errorGeneric: 'Impossible de changer le propriétaire.',
     pendingTo: (username) => `Transfert de propriété en cours vers ${username} — le futur propriétaire doit confirmer via le lien reçu par e-mail.`,
   },
+  notifications: {
+    readOnlyForManagers: 'Lecture seule — seul le propriétaire du domaine peut modifier ces préférences.',
+  },
 };
 
 const EN: DomainEditUiText = {
@@ -501,6 +507,9 @@ const EN: DomainEditUiText = {
     errorTargetUnreachable: 'This user is not reachable.',
     errorGeneric: 'Unable to change the owner.',
     pendingTo: (username) => `Ownership transfer in flight to ${username} — the future owner must confirm via the email link.`,
+  },
+  notifications: {
+    readOnlyForManagers: 'Read-only — only the domain owner can change these preferences.',
   },
 };
 
@@ -638,6 +647,9 @@ const NL: DomainEditUiText = {
     errorGeneric: 'Kan de eigenaar niet wijzigen.',
     pendingTo: (username) => `Eigendomsoverdracht loopt naar ${username} — de toekomstige eigenaar moet bevestigen via de e-maillink.`,
   },
+  notifications: {
+    readOnlyForManagers: 'Alleen-lezen — alleen de eigenaar van het domein kan deze voorkeuren wijzigen.',
+  },
 };
 
 const IT: DomainEditUiText = {
@@ -774,6 +786,9 @@ const IT: DomainEditUiText = {
     errorGeneric: 'Impossibile cambiare il proprietario.',
     pendingTo: (username) => `Trasferimento di proprietà in corso verso ${username} — il futuro proprietario deve confermare tramite il link ricevuto via e-mail.`,
   },
+  notifications: {
+    readOnlyForManagers: 'Sola lettura — solo il proprietario del dominio può modificare queste preferenze.',
+  },
 };
 
 const ES: DomainEditUiText = {
@@ -909,6 +924,9 @@ const ES: DomainEditUiText = {
     errorTargetUnreachable: 'Este usuario no es accesible.',
     errorGeneric: 'No se puede cambiar el propietario.',
     pendingTo: (username) => `Transferencia de propiedad en curso hacia ${username} — el futuro propietario debe confirmar mediante el enlace recibido por correo.`,
+  },
+  notifications: {
+    readOnlyForManagers: 'Solo lectura — solo el propietario del dominio puede modificar estas preferencias.',
   },
 };
 
