@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from rest_framework.exceptions import PermissionDenied
-from config.domain_access import manageable_domain_ids, user_can_access_domain
 
-from .querysets import accessible_quiz_template_queryset
+from config.domain_access import manageable_domain_ids, user_can_access_domain
 
 
 def user_matches_template_domain(user, quiz_template) -> bool:
@@ -42,30 +41,46 @@ def _has_any_exam_attempt(user, quiz_template) -> bool:
     )
 
 
-def _can_access_public_template(user, quiz_template) -> bool:
+def _is_publicly_answerable(quiz_template) -> bool:
+    """True when any authenticated-or-anonymous viewer should see this
+    template: it's marked public AND its window/active flags allow taking
+    it. No user parameter — the predicate depends only on the template's
+    own state. Anything user-specific (already-enrolled, manages-domain)
+    is layered on top by ``user_can_access_template``.
+    """
     return bool(quiz_template.is_public and quiz_template.can_answer)
 
 
-def user_can_access_template(user, quiz_template) -> bool:
+def template_access_decision(user, quiz_template) -> tuple[bool, str]:
+    """Same boolean decision as ``user_can_access_template`` plus a short
+    machine-readable reason tag. Lets callers (the retrieve view, the
+    list filter, future audit hooks) log a diagnostic when the gate
+    closes — Sentry has historically caught ``404 Not Found`` on quiz
+    templates that turned out to be access denials, and without the
+    branch tag debugging meant tracing every conditional by hand.
+
+    Reasons are stable identifiers, not user-facing copy. Keep them
+    short and grep-able.
+    """
     if not user or not getattr(user, "is_authenticated", False):
-        return _can_access_public_template(user, quiz_template)
+        if _is_publicly_answerable(quiz_template):
+            return True, "anon.public-answerable"
+        return False, "anon.private-or-unanswerable"
     if user.is_superuser:
-        return True
+        return True, "superuser"
     if user_manages_template_domain(user, quiz_template):
-        return True
+        return True, "manages-domain"
     if not quiz_template.can_answer:
-        return False
+        return False, "template-not-answerable"
     if quiz_template.quiz.filter(user=user).exists():
-        return True
-    return _can_access_public_template(user, quiz_template)
+        return True, "has-quiz-instance"
+    if _is_publicly_answerable(quiz_template):
+        return True, "public-answerable-fallback"
+    return False, "private-template-no-attempt"
 
 
-def filter_accessible_templates(user, templates):
-    if hasattr(templates, "filter"):
-        return accessible_quiz_template_queryset(user)
-    if user.is_superuser:
-        return templates
-    return [quiz_template for quiz_template in templates if user_can_access_template(user, quiz_template)]
+def user_can_access_template(user, quiz_template) -> bool:
+    return template_access_decision(user, quiz_template)[0]
 
 
 def user_can_manage_template_assignments(user, quiz_template) -> bool:
@@ -91,7 +106,7 @@ def user_can_create_quiz_from_template(user, quiz_template) -> bool:
         return False
     if quiz_template.quiz.filter(user=user).exists():
         return True
-    return _can_access_public_template(user, quiz_template)
+    return _is_publicly_answerable(quiz_template)
 
 
 def user_can_edit_template(user, quiz_template) -> bool:

@@ -20,6 +20,7 @@ from config.tools import MyModelViewSet
 
 from .models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer, QuizAlertThread
 from .access import (
+    template_access_decision,
     user_can_access_template,
     user_can_create_quiz_from_template,
     user_can_edit_template,
@@ -176,7 +177,19 @@ class QuizTemplateViewSet(
             extra={"pk": kwargs.get("qt_id")},
         )
         instance = self.get_object()
-        if not user_can_access_template(request.user, instance):
+        allowed, reason = template_access_decision(request.user, instance)
+        if not allowed:
+            logger.info(
+                "quiz.template.retrieve denied user_id=%s qt_id=%s reason=%s "
+                "is_public=%s active=%s permanent=%s mode=%s",
+                getattr(request.user, "id", None),
+                instance.id,
+                reason,
+                instance.is_public,
+                instance.active,
+                instance.permanent,
+                instance.mode,
+            )
             return not_found_response()
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
