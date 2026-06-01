@@ -13,11 +13,6 @@ class IsStaffOrReadOnly(BasePermission):
         return is_django_admin(request.user)
 
 
-class IsStaffOrSuperuser(BasePermission):
-    def has_permission(self, request, view):
-        return is_django_admin(request.user)
-
-
 class IsOwnerOrStaff(BasePermission):
     def has_permission(self, request, view):
         return is_authenticated_user(request.user)

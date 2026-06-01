@@ -48,17 +48,6 @@ def extract_youtube_video_id(url: str) -> str | None:
     return None
 
 
-def normalize_external_url(url: str) -> str:
-    normalized = url.strip()
-    if not is_youtube_url(normalized):
-        raise ValueError("Only YouTube URLs are supported.")
-
-    video_id = extract_youtube_video_id(normalized)
-    if not video_id:
-        raise ValueError("Unsupported YouTube URL.")
-    return f"https://www.youtube.com/watch?v={video_id}"
-
-
 def _is_valid_video_id(value: str) -> bool:
     if len(value) != 11:
         return False

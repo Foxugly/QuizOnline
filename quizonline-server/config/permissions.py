@@ -15,13 +15,6 @@ def is_django_admin(user) -> bool:
     )
 
 
-class IsDjangoAdmin(BasePermission):
-    """Autorise is_staff ou is_superuser (cohérent avec is_django_admin)."""
-
-    def has_permission(self, request, view):
-        return is_django_admin(request.user)
-
-
 class IsSuperUser(BasePermission):
     """Autorise uniquement les superusers."""
 

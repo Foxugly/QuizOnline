@@ -6,10 +6,7 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# Re-exported for backward compatibility — these primitives moved to
-# ``core.services`` so ``lesson`` / ``block`` can import them without
-# pulling the whole ``course`` app at module-load time.
-from core.services import compact, two_phase_reorder  # noqa: F401
+from core.services import compact, two_phase_reorder
 
 from .models import Course, CourseAuditLog, Section
 
