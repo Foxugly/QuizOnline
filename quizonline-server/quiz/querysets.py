@@ -46,6 +46,25 @@ def available_quiz_template_filter(*, at=None) -> Q:
 
 
 def accessible_quiz_template_queryset(user, *, light: bool = False):
+    """Templates the user can ``take now`` — narrower than
+    :func:`quiz.access.user_can_access_template`.
+
+    The per-object access check grants READ access to any template the
+    user has a ``Quiz`` instance on (including completed exams), so
+    learners can revisit their score from the lesson-view block. This
+    queryset is for the catalog / picker / "available now" list — same
+    base predicate (``can_answer`` AND (``is_public`` OR
+    ``has_quiz_instance``)) but additionally **hides** templates the
+    learner has already touched in exam mode, because exam mode is
+    single-attempt and surfacing a taken exam in a list of things to
+    do would be UX noise.
+
+    Divergence between this queryset and ``user_can_access_template``
+    is intentional. If you need the broader "what can the user read"
+    set (e.g. for an audit/admin tool), call
+    ``user_can_access_template`` per row rather than filtering with
+    this queryset.
+    """
     queryset = quiz_template_list_queryset() if light else quiz_template_queryset()
     available_filter = available_quiz_template_filter()
     if not user or not getattr(user, "is_authenticated", False):
