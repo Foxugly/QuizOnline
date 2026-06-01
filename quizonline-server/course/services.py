@@ -219,6 +219,32 @@ def unpublish_course(*, course: Course, by_user) -> Course:
 
 
 @transaction.atomic
+def publish_section(*, section: Section, by_user) -> Section:
+    # Section is not an AuditMixin (no created_by/updated_by) and has no
+    # published_at — ``publish()`` only flips ``is_published``. We still
+    # audit the action on the parent course so the moderation trail has
+    # parity with ``publish_course``.
+    section.publish()
+    section.save(update_fields=["is_published"])
+    record_course_audit(
+        course=section.course, actor=by_user, action="section.publish",
+        metadata={"section_id": section.id},
+    )
+    return section
+
+
+@transaction.atomic
+def unpublish_section(*, section: Section, by_user) -> Section:
+    section.unpublish()
+    section.save(update_fields=["is_published"])
+    record_course_audit(
+        course=section.course, actor=by_user, action="section.unpublish",
+        metadata={"section_id": section.id},
+    )
+    return section
+
+
+@transaction.atomic
 def reorder_sections(*, course: Course, section_ids_in_order: list[int]) -> list[Section]:
     return two_phase_reorder(Section, models.Q(course=course), section_ids_in_order)
 

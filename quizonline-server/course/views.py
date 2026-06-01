@@ -27,8 +27,10 @@ from .services import (
     export_course_to_dict,
     import_course_from_dict,
     publish_course,
+    publish_section,
     reorder_sections,
     unpublish_course,
+    unpublish_section,
 )
 
 
@@ -345,6 +347,18 @@ class SectionViewSet(viewsets.ModelViewSet):
         ids = request.data.get("ids", [])
         reorder_lessons(section=section, lesson_ids_in_order=ids)
         return Response(SectionSerializer(section).data)
+
+    @action(detail=True, methods=["post"])
+    def publish(self, request, pk=None):
+        section = self.get_object()
+        publish_section(section=section, by_user=request.user)
+        return Response(SectionSerializer(section, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"])
+    def unpublish(self, request, pk=None):
+        section = self.get_object()
+        unpublish_section(section=section, by_user=request.user)
+        return Response(SectionSerializer(section, context={"request": request}).data)
 
     def perform_destroy(self, instance):
         course = instance.course

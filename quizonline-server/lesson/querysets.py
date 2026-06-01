@@ -16,4 +16,14 @@ class LessonQuerySet(TranslatableQuerySet):
         qs = self.filter(section__course_id__in=visible_courses)
         if is_django_admin(user):
             return qs
-        return qs.filter(Q(is_published=True) | Q(is_preview=True))
+        # Instructors (domain owner / manager) manage every lesson in
+        # their domain — published or not — so they can edit drafts and
+        # toggle publication state (mirrors ``Course.visible_to`` which
+        # surfaces unpublished managed courses). Plain learners only see
+        # published / preview lessons.
+        managed = Q(section__course__domain__owner=user) | Q(
+            section__course__domain__managers=user
+        )
+        return qs.filter(
+            managed | Q(is_published=True) | Q(is_preview=True)
+        ).distinct()
