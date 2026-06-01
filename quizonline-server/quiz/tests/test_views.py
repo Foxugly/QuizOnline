@@ -1009,6 +1009,51 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertTrue(res.data["is_public"])
         self.assertTrue(res.data["can_answer"])
 
+    def test_completed_exam_diverges_between_list_filter_and_retrieve(self):
+        """Pins the intentional divergence between
+        :func:`quiz.querysets.accessible_quiz_template_queryset` (used by
+        the catalog / available-now list) and
+        :func:`quiz.access.user_can_access_template` (used by the retrieve
+        view): a learner who has completed an exam should NOT see the
+        template surfaced in the list (it's a single-attempt-already-taken)
+        but SHOULD still be able to GET it by id (so the lesson-view quiz
+        block can render the score).
+        """
+        from django.utils import timezone
+        from quiz.querysets import accessible_quiz_template_queryset
+        from quiz.access import user_can_access_template
+        exam_qt = QuizTemplate.objects.create(
+            domain=self.domain,
+            title="T_EXAM_DIVERGENCE",
+            mode=QuizTemplate.MODE_EXAM,
+            description="",
+            max_questions=10,
+            permanent=True,
+            with_duration=True,
+            duration=10,
+            is_public=True,
+            active=True,
+            result_visibility=VISIBILITY_IMMEDIATE,
+            detail_visibility=VISIBILITY_IMMEDIATE,
+        )
+        QuizQuestion.objects.create(quiz=exam_qt, question=self.q1, sort_order=1, weight=1)
+        self.domain.members.add(self.u1)
+        now = timezone.now()
+        Quiz.objects.create(
+            quiz_template=exam_qt,
+            user=self.u1,
+            started_at=now,
+            ended_at=now,
+            active=False,
+        )
+
+        # The queryset (list / catalog semantics) hides the completed exam.
+        listed_ids = list(accessible_quiz_template_queryset(self.u1).values_list("id", flat=True))
+        self.assertNotIn(exam_qt.id, listed_ids)
+
+        # But the per-object access check allows reading it.
+        self.assertTrue(user_can_access_template(self.u1, exam_qt))
+
     def test_quiztemplate_retrieve_after_completed_exam_attempt(self):
         """**Real Sentry reproducer.** After completing an exam, the user
         must still be able to retrieve the template — the lesson-view
@@ -1113,6 +1158,37 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(retrieve.status_code, status.HTTP_200_OK, retrieve.content)
         self.assertTrue(retrieve.data["is_public"])
 
+    def test_quiztemplate_create_accepts_translations_only_payload(self):
+        """The frontend sends both a top-level ``title`` and a
+        ``translations.{lang}.title`` because the legacy write contract
+        required both. The duplicate is fragile (they can drift). Accept a
+        ``translations``-only payload: derive ``title`` from the active
+        language so the model's ``CharField(unique=True)`` is satisfied.
+        """
+        self._auth(self.admin)
+        payload = {
+            "domain": self.domain.id,
+            "mode": QuizTemplate.MODE_PRACTICE,
+            "max_questions": 10,
+            "permanent": True,
+            "started_at": None,
+            "ended_at": None,
+            "with_duration": False,
+            "duration": 10,
+            "active": True,
+            "is_public": True,
+            "shuffle_questions": False,
+            "result_visibility": VISIBILITY_IMMEDIATE,
+            "result_available_at": None,
+            "detail_visibility": VISIBILITY_IMMEDIATE,
+            "detail_available_at": None,
+            "translations": {"fr": {"title": "Quiz FR-only", "description": "Description FR"}},
+            # NO top-level "title" / "description" — the server must derive them.
+        }
+        res = self.client.post(self.qt_list_url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED, res.content)
+        self.assertEqual(res.data["title"], "Quiz FR-only")
+
     def test_quiztemplate_put_full_update_preserves_is_public_toggle(self):
         """``quiz-create.ts`` saves via ``quizTemplateUpdate`` (PUT, full
         replace) with ``is_public`` from the form. Pin that a PUT with
@@ -1175,7 +1251,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         """Same shape but the member is NOT in the domain — still must
         succeed because the template is public.
 
-        ``user_can_access_template`` falls through to ``_can_access_public_template``
+        ``user_can_access_template`` falls through to ``_is_publicly_answerable``
         which only checks ``is_public`` and ``can_answer``, with no domain
         check. So a public template should be world-readable for any
         authenticated user. Pins that contract too in case a future change

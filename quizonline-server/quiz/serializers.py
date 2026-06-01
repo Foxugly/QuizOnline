@@ -234,6 +234,15 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
         required=False,
         help_text='Ex: {"fr":{"title":"Quiz FR","description":"Consignes FR"},"en":{"title":"Quiz EN","description":"Instructions EN"}}',
     )
+    # Both fields are also tracked inside ``translations.{lang}.{title,
+    # description}`` (parler-style). Make the top-level scalars optional so
+    # a ``translations``-only payload is accepted; ``validate`` derives them
+    # from the active-language translation before the model save. Previously
+    # a payload without a top-level ``title`` returned ``400 {"title":
+    # ["This field is required."]}`` even when the same string was right
+    # there in ``translations.fr.title`` — fragile contract.
+    title = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True)
 
     def _normalize_translations(self, translations: dict | None, fallback_title: str, fallback_description: str) -> dict:
         preferred_language = self.preferred_language()
@@ -260,6 +269,24 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
                     return lang_code
         return self.preferred_language()
 
+    def _pick_title_from_translations(self, translations: dict | None) -> tuple[str, str]:
+        """Derive a (title, description) pair from a ``translations`` map for
+        clients that send the multilingual map only and omit the legacy
+        top-level scalars. Tries the request's preferred language first,
+        then falls back to the first translation that carries a title.
+        Returns ``("", "")`` if no usable title is found anywhere.
+        """
+        if not translations:
+            return "", ""
+        preferred = self.preferred_language()
+        candidates = [preferred] + [lang for lang in translations.keys() if lang != preferred]
+        for lang in candidates:
+            payload = translations.get(lang) or {}
+            t = str(payload.get("title", "") or "").strip()
+            if t:
+                return t, str(payload.get("description", "") or "")
+        return "", ""
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
         request = self.context.get("request")
@@ -268,6 +295,15 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
             raise serializers.ValidationError("Authentication required.")
 
         translations = attrs.get("translations")
+        # If the client omitted the legacy top-level title/description but
+        # included them inside ``translations``, hoist them up before the
+        # ``CharField(unique=True)`` model save needs them.
+        if not str(attrs.get("title") or "").strip():
+            derived_title, derived_description = self._pick_title_from_translations(translations)
+            if derived_title:
+                attrs["title"] = derived_title
+                if derived_description and not str(attrs.get("description") or "").strip():
+                    attrs["description"] = derived_description
         fallback_title = str(attrs.get("title") or getattr(self.instance, "title", "") or "").strip()
         fallback_description = str(
             attrs.get("description") or getattr(self.instance, "description", "") or ""
