@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /verify/
+Disallow: /reset-password
+Disallow: /change-password
+Disallow: /auth/
+
+Host: https://quizonline.foxugly.com
