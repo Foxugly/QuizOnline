@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.db.models import Count, Sum
+from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import Coalesce
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
@@ -8,7 +8,9 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from block.models import Block
 from config.cache_mixins import ShortReadCacheMixin
+from lesson.models import Lesson
 
 from .models import Course, CourseAuditLog, Section
 from .permissions import IsLmsInstructorOrReadOnly, is_lms_instructor
@@ -91,6 +93,34 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
                 ).distinct()
             else:
                 qs = qs.none()
+        # Retrieve renders the full section -> lesson -> block tree
+        # through ``CourseDetailSerializer`` (which nests
+        # ``LessonDetailSerializer`` for every lesson). Without the
+        # nested Prefetch chain a single retrieve fanned out to
+        # ~300-500 queries on a 5-section / 25-lesson course.
+        if self.action == "retrieve":
+            qs = qs.prefetch_related(
+                "domain__allowed_languages",
+                Prefetch(
+                    "sections",
+                    queryset=Section.objects.order_by("order").prefetch_related(
+                        "translations",
+                        Prefetch(
+                            "lessons",
+                            queryset=Lesson.objects.order_by("order")
+                                .prefetch_related(
+                                    "translations",
+                                    Prefetch(
+                                        "blocks",
+                                        queryset=Block.objects
+                                            .select_related("quiz_template")
+                                            .prefetch_related("translations"),
+                                    ),
+                                ),
+                        ),
+                    ),
+                ),
+            )
         return qs
 
     def get_serializer_class(self):

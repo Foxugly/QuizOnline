@@ -123,17 +123,40 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         "required": ["current", "total"],
     })
     def get_position_in_section(self, obj):
-        section_lessons = list(
-            Lesson.objects.filter(section_id=obj.section_id)
-            .order_by("order", "id")
-            .values_list("id", flat=True)
-        )
+        section_lessons = [
+            lesson for lesson in self._course_lessons(obj.section.course_id)
+            if lesson.section_id == obj.section_id
+        ]
         total = len(section_lessons)
         try:
-            current = section_lessons.index(obj.id) + 1
-        except ValueError:
+            current = next(i for i, lesson in enumerate(section_lessons) if lesson.id == obj.id) + 1
+        except StopIteration:
             current = 0
         return {"current": current, "total": total}
+
+    def _course_lessons(self, course_id: int) -> list:
+        """Ordered list of every lesson in the parent course, cached on
+        the serializer context. Used by ``_neighbour`` (×2 per lesson)
+        and ``get_position_in_section`` — without the cache each call
+        re-ran the same filter, which blew up to dozens of queries when
+        ``CourseDetailSerializer`` nested this serializer per lesson.
+
+        Translations are NOT prefetched here: parler's
+        ``safe_translation_getter`` keeps its own per-instance
+        ``_translations_cache`` that ``prefetch_related("translations")``
+        does not populate, so prefetching would query the DB twice and
+        still fall back to the slug on a cache miss. Leaving each title
+        lookup to parler means at most one extra query per neighbour
+        title, which still collapses the original O(N²) blow-up.
+        """
+        cache = self.context.setdefault("_course_lessons_cache", {})
+        if course_id not in cache:
+            cache[course_id] = list(
+                Lesson.objects.filter(section__course_id=course_id)
+                .select_related("section")
+                .order_by("section__order", "order", "id")
+            )
+        return cache[course_id]
 
     def _neighbour(self, obj, direction: int):
         """Return the ``(id, title)`` of the previous / next lesson in
@@ -141,23 +164,15 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         or ``None`` at the course boundary. Title is localized in the
         caller's UI language (falls back to any available translation).
         """
-        course_id = obj.section.course_id
-        all_lessons = list(
-            Lesson.objects.filter(section__course_id=course_id)
-            .select_related("section")
-            .order_by("section__order", "order", "id")
-            .values_list("id", flat=True)
-        )
+        all_lessons = self._course_lessons(obj.section.course_id)
         try:
-            idx = all_lessons.index(obj.id)
-        except ValueError:
+            idx = next(i for i, lesson in enumerate(all_lessons) if lesson.id == obj.id)
+        except StopIteration:
             return None
         target_idx = idx + direction
         if target_idx < 0 or target_idx >= len(all_lessons):
             return None
-        target = Lesson.objects.filter(pk=all_lessons[target_idx]).first()
-        if not target:
-            return None
+        target = all_lessons[target_idx]
         request = self.context.get("request")
         lang = getattr(getattr(request, "user", None), "language", None) or "fr"
         title = target.safe_translation_getter("title", language_code=lang, any_language=True) or target.slug
