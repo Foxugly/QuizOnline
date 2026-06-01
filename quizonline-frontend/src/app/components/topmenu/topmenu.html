@@ -2,7 +2,11 @@
   <div class="topbar__inner" [class.topbar__inner--menu-open]="mobileMenuOpen()">
     <button (click)="goHome()" class="brand" type="button">
       <span class="brand__mark">
-        <img [alt]="app.name" [src]="app.logoSvg" class="brand__logo">
+        <!-- Decorative: the adjacent ``.brand__name`` already announces
+             the app name, so a non-empty alt would duplicate it for
+             screen readers (flagged by Lighthouse a11y as
+             ``image-redundant-alt``). -->
+        <img alt="" [src]="app.logoSvg" class="brand__logo">
       </span>
       <span class="brand__text">
         <span class="brand__name">{{ app.name }}</span>
