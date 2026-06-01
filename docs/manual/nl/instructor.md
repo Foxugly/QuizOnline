@@ -38,17 +38,18 @@ Klik vanuit de catalogus op "Een cursus aanmaken" rechtsboven. Je komt op `/cour
 
 ![Screenshot: cursus-aanmaakformulier](../screenshots/nl/instructor-02-course-create.png)
 
-Verplichte velden:
+Het **domein** van de cursus is dat wat actief is in de bovenbalk (het label rechts van de navigatietabs — "Water-polo" in de screenshot). Om een cursus in een ander domein aan te maken, schakel je daar eerst naartoe vanuit de domeinenlijst. De **talen** die als tabs verschijnen zijn de `allowed_languages` van dat domein, en de eerste in die lijst wordt de hoofdtaal van de cursus.
 
-- **Domein** — als je meerdere domeinen beheert, kies dan de juiste. Anders is het vooraf ingevuld.
-- **Titel** (in de hoofdtaal van de cursus).
-- **Slug** — automatisch gegenereerd op basis van de titel. Bewerkbaar vóór de creatie, **bevroren erna** (URL-stabiliteit gaat boven cosmetica).
-- **Hoofdtaal** — moet een van de toegestane talen van het domein zijn.
+Formuliervelden:
+
 - **Niveau** — Beginner / Gevorderd / Expert.
 - **Inschrijvingsmodus**:
   - **Vrij**: elk domeinlid kan zich in één klik inschrijven.
   - **Op goedkeuring**: de inschrijvingen gaan in afwachting en moeten één voor één goedgekeurd worden in de tab "Inschrijvingen".
   - **Op uitnodiging**: de cursus is onzichtbaar in de catalogus voor leden zonder lopende uitnodiging.
+- **Titel**, **Beschrijving**, **Leerdoelen** — één tab per toegestane taal. De knop "Vertaal vanuit deze tab" vult de lege velden in de andere talen op basis van de inhoud van de actieve tab (handig om een vertaling te starten).
+
+De **slug** wordt server-side gegenereerd op basis van de titel en **bevroren na het aanmaken** (URL-stabiliteit gaat boven cosmetica) — daarom verschijnt hij niet in het formulier.
 
 Na het aanmaken kom je op `/course/<id>/edit` terecht, de bewerk-shell.
 

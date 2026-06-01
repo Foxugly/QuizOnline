@@ -38,17 +38,18 @@ From the catalog, click "Create a course" in the top right. You land on `/course
 
 ![Screenshot: course creation form](../screenshots/en/instructor-02-course-create.png)
 
-Required fields:
+The **domain** of the course is the one currently active in the top bar (the badge to the right of the navigation tabs — "Water-polo" in the screenshot). To create a course in another domain, switch to it first from the domains list. The **languages** available as tabs are the `allowed_languages` of that domain, and the first one in that list becomes the course's primary language.
 
-- **Domain** — if you manage several domains, pick the right one. Otherwise it is pre-filled.
-- **Title** (in the course's primary language).
-- **Slug** — generated automatically from the title. Editable before creation, **frozen after** (URL stability takes precedence over cosmetics).
-- **Primary language** — must be one of the domain's allowed languages.
+Form fields:
+
 - **Level** — Beginner / Intermediate / Advanced.
 - **Enrollment mode**:
   - **Free**: any domain member can enroll in one click.
   - **On approval**: enrollments go pending, to be approved one by one in the "Enrollments" tab.
   - **On invitation**: the course is invisible in the catalog to members without a pending invitation.
+- **Title**, **Description**, **Learning objectives** — one tab per allowed language. The "Translate from this tab" button fills empty fields in the other languages from the active tab's content (handy to seed a translation).
+
+The **slug** is generated server-side from the title and **frozen after creation** (URL stability takes precedence over cosmetics) — that's why it does not appear in the form.
 
 After creation, you land on `/course/<id>/edit`, the editing shell.
 

@@ -38,17 +38,18 @@ Depuis le catalogue, cliquez sur « Créer un cours » en haut à droite. Vous a
 
 ![Screenshot : formulaire de création de cours](../screenshots/fr/instructor-02-course-create.png)
 
-Champs obligatoires :
+Le **domaine** du cours est celui actif dans la barre de navigation (le badge à droite des onglets — « Water-polo » dans le screenshot). Pour créer un cours dans un autre domaine, basculez-y d'abord depuis la liste des domaines. Les **langues** disponibles dans les onglets sont les `allowed_languages` de ce domaine, et la première de cette liste sera la langue principale du cours.
 
-- **Domaine** — si vous gérez plusieurs domaines, choisissez le bon. Sinon, c'est pré-rempli.
-- **Titre** (dans la langue principale du cours).
-- **Slug** — généré automatiquement à partir du titre. Modifiable avant création, **figé après** (la stabilité des URLs prime sur la cosmétique).
-- **Langue principale** — doit faire partie des langues autorisées du domaine.
+Champs du formulaire :
+
 - **Niveau** — Débutant / Intermédiaire / Avancé.
 - **Mode d'inscription** :
   - **Libre** : tout membre du domaine peut s'inscrire en un clic.
-  - **Sur validation** : les inscriptions partent en pending, à approuver une par une dans l'onglet « Inscriptions ».
+  - **Sur validation** : les inscriptions partent en attente, à approuver une par une dans l'onglet « Inscriptions ».
   - **Sur invitation** : le cours est invisible dans le catalogue pour les membres sans invitation pendante.
+- **Titre**, **Description**, **Objectifs pédagogiques** — un onglet par langue autorisée. Le bouton « Traduire depuis cet onglet » remplit les champs vides des autres langues à partir du contenu de l'onglet actif (utile pour démarrer une traduction).
+
+Le **slug** est généré côté serveur à partir du titre et **figé après création** (la stabilité des URLs prime sur la cosmétique) — il n'apparaît donc pas dans le formulaire.
 
 Après création, vous arrivez sur `/course/<id>/edit`, le shell d'édition.
 
