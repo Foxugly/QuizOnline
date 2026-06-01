@@ -10725,8 +10725,6 @@ components:
           type: integer
         title:
           type: string
-          minLength: 1
-          title: Titre du quiz
           maxLength: 200
         mode:
           $ref: '#/components/schemas/ModeEnum'
@@ -10811,7 +10809,6 @@ components:
             déterministe par session (mêmes questions à chaque rechargement).
       required:
       - domain
-      - title
     QuizUpdateRequest:
       type: object
       properties:
