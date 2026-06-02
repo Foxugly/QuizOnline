@@ -28,7 +28,7 @@
 
 @if (showTranslations() && tabCodes().length > 0) {
   <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
-    @if (form().contains('active')) {
+    @if (showActiveToggle() && form().contains('active')) {
       <div class="meta-grid" style="grid-template-columns: auto 1fr;">
         <div class="meta-item">
           <label class="meta-label">{{ ui().domainForm.active }}</label>

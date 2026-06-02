@@ -9,6 +9,14 @@
       (onClick)="back()">
     </p-button>
 
+    <p-toggleswitch slot="right"
+      [ngModel]="publishToggle()"
+      (onChange)="onPublishToggle($event.checked)"
+      [disabled]="!course() || publishing() || loading()"
+      [pTooltip]="publishToggle() ? ui().unpublishButton : ui().publishButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="publishToggle() ? ui().unpublishButton : ui().publishButton">
+    </p-toggleswitch>
     @if (previewHref(); as href) {
       <p-button slot="right"
         type="button"
@@ -21,14 +29,6 @@
         [attr.aria-label]="editorUi().common.view">
       </p-button>
     }
-    <p-toggleswitch slot="right"
-      [ngModel]="publishToggle()"
-      (onChange)="onPublishToggle($event.checked)"
-      [disabled]="!course() || publishing() || loading()"
-      [pTooltip]="publishToggle() ? ui().unpublishButton : ui().publishButton"
-      tooltipPosition="bottom"
-      [attr.aria-label]="publishToggle() ? ui().unpublishButton : ui().publishButton">
-    </p-toggleswitch>
     <p-button slot="right"
       type="button"
       severity="warn"

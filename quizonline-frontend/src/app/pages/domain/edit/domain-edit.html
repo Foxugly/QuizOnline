@@ -16,7 +16,20 @@
       <h1 class="title">{{ ui().pages.domainEdit.title }}</h1>
     </div>
 
-    <div class="header-line__right"></div>
+    <div class="header-line__right domain-edit__header-actions">
+      @if (!loading() && topTab() === 'config') {
+        <label class="header-active-toggle">
+          <span class="header-active-toggle__label">{{ ui().domainForm.active }}</span>
+          <p-toggleswitch
+            [formControl]="form.controls.active"
+            inputId="domain-active-header"
+            [attr.aria-label]="ui().domainForm.active"
+            [pTooltip]="ui().domainForm.active"
+            tooltipPosition="bottom">
+          </p-toggleswitch>
+        </label>
+      }
+    </div>
   </div>
 
   @if (loading()) {
@@ -76,6 +89,7 @@
           <app-domain-editor-form
             [activeTab]="activeTab()"
             [form]="form"
+            [showActiveToggle]="false"
             [langCodeOptions]="langCodeOptions()"
             [ownerOptions]="ownerOptions()"
             [ownerPlaceholder]="ui().domainForm.owner"

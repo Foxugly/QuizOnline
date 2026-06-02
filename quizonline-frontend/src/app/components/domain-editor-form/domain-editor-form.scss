@@ -2,25 +2,35 @@
   display: block;
 }
 
-.meta-grid--context {
+// Top row: optional "active" toggle + read-only owner select. The
+// active toggle is hidden on /domain/{id}/edit (hoisted into the page
+// header) so the owner select gets the room.
+.meta-grid--head {
   grid-template-columns:
-    minmax(0, 1fr)
-    minmax(0, 1fr)
+    minmax(0, auto)
+    minmax(0, 1fr);
+  align-items: stretch;
+  margin-bottom: 0.75rem;
+}
+
+// Configuration row: public + join policy + allowed languages laid out
+// on a single 3-column line (ITEM B). The languages cell takes the most
+// room since it hosts the 5-language selectButton.
+.meta-grid--config-row {
+  grid-template-columns:
+    minmax(0, auto)
     minmax(0, 2fr)
     minmax(0, 4fr);
   align-items: stretch;
   margin-bottom: 0.75rem;
 }
 
-.meta-grid--context > .meta-item .meta-value {
+.meta-grid--head > .meta-item .meta-value,
+.meta-grid--config-row > .meta-item .meta-value {
   flex: 1;
   display: flex;
   align-items: center;
   min-height: 2.75rem;
-}
-
-.meta-grid--context > .meta-item--full {
-  grid-column: 1 / -1;
 }
 
 .badge--soft {
@@ -65,7 +75,8 @@
 }
 
 @media (max-width: 768px) {
-  .meta-grid--context {
+  .meta-grid--head,
+  .meta-grid--config-row {
     grid-template-columns: 1fr;
   }
 
@@ -73,7 +84,7 @@
   // and pushes the page width past the viewport. Allow buttons to
   // wrap onto a second line on small screens.
   .lang-select.p-selectbutton,
-  .meta-grid--context :host ::ng-deep .p-selectbutton {
+  .meta-grid--config-row :host ::ng-deep .p-selectbutton {
     flex-wrap: wrap;
   }
 }

@@ -155,6 +155,7 @@ export const EN: EditorUiText = {
         saveFailed: 'Error while saving.',
         translationFailed: 'Error while translating.',
         loadFailed: 'Unable to load the topic.',
+        deleteFailed: 'Error while deleting the topic.',
       },
     },
     questionCreate: {

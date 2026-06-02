@@ -91,6 +91,7 @@ export const NL: EditorUiText = {
         saveFailed: 'Fout bij het opslaan.',
         translationFailed: 'Fout bij het vertalen.',
         loadFailed: 'Kan het onderwerp niet laden.',
+        deleteFailed: 'Fout bij het verwijderen van het onderwerp.',
       },
     },
     questionCreate: {

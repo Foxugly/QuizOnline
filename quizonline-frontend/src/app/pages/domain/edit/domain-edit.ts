@@ -16,6 +16,7 @@ import {MessageModule} from 'primeng/message';
 import {TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {TooltipModule} from 'primeng/tooltip';
 import {FieldsetModule} from 'primeng/fieldset';
 import {DatePickerModule} from 'primeng/datepicker';
 import {DatePipe} from '@angular/common';
@@ -99,6 +100,7 @@ function getUserId(userRef: DomainUserRef | null | undefined): number | null {
     TableModule,
     InputTextModule,
     ToggleSwitchModule,
+    TooltipModule,
     FieldsetModule,
     DatePickerModule,
     DomainAnalyticsTab,

@@ -9,6 +9,7 @@ import {finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';
@@ -63,6 +64,7 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,
+    ToggleSwitchModule,
     QuestionEditorFormComponent,
     QuestionBlockTabs,
     QuestionPreviewDialogComponent,

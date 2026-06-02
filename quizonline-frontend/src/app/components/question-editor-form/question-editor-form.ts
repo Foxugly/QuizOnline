@@ -66,6 +66,7 @@ export class QuestionEditorFormComponent {
   readonly subjectOptions = input<SubjectOption[]>([]);
   readonly domainReadonlyLabel = input<string | null>(null);
   readonly showDomainSelect = input(true);
+  readonly showActiveToggle = input<boolean>(true);
   readonly translating = input(false);
   readonly saving = input(false);
   readonly deleting = input(false);
@@ -99,6 +100,13 @@ export class QuestionEditorFormComponent {
   }
 
   protected readonly hasTabs = computed(() => this.tabCodes().length > 0);
+
+  /** When both the active toggle (now in the page header) and the
+   *  domain select are hidden, only ``mode`` + ``subjects`` remain in
+   *  the context grid — switch to a 2-column 25/75 layout. */
+  protected readonly compactContextGrid = computed(
+    () => !this.showActiveToggle() && !this.showDomainSelect(),
+  );
 
   submit(): void {
     this.submitted.emit();

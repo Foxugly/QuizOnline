@@ -2,6 +2,25 @@
   width: 100%;
 }
 
+/* Header right slot: active toggle (hoisted out of the editor form). */
+.domain-edit__header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-active-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.header-active-toggle__label {
+  font-size: 0.9rem;
+  color: var(--muted, #64748b);
+}
+
 /*
  * The five sub-views (editor form, invitations, members, audit table,
  * analytics) all root themselves in their own ``.card`` / ``.form-card``

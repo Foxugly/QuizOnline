@@ -155,6 +155,7 @@ export type EditorUiText = {
         saveFailed: string;
         translationFailed: string;
         loadFailed: string;
+        deleteFailed: string;
       };
     };
     questionList?: {title: string; subtitle: string; searchPlaceholder: string; newQuestion: string; titleCol: string; activeCol: string; modesCol: string; domainsCol: string; subjectsCol: string; actionsCol: string; practice: string; exam: string;};

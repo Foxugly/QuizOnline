@@ -1,16 +1,18 @@
 <form (ngSubmit)="submit()" [formGroup]="form()" class="question-context">
-  <div class="meta-grid meta-grid--context">
-    <div class="meta-item">
-      <label class="meta-label">{{ ui().questionForm.active }}</label>
-      <div class="meta-value widget-center">
-        <p-toggleswitch formControlName="active" inputId="question-active"></p-toggleswitch>
+  <div class="meta-grid meta-grid--context" [class.meta-grid--context-compact]="compactContextGrid()">
+    @if (showActiveToggle()) {
+      <div class="meta-item">
+        <label class="meta-label">{{ ui().questionForm.active }}</label>
+        <div class="meta-value widget-center">
+          <p-toggleswitch formControlName="active" inputId="question-active"></p-toggleswitch>
+        </div>
       </div>
-    </div>
+    }
 
-    <div class="meta-item">
-      <label class="meta-label">{{ ui().questionForm.domain }}</label>
-      <div class="meta-value">
-        @if (showDomainSelect()) {
+    @if (showDomainSelect()) {
+      <div class="meta-item">
+        <label class="meta-label">{{ ui().questionForm.domain }}</label>
+        <div class="meta-value">
           <p-select
             [filter]="true"
             [options]="domainOptions()"
@@ -19,13 +21,9 @@
             optionValue="id"
             [placeholder]="ui().questionForm.chooseDomain">
           </p-select>
-        } @else {
-          <div class="meta-value--readonly">
-            {{ domainReadonlyLabel() || ui().questionForm.domainUnavailable }}
-          </div>
-        }
+        </div>
       </div>
-    </div>
+    }
 
     <div class="meta-item">
       <label class="meta-label">{{ ui().questionForm.subjects }}</label>
