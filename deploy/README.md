@@ -282,6 +282,32 @@ SSM Parameter Store at `/quizonline/prod/*`. There is no persistent
    (add celery / celery-beat for secrets they consume — see the
    per-secret restart column in [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)).
 
+The data flow, end to end:
+
+```
+[laptop] prod.env ──seed-parameter-store.sh──► SSM /quizonline/prod/*  (SecureString / String)
+                                                      │
+                      at boot, or `systemctl restart quizonline-env-fetch`
+                                                      │  get-parameters-by-path --recursive --with-decryption
+                                                      │  (auth: EC2 instance role quizonline-ec2 via IMDS — no keys on disk)
+                                                      ▼
+                                         /run/quizonline/.env   (tmpfs, atomic write, 640 django:www-data)
+                                                      │  EnvironmentFile=
+                                                      ▼
+                                 gunicorn  ·  celery  ·  celery-beat
+```
+
+> **A normal deploy does NOT re-fetch env.** `redeploy.sh` (and the
+> `git push` → CI → SSM pipeline it runs under) restart only
+> `quizonline-gunicorn` / `celery` / `celery-beat`, never
+> `quizonline-env-fetch`. Because env-fetch is `Type=oneshot` +
+> `RemainAfterExit=yes` it stays "active" after the first boot, so its
+> `Requires=` edge is already satisfied and a plain restart reuses the
+> existing `/run/quizonline/.env`. **Any change to an SSM parameter
+> therefore only takes effect after the explicit
+> `systemctl restart quizonline-env-fetch` in step 3 above** (or a
+> full reboot, which re-runs the oneshot).
+
 Properties this gives us:
 
 - **No plaintext secret on EBS.** Snapshots, backups and full-disk
