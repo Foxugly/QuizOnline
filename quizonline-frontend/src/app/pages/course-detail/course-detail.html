@@ -41,11 +41,15 @@
         [outlined]="true"
         [disabled]="enrolling()" />
     }
-    @if (showStatusBadge() && isPublished()) {
-      <p-tag slot="title-after" severity="success" [value]="statusBadgeLabel()" icon="pi pi-check-circle" />
+    @if (showStatusBadge()) {
+      <app-status-badge slot="title-after"
+        [kind]="isPublished() ? 'published' : 'draft'"
+        [label]="isPublished() ? shellUi().status.published : shellUi().status.draft" />
     }
-    @if (showStatusBadge() && !isPublished()) {
-      <p-tag slot="title-after" severity="secondary" [value]="statusBadgeLabel()" icon="pi pi-file-edit" />
+    @if (accessMode(); as mode) {
+      <app-status-badge slot="title-after"
+        [kind]="mode === 'open' ? 'access-open' : mode === 'approval' ? 'access-approval' : 'access-invite'"
+        [label]="mode === 'open' ? shellUi().access.open : mode === 'approval' ? shellUi().access.approval : shellUi().access.invite" />
     }
   </app-page-header>
 

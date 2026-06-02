@@ -4,10 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
+from config.models import PublishableMixin
+
 from .querysets import LessonQuerySet
 
 
-class Lesson(TranslatableModel):
+class Lesson(PublishableMixin, TranslatableModel):
     section = models.ForeignKey(
         "course.Section", on_delete=models.CASCADE, related_name="lessons",
     )

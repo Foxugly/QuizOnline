@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from django.db.models import Prefetch
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from block.models import Block
 from config.cache_mixins import ShortReadCacheMixin
@@ -9,7 +11,7 @@ from course.permissions import IsLmsInstructorOrReadOnly
 
 from .models import Lesson
 from .serializers import LessonDetailSerializer
-from .services import compact_lessons
+from .services import compact_lessons, publish_lesson, unpublish_lesson
 
 
 class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
@@ -44,6 +46,18 @@ class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
     # ``POST /api/block/reorder/`` endpoint exposed by BlockViewSet,
     # so the per-host action that used to live here is gone — one
     # endpoint handles every host type.
+
+    @action(detail=True, methods=["post"])
+    def publish(self, request, pk=None):
+        lesson = self.get_object()
+        publish_lesson(lesson=lesson, by_user=request.user)
+        return Response(LessonDetailSerializer(lesson, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"])
+    def unpublish(self, request, pk=None):
+        lesson = self.get_object()
+        unpublish_lesson(lesson=lesson, by_user=request.user)
+        return Response(LessonDetailSerializer(lesson, context={"request": request}).data)
 
     def perform_destroy(self, instance):
         section = instance.section

@@ -2969,6 +2969,72 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/lesson/{id}/publish/:
+    post:
+      operationId: lesson_publish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lesson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
+  /api/lesson/{id}/unpublish/:
+    post:
+      operationId: lesson_unpublish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lesson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonDetailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonDetail'
+          description: ''
   /api/mail/test/:
     post:
       operationId: mail_test_create
@@ -4752,6 +4818,72 @@ paths:
   /api/section/{id}/lesson/reorder/:
     post:
       operationId: section_lesson_reorder_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/section/{id}/publish/:
+    post:
+      operationId: section_publish_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this section.
+        required: true
+      tags:
+      - section
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/section/{id}/unpublish/:
+    post:
+      operationId: section_unpublish_create
       parameters:
       - in: path
         name: id

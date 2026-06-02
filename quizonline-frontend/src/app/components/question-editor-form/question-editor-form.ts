@@ -5,6 +5,7 @@ import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {CheckboxModule} from 'primeng/checkbox';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {InputTextModule} from 'primeng/inputtext';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {SelectModule} from 'primeng/select';
@@ -49,6 +50,7 @@ type SubjectOption = {code: number; name: string};
     SelectModule,
     MultiSelectModule,
     CheckboxModule,
+    ToggleSwitchModule,
     InputTextModule,
     ButtonModule,
     CardModule,

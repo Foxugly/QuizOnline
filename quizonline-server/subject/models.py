@@ -3,8 +3,10 @@ from django.utils.translation import gettext_lazy as _
 from domain.models import Domain
 from parler.models import TranslatedFields, TranslatableModel
 
+from config.models import ActivatableMixin
 
-class Subject(TranslatableModel):
+
+class Subject(ActivatableMixin, TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(_("name"), max_length=120),
         description=models.TextField(_("description"), blank=True),

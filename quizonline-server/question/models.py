@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatedFields, TranslatableModel
-from config.models import AuditMixin
+from config.models import ActivatableMixin, AuditMixin
 from subject.models import Subject
 
 
@@ -27,7 +27,7 @@ def media_asset_upload_to(_instance, filename: str) -> str:
     return f"question_media/{unique_name}"
 
 
-class Question(AuditMixin, TranslatableModel):
+class Question(AuditMixin, ActivatableMixin, TranslatableModel):
     """A multilingual question. The question prompt and the answer
     explanation used to live as parler-translated rich-text fields
     (``description`` / ``explanation``). Phase 3 of the LMS refactor

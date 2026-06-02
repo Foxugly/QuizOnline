@@ -8,7 +8,6 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
 import {TableModule, type TableLazyLoadEvent} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
 import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
@@ -20,6 +19,7 @@ import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {BulkActionOption, BulkActionsComponent} from '../../shared/components/bulk-actions/bulk-actions';
 import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
+import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
@@ -51,8 +51,8 @@ interface CourseListRow {
   domainId: number;
   levelLabel: string;
   enrollmentLabel: string;
+  enrollmentMode: 'open' | 'approval' | 'invite';
   isPublished: boolean;
-  statusLabel: string;
   lessonCount: number;
 }
 
@@ -76,10 +76,10 @@ const PAGE_SIZE = 20;
     InputTextModule,
     PaginatorModule,
     TableModule,
-    TagModule,
     BulkActionsComponent,
     TableSkeleton,
     TooltipModule,
+    StatusBadgeComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './course-list.html',
@@ -98,6 +98,7 @@ export class CourseList implements OnInit {
   private readonly searchInput$ = new RxSubject<string>();
 
   readonly ui = inject(UiTextService).localized(getCourseListUiText);
+  readonly shellUi = inject(UiTextService).ui;
   readonly common = inject(UiTextService).localized(getLearningCommonUiText);
   readonly editorUi = inject(UiTextService).editor;
   private readonly currentLang = this.userService.lang;
@@ -142,7 +143,6 @@ export class CourseList implements OnInit {
     const lang = this.currentLang();
     const labels = this.ui();
     const levelLabels = this.common().levelLabels;
-    const statusLabels = labels.statusLabels;
     const enrollmentBadgeLabels = labels.enrollmentBadge;
     const domainNames = this.domainNameById();
     return this.courses().map<CourseListRow>((c) => ({
@@ -153,8 +153,8 @@ export class CourseList implements OnInit {
       domainId: c.domain,
       levelLabel: levelLabels[c.level] ?? c.level,
       enrollmentLabel: enrollmentBadgeLabels[c.enrollment_mode] ?? c.enrollment_mode,
+      enrollmentMode: c.enrollment_mode,
       isPublished: !!c.is_published,
-      statusLabel: c.is_published ? statusLabels.published : statusLabels.draft,
       lessonCount: typeof c.lesson_count === 'number' ? c.lesson_count : 0,
     }));
   });

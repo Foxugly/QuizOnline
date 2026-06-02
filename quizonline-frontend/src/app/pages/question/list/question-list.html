@@ -114,10 +114,9 @@
           <td>{{ row.title }}</td>
 
           <td class="col-active" style="text-align: center;">
-            <i
-              [ngClass]="row.active ? 'pi-check-circle active-icon' : 'pi-times-circle inactive-icon'"
-              class="pi">
-            </i>
+            <app-status-badge
+              [kind]="row.active ? 'active' : 'inactive'"
+              [label]="row.active ? ui().status.active : ui().status.inactive" />
           </td>
 
           <td class="subjects-cell" style="text-align: center;">

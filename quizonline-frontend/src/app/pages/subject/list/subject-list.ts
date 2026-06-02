@@ -15,6 +15,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-skeleton';
+import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {selectTranslation } from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {DomainService} from '../../../services/domain/domain';
@@ -43,6 +44,7 @@ type SubjectListRow = SubjectReadDto & {
     TooltipModule,
     BulkActionsComponent,
     TableSkeleton,
+    StatusBadgeComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './subject-list.html',
@@ -55,6 +57,7 @@ export class SubjectList implements OnInit {
   private domainService: DomainService = inject(DomainService);
   private confirmationService = inject(ConfirmationService);
 
+  readonly ui = inject(UiTextService).ui;
   readonly editorUi = inject(UiTextService).editor;
   readonly pageText = inject(UiTextService).localized(getSubjectListUiText);
   subjects = signal<SubjectReadDto[]>([]);

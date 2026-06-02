@@ -30,6 +30,7 @@ import {
   getLocalizedTextGroup,
   patchLocalizedTextRecord,
 } from '../../../shared/forms/localized-text-form';
+import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {isEmptyRichText} from '../../../shared/html/is-empty-rich-text';
 import {SubjectEditorFormComponent} from '../../../components/subject-editor-form/subject-editor-form';
 import {QuestionPreviewDialogComponent} from '../../../components/question-preview-dialog/question-preview-dialog';
@@ -45,6 +46,7 @@ import {QuestionPreviewDialogComponent} from '../../../components/question-previ
     TableModule,
     SubjectEditorFormComponent,
     QuestionPreviewDialogComponent,
+    StatusBadgeComponent,
   ],
   templateUrl: './subject-edit.html',
   styleUrl: './subject-edit.scss',
@@ -52,6 +54,7 @@ import {QuestionPreviewDialogComponent} from '../../../components/question-previ
 })
 export class SubjectEdit implements OnInit {
   readonly ui = inject(UiTextService).editor;
+  readonly shellUi = inject(UiTextService).ui;
   id!: number;
 
   // UI state

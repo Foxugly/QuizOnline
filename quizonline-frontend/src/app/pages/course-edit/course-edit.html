@@ -21,33 +21,14 @@
         [attr.aria-label]="editorUi().common.view">
       </p-button>
     }
-    @if (course()?.is_published) {
-      <p-button slot="right"
-        type="button"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-file-edit"
-        [pTooltip]="ui().unpublishButton"
-        tooltipPosition="bottom"
-        [attr.aria-label]="ui().unpublishButton"
-        [loading]="publishing()"
-        [disabled]="publishing() || loading()"
-        (onClick)="togglePublish()">
-      </p-button>
-    } @else {
-      <p-button slot="right"
-        type="button"
-        severity="primary"
-        [outlined]="true"
-        icon="pi pi-check-circle"
-        [pTooltip]="ui().publishButton"
-        tooltipPosition="bottom"
-        [attr.aria-label]="ui().publishButton"
-        [loading]="publishing()"
-        [disabled]="!course() || publishing() || loading()"
-        (onClick)="togglePublish()">
-      </p-button>
-    }
+    <p-toggleswitch slot="right"
+      [ngModel]="publishToggle()"
+      (onChange)="onPublishToggle($event.checked)"
+      [disabled]="!course() || publishing() || loading()"
+      [pTooltip]="publishToggle() ? ui().unpublishButton : ui().publishButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="publishToggle() ? ui().unpublishButton : ui().publishButton">
+    </p-toggleswitch>
     <p-button slot="right"
       type="button"
       severity="warn"
@@ -84,10 +65,10 @@
       (onClick)="confirmDelete()">
     </p-button>
     @if (course()?.is_published === true) {
-      <p-tag slot="title-after" severity="success" [value]="ui().publishedBadge" icon="pi pi-check-circle" />
+      <app-status-badge slot="title-after" [kind]="'published'" [label]="shellUi().status.published" />
     }
     @if (course()?.is_published === false) {
-      <p-tag slot="title-after" severity="secondary" [value]="ui().unpublishedBadge" icon="pi pi-file-edit" />
+      <app-status-badge slot="title-after" [kind]="'draft'" [label]="shellUi().status.draft" />
     }
   </app-page-header>
 

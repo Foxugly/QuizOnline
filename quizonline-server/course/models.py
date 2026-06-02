@@ -1,15 +1,16 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
-from config.models import AuditMixin
+from config.models import AuditMixin, PublishableMixin
 
 from .querysets import CourseQuerySet, SectionQuerySet
 
 
-class Course(AuditMixin, TranslatableModel):
+class Course(AuditMixin, PublishableMixin, TranslatableModel):
     LEVEL_BEGINNER = "beginner"
     LEVEL_INTERMEDIATE = "intermediate"
     LEVEL_ADVANCED = "advanced"
@@ -93,6 +94,14 @@ class Course(AuditMixin, TranslatableModel):
                     "language": _("Course primary language must be one of the domain's allowed languages."),
                 })
 
+    def publish(self):
+        self.is_published = True
+        self.published_at = timezone.now()
+
+    def unpublish(self):
+        self.is_published = False
+        self.published_at = None
+
 
 class CourseAuditLog(models.Model):
     """Append-only audit trail of meaningful actions on a course.
@@ -132,7 +141,7 @@ class CourseAuditLog(models.Model):
         ordering = ["-created_at"]
 
 
-class Section(TranslatableModel):
+class Section(PublishableMixin, TranslatableModel):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="sections")
     order = models.PositiveIntegerField(default=0, db_index=True)
     is_published = models.BooleanField(default=False)

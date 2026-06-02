@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.services import compact, two_phase_reorder
@@ -203,8 +202,7 @@ def publish_course(*, course: Course, by_user) -> Course:
     ).exists()
     if not has_content:
         raise ValidationError(_("Cannot publish a course with no published content."))
-    course.is_published = True
-    course.published_at = timezone.now()
+    course.publish()
     course.updated_by = by_user
     course.save(update_fields=["is_published", "published_at", "updated_by"])
     record_course_audit(course=course, actor=by_user, action="course.publish")
@@ -213,11 +211,37 @@ def publish_course(*, course: Course, by_user) -> Course:
 
 @transaction.atomic
 def unpublish_course(*, course: Course, by_user) -> Course:
-    course.is_published = False
+    course.unpublish()
     course.updated_by = by_user
-    course.save(update_fields=["is_published", "updated_by"])
+    course.save(update_fields=["is_published", "published_at", "updated_by"])
     record_course_audit(course=course, actor=by_user, action="course.unpublish")
     return course
+
+
+@transaction.atomic
+def publish_section(*, section: Section, by_user) -> Section:
+    # Section is not an AuditMixin (no created_by/updated_by) and has no
+    # published_at — ``publish()`` only flips ``is_published``. We still
+    # audit the action on the parent course so the moderation trail has
+    # parity with ``publish_course``.
+    section.publish()
+    section.save(update_fields=["is_published"])
+    record_course_audit(
+        course=section.course, actor=by_user, action="section.publish",
+        metadata={"section_id": section.id},
+    )
+    return section
+
+
+@transaction.atomic
+def unpublish_section(*, section: Section, by_user) -> Section:
+    section.unpublish()
+    section.save(update_fields=["is_published"])
+    record_course_audit(
+        course=section.course, actor=by_user, action="section.unpublish",
+        metadata={"section_id": section.id},
+    )
+    return section
 
 
 @transaction.atomic

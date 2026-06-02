@@ -31,7 +31,27 @@ export type UiText = {
   preferences: PreferencesUiText;
   notifications: NotificationsUiText;
   admin: AdminUiText;
+  status: StatusUiText;
+  access: AccessUiText;
   a11y: A11yUiText;
+};
+
+/** Shared state vocabulary surfaced by ``<app-status-badge>`` across every
+ *  list and header. ``active``/``inactive`` = operational; ``published``/
+ *  ``draft`` = publication lifecycle. */
+export type StatusUiText = {
+  active: string;
+  inactive: string;
+  published: string;
+  draft: string;
+};
+
+/** Shared access-mode vocabulary — how members join a domain (``public`` +
+ *  ``join_policy``) or enrol in a course (``enrollment_mode``). */
+export type AccessUiText = {
+  open: string;
+  approval: string;
+  invite: string;
 };
 
 export type A11yUiText = {

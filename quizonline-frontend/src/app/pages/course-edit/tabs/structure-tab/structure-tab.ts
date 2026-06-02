@@ -630,27 +630,34 @@ export class CourseEditStructureTab {
   // -- Inline toggles ------------------------------------------------------
 
   protected toggleSectionPublished(section: SectionDto): void {
-    this.catalog
-      .updateSection(section.id, {is_published: !(section.is_published ?? false)})
-      .subscribe({
-        next: () => this.changed.emit(),
-        error: (err: unknown) => {
-          logApiError('lms.structure.toggle-section-published', err);
-          this.toast.addApiError(err, this.ui().actionFailedToast);
-        },
-      });
+    // Audited endpoints (parity with the course-level publish action):
+    // pick publish vs unpublish from the desired NEW state so the
+    // mutation is recorded on the parent course's audit log.
+    const next = !(section.is_published ?? false);
+    const request$ = next
+      ? this.catalog.publishSection(section.id)
+      : this.catalog.unpublishSection(section.id);
+    request$.subscribe({
+      next: () => this.changed.emit(),
+      error: (err: unknown) => {
+        logApiError('lms.structure.toggle-section-published', err);
+        this.toast.addApiError(err, this.ui().actionFailedToast);
+      },
+    });
   }
 
   protected toggleLessonPublished(lesson: LessonDetailDto): void {
-    this.catalog
-      .updateLesson(lesson.id, {is_published: !(lesson.is_published ?? false)})
-      .subscribe({
-        next: () => this.changed.emit(),
-        error: (err: unknown) => {
-          logApiError('lms.structure.toggle-lesson-published', err);
-          this.toast.addApiError(err, this.ui().actionFailedToast);
-        },
-      });
+    const next = !(lesson.is_published ?? false);
+    const request$ = next
+      ? this.catalog.publishLesson(lesson.id)
+      : this.catalog.unpublishLesson(lesson.id);
+    request$.subscribe({
+      next: () => this.changed.emit(),
+      error: (err: unknown) => {
+        logApiError('lms.structure.toggle-lesson-published', err);
+        this.toast.addApiError(err, this.ui().actionFailedToast);
+      },
+    });
   }
 
   protected toggleLessonPreview(lesson: LessonDetailDto): void {

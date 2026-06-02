@@ -342,6 +342,8 @@ export const ES: UiText = {
         : `${processed} solicitud(es) procesada(s).`,
     },
   },
+  status: {active: 'Activo', inactive: 'Inactivo', published: 'Publicado', draft: 'Borrador'},
+  access: {open: 'Inscripción libre', approval: 'Tras validación', invite: 'Solo por invitación'},
   a11y: {
     skipToContent: 'Saltar al contenido principal',
   },

@@ -1,11 +1,12 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Subscription} from 'rxjs';
+import {FormsModule} from '@angular/forms';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {TabsModule} from 'primeng/tabs';
-import {TagModule} from 'primeng/tag';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {CATALOG, COURSE_DETAIL, COURSE_EDIT} from '../../app.routes-paths';
@@ -13,6 +14,7 @@ import {CourseDetailDto} from '../../api/generated/model/course-detail';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
@@ -39,12 +41,14 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
   selector: 'app-course-edit',
   imports: [
     RouterLink,
+    FormsModule,
     ButtonModule,
     ConfirmDialogModule,
     TabsModule,
-    TagModule,
+    ToggleSwitchModule,
     TooltipModule,
     PageHeader,
+    StatusBadgeComponent,
     CourseEditInfoTab,
     CourseEditStructureTab,
     CourseEditEnrollmentTab,
@@ -64,6 +68,8 @@ export class CourseEdit implements OnInit, OnDestroy {
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getCourseEditUiText);
+  /** Shell-scoped status vocabulary for ``<app-status-badge>``. */
+  protected readonly shellUi = this.uiSvc.ui;
   /** Editor-scoped UI dictionary, used for ``common.back`` on the header back button. */
   protected readonly editorUi = this.uiSvc.editor;
   protected readonly courseId = signal<number>(0);
@@ -78,11 +84,12 @@ export class CourseEdit implements OnInit, OnDestroy {
   });
   protected readonly loading = signal<boolean>(false);
   protected readonly publishing = signal<boolean>(false);
+  /** Local mirror driving the publish <p-toggleswitch>. Kept in sync with
+   *  the server truth on every refresh, set optimistically on toggle, and
+   *  reverted if the publish/unpublish call fails. */
+  protected readonly publishToggle = signal<boolean>(false);
   protected readonly cloning = signal<boolean>(false);
   protected readonly deleting = signal<boolean>(false);
-
-  /** True when the course is published — drives the publish/unpublish toggle. */
-  protected readonly isPublished = computed(() => this.course()?.is_published === true);
 
   private routeSub: Subscription | null = null;
 
@@ -119,6 +126,7 @@ export class CourseEdit implements OnInit, OnDestroy {
     this.catalog.detailById(id).subscribe({
       next: (course) => {
         this.course.set(course as CourseDetailDto);
+        this.publishToggle.set((course as CourseDetailDto).is_published === true);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -259,34 +267,39 @@ export class CourseEdit implements OnInit, OnDestroy {
     this.router.navigateByUrl(CATALOG);
   }
 
-  protected togglePublish(): void {
+  /**
+   * Driven by the publish ``<p-toggleswitch>``. ``next`` is the desired
+   * state. We mirror it optimistically into :member:`publishToggle` (so the
+   * switch reflects the intent), then call the dedicated publish/unpublish
+   * endpoint — which still enforces the "course needs published content"
+   * pre-condition server-side. On failure we revert the switch and surface
+   * the server's validation message via the error toast.
+   */
+  protected onPublishToggle(next: boolean): void {
     const id = this.courseId();
     if (id <= 0 || this.publishing()) {
+      this.publishToggle.set(!next); // bail: keep the switch where it was
       return;
     }
-    const wasPublished = this.isPublished();
+    this.publishToggle.set(next);
     this.publishing.set(true);
-    const op$ = wasPublished ? this.catalog.unpublish(id) : this.catalog.publish(id);
+    const op$ = next ? this.catalog.publish(id) : this.catalog.unpublish(id);
     op$.subscribe({
       next: () => {
         this.publishing.set(false);
         this.toast.add({
           severity: 'success',
-          summary: wasPublished
-            ? this.ui().unpublishSuccessToast
-            : this.ui().publishSuccessToast,
+          summary: next ? this.ui().publishSuccessToast : this.ui().unpublishSuccessToast,
         });
         this.refresh();
       },
       error: (err: unknown) => {
         this.publishing.set(false);
-        logApiError(
-          wasPublished ? 'lms.course-edit.unpublish' : 'lms.course-edit.publish',
-          err,
-        );
+        this.publishToggle.set(!next); // revert — the operation did not happen
+        logApiError(next ? 'lms.course-edit.publish' : 'lms.course-edit.unpublish', err);
         this.toast.addApiError(
           err,
-          wasPublished ? this.ui().unpublishErrorToast : this.ui().publishErrorToast,
+          next ? this.ui().publishErrorToast : this.ui().unpublishErrorToast,
         );
       },
     });
