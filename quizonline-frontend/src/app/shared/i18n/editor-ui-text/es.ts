@@ -91,6 +91,7 @@ export const ES: EditorUiText = {
         saveFailed: 'Error al guardar.',
         translationFailed: 'Error al traducir.',
         loadFailed: 'No se puede cargar el tema.',
+        deleteFailed: 'Error al eliminar el tema.',
       },
     },
     questionCreate: {

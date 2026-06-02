@@ -42,6 +42,7 @@ export class SubjectEditorFormComponent {
   readonly loading = input(false);
   readonly submitError = input<string | null>(null);
   readonly showDomainSelect = input(false);
+  readonly showActiveToggle = input<boolean>(true);
   readonly selectedDomainId = input<number>(0);
   readonly domainOptions = input<DomainOption[]>([]);
   readonly emptyLanguagesMessage = input.required<string>();

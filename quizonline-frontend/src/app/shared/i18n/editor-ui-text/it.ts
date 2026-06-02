@@ -91,6 +91,7 @@ export const IT: EditorUiText = {
         saveFailed: 'Errore durante il salvataggio.',
         translationFailed: 'Errore durante la traduzione.',
         loadFailed: 'Impossibile caricare l\'argomento.',
+        deleteFailed: 'Errore durante l\'eliminazione dell\'argomento.',
       },
     },
     questionCreate: {

@@ -11,6 +11,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -45,6 +46,7 @@ import {QuestionPreviewDialogComponent} from '../../../components/question-previ
     InputTextModule,
     ButtonModule,
     TooltipModule,
+    ToggleSwitchModule,
     TableModule,
     SubjectEditorFormComponent,
     QuestionPreviewDialogComponent,
@@ -61,6 +63,7 @@ export class SubjectEdit implements OnInit {
 
   // UI state
   loading = signal(true);
+  deleting = signal(false);
   error = signal<string | null>(null);
 
   translating = signal(false);
@@ -170,6 +173,32 @@ export class SubjectEdit implements OnInit {
 
   goList(): void {
     this.subjectService.goList();
+  }
+
+  deleteSubject(): void {
+    // Guard: the trash button is disabled when questions are linked,
+    // but re-check here so a stale click can never fire the request.
+    if ((this.questions() || []).length > 0 || this.deleting()) {
+      return;
+    }
+
+    this.submitError.set(null);
+    this.error.set(null);
+    this.deleting.set(true);
+
+    this.subjectService
+      .delete(this.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.deleting.set(false)),
+      )
+      .subscribe({
+        next: () => this.goList(),
+        error: (err) => {
+          console.error('Erreur suppression subject', err);
+          this.submitError.set(this.ui().pages.subjectEdit.errors.deleteFailed);
+        },
+      });
   }
 
   async translateFrom(sourceLang: LangCode): Promise<void> {

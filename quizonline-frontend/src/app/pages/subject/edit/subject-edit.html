@@ -16,7 +16,31 @@
       <h1 class="title">{{ ui().pages.subjectEdit.title }}</h1>
     </div>
 
-    <div class="header-line__right"></div>
+    <div class="header-line__right subject-edit__header-actions">
+      <label class="header-active-toggle">
+        <span class="header-active-toggle__label">{{ ui().domainForm.active }}</span>
+        <p-toggleswitch
+          [formControl]="form.controls.active"
+          inputId="subject-active-header"
+          [attr.aria-label]="ui().domainForm.active"
+          [pTooltip]="ui().domainForm.active"
+          tooltipPosition="bottom">
+        </p-toggleswitch>
+      </label>
+      <p-button
+        (onClick)="deleteSubject()"
+        [disabled]="(questions() || []).length > 0 || deleting()"
+        [loading]="deleting()"
+        icon="pi pi-trash"
+        [label]="ui().common.delete"
+        [pTooltip]="ui().common.delete"
+        [attr.aria-label]="ui().common.delete"
+        tooltipPosition="bottom"
+        severity="danger"
+        [outlined]="true"
+        type="button">
+      </p-button>
+    </div>
   </div>
 
   @if (loading()) {
@@ -28,6 +52,7 @@
       [activeLang]="activeLang()"
       [form]="form"
       [loading]="loading()"
+      [showActiveToggle]="false"
       [showDomainSelect]="false"
       [submitError]="submitError()"
       [submitLabel]="ui().common.save"
