@@ -9,8 +9,7 @@
         © {{ app.year }}
         <a href="https://www.foxugly.com" target="_blank" rel="noopener noreferrer" class="app-footer__author-link">
           <img src="/foxugly-logo.svg" alt="" class="app-footer__author-logo" aria-hidden="true" />
-          {{ app.author }}
-        </a>
+          {{ app.author }}</a>{{ ui().footer.rights }}
       </span>
       <span class="app-footer__sep" aria-hidden="true">·</span>
       <a routerLink="/privacy" class="app-footer__link">{{ ui().footer.privacyLink }}</a>
