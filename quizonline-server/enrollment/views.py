@@ -69,8 +69,6 @@ class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
             except (TypeError, ValueError):
                 return base.none()
             # Instructor of that course → see all its enrollments.
-            from course.models import Course
-            from course.permissions import is_lms_instructor
             course = Course.objects.filter(pk=course_id).first()
             if course and is_lms_instructor(user, course):
                 qs = base.filter(course=course)

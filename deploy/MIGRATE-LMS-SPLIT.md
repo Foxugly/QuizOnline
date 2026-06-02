@@ -1,5 +1,10 @@
 # LMS-extract refactor — production migration runbook
 
+> **✅ COMPLETED — one-shot, already executed in production.** Retained for
+> audit trail and disaster-recovery reference. The legacy `lms_*` apps are
+> gone from `INSTALLED_APPS` and the matching `migrate_lms_split` management
+> command is not meant to be run again. Do not re-execute on the live DB.
+
 One-shot migration that flips the prod schema from the legacy
 `lms_catalog_*` / `lms_enrollment_*` / `lms_assessment_*` tables onto the
 new `course / lesson / block / enrollment / certificate / assessment`

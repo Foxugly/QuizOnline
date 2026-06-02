@@ -86,6 +86,14 @@ Get-Content -LiteralPath $EnvFile | ForEach-Object {
         }
     }
 
+    # Parity with seed-parameter-store.sh: refuse embedded newlines —
+    # neither SSM nor the downstream EnvironmentFile / dotenv parse them
+    # cleanly, and a well-formed secret never contains one.
+    if ($value -match "[`r`n]") {
+        Write-Error "Value of $key contains a newline character"
+        exit 2
+    }
+
     $type = if ($SecretKeys -contains $key) { "SecureString" } else { "String" }
     $name = "$Prefix/$key"
 
