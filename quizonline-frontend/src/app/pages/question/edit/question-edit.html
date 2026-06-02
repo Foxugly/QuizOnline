@@ -18,17 +18,16 @@
 
     <div class="header-line__right question-edit-page__header-actions">
       @if (question(); as q) {
-        <p-button
-          (onClick)="duplicateQuestion()"
-          [disabled]="saving() || deleting()"
-          icon="pi pi-copy"
-          [pTooltip]="ui().common.duplicate"
-          [attr.aria-label]="ui().common.duplicate"
-          tooltipPosition="bottom"
-          severity="warn"
-          [outlined]="true"
-          type="button">
-        </p-button>
+        <label class="header-active-toggle">
+          <span class="header-active-toggle__label">{{ ui().questionForm.active }}</span>
+          <p-toggleswitch
+            [formControl]="form.controls.active"
+            inputId="question-active-header"
+            [attr.aria-label]="ui().questionForm.active"
+            [pTooltip]="ui().questionForm.active"
+            tooltipPosition="bottom">
+          </p-toggleswitch>
+        </label>
         <p-button
           (onClick)="openPreview()"
           [disabled]="saving() || deleting()"
@@ -37,6 +36,17 @@
           [attr.aria-label]="ui().common.view"
           tooltipPosition="bottom"
           severity="success"
+          [outlined]="true"
+          type="button">
+        </p-button>
+        <p-button
+          (onClick)="duplicateQuestion()"
+          [disabled]="saving() || deleting()"
+          icon="pi pi-copy"
+          [pTooltip]="ui().common.duplicate"
+          [attr.aria-label]="ui().common.duplicate"
+          tooltipPosition="bottom"
+          severity="warn"
           [outlined]="true"
           type="button">
         </p-button>
@@ -89,6 +99,7 @@
         [showDuplicateAction]="false"
         [showDeleteAction]="false"
         [showDomainSelect]="false"
+        [showActiveToggle]="false"
         [subjectOptions]="subjectOptions()"
         [submitError]="submitError()"
         [submitLabel]="ui().common.save"

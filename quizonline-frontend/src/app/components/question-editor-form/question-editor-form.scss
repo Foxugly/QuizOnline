@@ -29,6 +29,13 @@
   align-items: stretch;
 }
 
+/* Edit context: active (moved to header) + domain (hidden) are gone,
+   leaving only subjects + mode. DOM order is subjects then mode →
+   subjects 75% / mode 25%. */
+.meta-grid--context-compact {
+  grid-template-columns: 3fr 1fr;
+}
+
 .meta-grid--context > .meta-item {
   height: 100%;
   padding: 0.9rem 1rem;
