@@ -10,6 +10,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {InputTextModule} from 'primeng/inputtext';
 import {ButtonModule} from 'primeng/button';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -43,6 +44,7 @@ import {QuestionPreviewDialogComponent} from '../../../components/question-previ
     ReactiveFormsModule,
     InputTextModule,
     ButtonModule,
+    TooltipModule,
     TableModule,
     SubjectEditorFormComponent,
     QuestionPreviewDialogComponent,

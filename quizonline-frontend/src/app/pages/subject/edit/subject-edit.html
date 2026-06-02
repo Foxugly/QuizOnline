@@ -109,22 +109,31 @@
                   <p-button
                     (onClick)="openQuestionPreview(q.id)"
                     icon="pi pi-eye"
+                    [pTooltip]="ui().common.view"
+                    [attr.aria-label]="ui().common.view"
                     severity="success"
                     size="small"
+                    text
                     type="button">
                   </p-button>
                   <p-button
                     (onClick)="goQuestionEdit(q.id)"
                     icon="pi pi-pencil"
+                    [pTooltip]="ui().common.edit"
+                    [attr.aria-label]="ui().common.edit"
                     severity="info"
                     size="small"
+                    text
                     type="button">
                   </p-button>
                   <p-button
                     (onClick)="goQuestionDelete(q.id)"
                     icon="pi pi-trash"
+                    [pTooltip]="ui().common.delete"
+                    [attr.aria-label]="ui().common.delete"
                     severity="danger"
                     size="small"
+                    text
                     type="button">
                   </p-button>
                 </div>
