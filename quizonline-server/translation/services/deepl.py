@@ -77,8 +77,6 @@ def deepl_translate_many(texts: list[str], source: str, target: str, fmt: str = 
 
     if fmt == "html":
         data.append(("tag_handling", "html"))
-        # Optionnel : plus strict/qualitatif si supporté par ton plan
-        # data.append(("tag_handling_version", "v2"))
 
     headers = {
         "Authorization": f"DeepL-Auth-Key {settings.DEEPL_AUTH_KEY}",
