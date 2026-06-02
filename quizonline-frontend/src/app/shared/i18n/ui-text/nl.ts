@@ -3,7 +3,7 @@ import type {UiText} from './types';
 export const NL: UiText = {
   topmenu: {quiz: 'Quizzen', domains: 'Domeinen', subjects: 'Onderwerpen', questions: 'Vragen', users: 'Gebruikers', features: 'Functies', donate: 'Doneren', about: 'Over', alertsAria: 'Berichten', currentDomain: 'Huidig domein', ownedDomains: 'Mijn domeinen', managedDomains: 'Domeinen die ik beheer', linkedDomains: 'Gekoppelde domeinen', noDomains: 'Geen domein', preferences: 'Voorkeuren', notificationsAria: 'Meldingen', lmsMyProgress: 'Mijn voortgang', lmsMyCertificates: 'Mijn certificaten', coursesMenu: 'Cursussen', coursesMenuFormations: 'Opleidingen', quizMenu: 'Quiz', quizMenuLabel: 'Quiz', dashboard: 'Dashboard'},
   userMenu: {preferences: 'Voorkeuren', changePassword: 'Wachtwoord wijzigen', logout: 'Afmelden', login: 'Aanmelden', myInvitations: 'Mijn uitnodigingen', userFallback: 'Gebruiker'},
-  footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie', privacyLink: 'Privacy'},
+  footer: {baseline: 'Platform voor quizzen en domeingebaseerd contentbeheer.', version: 'Versie', rights: '. Alle rechten voorbehouden.', privacyLink: 'Privacy'},
   home: {
     eyebrow: 'Quizzen, templates en correctie',
     lead: 'Een plek om quizzen te bouwen, toe te wijzen, af te leggen en op te volgen.',

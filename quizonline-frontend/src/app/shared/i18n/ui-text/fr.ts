@@ -37,6 +37,7 @@ export const FR: UiText = {
   footer: {
     baseline: 'Plateforme de quiz et de gestion de contenu par domaine.',
     version: 'Version',
+    rights: '. Tous droits réservés.',
     privacyLink: 'Confidentialité',
   },
   home: {

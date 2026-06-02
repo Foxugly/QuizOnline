@@ -3,7 +3,7 @@ import type {UiText} from './types';
 export const IT: UiText = {
   topmenu: {quiz: 'Quiz', domains: 'Domini', subjects: 'Argomenti', questions: 'Domande', users: 'Utenti', features: 'Funzionalità', donate: 'Sostieni', about: 'Informazioni', alertsAria: 'Messaggi', currentDomain: 'Dominio corrente', ownedDomains: 'I miei domini', managedDomains: 'Domini che gestisco', linkedDomains: 'Domini collegati', noDomains: 'Nessun dominio', preferences: 'Preferenze', notificationsAria: 'Notifiche', lmsMyProgress: 'I miei progressi', lmsMyCertificates: 'I miei certificati', coursesMenu: 'Corsi', coursesMenuFormations: 'Formazioni', quizMenu: 'Quiz', quizMenuLabel: 'Quiz', dashboard: 'Cruscotto'},
   userMenu: {preferences: 'Preferenze', changePassword: 'Cambia password', logout: 'Disconnetti', login: 'Accedi', myInvitations: 'I miei inviti', userFallback: 'Utente'},
-  footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione', privacyLink: 'Privacy'},
+  footer: {baseline: 'Piattaforma per quiz e gestione contenuti per dominio.', version: 'Versione', rights: '. Tutti i diritti riservati.', privacyLink: 'Privacy'},
   home: {
     eyebrow: 'Quiz, template e revisione',
     lead: 'Uno spazio unico per creare quiz, assegnarli, completarli e rivedere i risultati.',

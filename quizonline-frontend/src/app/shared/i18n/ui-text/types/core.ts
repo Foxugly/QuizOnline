@@ -69,6 +69,9 @@ export type UserMenuUiText = {
 export type FooterUiText = {
   baseline: string;
   version: string;
+  /** Rights notice rendered right after the Foxugly link — includes its
+   *  own leading ". " separator so it composes as "… Foxugly. <rights>". */
+  rights: string;
   privacyLink: string;
 };
 
