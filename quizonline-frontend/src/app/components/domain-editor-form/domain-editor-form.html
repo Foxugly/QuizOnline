@@ -1,12 +1,49 @@
 <form (ngSubmit)="submit()" [formGroup]="form()" class="card form-card">
-  <div class="meta-grid meta-grid--context">
-    <div class="meta-item meta-item--active">
-      <label class="meta-label" for="active">{{ ui().domainForm.active }}</label>
-      <div class="meta-value widget-center">
-        <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
-      </div>
-    </div>
+  @if (showActiveToggle() || showOwnerField()) {
+    <div class="meta-grid meta-grid--head">
+      @if (showActiveToggle()) {
+        <div class="meta-item meta-item--active">
+          <label class="meta-label" for="active">{{ ui().domainForm.active }}</label>
+          <div class="meta-value widget-center">
+            <p-toggleswitch formControlName="active" inputId="active"></p-toggleswitch>
+          </div>
+        </div>
+      }
 
+      @if (showOwnerField()) {
+        <div class="meta-item meta-item--owner">
+          <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
+          <div class="meta-value owner-row widget-center">
+            <p-select
+              [disabled]="true"
+              [filter]="true"
+              [options]="ownerOptions()"
+              [showClear]="false"
+              formControlName="owner"
+              inputId="owner"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="ownerPlaceholder()">
+            </p-select>
+            @if (showOwnerEditAction()) {
+              <p-button
+                (onClick)="onEditOwner()"
+                icon="pi pi-pencil"
+                [pTooltip]="ownerEditTooltip()"
+                tooltipPosition="top"
+                severity="info"
+                size="small"
+                type="button"
+                variant="text">
+              </p-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="meta-grid meta-grid--config-row">
     <div class="meta-item meta-item--public">
       <label class="meta-label meta-label--with-hint" for="public">
         <span>{{ ui().domainForm.publicLabel }}</span>
@@ -18,37 +55,6 @@
         <p-toggleswitch formControlName="public" inputId="public"></p-toggleswitch>
       </div>
     </div>
-
-    @if (showOwnerField()) {
-      <div class="meta-item meta-item--owner">
-        <label class="meta-label" for="owner">{{ ui().domainForm.owner }}</label>
-        <div class="meta-value owner-row widget-center">
-          <p-select
-            [disabled]="true"
-            [filter]="true"
-            [options]="ownerOptions()"
-            [showClear]="false"
-            formControlName="owner"
-            inputId="owner"
-            optionLabel="label"
-            optionValue="value"
-            [placeholder]="ownerPlaceholder()">
-          </p-select>
-          @if (showOwnerEditAction()) {
-            <p-button
-              (onClick)="onEditOwner()"
-              icon="pi pi-pencil"
-              [pTooltip]="ownerEditTooltip()"
-              tooltipPosition="top"
-              severity="info"
-              size="small"
-              type="button"
-              variant="text">
-            </p-button>
-          }
-        </div>
-      </div>
-    }
 
     <div class="meta-item meta-item--policy">
       <label class="meta-label" for="join_policy">{{ ui().domainForm.joinPolicy }}</label>
@@ -63,7 +69,7 @@
       </div>
     </div>
 
-    <div class="meta-item meta-item--full">
+    <div class="meta-item meta-item--languages">
       <label class="meta-label">{{ ui().domainForm.allowedLanguages }}</label>
       <div class="meta-value meta-value--center">
         <p-selectButton

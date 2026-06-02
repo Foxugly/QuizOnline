@@ -53,6 +53,11 @@ export class DomainEditorFormComponent {
   readonly translating = input(false);
   readonly submitError = input<string | null>(null);
   readonly ownerPlaceholder = input('');
+  /** Render the internal "active" toggle in the configuration row. Set to
+   *  false in /domain/{id}/edit where the toggle is hoisted into the page
+   *  header (mirrors subject-edit / question-edit). Defaults to true so
+   *  /domain/create keeps the inline toggle. */
+  readonly showActiveToggle = input<boolean>(true);
   /** When true, the whole owner row is rendered (read-only). Set to false in
    *  /domain/create where the owner is implicitly the current user. */
   readonly showOwnerField = input(true);
