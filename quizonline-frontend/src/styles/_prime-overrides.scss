@@ -38,3 +38,11 @@
 .p-tabs .p-tabpanels {
   margin-top: 0.9rem;
 }
+
+/* PrimeNG tabs: trim the vertical space ABOVE the tab list so the tab
+   strip sits closer to the card top edge. Targets only the tab
+   container — non-tab pages/cards are untouched. Halves the previous
+   ~1rem of breathing room down to ~0.5rem. */
+.p-tabs .p-tablist {
+  margin-top: -0.5rem;
+}
