@@ -1,5 +1,8 @@
 export type AdminUiText = {
   menuLabel: string;
+  connections: {
+    menuLabel: string;
+  };
   stats: {
     title: string;
     activeUsers: string;

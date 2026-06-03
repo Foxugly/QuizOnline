@@ -204,5 +204,19 @@
 
   "pages/quiz/alerts/list:statusOptions.open",
   "pages/quiz/alerts/list:status.open",
-  "pages/quiz/alerts/list:topicQuiz"
+  "pages/quiz/alerts/list:topicQuiz",
+
+  "pages/admin/connections:columns.date",
+  "pages/admin/connections:columns.actions",
+  "pages/admin/connections:columns.account",
+  "pages/admin/connections:detailsButton",
+  "pages/admin/connections:fields.createdAt",
+  "pages/admin/connections:fields.accountEmail",
+  "pages/admin/connections:fields.browser",
+  "pages/admin/connections:fields.online",
+  "pages/admin/connections:fields.userAgent",
+  "pages/admin/connections:fields.latitude",
+  "pages/admin/connections:fields.longitude",
+  "pages/admin/connections:no",
+  "pages/admin/connections:emptyValue"
 ]

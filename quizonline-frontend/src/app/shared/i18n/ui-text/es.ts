@@ -199,6 +199,9 @@ export const ES: UiText = {
   },
   admin: {
     menuLabel: 'Administración',
+    connections: {
+      menuLabel: 'Conexiones',
+    },
     stats: {
       title: 'Estadísticas',
       activeUsers: 'Usuarios activos',

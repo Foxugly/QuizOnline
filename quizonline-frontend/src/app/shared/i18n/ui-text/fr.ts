@@ -337,6 +337,9 @@ export const FR: UiText = {
   },
   admin: {
     menuLabel: 'Administration',
+    connections: {
+      menuLabel: 'Connexions',
+    },
     stats: {
       title: 'Statistiques',
       activeUsers: 'Utilisateurs actifs',

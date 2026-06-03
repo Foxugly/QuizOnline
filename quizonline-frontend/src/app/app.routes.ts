@@ -226,6 +226,11 @@ export const routes: Routes = [
     canActivate: [authGuard, superuserGuard],
   },
   {
+    path: 'admin/connections',
+    loadComponent: () => import('./pages/admin/connections/connections').then((m) => m.ConnectionsPage),
+    canActivate: [authGuard, superuserGuard],
+  },
+  {
     path: 'domain/:domainId/join-requests',
     loadComponent: () => import('./pages/domain/join-requests/domain-join-requests').then((m) => m.DomainJoinRequestsPage),
     canActivate: [authGuard, domainAccessGuard],

@@ -198,6 +198,9 @@ export const NL: UiText = {
   },
   admin: {
     menuLabel: 'Administratie',
+    connections: {
+      menuLabel: 'Verbindingen',
+    },
     stats: {
       title: 'Statistieken',
       activeUsers: 'Actieve gebruikers',
