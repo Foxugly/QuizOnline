@@ -13,9 +13,11 @@ Type=oneshot
 # Runs as root to install the .mmdb owned django:www-data under GEOIP_PATH.
 User=root
 
-# ExecStart points straight at the git checkout (same pattern as
-# quizonline-env-fetch.service) — no install into /usr/local/bin.
-ExecStart=/var/www/django_websites/QuizOnline/deploy/fetch-geoip-from-ssm.sh
+# §3.10: this oneshot runs as root, so its script must NOT live in the
+# django-writable tree. Installed root:root 0755 at
+# /usr/local/sbin/quizonline-geoip-fetch.sh by ROOT from the committed git blob
+# (see deploy.yml); deploy/fetch-geoip-from-ssm.sh is the versioned source.
+ExecStart=/usr/local/sbin/quizonline-geoip-fetch.sh
 
 # A failed download is non-fatal: any existing DB stays in place and the
 # connection-log geolocation simply degrades. Don't let a transient MaxMind
