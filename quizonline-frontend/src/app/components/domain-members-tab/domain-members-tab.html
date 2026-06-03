@@ -35,6 +35,7 @@
                     icon="pi pi-arrow-up"
                     [pTooltip]="text().members.promote"
                     severity="info"
+                    [outlined]="true"
                     size="small"
                     type="button">
                   </p-button>
@@ -44,6 +45,7 @@
                     icon="pi pi-arrow-down"
                     [pTooltip]="text().members.demote"
                     severity="secondary"
+                    [outlined]="true"
                     size="small"
                     type="button">
                   </p-button>
@@ -53,18 +55,32 @@
           </td>
           @if (canManage()) {
             <td class="col-actions">
-              @if (canActOnRow(row)) {
-                <div class="row-actions">
+              <div class="row-actions">
+                @if (row.role === 'owner') {
+                  @if (canChangeOwner()) {
+                    <p-button
+                      (click)="changeOwner.emit()"
+                      icon="pi pi-pencil"
+                      [pTooltip]="text().transfer.button"
+                      [attr.aria-label]="text().transfer.button"
+                      severity="info"
+                      [outlined]="true"
+                      size="small"
+                      type="button">
+                    </p-button>
+                  }
+                } @else if (canActOnRow(row)) {
                   <p-button
                     (click)="confirmRemove(row)"
                     icon="pi pi-user-minus"
                     [pTooltip]="text().members.remove"
                     severity="danger"
+                    [outlined]="true"
                     size="small"
                     type="button">
                   </p-button>
-                </div>
-              }
+                }
+              </div>
             </td>
           }
         </tr>

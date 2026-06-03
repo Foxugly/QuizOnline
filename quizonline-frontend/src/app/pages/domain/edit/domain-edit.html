@@ -91,11 +91,7 @@
             [form]="form"
             [showActiveToggle]="false"
             [langCodeOptions]="langCodeOptions()"
-            [ownerOptions]="ownerOptions()"
-            [ownerPlaceholder]="ui().domainForm.owner"
-            [showOwnerField]="true"
-            [showOwnerEditAction]="canEditOwner()"
-            [ownerEditTooltip]="editText().transfer.button"
+            [showOwnerField]="false"
             [submitError]="submitError()"
             [submitLabel]="ui().common.save"
             [tabCodes]="tabCodes()"
@@ -107,7 +103,6 @@
             [certificateLogoFile]="certificateLogoFile()"
             (cancel)="goList()"
             (submitForm)="save()"
-            (editOwner)="transfer.open()"
             (tabValueChange)="onTabValueChange($event)"
             (translateClick)="translateFrom($event)"
             (certificateLogoSelected)="onCertificateLogoSelected($event)"
@@ -309,10 +304,12 @@
             <app-domain-members-tab
               [domain]="d"
               [canManage]="canManageMembers()"
+              [canChangeOwner]="canEditOwner()"
               [currentUserId]="currentUserId()"
               [text]="editText()"
               (roleChange)="onMemberRoleChange($event)"
-              (removeMember)="onMemberRemove($event)">
+              (removeMember)="onMemberRemove($event)"
+              (changeOwner)="transfer.open()">
             </app-domain-members-tab>
           }
           </div>
