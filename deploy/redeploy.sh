@@ -17,7 +17,6 @@ done
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$REPO_DIR/quizonline-server"
 FRONTEND_DIR="$REPO_DIR/quizonline-frontend"
-DEPLOY_DIR="$REPO_DIR/deploy"
 DOMAIN="quizonline.foxugly.com"
 
 # Detect venv
@@ -53,12 +52,12 @@ echo "  Venv:    $VENV"
 echo ""
 
 # ── 1. Pull ──────────────────────────────────────────────────────────────────
-echo "[1/7] Pulling latest code..."
+echo "[1/6] Pulling latest code..."
 cd "$REPO_DIR"
 git pull --ff-only
 
 # ── 2. Backend ───────────────────────────────────────────────────────────────
-echo "[2/7] Updating backend..."
+echo "[2/6] Updating backend..."
 
 # Note: the legacy ``.env`` perms guard that used to live here is gone
 # along with Option B (SSM Parameter Store + tmpfs ``/run/quizonline/
@@ -80,63 +79,32 @@ cd "$BACKEND_DIR"
 
 # ── 3. Frontend ──────────────────────────────────────────────────────────────
 if [ "$SKIP_FRONTEND" = true ]; then
-  echo "[3/7] Skipping frontend build (--skip-frontend)"
+  echo "[3/6] Skipping frontend build (--skip-frontend)"
 else
-  echo "[3/7] Rebuilding frontend..."
+  echo "[3/6] Rebuilding frontend..."
   cd "$FRONTEND_DIR"
   npm ci --silent
   export NODE_OPTIONS="--max-old-space-size=1024"
   npx ng build --configuration=production
 fi
 
-# ── 4. Sync service files ────────────────────────────────────────────────────
-echo "[4/7] Syncing systemd service files..."
-SVC_UPDATED=0
-
-# No need to copy the env-fetch script anywhere — the systemd unit's
-# ExecStart= points straight at deploy/fetch-env-from-ssm.sh in this
-# git checkout. The django sudoers only allows ``cp`` into
-# /etc/systemd/system/, so trying to install elsewhere just trips
-# the password prompt. See quizonline-env-fetch.service for the
-# rationale, and deploy/sudoers/quizonline-deploy for the exact
-# version-controlled whitelist (installed at /etc/sudoers.d/).
-#
-# quizonline-env-fetch.service ITSELF is also not in the loop below
-# because the django sudoers whitelist enumerates specific service
-# filenames (the OG 3), not a glob. The unit is installed by the
-# SSM workflow as root, before this script runs. See
-# .github/workflows/deploy.yml.
-
-for svc in quizonline-gunicorn quizonline-celery quizonline-celery-beat; do
-  SRC="$DEPLOY_DIR/$svc.service"
-  DST="/etc/systemd/system/$svc.service"
-
-  if [ ! -f "$SRC" ]; then
-    echo "  WARN: $svc.service missing in deploy/, skipping"
-    continue
-  fi
-
-  if [ -f "$DST" ] && cmp -s "$SRC" "$DST"; then
-    echo "  OK: $svc.service (no change)"
-  else
-    sudo cp "$SRC" "$DST"
-    SVC_UPDATED=$((SVC_UPDATED + 1))
-    echo "  Updated: $svc.service"
-  fi
-done
-
-# ── 5. Restart services ─────────────────────────────────────────────────────
-echo "[5/7] Restarting services..."
-if [ "$SVC_UPDATED" -gt 0 ]; then
-  sudo systemctl daemon-reload
-fi
+# ── 4. Restart services ─────────────────────────────────────────────────────
+# NOTE: this script no longer installs the systemd unit files or runs
+# ``daemon-reload``. The units are installed by ROOT, straight from the
+# committed git blob (origin/main), in .github/workflows/deploy.yml — before
+# this script runs — and root issues the ``daemon-reload`` there. That keeps
+# a (hypothetically compromised) ``django`` from ever placing or altering a
+# root-run unit, so the django sudoers grant is now restart + nginx only
+# (see deploy/sudoers/quizonline-deploy). A purely-manual ``redeploy.sh``
+# run therefore assumes the units on disk are already current.
+echo "[4/6] Restarting services..."
 sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
 if [ -n "$WEB_SERVER" ]; then
   sudo systemctl reload "$WEB_SERVER"
 fi
 
-# ── 6. Verify services ──────────────────────────────────────────────────────
-echo "[6/7] Verifying..."
+# ── 5. Verify services ──────────────────────────────────────────────────────
+echo "[5/6] Verifying..."
 
 # Gunicorn
 if systemctl is-active --quiet quizonline-gunicorn; then
@@ -229,7 +197,7 @@ else
   warn "HTTPS not reachable: https://$DOMAIN/"
 fi
 
-# ── 7. Summary ───────────────────────────────────────────────────────────────
+# ── 6. Summary ───────────────────────────────────────────────────────────────
 echo ""
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== Redeploy complete — all checks passed ==="
