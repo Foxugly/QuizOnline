@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 #
-# QuizOnline — fetch the MaxMind GeoLite2-City database using credentials
-# stored in SSM Parameter Store, mirroring fetch-env-from-ssm.sh.
+# QuizOnline — fetch the MaxMind GeoLite2-City database.
 #
-# Reads (via the EC2 instance role — no creds on disk):
-#   $PREFIX/GEOIP_PATH            — target dir (default /var/lib/geoip)
-#   $PREFIX/MAXMIND_ACCOUNT_ID    — MaxMind account id
-#   $PREFIX/MAXMIND_LICENSE_KEY   — MaxMind license key (SecureString)
+# Reads its inputs from the runtime env file written by quizonline-env-fetch
+# (NOT by calling SSM directly): GEOIP_PATH, MAXMIND_ACCOUNT_ID,
+# MAXMIND_LICENSE_KEY. Why not SSM here: the box's default `aws` identity is
+# the ``certbot-route53`` IAM user (used for the wildcard cert), which is
+# granted ``ssm:GetParametersByPath`` (so env-fetch works) but NOT
+# ``ssm:GetParameter`` — a direct lookup here would AccessDenied. env-fetch is
+# the single SSM reader; everything else (this script included) reads its
+# already-decrypted output at /run/quizonline/.env.
 #
 # Writes ``$GEOIP_PATH/GeoLite2-City.mmdb`` (0644 django:www-data) — the path
 # Django's ``GeoIP2(GEOIP_PATH)`` reads in connectionlog/geoip.py.
@@ -18,23 +21,27 @@
 # MaxMind serves downloads via R2 pre-signed URLs, so curl follows redirects
 # (-L) to ``mm-prod-geoip-databases.*.r2.cloudflarestorage.com``.
 #
-# Invoked at install + weekly by quizonline-geoip-fetch.service/.timer.
+# Invoked at install + weekly by quizonline-geoip-fetch.service/.timer (ordered
+# After=quizonline-env-fetch.service so /run/quizonline/.env exists first).
 set -euo pipefail
 
-PREFIX="${QOL_SSM_PREFIX:-/quizonline/prod}"
-REGION="${QOL_SSM_REGION:-eu-west-1}"
+ENV_FILE="${QOL_ENV_FILE:-/run/quizonline/.env}"
 
-get() {
-  aws ssm get-parameter --region "$REGION" --name "$PREFIX/$1" --with-decryption \
-    --query "Parameter.Value" --output text 2>/dev/null || true
-}
+# Pull a single KEY=VALUE from the env file without ``source`` (the file holds
+# secrets with shell-special characters that sourcing would mangle).
+val() { { grep -m1 "^$1=" "$ENV_FILE" 2>/dev/null || true; } | cut -d= -f2-; }
 
-DEST_DIR="$(get GEOIP_PATH)"; DEST_DIR="${DEST_DIR:-/var/lib/geoip}"
-ACCOUNT="$(get MAXMIND_ACCOUNT_ID)"
-KEY="$(get MAXMIND_LICENSE_KEY)"
+if [ ! -r "$ENV_FILE" ]; then
+  echo "[geoip] $ENV_FILE not readable — is quizonline-env-fetch up? skipping"
+  exit 0
+fi
+
+DEST_DIR="$(val GEOIP_PATH)"; DEST_DIR="${DEST_DIR:-/var/lib/geoip}"
+ACCOUNT="$(val MAXMIND_ACCOUNT_ID)"
+KEY="$(val MAXMIND_LICENSE_KEY)"
 
 if [ -z "$KEY" ]; then
-  echo "[geoip] no MAXMIND_LICENSE_KEY under $PREFIX — skipping (geolocation stays disabled)"
+  echo "[geoip] no MAXMIND_LICENSE_KEY in $ENV_FILE — skipping (geolocation stays disabled)"
   exit 0
 fi
 
