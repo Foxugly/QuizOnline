@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     "enrollment.apps.EnrollmentConfig",
     "certificate.apps.CertificateConfig",
     "assessment.apps.AssessmentConfig",
+    "connectionlog.apps.ConnectionLogConfig",
 ]
 
 MIDDLEWARE = [
