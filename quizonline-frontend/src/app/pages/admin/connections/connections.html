@@ -7,5 +7,166 @@
     <div class="header-actions"></div>
   </div>
 
-  <p-card></p-card>
+  <div class="card">
+    <div class="toolbar">
+      <div class="toolbar__field">
+        <label for="connRange">{{ t().rangeLabel }}</label>
+        <p-datepicker
+          inputId="connRange"
+          selectionMode="range"
+          [readonlyInput]="true"
+          [showButtonBar]="true"
+          [ngModel]="range()"
+          (ngModelChange)="onRangeChange($event)"
+          [placeholder]="t().rangePlaceholder"
+          dateFormat="yy-mm-dd">
+        </p-datepicker>
+      </div>
+      @if (range()) {
+        <p-button
+          (onClick)="clearRange()"
+          icon="pi pi-times"
+          [label]="t().clearRange"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          type="button">
+        </p-button>
+      }
+    </div>
+
+    <p-table
+      [value]="events()"
+      [loading]="loading()"
+      [paginator]="events().length > rows"
+      [rows]="rows"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      showGridlines
+      size="small"
+      stripedRows
+      styleClass="table"
+    >
+      <ng-template #header>
+        <tr>
+          <th>{{ t().columns.date }}</th>
+          <th>{{ t().columns.account }}</th>
+          <th>{{ t().columns.ip }}</th>
+          <th>{{ t().columns.location }}</th>
+          <th>{{ t().columns.device }}</th>
+          <th class="col-actions">{{ t().columns.actions }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-row>
+        <tr>
+          <td [attr.title]="row.created_at | date:'medium'">{{ row.created_at | relativeDate }}</td>
+          <td>{{ row.account_email || t().emptyValue }}</td>
+          <td>{{ row.ip || t().emptyValue }}</td>
+          <td>{{ locationLabel(row) || t().emptyValue }}</td>
+          <td>{{ deviceLabel(row) || t().emptyValue }}</td>
+          <td class="col-actions">
+            <p-button
+              (onClick)="openDetails(row)"
+              icon="pi pi-eye"
+              [label]="t().detailsButton"
+              [text]="true"
+              size="small"
+              type="button">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">
+            <app-empty-state
+              icon="pi pi-history"
+              density="compact"
+              [title]="t().emptyTitle"
+              [hint]="t().emptyHint">
+            </app-empty-state>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
+
+<p-dialog
+  [header]="t().dialogTitle"
+  [visible]="selected() !== null"
+  (visibleChange)="onDialogVisibleChange($event)"
+  [modal]="true"
+  [style]="{width: '560px'}">
+  @if (selected(); as event) {
+    <dl class="detail-list">
+      <dt class="detail-list__label">{{ t().fields.id }}</dt>
+      <dd class="detail-list__value">{{ event.id }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.accountEmail }}</dt>
+      <dd class="detail-list__value">{{ event.account_email || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.createdAt }}</dt>
+      <dd class="detail-list__value">{{ event.created_at | date:'medium' }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.loginMethod }}</dt>
+      <dd class="detail-list__value">{{ event.login_method || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.ip }}</dt>
+      <dd class="detail-list__value">{{ event.ip || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.userAgent }}</dt>
+      <dd class="detail-list__value">{{ event.user_agent || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.browser }}</dt>
+      <dd class="detail-list__value">{{ event.browser || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.os }}</dt>
+      <dd class="detail-list__value">{{ event.os || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.localTime }}</dt>
+      <dd class="detail-list__value">{{ event.local_time || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.browserLanguage }}</dt>
+      <dd class="detail-list__value">{{ event.browser_language || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.timezone }}</dt>
+      <dd class="detail-list__value">{{ event.timezone || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.screen }}</dt>
+      <dd class="detail-list__value">{{ screenLabel(event) || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.online }}</dt>
+      <dd class="detail-list__value">
+        @if (event.online === null || event.online === undefined) {
+          {{ t().emptyValue }}
+        } @else {
+          {{ event.online ? t().yes : t().no }}
+        }
+      </dd>
+
+      <dt class="detail-list__label">{{ t().fields.country }}</dt>
+      <dd class="detail-list__value">{{ event.country || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.countryCode }}</dt>
+      <dd class="detail-list__value">{{ event.country_code || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.city }}</dt>
+      <dd class="detail-list__value">{{ event.city || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.region }}</dt>
+      <dd class="detail-list__value">{{ event.region || t().emptyValue }}</dd>
+
+      <dt class="detail-list__label">{{ t().fields.latitude }}</dt>
+      <dd class="detail-list__value">
+        {{ event.latitude === null || event.latitude === undefined ? t().emptyValue : event.latitude }}
+      </dd>
+
+      <dt class="detail-list__label">{{ t().fields.longitude }}</dt>
+      <dd class="detail-list__value">
+        {{ event.longitude === null || event.longitude === undefined ? t().emptyValue : event.longitude }}
+      </dd>
+    </dl>
+  }
+</p-dialog>
