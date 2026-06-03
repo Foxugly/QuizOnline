@@ -73,6 +73,7 @@ import {getBlockEditorsUiText} from '../src/app/shared/learning/block-editors/bl
 import {getBlockRenderersUiText} from '../src/app/shared/learning/block-renderers/block-renderers.i18n';
 import {getProgressUiText} from '../src/app/pages/progress/progress.i18n';
 import {getQuizAlertListUiText} from '../src/app/pages/quiz/alerts/list/quiz-alert-list.i18n';
+import {getConnectionsUiText} from '../src/app/pages/admin/connections/connections.i18n';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ALLOWLIST_PATH = path.join(__dirname, 'i18n-allowed-same.json');
@@ -127,6 +128,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'shared/learning/block-renderers', get: getBlockRenderersUiText as Getter},
   {name: 'pages/progress', get: getProgressUiText as Getter},
   {name: 'pages/quiz/alerts/list', get: getQuizAlertListUiText as Getter},
+  {name: 'pages/admin/connections', get: getConnectionsUiText as Getter},
 ];
 
 const REFERENCE_LANG = LanguageEnumDto.En;

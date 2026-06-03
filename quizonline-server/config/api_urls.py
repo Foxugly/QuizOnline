@@ -27,4 +27,5 @@ urlpatterns = [
     path("", include(("assessment.api_urls", "assessment"), namespace="assessment-api")),
     path("", include(("enrollment.api_urls", "enrollment"), namespace="enrollment-api")),
     path("", include(("certificate.api_urls", "certificate"), namespace="certificate-api")),
+    path("", include(("connectionlog.api_urls", "connectionlog"), namespace="connectionlog-api")),
 ]

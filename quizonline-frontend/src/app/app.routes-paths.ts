@@ -47,6 +47,7 @@ export let ROUTES = {
     languages: () => ['/admin/languages'] as const,
     systemConfig: () => ['/admin/system-config'] as const,
     mailTest: () => ['/admin/mail-test'] as const,
+    connections: () => ['/admin/connections'] as const,
   },
   quiz: {
     add: () => ['/quiz/add'] as const,

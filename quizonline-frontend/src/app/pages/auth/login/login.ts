@@ -12,6 +12,7 @@ import {PasswordModule} from 'primeng/password';
 import {AuthApi as AuthApiService} from '../../../api/generated/api/auth.service';
 import {ROUTES} from '../../../app.routes-paths';
 import {AuthService} from '../../../services/auth/auth';
+import {ConnectionLogService} from '../../../services/connection-log/connection-log.service';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -36,6 +37,7 @@ export class LoginPage implements OnInit {
   app = window.__APP__!;
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly connectionLog = inject(ConnectionLogService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -124,6 +126,8 @@ export class LoginPage implements OnInit {
     this.auth.login(username, password, remember).subscribe({
       next: (user) => {
         this.loading.set(false);
+        // Fire-and-forget connection-log capture on real success only.
+        this.connectionLog.record('password');
         const nextUrl = this.route.snapshot.queryParamMap.get('next');
         if (this.auth.requiresPasswordChange(user)) {
           void this.router.navigate(ROUTES.auth.changePassword(), {

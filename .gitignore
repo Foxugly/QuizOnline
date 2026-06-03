@@ -32,6 +32,10 @@ quizonline-server/media/lms/
 # Compiled gettext message catalogs (build from .po via `manage.py compilemessages`)
 quizonline-server/locale/**/*.mo
 
+# MaxMind GeoLite2 databases — provisioned on the server (see deploy/README.md),
+# never committed (large binary, licensed, refreshed monthly).
+*.mmdb
+
 # ── Node / Angular ────────────────────────────────────────────────────────────
 node_modules/
 quizonline-frontend/dist/

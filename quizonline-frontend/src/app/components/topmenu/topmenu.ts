@@ -409,6 +409,11 @@ export class TopMenuComponent implements OnInit {
         link: ROUTES.admin.languages(),
         icon: 'pi pi-globe',
       });
+      items.push({
+        label: this.ui().admin.connections.menuLabel,
+        link: ROUTES.admin.connections(),
+        icon: 'pi pi-sign-in',
+      });
     }
     return items;
   }

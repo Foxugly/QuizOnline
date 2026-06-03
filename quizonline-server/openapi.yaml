@@ -412,6 +412,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/Certificate'
           description: ''
+  /api/connection-log/:
+    get:
+      operationId: connection_log_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - connection-log
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConnectionEventReadList'
+          description: ''
+    post:
+      operationId: connection_log_create
+      tags:
+      - connection-log
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionEventReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectionEventReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectionEventReadRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionEventRead'
+          description: ''
   /api/course/:
     get:
       operationId: course_list
@@ -6422,6 +6467,143 @@ components:
       - revoked_at
       - user
       - verification_token
+    ConnectionEventRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        account_email:
+          type: string
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        login_method:
+          $ref: '#/components/schemas/LoginMethodEnum'
+        ip:
+          type: string
+          nullable: true
+        user_agent:
+          type: string
+        browser:
+          type: string
+          maxLength: 120
+        os:
+          type: string
+          maxLength: 120
+        local_time:
+          type: string
+          maxLength: 64
+        browser_language:
+          type: string
+          maxLength: 64
+        timezone:
+          type: string
+          maxLength: 64
+        screen_width:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        screen_height:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        online:
+          type: boolean
+          nullable: true
+        country:
+          type: string
+          maxLength: 120
+        country_code:
+          type: string
+          maxLength: 2
+        city:
+          type: string
+          maxLength: 180
+        region:
+          type: string
+          maxLength: 180
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
+      required:
+      - created_at
+      - id
+    ConnectionEventReadRequest:
+      type: object
+      properties:
+        account_email:
+          type: string
+          maxLength: 254
+        login_method:
+          $ref: '#/components/schemas/LoginMethodEnum'
+        ip:
+          type: string
+          nullable: true
+          minLength: 1
+        user_agent:
+          type: string
+        browser:
+          type: string
+          maxLength: 120
+        os:
+          type: string
+          maxLength: 120
+        local_time:
+          type: string
+          maxLength: 64
+        browser_language:
+          type: string
+          maxLength: 64
+        timezone:
+          type: string
+          maxLength: 64
+        screen_width:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        screen_height:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        online:
+          type: boolean
+          nullable: true
+        country:
+          type: string
+          maxLength: 120
+        country_code:
+          type: string
+          maxLength: 2
+        city:
+          type: string
+          maxLength: 180
+        region:
+          type: string
+          maxLength: 180
+        latitude:
+          type: number
+          format: double
+          nullable: true
+        longitude:
+          type: number
+          format: double
+          nullable: true
     CourseDetail:
       type: object
       properties:
@@ -8439,6 +8621,14 @@ components:
       type: object
       additionalProperties:
         $ref: '#/components/schemas/LocalizedSubjectTranslation'
+    LoginMethodEnum:
+      enum:
+      - password
+      - magic_link
+      type: string
+      description: |-
+        * `password` - Password
+        * `magic_link` - Magic link
     MagicLinkExchangeRequestRequest:
       type: object
       description: Payload for ``POST /api/auth/magic-link/exchange/``.
@@ -8571,6 +8761,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Certificate'
+    PaginatedConnectionEventReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectionEventRead'
     PaginatedCourseEnrollmentList:
       type: object
       required:
