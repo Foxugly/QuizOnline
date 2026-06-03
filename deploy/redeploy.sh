@@ -7,6 +7,11 @@
 #
 set -euo pipefail
 
+# Files created here (collectstatic output, compiled .mo catalogs, pip-installed
+# venv) are group www-data, not world-accessible. nginx (www-data) still serves
+# /static via the group; django's primary group is www-data so it owns them rw.
+umask 027
+
 SKIP_FRONTEND=false
 for arg in "$@"; do
   case "$arg" in
