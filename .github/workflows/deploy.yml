@@ -59,10 +59,15 @@ jobs:
           SHA: ${{ steps.package.outputs.sha }}
         run: |
           # Ordered SSM commands (AWS-RunShellScript runs them as ROOT):
-          #   1. chown the whole tree back to django:www-data. This runs
-          #      BEFORE the django git reset and self-heals the recurring
-          #      ".git/objects … Permission denied" failure caused by git
-          #      objects left root-owned during manual ops on the box.
+          #   1. chown the whole tree back to django:www-data, then strip
+          #      group-write and ALL other-access (g-w,o-rwx → 750 dirs /
+          #      640 files). This runs BEFORE the django git reset and
+          #      self-heals the recurring ".git/objects … Permission denied"
+          #      failure caused by git objects left root-owned during manual
+          #      ops on the box. The o-rwx is serving-safe because django's
+          #      primary group AND nginx both run as www-data, so nginx
+          #      reads the bundle / static / media via the group (verified:
+          #      id django → gid=33(www-data)); nothing relied on world-read.
           #   2. As django: fetch + hard-reset the working tree to origin/main
           #      (also refreshes the origin/main ref used by step 3).
           #   3. As ROOT: install every systemd unit straight from the
@@ -83,6 +88,7 @@ jobs:
           {
             "commands": [
               "chown -R django:www-data /var/www/django_websites/QuizOnline",
+              "chmod -R g-w,o-rwx /var/www/django_websites/QuizOnline",
               "sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
               "git -C /var/www/django_websites/QuizOnline -c safe.directory=/var/www/django_websites/QuizOnline show origin/main:deploy/quizonline-env-fetch.service > /etc/systemd/system/quizonline-env-fetch.service",
               "git -C /var/www/django_websites/QuizOnline -c safe.directory=/var/www/django_websites/QuizOnline show origin/main:deploy/quizonline-frontend-runtime-fetch.service > /etc/systemd/system/quizonline-frontend-runtime-fetch.service",

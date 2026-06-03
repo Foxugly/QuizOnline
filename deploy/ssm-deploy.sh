@@ -22,6 +22,11 @@
 #     until the next successful deploy, so a manual rollback is one mv.
 set -euo pipefail
 
+# The extracted frontend bundle is group www-data, not world-accessible.
+# nginx (www-data) serves it via the group (django's primary group is also
+# www-data), so dropping world-read does not 403 static assets.
+umask 027
+
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <SHA> <BUCKET>" >&2
   exit 64
