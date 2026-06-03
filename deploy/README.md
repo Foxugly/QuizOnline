@@ -371,8 +371,12 @@ env-fetch, so no key lives in the repo and it refreshes itself weekly.
    ```
 
    `GEOIP_PATH` is the only one Django reads (where it loads the `.mmdb`); the
-   other two are used by the fetch script below. The instance role's
-   `ReadAppConfigFromSSM` already grants `ssm:GetParameter` on `/quizonline/prod/*`.
+   other two feed the fetch script below. **env-fetch is the single SSM reader**
+   (under the `quizonline-ec2` instance role) — it writes all three, decrypted,
+   into `/run/quizonline/.env`, and the geoip-fetch script reads them **from
+   there**, not via a direct `aws ssm` call. (A direct call on the box would use
+   root's default static identity, the `certbot-route53` user that manages the
+   wildcard cert, which lacks `ssm:GetParameter` → AccessDenied.)
 
 2. **Install the fetch units** (run the script from the git checkout, like
    env-fetch). MaxMind serves downloads via **R2 pre-signed URLs**, so outbound

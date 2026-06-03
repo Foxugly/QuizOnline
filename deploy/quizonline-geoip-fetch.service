@@ -1,13 +1,16 @@
 [Unit]
-Description=QuizOnline — fetch MaxMind GeoLite2-City DB from SSM credentials
-# Needs network (MaxMind download) and a sane clock (SigV4 for the SSM call).
-After=network-online.target
+Description=QuizOnline — fetch MaxMind GeoLite2-City DB
+# Needs network (MaxMind download) and the runtime env file produced by
+# env-fetch: the script reads MAXMIND_* / GEOIP_PATH from /run/quizonline/.env,
+# not from SSM directly (the box's default aws identity, certbot-route53, lacks
+# ssm:GetParameter — see the script header).
+After=network-online.target quizonline-env-fetch.service
 Wants=network-online.target
+Requires=quizonline-env-fetch.service
 
 [Service]
 Type=oneshot
-# Runs as root: reads SSM via the EC2 instance role (IMDS, no creds on disk)
-# and installs the .mmdb owned django:www-data under GEOIP_PATH.
+# Runs as root to install the .mmdb owned django:www-data under GEOIP_PATH.
 User=root
 
 # ExecStart points straight at the git checkout (same pattern as
