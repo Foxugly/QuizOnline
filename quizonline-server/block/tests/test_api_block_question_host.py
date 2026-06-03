@@ -67,7 +67,7 @@ def test_create_question_prompt_block_succeeds(question, owner):
     assert r.data["lesson"] is None
     assert r.data["answer_option"] is None
     # And the block is actually attached to the Question via GFK.
-    assert question.prompt_blocks().count() == 1
+    assert len(question.prompt_blocks()) == 1
 
 
 @pytest.mark.django_db
@@ -85,8 +85,8 @@ def test_create_question_explanation_block_succeeds(question, owner):
         format="json",
     )
     assert r.status_code == 201, r.content
-    assert question.explanation_blocks().count() == 1
-    assert question.prompt_blocks().count() == 0
+    assert len(question.explanation_blocks()) == 1
+    assert len(question.prompt_blocks()) == 0
 
 
 @pytest.mark.django_db

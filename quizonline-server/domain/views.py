@@ -415,6 +415,16 @@ class DomainJoinRequestViewSet(
         domain = self._get_domain()
         self._check_can_approve(domain)
         qs = self.get_queryset()
+        # Opt-in pagination: only wrap in the {count, next, previous,
+        # results} envelope when the caller asks for a page, mirroring
+        # ``DomainViewSet.list``. This keeps the legacy bare-list response
+        # for existing callers while giving clients a way to page through
+        # an otherwise unbounded join-request list.
+        if "page" in request.query_params:
+            page = self.paginate_queryset(qs)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
         return Response(self.get_serializer(qs, many=True).data)
 
     def retrieve(self, request, *args, **kwargs):

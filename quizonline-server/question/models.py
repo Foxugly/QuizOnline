@@ -77,13 +77,23 @@ class Question(AuditMixin, ActivatableMixin, TranslatableModel):
         title = self.safe_translation_getter("title", any_language=True)
         return title or f"Question#{self.pk}"
 
+    def _blocks_for_role(self, role):
+        # Consume the prefetched ``blocks`` (+ their translations) cache
+        # populated by ``question_queryset``: filter by role and sort by
+        # ``order`` in Python rather than issuing a fresh filtered query,
+        # which would bypass the prefetch and re-introduce an N+1 on the
+        # question list/detail read path.
+        blocks = [b for b in self.blocks.all() if b.block_role == role]
+        blocks.sort(key=lambda b: b.order)
+        return blocks
+
     def prompt_blocks(self):
         from block.models import Block
-        return self.blocks.filter(block_role=Block.ROLE_PROMPT).order_by("order")
+        return self._blocks_for_role(Block.ROLE_PROMPT)
 
     def explanation_blocks(self):
         from block.models import Block
-        return self.blocks.filter(block_role=Block.ROLE_EXPLANATION).order_by("order")
+        return self._blocks_for_role(Block.ROLE_EXPLANATION)
 
 
 class QuestionSubject(models.Model):

@@ -2,6 +2,7 @@ from datetime import timedelta
 from statistics import median
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import (
     PermissionDenied as DjangoPermissionDenied,
     ValidationError as DjangoValidationError,
@@ -15,6 +16,7 @@ from rest_framework.decorators import action, api_view, permission_classes, thro
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 from rest_framework.throttling import ScopedRateThrottle
 
 from course.models import Course
@@ -49,6 +51,25 @@ from .services import (
     resend_course_invite,
     revoke_course_invite,
 )
+
+
+def _paginated_response(request, queryset, serializer_class):
+    """Opt-in pagination for a function-based-view queryset.
+
+    Only wraps the result in the standard ``{count, next, previous,
+    results}`` envelope when the caller passes ``?page`` (mirroring the
+    convention used by ``DomainViewSet.list`` / ``DomainJoinRequestViewSet
+    .list``). Without ``page`` it returns the legacy bare-list response so
+    existing API callers keep their exact output shape, while clients that
+    need to page through an otherwise unbounded list can opt in."""
+    if "page" in request.query_params:
+        paginator = api_settings.DEFAULT_PAGINATION_CLASS()
+        page = paginator.paginate_queryset(queryset, request)
+        if page is not None:
+            return paginator.get_paginated_response(
+                serializer_class(page, many=True).data
+            )
+    return Response(serializer_class(queryset, many=True).data)
 
 
 class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -211,6 +232,29 @@ def course_analytics(request, course_id: int):
     if not is_lms_instructor(request.user, course):
         raise PermissionDenied()
 
+    # The analytics payload is identical for every instructor of the
+    # course and only changes as enrollments/invites move — it does not
+    # depend on the calling user. Cache the computed payload for a short
+    # TTL so a dashboard refresh (or several instructors hitting the tab
+    # at once) doesn't re-run this ~8-query aggregation each time.
+    #
+    # Invalidation: a flat 120s TTL with no proactive busting. Enrollment
+    # and invite writes are scattered across many service functions
+    # (enroll/approve/reject/cancel/invite/accept/decline/revoke/resend,
+    # plus the daily expiry sweep and certificate issue/revoke), so a
+    # clean single choke-point to bust the key does not exist. A 2-minute
+    # staleness window is acceptable for an instructor dashboard, and the
+    # ``date``-keyed trend buckets self-correct on the next recompute.
+    cache_key = f"course_analytics:{course.pk}"
+    payload = cache.get_or_set(
+        cache_key,
+        lambda: _build_course_analytics_payload(course),
+        timeout=120,
+    )
+    return Response(payload)
+
+
+def _build_course_analytics_payload(course) -> dict:
     enrollments = CourseEnrollment.objects.filter(course=course)
     status_counts = dict(
         enrollments.values_list("status").annotate(n=Count("id"))
@@ -271,7 +315,7 @@ def course_analytics(request, course_id: int):
 
     invite_block = _course_invite_analytics_block(course, today, earliest)
 
-    return Response({
+    return {
         "enrollment_counts": {
             "total": total,
             "active": active,
@@ -286,7 +330,7 @@ def course_analytics(request, course_id: int):
         "certificates_issued": certificates_issued,
         "enrollment_trend_30d": enrollment_trend_30d,
         **invite_block,
-    })
+    }
 
 
 def _course_invite_analytics_block(course, today, earliest):
@@ -572,7 +616,7 @@ def course_invite_list(request, course_id: int):
     )
     if status_filter:
         qs = qs.filter(status=status_filter)
-    return Response(CourseInviteSerializer(qs, many=True).data)
+    return _paginated_response(request, qs, CourseInviteSerializer)
 
 
 @extend_schema(
@@ -705,7 +749,7 @@ def my_course_invitations(request):
         qs = qs.filter(status=status_filter)
     elif not status_filter:
         qs = qs.filter(status=CourseInvite.STATUS_PENDING)
-    return Response(CourseInviteSerializer(qs, many=True).data)
+    return _paginated_response(request, qs, CourseInviteSerializer)
 
 
 @extend_schema(responses={status.HTTP_200_OK: CourseInviteSerializer})

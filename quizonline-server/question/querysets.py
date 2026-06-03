@@ -7,7 +7,7 @@ from config.domain_access import visible_domain_ids
 def question_queryset():
     return (
         Question.objects
-        .select_related("domain")
+        .select_related("domain", "domain__owner")
         .prefetch_related(
             "subjects",
             "translations",
@@ -17,6 +17,16 @@ def question_queryset():
             # never hits a N+1 walking option content.
             "answer_options__blocks__translations",
             "blocks__translations",
+            # The QuestionReadSerializer embeds the full DomainReadSerializer
+            # for ``domain``. Prefetch the domain relations it walks
+            # (translations, allowed languages, owner/managers/members)
+            # so rendering the nested domain per question row does not
+            # issue a fresh batch of queries per row. ``get_available_lang_codes``
+            # also reads ``domain.allowed_languages``.
+            "domain__translations",
+            "domain__allowed_languages",
+            "domain__managers",
+            "domain__members",
         )
     )
 

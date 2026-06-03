@@ -80,8 +80,18 @@ class DomainReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(LanguageReadSerializer(many=True))
     def get_allowed_languages(self, obj: Domain) -> list[dict]:
-        qs = obj.allowed_languages.filter(active=True).order_by("id")
-        return LanguageReadSerializer(qs, many=True, context=self.context).data
+        # Filter + sort in Python over the prefetched ``allowed_languages``
+        # cache rather than issuing ``.filter(active=True).order_by("id")``,
+        # which bypasses the prefetch and triggers a per-row query when this
+        # serializer is embedded in a list (e.g. QuestionReadSerializer's
+        # nested domain, or the domain list). The callers that render this
+        # serializer prefetch ``allowed_languages`` (unfiltered), so the
+        # output — active languages ordered by id — is identical.
+        langs = sorted(
+            (lang for lang in obj.allowed_languages.all() if lang.active),
+            key=lambda lang: lang.id,
+        )
+        return LanguageReadSerializer(langs, many=True, context=self.context).data
 
     @extend_schema_field(
         localized_translations_map_schema(

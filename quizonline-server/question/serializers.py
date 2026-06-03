@@ -352,7 +352,11 @@ class QuestionReadSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_available_lang_codes(self, obj: Question) -> list[str]:
-        return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
+        # Consume the ``domain__allowed_languages`` prefetch populated by
+        # ``question_queryset`` instead of a per-row ``.values_list`` query
+        # (which would bypass the prefetch and re-introduce an N+1 on the
+        # question list). Output is identical: the sorted set of codes.
+        return sorted(lang.code for lang in obj.domain.allowed_languages.all())
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
     def get_answer_options(self, obj) -> List[Any]:
