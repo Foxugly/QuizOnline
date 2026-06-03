@@ -21,6 +21,7 @@ reportlab
 sentry-sdk[django,celery]==2.45.0
 nh3==0.2.18
 user-agents==2.2.0
+geoip2==4.8.0
 # PostgreSQL driver. Optional at runtime — only loaded when
 # ``DATABASE_URL`` resolves to a postgres scheme. Keep installed so the
 # prod EC2 (which is migrating off SQLite) and any RDS-bound future

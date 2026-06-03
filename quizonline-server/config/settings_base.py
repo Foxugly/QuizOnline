@@ -68,6 +68,10 @@ env = environ.Env(
     THROTTLE_LMS_BLOCK_WRITE=(str, "120/min"),
     THROTTLE_LMS_CERT_VERIFY=(str, "60/min"),
     THROTTLE_LMS_ANALYTICS=(str, "60/min"),
+    THROTTLE_CONNECTION_LOG=(str, "30/min"),
+    # Directory containing the MaxMind ``GeoLite2-City.mmdb`` file. Empty =
+    # geolocation disabled (connection events store no country/city/coords).
+    GEOIP_PATH=(str, ""),
     SENTRY_DSN=(str, ""),
     SENTRY_RELEASE=(str, ""),
     SENTRY_ENVIRONMENT=(str, "production"),
@@ -104,6 +108,10 @@ if SENTRY_DSN:
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 NAME_APP = "QuizOnline"
+
+# Directory holding the MaxMind GeoLite2-City.mmdb file. Empty disables
+# geolocation (connection events still record, just without geo fields).
+GEOIP_PATH = env("GEOIP_PATH")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
