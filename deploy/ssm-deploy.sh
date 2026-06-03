@@ -67,12 +67,12 @@ if [ -d "$LIVE_DIR" ]; then
 fi
 mv "$STAGING_DIR" "$LIVE_DIR"
 
+# Absolute /bin/systemctl so the sudoers Cmnd match is literal (usrmerge:
+# /bin -> /usr/bin); /bin/systemctl reload nginx is the exact whitelisted
+# command. nginx is the only reverse proxy on this host.
 if systemctl is-active --quiet nginx; then
-  sudo systemctl reload nginx
+  sudo /bin/systemctl reload nginx
   echo "  nginx reloaded"
-elif systemctl is-active --quiet apache2; then
-  sudo systemctl reload apache2
-  echo "  apache2 reloaded"
 else
   echo "  no reverse proxy active, skipped reload" >&2
 fi
@@ -81,4 +81,4 @@ echo ""
 echo "=== Deploy $SHA complete ==="
 echo "  Previous bundle preserved at: $PREV_DIR"
 echo "  Rollback (if needed):"
-echo "    sudo -u django bash -c 'rm -rf $LIVE_DIR && mv $PREV_DIR $LIVE_DIR && sudo systemctl reload nginx'"
+echo "    sudo -u django bash -c 'rm -rf $LIVE_DIR && mv $PREV_DIR $LIVE_DIR && sudo /bin/systemctl reload nginx'"
