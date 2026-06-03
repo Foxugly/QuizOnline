@@ -1,0 +1,36 @@
+# QuizOnline — least-privilege sudo grants for the `django` app user.
+#
+# Install on the EC2 host as /etc/sudoers.d/quizonline-deploy:
+#     sudo install -m 0440 -o root -g root \
+#       deploy/sudoers/quizonline-deploy /etc/sudoers.d/quizonline-deploy
+#     sudo visudo -cf /etc/sudoers.d/quizonline-deploy   # must print "parsed OK"
+#
+# Lets redeploy.sh (run as `django`) sync the three app unit files and
+# restart/reload services WITHOUT a password — and nothing else. The
+# env-fetch / frontend-runtime / backup units are installed by root via the
+# SSM workflow, not here, so they are intentionally NOT in QO_SVC_SYNC.
+# (Formerly named /etc/sudoers.d/django-deploy — renamed for naming parity
+# with the rest of the quizonline-* tooling; the filename is cosmetic.)
+
+Cmnd_Alias QO_SVC_SYNC = \
+      /bin/cp /var/www/django_websites/QuizOnline/deploy/quizonline-gunicorn.service /etc/systemd/system/quizonline-gunicorn.service, \
+      /bin/cp /var/www/django_websites/QuizOnline/deploy/quizonline-celery.service /etc/systemd/system/quizonline-celery.service, \
+      /bin/cp /var/www/django_websites/QuizOnline/deploy/quizonline-celery-beat.service /etc/systemd/system/quizonline-celery-beat.service
+
+
+Cmnd_Alias QO_SVC_CTRL = \
+      /bin/systemctl daemon-reload, \
+      /bin/systemctl restart quizonline-gunicorn, \
+      /bin/systemctl restart quizonline-celery, \
+      /bin/systemctl restart quizonline-celery-beat, \
+      /bin/systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
+
+
+Cmnd_Alias QO_WEB_CTRL = \
+      /bin/systemctl reload nginx, \
+      /bin/systemctl reload apache2, \
+      /usr/sbin/nginx -t, \
+      /usr/sbin/apachectl configtest
+
+django ALL=(root) NOPASSWD: QO_SVC_SYNC, QO_SVC_CTRL, QO_WEB_CTRL
+Defaults!QO_SVC_SYNC,QO_SVC_CTRL,QO_WEB_CTRL !setenv, !env_keep

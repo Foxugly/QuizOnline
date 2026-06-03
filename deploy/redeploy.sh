@@ -98,7 +98,8 @@ SVC_UPDATED=0
 # git checkout. The django sudoers only allows ``cp`` into
 # /etc/systemd/system/, so trying to install elsewhere just trips
 # the password prompt. See quizonline-env-fetch.service for the
-# rationale.
+# rationale, and deploy/sudoers/quizonline-deploy for the exact
+# version-controlled whitelist (installed at /etc/sudoers.d/).
 #
 # quizonline-env-fetch.service ITSELF is also not in the loop below
 # because the django sudoers whitelist enumerates specific service

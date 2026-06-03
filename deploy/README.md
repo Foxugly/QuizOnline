@@ -539,7 +539,13 @@ ever rebuild:
    run their helpers straight from the git checkout — no
    `/usr/local/bin/` install needed):
    ```bash
-   # On EC2:
+   # On EC2 (from /var/www/django_websites/QuizOnline):
+   # Least-privilege sudo grants so the `django` user (CI / redeploy.sh) can
+   # sync the 3 app unit files + restart/reload services without a password.
+   sudo install -m 0440 -o root -g root \
+       deploy/sudoers/quizonline-deploy /etc/sudoers.d/quizonline-deploy
+   sudo visudo -cf /etc/sudoers.d/quizonline-deploy   # must print "parsed OK"
+
    sudo cp deploy/quizonline-*.service deploy/quizonline-*.timer /etc/systemd/system/
    sudo systemctl daemon-reload
    sudo systemctl enable --now quizonline-env-fetch.service
