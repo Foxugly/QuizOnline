@@ -16,6 +16,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
 import {AuthApi as AuthApiService} from '../../../api/generated/api/auth.service';
 import {AuthService} from '../../../services/auth/auth';
+import {ConnectionLogService} from '../../../services/connection-log/connection-log.service';
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
@@ -38,6 +39,7 @@ export class MagicLinkExchangePage implements OnInit {
   private readonly router = inject(Router);
   private readonly authApi = inject(AuthApiService);
   private readonly auth = inject(AuthService);
+  private readonly connectionLog = inject(ConnectionLogService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly ui = inject(UiTextService).ui;
@@ -71,6 +73,8 @@ export class MagicLinkExchangePage implements OnInit {
           this.auth.loginWithTokens(pair.access, pair.refresh).subscribe({
             next: () => {
               this.working.set(false);
+              // Fire-and-forget connection-log capture on real success only.
+              this.connectionLog.record('magic_link');
               const nextUrl = this.route.snapshot.queryParamMap.get('next');
               const safeNext = nextUrl && nextUrl.startsWith('/') && !nextUrl.includes('://') ? nextUrl : null;
               void this.router.navigateByUrl(safeNext || '/home');
