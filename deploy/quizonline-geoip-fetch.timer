@@ -1,0 +1,12 @@
+[Unit]
+Description=QuizOnline — weekly MaxMind GeoLite2-City refresh
+
+[Timer]
+# MaxMind publishes GeoLite2 ~twice a week; weekly is plenty. Persistent so a
+# refresh missed while the box was off runs at next boot. The .mmdb lives on
+# persistent disk (GEOIP_PATH, not tmpfs), so no boot-time fetch is required.
+OnCalendar=Wed 03:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

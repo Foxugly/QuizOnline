@@ -353,65 +353,60 @@ The parameters are non-secret (operational tunables) — `String` type is suffic
 
 ### MaxMind GeoLite2 geolocation
 
-The connection log enriches each login with a city-level location resolved
-**offline** from a local MaxMind GeoLite2 database (no per-request API call).
-Geolocation **degrades gracefully**: if `GEOIP_PATH` is empty or the `.mmdb`
-file is missing/unreadable, events are still recorded with empty geo fields —
-no errors, the map simply shows fewer markers.
+The connection log resolves a city-level location **offline** from a local
+GeoLite2 DB (no per-request API call). It **degrades gracefully**: with no DB
+the events store empty geo fields (no errors, the map just shows fewer markers).
+The DB is fetched from MaxMind using credentials in **SSM** — same pattern as
+env-fetch, so no key lives in the repo and it refreshes itself weekly.
 
-1. **Get a free license key.** Create a free account at
-   <https://www.maxmind.com/en/geolite2/signup>, then under *Account →
-   Manage License Keys* generate a key. Seed it into SSM (SecureString) so the
-   server can fetch it like the other secrets:
-
-   ```bash
-   cat > /tmp/maxmind.env <<EOF
-   MAXMIND_LICENSE_KEY=YOUR_KEY
-   EOF
-   bash deploy/seed-parameter-store.sh --prefix /quizonline/prod /tmp/maxmind.env
-   rm /tmp/maxmind.env
-   ```
-
-2. **Pick a directory for the DB** and point `GEOIP_PATH` at it (e.g.
-   `/var/lib/geoip`). Add `GEOIP_PATH=/var/lib/geoip` to the prod env (or seed
-   it into SSM alongside the throttles — it is a non-secret `String`).
+1. **MaxMind account + SSM params.** Create a free account
+   (<https://www.maxmind.com/en/geolite2/signup>), note your **Account ID**, and
+   generate a **license key** (Account → Manage License Keys). Seed three SSM
+   params:
 
    ```bash
-   sudo mkdir -p /var/lib/geoip
-   sudo chown django:www-data /var/lib/geoip
+   aws ssm put-parameter --name /quizonline/prod/MAXMIND_ACCOUNT_ID  --type String       --value "YOUR_ACCOUNT_ID" --overwrite --region eu-west-1
+   aws ssm put-parameter --name /quizonline/prod/MAXMIND_LICENSE_KEY --type SecureString  --value "YOUR_KEY"        --overwrite --region eu-west-1
+   aws ssm put-parameter --name /quizonline/prod/GEOIP_PATH          --type String        --value "/var/lib/geoip"  --overwrite --region eu-west-1
    ```
 
-3. **Provision `GeoLite2-City.mmdb`** into that directory — either of:
+   `GEOIP_PATH` is the only one Django reads (where it loads the `.mmdb`); the
+   other two are used by the fetch script below. The instance role's
+   `ReadAppConfigFromSSM` already grants `ssm:GetParameter` on `/quizonline/prod/*`.
 
-   - **`geoipupdate` (recommended, auto-refresh).** Install the package
-     (`sudo apt-get install geoipupdate`), write `/etc/GeoIP.conf` with your
-     `AccountID` + `LicenseKey`, set `EditionIDs GeoLite2-City` and
-     `DatabaseDirectory /var/lib/geoip`, then run `sudo geoipupdate`. A
-     monthly cron keeps it fresh:
-
-     ```bash
-     # /etc/cron.d/geoipupdate — MaxMind publishes updates ~weekly; monthly is plenty.
-     0 3 1 * * root /usr/bin/geoipupdate
-     ```
-
-   - **One-off download** (no `geoipupdate` package):
-
-     ```bash
-     LICENSE_KEY=YOUR_KEY
-     curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=$LICENSE_KEY&suffix=tar.gz" \
-       | sudo tar -xz --strip-components=1 -C /var/lib/geoip --wildcards '*/GeoLite2-City.mmdb'
-     ```
-
-     Re-run monthly to refresh (the geolocation accuracy drifts as the DB ages).
-
-4. **Restart** so the new path/DB is picked up:
+2. **Install the fetch units** (run the script from the git checkout, like
+   env-fetch). MaxMind serves downloads via **R2 pre-signed URLs**, so outbound
+   HTTPS must be allowed to (EC2 egress is open by default — only matters if you
+   tighten the SG):
+   `mm-prod-geoip-databases.a2649acb697e2c09b632799562c076f2.r2.cloudflarestorage.com`
 
    ```bash
-   sudo systemctl restart quizonline-env-fetch.service quizonline-gunicorn.service
+   # On EC2, from /var/www/django_websites/QuizOnline:
+   sudo cp deploy/quizonline-geoip-fetch.service deploy/quizonline-geoip-fetch.timer /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl start quizonline-geoip-fetch.service        # fetch the DB now
+   sudo systemctl enable --now quizonline-geoip-fetch.timer   # weekly refresh
+   ls -l /var/lib/geoip/GeoLite2-City.mmdb                    # verify it landed
+   journalctl -u quizonline-geoip-fetch --no-pager | tail     # check the log
    ```
 
-The `.mmdb` file is git-ignored (`*.mmdb`) — it is large, licensed, and
-server-provisioned; never commit it.
+3. **Make Django see it** — env-fetch must re-run so `GEOIP_PATH` lands in
+   `/run/quizonline/.env`, then restart the app:
+
+   ```bash
+   sudo systemctl restart quizonline-env-fetch quizonline-gunicorn
+   ```
+
+   Verify: log in once, then open `/admin/connections` as a superuser — the
+   event should show country/city + a map marker.
+
+**Manual alternative** (no SSM/units): hand-write `/etc/GeoIP.conf` (`AccountID`,
+`LicenseKey`, `EditionIDs GeoLite2-City`, `DatabaseDirectory /var/lib/geoip`),
+then `sudo apt-get install -y geoipupdate && sudo geoipupdate -v`, plus a weekly
+cron (`0 3 * * 3 root /usr/bin/geoipupdate`).
+
+The `.mmdb` file is git-ignored (`*.mmdb`) — large, licensed, server-provisioned;
+never commit it.
 
 ---
 

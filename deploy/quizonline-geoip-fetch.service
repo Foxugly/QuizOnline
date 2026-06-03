@@ -1,0 +1,24 @@
+[Unit]
+Description=QuizOnline — fetch MaxMind GeoLite2-City DB from SSM credentials
+# Needs network (MaxMind download) and a sane clock (SigV4 for the SSM call).
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as root: reads SSM via the EC2 instance role (IMDS, no creds on disk)
+# and installs the .mmdb owned django:www-data under GEOIP_PATH.
+User=root
+
+# ExecStart points straight at the git checkout (same pattern as
+# quizonline-env-fetch.service) — no install into /usr/local/bin.
+ExecStart=/var/www/django_websites/QuizOnline/deploy/fetch-geoip-from-ssm.sh
+
+# A failed download is non-fatal: any existing DB stays in place and the
+# connection-log geolocation simply degrades. Don't let a transient MaxMind
+# hiccup mark the boot degraded.
+SuccessExitStatus=0
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target
