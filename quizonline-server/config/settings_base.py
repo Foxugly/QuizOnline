@@ -252,6 +252,7 @@ REST_FRAMEWORK = {
         "lms_block_write": env("THROTTLE_LMS_BLOCK_WRITE"),
         "lms_cert_verify": env("THROTTLE_LMS_CERT_VERIFY"),
         "lms_analytics": env("THROTTLE_LMS_ANALYTICS"),
+        "connection_log": env("THROTTLE_CONNECTION_LOG"),
     },
 }
 

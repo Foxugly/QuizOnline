@@ -7,6 +7,7 @@ api/api.ts
 api/auth.service.ts
 api/block.service.ts
 api/certificate.service.ts
+api/connection-log.service.ts
 api/course-invite.service.ts
 api/course.service.ts
 api/domain.service.ts
@@ -47,6 +48,8 @@ model/block-type-enum.ts
 model/block.ts
 model/bulk-create-from-template-input-request.ts
 model/certificate.ts
+model/connection-event-read-request.ts
+model/connection-event-read.ts
 model/course-detail-my-enrollment.ts
 model/course-detail-my-pending-invite.ts
 model/course-detail-request.ts
@@ -122,6 +125,7 @@ model/localized-quiz-template-translation-request.ts
 model/localized-quiz-template-translation.ts
 model/localized-subject-detail-translation.ts
 model/localized-subject-translation.ts
+model/login-method-enum.ts
 model/magic-link-exchange-request-request.ts
 model/magic-link-exchange-response.ts
 model/magic-link-request-request.ts
@@ -131,6 +135,7 @@ model/moderation-summary-item.ts
 model/notification-read.ts
 model/paginated-block-list.ts
 model/paginated-certificate-list.ts
+model/paginated-connection-event-read-list.ts
 model/paginated-course-enrollment-list.ts
 model/paginated-course-list-list.ts
 model/paginated-course-progress-list.ts
