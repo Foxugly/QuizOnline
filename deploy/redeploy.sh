@@ -98,9 +98,13 @@ fi
 # (see deploy/sudoers/quizonline-deploy). A purely-manual ``redeploy.sh``
 # run therefore assumes the units on disk are already current.
 echo "[4/6] Restarting services..."
-sudo systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
+# Invoke systemctl by its absolute /bin path so the sudoers Cmnd match is
+# literal and independent of secure_path resolution (usrmerge: /bin ->
+# /usr/bin). /bin/systemctl is the exact path whitelisted in
+# deploy/sudoers/quizonline-deploy.
+sudo /bin/systemctl restart quizonline-gunicorn quizonline-celery quizonline-celery-beat
 if [ -n "$WEB_SERVER" ]; then
-  sudo systemctl reload "$WEB_SERVER"
+  sudo /bin/systemctl reload "$WEB_SERVER"
 fi
 
 # ── 5. Verify services ──────────────────────────────────────────────────────

@@ -29,8 +29,8 @@ Cmnd_Alias QO_SVC_CTRL = \
 
 
 Cmnd_Alias QO_WEB_CTRL = \
-      /bin/systemctl reload nginx, \
-      /usr/sbin/nginx -t
+      /usr/sbin/nginx -t, \
+      /bin/systemctl reload nginx
 
 django ALL=(root) NOPASSWD: QO_SVC_CTRL, QO_WEB_CTRL
 Defaults!QO_SVC_CTRL,QO_WEB_CTRL !setenv, !env_keep
