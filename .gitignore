@@ -69,5 +69,12 @@ AWS*
 *.ppk
 /*.csv
 
+# ── Scratch / generated artifacts (never commit; keep `git add -A` safe) ──────
+/.tmp/
+/PycharmProjectsQuizOnline.tmp_index.html
+# Manual PDFs are generated on demand (npm run manual:pdf), not version-controlled.
+docs/manual/QuizOnline-Manuel-*.pdf
+docs/manual/**/.manual-build.html
+
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock

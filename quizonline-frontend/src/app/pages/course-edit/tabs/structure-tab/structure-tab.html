@@ -26,6 +26,7 @@
               [text]="true"
               cdkDragHandle
               [pTooltip]="ui().dragHandleAria"
+              tooltipPosition="top"
               [attr.aria-label]="ui().dragHandleAria">
             </button>
             <span class="section-card__title">{{ sectionTitle(section) }}</span>
@@ -46,6 +47,7 @@
                 severity="info"
                 size="small"
                 [pTooltip]="ui().editButton"
+                tooltipPosition="top"
                 [attr.aria-label]="ui().editButton"
                 (onClick)="openSectionDialogEdit(section)">
               </p-button>
@@ -56,6 +58,7 @@
                 severity="danger"
                 size="small"
                 [pTooltip]="ui().deleteButton"
+                tooltipPosition="top"
                 [attr.aria-label]="ui().deleteButton"
                 (onClick)="confirmDeleteSection(section)">
               </p-button>
@@ -86,6 +89,7 @@
                   cdkDragHandle
                   size="small"
                   [pTooltip]="ui().dragHandleAria"
+                  tooltipPosition="top"
                   [attr.aria-label]="ui().dragHandleAria">
                 </button>
                 <span class="lesson-row__title">{{ lessonTitle(lesson) }}</span>
@@ -125,6 +129,7 @@
                     severity="info"
                     size="small"
                     [pTooltip]="ui().editButton"
+                    tooltipPosition="top"
                     [attr.aria-label]="ui().editButton"
                     (onClick)="openLessonDialogEdit(section, lesson)">
                   </p-button>
@@ -135,6 +140,7 @@
                     severity="danger"
                     size="small"
                     [pTooltip]="ui().deleteButton"
+                    tooltipPosition="top"
                     [attr.aria-label]="ui().deleteButton"
                     (onClick)="confirmDeleteLesson(lesson)">
                   </p-button>

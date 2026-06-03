@@ -19,6 +19,7 @@ Monorepo with two main modules:
   - `size="small"` only for actions inside a table row or tightly coupled to a list (row actions, inline list-item buttons, table toolbar buttons such as "Clear filters" / "Export CSV" that live in the same card as the table).
   - Default (no `size`) for page-level primary/secondary actions: page hero CTAs, form submit/cancel, dialog footer, page toolbar primary actions.
   - Never `size="large"`.
+- **Tooltip position**: row-action button tooltips in tables/lists use `tooltipPosition="top"` (PrimeNG defaults to `"right"`, which overflows the rightmost actions column and clips the last button). Page-header / toolbar button tooltips use `tooltipPosition="bottom"`.
 - **Empty states**: use `<app-empty-state>` (under `shared/components/empty-state/`) with `density="compact"` inside table empty rows and dropdowns, default density on page sections.
 - **State display & controls**:
   - Display ANY state (`active`/`inactive`, `published`/`draft`, access mode `open`/`approval`/`invite`) with `<app-status-badge>` (under `shared/components/status-badge/`) — never a bare icon or an ad-hoc `<p-tag>`. Labels come from the shared `inject(UiTextService).ui` dictionary (`ui().status.*` / `ui().access.*`). `inactive` and `draft` are both grey (`secondary`) on purpose — "not live"; red is reserved for real errors.

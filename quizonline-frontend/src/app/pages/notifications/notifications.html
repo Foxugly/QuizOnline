@@ -62,6 +62,7 @@
               severity="secondary"
               icon="pi pi-check"
               [pTooltip]="ui().notifications.actionMarkRead"
+              tooltipPosition="top"
               (click)="markRead(row)">
             </button>
           }
@@ -73,6 +74,7 @@
               severity="danger"
               icon="pi pi-trash"
               [pTooltip]="ui().notifications.actionDelete"
+              tooltipPosition="top"
               (click)="remove(row)">
             </button>
           }
