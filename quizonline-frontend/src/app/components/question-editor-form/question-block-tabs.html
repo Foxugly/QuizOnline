@@ -100,6 +100,7 @@
                   size="small"
                   [outlined]="true"
                   [pTooltip]="editorUi().common.duplicate"
+                  tooltipPosition="top"
                   [attr.aria-label]="editorUi().common.duplicate"
                   (onClick)="onDuplicateAnswer(row.id)" />
                 <p-button
@@ -108,6 +109,7 @@
                   size="small"
                   [outlined]="true"
                   [pTooltip]="ui().removeAnswer"
+                  tooltipPosition="top"
                   [attr.aria-label]="ui().removeAnswer"
                   (onClick)="onRemoveAnswer(row.id)" />
               </header>
