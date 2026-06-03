@@ -49,12 +49,18 @@ export class DomainMembersTab {
   /** True iff the current user is the owner (or a superuser): only they can
    *  change roles and remove members from this tab. Managers see read-only. */
   readonly canManage = input<boolean>(false);
+  /** True iff the current user may transfer ownership (owner or superuser).
+   *  Gates the "change owner" action on the owner's row. */
+  readonly canChangeOwner = input<boolean>(false);
   /** Current user id; used to forbid acting on oneself from the tab. */
   readonly currentUserId = input<number | null>(null);
   readonly text = input.required<DomainEditUiText>();
 
   readonly roleChange = output<MemberRoleChange>();
   readonly removeMember = output<MemberRemove>();
+  /** Emitted when the owner's "change owner" action is clicked — the parent
+   *  opens the transfer-ownership flow. */
+  readonly changeOwner = output<void>();
 
   private readonly confirmationService = inject(ConfirmationService);
 
