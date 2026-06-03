@@ -42,13 +42,13 @@ ProtectHome=yes
 NoNewPrivileges=yes
 RestrictSUIDSGID=yes
 
-# ExecStart points straight at the git-checked-out script — no
-# install step into /usr/local/bin needed. The django sudoers
-# whitelist only allows ``cp`` into /etc/systemd/system/, not
-# /usr/local/bin/, so keeping the script in the repo dodges the
-# whole sudo install dance. The script is bash, ExecStart= just
-# parses the file into memory so a mid-execution git pull is safe.
-ExecStart=/var/www/django_websites/QuizOnline/deploy/fetch-env-from-ssm.sh
+# §3.10: this oneshot runs as root, so its script must NOT live in the
+# django-writable tree — a compromised gunicorn (runs as django) could edit
+# it and have it execute as root. It is installed root:root 0755 at
+# /usr/local/sbin/quizonline-env-fetch.sh by ROOT from the committed git blob
+# (see deploy.yml, same airtight pattern as the units). deploy/fetch-env-from-ssm.sh
+# stays as the versioned source, never the execution target.
+ExecStart=/usr/local/sbin/quizonline-env-fetch.sh
 
 # Don't drown the journal if the script churns through retries.
 TimeoutStartSec=120
