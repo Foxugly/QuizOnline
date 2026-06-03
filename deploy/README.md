@@ -359,18 +359,12 @@ Geolocation **degrades gracefully**: if `GEOIP_PATH` is empty or the `.mmdb`
 file is missing/unreadable, events are still recorded with empty geo fields —
 no errors, the map simply shows fewer markers.
 
-1. **Get a free license key.** Create a free account at
+1. **Get an Account ID + license key.** Create a free account at
    <https://www.maxmind.com/en/geolite2/signup>, then under *Account →
-   Manage License Keys* generate a key. Seed it into SSM (SecureString) so the
-   server can fetch it like the other secrets:
-
-   ```bash
-   cat > /tmp/maxmind.env <<EOF
-   MAXMIND_LICENSE_KEY=YOUR_KEY
-   EOF
-   bash deploy/seed-parameter-store.sh --prefix /quizonline/prod /tmp/maxmind.env
-   rm /tmp/maxmind.env
-   ```
+   Manage License Keys* generate a key and note your **Account ID**. These are
+   used by `geoipupdate` **on the box** (in `/etc/GeoIP.conf`, root-only) to
+   fetch the DB — Django reads only the resulting `.mmdb` via `GEOIP_PATH`, so
+   the key does **not** go into the app env / SSM.
 
 2. **Pick a directory for the DB** and point `GEOIP_PATH` at it (e.g.
    `/var/lib/geoip`). Add `GEOIP_PATH=/var/lib/geoip` to the prod env (or seed
@@ -381,28 +375,46 @@ no errors, the map simply shows fewer markers.
    sudo chown django:www-data /var/lib/geoip
    ```
 
-3. **Provision `GeoLite2-City.mmdb`** into that directory — either of:
+3. **Provision `GeoLite2-City.mmdb`** into that directory. Since 2024 MaxMind
+   serves DB downloads via **R2 pre-signed URLs**, so the client must **follow
+   redirects** and outbound HTTPS to this host must be allowed (EC2 egress is
+   open by default — only matters if you tighten the security group):
 
-   - **`geoipupdate` (recommended, auto-refresh).** Install the package
-     (`sudo apt-get install geoipupdate`), write `/etc/GeoIP.conf` with your
-     `AccountID` + `LicenseKey`, set `EditionIDs GeoLite2-City` and
-     `DatabaseDirectory /var/lib/geoip`, then run `sudo geoipupdate`. A
-     monthly cron keeps it fresh:
+   `mm-prod-geoip-databases.a2649acb697e2c09b632799562c076f2.r2.cloudflarestorage.com`
+
+   Use either:
+
+   - **`geoipupdate` (recommended, auto-refresh; needs v4.x+ for TLS 1.2).**
 
      ```bash
-     # /etc/cron.d/geoipupdate — MaxMind publishes updates ~weekly; monthly is plenty.
-     0 3 1 * * root /usr/bin/geoipupdate
+     sudo apt-get install -y geoipupdate
+     sudo tee /etc/GeoIP.conf >/dev/null <<'EOF'
+     AccountID YOUR_ACCOUNT_ID
+     LicenseKey YOUR_LICENSE_KEY
+     EditionIDs GeoLite2-City
+     DatabaseDirectory /var/lib/geoip
+     EOF
+     sudo chmod 600 /etc/GeoIP.conf
+     sudo geoipupdate -v          # writes /var/lib/geoip/GeoLite2-City.mmdb
      ```
 
-   - **One-off download** (no `geoipupdate` package):
+     Keep it fresh (MaxMind releases GeoLite2 ~twice a week):
 
      ```bash
-     LICENSE_KEY=YOUR_KEY
-     curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=$LICENSE_KEY&suffix=tar.gz" \
+     # /etc/cron.d/geoipupdate
+     0 3 * * 3 root /usr/bin/geoipupdate     # weekly, Wed 03:00
+     ```
+
+   - **One-off direct download** (no `geoipupdate`) — Basic Auth with the
+     Account ID + license key, `-L` to follow the R2 redirect:
+
+     ```bash
+     curl -fsSL -u YOUR_ACCOUNT_ID:YOUR_LICENSE_KEY \
+       'https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz' \
        | sudo tar -xz --strip-components=1 -C /var/lib/geoip --wildcards '*/GeoLite2-City.mmdb'
      ```
 
-     Re-run monthly to refresh (the geolocation accuracy drifts as the DB ages).
+     Re-run periodically to refresh (geolocation accuracy drifts as the DB ages).
 
 4. **Restart** so the new path/DB is picked up:
 
