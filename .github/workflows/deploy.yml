@@ -59,17 +59,17 @@ jobs:
           SHA: ${{ steps.package.outputs.sha }}
         run: |
           # Ordered SSM commands (AWS-RunShellScript runs them as ROOT):
-          #   1. chown the whole tree back to django:www-data, then strip
-          #      group-write and ALL other-access (g-w,o-rwx → 750 dirs /
-          #      640 files). This runs BEFORE the django git reset and
-          #      self-heals the recurring ".git/objects … Permission denied"
-          #      failure caused by git objects left root-owned during manual
-          #      ops on the box. The o-rwx is serving-safe because django's
-          #      primary group AND nginx both run as www-data, so nginx
-          #      reads the bundle / static / media via the group (verified:
-          #      id django → gid=33(www-data)); nothing relied on world-read.
-          #   2. As django: fetch + hard-reset the working tree to origin/main
-          #      (also refreshes the origin/main ref used by step 3).
+          #   1. chown the whole tree back to django:www-data. Runs BEFORE the
+          #      django git reset and self-heals the recurring ".git/objects …
+          #      Permission denied" failure caused by git objects left
+          #      root-owned during manual ops on the box.
+          #   2. As django, with ``umask 027``: fetch + hard-reset to
+          #      origin/main. The umask makes every file git recreates be born
+          #      640/750 (group www-data) instead of world-readable 644 — this
+          #      is what stops the per-deploy permission drift at the source
+          #      (a bare reset under the default umask 022 recreated ~1500
+          #      files as 644 every deploy). Also refreshes the origin/main
+          #      ref used by step 3.
           #   3. As ROOT: install every systemd unit straight from the
           #      COMMITTED git blob at origin/main — never from the
           #      django-writable working tree. A compromised ``django`` can
@@ -80,6 +80,15 @@ jobs:
           #   4. daemon-reload + (re)start the frontend-runtime fetch unit.
           #   5. As django: run ssm-deploy.sh (restart app services via the
           #      tight sudoers grant + atomic frontend bundle swap).
+          #   6. FINAL idempotent normalization (root, AFTER everything that
+          #      writes to the tree — git reset, collectstatic, bundle swap):
+          #      chown then ``chmod -R g-w,o-rwx`` so the whole tree ends at
+          #      750 dirs / 640 files, group www-data, no other-access, no
+          #      group-write. Serving-safe: django's primary group AND nginx
+          #      both run as www-data, so nginx reads bundle/static/media via
+          #      the group (verified: id django → gid=33(www-data)); nothing
+          #      relied on world-read. ``g-w,o-rwx`` preserves execute bits.
+          #      Runs as root in this SSM context — no new django sudo grant.
           #
           # JSON quoting is fiddly — use a tmpfile so the YAML stays
           # readable and ``aws ssm`` doesn't see escaped-double-quote
@@ -88,8 +97,7 @@ jobs:
           {
             "commands": [
               "chown -R django:www-data /var/www/django_websites/QuizOnline",
-              "chmod -R g-w,o-rwx /var/www/django_websites/QuizOnline",
-              "sudo -u django bash -c 'cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
+              "sudo -u django bash -c 'umask 027; cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
               "git -C /var/www/django_websites/QuizOnline -c safe.directory=/var/www/django_websites/QuizOnline show origin/main:deploy/quizonline-env-fetch.service > /etc/systemd/system/quizonline-env-fetch.service",
               "git -C /var/www/django_websites/QuizOnline -c safe.directory=/var/www/django_websites/QuizOnline show origin/main:deploy/quizonline-frontend-runtime-fetch.service > /etc/systemd/system/quizonline-frontend-runtime-fetch.service",
               "git -C /var/www/django_websites/QuizOnline -c safe.directory=/var/www/django_websites/QuizOnline show origin/main:deploy/quizonline-gunicorn.service > /etc/systemd/system/quizonline-gunicorn.service",
@@ -98,7 +106,8 @@ jobs:
               "systemctl daemon-reload",
               "systemctl enable --quiet quizonline-frontend-runtime-fetch.service",
               "systemctl restart quizonline-frontend-runtime-fetch.service",
-              "sudo -u django bash /var/www/django_websites/QuizOnline/deploy/ssm-deploy.sh $SHA $BUCKET"
+              "sudo -u django bash /var/www/django_websites/QuizOnline/deploy/ssm-deploy.sh $SHA $BUCKET",
+              "chown -R django:www-data /var/www/django_websites/QuizOnline && chmod -R g-w,o-rwx /var/www/django_websites/QuizOnline"
             ],
             "executionTimeout": ["900"]
           }
