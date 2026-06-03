@@ -7,6 +7,9 @@ Requires=quizonline-env-fetch.service
 Type=simple
 User=django
 Group=www-data
+# Files this service creates (logs, uploaded media) are group www-data and
+# not world-accessible; nginx (also www-data) still reads them via the group.
+UMask=0027
 WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 
 # Single source of truth: a tmpfs file written at boot by

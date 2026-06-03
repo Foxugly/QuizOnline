@@ -19,6 +19,11 @@
 
 set -euo pipefail
 
+# Database dumps are never web-served and may contain PII — keep every
+# intermediate file owner-only (the final dump is also explicitly chmod 600
+# below; this also covers the transient .sqlite3 before gzip).
+umask 077
+
 PROJECT_DIR="${PROJECT_DIR:-/var/www/django_websites/QuizOnline/quizonline-server}"
 ENV_FILE="${ENV_FILE:-${PROJECT_DIR}/.env}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/quizonline}"
