@@ -6,6 +6,8 @@ Requires=quizonline-env-fetch.service
 [Service]
 User=django
 Group=www-data
+# Group www-data, not world-accessible (nginx still reads via the group).
+UMask=0027
 WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 
 # Secrets come from /run/quizonline/.env (tmpfs), populated at boot
