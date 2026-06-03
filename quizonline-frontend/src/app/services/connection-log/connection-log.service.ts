@@ -26,7 +26,7 @@ export class ConnectionLogService {
   record(loginMethod: LoginMethod): void {
     const body = {
       login_method: loginMethod,
-      local_time: new Date().toString(),
+      local_time: new Date().toLocaleString(),  // compact, fits the 64-char column
       browser_language: navigator.language ?? '',
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone ?? '',
       screen_width: window.screen?.width ?? null,

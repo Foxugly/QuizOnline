@@ -1,5 +1,5 @@
-from domain.view_mixins._helpers import client_ip
 from .geoip import lookup_geo
+from .ip import trusted_client_ip
 from .models import ConnectionEvent
 from .useragent import parse_user_agent
 
@@ -9,7 +9,7 @@ def record_connection(*, user, request, client: dict) -> ConnectionEvent:
     browser-supplied ``client`` dict. Server-derived fields (account, ip,
     UA, geo) always win over anything in ``client``."""
     ua_string = request.META.get("HTTP_USER_AGENT", "")
-    ip = client_ip(request) or None
+    ip = trusted_client_ip(request)
     parsed = parse_user_agent(ua_string)
     geo = lookup_geo(ip or "")
     return ConnectionEvent.objects.create(
