@@ -19,7 +19,8 @@
               "media": "bundle-media"
             },
             "allowedCommonJsDependencies": [
-              "quill-delta"
+              "quill-delta",
+              "leaflet"
             ],
             "polyfills": [
               "zone.js"
@@ -29,10 +30,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "*.png",
+                "input": "node_modules/leaflet/dist/images",
+                "output": "leaflet"
               }
             ],
             "styles": [
               "./node_modules/primeicons/primeicons.css",
+              "./node_modules/leaflet/dist/leaflet.css",
               "src/styles.scss"
             ]
           },

@@ -1,7 +1,20 @@
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
+import * as L from 'leaflet';
 import {ButtonModule} from 'primeng/button';
 import {CardModule} from 'primeng/card';
 import {DatePickerModule} from 'primeng/datepicker';
@@ -39,7 +52,7 @@ import {getConnectionsUiText} from './connections.i18n';
   styleUrl: './connections.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConnectionsPage implements OnInit {
+export class ConnectionsPage implements OnInit, AfterViewInit, OnDestroy {
   private readonly connectionLog = inject(ConnectionLogService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -54,8 +67,104 @@ export class ConnectionsPage implements OnInit {
 
   readonly rows = 25;
 
+  private readonly mapEl = viewChild<ElementRef<HTMLDivElement>>('map');
+  private map: L.Map | null = null;
+  private markers: L.LayerGroup | null = null;
+
+  constructor() {
+    // Whenever the event list (or the localized labels) change, re-render the
+    // markers. The map itself is created in ngAfterViewInit; the effect short-
+    // circuits until then.
+    effect(() => {
+      const events = this.events();
+      const labels = this.t();
+      this.renderMarkers(events, labels.map);
+    });
+  }
+
   ngOnInit(): void {
     this.load();
+  }
+
+  ngAfterViewInit(): void {
+    this.initMap();
+    // The view is ready now — render whatever events have already loaded.
+    this.renderMarkers(this.events(), this.t().map);
+  }
+
+  ngOnDestroy(): void {
+    this.map?.remove();
+    this.map = null;
+    this.markers = null;
+  }
+
+  /** Create the Leaflet map + OSM tile layer once the ``#map`` div exists. */
+  private initMap(): void {
+    const el = this.mapEl()?.nativeElement;
+    if (!el || this.map) {
+      return;
+    }
+
+    // Leaflet's default marker images are referenced relative to the bundled
+    // CSS, which 404s under the Angular bundler. The leaflet image assets are
+    // copied to /leaflet (see angular.json `assets`); point the default icon
+    // at those served URLs so the markers actually render.
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      iconUrl: 'leaflet/marker-icon.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
+    });
+
+    this.map = L.map(el, {worldCopyJump: true}).setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.map);
+    this.markers = L.layerGroup().addTo(this.map);
+  }
+
+  /** Clear existing markers and drop one per event that carries a lat/lng. */
+  private renderMarkers(
+    events: ConnectionEventReadDto[],
+    labels: {popupCity: string; popupDate: string},
+  ): void {
+    if (!this.map || !this.markers) {
+      return;
+    }
+    this.markers.clearLayers();
+
+    const points: L.LatLngTuple[] = [];
+    for (const event of events) {
+      if (event.latitude == null || event.longitude == null) {
+        continue;
+      }
+      const point: L.LatLngTuple = [event.latitude, event.longitude];
+      points.push(point);
+      const date = event.created_at ? new Date(event.created_at).toLocaleString() : '';
+      const popup = [
+        this.escapeHtml(event.account_email ?? ''),
+        event.city ? `${this.escapeHtml(labels.popupCity)}: ${this.escapeHtml(event.city)}` : '',
+        date ? `${this.escapeHtml(labels.popupDate)}: ${this.escapeHtml(date)}` : '',
+      ]
+        .filter((line) => !!line)
+        .join('<br>');
+      L.marker(point).bindPopup(popup).addTo(this.markers);
+    }
+
+    if (points.length > 0) {
+      this.map.fitBounds(L.latLngBounds(points), {padding: [40, 40], maxZoom: 12});
+    } else {
+      this.map.setView([20, 0], 2);
+    }
+  }
+
+  /** Minimal HTML escaping for values interpolated into a Leaflet popup. */
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   onRangeChange(value: Date[] | null): void {

@@ -45,6 +45,15 @@ export interface ConnectionsUiText {
   no: string;
   /** Placeholder rendered for an empty / null field value. */
   emptyValue: string;
+  /** Leaflet map section. */
+  map: {
+    /** Heading above the map. */
+    heading: string;
+    /** Popup label prefixed before the city in a marker popup. */
+    popupCity: string;
+    /** Popup label prefixed before the date in a marker popup. */
+    popupDate: string;
+  };
 }
 
 export function getConnectionsUiText(
@@ -94,6 +103,11 @@ export function getConnectionsUiText(
         yes: 'Oui',
         no: 'Non',
         emptyValue: '—',
+        map: {
+          heading: 'Carte des connexions',
+          popupCity: 'Ville',
+          popupDate: 'Date',
+        },
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -138,6 +152,11 @@ export function getConnectionsUiText(
         yes: 'Ja',
         no: 'Nee',
         emptyValue: '—',
+        map: {
+          heading: 'Verbindingskaart',
+          popupCity: 'Stad',
+          popupDate: 'Datum',
+        },
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -182,6 +201,11 @@ export function getConnectionsUiText(
         yes: 'Sì',
         no: 'No',
         emptyValue: '—',
+        map: {
+          heading: 'Mappa delle connessioni',
+          popupCity: 'Città',
+          popupDate: 'Data',
+        },
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -226,6 +250,11 @@ export function getConnectionsUiText(
         yes: 'Sí',
         no: 'No',
         emptyValue: '—',
+        map: {
+          heading: 'Mapa de conexiones',
+          popupCity: 'Ciudad',
+          popupDate: 'Fecha',
+        },
       };
     default:
       return {
@@ -269,6 +298,11 @@ export function getConnectionsUiText(
         yes: 'Yes',
         no: 'No',
         emptyValue: '—',
+        map: {
+          heading: 'Connections map',
+          popupCity: 'City',
+          popupDate: 'Date',
+        },
       };
   }
 }

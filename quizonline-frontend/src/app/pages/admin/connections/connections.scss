@@ -27,3 +27,15 @@
 .detail-list__value {
   word-break: break-word;
 }
+
+.map-heading {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.map {
+  height: 420px;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
