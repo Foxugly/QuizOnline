@@ -338,13 +338,80 @@ cat > /tmp/lms-throttles.env <<EOF
 THROTTLE_LMS_ENROLL=20/min
 THROTTLE_LMS_BLOCK_WRITE=120/min
 THROTTLE_LMS_CERT_VERIFY=60/min
+THROTTLE_CONNECTION_LOG=30/min
 EOF
 bash deploy/seed-parameter-store.sh --prefix /quizonline/prod /tmp/lms-throttles.env
 rm /tmp/lms-throttles.env
 sudo systemctl restart quizonline-env-fetch.service quizonline-gunicorn.service
 ```
 
+`THROTTLE_CONNECTION_LOG` (default `30/min`) caps the per-user
+`POST /api/connection-log/` the SPA fires after each successful login — seeded
+the same way as the LMS throttles.
+
 The parameters are non-secret (operational tunables) — `String` type is sufficient, `SecureString` is overkill.
+
+### MaxMind GeoLite2 geolocation
+
+The connection log enriches each login with a city-level location resolved
+**offline** from a local MaxMind GeoLite2 database (no per-request API call).
+Geolocation **degrades gracefully**: if `GEOIP_PATH` is empty or the `.mmdb`
+file is missing/unreadable, events are still recorded with empty geo fields —
+no errors, the map simply shows fewer markers.
+
+1. **Get a free license key.** Create a free account at
+   <https://www.maxmind.com/en/geolite2/signup>, then under *Account →
+   Manage License Keys* generate a key. Seed it into SSM (SecureString) so the
+   server can fetch it like the other secrets:
+
+   ```bash
+   cat > /tmp/maxmind.env <<EOF
+   MAXMIND_LICENSE_KEY=YOUR_KEY
+   EOF
+   bash deploy/seed-parameter-store.sh --prefix /quizonline/prod /tmp/maxmind.env
+   rm /tmp/maxmind.env
+   ```
+
+2. **Pick a directory for the DB** and point `GEOIP_PATH` at it (e.g.
+   `/var/lib/geoip`). Add `GEOIP_PATH=/var/lib/geoip` to the prod env (or seed
+   it into SSM alongside the throttles — it is a non-secret `String`).
+
+   ```bash
+   sudo mkdir -p /var/lib/geoip
+   sudo chown django:www-data /var/lib/geoip
+   ```
+
+3. **Provision `GeoLite2-City.mmdb`** into that directory — either of:
+
+   - **`geoipupdate` (recommended, auto-refresh).** Install the package
+     (`sudo apt-get install geoipupdate`), write `/etc/GeoIP.conf` with your
+     `AccountID` + `LicenseKey`, set `EditionIDs GeoLite2-City` and
+     `DatabaseDirectory /var/lib/geoip`, then run `sudo geoipupdate`. A
+     monthly cron keeps it fresh:
+
+     ```bash
+     # /etc/cron.d/geoipupdate — MaxMind publishes updates ~weekly; monthly is plenty.
+     0 3 1 * * root /usr/bin/geoipupdate
+     ```
+
+   - **One-off download** (no `geoipupdate` package):
+
+     ```bash
+     LICENSE_KEY=YOUR_KEY
+     curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=$LICENSE_KEY&suffix=tar.gz" \
+       | sudo tar -xz --strip-components=1 -C /var/lib/geoip --wildcards '*/GeoLite2-City.mmdb'
+     ```
+
+     Re-run monthly to refresh (the geolocation accuracy drifts as the DB ages).
+
+4. **Restart** so the new path/DB is picked up:
+
+   ```bash
+   sudo systemctl restart quizonline-env-fetch.service quizonline-gunicorn.service
+   ```
+
+The `.mmdb` file is git-ignored (`*.mmdb`) — it is large, licensed, and
+server-provisioned; never commit it.
 
 ---
 
