@@ -31,8 +31,28 @@ if SECRET_KEY == "django-insecure-dev-key-change-me":
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ["*"]:  # noqa: F405
     raise RuntimeError("Production ALLOWED_HOSTS must be explicitly configured.")
 
-DATABASE_URL = require_env_value("DATABASE_URL")
-DATABASES = {"default": env.db("DATABASE_URL")}  # noqa: F405
+# Database: fleet DB_* 6-var convention; DATABASE_URL kept as a transition
+# fallback so the deploy is safe regardless of SSM seed order.
+_db_engine = env("DB_ENGINE", default="")  # noqa: F405
+if _db_engine:
+    _DB_ENGINE_ALIASES = {
+        "postgresql": "django.db.backends.postgresql",
+        "postgres": "django.db.backends.postgresql",
+        "sqlite3": "django.db.backends.sqlite3",
+    }
+    DATABASES = {  # noqa: F405
+        "default": {
+            "ENGINE": _DB_ENGINE_ALIASES.get(_db_engine, _db_engine),
+            "NAME": require_env_value("DB_NAME"),
+            "USER": env("DB_USER", default=""),  # noqa: F405
+            "PASSWORD": env("DB_PASSWORD", default=""),  # noqa: F405
+            "HOST": env("DB_HOST", default=""),  # noqa: F405
+            "PORT": env("DB_PORT", default=""),  # noqa: F405
+        }
+    }
+else:
+    DATABASE_URL = require_env_value("DATABASE_URL")
+    DATABASES = {"default": env.db("DATABASE_URL")}  # noqa: F405
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=600)  # noqa: F405
 # Verify a reused connection is still alive before serving the next
 # request from it. Without this Django re-uses a connection that
