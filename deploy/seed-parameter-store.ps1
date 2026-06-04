@@ -47,7 +47,7 @@ $ErrorActionPreference = "Stop"
 $SecretKeys = @(
     "SECRET_KEY",
     "JWT_SIGNING_KEY",
-    "DATABASE_URL",
+    "DB_PASSWORD",
     "EMAIL_HOST_PASSWORD",
     "MS_GRAPH_CLIENT_SECRET",
     "DEEPL_AUTH_KEY",

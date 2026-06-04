@@ -1,9 +1,10 @@
 # Migrate QuizOnline from SQLite to PostgreSQL on the EC2 host
 
-> **Reference runbook — not necessarily executed yet.** Whether prod is
-> still on SQLite or already cut over is authoritative only in the live
-> `DATABASE_URL` (SSM Parameter Store `/quizonline/prod/DATABASE_URL`),
-> not in this doc. Check that before assuming a starting state.
+> **⚠️ HISTORICAL (done 2026-06-04).** quizonline now runs on the box-local
+> PostgreSQL via the fleet **`DB_*` 6-var convention** (OPERATIONS.md §3.13), not
+> `DATABASE_URL`. This runbook is kept as a record of the original cut-over; the
+> `DATABASE_URL`-based commands below are superseded by `DB_ENGINE`/`DB_NAME`/`DB_USER`/
+> `DB_PASSWORD`/`DB_HOST`/`DB_PORT` in `/quizonline/prod/*`.
 
 Runbook for the in-place cut-over from `db.sqlite3` to a local
 PostgreSQL instance running on the same EC2 as the app. Designed for
