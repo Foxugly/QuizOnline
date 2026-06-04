@@ -74,6 +74,26 @@ echo "[2/6] Updating backend..."
 
 "$PIP" install -r "$BACKEND_DIR/requirements.txt" -q
 cd "$BACKEND_DIR"
+
+# Load the SSM-fetched env (DJANGO_ENV=prod, SECRET_KEY, DB_*, …) so manage.py
+# runs against the SAME prod settings + PostgreSQL as the gunicorn unit. systemd
+# injects this via EnvironmentFile for the services, but a manual command does
+# NOT get it. Without it, DJANGO_ENV is unset -> config.settings falls back to
+# the dev/sqlite base settings and migrate/collectstatic silently target a stray
+# local db.sqlite3 instead of prod PostgreSQL. Parse literally (key=value), NOT
+# `source` — values may contain shell-special chars (mirrors systemd parsing).
+ENV_FILE="/run/quizonline/.env"
+if [ -f "$ENV_FILE" ]; then
+    echo "[2/6] Loading env from $ENV_FILE..."
+    while IFS='=' read -r _k _v || [ -n "$_k" ]; do
+        case "$_k" in ''|\#*) continue ;; esac
+        export "$_k=$_v"
+    done < "$ENV_FILE"
+    unset _k _v
+else
+    echo "WARNING: $ENV_FILE missing — migrate/collectstatic may hit dev/sqlite settings." >&2
+fi
+
 "$PYTHON" manage.py migrate --noinput
 "$PYTHON" manage.py collectstatic --noinput
 # Compile gettext catalogs (FR/EN/NL/IT/ES) committed under quizonline-server/locale/.
