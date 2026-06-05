@@ -14,7 +14,7 @@
 # Atomic: writes to ``$OUT_FILE.tmp`` first, then ``mv -f`` over the
 # target. A partial fetch never leaves a half-written .env behind.
 #
-# Auth: relies on the EC2 instance role (``quizonline-ec2``) having
+# Auth: relies on the EC2 instance role (``foxugly-fleet-ec2``) having
 # ssm:GetParametersByPath on the prefix. No credentials on disk.
 #
 # Exit codes (per systemd contract for Type=oneshot):
