@@ -128,6 +128,11 @@ jobs:
           # matches SECRET_KEY (the runtime guard added in commit 06d148c).
           JWT_SIGNING_KEY: ci-jwt-signing-key-distinct-from-secret
           ALLOWED_HOSTS: ci.local
+          # settings_prod uses the fleet DB_* 6-var convention (OPERATIONS.md
+          # §3.13); DB_ENGINE + DB_NAME are required. `check --deploy` does not
+          # open a connection, so sqlite placeholders are enough here.
+          DB_ENGINE: sqlite3
+          DB_NAME: ci.sqlite3
           DATABASE_URL: sqlite:///ci.sqlite3
           FRONTEND_BASE_URL: https://ci.local
           DEFAULT_FROM_EMAIL: ci@quizonline.test
