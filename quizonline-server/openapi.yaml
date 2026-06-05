@@ -7323,6 +7323,9 @@ components:
             type: integer
             minimum: 1
           writeOnly: true
+        turnstile_token:
+          type: string
+          writeOnly: true
       required:
       - password
       - username
@@ -9317,6 +9320,9 @@ components:
           type: string
           format: email
           minLength: 1
+        turnstile_token:
+          type: string
+          writeOnly: true
       required:
       - email
     PatchedBlockRequest:

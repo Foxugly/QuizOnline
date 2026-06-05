@@ -22,6 +22,7 @@ from rest_framework.response import Response
 from config.tools import ErrorDetailSerializer
 
 from .permissions import IsSelf, IsSelfOrStaffOrSuperuser, IsSuperuserOnly
+from .turnstile import get_remote_ip, turnstile_enabled, verify_turnstile_token
 from .services import (
     change_password,
     confirm_email,
@@ -193,6 +194,20 @@ class CustomUserViewSet(
         if self.action in ("me", "set_current_domain", "me_join_requests"):
             return [IsSelf()]
         return [IsSelfOrStaffOrSuperuser()]
+
+    def create(self, request, *args, **kwargs):
+        # Server-side Turnstile check before any validation/DB write. Gated on
+        # the secret: when none is configured the captcha is not yet provisioned
+        # so we skip it (register keeps working). Once configured it is
+        # fail-closed — a missing/invalid token returns captcha_failed.
+        if turnstile_enabled():
+            token = request.data.get("turnstile_token") or ""
+            if not verify_turnstile_token(token, remote_ip=get_remote_ip(request)):
+                return Response(
+                    {"code": "captcha_failed", "detail": "Captcha verification failed. Please try again."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         register_user(serializer)
@@ -442,6 +457,17 @@ class PasswordResetRequestView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Server-side Turnstile check before any DB query — gated on the secret,
+        # fail-closed once configured (anti-leak 200 is preserved on success).
+        if turnstile_enabled():
+            token = serializer.validated_data.get("turnstile_token") or ""
+            if not verify_turnstile_token(token, remote_ip=get_remote_ip(request)):
+                return Response(
+                    {"code": "captcha_failed", "detail": "Captcha verification failed. Please try again."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         email = serializer.validated_data["email"]
         request_password_reset(email, request)
 

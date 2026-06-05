@@ -139,6 +139,68 @@ class UserViewsTests(APITestCase):
         self.assertEqual(list(created.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(created.current_domain_id, self.domain.id)
 
+    # --- Cloudflare Turnstile (captcha) -----------------------------------
+    def _register_payload(self, **overrides):
+        payload = {
+            "username": "captcha-newbie",
+            "email": "captcha-newbie@example.com",
+            "first_name": "New",
+            "last_name": "Bie",
+            "password": "SecretPass123!",
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_register_without_turnstile_secret_skips_captcha(self):
+        # Default: no TURNSTILE_SECRET_KEY → captcha not enforced, register works.
+        res = self.client.post(self.USER_LIST_CREATE_URL, self._register_payload(), format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=True)
+    def test_register_with_turnstile_valid_token(self, _verify):
+        res = self.client.post(
+            self.USER_LIST_CREATE_URL,
+            self._register_payload(turnstile_token="tok"),
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username="captcha-newbie").exists())
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=False)
+    def test_register_with_turnstile_invalid_token_returns_400(self, _verify):
+        res = self.client.post(
+            self.USER_LIST_CREATE_URL,
+            self._register_payload(turnstile_token="bad"),
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data["code"], "captcha_failed")
+        self.assertFalse(User.objects.filter(username="captcha-newbie").exists())
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=True)
+    def test_password_reset_with_turnstile_valid_token(self, _verify):
+        with patch("customuser.services.send_password_reset_email"):
+            res = self.client.post(
+                self.PASSWORD_RESET_REQUEST_URL,
+                {"email": "u1@example.com", "turnstile_token": "tok"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=False)
+    def test_password_reset_with_turnstile_invalid_token_returns_400(self, _verify):
+        res = self.client.post(
+            self.PASSWORD_RESET_REQUEST_URL,
+            {"email": "u1@example.com", "turnstile_token": "bad"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data["code"], "captcha_failed")
+
     def test_user_retrieve_requires_self_or_staff(self):
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
         self.assertIn(res.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))

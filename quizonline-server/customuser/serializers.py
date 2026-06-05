@@ -99,6 +99,10 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
 
 class CustomUserCreateSerializer(StrictFieldsModelSerializer):
     password = serializers.CharField(write_only=True)
+    # Cloudflare Turnstile token. Declared (and allowed by the strict-fields
+    # check) so the frontend can send it; the view verifies it (fail-closed)
+    # only once a secret is configured. Popped in create() — not a model field.
+    turnstile_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
     nb_domain_max = serializers.IntegerField(min_value=0, required=False)
     requested_domain_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1),
@@ -125,6 +129,7 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
             "nb_domain_max",
             "requested_domain_ids",
             "managed_domain_ids",
+            "turnstile_token",
         ]
 
     def _validate_domain_id_list(self, value: List[int]) -> List[int]:
@@ -160,6 +165,7 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
+        validated_data.pop("turnstile_token", None)  # verified in the view, not a model field
         nb_domain_max = validated_data.pop("nb_domain_max", None)
         requested_domain_ids = validated_data.pop("requested_domain_ids", None)
         managed_domain_ids = validated_data.pop("managed_domain_ids", None)
@@ -284,6 +290,9 @@ class QuizSimpleSerializer(serializers.ModelSerializer):
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
+    # Optional at the serializer layer; the view enforces it (fail-closed) only
+    # once a Turnstile secret is configured.
+    turnstile_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     @staticmethod
     def validate_email(value):
