@@ -68,12 +68,11 @@ if EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":  # noqa: F405
     EMAIL_HOST_PASSWORD = require_env_value("EMAIL_HOST_PASSWORD")
 
 if EMAIL_BACKEND == "core.email_backends.microsoft_graph.EmailBackend":  # noqa: F405
-    # Canonical GRAPH_* / GRAPH_SENDER first (§3.14), else require the legacy
-    # MS_GRAPH_* — so the rename can land before/after the SSM migration.
-    MS_GRAPH_TENANT_ID = env("GRAPH_TENANT_ID", default="") or require_env_value("MS_GRAPH_TENANT_ID")  # noqa: F405
-    MS_GRAPH_CLIENT_ID = env("GRAPH_CLIENT_ID", default="") or require_env_value("MS_GRAPH_CLIENT_ID")  # noqa: F405
-    MS_GRAPH_CLIENT_SECRET = env("GRAPH_CLIENT_SECRET", default="") or require_env_value("MS_GRAPH_CLIENT_SECRET")  # noqa: F405
-    MS_GRAPH_SENDER_USER_ID = env("GRAPH_SENDER", default="") or require_env_value("MS_GRAPH_SENDER_USER_ID")  # noqa: F405
+    # Canonical GRAPH_* / GRAPH_SENDER (§3.14).
+    MS_GRAPH_TENANT_ID = require_env_value("GRAPH_TENANT_ID")
+    MS_GRAPH_CLIENT_ID = require_env_value("GRAPH_CLIENT_ID")
+    MS_GRAPH_CLIENT_SECRET = require_env_value("GRAPH_CLIENT_SECRET")
+    MS_GRAPH_SENDER_USER_ID = require_env_value("GRAPH_SENDER")
 
 if CELERY_TASK_ALWAYS_EAGER:  # noqa: F405
     raise RuntimeError("Production Celery must not run with CELERY_TASK_ALWAYS_EAGER=True.")

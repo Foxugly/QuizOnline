@@ -313,13 +313,13 @@ EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = env("EMAIL_USE_TLS")
-# Canonical SSM names are GRAPH_* / GRAPH_SENDER (fleet OPERATIONS.md §3.14, as
-# on pushit/tm/foxugly); fall back to the legacy MS_GRAPH_* until the SSM rename
-# is migrated. Setting names keep the MS_ prefix so the email backend is untouched.
-MS_GRAPH_TENANT_ID = env("GRAPH_TENANT_ID", default="") or env("MS_GRAPH_TENANT_ID")
-MS_GRAPH_CLIENT_ID = env("GRAPH_CLIENT_ID", default="") or env("MS_GRAPH_CLIENT_ID")
-MS_GRAPH_CLIENT_SECRET = env("GRAPH_CLIENT_SECRET", default="") or env("MS_GRAPH_CLIENT_SECRET")
-MS_GRAPH_SENDER_USER_ID = env("GRAPH_SENDER", default="") or env("MS_GRAPH_SENDER_USER_ID")
+# Canonical SSM names GRAPH_* / GRAPH_SENDER (fleet OPERATIONS.md §3.14, as on
+# pushit/tm/foxugly). Setting names keep the MS_ prefix so the email backend is
+# untouched.
+MS_GRAPH_TENANT_ID = env("GRAPH_TENANT_ID", default="")
+MS_GRAPH_CLIENT_ID = env("GRAPH_CLIENT_ID", default="")
+MS_GRAPH_CLIENT_SECRET = env("GRAPH_CLIENT_SECRET", default="")
+MS_GRAPH_SENDER_USER_ID = env("GRAPH_SENDER", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 FRONTEND_BASE_URL = env("FRONTEND_BASE_URL").rstrip("/")
 PASSWORD_RESET_FRONTEND_PATH_PREFIX = "/" + env("PASSWORD_RESET_FRONTEND_PATH_PREFIX").strip("/")
