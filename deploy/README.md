@@ -289,7 +289,7 @@ The data flow, end to end:
                                                       │
                       at boot, or `systemctl restart quizonline-env-fetch`
                                                       │  get-parameters-by-path --recursive --with-decryption
-                                                      │  (auth: EC2 instance role quizonline-ec2 via IMDS — no keys on disk)
+                                                      │  (auth: EC2 instance role foxugly-fleet-ec2 via IMDS — no keys on disk)
                                                       ▼
                                          /run/quizonline/.env   (tmpfs, atomic write, 640 django:www-data)
                                                       │  EnvironmentFile=
@@ -372,7 +372,7 @@ env-fetch, so no key lives in the repo and it refreshes itself weekly.
 
    `GEOIP_PATH` is the only one Django reads (where it loads the `.mmdb`); the
    other two feed the fetch script below. **env-fetch is the single SSM reader**
-   (under the `quizonline-ec2` instance role) — it writes all three, decrypted,
+   (under the `foxugly-fleet-ec2` instance role) — it writes all three, decrypted,
    into `/run/quizonline/.env`, and the geoip-fetch script reads them **from
    there**, not via a direct `aws ssm` call. (A direct call on the box would use
    root's default static identity, the `certbot-route53` user that manages the
@@ -562,7 +562,7 @@ Most teams don't do this more than once. Reference order if you
 ever rebuild:
 
 1. **Launch instance** in eu-west-1, Ubuntu 24.04 LTS, attach the
-   `quizonline-ec2` IAM role (creates SSM connectivity).
+   `foxugly-fleet-ec2` IAM role (creates SSM connectivity).
 2. **System packages**:
    ```bash
    sudo apt update && sudo apt install -y \
