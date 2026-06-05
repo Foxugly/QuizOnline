@@ -253,7 +253,7 @@ All in **eu-west-1** unless noted.
 | IAM role | `quizonline-deploy` | Assumed by GitHub Actions via OIDC. Trust policy scoped to `repo:Foxugly/QuizOnline:environment:production`. Inline policy `DeployViaSSM` grants `s3:PutObject` on `arn:aws:s3:::foxugly-deploy/builds/quizonline/*`, `ssm:SendCommand` on the EC2 instance + AWS-RunShellScript document, and `ssm:GetCommandInvocation` (resource `*` because command-id is dynamic). |
 | IAM role | `foxugly-fleet-ec2` (shared fleet instance role) | EC2 instance role. Reads the SHA-tagged frontend bundle from `arn:aws:s3:::foxugly-deploy/builds/quizonline/*` (`s3:GetObject`) and the backend env from `parameter/quizonline/prod[/*]` (+ `kms:Decrypt` via SSM for SecureString). One consolidated policy `foxugly-fleet-app-config` covers all fleet prefixes + buckets. |
 | S3 bucket | `foxugly-deploy` (shared, namespaced `builds/quizonline/`) | The fleet-wide deploy bucket. Private, versioning on, lifecycle expiry on old builds. Bundles at `builds/quizonline/<sha>.tar.gz`. (The old dedicated `quizonline-deploy` bucket was decommissioned.) |
-| SSM Parameter Store | `/quizonline/prod/*` | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_*`, `MS_GRAPH_*`, `DEEPL_AUTH_KEY`, `SENTRY_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `sudo systemctl restart quizonline-env-fetch <app-unit>` (see [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)). |
+| SSM Parameter Store | `/quizonline/prod/*` (backend) + `/quizonline-frontend/prod/*` (frontend, bare names) | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DB_*` 6-var, `EMAIL_*`, `GRAPH_*`/`GRAPH_SENDER`, `DEEPL_AUTH_KEY`, `SENTRY_DSN`, `TURNSTILE_SECRET_KEY`, `MAXMIND_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). The frontend runtime prefix holds the public `SENTRY_DSN`/`SENTRY_ENV`/`SENTRY_RELEASE`/`TURNSTILE_SITE_KEY` (all String). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `sudo systemctl restart quizonline-env-fetch <app-unit>` (see [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)). |
 | EC2 instance | (see AWS console — region eu-west-1) | t-class or larger. Ubuntu 24.04 LTS. SSM agent via snap, AWS CLI v2 from official installer. |
 
 ---
@@ -597,10 +597,11 @@ ever rebuild:
    bash deploy/seed-parameter-store.sh ./prod.env             # upload
    shred -u ./prod.env          # don't leave it on disk
    ```
-   `SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_HOST_PASSWORD`,
-   `MS_GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY`, `SENTRY_DSN` and
-   `SENTRY_FRONTEND_DSN` upload as `SecureString`; the rest as
-   plain `String`.
+   `SECRET_KEY`, `JWT_SIGNING_KEY`, `DB_PASSWORD`, `EMAIL_HOST_PASSWORD`,
+   `GRAPH_CLIENT_SECRET`, `DEEPL_AUTH_KEY`, `SENTRY_DSN` and
+   `MAXMIND_LICENSE_KEY` upload as `SecureString`; the rest as
+   plain `String`. (The frontend `/quizonline-frontend/prod/*` keys are
+   all public `String` — DSN/env/release/site-key ship in the SPA.)
 6. **systemd units** (the env-fetch + frontend-runtime-fetch units
    run their helpers straight from the git checkout — no
    `/usr/local/bin/` install needed):

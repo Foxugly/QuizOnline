@@ -16,12 +16,12 @@ to rotate, and the post-rotation verification.
 |---|--------|----------|---------------------------------------------------|--------------------|
 | 1 | `SECRET_KEY` | SSM `/quizonline/prod/SECRET_KEY` | gunicorn | High — all sessions invalidated, signed URLs broken |
 | 2 | `JWT_SIGNING_KEY` | SSM `/quizonline/prod/JWT_SIGNING_KEY` | gunicorn | High — all active JWTs invalidated, mass re-login |
-| 3 | `DATABASE_URL` (password segment) | SSM `/quizonline/prod/DATABASE_URL` + postgres | gunicorn + celery + celery-beat | Critical — read/write of all app data |
+| 3 | `DB_PASSWORD` (DB password segment) | SSM `/quizonline/prod/DB_PASSWORD` + postgres | gunicorn + celery + celery-beat | Critical — read/write of all app data |
 | 4 | `EMAIL_HOST_PASSWORD` | SSM `/quizonline/prod/EMAIL_HOST_PASSWORD` + Office 365 | gunicorn + celery | Critical — phishing from your own domain |
-| 5 | `MS_GRAPH_CLIENT_SECRET` | SSM `/quizonline/prod/MS_GRAPH_CLIENT_SECRET` + Azure AD | gunicorn + celery | Critical — same as #4 plus Graph API access |
+| 5 | `GRAPH_CLIENT_SECRET` | SSM `/quizonline/prod/GRAPH_CLIENT_SECRET` + Azure AD | gunicorn + celery | Critical — same as #4 plus Graph API access |
 | 6 | `DEEPL_AUTH_KEY` | SSM `/quizonline/prod/DEEPL_AUTH_KEY` + DeepL portal | gunicorn | Low — third-party translation quota burnt |
 | 7 | `SENTRY_DSN` (backend) | SSM `/quizonline/prod/SENTRY_DSN` + Sentry/GlitchTip | gunicorn + celery + celery-beat | Low — spam to your ingest, quota burnt |
-| 8 | `SENTRY_FRONTEND_DSN` (frontend) | SSM `/quizonline/prod/SENTRY_FRONTEND_DSN` + Sentry | `systemctl restart quizonline-frontend-runtime-fetch` | Low — same as #7 |
+| 8 | `SENTRY_DSN` (frontend) | SSM `/quizonline-frontend/prod/SENTRY_DSN` + Sentry | `systemctl restart quizonline-frontend-runtime-fetch` | Low — same as #7 |
 | 9 | Personal SSH key on EC2 | `~/.ssh/authorized_keys` on EC2 (operator's `.pem` / `.ppk` on laptop) | none | High — shell access to prod. **Historical: this key was previously also stored as the GH Secret `EC2_SSH_KEY`; see notes in section 9.** |
 | 10 | AWS IAM `quizonline-deploy` (OIDC) | trust policy + repo `sub` claim | none | Medium — can trigger a deploy + write to S3, can't read SSM Parameter Store |
 
@@ -48,7 +48,7 @@ aws ssm put-parameter --region eu-west-1 \
 #    both in one call, systemd resolves the dep order.
 sudo systemctl restart quizonline-env-fetch quizonline-gunicorn
 # (add quizonline-celery quizonline-celery-beat for secrets read by
-# the worker / beat: DATABASE_URL, EMAIL_*, MS_GRAPH_*, SENTRY_DSN)
+# the worker / beat: DB_*, EMAIL_*, GRAPH_*, SENTRY_DSN)
 ```
 
 > **Important.** ``quizonline-env-fetch.service`` is a oneshot with
@@ -124,11 +124,13 @@ tokens also break — full re-authentication required.
 
 ---
 
-## 3. `DATABASE_URL` (password segment)
+## 3. `DB_PASSWORD` (DB password segment)
 
 **What breaks if leaked.** Direct DB connection from anywhere the host
-is reachable. With SQLite the URL holds only a path (no rotation
-needed); the steps below assume Postgres.
+is reachable. Prod uses the fleet **DB_\* 6-var** convention
+(`DB_ENGINE`/`DB_NAME`/`DB_USER`/`DB_PASSWORD`/`DB_HOST`/`DB_PORT`,
+OPERATIONS.md §3.13) on the box-local PostgreSQL — only the password
+segment rotates; the other five are stable config.
 
 **Provider-side prep.**
 
@@ -138,9 +140,9 @@ echo "$NEW_PW"   # copy
 sudo -u postgres psql -c "ALTER USER quizonline WITH PASSWORD '$NEW_PW';"
 ```
 
-Then put the full URL (`postgres://quizonline:$NEW_PW@host:port/db`)
-on `/quizonline/prod/DATABASE_URL` and restart env-fetch + **all
-three** app services (each holds its own DB pool):
+Then put the new password on `/quizonline/prod/DB_PASSWORD`
+(SecureString) and restart env-fetch + **all three** app services
+(each holds its own DB pool):
 
 ```bash
 sudo systemctl restart quizonline-env-fetch quizonline-gunicorn quizonline-celery quizonline-celery-beat
@@ -191,7 +193,7 @@ gunicorn restarts. Queued Celery email tasks retry automatically.
 
 ---
 
-## 5. `MS_GRAPH_CLIENT_SECRET`
+## 5. `GRAPH_CLIENT_SECRET`
 
 **What breaks if leaked.** Attacker can call Microsoft Graph as your
 app — read/send mail, list users, plus any other Graph permission you
@@ -206,7 +208,7 @@ granted the app.
 4. Delete the old secret entry once the new one is verified
 ```
 
-Then apply via the pattern on `/quizonline/prod/MS_GRAPH_CLIENT_SECRET`
+Then apply via the pattern on `/quizonline/prod/GRAPH_CLIENT_SECRET`
 and restart `quizonline-env-fetch quizonline-gunicorn quizonline-celery`.
 
 **Verify.** Same `sendtestemail` as section 4 if you use Graph for
@@ -269,23 +271,26 @@ sudo -u django bash -c '
 
 ---
 
-## 8. `SENTRY_FRONTEND_DSN` (frontend)
+## 8. `SENTRY_DSN` (frontend)
 
 **What breaks if leaked.** Same as #7 but the DSN is already in every
 page's HTML, so it's not really a "secret" — leaking it widens the
 quota-abuse surface without exposing new data.
 
-**Rotation.** The frontend DSN now lives in SSM at
-`/quizonline/prod/SENTRY_FRONTEND_DSN` (SecureString). The nginx
-snippet is auto-generated at boot and after every CI deploy by
+**Rotation.** The frontend runtime config lives in its own SSM prefix
+`/quizonline-frontend/prod/*` with **bare names** (like
+pushit-frontend / tm-frontend, OPERATIONS.md §3.14): `SENTRY_DSN`,
+`SENTRY_ENV`, `SENTRY_RELEASE`, `TURNSTILE_SITE_KEY` — all `String`
+(public, shipped in the SPA). The nginx snippet is auto-generated at
+boot and after every CI deploy by
 `quizonline-frontend-runtime-fetch.service`.
 
 ```bash
 # 1. Update SSM (from your laptop or any box with the right IAM)
 aws ssm put-parameter --overwrite \
   --region eu-west-1 \
-  --name /quizonline/prod/SENTRY_FRONTEND_DSN \
-  --type SecureString \
+  --name /quizonline-frontend/prod/SENTRY_DSN \
+  --type String \
   --value 'https://NEW_DSN@oXXXX.ingest.de.sentry.io/YYYY'
 
 # 2. Trigger the fetch on the box (via SSM Session Manager)
@@ -312,9 +317,9 @@ sudo journalctl -u quizonline-frontend-runtime-fetch.service -n 20
 Trigger a `console.error` in the SPA (any wrong-credentials login
 attempt does it) and check it lands in Sentry.
 
-The sibling parameters `SENTRY_FRONTEND_ENV` and
-`SENTRY_FRONTEND_RELEASE` rotate the same way — same SSM
-`put-parameter`, same `systemctl restart`.
+The sibling parameters `SENTRY_ENV`, `SENTRY_RELEASE` and
+`TURNSTILE_SITE_KEY` (all under `/quizonline-frontend/prod`) rotate
+the same way — same SSM `put-parameter`, same `systemctl restart`.
 
 ---
 
@@ -370,7 +375,7 @@ beyond what's already deployed.
 ## 10. AWS IAM role `quizonline-deploy` (OIDC)
 
 **What breaks if compromised.** GitHub Actions can `s3:PutObject` on
-`quizonline-deploy/builds/*` and `ssm:SendCommand` on the EC2
+`foxugly-deploy/builds/quizonline/*` and `ssm:SendCommand` on the EC2
 instance. The attacker can trigger a deploy of arbitrary frontend
 content (if they also push a malicious commit to main, or upload a
 tampered bundle and call SendCommand to install it). They cannot

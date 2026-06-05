@@ -50,15 +50,19 @@ set -euo pipefail
 # as a plain (String) configuration value. Erring on the side of
 # encrypting more rather than less is fine — there's no cost
 # difference between String and SecureString.
+# Canonical fleet names (OPERATIONS.md §3.14): GRAPH_CLIENT_SECRET (not the old
+# MS_GRAPH_*), DB_PASSWORD (DB_* 6-var, not a DATABASE_URL). MAXMIND_LICENSE_KEY
+# is a real secret. The frontend prefix /quizonline-frontend/prod holds only
+# public String keys (SENTRY_DSN/ENV/RELEASE, TURNSTILE_SITE_KEY) — none secret.
 SECRET_KEYS=(
   SECRET_KEY
   JWT_SIGNING_KEY
   DB_PASSWORD
   EMAIL_HOST_PASSWORD
-  MS_GRAPH_CLIENT_SECRET
+  GRAPH_CLIENT_SECRET
   DEEPL_AUTH_KEY
   SENTRY_DSN
-  SENTRY_FRONTEND_DSN
+  MAXMIND_LICENSE_KEY
 )
 
 PREFIX="/quizonline/prod"

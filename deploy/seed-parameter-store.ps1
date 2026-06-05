@@ -49,10 +49,10 @@ $SecretKeys = @(
     "JWT_SIGNING_KEY",
     "DB_PASSWORD",
     "EMAIL_HOST_PASSWORD",
-    "MS_GRAPH_CLIENT_SECRET",
+    "GRAPH_CLIENT_SECRET",
     "DEEPL_AUTH_KEY",
     "SENTRY_DSN",
-    "SENTRY_FRONTEND_DSN"
+    "MAXMIND_LICENSE_KEY"
 )
 
 if (-not (Test-Path -LiteralPath $EnvFile)) {

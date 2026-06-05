@@ -90,7 +90,7 @@ Variables importantes :
 - `DJANGO_ENV` : `dev` ou `prod`
 - `SECRET_KEY`
 - `JWT_SIGNING_KEY`
-- `DATABASE_URL`
+- `DB_*` (fleet 6-var convention : `DB_ENGINE`/`DB_NAME`/`DB_USER`/`DB_PASSWORD`/`DB_HOST`/`DB_PORT`, OPERATIONS.md §3.13 ; en dev, `DB_ENGINE` absent ⇒ sqlite local)
 - `FRONTEND_BASE_URL`
 - `ALLOWED_HOSTS`
 - `CORS_ALLOWED_ORIGINS`
