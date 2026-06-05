@@ -110,13 +110,10 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 NAME_APP = "QuizOnline"
 
 # --- Cloudflare Turnstile (captcha on register + password reset) ---
-# TURNSTILE_SITE_KEY is the public widget key (exposed to the frontend);
-# TURNSTILE_SECRET_KEY is the server-side verification secret (SSM in prod,
-# never committed). Rollout is gated on the secret: while it is empty,
-# verification is skipped (non-breaking), so the captcha can ship to prod and be
-# activated later by seeding the secret + the frontend site key. See
-# customuser/turnstile.py.
-TURNSTILE_SITE_KEY = env("TURNSTILE_SITE_KEY", default="")
+# Only the server-side secret lives in the backend prefix; rollout is gated on
+# it (empty → verification skipped, non-breaking). The public site key is a
+# frontend-only concern, seeded under /quizonline-frontend/prod (OPERATIONS.md
+# §3.14). See customuser/turnstile.py.
 TURNSTILE_SECRET_KEY = env("TURNSTILE_SECRET_KEY", default="")
 
 # Directory holding the MaxMind GeoLite2-City.mmdb file. Empty disables
