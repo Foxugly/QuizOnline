@@ -11,7 +11,7 @@
 #      with --skip-frontend because CI already built the bundle and we
 #      pull it from S3 instead of rebuilding on the memory-limited box.
 #   2. Download the SHA-tagged frontend bundle from S3 (instance role
-#      provides s3:GetObject on s3://quizonline-deploy/builds/*).
+#      provides s3:GetObject on s3://foxugly-deploy/builds/quizonline/*).
 #   3. Atomically swap the dist/ directory and reload nginx.
 #
 # Idempotency / safety:
@@ -55,7 +55,7 @@ bash deploy/redeploy.sh --skip-frontend
 echo "[2/4] Fetching frontend bundle from S3..."
 TMP_TAR=$(mktemp -t "qol-build.XXXXXX.tar.gz")
 trap 'rm -f "$TMP_TAR"' EXIT
-aws s3 cp "s3://$BUCKET/builds/$SHA.tar.gz" "$TMP_TAR" --region eu-west-1
+aws s3 cp "s3://$BUCKET/builds/quizonline/$SHA.tar.gz" "$TMP_TAR" --region eu-west-1
 
 echo "[3/4] Extracting to staging dir..."
 rm -rf "$STAGING_DIR"

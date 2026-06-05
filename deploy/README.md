@@ -194,7 +194,7 @@ build anymore for some reason), download manually:
 ```bash
 # On EC2 — fetch a historical bundle and swap it in
 SHA=<sha-from-s3-or-git>
-sudo -u django aws s3 cp s3://quizonline-deploy/builds/$SHA.tar.gz /tmp/build.tar.gz
+sudo -u django aws s3 cp s3://foxugly-deploy/builds/quizonline/$SHA.tar.gz /tmp/build.tar.gz
 sudo -u django bash -c '
   cd /var/www/django_websites/QuizOnline/quizonline-frontend/dist/quizonline-frontend
   rm -rf browser.staging
@@ -250,9 +250,9 @@ All in **eu-west-1** unless noted.
 | Resource | Name / ARN | Purpose |
 |----------|------------|---------|
 | OIDC provider | `arn:aws:iam::<ACCOUNT>:oidc-provider/token.actions.githubusercontent.com` | Lets GitHub Actions mint short-lived AWS tokens (audience `sts.amazonaws.com`). Global, one per account. |
-| IAM role | `quizonline-deploy` | Assumed by GitHub Actions via OIDC. Trust policy scoped to `repo:Foxugly/QuizOnline:environment:production`. Inline policy `DeployViaSSM` grants `s3:PutObject` on `builds/*`, `ssm:SendCommand` on the EC2 instance + AWS-RunShellScript document, and `ssm:GetCommandInvocation` (resource `*` because command-id is dynamic). |
-| IAM role | `quizonline-ec2` | EC2 instance role. Managed policies `AmazonSSMManagedInstanceCore` (+ `CloudWatchAgentServerPolicy`, dormant). Inline `S3ReadDeployBundles` grants `s3:GetObject` on `arn:aws:s3:::quizonline-deploy/builds/*` (SSM-invoked deploy scripts pull bundles). Inline `ReadAppConfigFromSSM` grants `ssm:GetParameter[s][ByPath]` on `arn:aws:ssm:eu-west-1:<ACCOUNT>:parameter/quizonline/prod[/*]` (boot-time env fetch). KMS decrypt on `alias/aws/ssm` is implicit when reading SecureString with the default key. |
-| S3 bucket | `quizonline-deploy` | Private, versioning on. Lifecycle `expire-old-builds`: current versions 14d, noncurrent 7d, incomplete multipart 7d. Bundles named `builds/<sha>.tar.gz`. |
+| IAM role | `quizonline-deploy` | Assumed by GitHub Actions via OIDC. Trust policy scoped to `repo:Foxugly/QuizOnline:environment:production`. Inline policy `DeployViaSSM` grants `s3:PutObject` on `arn:aws:s3:::foxugly-deploy/builds/quizonline/*`, `ssm:SendCommand` on the EC2 instance + AWS-RunShellScript document, and `ssm:GetCommandInvocation` (resource `*` because command-id is dynamic). |
+| IAM role | `quizonline-ec2` (shared fleet instance role — being renamed `foxugly-fleet-ec2`) | EC2 instance role. Reads the SHA-tagged frontend bundle from `arn:aws:s3:::foxugly-deploy/builds/quizonline/*` (`s3:GetObject`) and the backend env from `parameter/quizonline/prod[/*]` (+ `kms:Decrypt` via SSM for SecureString). One consolidated policy `foxugly-fleet-app-config` covers all fleet prefixes + buckets. |
+| S3 bucket | `foxugly-deploy` (shared, namespaced `builds/quizonline/`) | The fleet-wide deploy bucket. Private, versioning on, lifecycle expiry on old builds. Bundles at `builds/quizonline/<sha>.tar.gz`. (The old dedicated `quizonline-deploy` bucket was decommissioned.) |
 | SSM Parameter Store | `/quizonline/prod/*` | Backend env vars (`SECRET_KEY`, `JWT_SIGNING_KEY`, `DATABASE_URL`, `EMAIL_*`, `MS_GRAPH_*`, `DEEPL_AUTH_KEY`, `SENTRY_*`, `ALLOWED_HOSTS`, `THROTTLE_*`, …). SecureString for actual secrets (KMS-encrypted with `aws/ssm`), String for plain config. Standard tier — no cost. Rotation = `aws ssm put-parameter --overwrite` + `sudo systemctl restart quizonline-env-fetch <app-unit>` (see [`SECRETS-ROTATION.md`](SECRETS-ROTATION.md)). |
 | EC2 instance | (see AWS console — region eu-west-1) | t-class or larger. Ubuntu 24.04 LTS. SSM agent via snap, AWS CLI v2 from official installer. |
 
@@ -424,7 +424,7 @@ long-lived AWS access keys; OIDC handles auth dynamically.
 | `AWS_DEPLOY_ROLE_ARN` | `arn:aws:iam::<ACCOUNT>:role/quizonline-deploy` |
 | `AWS_REGION` | `eu-west-1` |
 | `EC2_INSTANCE_ID` | `i-XXXXXXXXXXXXXXXXX` |
-| `S3_DEPLOY_BUCKET` | `quizonline-deploy` |
+| `S3_DEPLOY_BUCKET` | `foxugly-deploy` (shared fleet bucket; bundles namespaced under `builds/quizonline/`) |
 
 **Environment**: `production` (Settings → Environments). Used by the
 `environment:` job attribute in `deploy.yml`, which (a) feeds the
