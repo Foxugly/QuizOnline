@@ -463,8 +463,11 @@ env-fetch logs go to journald — `journalctl -u quizonline-celery`,
 Reverse proxy is **nginx** (the `apache.conf` template is kept for
 parity but unused on the live box). Live config lives at
 `/etc/nginx/sites-available/quizonline.foxugly.com` (symlinked from
-`sites-enabled/`), sourced from [`nginx.conf`](nginx.conf) in this
-directory. Optional frontend runtime snippet at
+`sites-enabled/`), sourced from
+[`nginx/quizonline.foxugly.com.conf`](nginx/quizonline.foxugly.com.conf) —
+the deploy pipeline reinstalls that exact committed file (from `origin/main`)
+on every deploy, so it's the single source of truth (manual edits on the box
+are reverted). Optional frontend runtime snippet at
 `/etc/nginx/snippets/quizonline-frontend-runtime.conf` — see
 [`quizonline-frontend-runtime.conf.example`](quizonline-frontend-runtime.conf.example).
 
@@ -626,11 +629,16 @@ ever rebuild:
    ```
 7. **nginx + TLS**:
    ```bash
-   sudo cp deploy/nginx.conf /etc/nginx/sites-available/quizonline
-   sudo ln -s /etc/nginx/sites-available/quizonline /etc/nginx/sites-enabled/
-   sudo certbot --nginx -d quizonline.foxugly.com   # or DNS-01 if wildcard
+   # Install the concrete prod vhost under the name the deploy pipeline manages.
+   sudo cp deploy/nginx/quizonline.foxugly.com.conf \
+       /etc/nginx/sites-available/quizonline.foxugly.com
+   sudo ln -s /etc/nginx/sites-available/quizonline.foxugly.com /etc/nginx/sites-enabled/
+   # TLS is the shared wildcard *.foxugly.com (DNS-01, already provisioned at
+   # /etc/letsencrypt/live/foxugly.com) — no per-domain certbot run needed.
    sudo nginx -t && sudo systemctl reload nginx
    ```
+   After this first manual install, every deploy reinstalls this exact file
+   from `origin/main` via the SSM step (with an `nginx -t` guard + rollback).
 8. **First deploy**: `gh workflow run Deploy --repo Foxugly/QuizOnline`.
 
 The AWS-side prereqs (IAM roles, OIDC provider, S3 bucket) are
@@ -646,7 +654,7 @@ instance-level.
 - **gzip:** ``on`` at the http {} level (Ubuntu default) **plus** an
   explicit ``gzip_types`` block in the server {} so JS / CSS / JSON
   / SVG / woff2 are gzipped (not just text/html). See
-  ``deploy/nginx.conf`` — the gzip block ships ready-to-use.
+  ``deploy/nginx/quizonline.foxugly.com.conf`` — the gzip block ships ready-to-use.
 - **brotli:** ``on``, ``brotli_comp_level 5``. Opt-in — see
   "Enable brotli on a fresh host" below.
 
@@ -680,16 +688,14 @@ sudo apt-get install -y \
 ls /etc/nginx/modules-enabled/ | grep brotli
 # expect: 50-mod-http-brotli-filter.conf, 50-mod-http-brotli-static.conf
 
-# 3. Uncomment the brotli block in the live sites-available file.
-#    deploy/nginx.conf ships it commented out — the sed below
-#    uncomments both the top-level directives and the indented
-#    brotli_types list in one pass.
+# 3. The committed vhost (deploy/nginx/quizonline.foxugly.com.conf) already
+#    ships the brotli block ACTIVE. With the module now installed there is
+#    nothing to uncomment — just (re)install the conf and reload. Don't hand-
+#    edit the live file: every deploy overwrites it from origin/main.
 LIVE=/etc/nginx/sites-available/quizonline.foxugly.com
-sudo cp "$LIVE" "${LIVE}.bak-pre-brotli-$(date -u +%Y%m%dT%H%M%S)"
-sudo sed -i 's/^    # brotli/    brotli/'   "$LIVE"
-sudo sed -i 's/^    #     /        /'       "$LIVE"
+sudo cp deploy/nginx/quizonline.foxugly.com.conf "$LIVE"
 
-# 4. Verify the block now reads as code, not comments.
+# 4. Verify the brotli block is present.
 sudo grep -A 16 "^    brotli" "$LIVE"
 
 # 5. Test syntax + reload.
