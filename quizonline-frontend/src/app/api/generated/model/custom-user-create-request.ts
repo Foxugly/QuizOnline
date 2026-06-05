@@ -23,6 +23,7 @@ export interface CustomUserCreateRequestDto {
     nb_domain_max?: number;
     requested_domain_ids?: Array<number>;
     managed_domain_ids?: Array<number>;
+    turnstile_token?: string;
 }
 
 

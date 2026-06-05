@@ -18,6 +18,9 @@
     });
   </script>
   <base href="/">
+  <!-- Cloudflare Turnstile (captcha on register + password reset). The widget
+       is rendered explicitly from the auth pages; this only loads the API. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <!-- SEO + social cards. ``description`` is the static crawler-visible
        summary; the SPA does not currently surface per-route descriptions,

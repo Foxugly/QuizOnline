@@ -134,6 +134,10 @@
         <div class="meta-hint meta-hint--error">{{ errorMessage() }}</div>
       }
 
+      @if (turnstile.enabled) {
+        <div #turnstile class="turnstile-widget"></div>
+      }
+
       <div class="footer-actions">
         <p-button (onClick)="goLogin()" icon="pi pi-times" [label]="ui().register.cancel" severity="secondary" type="button"></p-button>
         <p-button icon="pi pi-user-plus" [label]="ui().register.createAccount" type="submit" [loading]="isSubmitting()" [disabled]="isSubmitting() || form.invalid"></p-button>

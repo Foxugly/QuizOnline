@@ -1,4 +1,14 @@
-import {Component, OnInit, ChangeDetectionStrategy, inject, signal} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -28,6 +38,7 @@ import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DomainService} from '../../../services/domain/domain';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
+import {TurnstileController} from '../../../shared/turnstile/turnstile';
 
 @Component({
   selector: 'app-register',
@@ -36,8 +47,13 @@ import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
   styleUrls: ['./register.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Register implements OnInit {
+export class Register implements OnInit, AfterViewInit, OnDestroy {
   app = window.__APP__!;
+
+  protected readonly turnstile = new TurnstileController();
+
+  @ViewChild('turnstile', {static: false})
+  protected turnstileContainer?: ElementRef<HTMLDivElement>;
 
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
@@ -119,6 +135,14 @@ export class Register implements OnInit {
     this.applyInvitationQueryParams();
   }
 
+  ngAfterViewInit(): void {
+    this.turnstile.render(this.turnstileContainer?.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.turnstile.destroy();
+  }
+
   /**
    * When the user arrives from the ``invite/accept/<token>`` landing page,
    * the page redirects here with ``?invitation=<token>&email=<addr>``. We
@@ -152,11 +176,29 @@ export class Register implements OnInit {
       return;
     }
 
+    let turnstileToken = '';
+    if (this.turnstile.enabled) {
+      turnstileToken = this.turnstile.readToken();
+      if (!turnstileToken) {
+        this.errorMessage.set(this.ui().register.submitError);
+        return;
+      }
+    }
+
     this.isSubmitting.set(true);
     const {username, email, first_name, last_name, language, requested_domain_ids, password} = this.form.getRawValue();
 
     this.authService
-      .register({username, email, first_name, last_name, language, requested_domain_ids, password})
+      .register({
+        username,
+        email,
+        first_name,
+        last_name,
+        language,
+        requested_domain_ids,
+        password,
+        ...(this.turnstile.enabled ? {turnstile_token: turnstileToken} : {}),
+      })
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: () => {
@@ -164,6 +206,7 @@ export class Register implements OnInit {
         },
         error: (err) => {
           logApiError('auth.register.submit', err);
+          if (this.turnstile.enabled) this.turnstile.reset();
           this.errorMessage.set(this.formatRegisterError(err));
         },
       });

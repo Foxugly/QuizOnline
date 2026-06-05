@@ -11,5 +11,6 @@
 
 export interface PasswordResetRequestRequestDto { 
     email: string;
+    turnstile_token?: string;
 }
 

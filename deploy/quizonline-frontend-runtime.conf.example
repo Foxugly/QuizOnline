@@ -34,3 +34,7 @@
 set $sentry_dsn "https://YOUR_DSN@app.glitchtip.com/YOUR_PROJECT_ID";
 set $sentry_env "production";
 set $sentry_release "quizonline-1.0.0";
+# Public Cloudflare Turnstile site key (captcha on register + password reset).
+# Empty = captcha not provisioned (widget hidden). Same value the backend reads
+# from /quizonline/prod/TURNSTILE_SITE_KEY.
+set $turnstile_site_key "";

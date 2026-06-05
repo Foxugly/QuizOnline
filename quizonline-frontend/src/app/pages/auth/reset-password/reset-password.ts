@@ -1,4 +1,15 @@
-import {Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -12,6 +23,7 @@ import {ButtonModule} from 'primeng/button';
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
+import {TurnstileController} from '../../../shared/turnstile/turnstile';
 
 @Component({
   selector: 'app-reset-password',
@@ -20,12 +32,17 @@ import {UserService} from '../../../services/user/user';
   styleUrl: './reset-password.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ResetPassword {
+export class ResetPassword implements AfterViewInit, OnDestroy {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly userService = inject(UserService);
+
+  protected readonly turnstile = new TurnstileController();
+
+  @ViewChild('turnstile', {static: false})
+  protected turnstileContainer?: ElementRef<HTMLDivElement>;
 
   readonly ui = inject(UiTextService).editor;
   readonly shellUi = inject(UiTextService).ui;
@@ -62,10 +79,22 @@ export class ResetPassword {
       return;
     }
 
+    let turnstileToken = '';
+    if (this.turnstile.enabled) {
+      turnstileToken = this.turnstile.readToken();
+      if (!turnstileToken) {
+        this.submitError.set(labels.formInvalid);
+        return;
+      }
+    }
+
     this.isSubmitting.set(true);
 
     this.authService
-      .requestPasswordReset({email})
+      .requestPasswordReset({
+        email,
+        ...(this.turnstile.enabled ? {turnstile_token: turnstileToken} : {}),
+      })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isSubmitting.set(false)),
@@ -76,9 +105,18 @@ export class ResetPassword {
         },
         error: (err) => {
           console.error(err);
+          if (this.turnstile.enabled) this.turnstile.reset();
           this.errorMessage.set(labels.errorGeneric);
         },
       });
+  }
+
+  ngAfterViewInit(): void {
+    this.turnstile.render(this.turnstileContainer?.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.turnstile.destroy();
   }
 
   goHome(): void {
