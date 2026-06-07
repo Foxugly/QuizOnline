@@ -29,14 +29,13 @@
     grid-template-columns: 1fr;
   }
 
+  // Flat by default: no per-field card chrome (border / fill / padding). The
+  // projected control keeps its own border, so fields stay legible while the
+  // form reads light and uncluttered.
   .meta-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.5rem 0.65rem;
-    border: 1px solid t.$border;
-    border-radius: 10px;
-    background: #fafafa;
 
     &.meta-item--full {
       grid-column: 1 / -1;
@@ -63,6 +62,29 @@
 
     &.meta-value--center {
       justify-content: center;
+    }
+
+    // The field's widget stretches to fill the row (full-width controls).
+    // Toggles / colour swatches are not listed, so they keep their natural size.
+    > .p-inputtext,
+    > .p-select,
+    > .p-multiselect,
+    > .p-datepicker,
+    > .p-inputnumber,
+    > .p-autocomplete,
+    > .p-password,
+    > .editor-compact {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    .p-inputtext,
+    .p-select,
+    .p-multiselect,
+    .p-datepicker,
+    .p-inputnumber,
+    .p-autocomplete {
+      width: 100%;
     }
   }
 
