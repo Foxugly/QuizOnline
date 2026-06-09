@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.core.exceptions import DisallowedHost
+
 REDIS_LOADING_MARKER = "Redis is loading the dataset in memory"
 
 
@@ -31,3 +33,27 @@ def drop_redis_loading_noise(event: dict[str, Any], hint: dict[str, Any]) -> dic
         if REDIS_LOADING_MARKER in str(param):
             return None
     return event
+
+
+def drop_disallowed_host(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] | None:
+    """Drop benign ``DisallowedHost`` (HTTP 400) noise.
+
+    Internet scanners, uptime probes and direct-IP ``curl``s reach the box with
+    an empty or spoofed ``Host`` header; Django correctly rejects them with a
+    400 ``DisallowedHost``. That rejection is the intended behaviour, not an
+    error worth paging on, so we drop it instead of letting it flood Sentry. Do
+    NOT "fix" this by widening ``ALLOWED_HOSTS`` — that would make Django serve
+    Host-spoofed requests.
+    """
+    exc = hint.get("exc_info")
+    if exc and isinstance(exc[1], DisallowedHost):
+        return None
+    return event
+
+
+def drop_benign_noise(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] | None:
+    """Composite ``before_send``: chain the benign-noise filters; if any drops
+    the event (returns ``None``), it is dropped."""
+    if drop_disallowed_host(event, hint) is None:
+        return None
+    return drop_redis_loading_noise(event, hint)

@@ -109,7 +109,7 @@ if SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
 
-    from .sentry_filters import drop_redis_loading_noise
+    from .sentry_filters import drop_benign_noise
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -122,10 +122,11 @@ if SENTRY_DSN:
             # ``ERROR`` events get auto-captured as their own issues.
             LoggingIntegration(level=None, event_level="ERROR"),
         ],
-        # Drop known-transient Kombu reconnect noise emitted while Redis
-        # reloads its dump (e.g. after needrestart triggers a restart on
-        # ``unattended-upgrades``). The Celery worker auto-recovers.
-        before_send=drop_redis_loading_noise,
+        # Drop benign noise: transient Kombu reconnect events emitted while
+        # Redis reloads its dump (needrestart after unattended-upgrades; the
+        # Celery worker auto-recovers), plus DisallowedHost 400s from scanners
+        # / uptime probes / direct-IP curls hitting the box with a bad Host.
+        before_send=drop_benign_noise,
         # Conservative defaults — tune via env without redeploy. Defaults
         # to performance traces off (sentry tier cost) and full PII off
         # (GDPR safer; opt in via SENTRY_SEND_DEFAULT_PII=true once a
