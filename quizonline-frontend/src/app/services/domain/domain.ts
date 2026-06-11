@@ -1,7 +1,7 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
 import {Router} from '@angular/router';
-import {map, Observable, of, shareReplay, tap} from 'rxjs';
+import {EMPTY, expand, map, Observable, of, reduce, shareReplay, tap} from 'rxjs';
 import {ROUTES} from '../../app.routes-paths';
 import {DomainApi as DomainApiService} from '../../api/generated/api/domain.service';
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
@@ -40,8 +40,14 @@ export class DomainService {
     const isFresh = !!cached && Date.now() - cached.at < this.listCacheTtlMs;
     const source$ = isFresh
       ? of(cached!.data)
-      : this.api.domainList().pipe(
-          map((response: any) => (response.results ?? []) as DomainReadDto[]),
+      : this.fetchAllDomainPages(1).pipe(
+          expand(({next, nextPage}) =>
+            next ? this.fetchAllDomainPages(nextPage) : EMPTY,
+          ),
+          reduce<{results: DomainReadDto[]}, DomainReadDto[]>(
+            (acc, {results}) => acc.concat(results),
+            [],
+          ),
           tap((data) => {
             this.listCache = {at: Date.now(), data};
           }),
@@ -82,8 +88,59 @@ export class DomainService {
     this.listCache = null;
   }
 
+  /** One page of the paginated ``GET /api/domain/`` list, plus the
+   *  bookkeeping ``expand`` in :meth:`list` needs to walk to the next one.
+   *  The list is DRF-paginated (PAGE_SIZE 20); reading only page 1 silently
+   *  truncated the visible-domains list for a superuser (or any power user)
+   *  with more than 20 domains. ``next`` is a server URL but the generated
+   *  client only takes a numeric ``page``, so we increment it ourselves. */
+  private fetchAllDomainPages(
+    page: number,
+  ): Observable<{results: DomainReadDto[]; next: string | null; nextPage: number}> {
+    return this.api.domainList({page}).pipe(
+      map((response) => ({
+        results: response.results ?? [],
+        next: response.next ?? null,
+        nextPage: page + 1,
+      })),
+    );
+  }
+
   availableForLinking(): Observable<DomainReadDto[]> {
-    return this.http.get<DomainReadDto[]>(`${this.apiBaseUrl}/available-for-linking/`);
+    // Opt-in pagination on the backend: passing ``?page`` wraps the response
+    // in the {count, next, results} envelope (vs. the legacy unbounded flat
+    // list). Walk every page so a growing public catalog can't blow up a
+    // single response payload, and concatenate back to the flat array the
+    // callers (register / preferences dropdowns) expect.
+    return this.fetchAvailableForLinkingPage(1).pipe(
+      expand(({next, nextPage}) =>
+        next ? this.fetchAvailableForLinkingPage(nextPage) : EMPTY,
+      ),
+      reduce<{results: DomainReadDto[]}, DomainReadDto[]>(
+        (acc, {results}) => acc.concat(results),
+        [],
+      ),
+    );
+  }
+
+  /** One page of ``GET /api/domain/available-for-linking/?page=`` plus the
+   *  ``next``/``nextPage`` bookkeeping for :meth:`availableForLinking`. Uses
+   *  raw HttpClient because the generated client doesn't model this action. */
+  private fetchAvailableForLinkingPage(
+    page: number,
+  ): Observable<{results: DomainReadDto[]; next: string | null; nextPage: number}> {
+    return this.http
+      .get<{results?: DomainReadDto[]; next?: string | null}>(
+        `${this.apiBaseUrl}/available-for-linking/`,
+        {params: {page}},
+      )
+      .pipe(
+        map((response) => ({
+          results: response.results ?? [],
+          next: response.next ?? null,
+          nextPage: page + 1,
+        })),
+      );
   }
 
   retrieve(domainId: number): Observable<DomainReadDto> {
