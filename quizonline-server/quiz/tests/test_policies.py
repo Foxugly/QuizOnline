@@ -93,6 +93,23 @@ class QuizPoliciesTestCase(TestCase):
             ANSWER_CORRECTNESS_FULL,
         )
 
+    def test_practice_quiz_created_not_started_hides_correctness(self):
+        """Security regression: a practice quiz that is created but NOT yet
+        started (started_at is None) is can_answer==False, which used to fall
+        through to the practice branch and reveal every correct answer BEFORE
+        the taker begins. It must stay UNKNOWN for a regular user until start."""
+        quiz = self.make_quiz(
+            self.make_template(mode=QuizTemplate.MODE_PRACTICE),
+            active=False,
+            started_at=None,
+        )
+
+        self.assertFalse(quiz.can_answer)
+        self.assertEqual(
+            answer_correctness_state(quiz=quiz, user=self.owner),
+            ANSWER_CORRECTNESS_UNKNOWN,
+        )
+
     def test_running_exam_returns_unknown_correctness_for_regular_user(self):
         quiz = self.make_quiz(self.make_template())
 

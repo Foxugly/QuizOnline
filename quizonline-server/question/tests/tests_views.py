@@ -170,10 +170,30 @@ class QuestionViewSetTests(APITestCase):
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_permissions_list_ok_for_linked_domain_member(self):
+    def test_member_cannot_list_questions(self):
+        """Security regression (P1): the /api/question/ editor endpoint exposes
+        is_correct, so it must be scoped to MANAGEABLE domains (owner/managers),
+        NOT visible (which also includes members/learners). A domain member must
+        get an empty list; a manager of the same domain still sees the question."""
+        q = Question.objects.create(
+            domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True
+        )
+        q.set_current_language("fr")
+        q.title = "Secret"
+        q.save()
+
         self.client.force_authenticate(self.domain_member)
         resp = self.client.get(self._list_url())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        self.assertEqual(items, [])
+
+        self.client.force_authenticate(self.domain_staff)
+        resp = self.client.get(self._list_url())
+        data = resp.json()
+        items = data["results"] if isinstance(data, dict) and "results" in data else data
+        self.assertIn(q.id, {it["id"] for it in items})
 
     def test_list_ignores_empty_subject_ids_query_param(self):
         visible = Question.objects.create(domain=self.domain, active=True, is_mode_practice=True, is_mode_exam=True)

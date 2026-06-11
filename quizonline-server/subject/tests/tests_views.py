@@ -142,6 +142,27 @@ class SubjectViewSetTestCase(TestCase):
         resp = self._call("delete", "destroy", user=self.outsider, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_destroy_forbidden_for_domain_member_learner(self):
+        """Security regression: a domain MEMBER (learner, no admin right) sees
+        the subject via get_visible_domains but must NOT be able to delete it —
+        perform_destroy enforces can_manage_domain."""
+        s = Subject.objects.create(domain=self.domain, active=True)
+        resp = self._call(
+            "delete", "destroy", user=self.domain_member,
+            subject_id=s.pk, path=f"/api/subject/{s.pk}/",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Subject.objects.filter(pk=s.pk).exists())
+
+    def test_destroy_allowed_for_domain_manager(self):
+        s = Subject.objects.create(domain=self.domain, active=True)
+        resp = self._call(
+            "delete", "destroy", user=self.domain_staff,
+            subject_id=s.pk, path=f"/api/subject/{s.pk}/",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Subject.objects.filter(pk=s.pk).exists())
+
     # ----------------------------
     # list
     # ----------------------------

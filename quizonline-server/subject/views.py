@@ -11,6 +11,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from config.tools import MyModelViewSet, ErrorDetailSerializer
@@ -299,6 +300,18 @@ class SubjectViewSet(MyModelViewSet):
             method_name="destroy",
             endpoint="DELETE /api/subject/{subject_id}/",
             input_expected="path subject_id, body vide",
-            output="204 | 404",
+            output="204 | 403 | 404",
         )
         return super().destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        # get_permissions() only enforces IsAuthenticated and get_queryset is
+        # scoped to get_visible_domains (which includes members/learners), so a
+        # learner of the subject's domain would otherwise reach the default
+        # ModelViewSet.destroy. Create/update go through SubjectWriteSerializer
+        # .validate() (which checks can_manage_domain), but destroy has no
+        # serializer — enforce the same management gate here. can_manage_domain
+        # already returns True for superusers/owner/managers.
+        if not self.request.user.can_manage_domain(instance.domain):
+            raise PermissionDenied("You do not manage this subject's domain.")
+        super().perform_destroy(instance)

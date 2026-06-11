@@ -33,6 +33,14 @@ def answer_correctness_state(*, quiz: Quiz, user) -> str:
     if is_quiz_admin(user):
         return ANSWER_CORRECTNESS_FULL
 
+    # A quiz that has been created but NOT yet started (started_at is None) is
+    # also "can_answer == False", which would otherwise fall through to the
+    # practice branch below and reveal every correct answer BEFORE the taker
+    # begins. The correction only teaches once an attempt has actually run, so
+    # keep it hidden until the quiz is started.
+    if quiz.started_at is None:
+        return ANSWER_CORRECTNESS_UNKNOWN
+
     # Once the attempt is closed (submitted, time's up, deactivated…)
     # practice mode is meant to teach: surface the correction.
     if quiz.quiz_template.mode == QuizTemplate.MODE_PRACTICE:

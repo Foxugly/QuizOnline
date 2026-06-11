@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from question.models import Question
-from config.domain_access import visible_domain_ids
+from config.domain_access import manageable_domain_ids
 
 
 def question_queryset():
@@ -38,7 +38,11 @@ def accessible_question_queryset(user):
     if getattr(user, "is_superuser", False):
         return queryset
 
-    allowed_domain_ids = visible_domain_ids(user)
+    # MANAGEABLE (owner|managers), NOT visible (which also OR-in members): the
+    # /api/question/ endpoint is the question EDITOR and exposes is_correct, so
+    # a domain member/learner must not be able to list its questions and read
+    # the right answers (incl. exam questions). Only domain managers do.
+    allowed_domain_ids = manageable_domain_ids(user)
     if not allowed_domain_ids:
         return queryset.none()
 
