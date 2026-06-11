@@ -195,6 +195,43 @@ class DomainViewSetTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_retrieve_anonymous_private_domain_404(self):
+        """Security regression (P1): a private (public=False) domain must not be
+        retrievable by an anonymous caller."""
+        private = Domain.objects.create(owner=self.owner, active=True, public=False)
+        view = DomainViewSet.as_view({"get": "retrieve"})
+        request = self.factory.get(f"/api/domain/{private.id}/")
+        response = view(request, domain_id=private.id)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_anonymous_retrieve_redacts_member_pii(self):
+        """Security regression (P1): an anonymous reader of a public domain must
+        get NO email and NO member/manager roster."""
+        self.owner.email = "owner@example.test"
+        self.owner.save(update_fields=["email"])
+        view = DomainViewSet.as_view({"get": "retrieve"})
+        request = self.factory.get(f"/api/domain/{self.domain_active.id}/")
+        response = view(request, domain_id=self.domain_active.id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["owner"]["email"], "")  # redacted
+        self.assertEqual(list(response.data["managers"]), [])
+        self.assertEqual(list(response.data["members"]), [])
+
+    def test_manager_retrieve_sees_member_pii(self):
+        """Positive control: a manager of the domain still gets the roster + emails."""
+        self.owner.email = "owner@example.test"
+        self.owner.save(update_fields=["email"])
+        view = DomainViewSet.as_view({"get": "retrieve"})
+        request = self.factory.get(f"/api/domain/{self.domain_active.id}/")
+        force_authenticate(request, user=self.other)  # manager of domain_active
+        response = view(request, domain_id=self.domain_active.id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["owner"]["email"], "owner@example.test")
+        self.assertIn(self.other.id, {m["id"] for m in response.data["managers"]})
+        self.assertIn(self.member.id, {m["id"] for m in response.data["members"]})
+
     # ----------------------------
     # DETAILS (custom action)
     # ----------------------------

@@ -56,7 +56,12 @@ class DomainSerializersTestCase(TestCase):
     # DomainReadSerializer
     # -------------------------
     def test_domain_read_serializer_outputs_expected_fields(self):
-        s = DomainReadSerializer(instance=self.domain, context={"request": self.factory.get("/")})
+        # Serialize AS THE OWNER so the member/manager roster + emails are
+        # returned (they are now redacted for anonymous / non-manager readers —
+        # see the anonymous-redaction tests in test_views.py).
+        request = self.factory.get("/")
+        request.user = self.owner
+        s = DomainReadSerializer(instance=self.domain, context={"request": request})
         data = s.data
 
         expected_fields = {

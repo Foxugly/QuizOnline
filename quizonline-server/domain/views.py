@@ -281,7 +281,11 @@ class DomainViewSet(
         )
         user = self.request.user
         if not user or user.is_anonymous:
-            return qs.filter(active=True)
+            # Anonymous (list/retrieve/details are AllowAny): only PUBLIC active
+            # domains. Private domains (public=False) must never surface to an
+            # anonymous caller — combined with the serializer redaction below,
+            # this stops the roster/email leak (members/managers PII).
+            return qs.filter(active=True, public=True)
         if user.is_superuser:
             return qs
         return qs.filter(Q(owner=user) | Q(managers=user) | Q(members=user)).distinct()

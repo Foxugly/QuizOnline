@@ -66,17 +66,49 @@ class DomainReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
         extra_kwargs = {"owner": {"read_only": True}}
 
+    def _request_user(self):
+        request = self.context.get("request")
+        return getattr(request, "user", None) if request else None
+
+    def _can_manage(self, obj: Domain) -> bool:
+        """Requester may see emails: superuser, owner, or a manager of obj."""
+        user = self._request_user()
+        if not user or not getattr(user, "is_authenticated", False):
+            return False
+        if getattr(user, "is_superuser", False):
+            return True
+        return obj.owner_id == user.id or any(m.id == user.id for m in obj.managers.all())
+
+    def _is_member_or_above(self, obj: Domain) -> bool:
+        """Requester may see the nominative member/manager lists: a manager
+        (above) or a member of obj. Anonymous / non-linked readers may not —
+        so a public domain doesn't leak its roster to outsiders."""
+        if self._can_manage(obj):
+            return True
+        user = self._request_user()
+        if not user or not getattr(user, "is_authenticated", False):
+            return False
+        return any(m.id == user.id for m in obj.members.all())
+
     @extend_schema_field(UserSummarySerializer)
     def get_owner(self, obj: Domain) -> dict[str, int | str]:
-        return _user_summary(obj.owner)
+        # Owner id+name stay visible (needed for display + client-side role
+        # checks); the email is redacted unless the requester manages the domain.
+        return _user_summary(obj.owner, include_email=self._can_manage(obj))
 
     @extend_schema_field(UserSummarySerializer(many=True))
     def get_managers(self, obj: Domain) -> list[dict[str, int | str]]:
-        return [_user_summary(u) for u in obj.managers.all()]
+        if not self._is_member_or_above(obj):
+            return []
+        include_email = self._can_manage(obj)
+        return [_user_summary(u, include_email=include_email) for u in obj.managers.all()]
 
     @extend_schema_field(UserSummarySerializer(many=True))
     def get_members(self, obj: Domain) -> list[dict[str, int | str]]:
-        return [_user_summary(u) for u in obj.members.all()]
+        if not self._is_member_or_above(obj):
+            return []
+        include_email = self._can_manage(obj)
+        return [_user_summary(u, include_email=include_email) for u in obj.members.all()]
 
     @extend_schema_field(LanguageReadSerializer(many=True))
     def get_allowed_languages(self, obj: Domain) -> list[dict]:
@@ -559,13 +591,17 @@ class DomainJoinRequestReadSerializer(serializers.ModelSerializer):
         return _user_summary(obj.decided_by) if obj.decided_by_id else None
 
 
-def _user_summary(user) -> dict:
+def _user_summary(user, *, include_email: bool = True) -> dict:
+    # ``email`` is PII: only callers that have established the requester may
+    # manage the domain pass include_email=True. Anonymous / non-manager
+    # readers get an empty string (the field stays present so the response
+    # shape — and the OpenAPI contract — is unchanged).
     return {
         "id": user.id,
         "username": user.username,
         "first_name": user.first_name or "",
         "last_name": user.last_name or "",
-        "email": user.email or "",
+        "email": (user.email or "") if include_email else "",
     }
 
 
