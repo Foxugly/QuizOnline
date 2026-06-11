@@ -1,5 +1,6 @@
 import {DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
@@ -68,6 +69,7 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
   private readonly toast = inject(AppToastService);
   private readonly uiSvc = inject(UiTextService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly ui = this.uiSvc.localized(getCourseInviteAcceptUiText);
   protected readonly catalogHref = CATALOG;
@@ -144,7 +146,9 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
       return;
     }
     this.busy.set(true);
-    this.enrollment.acceptInviteByToken(inv.token).subscribe({
+    this.enrollment.acceptInviteByToken(inv.token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.busy.set(false);
         this.state.set('accepted');
@@ -203,7 +207,9 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
       return;
     }
     this.busy.set(true);
-    this.enrollment.declineInviteByToken(inv.token).subscribe({
+    this.enrollment.declineInviteByToken(inv.token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.busy.set(false);
         this.state.set('declined');

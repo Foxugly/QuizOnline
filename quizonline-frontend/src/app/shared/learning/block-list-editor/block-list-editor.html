@@ -22,6 +22,8 @@
         }
         <p-button icon="pi pi-trash" severity="danger" size="small"
                   [outlined]="true"
+                  [loading]="isDeleting(block.id)"
+                  [disabled]="isDeleting(block.id)"
                   (onClick)="deleteBlock(block.id)"
                   [attr.aria-label]="ui().deleteBlockAria" />
       </div>

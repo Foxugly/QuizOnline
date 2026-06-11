@@ -64,6 +64,11 @@ export class DomainJoinRequestsPage implements OnInit {
   readonly rejectReason = signal('');
   readonly rejectingRequest = signal<DomainJoinRequestReadDto | null>(null);
 
+  /** Id of the request whose unitary approve/reject is in flight, or null.
+   *  Disables that row's buttons + the reject dialog confirm so a double
+   *  click can't fire two decisions. */
+  readonly decidingId = signal<number | null>(null);
+
   /** Multi-row selection state for bulk approve/reject. Lives only while
    *  the filter is "pending"; switching status clears it. */
   readonly selectedRows = signal<DomainJoinRequestReadDto[]>([]);
@@ -255,11 +260,24 @@ export class DomainJoinRequestsPage implements OnInit {
   }
 
   approve(request: DomainJoinRequestReadDto): void {
+    if (this.decidingId() !== null) {
+      return;
+    }
+    this.decidingId.set(request.id);
     this.domainService.approveJoinRequest(this.domainId, request.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.loadDomain();
-        this.loadRequests();
+      .pipe(
+        finalize(() => this.decidingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.loadDomain();
+          this.loadRequests();
+        },
+        error: (err: unknown) => {
+          logApiError('domain.join-requests.approve', err);
+          this.toast.addApiError(err, this.t().bulkActionFailed);
+        },
       });
   }
 
@@ -271,16 +289,26 @@ export class DomainJoinRequestsPage implements OnInit {
 
   confirmReject(): void {
     const request = this.rejectingRequest();
-    if (!request) {
+    if (!request || this.decidingId() !== null) {
       return;
     }
+    this.decidingId.set(request.id);
     this.domainService.rejectJoinRequest(this.domainId, request.id, this.rejectReason())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.rejectDialogVisible.set(false);
-        this.rejectingRequest.set(null);
-        this.loadDomain();
-        this.loadRequests();
+      .pipe(
+        finalize(() => this.decidingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.rejectDialogVisible.set(false);
+          this.rejectingRequest.set(null);
+          this.loadDomain();
+          this.loadRequests();
+        },
+        error: (err: unknown) => {
+          logApiError('domain.join-requests.reject', err);
+          this.toast.addApiError(err, this.t().bulkActionFailed);
+        },
       });
   }
 

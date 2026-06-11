@@ -73,8 +73,8 @@
         <td>{{ req.reject_reason || t().noReason }}</td>
         <td>
           @if (isPending(req)) {
-            <button pButton [label]="t().approve" severity="success" size="small" class="mr-2" (click)="approve(req)"></button>
-            <button pButton [label]="t().reject" severity="danger" size="small" (click)="openRejectDialog(req)"></button>
+            <button pButton [label]="t().approve" severity="success" size="small" class="mr-2" [loading]="decidingId() === req.id" [disabled]="decidingId() !== null" (click)="approve(req)"></button>
+            <button pButton [label]="t().reject" severity="danger" size="small" [disabled]="decidingId() !== null" (click)="openRejectDialog(req)"></button>
           }
         </td>
       </tr>
@@ -101,7 +101,7 @@
     class="w-full"
   ></textarea>
   <ng-template #footer>
-    <button pButton [label]="t().reject" severity="danger" (click)="confirmReject()"></button>
+    <button pButton [label]="t().reject" severity="danger" [loading]="decidingId() !== null" [disabled]="decidingId() !== null" (click)="confirmReject()"></button>
   </ng-template>
 </p-dialog>
 

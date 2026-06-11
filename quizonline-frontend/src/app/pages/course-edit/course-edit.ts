@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {Subscription} from 'rxjs';
+import {catchError, map, of, switchMap} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -59,9 +60,10 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
   styleUrl: './course-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CourseEdit implements OnInit, OnDestroy {
+export class CourseEdit implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly catalog = inject(CatalogService);
   private readonly toast = inject(AppToastService);
   private readonly confirmer = inject(ConfirmationService);
@@ -91,31 +93,53 @@ export class CourseEdit implements OnInit, OnDestroy {
   protected readonly cloning = signal<boolean>(false);
   protected readonly deleting = signal<boolean>(false);
 
-  private routeSub: Subscription | null = null;
-
   ngOnInit(): void {
-    this.routeSub = this.route.paramMap.subscribe((params) => {
-      const raw = params.get('id');
-      const parsed = raw !== null ? Number(raw) : NaN;
-      const id = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-      this.courseId.set(id);
-      if (id > 0) {
-        this.refresh();
-      } else {
-        this.course.set(null);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-    this.routeSub = null;
+    // switchMap cancels the previous id's in-flight request when the route
+    // param changes fast (clone → navigate reuses this component), so a stale
+    // response can never overwrite the displayed course.
+    this.route.paramMap
+      .pipe(
+        map((params) => {
+          const raw = params.get('id');
+          const parsed = raw !== null ? Number(raw) : NaN;
+          return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+        }),
+        switchMap((id) => {
+          this.courseId.set(id);
+          if (id <= 0) {
+            this.course.set(null);
+            return of(null);
+          }
+          this.loading.set(true);
+          // Catch inside switchMap so a failed load doesn't terminate the
+          // outer paramMap stream — later route changes must still reload.
+          return this.catalog.detailById(id).pipe(
+            catchError((err: unknown) => {
+              logApiError('lms.course-edit.load', err);
+              this.toast.addApiError(err, this.ui().loadErrorToast);
+              this.loading.set(false);
+              return of(null);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((course) => {
+        if (course !== null) {
+          this.course.set(course as CourseDetailDto);
+          this.publishToggle.set((course as CourseDetailDto).is_published === true);
+          this.loading.set(false);
+        }
+      });
   }
 
   /**
-   * Re-fetch the course detail. Bound to the ``changed`` output of
-   * every child tab so mutations to sections / lessons trickle up and
-   * refresh the publish button + downstream tabs uniformly.
+   * Imperative re-fetch of the course detail. Bound to the ``changed``
+   * output of every child tab (and called after publish/unpublish) so
+   * mutations to sections / lessons trickle up and refresh the publish
+   * button + downstream tabs uniformly. Kept separate from the
+   * param-driven load in ngOnInit, which is the only path that reacts
+   * to route changes.
    */
   protected refresh(): void {
     const id = this.courseId();

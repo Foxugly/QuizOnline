@@ -26,6 +26,8 @@ export type EditorUiText = {
     downloadPdf: string;
     /** Generic "Error" used as a toast summary for unhappy paths. */
     errorTitle: string;
+    /** Generic "delete failed" toast summary for delete actions. */
+    deleteFailed: string;
   };
   quiz: {
     newTemplate: string;

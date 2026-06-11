@@ -90,13 +90,13 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
       <p-button type="button" severity="secondary" [outlined]="true"
                 icon="pi pi-times"
                 [label]="listUi().cancelBlockLabel"
-                [disabled]="saving()"
+                [disabled]="saving() || uploading()"
                 (onClick)="cancel.emit()" />
       <p-button type="button"
                 icon="pi pi-save"
                 [label]="listUi().saveBlockLabel"
                 [loading]="saving()"
-                [disabled]="saving()"
+                [disabled]="saving() || uploading()"
                 (onClick)="save.emit(currentBlock())" />
     </div>
   `,

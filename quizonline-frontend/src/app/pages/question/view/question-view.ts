@@ -1,7 +1,9 @@
-import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
+import {catchError, map, of, switchMap} from 'rxjs';
 import {QuestionService,} from '../../../services/question/question';
 import {QuizQuestionComponent} from '../../../components/quiz-question/quiz-question';
 import {ButtonModule} from 'primeng/button';
@@ -31,18 +33,50 @@ export class QuestionView implements OnInit {
   private route = inject(ActivatedRoute);
   private questionService = inject(QuestionService);
   private userService = inject(UserService);
+  private destroyRef = inject(DestroyRef);
   isAdmin = this.userService.isAdmin();
 
   ngOnInit(): void {
-    this.id = Number(
-      this.route.snapshot.paramMap.get('questionId') ??
-      this.route.snapshot.paramMap.get('id')
-    );
-    if (!this.id || Number.isNaN(this.id)) {
-      this.error.set(this.editorUi().pages.questionView.errors.invalidId);
-      return;
-    }
-    this.loadQuestion();
+    // React to ``:questionId`` changes (view→view navigation reuses this
+    // component) and switchMap the retrieve so a stale response from the
+    // previous id can never overwrite the displayed question.
+    this.route.paramMap
+      .pipe(
+        map((params) => Number(params.get('questionId') ?? params.get('id'))),
+        switchMap((nextId) => {
+          if (!nextId || Number.isNaN(nextId)) {
+            this.id = NaN;
+            this.error.set(this.editorUi().pages.questionView.errors.invalidId);
+            this.loading.set(false);
+            return of(null);
+          }
+          this.id = nextId;
+          this.loading.set(true);
+          this.error.set(null);
+          return this.questionService.retrieve(nextId).pipe(
+            catchError((err) => {
+              console.error('Erreur chargement question', err);
+              this.error.set(this.editorUi().pages.questionView.errors.loadFailed);
+              this.loading.set(false);
+              return of(null);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((q) => {
+        if (!q) {
+          return;
+        }
+        this.quizNavItem.set({
+          index: 1,
+          id: q.id,
+          answered: false,
+          flagged: false,
+          question: q,
+        });
+        this.loading.set(false);
+      });
   }
 
   goBack(): void {
@@ -58,31 +92,6 @@ export class QuestionView implements OnInit {
     const q = this.quizNavItem();
     if (!q) return false;
     return this.isAdmin || q.question.is_mode_practice;
-  }
-
-  private loadQuestion(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.questionService.retrieve(this.id).subscribe({
-      next: (q) => {
-        const navItem: QuizNavItem = {
-          index: 1,
-          id: q.id,
-          answered: false,
-          flagged: false,
-          question: q,
-        };
-
-        this.quizNavItem.set(navItem);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Erreur chargement question', err);
-        this.error.set(this.editorUi().pages.questionView.errors.loadFailed);
-        this.loading.set(false);
-      },
-    });
   }
 
 }

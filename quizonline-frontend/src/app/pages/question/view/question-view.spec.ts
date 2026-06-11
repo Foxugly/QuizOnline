@@ -19,6 +19,7 @@ describe('View', () => {
         {
           provide: ActivatedRoute,
           useValue: {
+            paramMap: of(convertToParamMap({questionId: '1'})),
             snapshot: {
               paramMap: convertToParamMap({questionId: '1'}),
             },

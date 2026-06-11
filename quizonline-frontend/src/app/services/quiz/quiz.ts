@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {map, Observable, of, switchMap} from 'rxjs';
+import {EMPTY, expand, finalize, map, Observable, of, reduce, shareReplay, switchMap} from 'rxjs';
 import {QuestionApi as QuestionApiService} from '../../api/generated/api/question.service';
 import {QuizAnswerApi as QuizAnswerApiService} from '../../api/generated/api/quiz-answer.service';
 import {QuizApi as QuizApiService} from '../../api/generated/api/quiz.service';
@@ -41,6 +41,14 @@ export class QuizService {
   private readonly answerApi = inject(QuizAnswerApiService);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+
+  /** In-flight share of the unfiltered ``listQuiz()`` (all pages). A lesson
+   *  with several quiz blocks mounts that many ``QuizBlockRenderer``s, each
+   *  calling ``listQuiz()`` with no params on init — without this they each
+   *  fan out an identical multi-page walk of ``GET /api/quiz/``. Sharing the
+   *  in-flight observable collapses them into one; the slot clears on
+   *  completion so a later mount (post-session-start) refetches fresh. */
+  private listQuizAll$: Observable<QuizListDto[]> | null = null;
 
   goList(): void {
     this.router.navigate(['/quiz', 'list']);
@@ -107,9 +115,56 @@ export class QuizService {
   }
 
   listQuiz(params?: {name?: string; search?: string}): Observable<QuizListDto[]> {
-    return this.quizApi.quizList({name: params?.name, search: params?.search}).pipe(
-      map((response) => response.results ?? []),
+    // The session list is paginated (DRF PageNumberPagination, page size 20).
+    // Reading only page 1 made the quiz-block CTA wrong when the relevant
+    // session sat on a later page (it would show "Start" and risk a duplicate
+    // session). Walk every page via ``next`` and concatenate the results.
+    const fetchAll = this.fetchAllQuizPages(1, params).pipe(
+      expand(({page}) =>
+        page.next ? this.fetchAllQuizPages(page.nextPageNumber, params) : EMPTY,
+      ),
+      reduce<{page: {results: QuizListDto[]}}, QuizListDto[]>(
+        (acc, {page}) => acc.concat(page.results ?? []),
+        [],
+      ),
     );
+
+    // Only the unfiltered call (the quiz-block fan-out) is deduped; filtered
+    // searches stay independent.
+    if (params?.name || params?.search) {
+      return fetchAll;
+    }
+    if (this.listQuizAll$) {
+      return this.listQuizAll$;
+    }
+    this.listQuizAll$ = fetchAll.pipe(
+      finalize(() => {
+        this.listQuizAll$ = null;
+      }),
+      shareReplay(1),
+    );
+    return this.listQuizAll$;
+  }
+
+  /** One paginated page of ``GET /api/quiz/`` plus the bookkeeping the
+   *  ``expand`` in :meth:`listQuiz` needs to decide whether to fetch the
+   *  next one. ``next`` is a server URL, but the generated client only
+   *  accepts a numeric ``page``, so we increment it ourselves. */
+  private fetchAllQuizPages(
+    page: number,
+    params?: {name?: string; search?: string},
+  ): Observable<{page: {results: QuizListDto[]; next: string | null; nextPageNumber: number}}> {
+    return this.quizApi
+      .quizList({name: params?.name, search: params?.search, page})
+      .pipe(
+        map((response) => ({
+          page: {
+            results: response.results ?? [],
+            next: response.next ?? null,
+            nextPageNumber: page + 1,
+          },
+        })),
+      );
   }
 
   listTemplates(): Observable<QuizTemplateListDto[]> {

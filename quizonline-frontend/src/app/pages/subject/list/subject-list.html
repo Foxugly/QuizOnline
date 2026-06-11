@@ -26,7 +26,7 @@
           pInputText
           [placeholder]="pageText().searchPlaceholder"
           [ngModel]="q()"
-          (ngModelChange)="q.set($event); load()"
+          (ngModelChange)="onSearchChange($event)"
         />
 
         <p-button

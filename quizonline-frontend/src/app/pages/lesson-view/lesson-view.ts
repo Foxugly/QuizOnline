@@ -75,7 +75,11 @@ export class LessonView implements OnInit, OnDestroy {
    *  PUT and feeds the inline "Saved at HH:MM" status. */
   protected readonly noteContent = signal('');
   protected readonly noteSavedAt = signal<Date | null>(null);
-  private readonly noteInput$ = new Subject<string>();
+  /** Carries BOTH the lesson id (captured at keystroke time) and the
+   *  content, so a debounced save that fires after a fast prev/next still
+   *  writes to the lesson the user was typing on — not whatever lesson is
+   *  loaded by the time the 600 ms debounce expires. */
+  private readonly noteInput$ = new Subject<{lessonId: number; content: string}>();
   private noteSub: Subscription | null = null;
 
   protected readonly ui = this.uiSvc.localized(getLessonViewUiText);
@@ -155,7 +159,7 @@ export class LessonView implements OnInit, OnDestroy {
     // form fields.
     this.noteSub = this.noteInput$
       .pipe(debounceTime(600))
-      .subscribe((value) => this.persistNote(value));
+      .subscribe(({lessonId, content}) => this.persistNote(lessonId, content));
   }
 
   ngOnDestroy(): void {
@@ -167,7 +171,13 @@ export class LessonView implements OnInit, OnDestroy {
 
   protected onNoteChange(value: string): void {
     this.noteContent.set(value);
-    this.noteInput$.next(value);
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) {
+      return;
+    }
+    // Capture the lesson id NOW so a navigation before the debounce fires
+    // cannot misattribute this content to the next lesson.
+    this.noteInput$.next({lessonId, content: value});
   }
 
   /** Pretty "HH:MM" rendering of the last saved-at timestamp. Returns
@@ -194,13 +204,19 @@ export class LessonView implements OnInit, OnDestroy {
     });
   }
 
-  private persistNote(content: string): void {
-    const id = this.lesson()?.id;
-    if (!id) {
+  private persistNote(lessonId: number, content: string): void {
+    if (!lessonId) {
       return;
     }
-    this.enrollment.saveLessonNote(id, content).subscribe({
-      next: () => this.noteSavedAt.set(new Date()),
+    this.enrollment.saveLessonNote(lessonId, content).subscribe({
+      next: () => {
+        // Only surface "Saved at…" when the save targeted the lesson the
+        // user is still looking at; a late save for a previous lesson must
+        // not flash a misleading timestamp on the current one.
+        if (this.lesson()?.id === lessonId) {
+          this.noteSavedAt.set(new Date());
+        }
+      },
       error: (err: unknown) => {
         logApiError('lms.lesson-view.note.save', err);
       },

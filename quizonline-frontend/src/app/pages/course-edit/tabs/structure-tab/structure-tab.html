@@ -36,6 +36,7 @@
                 <span class="toggle-inline__label">{{ ui().isPublishedLabel }}</span>
                 <p-toggleswitch
                   [ngModel]="section.is_published"
+                  [disabled]="isTogglingSection(section.id)"
                   (ngModelChange)="toggleSectionPublished(section)"
                   [attr.aria-label]="ui().isPublishedLabel">
                 </p-toggleswitch>
@@ -99,6 +100,7 @@
                     <span class="toggle-inline__label">{{ ui().isPublishedLabel }}</span>
                     <p-toggleswitch
                       [ngModel]="lesson.is_published"
+                      [disabled]="isTogglingLessonPublished(lesson.id)"
                       (ngModelChange)="toggleLessonPublished(lesson)"
                       [attr.aria-label]="ui().isPublishedLabel">
                     </p-toggleswitch>
@@ -108,6 +110,7 @@
                     <span class="toggle-inline__label">{{ ui().isPreviewLabel }}</span>
                     <p-toggleswitch
                       [ngModel]="lesson.is_preview"
+                      [disabled]="isTogglingLessonPreview(lesson.id)"
                       (ngModelChange)="toggleLessonPreview(lesson)"
                       [attr.aria-label]="ui().isPreviewLabel">
                     </p-toggleswitch>

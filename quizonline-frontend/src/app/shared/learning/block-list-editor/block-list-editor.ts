@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {finalize} from 'rxjs';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ButtonModule} from 'primeng/button';
 
@@ -146,6 +147,12 @@ export class BlockListEditor {
    *  double-click can't fire two PATCHes against the same block. */
   protected readonly savingIds = signal<Set<number>>(new Set());
 
+  /** Mirrors ``savingIds`` for the trash button: disables it and makes
+   *  ``deleteBlock`` early-return while a DELETE is in flight, so a rapid
+   *  double-click can't fire two DELETEs (the second 404s with a misleading
+   *  toast and double-fires ``blocksChanged``). */
+  protected readonly deletingIds = signal<Set<number>>(new Set());
+
   /** Guard against two rapid clicks on the same "+ <type>" button
    *  racing two POSTs with the same ``order`` computed from the same
    *  stale ``blocks()`` snapshot — the second would hit the
@@ -189,6 +196,10 @@ export class BlockListEditor {
 
   protected isSaving(blockId: number): boolean {
     return this.savingIds().has(blockId);
+  }
+
+  protected isDeleting(blockId: number): boolean {
+    return this.deletingIds().has(blockId);
   }
 
   protected addBlock(type: BlockType): void {
@@ -244,26 +255,45 @@ export class BlockListEditor {
   }
 
   protected deleteBlock(id: number): void {
-    this.http.delete(`${this.apiBaseUrl}/block/${id}/`).subscribe({
-      next: () => {
-        this.editingIds.update((s) => {
-          const next = new Set(s);
-          next.delete(id);
-          return next;
-        });
-        this.freshDraftIds.update((s) => {
-          const next = new Set(s);
-          next.delete(id);
-          return next;
-        });
-        this.blocksChanged.emit();
-        this.toast.add({severity: 'success', summary: this.ui().blockDeletedToast});
-      },
-      error: (err: unknown) => {
-        logApiError('lms.block-list.delete', err);
-        this.toast.addApiError(err, this.ui().blockErrorToast);
-      },
+    if (this.deletingIds().has(id)) {
+      return;
+    }
+    this.deletingIds.update((s) => {
+      const next = new Set(s);
+      next.add(id);
+      return next;
     });
+    this.http
+      .delete(`${this.apiBaseUrl}/block/${id}/`)
+      .pipe(
+        finalize(() =>
+          this.deletingIds.update((s) => {
+            const next = new Set(s);
+            next.delete(id);
+            return next;
+          }),
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.editingIds.update((s) => {
+            const next = new Set(s);
+            next.delete(id);
+            return next;
+          });
+          this.freshDraftIds.update((s) => {
+            const next = new Set(s);
+            next.delete(id);
+            return next;
+          });
+          this.blocksChanged.emit();
+          this.toast.add({severity: 'success', summary: this.ui().blockDeletedToast});
+        },
+        error: (err: unknown) => {
+          logApiError('lms.block-list.delete', err);
+          this.toast.addApiError(err, this.ui().blockErrorToast);
+        },
+      });
   }
 
   protected onDrop(event: CdkDragDrop<ContentBlock[]>): void {

@@ -12,6 +12,7 @@ import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 
+import {finalize} from 'rxjs';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
@@ -143,6 +144,41 @@ export class CourseEditStructureTab {
    * out translations (or ``null`` when idle).
    */
   protected readonly translating = signal<'section' | 'lesson' | null>(null);
+
+  /**
+   * In-flight inline-toggle guards. The ``<p-toggleswitch>`` reflects the
+   * server value (not an optimistic local state), so between the click and
+   * the parent's ``refresh()`` the switch still shows the old state and stays
+   * clickable — a double-click would fire publish then unpublish. These Sets
+   * disable the relevant toggle while its request is in flight.
+   */
+  protected readonly togglingSections = signal<ReadonlySet<number>>(new Set());
+  protected readonly togglingLessonsPublished = signal<ReadonlySet<number>>(new Set());
+  protected readonly togglingLessonsPreview = signal<ReadonlySet<number>>(new Set());
+
+  protected isTogglingSection(id: number): boolean {
+    return this.togglingSections().has(id);
+  }
+
+  protected isTogglingLessonPublished(id: number): boolean {
+    return this.togglingLessonsPublished().has(id);
+  }
+
+  protected isTogglingLessonPreview(id: number): boolean {
+    return this.togglingLessonsPreview().has(id);
+  }
+
+  private addId(sig: typeof this.togglingSections, id: number): void {
+    const next = new Set(sig());
+    next.add(id);
+    sig.set(next);
+  }
+
+  private removeId(sig: typeof this.togglingSections, id: number): void {
+    const next = new Set(sig());
+    next.delete(id);
+    sig.set(next);
+  }
 
   readonly courseId = input.required<number>();
   readonly course = input<CourseDetailDto | null>(null);
@@ -630,6 +666,12 @@ export class CourseEditStructureTab {
   // -- Inline toggles ------------------------------------------------------
 
   protected toggleSectionPublished(section: SectionDto): void {
+    // Guard against concurrent/double toggles: the switch reflects the server
+    // value and stays clickable until refresh, so a fast double-click would
+    // otherwise send publish then unpublish.
+    if (this.isTogglingSection(section.id)) {
+      return;
+    }
     // Audited endpoints (parity with the course-level publish action):
     // pick publish vs unpublish from the desired NEW state so the
     // mutation is recorded on the parent course's audit log.
@@ -637,32 +679,46 @@ export class CourseEditStructureTab {
     const request$ = next
       ? this.catalog.publishSection(section.id)
       : this.catalog.unpublishSection(section.id);
-    request$.subscribe({
-      next: () => this.changed.emit(),
-      error: (err: unknown) => {
-        logApiError('lms.structure.toggle-section-published', err);
-        this.toast.addApiError(err, this.ui().actionFailedToast);
-      },
-    });
+    this.addId(this.togglingSections, section.id);
+    request$
+      .pipe(finalize(() => this.removeId(this.togglingSections, section.id)))
+      .subscribe({
+        next: () => this.changed.emit(),
+        error: (err: unknown) => {
+          logApiError('lms.structure.toggle-section-published', err);
+          this.toast.addApiError(err, this.ui().actionFailedToast);
+        },
+      });
   }
 
   protected toggleLessonPublished(lesson: LessonDetailDto): void {
+    if (this.isTogglingLessonPublished(lesson.id)) {
+      return;
+    }
     const next = !(lesson.is_published ?? false);
     const request$ = next
       ? this.catalog.publishLesson(lesson.id)
       : this.catalog.unpublishLesson(lesson.id);
-    request$.subscribe({
-      next: () => this.changed.emit(),
-      error: (err: unknown) => {
-        logApiError('lms.structure.toggle-lesson-published', err);
-        this.toast.addApiError(err, this.ui().actionFailedToast);
-      },
-    });
+    this.addId(this.togglingLessonsPublished, lesson.id);
+    request$
+      .pipe(finalize(() => this.removeId(this.togglingLessonsPublished, lesson.id)))
+      .subscribe({
+        next: () => this.changed.emit(),
+        error: (err: unknown) => {
+          logApiError('lms.structure.toggle-lesson-published', err);
+          this.toast.addApiError(err, this.ui().actionFailedToast);
+        },
+      });
   }
 
   protected toggleLessonPreview(lesson: LessonDetailDto): void {
+    if (this.isTogglingLessonPreview(lesson.id)) {
+      return;
+    }
+    this.addId(this.togglingLessonsPreview, lesson.id);
     this.catalog
       .updateLesson(lesson.id, {is_preview: !(lesson.is_preview ?? false)})
+      .pipe(finalize(() => this.removeId(this.togglingLessonsPreview, lesson.id)))
       .subscribe({
         next: () => this.changed.emit(),
         error: (err: unknown) => {

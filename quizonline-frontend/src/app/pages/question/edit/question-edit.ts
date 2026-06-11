@@ -4,8 +4,8 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
 import {NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {firstValueFrom, forkJoin} from 'rxjs';
-import {finalize} from 'rxjs/operators';
+import {firstValueFrom, forkJoin, of, Subject} from 'rxjs';
+import {catchError, concatMap, finalize} from 'rxjs/operators';
 
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
@@ -117,6 +117,47 @@ export class QuestionEdit implements OnInit {
   private subjectService = inject(SubjectService);
   private userService = inject(UserService);
   private toast = inject(AppToastService);
+
+  /** Serializes the answer-list mutations (toggle correct / add / duplicate
+   *  / remove). Each handler mutates the form synchronously, captures the
+   *  resulting payload snapshot, then enqueues it here; ``concatMap`` PATCHes
+   *  them one at a time so two fast clicks can't fire overlapping PATCHes of
+   *  the whole question and let an out-of-order response revert the UI. */
+  private readonly answerMutations$ = new Subject<{
+    op: string;
+    payload: ReturnType<typeof buildQuestionPatchPayload>;
+  }>();
+
+  constructor() {
+    this.answerMutations$
+      .pipe(
+        concatMap((mutation) =>
+          this.questionService.updatePartial(this.id, mutation.payload).pipe(
+            catchError((err: unknown) => {
+              logApiError(`question.edit.${mutation.op}`, err);
+              this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
+              return of(null);
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((question) => {
+        if (!question) {
+          return;
+        }
+        this.question.set(question);
+        this.refreshBlockSignals(question);
+      });
+  }
+
+  /** Enqueue a serialized answer-list PATCH from a freshly-built payload. */
+  private enqueueAnswerMutation(op: string): void {
+    this.answerMutations$.next({
+      op,
+      payload: buildQuestionPatchPayload(this.form, this.domainLangs()),
+    });
+  }
 
   readonly filteredSubjects = computed(() => {
     const domainId = this.question()?.domain.id;
@@ -334,18 +375,9 @@ export class QuestionEdit implements OnInit {
     );
     meta?.get('is_correct')?.setValue(event.isCorrect);
 
-    // Persist by patching the question with the new answer list.
-    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
-    this.questionService.updatePartial(this.id, payload).subscribe({
-      next: (question) => {
-        this.question.set(question);
-        this.refreshBlockSignals(question);
-      },
-      error: (err: unknown) => {
-        logApiError('question.edit.correct-toggle', err);
-        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
-      },
-    });
+    // Persist by patching the question with the new answer list — serialized
+    // so concurrent toggles don't race and revert each other.
+    this.enqueueAnswerMutation('correct-toggle');
   }
 
   /** Add a fresh AnswerOption row by sending a question PATCH with
@@ -353,17 +385,7 @@ export class QuestionEdit implements OnInit {
    *  list without exposing a dedicated endpoint). */
   protected onAddAnswer(): void {
     addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
-    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
-    this.questionService.updatePartial(this.id, payload).subscribe({
-      next: (question) => {
-        this.question.set(question);
-        this.refreshBlockSignals(question);
-      },
-      error: (err: unknown) => {
-        logApiError('question.edit.add-answer', err);
-        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
-      },
-    });
+    this.enqueueAnswerMutation('add-answer');
   }
 
   /** Duplicate an AnswerOption: clones the source row's ``is_correct``
@@ -381,17 +403,7 @@ export class QuestionEdit implements OnInit {
     addQuestionAnswerOption(this.fb, this.form, this.domainLangs());
     const all = getAnswerOptions(this.form).controls;
     all[all.length - 1].get('is_correct')?.setValue(isCorrect);
-    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
-    this.questionService.updatePartial(this.id, payload).subscribe({
-      next: (question) => {
-        this.question.set(question);
-        this.refreshBlockSignals(question);
-      },
-      error: (err: unknown) => {
-        logApiError('question.edit.duplicate-answer', err);
-        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
-      },
-    });
+    this.enqueueAnswerMutation('duplicate-answer');
   }
 
   /** Remove an AnswerOption by id. Like ``onAddAnswer`` we patch the
@@ -412,17 +424,7 @@ export class QuestionEdit implements OnInit {
       ctrl.get('sort_order')?.setValue(i + 1);
     });
 
-    const payload = buildQuestionPatchPayload(this.form, this.domainLangs());
-    this.questionService.updatePartial(this.id, payload).subscribe({
-      next: (question) => {
-        this.question.set(question);
-        this.refreshBlockSignals(question);
-      },
-      error: (err: unknown) => {
-        logApiError('question.edit.remove-answer', err);
-        this.toast.addApiError(err, this.ui().pages.questionEdit.errors.saveFailed);
-      },
-    });
+    this.enqueueAnswerMutation('remove-answer');
   }
 
   private loadData(): void {

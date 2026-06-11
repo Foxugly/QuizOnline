@@ -141,6 +141,12 @@ export class Catalog implements OnInit {
    *  the domain filter dropdown so the catalog can be narrowed
    *  client-side and server-side to a single tenant. */
   protected readonly availableDomains = signal<DomainReadDto[]>([]);
+  /** True once ``GET /domain`` has settled (success or error). The per-card
+   *  Edit button / draft badge depend on ``manageableDomainIds`` which is
+   *  empty until then; gating the grid on this avoids the cards rendering
+   *  without Edit and then re-rendering with it (a visible flash for
+   *  instructors) once the domains arrive. */
+  protected readonly domainsLoaded = signal(false);
   /** Whether the user has at least one manageable domain (owner / manager / superuser). */
   protected readonly canCreateCourse = signal(false);
   protected readonly createCourseHref = COURSE_NEW;
@@ -256,11 +262,13 @@ export class Catalog implements OnInit {
         const list = domains ?? [];
         this.availableDomains.set(list);
         this.canCreateCourse.set(list.some((d) => this.canManage(d)));
+        this.domainsLoaded.set(true);
       },
       error: (err: unknown) => {
         logApiError('lms.catalog.load-domains', err);
         this.availableDomains.set([]);
         this.canCreateCourse.set(false);
+        this.domainsLoaded.set(true);
       },
     });
   }

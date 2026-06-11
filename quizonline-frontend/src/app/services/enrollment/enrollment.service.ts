@@ -1,7 +1,7 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {EMPTY, Observable} from 'rxjs';
+import {expand, map, reduce} from 'rxjs/operators';
 
 import {CourseEnrollmentDto} from '../../api/generated/model/course-enrollment';
 import {CourseInviteDto} from '../../api/generated/model/course-invite';
@@ -139,8 +139,25 @@ export class EnrollmentService {
     return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/complete/`, {progress_percent: progress});
   }
 
+  /** Fetch EVERY page of a DRF-paginated list by following ``next`` until
+   *  it is null, then concatenating the ``results``. A bare array (an
+   *  un-paginated endpoint) is returned as-is. Used by the progress and
+   *  certificate lists, which previously read page 1 only and silently
+   *  truncated learners with more than one page of rows. */
+  private fetchAllPages<T>(url: string): Observable<T[]> {
+    return this.http.get<PagedEnvelope<T> | T[]>(url).pipe(
+      expand((page) =>
+        !Array.isArray(page) && page.next ? this.http.get<PagedEnvelope<T> | T[]>(page.next) : EMPTY,
+      ),
+      reduce<PagedEnvelope<T> | T[], T[]>(
+        (acc, page) => acc.concat(Array.isArray(page) ? page : page.results),
+        [],
+      ),
+    );
+  }
+
   myProgress(): Observable<unknown> {
-    return this.http.get<unknown>(`${this.baseUrl}/progress/`);
+    return this.fetchAllPages(`${this.baseUrl}/progress/`);
   }
 
   /** Aggregated instructor-side analytics for one course. Backend

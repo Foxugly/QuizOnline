@@ -49,7 +49,7 @@ export const NL: EditorUiText = {
     required: 'Verplicht veld.',
     emptyLanguages: 'Dit domein heeft geen geconfigureerde talen.',
   },
-  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', delete: 'Verwijderen', confirm: 'Bevestigen', duplicate: 'Dupliceren', edit: 'Bewerken', send: 'Verzenden', sending: 'Verzenden...', refresh: 'Vernieuwen', close: 'Afsluiten', reopen: 'Heropenen', login: 'Aanmelden', loading: 'Laden...', translateOthers: 'Vertalen vanuit dit tabblad', view: 'Bekijken', previous: 'Vorige', next: 'Volgende', finish: 'Voltooien', quick: 'Snel', downloadPdf: 'PDF downloaden', errorTitle: 'Fout'},
+  common: {...EN.common, back: 'Terug', cancel: 'Annuleren', save: 'Opslaan', add: 'Toevoegen', create: 'Maken', delete: 'Verwijderen', confirm: 'Bevestigen', duplicate: 'Dupliceren', edit: 'Bewerken', send: 'Verzenden', sending: 'Verzenden...', refresh: 'Vernieuwen', close: 'Afsluiten', reopen: 'Heropenen', login: 'Aanmelden', loading: 'Laden...', translateOthers: 'Vertalen vanuit dit tabblad', view: 'Bekijken', previous: 'Vorige', next: 'Volgende', finish: 'Voltooien', quick: 'Snel', downloadPdf: 'PDF downloaden', errorTitle: 'Fout', deleteFailed: 'Verwijderen is mislukt.'},
   questionForm: {
     ...EN.questionForm,
     context: 'Context',

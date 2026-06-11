@@ -1,7 +1,8 @@
-import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
-import {forkJoin} from 'rxjs';
+import {catchError, debounceTime, distinctUntilChanged, forkJoin, merge, of, Subject, switchMap} from 'rxjs';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
 import {ButtonModule} from 'primeng/button';
 import {CheckboxModule} from 'primeng/checkbox';
@@ -56,6 +57,12 @@ export class SubjectList implements OnInit {
   private userService: UserService = inject(UserService);
   private domainService: DomainService = inject(DomainService);
   private confirmationService = inject(ConfirmationService);
+  private destroyRef = inject(DestroyRef);
+
+  /** Debounced typing in the search box. */
+  private readonly searchInput$ = new Subject<string>();
+  /** Immediate reloads (initial load, post-bulk refresh). */
+  private readonly reload$ = new Subject<void>();
 
   readonly ui = inject(UiTextService).ui;
   readonly editorUi = inject(UiTextService).editor;
@@ -109,16 +116,38 @@ export class SubjectList implements OnInit {
   }
 
   ngOnInit() {
-    this.load();
-  }
-
-  load() {
-    const currentDomainId = this.userService.currentUser()?.current_domain ?? undefined;
-    this.subjectService.list({
-      search: this.q() || undefined,
-      domainId: currentDomainId ?? undefined,
-    }).subscribe({
-      next: (subjects) => {
+    // Search typing is debounced (300 ms) + switchMapped so each keystroke
+    // doesn't fire a request and a stale response can't overwrite a newer
+    // one. Programmatic reloads (initial + post-bulk) go through reload$
+    // without debounce. Both share one switchMap so the latest wins.
+    merge(
+      this.searchInput$.pipe(debounceTime(300), distinctUntilChanged()),
+      this.reload$.pipe(switchMap(() => of(this.q()))),
+    )
+      .pipe(
+        switchMap((search) => {
+          const currentDomainId = this.userService.currentUser()?.current_domain ?? undefined;
+          return this.subjectService
+            .list({
+              search: search || undefined,
+              domainId: currentDomainId ?? undefined,
+            })
+            .pipe(
+              catchError((err: unknown) => {
+                logApiError('subject.list.load', err);
+                this.subjects.set([]);
+                this.questionCounts.set({});
+                this.initialLoad.set(false);
+                return of(null);
+              }),
+            );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((subjects) => {
+        if (subjects === null) {
+          return;
+        }
         this.subjects.set(subjects);
         // ``questions_count`` now ships inline on every ``SubjectRead``
         // payload thanks to a DB annotation on the list queryset.
@@ -126,19 +155,19 @@ export class SubjectList implements OnInit {
         // ``/subject/<id>/details/`` round-trip needed.
         this.questionCounts.set(this.buildQuestionCountsFromList(subjects));
         this.initialLoad.set(false);
-      },
-      error: (err: unknown) => {
-        logApiError('subject.list.load', err);
-        this.subjects.set([]);
-        this.questionCounts.set({});
-        this.initialLoad.set(false);
-      }
-    });
+      });
+
+    this.load();
+  }
+
+  /** Programmatic reload (initial mount + after a bulk action). */
+  load() {
+    this.reload$.next();
   }
 
   onSearchChange(term: string) {
     this.q.set(term);
-    this.load();
+    this.searchInput$.next(term);
   }
 
   goNew() {

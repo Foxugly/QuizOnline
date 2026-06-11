@@ -20,6 +20,9 @@ export interface CertificateListUiText {
   emptyTitle: string;
   emptyMessage: string;
   exploreButton: string;
+  errorTitle: string;
+  errorMessage: string;
+  retryButton: string;
 }
 
 export function getCertificateListUiText(
@@ -41,6 +44,9 @@ export function getCertificateListUiText(
         emptyTitle: 'Aucun certificat',
         emptyMessage: 'Terminez un cours pour recevoir votre premier certificat.',
         exploreButton: 'Parcourir le catalogue',
+        errorTitle: 'Chargement impossible',
+        errorMessage: 'Vos certificats n’ont pas pu être chargés. Veuillez réessayer.',
+        retryButton: 'Réessayer',
       };
     case LanguageEnumDto.Nl:
     case 'nl':
@@ -57,6 +63,9 @@ export function getCertificateListUiText(
         emptyTitle: 'Geen certificaten',
         emptyMessage: 'Voltooi een cursus om je eerste certificaat te ontvangen.',
         exploreButton: 'Door catalogus bladeren',
+        errorTitle: 'Laden mislukt',
+        errorMessage: 'Je certificaten konden niet worden geladen. Probeer het opnieuw.',
+        retryButton: 'Opnieuw proberen',
       };
     case LanguageEnumDto.It:
     case 'it':
@@ -73,6 +82,9 @@ export function getCertificateListUiText(
         emptyTitle: 'Nessun certificato',
         emptyMessage: 'Completa un corso per ricevere il tuo primo certificato.',
         exploreButton: 'Sfoglia il catalogo',
+        errorTitle: 'Caricamento non riuscito',
+        errorMessage: 'Impossibile caricare i tuoi certificati. Riprova.',
+        retryButton: 'Riprova',
       };
     case LanguageEnumDto.Es:
     case 'es':
@@ -89,6 +101,9 @@ export function getCertificateListUiText(
         emptyTitle: 'Sin certificados',
         emptyMessage: 'Completa un curso para recibir tu primer certificado.',
         exploreButton: 'Explorar catálogo',
+        errorTitle: 'No se pudo cargar',
+        errorMessage: 'No se pudieron cargar tus certificados. Inténtalo de nuevo.',
+        retryButton: 'Reintentar',
       };
     default:
       return {
@@ -104,6 +119,9 @@ export function getCertificateListUiText(
         emptyTitle: 'No certificates yet',
         emptyMessage: 'Complete a course to earn your first certificate.',
         exploreButton: 'Browse catalog',
+        errorTitle: 'Couldn’t load',
+        errorMessage: 'Your certificates couldn’t be loaded. Please try again.',
+        retryButton: 'Retry',
       };
   }
 }

@@ -3,6 +3,16 @@
 
   @if (loading()) {
     <app-table-skeleton [rows]="5" [columns]="5" />
+  } @else if (loadError()) {
+    <div class="empty-cell">
+      <h3>{{ ui().errorTitle }}</h3>
+      <p>{{ ui().errorMessage }}</p>
+      <p-button
+        icon="pi pi-refresh"
+        [label]="ui().retryButton"
+        severity="primary"
+        (onClick)="load()" />
+    </div>
   } @else {
   <p-table
     [value]="viewRows()"

@@ -51,7 +51,14 @@
     </div>
   </div>
 
-  @if (cards().length === 0) {
+  @if (!domainsLoaded()) {
+    <!-- Wait for GET /domain before rendering cards so the per-card Edit
+         button / draft badge don't appear late and flash for instructors.
+         The header + toolbar stay visible meanwhile. -->
+    <div class="empty-state" aria-busy="true">
+      <p>{{ editorUi().common.loading }}</p>
+    </div>
+  } @else if (cards().length === 0) {
     <div class="empty-state">
       <h3>{{ ui().emptyTitle }}</h3>
       <p>{{ ui().emptyMessage }}</p>

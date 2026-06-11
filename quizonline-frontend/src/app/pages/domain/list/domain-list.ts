@@ -2,7 +2,7 @@ import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} fr
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import {forkJoin} from 'rxjs';
+import {finalize, forkJoin} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
 import {CheckboxModule} from 'primeng/checkbox';
@@ -18,6 +18,7 @@ import {BulkActionsComponent, BulkActionOption} from '../../../shared/components
 import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {logApiError} from '../../../shared/api/api-errors';
 import {getDomainListUiText} from './domain-list.i18n';
 
@@ -55,6 +56,7 @@ export class DomainList implements OnInit {
   private userService: UserService = inject(UserService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
+  private toast = inject(AppToastService);
 
   readonly editorUi = inject(UiTextService).editor;
   readonly ui = inject(UiTextService).ui;
@@ -173,14 +175,18 @@ export class DomainList implements OnInit {
       return;
     }
     this.applyingBulk.set(true);
-    forkJoin(ids.map(id => this.domainService.updatePartial(id, {active}))).subscribe({
-      next: () => {
-        this.selectedRows.set([]);
-        this.load();
-      },
-      error: (err: unknown) => logApiError('domain.list.bulk-patch', err),
-      complete: () => this.applyingBulk.set(false),
-    });
+    forkJoin(ids.map(id => this.domainService.updatePartial(id, {active})))
+      .pipe(finalize(() => this.applyingBulk.set(false)))
+      .subscribe({
+        next: () => {
+          this.selectedRows.set([]);
+          this.load();
+        },
+        error: (err: unknown) => {
+          logApiError('domain.list.bulk-patch', err);
+          this.toast.addApiError(err, this.uiText().bulkErrorToast);
+        },
+      });
   }
 
   private confirmBulkDelete(): void {
@@ -202,14 +208,18 @@ export class DomainList implements OnInit {
 
   private runBulkDelete(ids: number[]): void {
     this.applyingBulk.set(true);
-    forkJoin(ids.map(id => this.domainService.delete(id))).subscribe({
-      next: () => {
-        this.selectedRows.set([]);
-        this.load();
-      },
-      error: (err: unknown) => logApiError('domain.list.bulk-delete', err),
-      complete: () => this.applyingBulk.set(false),
-    });
+    forkJoin(ids.map(id => this.domainService.delete(id)))
+      .pipe(finalize(() => this.applyingBulk.set(false)))
+      .subscribe({
+        next: () => {
+          this.selectedRows.set([]);
+          this.load();
+        },
+        error: (err: unknown) => {
+          logApiError('domain.list.bulk-delete', err);
+          this.toast.addApiError(err, this.uiText().bulkErrorToast);
+        },
+      });
   }
 
   private toRow(domain: DomainReadDto): DomainListRow {

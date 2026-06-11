@@ -2,9 +2,12 @@ import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} fr
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ButtonModule} from 'primeng/button';
 import {ActivatedRoute} from '@angular/router';
+import {finalize} from 'rxjs';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {logApiError} from '../../../shared/api/api-errors';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
+import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {UserService} from '../../../services/user/user';
 
 @Component({
@@ -20,8 +23,10 @@ export class DomainDelete implements OnInit {
   private route = inject(ActivatedRoute);
   private domainService = inject(DomainService);
   private userService:UserService = inject(UserService);
+  private toast = inject(AppToastService);
   id!: number;
   domain = signal<DomainReadDto | null>(null);
+  deleting = signal(false);
   currentLang = computed(() => this.userService.currentLang);
   readonly ui = inject(UiTextService).editor;
 
@@ -52,8 +57,19 @@ export class DomainDelete implements OnInit {
   }
 
   confirm() {
-    this.domainService.delete(this.id).subscribe({
-      next: () => this.goList()
-    });
+    if (this.deleting()) {
+      return;
+    }
+    this.deleting.set(true);
+    this.domainService
+      .delete(this.id)
+      .pipe(finalize(() => this.deleting.set(false)))
+      .subscribe({
+        next: () => this.goList(),
+        error: (err: unknown) => {
+          logApiError('domain.delete', err);
+          this.toast.addApiError(err, this.ui().common.deleteFailed);
+        },
+      });
   }
 }

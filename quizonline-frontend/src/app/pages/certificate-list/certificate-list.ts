@@ -54,6 +54,10 @@ export class CertificateList {
 
   protected readonly rows = signal<CertificateRow[]>([]);
   protected readonly loading = signal<boolean>(true);
+  /** Distinguishes a real load failure from a legitimately empty list so
+   *  the template can show a retryable error rather than the "no
+   *  certificates" empty state when a network/5xx drops the response. */
+  protected readonly loadError = signal<boolean>(false);
   protected readonly catalogHref = CATALOG;
 
   protected readonly viewRows = computed<CertificateRowVm[]>(() =>
@@ -69,6 +73,12 @@ export class CertificateList {
   );
 
   constructor() {
+    this.load();
+  }
+
+  protected load(): void {
+    this.loading.set(true);
+    this.loadError.set(false);
     this.enrollment.myCertificates().subscribe({
       next: (response: unknown) => {
         const payload = response as {results?: CertificateRow[]} | CertificateRow[] | null;
@@ -82,6 +92,7 @@ export class CertificateList {
       error: (err: unknown) => {
         logApiError('lms.certificate.list', err);
         this.rows.set([]);
+        this.loadError.set(true);
         this.loading.set(false);
       },
     });

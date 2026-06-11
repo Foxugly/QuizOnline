@@ -1,6 +1,5 @@
 import {Routes} from '@angular/router';
 
-import {adminGuard} from './guards/admin.guard';
 import {authGuard} from './guards/auth.guard';
 import {domainAccessGuard} from './guards/domain-access.guard';
 import {superuserGuard} from './guards/superuser.guard';
