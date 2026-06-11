@@ -102,10 +102,11 @@ Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent
 
 The rich-text sanitizer (`block/sanitizer.py`) allows inline `style` attributes on a small set of formatting tags with a strict CSS allowlist (`color`, `background-color`, `text-align`, `text-decoration`, `font-weight/style/size`) so Quill colour / alignment round-trips through save — anything else (including `url(...)` and `expression(...)` payloads) is scrubbed.
 
-Throttle scopes env-overridable + SSM-seedable (`/quizonline/prod/THROTTLE_LMS_*`):
+Throttle scopes env-overridable + SSM-seedable (`/quizonline/prod/THROTTLE_*`):
 - `lms_enroll` (default 20/min)
 - `lms_block_write` (default 120/min)
 - `lms_cert_verify` (default 60/min — anon)
+- `translate` (default 30/min — caps the paid DeepL batch fan-out on `POST /api/translate/`; the request body is also bounded to ≤50 items, ≤20000 chars/item)
 
 Spec + plan:
 - [docs/superpowers/specs/2026-05-18-lms-app-design.md](docs/superpowers/specs/2026-05-18-lms-app-design.md) — design spec

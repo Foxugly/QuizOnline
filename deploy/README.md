@@ -331,7 +331,7 @@ The local script that seeds SSM from a `.env` file is
 
 ### LMS throttles
 
-After deploying the LMS, seed the three rate-limit parameters into AWS SSM Parameter Store:
+After deploying the LMS, seed the rate-limit parameters into AWS SSM Parameter Store:
 
 ```bash
 cat > /tmp/lms-throttles.env <<EOF
@@ -339,6 +339,7 @@ THROTTLE_LMS_ENROLL=20/min
 THROTTLE_LMS_BLOCK_WRITE=120/min
 THROTTLE_LMS_CERT_VERIFY=60/min
 THROTTLE_CONNECTION_LOG=30/min
+THROTTLE_TRANSLATE=30/min
 EOF
 bash deploy/seed-parameter-store.sh --prefix /quizonline/prod /tmp/lms-throttles.env
 rm /tmp/lms-throttles.env
