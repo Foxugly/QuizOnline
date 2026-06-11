@@ -26,8 +26,11 @@ def request_password_reset(email: str, request) -> None:
     if not user:
         return
 
-    user.must_change_password = True
-    user.save(update_fields=["must_change_password"])
+    # NOTE: do NOT flip ``must_change_password`` here. This endpoint is
+    # public + unauthenticated, so setting it on the mere submission of an
+    # email would let an attacker grief any victim by repeatedly requesting
+    # a reset on their address. The flag is correctly (re)set inside
+    # ``confirm_password_reset`` AFTER the reset token is validated.
     send_password_reset_email(user)
 
 

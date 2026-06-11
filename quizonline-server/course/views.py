@@ -5,7 +5,7 @@ from django.db.models.functions import Coalesce
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
 from rest_framework.response import Response
 
 from block.models import Block
@@ -328,6 +328,18 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
     def reorder_sections_action(self, request, pk=None):
         course = self.get_object()
         ids = request.data.get("ids", [])
+        # ``two_phase_reorder`` only guards ``len(rows) == len(ids)``; a
+        # strict subset of section ids passes that length check then
+        # collides on the ``(course, order)`` unique constraint →
+        # IntegrityError 500. Mirror ``BlockViewSet.reorder``: the payload
+        # must be exactly the full set of this course's section ids.
+        all_ids = set(
+            Section.objects.filter(course=course).values_list("id", flat=True)
+        )
+        if set(ids) != all_ids:
+            raise DRFValidationError({
+                "ids": "Section ids must match the course's sections exactly.",
+            })
         reorder_sections(course=course, section_ids_in_order=ids)
         return Response(CourseDetailSerializer(course, context={"request": request}).data)
 
@@ -338,13 +350,48 @@ class SectionViewSet(viewsets.ModelViewSet):
     serializer_class = SectionSerializer
 
     def get_queryset(self):
-        return Section.objects.visible_to(self.request.user).select_related("course")
+        # The section serializer renders the whole lessons -> blocks tree
+        # (``SectionSerializer.get_lessons`` -> ``LessonDetailSerializer`` ->
+        # ``BlockSerializer``). Without this prefetch chain a section LIST
+        # fanned out to an N+1 storm. Output is unchanged — query count only.
+        return (
+            Section.objects.visible_to(self.request.user)
+            .select_related("course__domain")
+            .prefetch_related(
+                "translations",
+                "course__domain__allowed_languages",
+                Prefetch(
+                    "lessons",
+                    queryset=Lesson.objects.order_by("order").prefetch_related(
+                        "translations",
+                        Prefetch(
+                            "blocks",
+                            queryset=Block.objects
+                                .select_related("quiz_template")
+                                .prefetch_related("translations"),
+                        ),
+                    ),
+                ),
+            )
+        )
 
     @action(detail=True, methods=["post"], url_path="lesson/reorder")
     def reorder_lessons_action(self, request, pk=None):
+        from lesson.models import Lesson
         from lesson.services import reorder_lessons
         section = self.get_object()
         ids = request.data.get("ids", [])
+        # Same guard as section reorder: a strict subset of lesson ids would
+        # otherwise pass ``two_phase_reorder``'s length check then collide on
+        # the ``(section, order)`` unique constraint → 500. Require the exact
+        # full set of this section's lesson ids.
+        all_ids = set(
+            Lesson.objects.filter(section=section).values_list("id", flat=True)
+        )
+        if set(ids) != all_ids:
+            raise DRFValidationError({
+                "ids": "Lesson ids must match the section's lessons exactly.",
+            })
         reorder_lessons(section=section, lesson_ids_in_order=ids)
         return Response(SectionSerializer(section).data)
 

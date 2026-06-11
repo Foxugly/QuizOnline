@@ -11458,6 +11458,7 @@ components:
           minLength: 1
         text:
           type: string
+          maxLength: 20000
         format:
           allOf:
           - $ref: '#/components/schemas/FormatEnum'

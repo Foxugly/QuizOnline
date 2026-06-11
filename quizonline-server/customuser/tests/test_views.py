@@ -312,6 +312,31 @@ class UserViewsTests(APITestCase):
             res = self.client.get(self.USER_QUIZ_LIST_URL(self.u1.id))
             self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+    def test_user_quiz_list_cross_domain_staff_is_forbidden(self):
+        # SECURITY (IDOR): a staff manager of domain A must NOT be able to
+        # read the quizzes of a user who only belongs to a domain B they do
+        # not own/manage. ``self.staff`` owns ``self.domain`` but ``self.u2``
+        # is not a member of it (left out in setUp), so the read is denied.
+        self.client.force_authenticate(user=self.staff)
+        res = self.client.get(self.USER_QUIZ_LIST_URL(self.u2.id))
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_quiz_list_shared_domain_staff_and_superuser_allowed(self):
+        # Self + superuser + shared-domain manager all succeed. ``self.u1``
+        # is a member of ``self.staff``'s domain, so the manager read works.
+        with patch("customuser.views.Quiz.objects.filter") as mock_filter:
+            mock_qs = MagicMock()
+            mock_qs.select_related.return_value.order_by.return_value = []
+            mock_filter.return_value = mock_qs
+
+            self.client.force_authenticate(user=self.staff)
+            res = self.client.get(self.USER_QUIZ_LIST_URL(self.u1.id))
+            self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+            self.client.force_authenticate(user=self.superuser)
+            res = self.client.get(self.USER_QUIZ_LIST_URL(self.u2.id))
+            self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     def test_password_reset_request_invalid_email_returns_400(self):
         res = self.client.post(self.PASSWORD_RESET_REQUEST_URL, {"email": "not-an-email"}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
@@ -334,7 +359,11 @@ class UserViewsTests(APITestCase):
             self.assertEqual(res.status_code, status.HTTP_200_OK)
             send_password_reset_email.assert_called_once_with(self.u1)
 
-    def test_password_reset_request_marks_user_as_password_change_required(self):
+    def test_password_reset_request_does_not_mark_user_as_password_change_required(self):
+        # SECURITY: the public unauthenticated reset-request endpoint must
+        # NOT flip ``must_change_password`` — that let an attacker grief any
+        # victim by submitting their email. The flag is only (re)set inside
+        # ``confirm_password_reset`` after the token is validated.
         self.assertFalse(self.u1.must_change_password)
 
         with patch("customuser.services.send_password_reset_email"):
@@ -342,7 +371,7 @@ class UserViewsTests(APITestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.u1.refresh_from_db()
-        self.assertTrue(self.u1.must_change_password)
+        self.assertFalse(self.u1.must_change_password)
 
     def test_password_reset_confirm_invalid_uid_returns_400(self):
         with patch("customuser.services.resolve_user_from_uid", return_value=None):
@@ -570,6 +599,34 @@ class UserViewsTests(APITestCase):
 
         res = self.client.patch(self.ME_URL, {"password": "Nope12345!"}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_me_patch_changing_email_resets_email_confirmed(self):
+        # SECURITY: a self-service email change must invalidate the
+        # ``email_confirmed`` flag — login + magic-link gate on it, so leaving
+        # a freshly-changed (unverified) address "confirmed" is unsafe.
+        self.u1.email_confirmed = True
+        self.u1.save(update_fields=["email_confirmed"])
+        self.client.force_authenticate(user=self.u1)
+
+        res = self.client.patch(self.ME_URL, {"email": "changed@example.com"}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.u1.refresh_from_db()
+        self.assertEqual(self.u1.email, "changed@example.com")
+        self.assertFalse(self.u1.email_confirmed)
+
+    def test_me_patch_same_email_keeps_email_confirmed(self):
+        # A PATCH that does not actually change the email must NOT flip the
+        # flag off (e.g. updating only the language while echoing the email).
+        self.u1.email_confirmed = True
+        self.u1.save(update_fields=["email_confirmed"])
+        self.client.force_authenticate(user=self.u1)
+
+        res = self.client.patch(
+            self.ME_URL, {"email": self.u1.email, "language": "fr"}, format="json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.u1.refresh_from_db()
+        self.assertTrue(self.u1.email_confirmed)
 
     def test_me_patch_can_update_managed_domains(self):
         self.client.force_authenticate(user=self.u1)

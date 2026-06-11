@@ -68,6 +68,7 @@ env = environ.Env(
     THROTTLE_LMS_BLOCK_WRITE=(str, "120/min"),
     THROTTLE_LMS_CERT_VERIFY=(str, "60/min"),
     THROTTLE_LMS_ANALYTICS=(str, "60/min"),
+    THROTTLE_TRANSLATE=(str, "30/min"),
     THROTTLE_CONNECTION_LOG=(str, "30/min"),
     # Directory containing the MaxMind ``GeoLite2-City.mmdb`` file. Empty =
     # geolocation disabled (connection events store no country/city/coords).
@@ -259,6 +260,7 @@ REST_FRAMEWORK = {
         "lms_block_write": env("THROTTLE_LMS_BLOCK_WRITE"),
         "lms_cert_verify": env("THROTTLE_LMS_CERT_VERIFY"),
         "lms_analytics": env("THROTTLE_LMS_ANALYTICS"),
+        "translate": env("THROTTLE_TRANSLATE"),
         "connection_log": env("THROTTLE_CONNECTION_LOG"),
     },
 }

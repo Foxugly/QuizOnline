@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from .serializers import (
@@ -134,6 +135,12 @@ def mock_deepl(texts: List, source: str, target: str, fmt: str)->List:
 )
 class TranslateBatchView(APIView):
     permission_classes = [IsAuthenticated]
+    # Rate-limit the paid DeepL fan-out. Overridable via THROTTLE_TRANSLATE
+    # like every other scope. Combined with the payload bounds in
+    # ``TranslateBatchRequestSerializer`` this caps both the frequency and
+    # the size of upstream calls a single user can drive.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "translate"
 
     def post(self, request):
         req_ser = TranslateBatchRequestSerializer(data=request.data)

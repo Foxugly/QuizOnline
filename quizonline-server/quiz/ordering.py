@@ -23,11 +23,19 @@ def session_quiz_questions(quiz: "Quiz") -> list["QuizQuestion"]:
     """Return the template's QuizQuestions in the order they should appear
     for this specific session.
     """
+    template = quiz.quiz_template
     qquestions = list(
-        quiz.quiz_template.quiz_questions.all().order_by("sort_order", "id")
+        template.quiz_questions.all().order_by("sort_order", "id")
     )
-    if quiz.quiz_template.shuffle_questions:
+    if template.shuffle_questions:
         random.Random(quiz.id).shuffle(qquestions)
+    # Honour ``QuizTemplate.max_questions``: the session presents (and
+    # scores) only the configured subset of the pool. The cap is applied
+    # AFTER the deterministic shuffle so which questions are picked is
+    # stable per session yet varies across sessions of the same template.
+    max_questions = template.max_questions
+    if max_questions and max_questions > 0:
+        qquestions = qquestions[:max_questions]
     return qquestions
 
 

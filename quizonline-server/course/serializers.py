@@ -330,10 +330,17 @@ class CourseWriteSerializer(serializers.ModelSerializer):
         return instance
 
     def _apply(self, instance, tr_dict):
+        from block.sanitizer import sanitize_rich_text
+
         tr_dict = _filter_allowed_lang_codes(tr_dict, instance)
         for lang, fields in tr_dict.items():
             instance.set_current_language(lang)
             for k, v in fields.items():
+                # ``description`` / ``learning_objectives`` are rendered via
+                # ``[innerHTML]`` (bypassSecurityTrustHtml) on the SPA, so they
+                # must be nh3-sanitized on write to stay XSS-safe.
+                if k in ("description", "learning_objectives") and isinstance(v, str):
+                    v = sanitize_rich_text(v)
                 setattr(instance, k, v)
             instance.save()
         return instance

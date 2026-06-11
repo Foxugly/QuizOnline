@@ -84,17 +84,28 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         return self._related_ids(obj, "managed_domains")
 
     def get_pending_join_requests(self, obj) -> list:
-        qs = (
-            DomainJoinRequest.objects.filter(
-                user=obj, status=DomainJoinRequest.STATUS_PENDING
-            )
-            .order_by("-created_at")
-            .values("id", "domain_id", "created_at")
-        )
-        return [
-            {"id": r["id"], "domain_id": r["domain_id"], "created_at": r["created_at"]}
-            for r in qs
-        ]
+        # Fast path: the user queryset prefetches the pending join requests
+        # into ``_prefetched_objects_cache`` (filtered to PENDING,
+        # ``-created_at`` ordered) so the superuser user list doesn't issue
+        # one extra query per row. Fall back to a direct query when the
+        # instance wasn't built through that queryset.
+        cache = getattr(obj, "_prefetched_objects_cache", {})
+        cached = cache.get("domain_join_requests")
+        if cached is not None:
+            rows = [
+                {"id": r.id, "domain_id": r.domain_id, "created_at": r.created_at}
+                for r in cached
+            ]
+        else:
+            rows = [
+                {"id": r["id"], "domain_id": r["domain_id"], "created_at": r["created_at"]}
+                for r in DomainJoinRequest.objects.filter(
+                    user=obj, status=DomainJoinRequest.STATUS_PENDING
+                )
+                .order_by("-created_at")
+                .values("id", "domain_id", "created_at")
+            ]
+        return rows
 
 
 class CustomUserCreateSerializer(StrictFieldsModelSerializer):
@@ -218,6 +229,18 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
     def update(self, instance, validated_data):
         managed_domain_ids = validated_data.pop("managed_domain_ids", None)
         update_fields = []
+        # A self-service email change must invalidate the "confirmed" flag:
+        # login + magic-link gate on ``email_confirmed=True``, so keeping it
+        # set on a freshly-changed, unverified address would let the account
+        # stay usable on an address the user never proved they own.
+        new_email = validated_data.get("email")
+        if (
+            "email" in validated_data
+            and new_email != instance.email
+            and instance.email_confirmed
+        ):
+            instance.email_confirmed = False
+            update_fields.append("email_confirmed")
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
             update_fields.append(attr)

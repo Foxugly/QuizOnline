@@ -64,6 +64,36 @@ class TranslateBatchViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["translations"]["description"], "<p>Bonjour nl</p>")
 
+    def test_translate_batch_rejects_oversized_item_list(self):
+        # SECURITY/COST: the batch is bounded to MAX_BATCH_ITEMS so a single
+        # request cannot drive an unbounded paid DeepL call. An oversized
+        # ``items`` list is a 400, never an upstream call.
+        from translation.serializers import MAX_BATCH_ITEMS
+
+        self.client.force_authenticate(self.user)
+        items = [
+            {"key": f"k{i}", "text": "Bonjour", "format": "text"}
+            for i in range(MAX_BATCH_ITEMS + 1)
+        ]
+        with patch("translation.views.deepl_translate_many") as deepl:
+            response = self.client.post(
+                self.url, {"source": "fr", "target": "nl", "items": items}, format="json"
+            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        deepl.assert_not_called()
+
+    def test_translate_batch_rejects_oversized_item_text(self):
+        from translation.serializers import MAX_ITEM_CHARS
+
+        self.client.force_authenticate(self.user)
+        items = [{"key": "k", "text": "x" * (MAX_ITEM_CHARS + 1), "format": "text"}]
+        with patch("translation.views.deepl_translate_many") as deepl:
+            response = self.client.post(
+                self.url, {"source": "fr", "target": "nl", "items": items}, format="json"
+            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        deepl.assert_not_called()
+
 
 class DeepLServiceTests(APITestCase):
     @override_settings(DEEPL_AUTH_KEY="test-key", DEEPL_IS_FREE=True)

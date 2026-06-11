@@ -149,10 +149,26 @@ class CustomUserViewSet(
 
     @staticmethod
     def _user_queryset():
+        from django.db.models import Prefetch
         return (
             User.objects
             .select_related("current_domain")
-            .prefetch_related("owned_domains", "linked_domains", "managed_domains")
+            .prefetch_related(
+                "owned_domains",
+                "linked_domains",
+                "managed_domains",
+                # Pending join requests are surfaced per-row by
+                # ``CustomUserReadSerializer.get_pending_join_requests``;
+                # without this Prefetch the superuser user list ran one
+                # extra query per user. The serializer reads the cache via
+                # ``_prefetched_objects_cache["pending_join_requests"]``.
+                Prefetch(
+                    "domain_join_requests",
+                    queryset=DomainJoinRequest.objects.filter(
+                        status=DomainJoinRequest.STATUS_PENDING
+                    ).order_by("-created_at"),
+                ),
+            )
             .order_by("id")
         )
 
@@ -422,7 +438,30 @@ class UserQuizListView(GenericAPIView):
     def get(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
 
-        if not request.user.is_staff and request.user != user:
+        requester = request.user
+        # Access ladder (mirrors ``CustomUserViewSet.get_queryset`` scoping):
+        #   - self always
+        #   - superuser always
+        #   - non-superuser staff ONLY when the target shares a domain the
+        #     requester owns or manages. Plain ``is_staff`` is NOT enough —
+        #     that was a cross-domain IDOR letting any staff manager read any
+        #     user's quiz history regardless of domain.
+        allowed = requester == user or getattr(requester, "is_superuser", False)
+        if not allowed and getattr(requester, "is_staff", False):
+            scoped_domain_ids = list(
+                Domain.objects
+                .filter(Q(owner=requester) | Q(managers=requester))
+                .values_list("id", flat=True)
+                .distinct()
+            )
+            if scoped_domain_ids:
+                allowed = (
+                    Q(linked_domains__in=scoped_domain_ids)
+                    | Q(managed_domains__in=scoped_domain_ids)
+                    | Q(owned_domains__in=scoped_domain_ids)
+                )
+                allowed = User.objects.filter(pk=user.pk).filter(allowed).exists()
+        if not allowed:
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("Vous ne pouvez voir que vos propres quiz.")

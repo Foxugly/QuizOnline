@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from course.permissions import IsLmsInstructorOrReadOnly
+from lesson.models import Lesson
 
 from .models import Block
 from .serializers import BlockSerializer
@@ -43,13 +45,30 @@ class BlockViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # ``select_related("target_content_type")`` keeps the ContentType
-        # lookup cheap; the GFK target itself is resolved lazily on
-        # access. Lesson-hosted blocks still walk to the parent course
-        # for the visibility check via the ``related_query_name="lesson"``
-        # alias declared on ``Lesson.blocks``.
+        # lookup cheap. ``prefetch_related("translations")`` collapses the
+        # per-row parler translation fetch the serializer triggers, and the
+        # ``GenericPrefetch`` on the polymorphic ``target`` GFK resolves every
+        # host (Lesson / Question / AnswerOption) in a fixed number of queries
+        # instead of one per block. Output is unchanged — query count only.
+        # Lesson-hosted blocks still walk to the parent course for the
+        # visibility check via the ``related_query_name="lesson"`` alias
+        # declared on ``Lesson.blocks``.
+        from question.models import AnswerOption, Question
+
         return (
             Block.objects.visible_to(self.request.user)
             .select_related("target_content_type")
+            .prefetch_related(
+                "translations",
+                GenericPrefetch(
+                    "target",
+                    [
+                        Lesson.objects.all(),
+                        Question.objects.all(),
+                        AnswerOption.objects.all(),
+                    ],
+                ),
+            )
         )
 
     def get_throttles(self):

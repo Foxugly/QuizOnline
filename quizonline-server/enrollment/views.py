@@ -7,6 +7,7 @@ from django.core.exceptions import (
     PermissionDenied as DjangoPermissionDenied,
     ValidationError as DjangoValidationError,
 )
+from django.db import transaction
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
@@ -107,9 +108,34 @@ class CourseEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
+        # Object-level permission first (owner / instructor), then mutate
+        # under a row lock. A bare ``status = CANCELLED; save()`` could race
+        # with — and silently clobber — a COMPLETED enrollment, leaving an
+        # issued certificate + stale ``completed_at`` orphaned behind a
+        # "cancelled" row. Refuse the cancel when the enrollment has already
+        # reached a terminal state.
         enrollment = self.get_object()
-        enrollment.status = CourseEnrollment.STATUS_CANCELLED
-        enrollment.save(update_fields=["status"])
+        with transaction.atomic():
+            enrollment = (
+                CourseEnrollment.objects.select_for_update()
+                .select_related("user", "course")
+                .get(pk=enrollment.pk)
+            )
+            if enrollment.status in (
+                CourseEnrollment.STATUS_COMPLETED,
+                CourseEnrollment.STATUS_CANCELLED,
+            ):
+                return Response(
+                    {
+                        "detail": (
+                            "Cannot cancel an enrollment that is already "
+                            f"{enrollment.status}."
+                        ),
+                    },
+                    status=status.HTTP_409_CONFLICT,
+                )
+            enrollment.status = CourseEnrollment.STATUS_CANCELLED
+            enrollment.save(update_fields=["status"])
         return Response(CourseEnrollmentSerializer(enrollment).data)
 
     @action(detail=True, methods=["post"])
@@ -485,6 +511,13 @@ def course_invite_send(request, course_id: int):
     course = Course.objects.filter(pk=course_id).first()
     if not course:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # Gate on instructor rights BEFORE resolving the invitee. Resolving the
+    # invitee first (and 404-ing on a missing id) leaked a user-existence
+    # oracle to non-instructors: a 404 vs 403 told them whether ``invitee_id``
+    # was a real user. Mirror ``course_invite_list`` and 403 up front.
+    if not is_lms_instructor(request.user, course):
+        raise PermissionDenied()
 
     payload = CourseInviteSendSerializer(data=request.data)
     payload.is_valid(raise_exception=True)

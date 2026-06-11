@@ -1,3 +1,4 @@
+from django.db.models import Q
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -149,12 +150,41 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         lookup to parler means at most one extra query per neighbour
         title, which still collapses the original O(N²) blow-up.
         """
+        # Cache key folds in whether the requester may see drafts: a
+        # learner and an instructor of the same course must get different
+        # neighbour lists, so they cannot share one cache slot.
+        can_manage = self._can_manage_course(course_id)
         cache = self.context.setdefault("_course_lessons_cache", {})
-        if course_id not in cache:
-            cache[course_id] = list(
+        cache_key = (course_id, can_manage)
+        if cache_key not in cache:
+            qs = (
                 Lesson.objects.filter(section__course_id=course_id)
                 .select_related("section")
                 .order_by("section__order", "order", "id")
+            )
+            if not can_manage:
+                # Learners must NOT see unpublished neighbour lessons —
+                # the prev/next footer and the position breadcrumb would
+                # otherwise surface a draft lesson's id + title. Only
+                # instructors of the course see the full draft list.
+                qs = qs.filter(Q(is_published=True) | Q(is_preview=True))
+            cache[cache_key] = list(qs)
+        return cache[cache_key]
+
+    def _can_manage_course(self, course_id: int) -> bool:
+        """Whether the requester is an instructor of the parent course —
+        mirrors the predicate ``LessonQuerySet.visible_to`` uses to surface
+        draft lessons. Cached per course on the serializer context."""
+        from course.models import Course
+        from course.permissions import is_lms_instructor
+
+        cache = self.context.setdefault("_can_manage_course_cache", {})
+        if course_id not in cache:
+            request = self.context.get("request")
+            user = getattr(request, "user", None)
+            course = Course.objects.filter(pk=course_id).select_related("domain").first()
+            cache[course_id] = bool(
+                course and user and is_lms_instructor(user, course)
             )
         return cache[course_id]
 

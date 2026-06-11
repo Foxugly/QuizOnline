@@ -166,6 +166,8 @@ def _apply_translations(instance, translations: dict, allowed_codes: set[str]) -
     instance. Skips language codes that aren't in the target domain's
     allowed_languages so the import doesn't crash on a wider source
     domain."""
+    from block.sanitizer import sanitize_rich_text
+
     if not isinstance(translations, dict):
         return
     for code, fields in translations.items():
@@ -173,7 +175,13 @@ def _apply_translations(instance, translations: dict, allowed_codes: set[str]) -
             continue
         instance.set_current_language(code)
         for k, v in fields.items():
-            setattr(instance, k, v if isinstance(v, str) else "")
+            value = v if isinstance(v, str) else ""
+            # The course's rich-text HTML fields are rendered via
+            # ``[innerHTML]`` on the SPA — sanitize on import so a crafted
+            # export payload can't smuggle a stored-XSS payload through.
+            if k in ("description", "learning_objectives"):
+                value = sanitize_rich_text(value)
+            setattr(instance, k, value)
         instance.save()
 
 
@@ -281,11 +289,15 @@ def clone_course(*, source: Course, by_user, target_domain=None) -> Course:
         created_by=by_user,
         updated_by=by_user,
     )
+    from block.sanitizer import sanitize_rich_text
+
     for tr in source.translations.all():
         new.set_current_language(tr.language_code)
         new.title = tr.title + " (copy)"
-        new.description = tr.description
-        new.learning_objectives = tr.learning_objectives
+        # Re-sanitize on clone so a clone of a course whose HTML predates
+        # the sanitize-on-write rule lands clean on the copy too.
+        new.description = sanitize_rich_text(tr.description or "")
+        new.learning_objectives = sanitize_rich_text(tr.learning_objectives or "")
         new.save()
 
     for old_section in source.sections.all():
