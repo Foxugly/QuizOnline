@@ -62,6 +62,23 @@ for var in DSN ENVNAME RELEASE TURNSTILE_SITE_KEY; do
   esac
 done
 
+# CSP report-uri, derived from the Sentry DSN so the Content-Security-Policy
+# reports violations to Sentry (same mapping as tm/pushit):
+#   https://<key>@<host>/<project>
+#     -> "; report-uri https://<host>/api/<project>/security/?sentry_key=<key>"
+# Empty DSN (no reporting) -> empty fragment -> the CSP carries no report-uri.
+CSP_REPORT=""
+if [ -n "$DSN" ]; then
+  _rest="${DSN#*://}"          # <key>@<host>/<project>
+  _key="${_rest%%@*}"          # <key>
+  _hostpath="${_rest#*@}"      # <host>/<project>
+  _host="${_hostpath%%/*}"     # <host>
+  _project="${_hostpath##*/}"  # <project> (last path segment)
+  if [ -n "$_key" ] && [ -n "$_host" ] && [ -n "$_project" ]; then
+    CSP_REPORT="; report-uri https://${_host}/api/${_project}/security/?sentry_key=${_key}"
+  fi
+fi
+
 TMP_FILE="$(mktemp)"
 trap 'rm -f "$TMP_FILE"' EXIT
 
@@ -74,6 +91,7 @@ set \$sentry_dsn "$DSN";
 set \$sentry_env "$ENVNAME";
 set \$sentry_release "$RELEASE";
 set \$turnstile_site_key "$TURNSTILE_SITE_KEY";
+set \$csp_report "$CSP_REPORT";
 EOF
 
 # Idempotency: nothing to do if the snippet already matches. Skips the
