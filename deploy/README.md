@@ -624,6 +624,11 @@ ever rebuild:
    sudo stat -c '%a %U:%G %n' /run/quizonline/.env   # expect 640 django:www-data
    sudo systemctl enable --now quizonline-gunicorn quizonline-celery quizonline-celery-beat
    sudo systemctl enable --now quizonline-backup.timer
+   # Verify the backup ACTUALLY runs (don't wait for the daily timer — a
+   # silent failure here is invisible until you need the dump). It must exit 0
+   # and drop a fresh *.sql.gz; check `systemctl --failed` stays clean too.
+   sudo systemctl start quizonline-backup.service
+   sudo ls -lh /var/backups/quizonline/ | tail -1
    sudo systemctl enable --now quizonline-frontend-runtime-fetch.service
    # Verify the snippet was generated:
    sudo cat /etc/nginx/snippets/quizonline-frontend-runtime.conf

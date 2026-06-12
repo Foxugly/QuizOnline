@@ -41,7 +41,12 @@ fi
 # Read the DB config from the .env without sourcing it (avoids env leaks if the
 # .env has command substitutions). Prefer the fleet DB_* 6-var convention
 # (OPERATIONS.md §3.13); fall back to a legacy DATABASE_URL if present.
-_envget() { grep -E "^$1=" "$ENV_FILE" | head -1 | cut -d= -f2-; }
+#
+# ``|| true`` is REQUIRED: under ``set -euo pipefail`` a ``grep`` that matches
+# nothing exits 1, which (via pipefail + the command substitution) would abort
+# the whole script. A *missing* key (e.g. DATABASE_URL when the DB_* convention
+# is used) is normal here, so a no-match must yield "" without failing.
+_envget() { grep -E "^$1=" "$ENV_FILE" | head -1 | cut -d= -f2- || true; }
 DB_ENGINE=$(_envget DB_ENGINE)
 DATABASE_URL=$(_envget DATABASE_URL)
 if [[ -z "$DB_ENGINE" && -z "$DATABASE_URL" ]]; then
