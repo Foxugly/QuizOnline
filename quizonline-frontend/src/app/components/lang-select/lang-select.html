@@ -7,17 +7,26 @@
     aria-haspopup="menu"
   >
     <span>{{ internalLang.toUpperCase() }}</span>
+    <i class="pi pi-angle-down lang-select__caret" aria-hidden="true"></i>
   </button>
 
   @if (menuOpen) {
     <div class="lang-select__menu" role="menu">
-      @for (option of langOptions; track option.value) {
+      @for (option of langOptions; track option.value; let i = $index) {
         <button
+          #menuitem
           type="button"
+          role="menuitem"
           class="lang-select__item"
+          [class.is-active]="option.value === internalLang"
+          [attr.aria-current]="option.value === internalLang ? 'true' : null"
+          [attr.tabindex]="i === focusedIndex ? 0 : -1"
           (click)="onInternalChange(option.value)"
         >
-          {{ option.label }}
+          <span>{{ option.label }}</span>
+          @if (option.value === internalLang) {
+            <i class="pi pi-check lang-select__check" aria-hidden="true"></i>
+          }
         </button>
       }
     </div>

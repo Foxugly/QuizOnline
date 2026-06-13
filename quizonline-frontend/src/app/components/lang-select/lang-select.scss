@@ -24,6 +24,10 @@
   border-radius: 0.5rem;
 }
 
+.lang-select__caret {
+  font-size: 0.7rem;
+}
+
 .lang-select__menu {
   background: #ffffff;
   border: 1px solid rgba(148, 163, 184, 0.32);
@@ -31,7 +35,7 @@
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
   display: grid;
   gap: 0.2rem;
-  min-width: 4.5rem;
+  min-width: 6rem;
   padding: 0.35rem;
   position: absolute;
   right: 0;
@@ -41,17 +45,31 @@
 }
 
 .lang-select__item {
+  align-items: center;
   background: transparent;
   border: 0;
   border-radius: 0.7rem;
   color: #22304a;
   cursor: pointer;
+  display: flex;
   font: inherit;
   font-weight: 600;
-  justify-content: center;
+  gap: 0.6rem;
+  justify-content: space-between;
   padding: 0.45rem 0.75rem;
 }
 
-.lang-select__item:hover {
+.lang-select__item:hover,
+.lang-select__item:focus-visible {
   background: rgba(34, 48, 74, 0.08);
+  outline: none;
+}
+
+.lang-select__item.is-active {
+  color: #059669;
+}
+
+.lang-select__check {
+  color: #059669;
+  font-size: 0.75rem;
 }
