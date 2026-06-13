@@ -24,10 +24,6 @@
   border-radius: 0.5rem;
 }
 
-.lang-select__caret {
-  font-size: 0.7rem;
-}
-
 .lang-select__menu {
   background: #ffffff;
   border: 1px solid rgba(148, 163, 184, 0.32);
@@ -61,7 +57,8 @@
 
 .lang-select__item:hover,
 .lang-select__item:focus-visible {
-  background: rgba(34, 48, 74, 0.08);
+  background: #ecfdf5;
+  color: #047857;
   outline: none;
 }
 
