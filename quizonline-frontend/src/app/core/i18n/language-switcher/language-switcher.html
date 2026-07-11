@@ -1,7 +1,7 @@
-<div #menuRoot class="lang-select">
+<div #menuRoot class="language-switcher">
   <button
     type="button"
-    class="lang-select__trigger"
+    class="language-switcher__trigger"
     (click)="toggleMenu($event)"
     [attr.aria-expanded]="menuOpen"
     aria-haspopup="menu"
@@ -10,13 +10,13 @@
   </button>
 
   @if (menuOpen) {
-    <div class="lang-select__menu" role="menu">
+    <div class="language-switcher__menu" role="menu">
       @for (option of langOptions; track option.value; let i = $index) {
         <button
           #menuitem
           type="button"
           role="menuitem"
-          class="lang-select__item"
+          class="language-switcher__item"
           [class.is-active]="option.value === internalLang"
           [attr.aria-current]="option.value === internalLang ? 'true' : null"
           [attr.tabindex]="i === focusedIndex ? 0 : -1"
@@ -24,7 +24,7 @@
         >
           <span>{{ option.label }}</span>
           @if (option.value === internalLang) {
-            <i class="pi pi-check lang-select__check" aria-hidden="true"></i>
+            <i class="pi pi-check language-switcher__check" aria-hidden="true"></i>
           }
         </button>
       }

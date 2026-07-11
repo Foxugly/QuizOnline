@@ -10,17 +10,17 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../environments/language';
+import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../../environments/language';
 
 @Component({
-  selector: 'app-lang-select',
-  templateUrl: './lang-select.html',
-  styleUrl: './lang-select.scss',
+  selector: 'app-language-switcher',
+  templateUrl: './language-switcher.html',
+  styleUrl: './language-switcher.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {'(document:click)': 'closeMenu($event)'},
 })
-export class LangSelectComponent {
+export class LanguageSwitcherComponent {
   readonly lang = input.required<SupportedLanguage>();
   readonly langChange = output<SupportedLanguage>();
   @ViewChild('menuRoot') private readonly menuRoot?: ElementRef<HTMLElement>;
