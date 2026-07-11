@@ -21,6 +21,7 @@ import {AuthService} from '../../../services/auth/auth';
 import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
+import {interp, plural} from '../../../shared/i18n/format';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DirtyGuardDirective} from '../../../shared/directives/dirty-guard.directive';
 import {LoadingSkeleton} from '../../../shared/components/loading-skeleton/loading-skeleton';
@@ -312,12 +313,16 @@ export class Preferences implements OnInit {
           const e = err as {error?: {detail?: string; owned_count?: number}; status?: number};
           if (e?.status === 409 && e.error?.detail === 'owner_of_domains') {
             const count = e.error.owned_count ?? 1;
-            this.deleteBlockMessage.set(this.ui().preferences.deleteOwnedDomainsBlock(count));
+            this.deleteBlockMessage.set(plural(this.ui().preferences.deleteOwnedDomainsBlock, count, {count}));
             return;
           }
           this.toast.addApiError(err, this.ui().preferences.deleteError);
         },
       });
+  }
+
+  protected deleteConfirmMessage(username: string): string {
+    return interp(this.ui().preferences.deleteConfirmMessage, {username});
   }
 
   toggleDomainToLink(domainId: number): void {

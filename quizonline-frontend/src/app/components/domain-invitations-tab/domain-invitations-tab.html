@@ -29,7 +29,7 @@
             [placeholder]="adminLabels().bulkPlaceholder"
             [applyLabel]="adminLabels().bulkApply"
             [count]="selectedCount()"
-            [countText]="adminLabels().bulkSelectedCount(selectedCount())"
+            [countText]="bulkSelectedText(selectedCount())"
             [applying]="applyingBulk()"
             (apply)="applyBulk($event)">
           </app-bulk-actions>
@@ -221,7 +221,7 @@
   [(visible)]="bulkRejectDialogVisible"
   [modal]="true"
   [style]="{ width: '32rem' }">
-  <p class="muted">{{ adminLabels().bulkRejectMessage(pendingBulkIds().length) }}</p>
+  <p class="muted">{{ bulkRejectMessageText(pendingBulkIds().length) }}</p>
   <textarea
     pInputTextarea
     [ngModel]="bulkRejectReason()"

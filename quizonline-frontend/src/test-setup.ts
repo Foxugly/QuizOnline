@@ -1,4 +1,8 @@
-import {expect, vi} from 'vitest';
+import {expect, vi, beforeEach} from 'vitest';
+import {TestBed} from '@angular/core/testing';
+import {TranslocoTestingModule} from '@jsverse/transloco';
+
+import {CATALOGS} from './app/core/i18n/catalogs';
 
 type VitestSpy = ReturnType<typeof vi.fn> & {
   and: {
@@ -68,6 +72,23 @@ window.__APP__ ??= {
   logoIco: '',
   logoPng: '',
 };
+
+// Provide the Transloco engine (loader + TRANSLOCO_TRANSPILER) to every
+// component test, pinned to the bundled ``en`` catalog. The app renders text
+// through the ``UiTextService`` façade; this is the fleet-standard conformance
+// wiring so any ``| transloco`` usage and Transloco injectables resolve in specs.
+beforeEach(() => {
+  localStorage.setItem('lang', 'en');
+  TestBed.configureTestingModule({
+    imports: [
+      TranslocoTestingModule.forRoot({
+        langs: {en: CATALOGS.en},
+        translocoConfig: {availableLangs: ['en'], defaultLang: 'en'},
+        preloadLangs: true,
+      }),
+    ],
+  });
+});
 
 expect.extend({
   toBeTrue(received: unknown) {

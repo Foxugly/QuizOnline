@@ -1,0 +1,430 @@
+{
+  "common": {
+    "back": "Terug",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "add": "Toevoegen",
+    "create": "Maken",
+    "delete": "Verwijderen",
+    "confirm": "Bevestigen",
+    "duplicate": "Dupliceren",
+    "edit": "Bewerken",
+    "send": "Verzenden",
+    "sending": "Verzenden...",
+    "refresh": "Vernieuwen",
+    "close": "Afsluiten",
+    "reopen": "Heropenen",
+    "login": "Aanmelden",
+    "loading": "Laden...",
+    "translateOthers": "Vertalen vanuit dit tabblad",
+    "translating": "Translating...",
+    "view": "Bekijken",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "finish": "Voltooien",
+    "quick": "Snel",
+    "downloadPdf": "PDF downloaden",
+    "errorTitle": "Fout",
+    "deleteFailed": "Verwijderen is mislukt."
+  },
+  "quiz": {
+    "newTemplate": "Nieuw template",
+    "markAnswered": "Markeer als beantwoord",
+    "toggleFlag": "Markering omschakelen",
+    "alert": "Melden",
+    "backToQuiz": "Terug naar quiz",
+    "finishReview": "Nakijken voltooien",
+    "startQuiz": "Quiz starten",
+    "continueQuiz": "Quiz voortzetten",
+    "viewCorrection": "Correctie bekijken",
+    "quizFinished": "Quiz voltooid",
+    "backToList": "Terug naar lijst",
+    "questionLabel": "Vraag",
+    "scoreAvailableOn": "Score beschikbaar op",
+    "detailAvailableOn": "Details beschikbaar op",
+    "statusReady": "Klaar",
+    "statusInProgress": "Bezig",
+    "statusFinished": "Voltooid",
+    "modePractice": "Oefening",
+    "modeExam": "Examen",
+    "correctionLabel": "Correctie",
+    "scoreLabel": "Score",
+    "timerLabel": "Duur",
+    "questionsLabel": "Vragen",
+    "noTimeLimit": "Geen tijdslimiet",
+    "createdOn": "Aangemaakt op",
+    "startedOn": "Gestart op",
+    "closedOn": "Afgesloten op",
+    "correctAnswersOf": "{correct} juiste antwoorden van {total}",
+    "invalidQuizId": "Ongeldige quiz-identifier.",
+    "loadFailed": "Kan deze quiz niet laden.",
+    "startFailed": "Kan deze quiz niet starten.",
+    "finishQuizButton": "Quiz beëindigen",
+    "finishQuizConfirmHeader": "Quiz beëindigen",
+    "finishQuizConfirmMessage": "Deze actie is definitief. Doorgaan?",
+    "timeUp": "De tijd is om.",
+    "timeUpAutoClose": "De tijd is om. Automatisch afsluiten.",
+    "timeRemaining": "Resterende tijd",
+    "autoClosingInProgress": "Automatisch afsluiten…",
+    "reviewModeLabel": "Modus",
+    "reviewModeValue": "Nakijken",
+    "quizUnavailable": "Deze quiz is niet meer beschikbaar.",
+    "saveAnswerFailed": "Kan dit antwoord niet opslaan.",
+    "noQuestions": "Deze quiz bevat geen vragen.",
+    "closeFailed": "Kan deze quiz niet afsluiten.",
+    "alertSendFailed": "Kan deze melding niet verzenden.",
+    "reportDialogHeader": "Vraag melden",
+    "reportDialogBody": "Je bericht wordt naar de quizmaker gestuurd met de huidige vraag en actieve taal.",
+    "reportDialogPlaceholder": "Beschrijf het ondervonden probleem…",
+    "noCopyToastSummary": "Actie geblokkeerd",
+    "noCopyToastDetail": "Kopiëren is uitgeschakeld tijdens de quiz."
+  },
+  "userAdminForm": {
+    "badgeSuperuser": "Superuser",
+    "usernameLabel": "Gebruikersnaam",
+    "isActiveLabel": "Actief",
+    "languageLabel": "Taal",
+    "nbDomainMaxLabel": "Max domeinen",
+    "emailLabel": "E-mail",
+    "emailConfirmedLabel": "E-mail bevestigd",
+    "firstNameLabel": "Voornaam",
+    "lastNameLabel": "Achternaam",
+    "passwordLabel": "Wachtwoord",
+    "passwordChangeRequiredLabel": "Wachtwoordwijziging vereist"
+  },
+  "quizPlay": {
+    "quizTitleLabel": "Quiz-titel",
+    "userLabel": "Gebruiker",
+    "modeLabel": "Modus",
+    "durationLabel": "Duur",
+    "currentQuestion": "Huidige vraag: {index}"
+  },
+  "mediaSelector": {
+    "tagImageLocal": "Lokale afbeelding",
+    "tagVideoLocal": "Lokale video",
+    "tagImageExisting": "Bestaande afbeelding",
+    "tagVideoExisting": "Bestaande video",
+    "tagYoutube": "YouTube-video",
+    "tagUnknown": "Onbekend",
+    "invalidYoutubeUrl": "De link moet een geldige YouTube-URL zijn.",
+    "imagePreviewAlt": "Voorbeeldafbeelding"
+  },
+  "bulkList": {
+    "activate": "Activeren",
+    "deactivate": "Deactiveren",
+    "delete": "Verwijderen",
+    "confirmDeleteHeader": "Verwijderen",
+    "confirmDeleteAccept": "Verwijderen",
+    "confirmDeleteCancel": "Annuleren",
+    "confirmDeleteUsers": {
+      "one": "{n} gebruiker verwijderen? Deze actie is onomkeerbaar.",
+      "other": "{n} gebruikers verwijderen? Deze actie is onomkeerbaar."
+    },
+    "confirmDeleteSubjects": {
+      "one": "{n} onderwerp verwijderen? Deze actie is onomkeerbaar.",
+      "other": "{n} onderwerpen verwijderen? Deze actie is onomkeerbaar."
+    },
+    "confirmDeleteTemplates": {
+      "one": "{n} template verwijderen? Deze actie is onomkeerbaar.",
+      "other": "{n} templates verwijderen? Deze actie is onomkeerbaar."
+    }
+  },
+  "quizSessionTable": {
+    "colTitle": "Titel",
+    "colStatus": "Status",
+    "colMode": "Modus",
+    "colQuestions": "Vragen",
+    "colCreatedAt": "Aangemaakt op",
+    "colStartedAt": "Gestart op",
+    "colEndedAt": "Voltooid op",
+    "colScore": "Score",
+    "colActions": "Acties",
+    "statusAnswered": "Beantwoord",
+    "statusInProgress": "Bezig",
+    "statusNotStarted": "Niet gestart",
+    "actionView": "Bekijken",
+    "actionContinue": "Doorgaan",
+    "actionStart": "Starten",
+    "empty": "Geen quiz."
+  },
+  "pages": {
+    "domainCreate": {
+      "title": "Domein maken",
+      "subtitle": "Vertalingen, status en toegang"
+    },
+    "domainEdit": {
+      "title": "Domein bewerken",
+      "subtitle": "Vertalingen, status en toegang"
+    },
+    "subjectEdit": {
+      "title": "Onderwerp bewerken",
+      "subtitle": "Vertalingen en inhoud",
+      "questionsTitle": "Vragen",
+      "addQuestion": "Toevoegen",
+      "noQuestions": "Geen vraag.",
+      "titleCol": "Titel",
+      "actionsCol": "Acties",
+      "emptyLanguagesMessage": "Dit domein heeft geen taal geconfigureerd.",
+      "errors": {
+        "saveFailed": "Fout bij het opslaan.",
+        "translationFailed": "Fout bij het vertalen.",
+        "loadFailed": "Kan het onderwerp niet laden.",
+        "deleteFailed": "Fout bij het verwijderen van het onderwerp."
+      }
+    },
+    "questionCreate": {
+      "title": "Vraag maken",
+      "subtitle": "Domein, onderwerpen, vertalingen en antwoorden",
+      "emptyLanguagesMessage": "Dit domein heeft geen actieve talen geconfigureerd.",
+      "practiceTooltipFallback": "De vraag wordt openbaar en selecteerbaar voor gegenereerde quizzen.",
+      "errors": {
+        "loadInitialFailed": "Kan de initiële gegevens niet laden.",
+        "loadDomainFailed": "Kan het geselecteerde domein niet laden.",
+        "translationFailed": "Fout bij het vertalen.",
+        "toastSummary": "Fout",
+        "missingFields": "Kies een domein en vul minstens de titel in elke taal en alle antwoorden in.",
+        "missingCorrectAnswer": "Duid minstens één correct antwoord aan.",
+        "saveFailed": "Er is een fout opgetreden bij het opslaan van de vraag."
+      }
+    },
+    "questionEdit": {
+      "title": "Vraag bewerken",
+      "subtitle": "Context, vertalingen en antwoorden",
+      "emptyLanguagesMessage": "Geen actieve taal voor dit domein.",
+      "errors": {
+        "invalidId": "Ongeldige vraag-id.",
+        "translationFailed": "Fout bij het vertalen.",
+        "deleteFailed": "Fout bij het verwijderen van de vraag.",
+        "needOneCorrect": "Duid minstens één correct antwoord aan.",
+        "formInvalid": "Vul de titel en alle antwoorden in voor elke taal van het domein.",
+        "saveSuccess": "Vraag succesvol bijgewerkt.",
+        "saveFailed": "Fout bij het opslaan van de vraag.",
+        "loadFailed": "Kan de vraag niet laden.",
+        "duplicateFailed": "Fout bij het dupliceren van de vraag.",
+        "confirmDelete": "Deze vraag verwijderen?"
+      }
+    },
+    "questionView": {
+      "title": "Vraagdetails",
+      "revealOn": "Correcte antwoorden verbergen",
+      "revealOff": "Correcte antwoorden tonen",
+      "errors": {
+        "invalidId": "Ongeldige vraag-id.",
+        "loadFailed": "Kan deze vraag niet laden."
+      }
+    },
+    "quizQuick": {
+      "title": "Snelle quiz",
+      "subtitle": "Genereer een quizsessie vanuit een domein en doelonderwerpen.",
+      "submit": "Quiz genereren",
+      "errors": {
+        "generateFailed": "Kan deze quiz niet genereren.",
+        "titleRequired": "Quiztitel is verplicht.",
+        "domainRequired": "Domein is verplicht.",
+        "subjectsRequired": "Selecteer minstens één onderwerp.",
+        "questionCountInvalid": "Het aantal vragen moet groter zijn dan nul.",
+        "loadDomainsFailed": "Fout bij het laden van de domeinen.",
+        "loadSubjectsFailed": "Fout bij het laden van de onderwerpen."
+      }
+    },
+    "quizCreate": {
+      "back": "Terug",
+      "cancel": "Annuleren",
+      "loading": "Laden...",
+      "createQuestionForTemplate": "Een vraag maken voor dit template",
+      "createQuestionForQuiz": "Een vraag maken voor deze quiz",
+      "createQuestion": "Vraag maken",
+      "emptyLanguagesMessage": "Dit domein heeft geen actieve talen geconfigureerd.",
+      "practiceTooltipFallback": "De vraag is beschikbaar in het gekozen domein voor deze quiz.",
+      "errors": {
+        "invalidTemplateId": "Ongeldige template-id.",
+        "loadTemplateFailed": "Kan de templategegevens niet laden.",
+        "domainRequiredFirst": "Kies eerst een domein om de quiz samen te stellen.",
+        "translateQuestionFailed": "Fout bij het vertalen van de vraag.",
+        "translateTemplateFailed": "Fout bij het vertalen van het template.",
+        "needOneCorrect": "Duid minstens één correct antwoord aan.",
+        "createQuestionFailed": "Fout bij het maken van de vraag.",
+        "notAuthorized": "Quiz samenstellen is beperkt tot de eigenaar of beheerders van het domein.",
+        "completeQuizRequired": "Maak de quiz compleet en voeg minstens één vraag toe.",
+        "domainChangeReset": "De domeinwijziging heeft de quizsamenstelling gereset.",
+        "loadQuestionsFailed": "Kan de vragen van het geselecteerde domein niet laden.",
+        "templateNotFound": "Template niet gevonden.",
+        "updateTemplateFailed": "Kan het template niet bijwerken.",
+        "createTemplateFailed": "Kan het template niet aanmaken.",
+        "createQuizFailed": "Kan de quiz niet aanmaken."
+      }
+    },
+    "quizAlertList": {
+      "errors": {
+        "loadFailed": "Kan de berichten niet laden."
+      }
+    },
+    "userEdit": {
+      "title": "Gebruiker bewerken",
+      "subtitle": "Accountinstellingen",
+      "errors": {
+        "invalidId": "Ongeldige gebruikers-id.",
+        "formInvalid": "Het formulier bevat fouten.",
+        "loadFailed": "Kan deze gebruiker niet laden.",
+        "updateFailed": "Kan deze gebruiker niet bijwerken."
+      }
+    },
+    "userCreate": {
+      "title": "Gebruiker aanmaken",
+      "errors": {
+        "formInvalid": "Het formulier bevat fouten.",
+        "createFailed": "Kan deze gebruiker niet aanmaken."
+      }
+    },
+    "userDelete": {
+      "pageTitle": "Gebruiker verwijderen",
+      "irreversibleBadge": "Onomkeerbaar",
+      "confirmPrefix": "Verwijderen",
+      "confirmSuffix": "?",
+      "userFallbackPrefix": "Gebruiker #",
+      "errors": {
+        "invalidId": "Ongeldige gebruikers-id.",
+        "loadFailed": "Kan deze gebruiker niet laden.",
+        "deleteFailed": "Kan deze gebruiker niet verwijderen."
+      }
+    },
+    "quizTemplateDelete": {
+      "errors": {
+        "invalidId": "Ongeldige template-id.",
+        "loadFailed": "Kan het template niet laden.",
+        "deleteFailed": "Verwijderen niet mogelijk."
+      }
+    },
+    "quizSessionDelete": {
+      "pageTitle": "Quiz verwijderen",
+      "introPrefix": "U gaat de quiz verwijderen",
+      "introSeparator": "voor",
+      "loading": "Quiz wordt geladen…",
+      "userFallbackPrefix": "Gebruiker #",
+      "errors": {
+        "invalidId": "Ongeldige quiz-id.",
+        "loadFailed": "Kan de quiz niet laden.",
+        "deleteFailed": "Verwijderen niet mogelijk."
+      }
+    },
+    "questionDelete": {
+      "errors": {
+        "invalidId": "Ongeldige vraag-id.",
+        "loadFailed": "Kan de vraag niet laden.",
+        "deleteFailed": "Fout bij het verwijderen."
+      }
+    },
+    "userList": {
+      "title": "Gebruikers",
+      "subtitle": "Gebruikersbeheer",
+      "id": "ID",
+      "username": "Gebruikersnaam",
+      "name": "Naam",
+      "email": "E-mail",
+      "nbDomainMax": "Max domeinen",
+      "active": "Actief",
+      "emailConfirmed": "E-mail bevestigd",
+      "actions": "Acties",
+      "bulkActionsPlaceholder": "Bulkacties…",
+      "bulkActionsApply": "Toepassen",
+      "selectedSingular": "geselecteerd",
+      "selectedPlural": "geselecteerd",
+      "searchPlaceholder": "Zoeken…"
+    },
+    "quizTemplateResults": {
+      "title": "Quizresultaten",
+      "titleWithTemplate": "Quizresultaten: {title}",
+      "searchPlaceholder": "Zoeken in verzonden quizzen…",
+      "exportCsv": "Exporteren als CSV",
+      "loadFailed": "Kan de resultaten van de verzonden quizzen niet laden.",
+      "emptyMessage": "Geen verzonden quiz komt overeen met het filter.",
+      "statusAnswered": "Beantwoord",
+      "statusNotStarted": "Niet gestart",
+      "colUser": "Gebruiker",
+      "colStatus": "Status",
+      "colAnswers": "Antwoorden",
+      "colScore": "Score",
+      "colActions": "Acties",
+      "csvLastName": "Achternaam",
+      "csvFirstName": "Voornaam",
+      "csvEmail": "E-mail"
+    }
+  },
+  "domainForm": {
+    "translations": "Vertalingen",
+    "languagesCount": "taal/talen",
+    "allowedLanguages": "Toegestane talen",
+    "selectOneLanguage": "Selecteer minstens één taal.",
+    "titleLabel": "Name",
+    "titleRequired": "Naam is verplicht.",
+    "description": "Description",
+    "titlePlaceholder": "Domeinnaam",
+    "parameters": "Instellingen",
+    "statusAccess": "Status en toegang",
+    "active": "Actief",
+    "owner": "Owner",
+    "managers": "Managers",
+    "available": "Beschikbaar",
+    "selected": "Geselecteerd",
+    "readonly": "readonly",
+    "joinPolicy": "Domeintoetreding",
+    "joinPolicyAuto": "Automatisch",
+    "joinPolicyOwner": "Goedkeuring door de eigenaar",
+    "joinPolicyOwnerManagers": "Goedkeuring door de eigenaar of een beheerder",
+    "joinPolicyHint": "Hoe een gebruiker lid wordt van dit domein: automatisch of na goedkeuring.",
+    "publicLabel": "Publiek",
+    "publicHint": "Een privédomein staat niet in de catalogus: er wordt alleen via uitnodiging toegang verleend.",
+    "certificateBrandingLegend": "Branding van het certificaat",
+    "certificateSignatoryName": "Ondertekenaar — naam",
+    "certificateSignatoryNamePlaceholder": "bv. Jan Janssen",
+    "certificateSignatoryNameHint": "Naam afgedrukt onder de handtekeninglijn op het PDF-certificaat.",
+    "certificateSignatoryTitle": "Ondertekenaar — titel",
+    "certificateSignatoryTitlePlaceholder": "bv. Voorzitter, Directeur",
+    "certificateSignatoryTitleHint": "Vertaalde functie weergegeven onder de naam van de ondertekenaar (één per taal).",
+    "certificateLogo": "Logo",
+    "certificateLogoUpload": "Een logo kiezen…",
+    "certificateLogoRemove": "Logo verwijderen",
+    "certificateLogoClearSelection": "Selectie wissen",
+    "certificateLogoHint": "Bovenaan elk PDF-certificaat van dit domein. De verhoudingen blijven behouden."
+  },
+  "subjectForm": {
+    "domain": "Domein",
+    "availableCount": "beschikbaar",
+    "chooseDomain": "Kies een domein",
+    "translations": "Vertalingen",
+    "languagesCount": "taal/talen",
+    "name": "Naam",
+    "description": "Beschrijving",
+    "namePlaceholder": "Naam van het onderwerp",
+    "required": "Verplicht veld.",
+    "emptyLanguages": "Dit domein heeft geen geconfigureerde talen."
+  },
+  "questionForm": {
+    "context": "Context",
+    "domain": "Domein",
+    "domainUnavailable": "Domein niet beschikbaar",
+    "chooseDomain": "Kies een domein",
+    "subjects": "Onderwerpen",
+    "chooseSubjects": "Kies één of meer onderwerpen",
+    "active": "Active",
+    "mode": "Mode",
+    "practice": "Oefening",
+    "practiceHint": "Vraag beschikbaar in snelle test-quizzen.",
+    "exam": "Examen",
+    "examHint": "Vraag voorbehouden voor examen-quizzen.",
+    "content": "Inhoud",
+    "title": "Titel",
+    "titlePlaceholder": "Titel...",
+    "description": "Description",
+    "titleRequired": "Titel is verplicht.",
+    "answers": "Answer options",
+    "correctAnswer": "Correct answer",
+    "answerContent": "Content",
+    "deleteAnswer": "Delete this answer",
+    "addAnswer": "Add answer",
+    "explanation": "Explanation",
+    "media": "Media",
+    "noActiveLanguages": "No active language on this domain.",
+    "deleteQuestion": "Delete question"
+  }
+}

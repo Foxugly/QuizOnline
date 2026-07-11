@@ -19,6 +19,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {interp} from '../../../shared/i18n/format';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -89,6 +90,14 @@ export class DomainJoinRequestsPage implements OnInit {
   readonly currentLang = computed(() => this.userService.currentLang ?? LanguageEnumDto.Fr);
   private readonly uiText = inject(UiTextService);
   readonly t = computed(() => this.uiText.ui().admin.joinRequests);
+
+  protected bulkSelectedText(n: number): string {
+    return interp(this.t().bulkSelectedCount, {n});
+  }
+
+  protected bulkRejectMessageText(n: number): string {
+    return interp(this.t().bulkRejectMessage, {n});
+  }
 
   readonly statusOptions = computed(() => {
     const labels = this.t();
@@ -213,10 +222,13 @@ export class DomainJoinRequestsPage implements OnInit {
 
   private notifyBulkResult(result: DomainJoinRequestBulkResultDto): void {
     const labels = this.t();
+    const detail = result.skipped > 0
+      ? interp(labels.bulkResultDetail.withSkipped, {processed: result.processed, skipped: result.skipped})
+      : interp(labels.bulkResultDetail.noSkipped, {processed: result.processed});
     this.toast.add({
       severity: result.skipped > 0 ? 'warn' : 'success',
       summary: labels.bulkResultTitle,
-      detail: labels.bulkResultDetail(result.processed, result.skipped),
+      detail,
     });
   }
 

@@ -28,6 +28,7 @@ import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {plural} from '../../../shared/i18n/format';
 import {getQuizListUiText} from './quiz-list.i18n';
 import {ROUTES} from '../../../app.routes-paths';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
@@ -301,7 +302,7 @@ export class QuizListPage implements OnInit {
     const labels = this.editorUi().bulkList;
     this.confirmationService.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteTemplates(ids.length),
+      message: plural(labels.confirmDeleteTemplates, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmDeleteAccept,
       rejectLabel: labels.confirmDeleteCancel,

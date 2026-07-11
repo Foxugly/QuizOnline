@@ -18,6 +18,7 @@ import {NotificationReadDto} from '../../api/generated/model/notification-read';
 import {NotificationService, NotificationStatusFilter} from '../../services/notification/notification.service';
 import {notificationQueryFor, notificationRouteFor} from '../../services/notification/notification-routes';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {buildNotificationLine, formatRelativeTime} from '../../shared/i18n/notifications.util';
 
 @Component({
   selector: 'app-notifications-page',
@@ -114,7 +115,7 @@ export class NotificationsPage implements OnInit {
   }
 
   protected lineFor(row: NotificationReadDto): string {
-    return this.ui().notifications.kindLine(row.kind, (row.payload as Record<string, unknown>) ?? {});
+    return buildNotificationLine(row.kind, (row.payload as Record<string, unknown>) ?? {}, this.ui().notifications.kindLine);
   }
 
   protected relativeFor(createdAt: string): string {
@@ -122,7 +123,7 @@ export class NotificationsPage implements OnInit {
     if (!Number.isFinite(ts)) {
       return '';
     }
-    return this.ui().notifications.relative(Math.max(0, (this.now() - ts) / 1000));
+    return formatRelativeTime(Math.max(0, (this.now() - ts) / 1000), this.ui().notifications.relative);
   }
 
   private load(): void {

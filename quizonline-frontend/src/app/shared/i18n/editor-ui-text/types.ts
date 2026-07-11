@@ -1,3 +1,5 @@
+import type {PluralForms} from '../format';
+
 export type EditorUiText = {
   common: {
     back: string;
@@ -100,7 +102,7 @@ export type EditorUiText = {
     userLabel: string;
     modeLabel: string;
     durationLabel: string;
-    currentQuestion: (index: number) => string;
+    currentQuestion: string;
   };
   mediaSelector: {
     tagImageLocal: string;
@@ -119,9 +121,9 @@ export type EditorUiText = {
     confirmDeleteHeader: string;
     confirmDeleteAccept: string;
     confirmDeleteCancel: string;
-    confirmDeleteUsers: (n: number) => string;
-    confirmDeleteSubjects: (n: number) => string;
-    confirmDeleteTemplates: (n: number) => string;
+    confirmDeleteUsers: PluralForms;
+    confirmDeleteSubjects: PluralForms;
+    confirmDeleteTemplates: PluralForms;
   };
   quizSessionTable: {
     colTitle: string;

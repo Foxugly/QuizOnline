@@ -1,5 +1,6 @@
 import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {interp} from '../../shared/i18n/format';
 import {ButtonModule} from 'primeng/button';
 import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
 import {UserService} from '../../services/user/user';
@@ -16,6 +17,10 @@ export class QuizPlayComponent {
   readonly editorUi = inject(UiTextService).editor;
   questionNavItems: QuizNavItem[] = [];
   currentQuestionIndex = 1;
+
+  protected currentQuestionLabel(): string {
+    return interp(this.editorUi().quizPlay.currentQuestion, {index: this.currentQuestionIndex});
+  }
 
   onQuestionSelected(index: number): void {
     this.currentQuestionIndex = index;

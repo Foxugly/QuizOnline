@@ -21,7 +21,7 @@ export type BulkActionOption = {
  *     [placeholder]="t.bulkPlaceholder"
  *     [applyLabel]="t.bulkApply"
  *     [count]="selectedCount()"
- *     [countText]="t.bulkSelectedCount(selectedCount())"
+ *     [countText]="bulkSelectedText(selectedCount())"
  *     [applying]="applying()"
  *     (apply)="applyBulk($event)"
  *   ></app-bulk-actions>
