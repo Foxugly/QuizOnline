@@ -112,6 +112,22 @@ export class DomainInvitationsTab {
     return interp(this.adminLabels().bulkRejectMessage, {n});
   }
 
+  protected inviteResultSentText(email: string): string {
+    return interp(this.text().members.inviteResultSent, {email});
+  }
+
+  protected inviteResultAlreadyMemberText(email: string): string {
+    return interp(this.text().members.inviteResultAlreadyMember, {email});
+  }
+
+  protected inviteResultForbiddenText(email: string): string {
+    return interp(this.text().members.inviteResultForbidden, {email});
+  }
+
+  protected inviteResultInvalidText(email: string): string {
+    return interp(this.text().members.inviteResultInvalid, {email});
+  }
+
   readonly statusOptions = computed(() => {
     const labels = this.adminLabels();
     return [
@@ -278,7 +294,7 @@ export class DomainInvitationsTab {
     const labels = this.text().members;
     this.confirmationService.confirm({
       header: labels.invitationConfirmRevokeHeader,
-      message: labels.invitationConfirmRevokeMessage(invite.email),
+      message: interp(labels.invitationConfirmRevokeMessage, {email: invite.email}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.invitationConfirmRevokeAccept,
       rejectLabel: labels.invitationConfirmRevokeCancel,

@@ -60,7 +60,9 @@ import {JoinPolicyEnumDto} from '../../../api/generated/model/join-policy-enum';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
+import {interp} from '../../../shared/i18n/format';
 import {getDomainEditUiText} from './domain-edit.i18n';
+import {labelForAction} from './domain-edit-action-label.util';
 
 type UserOption = { label: string; value: number };
 type DomainUserRef = UserSummaryDto;
@@ -453,9 +455,17 @@ export class DomainEdit implements OnInit {
   }
 
   readonly auditActionOptions = computed<Array<{label: string; value: string}>>(() => {
-    const labelFn = this.editText().audit.actionLabel;
-    return this.audit.actions().map((a) => ({label: labelFn(a), value: a}));
+    const labels = this.editText().audit.actionLabels;
+    return this.audit.actions().map((a) => ({label: labelForAction(a, labels), value: a}));
   });
+
+  protected auditActionLabelText(action: string): string {
+    return labelForAction(action, this.editText().audit.actionLabels);
+  }
+
+  protected transferPendingToText(username: string): string {
+    return interp(this.editText().transfer.pendingTo, {username});
+  }
 
   /** Idempotent first-load of the join-requests + invitations data the
    *  ``invitations`` tab consumes. Fires on first visit to that tab

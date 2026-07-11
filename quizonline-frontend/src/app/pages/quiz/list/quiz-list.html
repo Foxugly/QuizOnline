@@ -11,7 +11,7 @@
 
   @if (pendingDomains().length > 0) {
     <p-message severity="warn" [closable]="false">
-      {{ uiText().messages.pendingApprovalBanner(pendingDomainNames()) }}
+      {{ pendingApprovalBannerText(pendingDomainNames()) }}
     </p-message>
   }
 
@@ -120,7 +120,7 @@
                 [placeholder]="uiText().bulk.placeholder"
                 [applyLabel]="uiText().bulk.apply"
                 [count]="selectedCount()"
-                [countText]="uiText().bulk.selectedCount(selectedCount())"
+                [countText]="bulkSelectedText(selectedCount())"
                 [applying]="applyingBulk()"
                 (apply)="applyBulk($event)">
               </app-bulk-actions>

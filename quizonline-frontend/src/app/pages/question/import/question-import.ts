@@ -16,6 +16,7 @@ import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {UserService} from '../../../services/user/user';
 import {TruncateFilenamePipe} from '../../../shared/pipes/truncate-filename.pipe';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {interp} from '../../../shared/i18n/format';
 import {getQuestionImportUiText} from './question-import.i18n';
 
 @Component({
@@ -36,6 +37,10 @@ export class QuestionImport implements OnInit {
   readonly hasValidFile = computed(
     () => this.validationErrors().length === 0 && (this.importFile() !== null || this.importFileRaw() !== null),
   );
+
+  protected fileValidatedText(count: number): string {
+    return interp(this.text().fileValidated, {count});
+  }
 
   importing = signal(false);
   selectedFileName = signal<string | null>(null);
@@ -87,7 +92,7 @@ export class QuestionImport implements OnInit {
       this.validationErrors.set(errors);
 
       if (errors.length === 0) {
-        this.showToast('success', this.text().formatValid, this.text().fileValidated(importFile?.questions.length ?? 0));
+        this.showToast('success', this.text().formatValid, interp(this.text().fileValidated, {count: importFile?.questions.length ?? 0}));
       } else {
         this.showToast('error', this.text().formatInvalid, errors[0]);
       }
@@ -135,7 +140,7 @@ export class QuestionImport implements OnInit {
       }
 
       const successCount = this.getImportedQuestionCount(result);
-      this.showToast('success', this.text().importDone, this.text().importSuccess(successCount));
+      this.showToast('success', this.text().importDone, interp(this.text().importSuccess, {count: successCount}));
       this.questionService.goList();
     } finally {
       this.importing.set(false);
@@ -214,7 +219,7 @@ export class QuestionImport implements OnInit {
         typeof subject.translations === 'object' &&
         !Array.isArray(subject.translations);
       if (!valid) {
-        errors.push(this.text().subjectObjectError(itemNumber));
+        errors.push(interp(this.text().subjectObjectError, {item: itemNumber}));
       }
       return valid;
     }).map((subject) => ({
@@ -243,19 +248,19 @@ export class QuestionImport implements OnInit {
         typeof question.translations === 'object' &&
         !Array.isArray(question.translations);
       if (!valid) {
-        errors.push(this.text().questionObjectError(itemNumber));
+        errors.push(interp(this.text().questionObjectError, {item: itemNumber}));
         return false;
       }
       if (question.answer_options.length < 2) {
-        errors.push(this.text().questionAnswersError(itemNumber));
+        errors.push(interp(this.text().questionAnswersError, {item: itemNumber}));
         return false;
       }
       if (question.subject_ids.some((subjectId) => !knownSubjectIds.has(subjectId))) {
-        errors.push(this.text().questionSubjectsReferenceError(itemNumber));
+        errors.push(interp(this.text().questionSubjectsReferenceError, {item: itemNumber}));
         return false;
       }
       if (!question.answer_options.some((answer) => !!answer.is_correct)) {
-        errors.push(this.text().questionCorrectAnswerError(itemNumber));
+        errors.push(interp(this.text().questionCorrectAnswerError, {item: itemNumber}));
         return false;
       }
       return true;

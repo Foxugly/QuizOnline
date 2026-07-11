@@ -10,6 +10,7 @@ import {ConfirmationService} from 'primeng/api';
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
 import {UserSummaryDto} from '../../api/generated/model/user-summary';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
+import {interp} from '../../shared/i18n/format';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 
 type MemberRow = {
@@ -147,7 +148,7 @@ export class DomainMembersTab {
     const labels = this.text().members;
     this.confirmationService.confirm({
       header: labels.confirmRemoveHeader,
-      message: labels.confirmRemoveMessage(row.username),
+      message: interp(labels.confirmRemoveMessage, {username: row.username}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmRemoveAccept,
       rejectLabel: labels.confirmRemoveCancel,

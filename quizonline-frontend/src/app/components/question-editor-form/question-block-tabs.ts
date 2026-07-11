@@ -9,6 +9,7 @@ import {TooltipModule} from 'primeng/tooltip';
 
 import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {interp} from '../../shared/i18n/format';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 import {ContentBlock} from '../../shared/learning/content-block.types';
 import {BlockListEditor} from '../../shared/learning/block-list-editor/block-list-editor';
@@ -70,6 +71,10 @@ export interface AnswerRowVm {
 })
 export class QuestionBlockTabs {
   protected readonly ui = inject(UiTextService).localized(getQuestionEditorFormUiText);
+
+  protected answerHeadingText(index: number): string {
+    return interp(this.ui().answerHeading, {index});
+  }
 
   readonly questionId = input.required<number>();
   readonly domainId = input.required<number>();

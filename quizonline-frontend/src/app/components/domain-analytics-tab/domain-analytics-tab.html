@@ -78,7 +78,7 @@
         <ng-template pTemplate="body" let-row>
           <tr>
             <td>{{ row.username }}</td>
-            <td class="analytics-table__count">{{ labels().decisionsLabel(row.count) }}</td>
+            <td class="analytics-table__count">{{ decisionsLabelText(row.count) }}</td>
           </tr>
         </ng-template>
       </p-table>

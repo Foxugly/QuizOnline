@@ -79,6 +79,10 @@ export class SubjectList implements OnInit {
   applyingBulk = signal(false);
   readonly selectedCount = computed(() => this.selectedRows().length);
 
+  protected bulkSelectedText(n: number): string {
+    return plural(this.pageText().bulk.selectedCount, n);
+  }
+
   readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
     const labels = this.editorUi().bulkList;
     return [
