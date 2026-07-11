@@ -1,4 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import data from './course-create.i18n.json';
 
 /**
  * Page-scoped dictionary for ``/course/new``. Mirrors the shape of
@@ -35,158 +36,10 @@ export interface CourseCreateUiText {
   };
 }
 
+const CATALOG = data as Record<string, CourseCreateUiText>;
+
 export function getCourseCreateUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseCreateUiText {
-  switch (lang) {
-    case LanguageEnumDto.Fr:
-    case 'fr':
-      return {
-        pageTitle: 'Créer un cours',
-        fields: {
-          level: 'Niveau',
-          enrollmentMode: 'Mode d’inscription',
-          title: 'Titre',
-          titlePlaceholder: 'Titre du cours',
-          description: 'Description',
-          learningObjectives: 'Objectifs pédagogiques',
-          learningObjectivesHint: 'Liste de compétences ou résultats attendus à la fin du cours.',
-        },
-        translateButton: 'Traduire depuis cet onglet',
-        cancelButton: 'Annuler',
-        submitButton: 'Créer le cours',
-        toastSuccessSummary: 'Cours créé',
-        toastSuccessDetail: 'Vous pouvez maintenant ajouter des sections et des leçons.',
-        toastErrorSummary: 'Erreur',
-        enrollmentLabels: {open: 'Libre', approval: 'Sur validation', invite: 'Sur invitation'},
-        errors: {
-          loadFailed: 'Erreur lors du chargement initial.',
-          formInvalid: 'Le formulaire contient des erreurs.',
-          saveFailed: 'Erreur backend lors de la création du cours.',
-          translationFailed: 'Erreur lors de la traduction.',
-          titleRequired: 'Un titre est requis dans la langue principale.',
-          noCurrentDomain: 'Aucun domaine courant sélectionné — choisissez-en un dans le menu en haut à droite avant de créer un cours.',
-          notInstructorOfCurrentDomain: 'Vous n’êtes pas instructeur du domaine courant — sélectionnez un domaine que vous pouvez gérer dans le menu en haut à droite.',
-        },
-      };
-    case LanguageEnumDto.Nl:
-    case 'nl':
-      return {
-        pageTitle: 'Cursus aanmaken',
-        fields: {
-          level: 'Niveau',
-          enrollmentMode: 'Inschrijvingsmodus',
-          title: 'Titel',
-          titlePlaceholder: 'Cursustitel',
-          description: 'Beschrijving',
-          learningObjectives: 'Leerdoelen',
-          learningObjectivesHint: 'Vaardigheden of resultaten die studenten aan het einde behalen.',
-        },
-        translateButton: 'Vertalen vanuit dit tabblad',
-        cancelButton: 'Annuleren',
-        submitButton: 'Cursus aanmaken',
-        toastSuccessSummary: 'Cursus aangemaakt',
-        toastSuccessDetail: 'U kunt nu secties en lessen toevoegen.',
-        toastErrorSummary: 'Fout',
-        enrollmentLabels: {open: 'Open', approval: 'Goedkeuring', invite: 'Op uitnodiging'},
-        errors: {
-          loadFailed: 'Fout bij het laden van de gegevens.',
-          formInvalid: 'Het formulier bevat fouten.',
-          saveFailed: 'Backend-fout bij het aanmaken van de cursus.',
-          translationFailed: 'Fout bij het vertalen.',
-          titleRequired: 'Een titel is vereist in de hoofdtaal.',
-          noCurrentDomain: 'Geen huidig domein geselecteerd — kies er een in het menu rechtsboven voordat u een cursus aanmaakt.',
-          notInstructorOfCurrentDomain: 'U bent geen instructeur van het huidige domein — kies een domein dat u kunt beheren in het menu rechtsboven.',
-        },
-      };
-    case LanguageEnumDto.It:
-    case 'it':
-      return {
-        pageTitle: 'Crea un corso',
-        fields: {
-          level: 'Livello',
-          enrollmentMode: 'Modalità di iscrizione',
-          title: 'Titolo',
-          titlePlaceholder: 'Titolo del corso',
-          description: 'Descrizione',
-          learningObjectives: 'Obiettivi formativi',
-          learningObjectivesHint: 'Competenze o risultati attesi al termine del corso.',
-        },
-        translateButton: 'Traduci da questa scheda',
-        cancelButton: 'Annulla',
-        submitButton: 'Crea corso',
-        toastSuccessSummary: 'Corso creato',
-        toastSuccessDetail: 'Ora puoi aggiungere sezioni e lezioni.',
-        toastErrorSummary: 'Errore',
-        enrollmentLabels: {open: 'Aperto', approval: 'Approvazione', invite: 'Solo invito'},
-        errors: {
-          loadFailed: 'Errore durante il caricamento iniziale.',
-          formInvalid: 'Il modulo contiene errori.',
-          saveFailed: 'Errore del backend durante la creazione del corso.',
-          translationFailed: 'Errore durante la traduzione.',
-          titleRequired: 'Un titolo è obbligatorio nella lingua principale.',
-          noCurrentDomain: 'Nessun dominio corrente selezionato — sceglierne uno dal menu in alto a destra prima di creare un corso.',
-          notInstructorOfCurrentDomain: 'Non sei istruttore del dominio corrente — seleziona un dominio che puoi gestire dal menu in alto a destra.',
-        },
-      };
-    case LanguageEnumDto.Es:
-    case 'es':
-      return {
-        pageTitle: 'Crear un curso',
-        fields: {
-          level: 'Nivel',
-          enrollmentMode: 'Modo de inscripción',
-          title: 'Título',
-          titlePlaceholder: 'Título del curso',
-          description: 'Descripción',
-          learningObjectives: 'Objetivos de aprendizaje',
-          learningObjectivesHint: 'Competencias o resultados que se esperan al finalizar el curso.',
-        },
-        translateButton: 'Traducir desde esta pestaña',
-        cancelButton: 'Cancelar',
-        submitButton: 'Crear curso',
-        toastSuccessSummary: 'Curso creado',
-        toastSuccessDetail: 'Ahora puede añadir secciones y lecciones.',
-        toastErrorSummary: 'Error',
-        enrollmentLabels: {open: 'Libre', approval: 'Aprobación', invite: 'Por invitación'},
-        errors: {
-          loadFailed: 'Error durante la carga inicial.',
-          formInvalid: 'El formulario contiene errores.',
-          saveFailed: 'Error del backend al crear el curso.',
-          translationFailed: 'Error durante la traducción.',
-          titleRequired: 'Se requiere un título en el idioma principal.',
-          noCurrentDomain: 'No hay dominio actual seleccionado — elija uno en el menú superior derecho antes de crear un curso.',
-          notInstructorOfCurrentDomain: 'No es instructor del dominio actual — seleccione un dominio que pueda gestionar en el menú superior derecho.',
-        },
-      };
-    default:
-      return {
-        pageTitle: 'Create a course',
-        fields: {
-          level: 'Level',
-          enrollmentMode: 'Enrollment mode',
-          title: 'Title',
-          titlePlaceholder: 'Course title',
-          description: 'Description',
-          learningObjectives: 'Learning objectives',
-          learningObjectivesHint: 'Skills or outcomes learners will achieve by the end of the course.',
-        },
-        translateButton: 'Translate from this tab',
-        cancelButton: 'Cancel',
-        submitButton: 'Create course',
-        toastSuccessSummary: 'Course created',
-        toastSuccessDetail: 'You can now add sections and lessons.',
-        toastErrorSummary: 'Error',
-        enrollmentLabels: {open: 'Open', approval: 'Approval', invite: 'Invite-only'},
-        errors: {
-          loadFailed: 'Error while loading initial data.',
-          formInvalid: 'The form contains errors.',
-          saveFailed: 'Backend error while creating the course.',
-          translationFailed: 'Error while translating.',
-          titleRequired: 'A title is required in the primary language.',
-          noCurrentDomain: 'No current domain selected — pick one from the top-right menu before creating a course.',
-          notInstructorOfCurrentDomain: 'You are not an instructor of the current domain — pick a domain you can manage from the top-right menu.',
-        },
-      };
-  }
+  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
 }

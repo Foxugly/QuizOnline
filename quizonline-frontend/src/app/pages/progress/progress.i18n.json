@@ -1,0 +1,52 @@
+{
+  "en": {
+    "pageTitle": "My progress",
+    "colCourse": "Course",
+    "colProgress": "Progress",
+    "colLastActivity": "Last activity",
+    "colStatus": "Status",
+    "emptyTitle": "No course in progress",
+    "emptyMessage": "Enroll in a course from the catalog to get started.",
+    "exploreButton": "Browse catalog"
+  },
+  "fr": {
+    "pageTitle": "Ma progression",
+    "colCourse": "Cours",
+    "colProgress": "Progression",
+    "colLastActivity": "Dernière activité",
+    "colStatus": "Statut",
+    "emptyTitle": "Aucun cours suivi",
+    "emptyMessage": "Inscrivez-vous à un cours depuis le catalogue pour démarrer.",
+    "exploreButton": "Parcourir le catalogue"
+  },
+  "nl": {
+    "pageTitle": "Mijn voortgang",
+    "colCourse": "Cursus",
+    "colProgress": "Voortgang",
+    "colLastActivity": "Laatste activiteit",
+    "colStatus": "Status",
+    "emptyTitle": "Geen cursus in uitvoering",
+    "emptyMessage": "Schrijf je in voor een cursus vanuit de catalogus om te beginnen.",
+    "exploreButton": "Door catalogus bladeren"
+  },
+  "it": {
+    "pageTitle": "I miei progressi",
+    "colCourse": "Corso",
+    "colProgress": "Progresso",
+    "colLastActivity": "Ultima attività",
+    "colStatus": "Stato",
+    "emptyTitle": "Nessun corso in corso",
+    "emptyMessage": "Iscriviti a un corso dal catalogo per iniziare.",
+    "exploreButton": "Sfoglia il catalogo"
+  },
+  "es": {
+    "pageTitle": "Mi progreso",
+    "colCourse": "Curso",
+    "colProgress": "Progreso",
+    "colLastActivity": "Última actividad",
+    "colStatus": "Estado",
+    "emptyTitle": "Sin cursos en curso",
+    "emptyMessage": "Inscríbete en un curso desde el catálogo para empezar.",
+    "exploreButton": "Explorar catálogo"
+  }
+}

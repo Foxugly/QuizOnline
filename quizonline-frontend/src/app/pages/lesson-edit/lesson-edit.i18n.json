@@ -1,0 +1,42 @@
+{
+  "en": {
+    "pageTitle": "Edit lesson",
+    "blockErrorToast": "Block operation failed.",
+    "emptyTitle": "Empty lesson",
+    "emptyHint": "Add a first block from the bar below.",
+    "previewButton": "Preview",
+    "editModeButton": "Edit"
+  },
+  "fr": {
+    "pageTitle": "Édition de la leçon",
+    "blockErrorToast": "L'opération sur le bloc a échoué.",
+    "emptyTitle": "Leçon vide",
+    "emptyHint": "Ajoutez un premier bloc à l'aide de la barre ci-dessous.",
+    "previewButton": "Aperçu",
+    "editModeButton": "Édition"
+  },
+  "nl": {
+    "pageTitle": "Les bewerken",
+    "blockErrorToast": "De blok-bewerking is mislukt.",
+    "emptyTitle": "Lege les",
+    "emptyHint": "Voeg een eerste blok toe via de balk hieronder.",
+    "previewButton": "Voorbeeld",
+    "editModeButton": "Bewerken"
+  },
+  "it": {
+    "pageTitle": "Modifica lezione",
+    "blockErrorToast": "Operazione sul blocco non riuscita.",
+    "emptyTitle": "Lezione vuota",
+    "emptyHint": "Aggiungi un primo blocco usando la barra qui sotto.",
+    "previewButton": "Anteprima",
+    "editModeButton": "Modifica"
+  },
+  "es": {
+    "pageTitle": "Editar lección",
+    "blockErrorToast": "La operación sobre el bloque falló.",
+    "emptyTitle": "Lección vacía",
+    "emptyHint": "Añade un primer bloque desde la barra de abajo.",
+    "previewButton": "Vista previa",
+    "editModeButton": "Editar"
+  }
+}
