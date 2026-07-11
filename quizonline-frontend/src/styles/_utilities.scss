@@ -1,0 +1,20 @@
+// Utilitaires locaux (remplacent le petit reliquat de classes PrimeFlex — la flotte
+// n'utilise aucun framework utilitaire). PrimeFlex n'était de toute façon pas importé :
+// ces classes étaient mortes, elles retrouvent ici leur comportement voulu.
+.w-full { width: 100%; }
+.flex { display: flex; }
+.flex-row { display: flex; flex-direction: row; }
+.flex-column { display: flex; flex-direction: column; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-center { justify-content: center; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+.p-4 { padding: 1.5rem; }
+.m-0 { margin: 0; }
+.mt-3 { margin-top: 1rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mr-2 { margin-right: 0.5rem; }
