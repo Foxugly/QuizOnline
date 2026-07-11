@@ -20,7 +20,7 @@ import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-re
 import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-status-enum';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {interp} from '../../shared/i18n/format';
+import {interp, plural} from '../../shared/i18n/format';
 import {BulkActionsComponent, BulkActionOption} from '../../shared/components/bulk-actions/bulk-actions';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {RelativeDatePipe} from '../../shared/pipes/relative-date.pipe';
@@ -105,7 +105,7 @@ export class DomainInvitationsTab {
   readonly adminLabels = computed(() => this.uiText.ui().admin.joinRequests);
 
   protected bulkSelectedText(n: number): string {
-    return interp(this.adminLabels().bulkSelectedCount, {n});
+    return plural(this.adminLabels().bulkSelectedCount, n);
   }
 
   protected bulkRejectMessageText(n: number): string {

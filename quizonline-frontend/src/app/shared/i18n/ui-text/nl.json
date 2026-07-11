@@ -463,7 +463,7 @@
       "bulkApprove": "Selectie goedkeuren",
       "bulkReject": "Selectie afwijzen",
       "bulkCancel": "Annuleren",
-      "bulkSelectedCount": "{n} geselecteerd",
+      "bulkSelectedCount": { "one": "{n} geselecteerd", "other": "{n} geselecteerd" },
       "bulkRejectHeader": "Meerdere aanvragen afwijzen",
       "bulkRejectMessage": "De onderstaande reden wordt voor de {n} afgewezen aanvragen opgeslagen.",
       "bulkActionFailed": "Een of meer acties zijn mislukt.",

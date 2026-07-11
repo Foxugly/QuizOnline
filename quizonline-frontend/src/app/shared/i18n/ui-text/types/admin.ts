@@ -109,7 +109,7 @@ export type AdminUiText = {
     bulkApprove: string;
     bulkReject: string;
     bulkCancel: string;
-    bulkSelectedCount: string;
+    bulkSelectedCount: PluralForms;
     bulkRejectHeader: string;
     bulkRejectMessage: string;
     bulkActionFailed: string;

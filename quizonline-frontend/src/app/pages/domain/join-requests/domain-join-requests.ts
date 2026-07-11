@@ -19,7 +19,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {interp} from '../../../shared/i18n/format';
+import {interp, plural} from '../../../shared/i18n/format';
 import {BulkActionsComponent, BulkActionOption} from '../../../shared/components/bulk-actions/bulk-actions';
 import {RelativeDatePipe} from '../../../shared/pipes/relative-date.pipe';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -92,7 +92,7 @@ export class DomainJoinRequestsPage implements OnInit {
   readonly t = computed(() => this.uiText.ui().admin.joinRequests);
 
   protected bulkSelectedText(n: number): string {
-    return interp(this.t().bulkSelectedCount, {n});
+    return plural(this.t().bulkSelectedCount, n);
   }
 
   protected bulkRejectMessageText(n: number): string {

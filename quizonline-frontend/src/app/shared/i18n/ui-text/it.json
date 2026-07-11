@@ -463,7 +463,7 @@
       "bulkApprove": "Approva la selezione",
       "bulkReject": "Rifiuta la selezione",
       "bulkCancel": "Annulla",
-      "bulkSelectedCount": "{n} selezionate",
+      "bulkSelectedCount": { "one": "{n} selezionata", "other": "{n} selezionate" },
       "bulkRejectHeader": "Rifiuta più richieste",
       "bulkRejectMessage": "Il motivo qui sotto sarà salvato per le {n} richieste rifiutate.",
       "bulkActionFailed": "Una o più azioni non sono riuscite.",
