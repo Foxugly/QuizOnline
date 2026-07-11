@@ -18,6 +18,7 @@ import {DomainInviteStateDto} from '../../api/generated/model/domain-invite-stat
 import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 import {getInviteAcceptUiText} from './invite-accept.i18n';
@@ -44,6 +45,16 @@ export class InviteAcceptPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly text = inject(UiTextService).localized(getInviteAcceptUiText);
+
+  /** Interpolated invite explanation for the ``ready_to_accept`` state. */
+  protected readyExplain(domainName: string, inviterUsername: string): string {
+    return interp(this.text().states.readyExplain, {domainName, inviterUsername});
+  }
+
+  /** Interpolated ``wrong_account`` hint naming the expected recipient. */
+  protected wrongAccount(expectedEmail: string): string {
+    return interp(this.text().states.wrongAccount, {expectedEmail});
+  }
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);

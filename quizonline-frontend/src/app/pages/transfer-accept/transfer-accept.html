@@ -47,7 +47,7 @@
         }
         @case ('wrong_account') {
           <p-message severity="warn" [closable]="false">
-            {{ text().states.wrongAccount(s.future_owner_username) }}
+            {{ wrongAccount(s.future_owner_username) }}
           </p-message>
           <div class="footer-actions">
             <p-button (onClick)="goLogin()" icon="pi pi-sign-in" [label]="text().states.accept" severity="primary" type="button"></p-button>
@@ -55,7 +55,7 @@
         }
         @case ('ready_to_accept') {
           <h2 class="transfer-heading">{{ text().states.readyHeading }}</h2>
-          <p class="muted">{{ text().states.readyExplain(s.domain_name, s.initiator_username) }}</p>
+          <p class="muted">{{ readyExplain(s.domain_name, s.initiator_username) }}</p>
           <div class="footer-actions">
             <p-button (onClick)="accept()" icon="pi pi-check" [label]="accepting() ? text().states.accepting : text().states.accept" [loading]="accepting()" [disabled]="accepting()" severity="success" type="button"></p-button>
           </div>

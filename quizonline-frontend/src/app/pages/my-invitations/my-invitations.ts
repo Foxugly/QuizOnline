@@ -11,6 +11,7 @@ import {TagModule} from 'primeng/tag';
 import {COURSE_INVITE_ACCEPT, COURSE_DETAIL} from '../../app.routes-paths';
 import {CourseInviteStatusEnumDto} from '../../api/generated/model/course-invite-status-enum';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
@@ -71,6 +72,21 @@ export class MyInvitations implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
+  }
+
+  /** Interpolated "Invited by {inviter}" meta line. */
+  protected invitationFrom(inviter: string): string {
+    return interp(this.ui().invitationFrom, {inviter});
+  }
+
+  /** Interpolated "Expires on {when}" meta line. */
+  protected expiresAt(when: string): string {
+    return interp(this.ui().expiresAt, {when});
+  }
+
+  /** Interpolated "On {when}" history meta line. */
+  protected historyDateLabel(when: string): string {
+    return interp(this.ui().historyDateLabel, {when});
   }
 
   protected inviterDisplayName(inv: CourseInviteDto): string {

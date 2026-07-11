@@ -23,9 +23,11 @@ import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-s
 import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 import {getJoinRequestDecideUiText} from './join-request-decide.i18n';
+import {formatRequesterLine} from './join-request-decide-recap.util';
 
 type ErrorKind = 'tokenInvalid' | 'tokenExpired' | 'recipientMismatch'
   | 'cannotApproveAnymore' | 'requestNotFound' | 'generic';
@@ -81,6 +83,31 @@ export class JoinRequestDecidePage implements OnInit {
         return dec.request.status;
     }
   });
+
+  /** Requester recap line, with the e-mail appended only when known. */
+  protected requesterLine(username: string, email: string): string {
+    return formatRequesterLine(username, email, this.text().recap.requesterLine);
+  }
+
+  /** Interpolated "Request received on {when}." recap line. */
+  protected requestedAt(when: string): string {
+    return interp(this.text().recap.requestedAt, {when});
+  }
+
+  /** Interpolated "Current status: {status}" recap line. */
+  protected statusLine(status: string): string {
+    return interp(this.text().recap.statusLine, {status});
+  }
+
+  /** Interpolated "Decided by {username} on {when}." recap line. */
+  protected decidedBy(username: string, when: string): string {
+    return interp(this.text().recap.decidedBy, {username, when});
+  }
+
+  /** Interpolated "Previous reason: {reason}" recap line. */
+  protected rejectReason(reason: string): string {
+    return interp(this.text().recap.rejectReason, {reason});
+  }
 
   ngOnInit(): void {
     const token = this.route.snapshot.paramMap.get('token') ?? '';

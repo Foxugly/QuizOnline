@@ -1,7 +1,7 @@
 <section class="page privacy">
   <header class="privacy__header">
     <h1 class="title">{{ pageText().title }}</h1>
-    <p class="privacy__meta">{{ pageText().lastUpdated(lastUpdatedDate) }}</p>
+    <p class="privacy__meta">{{ lastUpdated(lastUpdatedDate) }}</p>
   </header>
 
   <p class="privacy__intro">{{ pageText().intro }}</p>
@@ -34,6 +34,6 @@
 
   <section class="privacy__section">
     <h2 class="privacy__section-title">{{ pageText().contactHeading }}</h2>
-    <p class="privacy__section-body">{{ pageText().contactBody(contactEmail) }}</p>
+    <p class="privacy__section-body">{{ contactBody(contactEmail) }}</p>
   </section>
 </section>

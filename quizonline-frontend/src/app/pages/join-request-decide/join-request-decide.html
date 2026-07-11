@@ -56,11 +56,11 @@
       </div>
     } @else if (decision(); as dec) {
       <p class="decide-line">
-        {{ text().recap.requesterLine(dec.request.user_summary?.username ?? ('#' + dec.request.user), dec.request.user_summary?.email ?? '') }}
+        {{ requesterLine(dec.request.user_summary?.username ?? ('#' + dec.request.user), dec.request.user_summary?.email ?? '') }}
       </p>
 
       <p class="decide-line">
-        {{ text().recap.requestedAt((dec.request.created_at | date:'medium') ?? '') }}
+        {{ requestedAt((dec.request.created_at | date:'medium') ?? '') }}
       </p>
 
       <p class="decide-line">
@@ -78,18 +78,18 @@
         </p-message>
 
         <p class="decide-line">
-          {{ text().recap.statusLine(statusLabel()) }}
+          {{ statusLine(statusLabel()) }}
         </p>
 
         @if (dec.request.decided_by_summary?.username; as decidedByUsername) {
           <p class="decide-line">
-            {{ text().recap.decidedBy(decidedByUsername, dec.request.decided_at ? ((dec.request.decided_at | date:'medium') ?? '') : '') }}
+            {{ decidedBy(decidedByUsername, dec.request.decided_at ? ((dec.request.decided_at | date:'medium') ?? '') : '') }}
           </p>
         }
 
         @if (dec.request.reject_reason) {
           <p class="decide-line">
-            {{ text().recap.rejectReason(dec.request.reject_reason) }}
+            {{ rejectReason(dec.request.reject_reason) }}
           </p>
         }
       }
