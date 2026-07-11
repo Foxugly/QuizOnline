@@ -1,8 +1,15 @@
 # QuizOnline i18n → Transloco (JSON) — Plan de migration
 
-> **Statut :** en cours (branche `feat/scss-standard`). Option « lourde » validée : catalogues JSON
-> + moteur Transloco, fidèle au pattern flotte (réf **PushIT_frontend**). NE PAS merger dans `main`
-> (auto-deploy). Build **vert** + tests **verts** + commit à chaque stage.
+> **Statut : ✅ TERMINÉ** (branche `feat/scss-standard`, non mergé — `main` auto-deploy). Option « lourde »
+> réalisée : **52 catalogues** (2 cœur + 40 page + ...) en **JSON**, moteur Transloco câblé, **93 clés-fonction**
+> converties (INTERP/PLURAL) + **logique extraite** vers utils co-localisés, façade `UiTextService` conservée
+> (≈269 sites simples intacts). **Build vert · 181 tests verts.** `check:i18n` : 0 manquant / 0 en trop.
+>
+> Commits : `fb27699` (1a), `eee6086` (1b), `85b29e1` (fix pluriel), `cdf734d` (2a), `b952570` (2b),
+> `1031378` (2c), `9720f81` (2d).
+>
+> **Reste (hors périmètre de ce plan) :** renommer `lang-select` → `app-language-switcher` (conformité
+> chrome, §5 standard) ; items look QO (tokens navy→canonique, dark mode) en attente du retour utilisateur.
 
 **Goal :** QuizOnline utilise le moteur Transloco (provider, autorité de langue, switcher, setup de test,
 spec de parité) avec des **catalogues JSON** 5 langues (fr/nl/en/it/es), en conservant la façade signaux
