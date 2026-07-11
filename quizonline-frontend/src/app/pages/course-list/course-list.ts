@@ -21,6 +21,7 @@ import {BulkActionOption, BulkActionsComponent} from '../../shared/components/bu
 import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
+import {plural} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
@@ -125,6 +126,11 @@ export class CourseList implements OnInit {
   protected readonly applyingBulk = signal(false);
 
   readonly selectedCount = computed(() => this.selectedRows().length);
+
+  /** Localized "N selected" bulk-bar label. */
+  protected bulkCountText(n: number): string {
+    return plural(this.ui().bulk.selectedCount, n);
+  }
 
   private readonly domainNameById = computed(() => {
     const lang = this.currentLang();
@@ -259,9 +265,9 @@ export class CourseList implements OnInit {
           this.selectedRows.set([]);
           const ui = this.ui();
           const summary =
-            action === 'publish' ? ui.publishSuccessToast(ids.length)
-            : action === 'unpublish' ? ui.unpublishSuccessToast(ids.length)
-            : ui.deleteSuccessToast(ids.length);
+            action === 'publish' ? plural(ui.publishSuccessToast, ids.length)
+            : action === 'unpublish' ? plural(ui.unpublishSuccessToast, ids.length)
+            : plural(ui.deleteSuccessToast, ids.length);
           this.toast.add({severity: 'success', summary});
           this.load();
         },
@@ -277,7 +283,7 @@ export class CourseList implements OnInit {
     const labels = this.ui().bulk;
     this.confirmationService.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteMessage(ids.length),
+      message: plural(labels.confirmDeleteMessage, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmDeleteAccept,
       rejectLabel: labels.confirmDeleteCancel,

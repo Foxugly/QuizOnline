@@ -1,0 +1,177 @@
+{
+  "en": {
+    "title": "Courses",
+    "searchPlaceholder": "Search a course…",
+    "bulk": {
+      "placeholder": "Bulk actions…",
+      "apply": "Apply",
+      "selectedCount": {"one": "{n} selected", "other": "{n} selected"},
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "delete": "Delete",
+      "confirmDeleteHeader": "Delete these courses?",
+      "confirmDeleteMessage": {
+        "one": "Permanently delete {n} course, including every lesson, enrollment and progress entry? This cannot be undone.",
+        "other": "Permanently delete {n} courses, including every lesson, enrollment and progress entry? This cannot be undone."
+      },
+      "confirmDeleteAccept": "Delete",
+      "confirmDeleteCancel": "Cancel"
+    },
+    "columns": {
+      "title": "Title",
+      "domain": "Domain",
+      "level": "Level",
+      "enrollment": "Enrollment",
+      "status": "Status",
+      "lessons": "Lessons",
+      "actions": "Actions"
+    },
+    "enrollmentBadge": {"open": "Open", "approval": "Approval", "invite": "Invite-only"},
+    "emptyMessage": "No course to manage yet.",
+    "catalogButton": "Catalog",
+    "publishSuccessToast": {"one": "{n} course published.", "other": "{n} courses published."},
+    "unpublishSuccessToast": {"one": "{n} course unpublished.", "other": "{n} courses unpublished."},
+    "deleteSuccessToast": {"one": "{n} course deleted.", "other": "{n} courses deleted."},
+    "bulkErrorToast": "Bulk operation failed."
+  },
+  "fr": {
+    "title": "Cours",
+    "searchPlaceholder": "Rechercher un cours…",
+    "bulk": {
+      "placeholder": "Actions groupées…",
+      "apply": "Appliquer",
+      "selectedCount": {"one": "{n} sélectionné", "other": "{n} sélectionnés"},
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "delete": "Supprimer",
+      "confirmDeleteHeader": "Supprimer ces cours ?",
+      "confirmDeleteMessage": {
+        "one": "Supprimer définitivement {n} cours, ainsi que toutes leurs leçons, inscriptions et progressions ? Cette opération est irréversible.",
+        "other": "Supprimer définitivement {n} cours, ainsi que toutes leurs leçons, inscriptions et progressions ? Cette opération est irréversible."
+      },
+      "confirmDeleteAccept": "Supprimer",
+      "confirmDeleteCancel": "Annuler"
+    },
+    "columns": {
+      "title": "Titre",
+      "domain": "Domaine",
+      "level": "Niveau",
+      "enrollment": "Inscription",
+      "status": "Statut",
+      "lessons": "Leçons",
+      "actions": "Actions"
+    },
+    "enrollmentBadge": {"open": "Libre", "approval": "Sur validation", "invite": "Sur invitation"},
+    "emptyMessage": "Aucun cours à gérer pour l'instant.",
+    "catalogButton": "Catalogue",
+    "publishSuccessToast": {"one": "{n} cours publié.", "other": "{n} cours publiés."},
+    "unpublishSuccessToast": {"one": "{n} cours dépublié.", "other": "{n} cours dépubliés."},
+    "deleteSuccessToast": {"one": "{n} cours supprimé.", "other": "{n} cours supprimés."},
+    "bulkErrorToast": "L'opération groupée a échoué."
+  },
+  "nl": {
+    "title": "Cursussen",
+    "searchPlaceholder": "Zoek een cursus…",
+    "bulk": {
+      "placeholder": "Bulkacties…",
+      "apply": "Toepassen",
+      "selectedCount": {"one": "{n} geselecteerd", "other": "{n} geselecteerd"},
+      "publish": "Publiceren",
+      "unpublish": "Depubliceren",
+      "delete": "Verwijderen",
+      "confirmDeleteHeader": "Deze cursussen verwijderen?",
+      "confirmDeleteMessage": {
+        "one": "{n} cursus definitief verwijderen, inclusief alle lessen, inschrijvingen en voortgang? Dit kan niet ongedaan worden gemaakt.",
+        "other": "{n} cursussen definitief verwijderen, inclusief alle lessen, inschrijvingen en voortgang? Dit kan niet ongedaan worden gemaakt."
+      },
+      "confirmDeleteAccept": "Verwijderen",
+      "confirmDeleteCancel": "Annuleren"
+    },
+    "columns": {
+      "title": "Titel",
+      "domain": "Domein",
+      "level": "Niveau",
+      "enrollment": "Inschrijving",
+      "status": "Status",
+      "lessons": "Lessen",
+      "actions": "Acties"
+    },
+    "enrollmentBadge": {"open": "Open", "approval": "Goedkeuring", "invite": "Op uitnodiging"},
+    "emptyMessage": "Nog geen cursus om te beheren.",
+    "catalogButton": "Catalogus",
+    "publishSuccessToast": {"one": "{n} cursus gepubliceerd.", "other": "{n} cursussen gepubliceerd."},
+    "unpublishSuccessToast": {"one": "{n} cursus gedepubliceerd.", "other": "{n} cursussen gedepubliceerd."},
+    "deleteSuccessToast": {"one": "{n} cursus verwijderd.", "other": "{n} cursussen verwijderd."},
+    "bulkErrorToast": "Bulkbewerking mislukt."
+  },
+  "it": {
+    "title": "Corsi",
+    "searchPlaceholder": "Cerca un corso…",
+    "bulk": {
+      "placeholder": "Azioni in blocco…",
+      "apply": "Applica",
+      "selectedCount": {"one": "{n} selezionato", "other": "{n} selezionati"},
+      "publish": "Pubblica",
+      "unpublish": "Spubblica",
+      "delete": "Elimina",
+      "confirmDeleteHeader": "Eliminare questi corsi?",
+      "confirmDeleteMessage": {
+        "one": "Eliminare definitivamente {n} corso, comprese tutte le lezioni, iscrizioni e progressi? Operazione irreversibile.",
+        "other": "Eliminare definitivamente {n} corsi, comprese tutte le lezioni, iscrizioni e progressi? Operazione irreversibile."
+      },
+      "confirmDeleteAccept": "Elimina",
+      "confirmDeleteCancel": "Annulla"
+    },
+    "columns": {
+      "title": "Titolo",
+      "domain": "Dominio",
+      "level": "Livello",
+      "enrollment": "Iscrizione",
+      "status": "Stato",
+      "lessons": "Lezioni",
+      "actions": "Azioni"
+    },
+    "enrollmentBadge": {"open": "Aperto", "approval": "Approvazione", "invite": "Solo invito"},
+    "emptyMessage": "Nessun corso da gestire al momento.",
+    "catalogButton": "Catalogo",
+    "publishSuccessToast": {"one": "{n} corso pubblicato.", "other": "{n} corsi pubblicati."},
+    "unpublishSuccessToast": {"one": "{n} corso spubblicato.", "other": "{n} corsi spubblicati."},
+    "deleteSuccessToast": {"one": "{n} corso eliminato.", "other": "{n} corsi eliminati."},
+    "bulkErrorToast": "Operazione in blocco non riuscita."
+  },
+  "es": {
+    "title": "Cursos",
+    "searchPlaceholder": "Buscar un curso…",
+    "bulk": {
+      "placeholder": "Acciones masivas…",
+      "apply": "Aplicar",
+      "selectedCount": {"one": "{n} seleccionado", "other": "{n} seleccionados"},
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "delete": "Eliminar",
+      "confirmDeleteHeader": "¿Eliminar estos cursos?",
+      "confirmDeleteMessage": {
+        "one": "¿Eliminar definitivamente {n} curso, junto con todas sus lecciones, inscripciones y progreso? Operación irreversible.",
+        "other": "¿Eliminar definitivamente {n} cursos, junto con todas sus lecciones, inscripciones y progreso? Operación irreversible."
+      },
+      "confirmDeleteAccept": "Eliminar",
+      "confirmDeleteCancel": "Cancelar"
+    },
+    "columns": {
+      "title": "Título",
+      "domain": "Dominio",
+      "level": "Nivel",
+      "enrollment": "Inscripción",
+      "status": "Estado",
+      "lessons": "Lecciones",
+      "actions": "Acciones"
+    },
+    "enrollmentBadge": {"open": "Libre", "approval": "Aprobación", "invite": "Por invitación"},
+    "emptyMessage": "Aún no hay cursos para gestionar.",
+    "catalogButton": "Catálogo",
+    "publishSuccessToast": {"one": "{n} curso publicado.", "other": "{n} cursos publicados."},
+    "unpublishSuccessToast": {"one": "{n} curso despublicado.", "other": "{n} cursos despublicados."},
+    "deleteSuccessToast": {"one": "{n} curso eliminado.", "other": "{n} cursos eliminados."},
+    "bulkErrorToast": "La operación masiva falló."
+  }
+}

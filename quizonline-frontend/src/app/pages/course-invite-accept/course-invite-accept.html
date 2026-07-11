@@ -9,16 +9,16 @@
       @if (invite(); as inv) {
         <p-card>
           <p class="invite-line">
-            {{ ui().invitationFrom(inviterDisplayName(), inv.course_title) }}
+            {{ invitationFrom(inviterDisplayName(), inv.course_title) }}
           </p>
-          <p class="muted">{{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}</p>
+          <p class="muted">{{ expiresAtLabel((inv.expires_at | date:'medium') ?? '') }}</p>
 
           <div class="invite-meta">
             <p-tag [value]="levelLabel(inv.course_level)" severity="info" />
             @if (inv.course_estimated_duration > 0) {
               <span class="invite-meta__duration">
                 <i class="pi pi-clock"></i>
-                {{ ui().durationLabel(inv.course_estimated_duration) }}
+                {{ durationLabel(inv.course_estimated_duration) }}
               </span>
             }
           </div>

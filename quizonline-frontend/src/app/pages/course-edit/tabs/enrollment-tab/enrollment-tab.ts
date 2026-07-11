@@ -31,6 +31,7 @@ import {DomainService} from '../../../../services/domain/domain';
 import {CourseInviteDto, EnrollmentService} from '../../../../services/enrollment/enrollment.service';
 import {logApiError} from '../../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../../shared/components/empty-state/empty-state';
+import {interp, plural} from '../../../../shared/i18n/format';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../../../shared/learning/learning-common.i18n';
 import {RelativeDatePipe} from '../../../../shared/pipes/relative-date.pipe';
@@ -271,12 +272,17 @@ export class CourseEditEnrollmentTab {
     return row.status === CourseEnrollmentStatusEnumDto.Active;
   }
 
+  /** Bulk-send button label, e.g. "Send 3 invitations". */
+  protected sendBulkButton(n: number): string {
+    return interp(this.ui().invite.sendBulkButton, {n});
+  }
+
   protected confirmApprove(row: CourseEnrollmentDto): void {
     const name = this.userDisplayName(row);
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.actions.confirmApprove(name),
+      message: interp(labels.actions.confirmApprove, {name}),
       icon: 'pi pi-check-circle',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,
@@ -289,7 +295,7 @@ export class CourseEditEnrollmentTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.actions.confirmRejectMessage(name),
+      message: interp(labels.actions.confirmRejectMessage, {name}),
       icon: 'pi pi-times-circle',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,
@@ -303,7 +309,7 @@ export class CourseEditEnrollmentTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.actions.confirmCancel(name),
+      message: interp(labels.actions.confirmCancel, {name}),
       icon: 'pi pi-ban',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,
@@ -391,7 +397,7 @@ export class CourseEditEnrollmentTab {
           if (result.skipped > 0 && result.processed > 0) {
             this.toast.add({
               severity: 'warn',
-              summary: t.sendPartialSummary(result.processed, result.skipped),
+              summary: interp(t.sendPartialSummary, {processed: result.processed, skipped: result.skipped}),
             });
           } else if (result.processed > 0) {
             this.toast.add({severity: 'success', summary: t.sendSuccess});
@@ -413,7 +419,7 @@ export class CourseEditEnrollmentTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.invite.actions.confirmResend(name),
+      message: interp(labels.invite.actions.confirmResend, {name}),
       icon: 'pi pi-send',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,
@@ -429,7 +435,7 @@ export class CourseEditEnrollmentTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.invite.actions.confirmResendAll(n),
+      message: interp(labels.invite.actions.confirmResendAll, {n}),
       icon: 'pi pi-send',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,
@@ -451,8 +457,8 @@ export class CourseEditEnrollmentTab {
           this.resendingAll.set(false);
           const labels = this.ui().invite.toasts;
           const summary = result.skipped > 0
-            ? labels.resendAllPartial(result.processed, result.skipped)
-            : labels.resendAllSuccess(result.processed);
+            ? interp(labels.resendAllPartial, {processed: result.processed, skipped: result.skipped})
+            : plural(labels.resendAllSuccess, result.processed);
           this.toast.add({severity: 'success', summary});
           this.refreshInvites();
         },
@@ -469,7 +475,7 @@ export class CourseEditEnrollmentTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.actions.confirmHeader,
-      message: labels.invite.actions.confirmRevoke(name),
+      message: interp(labels.invite.actions.confirmRevoke, {name}),
       icon: 'pi pi-ban',
       acceptLabel: labels.actions.confirmAccept,
       rejectLabel: labels.actions.confirmReject,

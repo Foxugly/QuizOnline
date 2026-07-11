@@ -12,6 +12,7 @@ import {CourseInviteDto, EnrollmentService} from '../../services/enrollment/enro
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {interp, plural} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 import {getDashboardUiText} from './dashboard.i18n';
@@ -125,6 +126,21 @@ export class DashboardPage implements OnInit {
   );
 
   protected readonly certificatesCount = computed(() => this.certificates().length);
+
+  /** Per-course progress label, e.g. "80%". */
+  protected progressLabel(pct: number): string {
+    return interp(this.ui().tiles.courses.progressLabel, {pct});
+  }
+
+  /** Pluralized certificate-count hint, e.g. "3 certificates". */
+  protected certificatesCountLabel(n: number): string {
+    return plural(this.ui().tiles.certificates.count, n);
+  }
+
+  /** "Invited by X" hint on a pending-invitation row. */
+  protected inviterLine(inviter: string): string {
+    return interp(this.ui().tiles.invitations.inviterLine, {inviter});
+  }
 
   ngOnInit(): void {
     this.loadCourses();
