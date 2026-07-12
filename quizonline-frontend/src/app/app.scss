@@ -2,10 +2,18 @@
   background:
     radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 30%),
     linear-gradient(180deg, #f8fafc, #eef2f7);
-  color: #0f172a;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+// Le fond de shell était un dégradé clair en dur sans override → la page restait
+// claire en dark (seuls cartes/chrome/footer basculaient). Dégradé sombre en dark.
+:host-context(.dark-mode) {
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.06), transparent 30%),
+    linear-gradient(180deg, #0f172a, #0b1220);
 }
 
 .backend-banner {
