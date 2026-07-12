@@ -1,6 +1,7 @@
 import {expect, vi, beforeEach} from 'vitest';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoTestingModule} from '@jsverse/transloco';
+import {MessageService} from 'primeng/api';
 
 import {CATALOGS} from './app/core/i18n/catalogs';
 
@@ -87,6 +88,9 @@ beforeEach(() => {
         preloadLangs: true,
       }),
     ],
+    // AppToastService dépend désormais du MessageService PrimeNG (migration
+    // vers <p-toast>) ; fourni globalement pour que tout spec l'injectant résolve.
+    providers: [MessageService],
   });
 });
 
