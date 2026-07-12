@@ -1,0 +1,58 @@
+/* Fleet-standard auth-card chrome. Mirrors the former QuizOnline
+ * ``.login-card`` (dimensions / surface / radius / shadow) but every colour
+ * goes through a token so the card follows the dark theme. */
+
+:host {
+  display: block;
+}
+
+.auth-card {
+  display: flex;
+  justify-content: center;
+  min-height: calc(100dvh - 12rem);
+  padding: 2rem 1.5rem 3rem;
+}
+
+.auth-card__box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+  display: grid;
+  gap: 1rem;
+  height: fit-content;
+  padding: 2rem;
+  width: min(100%, 30rem);
+}
+
+.auth-card__header {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.auth-card__icon {
+  color: var(--accent);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.auth-card__title {
+  color: var(--ink);
+  font-size: 1.65rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-card__box {
+    padding: 1.3rem;
+  }
+}

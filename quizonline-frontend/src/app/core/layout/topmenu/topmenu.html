@@ -1,15 +1,15 @@
 <header class="topbar" #mobileMenuRoot>
   <div class="topbar__inner" [class.topbar__inner--menu-open]="mobileMenuOpen()">
-    <button (click)="goHome()" class="brand" type="button">
-      <span class="brand__mark">
-        <!-- Decorative: the adjacent ``.brand__name`` already announces
+    <button (click)="goHome()" class="topbar__brand" type="button">
+      <span class="topbar__brand-icon">
+        <!-- Decorative: the adjacent ``.topbar__brand-name`` already announces
              the app name, so a non-empty alt would duplicate it for
              screen readers (flagged by Lighthouse a11y as
              ``image-redundant-alt``). -->
-        <img alt="" [src]="app.logoSvg" class="brand__logo">
+        <img alt="" [src]="app.logoSvg" class="topbar__brand-logo">
       </span>
-      <span class="brand__text">
-        <span class="brand__name">{{ app.name }}</span>
+      <span class="topbar__brand-text">
+        <span class="topbar__brand-name">{{ app.name }}</span>
       </span>
     </button>
 
@@ -23,13 +23,13 @@
       <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
     </button>
 
-    <nav class="nav" [attr.aria-label]="ui().topmenu.quiz">
+    <nav class="topbar__nav" [attr.aria-label]="ui().topmenu.quiz">
       @for (item of navItems; track item.label) {
         <a
           [routerLink]="item.link"
-          class="nav__link"
-          routerLinkActive="nav__link--active"
-          [class.nav__link--accent]="item.accent"
+          class="topbar__link"
+          routerLinkActive="topbar__link--active"
+          [class.topbar__link--accent]="item.accent"
         >
           @if (item.icon) {
             <i [class]="item.icon" aria-hidden="true"></i>
@@ -38,8 +38,8 @@
         </a>
       }
       @if (currentUser) {
-        <div #coursesMenuRoot class="topbar-menu">
-          <button class="nav__link nav__link--button" (click)="toggleCoursesMenu($event)" type="button">
+        <div #coursesMenuRoot class="topbar__menu">
+          <button class="topbar__link topbar__link--button" (click)="toggleCoursesMenu($event)" type="button">
             <i class="pi pi-graduation-cap"></i> {{ ui().topmenu.coursesMenu }}
           </button>
           @if (coursesMenuOpen()) {
@@ -57,16 +57,16 @@
       @if (currentUser && !showQuizDropdown) {
         <a
           [routerLink]="quizLink"
-          class="nav__link"
-          routerLinkActive="nav__link--active"
+          class="topbar__link"
+          routerLinkActive="topbar__link--active"
         >
           <i class="pi pi-list-check" aria-hidden="true"></i>
           {{ ui().topmenu.quiz }}
         </a>
       }
       @if (showQuizDropdown) {
-        <div #quizMenuRoot class="topbar-menu">
-          <button class="nav__link nav__link--button" (click)="toggleQuizMenu($event)" type="button">
+        <div #quizMenuRoot class="topbar__menu">
+          <button class="topbar__link topbar__link--button" (click)="toggleQuizMenu($event)" type="button">
             <i class="pi pi-list-check"></i> {{ ui().topmenu.quizMenu }}
           </button>
           @if (quizMenuOpen()) {
@@ -84,16 +84,16 @@
       @if (donateItem; as donate) {
         <a
           [routerLink]="donate.link"
-          class="nav__link nav__link--accent"
-          routerLinkActive="nav__link--active"
+          class="topbar__link topbar__link--accent"
+          routerLinkActive="topbar__link--active"
         >
           <i [class]="donate.icon!" aria-hidden="true"></i>
           {{ donate.label }}
         </a>
       }
       @if (isAdmin) {
-        <div #adminMenuRoot class="topbar-menu">
-          <button class="nav__link nav__link--button" (click)="toggleAdminMenu($event)" type="button">
+        <div #adminMenuRoot class="topbar__menu">
+          <button class="topbar__link topbar__link--button" (click)="toggleAdminMenu($event)" type="button">
             <i class="pi pi-cog"></i> {{ ui().admin.menuLabel }}
           </button>
           @if (adminMenuOpen()) {
@@ -124,14 +124,14 @@
           }
         </button>
         <app-notifications-bell></app-notifications-bell>
-        <div #domainMenuRoot class="topbar-menu">
+        <div #domainMenuRoot class="topbar__menu">
           <button
-            class="domain-trigger"
+            class="topbar__domain-trigger"
             type="button"
             (click)="toggleDomainMenu($event)"
           >
             <i class="pi pi-building"></i>
-            <span class="domain-trigger__label">{{ currentDomainLabel }}</span>
+            <span class="topbar__domain-label">{{ currentDomainLabel }}</span>
           </button>
           @if (domainMenuOpen()) {
             <div class="topbar-dropdown topbar-dropdown--domain">

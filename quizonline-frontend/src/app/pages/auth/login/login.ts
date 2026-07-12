@@ -16,6 +16,7 @@ import {ConnectionLogService} from '../../../services/connection-log/connection-
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {logApiError} from '../../../shared/api/api-errors';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,7 @@ import {logApiError} from '../../../shared/api/api-errors';
     ButtonModule,
     CheckboxModule,
     MessageModule,
+    AuthCardComponent,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

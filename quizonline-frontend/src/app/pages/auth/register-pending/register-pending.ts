@@ -6,10 +6,11 @@ import {ButtonModule} from 'primeng/button';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
 @Component({
   selector: 'app-register-pending',
-  imports: [ButtonModule],
+  imports: [ButtonModule, AuthCardComponent],
   templateUrl: './register-pending.html',
   styleUrl: './register-pending.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

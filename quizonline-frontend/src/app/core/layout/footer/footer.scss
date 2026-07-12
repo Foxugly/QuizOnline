@@ -4,9 +4,9 @@
 }
 
 .app-footer {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  color: #64748b;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
   font-size: 0.78rem;
 }
 
@@ -24,19 +24,20 @@
 }
 
 .app-footer__brand {
-  color: #1e293b;
+  color: var(--ink);
   font-weight: 700;
 }
 
 .app-footer__baseline {
-  // ``#64748b`` keeps the muted/secondary feel of the previous ``#94a3b8``
-  // while clearing the WCAG AA 4.5:1 contrast bar against the ``#f8fafc``
+  // ``--muted`` keeps the muted/secondary feel of the previous ``#94a3b8``
+  // while clearing the WCAG AA 4.5:1 contrast bar against the ``--surface-2``
   // footer background (5.04:1 vs 2.45:1 — flagged by Lighthouse a11y).
-  color: #64748b;
+  // Both tokens re-map in ``.dark-mode`` so the ratio holds in the dark theme.
+  color: var(--muted);
 }
 
 .app-footer__meta {
-  color: #64748b;
+  color: var(--muted);
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -44,7 +45,7 @@
 }
 
 .app-footer__sep {
-  color: #cbd5e1;
+  color: var(--border);
 }
 
 .app-footer__copyright {
@@ -62,7 +63,7 @@
 
   &:hover,
   &:focus-visible {
-    color: #1e293b;
+    color: var(--ink);
     text-decoration: underline;
   }
 }
