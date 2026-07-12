@@ -14,7 +14,7 @@
 /* ── Hero ── */
 .hero {
   padding: 2rem;
-  border: 1px solid #d7dfeb;
+  border: 1px solid var(--border);
   border-radius: 24px;
   background:
     radial-gradient(circle at top right, rgba(229, 122, 43, 0.14), transparent 28%),
@@ -34,7 +34,7 @@
   margin: 0;
   font-size: clamp(2rem, 3vw, 3.25rem);
   line-height: 1;
-  color: #1e2c38;
+  color: var(--ink);
 }
 
 .lead {
@@ -42,7 +42,7 @@
   margin: 1rem 0 0;
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #455564;
+  color: var(--ink-soft);
 }
 
 .repo-link {
@@ -51,10 +51,15 @@
   margin-top: 1.5rem;
   padding: 0.8rem 1.1rem;
   border-radius: 999px;
-  background: #1e2c38;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-contrast);
   text-decoration: none;
   font-weight: 600;
+  transition: background-color 160ms ease;
+}
+
+.repo-link:hover {
+  background: var(--accent-strong);
 }
 
 /* ── Tabs ── */
@@ -71,18 +76,18 @@
 .tab-content h2 {
   margin: 0 0 0.75rem;
   font-size: 1.3rem;
-  color: #1e2c38;
+  color: var(--ink);
 }
 
 .tab-content h3 {
   margin: 0 0 0.5rem;
   font-size: 1.05rem;
-  color: #1e2c38;
+  color: var(--ink);
 }
 
 .tab-intro {
   margin: 0 0 1.25rem;
-  color: #4f6170;
+  color: var(--muted);
   line-height: 1.65;
 }
 
@@ -95,7 +100,7 @@
 }
 
 .company-list dt {
-  color: #4f6170;
+  color: var(--muted);
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -106,7 +111,7 @@
 }
 
 .company-list dd {
-  color: #1e2c38;
+  color: var(--ink);
   margin: 0;
   line-height: 1.55;
 }
@@ -120,10 +125,10 @@
 
 .contact-btn {
   align-items: center;
-  background: #1e2c38;
+  background: var(--accent);
   border: 0;
   border-radius: 999px;
-  color: #fff;
+  color: var(--accent-contrast);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -135,7 +140,7 @@
 }
 
 .contact-btn:hover {
-  background: #0f172a;
+  background: var(--accent-strong);
 }
 
 @media (max-width: 640px) {
@@ -153,7 +158,7 @@
 .feature-list {
   margin: 0;
   padding-left: 1.2rem;
-  color: #334250;
+  color: var(--ink-soft);
 }
 
 .feature-list li + li {
@@ -168,20 +173,20 @@
 
 .legal-block {
   padding: 1rem 1.25rem;
-  border: 1px solid #e8ecf1;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fafbfc;
+  background: var(--surface-2);
 }
 
 .legal-block h3 {
   font-weight: 650;
-  color: #1e2c38;
+  color: var(--ink);
 }
 
 .legal-block ul {
   margin: 0;
   padding-left: 1.2rem;
-  color: #334250;
+  color: var(--ink-soft);
 }
 
 .legal-block li + li {
@@ -197,9 +202,9 @@
 
 .tech-card {
   padding: 1.25rem;
-  border: 1px solid #dde5ef;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: #fafbfc;
+  background: var(--surface-2);
   display: grid;
   gap: 0.6rem;
   align-content: start;
@@ -207,14 +212,14 @@
 
 .tech-card p {
   margin: 0;
-  color: #4f6170;
+  color: var(--muted);
   line-height: 1.55;
 }
 
 .tech-card ul {
   margin: 0;
   padding-left: 1.2rem;
-  color: #334250;
+  color: var(--ink-soft);
 }
 
 .tech-card li + li {
@@ -237,7 +242,7 @@
 .mono {
   font-family: "Consolas", "Courier New", monospace;
   word-break: break-all;
-  color: #1e2c38;
+  color: var(--ink);
 }
 
 .mono-link {
@@ -246,6 +251,15 @@
 
 .mono-link:hover {
   text-decoration: underline;
+}
+
+/* Dark mode: the hero keeps a hardcoded light gradient — swap it for a dark
+   surface so the page reads coherently. All other colours already come from
+   canonical tokens that flip automatically. */
+:host-context(.dark-mode) .hero {
+  background:
+    radial-gradient(circle at top right, rgba(229, 122, 43, 0.12), transparent 28%),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 @media (max-width: 900px) {

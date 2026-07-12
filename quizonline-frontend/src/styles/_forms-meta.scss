@@ -49,13 +49,13 @@
 
   .meta-label {
     font-size: 0.82rem;
-    color: t.$muted;
+    color: var(--muted);
   }
 
   .meta-value {
     width: 100%;
     font-size: 0.95rem;
-    color: t.$text-primary;
+    color: var(--ink);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -90,7 +90,7 @@
 
   .meta-hint {
     font-size: 0.82rem;
-    color: t.$muted;
+    color: var(--muted);
     margin-top: 0.15rem;
 
     &.meta-hint--error {

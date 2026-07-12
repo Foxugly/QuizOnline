@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, OnIn
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
@@ -17,6 +18,7 @@ import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {DomainService} from '../../services/domain/domain';
 import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
 import {AuthService} from '../../services/auth/auth';
+import {ThemeService} from '../../services/theme/theme';
 
 declare global {
   interface Window {
@@ -53,6 +55,7 @@ type AdminNavItem = {
     LanguageSwitcherComponent,
     UserMenuComponent,
     NotificationsBellComponent,
+    TooltipModule,
   ],
   templateUrl: './topmenu.html',
   styleUrl: './topmenu.scss',
@@ -73,6 +76,7 @@ export class TopMenuComponent implements OnInit {
   private readonly quizAlertService = inject(QuizAlertService);
   private readonly unreadBadges = inject(UnreadBadgesService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly theme = inject(ThemeService);
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
   readonly ui = inject(UiTextService).ui;

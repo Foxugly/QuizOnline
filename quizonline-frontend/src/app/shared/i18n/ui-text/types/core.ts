@@ -11,6 +11,7 @@ export type TopMenuUiText = {
   donate: string;
   about: string;
   alertsAria: string;
+  themeToggle: string;
   currentDomain: string;
   ownedDomains: string;
   managedDomains: string;

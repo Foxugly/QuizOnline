@@ -7,6 +7,19 @@
        Kept non-empty so browsers still have something to display in
        the tab during the ~10–50 ms between parse and bundle exec. -->
   <title>Loading…</title>
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Anti-FOUC (fleet standard): set .dark-mode on <html> BEFORE the Angular
+    // bootstrap so a reload doesn't flash the light theme. ThemeService takes
+    // over once the app runs.
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark-mode');
+      } catch (e) {}
+    })();
+  </script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (window.__APP__) {

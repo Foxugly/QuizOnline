@@ -1,6 +1,5 @@
 @use './styles/tokens';
 @use './styles/layout';
-@use './styles/utilities';
 @use './styles/cards';
 @use './styles/forms-meta';
 @use './styles/prime-overrides';
@@ -34,71 +33,13 @@ $radius: 6px;
   height: 40px;
 }
 
-/* Light Theme */
-:root {
-  --mat-sys-primary: #006780;
-  --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #b9eaff;
-  --mat-sys-on-primary-container: #001f29;
-  --mat-sys-inverse-primary: #7bd2f3;
-  --mat-sys-primary-fixed: #b9eaff;
-  --mat-sys-primary-fixed-dim: #7bd2f3;
-  --mat-sys-on-primary-fixed: #001f29;
-  --mat-sys-on-primary-fixed-variant: #004d61;
-  --mat-sys-secondary: #44636f;
-  --mat-sys-on-secondary: #ffffff;
-  --mat-sys-secondary-container: #c7e8f6;
-  --mat-sys-on-secondary-container: #001f28;
-  --mat-sys-secondary-fixed: #c7e8f6;
-  --mat-sys-secondary-fixed-dim: #abccd9;
-  --mat-sys-on-secondary-fixed: #001f28;
-  --mat-sys-on-secondary-fixed-variant: #2c4b56;
-  --mat-sys-tertiary: #784e8c;
-  --mat-sys-on-tertiary: #ffffff;
-  --mat-sys-tertiary-container: #f6d9ff;
-  --mat-sys-on-tertiary-container: #2f0543;
-  --mat-sys-tertiary-fixed: #f6d9ff;
-  --mat-sys-tertiary-fixed-dim: #e6b5fb;
-  --mat-sys-on-tertiary-fixed: #2f0543;
-  --mat-sys-on-tertiary-fixed-variant: #5e3672;
-  --mat-sys-background: #fcf8f8;
-  --mat-sys-on-background: #1c1b1b;
-  --mat-sys-surface: #fcf8f8;
-  --mat-sys-surface-dim: #dcd9d9;
-  --mat-sys-surface-bright: #fcf8f8;
-  --mat-sys-surface-container-lowest: #ffffff;
-  --mat-sys-surface-container-low: #f6f3f2;
-  --mat-sys-surface-container: #f0eded;
-  --mat-sys-surface-container-high: #ebe7e7;
-  --mat-sys-surface-container-highest: #e5e2e1;
-  --mat-sys-on-surface: #1c1b1b;
-  --mat-sys-shadow: #000000;
-  --mat-sys-scrim: #000000;
-  --mat-sys-surface-tint: #5b5f61;
-  --mat-sys-inverse-surface: #313030;
-  --mat-sys-inverse-on-surface: #f3f0ef;
-  --mat-sys-outline: #747879;
-  --mat-sys-outline-variant: #c3c7c9;
-  --mat-sys-neutral: #787777;
-  --mat-sys-neutral10: #1c1b1b;
-  --mat-sys-error: #ba1a1a;
-  --mat-sys-error-container: #ffdad6;
-  --mat-sys-on-error: #ffffff;
-  --mat-sys-on-error-container: #410002;
-  --mat-sys-surface-variant: #e0e3e5;
-  --mat-sys-on-surface-variant: #43474a;
-  --mat-sys-neutral-variant: #74787a;
-  --mat-sys-neutral-variant20: #2d3133;
-  --mat-sys-inverse-secondary: #abccd9;
-  --mat-sys-inverse-tertiary: #e6b5fb;
-}
-
-/* Typography */
+/* Typography.
+ * NOTE: the former Material-era system token block (teal #006780) was
+ * removed — it was dead legacy (this app themes with PrimeNG Aura, and grep
+ * confirmed zero references outside its own definition). The brand palette now
+ * lives entirely in ``src/styles/_tokens.scss`` (canonical emerald tokens). */
 :root {
   --font-base: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --mat-sys-bold-font-weight: 700;
-  --mat-sys-medium-font-weight: 500;
-  --mat-sys-regular-font-weight: 400;
 }
 
 :root {
@@ -115,8 +56,9 @@ html, body {
   padding: 0;
   height: 100%;
   font-family: var(--font-base);
-  background: var(--bg, #ffffff);
-  color: var(--fg, #1f2937);
+  // Canonical fleet surfaces — flip automatically in dark mode via _tokens.scss.
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 
