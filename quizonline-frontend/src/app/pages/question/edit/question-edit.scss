@@ -1,6 +1,6 @@
 @use '../../../../styles/detail-page' as detail;
 
-@include detail.detail-page-shell(1440px);
+@include detail.detail-page-shell();
 
 /* Pull the page header closer to the global topbar. The shared
  * ``detail-page-shell`` mixin leaves 1.5 rem of breathing room at the

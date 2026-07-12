@@ -1,9 +1,9 @@
 import {Component, computed, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router, RouterOutlet} from '@angular/router';
-import {TopMenuComponent} from './components/topmenu/topmenu';
+import {TopMenuComponent} from './core/layout/topmenu/topmenu';
 import {BackendStatusService} from './services/status/status';
-import {FooterComponent} from './components/footer/footer';
+import {FooterComponent} from './core/layout/footer/footer';
 import {AuthService} from './services/auth/auth';
 import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';

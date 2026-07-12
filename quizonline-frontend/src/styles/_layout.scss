@@ -1,7 +1,7 @@
 /* src/styles/_layout.scss */
 @use 'tokens' as t;
 
-$page-max-width: 1440px;
+$page-max-width: var(--content-max);
 
 .page {
   max-width: $page-max-width;

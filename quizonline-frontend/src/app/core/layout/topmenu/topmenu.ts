@@ -4,21 +4,21 @@ import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {TooltipModule} from 'primeng/tooltip';
 
-import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
-import {DomainReadDto} from '../../api/generated/model/domain-read';
-import {UserService} from '../../services/user/user';
-import {LanguageSwitcherComponent} from '../../core/i18n/language-switcher/language-switcher';
-import {UserMenuComponent} from '../user-menu/user-menu';
-import {SupportedLanguage} from '../../../environments/language';
-import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
-import {QuizAlertService} from '../../services/quiz-alert/quiz-alert';
-import {UnreadBadgesService} from '../../services/unread-badges/unread-badges.service';
-import {NotificationsBellComponent} from '../notifications-bell/notifications-bell';
-import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {DomainService} from '../../services/domain/domain';
-import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
-import {AuthService} from '../../services/auth/auth';
-import {ThemeService} from '../../services/theme/theme';
+import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
+import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {UserService} from '../../../services/user/user';
+import {LanguageSwitcherComponent} from '../../i18n/language-switcher/language-switcher';
+import {UserMenuComponent} from '../../../components/user-menu/user-menu';
+import {SupportedLanguage} from '../../../../environments/language';
+import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../../app.routes-paths';
+import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
+import {UnreadBadgesService} from '../../../services/unread-badges/unread-badges.service';
+import {NotificationsBellComponent} from '../../../components/notifications-bell/notifications-bell';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {DomainService} from '../../../services/domain/domain';
+import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
+import {AuthService} from '../../../services/auth/auth';
+import {ThemeService} from '../../../services/theme/theme';
 
 declare global {
   interface Window {

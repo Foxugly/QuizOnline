@@ -27,7 +27,7 @@ $transition: 160ms ease;
   gap: 0 0.85rem;
   grid-template-columns: auto 1fr auto;
   margin: 0 auto;
-  max-width: 1440px;
+  max-width: var(--content-max);
   min-height: 60px;
   padding: 0.45rem 1.1rem;
   width: 100%;
@@ -326,14 +326,14 @@ $transition: 160ms ease;
   &__spacer { display: inline-block; width: 1rem; }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1024px) {
   .nav { gap: 0; }
   .nav__link { font-size: 0.85rem; padding: 0.42rem 0.55rem; }
   .topbar__actions { gap: 0.5rem; }
   .domain-trigger { max-width: 11rem; }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .topbar__inner {
     grid-template-columns: 1fr auto;
     min-height: 56px;
@@ -387,7 +387,7 @@ $transition: 160ms ease;
   .domain-trigger { flex: 1 1 auto; max-width: none; }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .topbar__inner { padding: 0.35rem 0.7rem; }
   .brand { gap: 0.55rem; }
   .brand__mark { border-radius: 12px; height: 36px; width: 36px; }

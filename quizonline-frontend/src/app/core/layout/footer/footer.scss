@@ -17,7 +17,7 @@
   display: flex;
   flex-wrap: wrap;
   margin: 0 auto;
-  max-width: 1440px;
+  max-width: var(--content-max);
   padding: 0.55rem 1.25rem;
   row-gap: 0.25rem;
   width: 100%;
@@ -72,7 +72,7 @@
   width: auto;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .app-footer__inner {
     padding: 0.5rem 1rem;
   }

@@ -1,6 +1,6 @@
 import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 declare global {
   interface Window {

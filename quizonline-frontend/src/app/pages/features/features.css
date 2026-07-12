@@ -134,7 +134,7 @@
   margin: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .features-section {
     padding: 2.75rem 1.25rem;
   }
