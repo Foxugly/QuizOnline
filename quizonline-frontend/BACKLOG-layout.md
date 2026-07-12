@@ -1,27 +1,30 @@
-# Backlog — harmonisation layout · quizonline-frontend
+# Backlog — layout · quizonline-frontend
 
-> **Cible :** `STANDARD-frontend-layout.md` (repo `foxugly-ops`).
-> Écart principal : **pas de thème** + **i18n maison à migrer vers Transloco**.
-> **Statut :** standard **VALIDÉ 2026-07-11** — implémentation de **référence complète : `FoxRunner_frontend`**
-> (copier ses tokens `_tokens.scss`/`_breakpoints.scss`, son chrome et ses pages). Exécuter sur
-> branche **`feat/scss-standard`** — **jamais `main`** (auto-deploy prod). Plan ci-dessous.
+> **Cible :** `STANDARD-frontend-layout.md` (repo `foxugly-ops`) ; réf complète = `FoxRunner_frontend`
+> (+ app runnable `foxugly-ops/frontend-reference/foo-app`).
+> **Statut : conforme sur le fond (thème, i18n, tokens, auth) — DÉPLOYÉ.** Reste des items **structurels**
+> (relocalisation chrome + breakpoints + largeur). Monorepo — front sous `quizonline-frontend/`.
 
-## ✅ Déjà conforme
-- `app-topmenu` · BEM `topbar__*` ; cloches msg + notif ; `app-user-menu` + login « Se connecter ».
-- `app-language-switcher` (5 langues, popup a11y) ; `app-page-header` 3 colonnes (slots).
-- About en `p-tabs` (Company/Legal/Technical) ; Features en SCSS ; `app-empty-state` + skeletons.
+## ✅ Fait + déployé (quizonline.foxugly.com)
+- `app-topmenu` (BEM `topbar__*`), cloches msg + notif, `app-user-menu`, `app-page-header` (3-col slots),
+  About `p-tabs`, `app-empty-state` + skeletons, Turnstile (register/forgot).
+- **i18n maison → Transloco** : 52 catalogues JSON 5 langues + façade `UiTextService` conservée
+  (93 clés-fonction converties, logique extraite en utils). Déployé (`0ed70aa`).
+- **Thème / dark mode** : `ThemeService` + toggle **borderless** + anti-FOUC + tokens **emerald canoniques**
+  (navy → `--accent #10b981`, `--mat-sys-*` mort retiré). Déployé (`e31e439`).
+- **PrimeFlex retiré** (dép + usages) ; **`lang-select` → `app-language-switcher`** (relocalisé `core/i18n/`).
+- **Auth email-only** : `USERNAME_FIELD='email'`, colonne `username` droppée (migration data-safe),
+  `*_username`→`*_name` (nom complet), login par email. Déployé (`43c0b0a`).
 
-## Phase 1 — structurel
-- [ ] **Thème** : ajouter **toggle + `ThemeService`** + dark mode (aujourd'hui Aura light figé) → `localStorage['theme']`, `.dark-mode`, **anti-FOUC**.
-- [ ] **Topmenu** : déplacer `components/topmenu/` → **`core/layout/topmenu/`**.
-- [ ] **Breakpoints** : 960/1180 → échelle standard ; topmenu drawer à **1024**.
-- [ ] **Shell** : formaliser `main`/`public-layout` sous `core/layout/` (aujourd'hui assemblé dans `app.html` ; skip-link + `p-toast` déjà présents).
-- [ ] **Footer** : déplacer `components/footer/` → `core/layout/footer/` ; vérifier version runtime.
-- [ ] **Largeur** : `--content-max: 80rem` / `--content-pad: 1.5rem`, fonds pleine largeur.
-- [ ] **CSS** : retirer PrimeFlex (~30 usages, léger).
-
-## Phase 2 — i18n
-- [ ] **Migrer l'i18n maison** (`UiTextService` + `ui-text/*.ts`) → **Transloco** (garder les 5 langues, aligner le switcher sur la réf TM).
+## Reste — structurel (relocalisation chrome + grille)
+- [ ] **Topmenu** : `components/topmenu/` → **`core/layout/topmenu/`**.
+- [ ] **Footer** : `components/footer/` → **`core/layout/footer/`** (vérifier version runtime + segments std).
+- [ ] **Shell** : formaliser `main-layout`/`public-layout` sous **`core/layout/`** (aujourd'hui assemblé dans
+  `app.html` ; skip-link + `p-toast` déjà présents).
+- [ ] **Breakpoints** : remplacer les non-canoniques (**480 / 720 / 960 / 1180**) par l'échelle
+  `sm 640 / md 768 / lg 1024 / xl 1280` (`_breakpoints.scss` + mixin `below()` déjà en place) ; drawer topmenu à **1024**.
+- [ ] **Largeur** : `max-width: 1440px` (`app.scss:25`, `topmenu.scss:30`) → **`var(--content-max)` (80rem)**
+  pour aligner topbar/page/footer.
 
 ## Note
 - Le sélecteur de domaine (Domaines) est spécifique à QuizOnline → à conserver dans les actions.
