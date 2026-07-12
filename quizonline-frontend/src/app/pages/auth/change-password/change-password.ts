@@ -13,6 +13,7 @@ import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
 (window as any).__APP__ = {
   name: environment.appName,
@@ -25,7 +26,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-change-password',
-  imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule],
+  imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, MessageModule, AuthCardComponent],
   templateUrl: './change-password.html',
   styleUrl: './change-password.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

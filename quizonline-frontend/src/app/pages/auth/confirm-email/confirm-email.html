@@ -1,24 +1,19 @@
-<div class="container">
-  <div class="container__card">
-    <div class="card__brand">
-      <h1 class="brand__title">{{ shellUi().confirmEmail.title }}</h1>
-      <p class="brand__subtitle">{{ shellUi().confirmEmail.subtitle }}</p>
-    </div>
+<app-auth-card icon="pi pi-envelope" [title]="shellUi().confirmEmail.title">
+  <p class="auth-card-subtitle">{{ shellUi().confirmEmail.subtitle }}</p>
 
-    @if (loading()) {
-      <p-message severity="info">{{ shellUi().confirmEmail.inProgress }}</p-message>
-    }
+  @if (loading()) {
+    <p-message severity="info">{{ shellUi().confirmEmail.inProgress }}</p-message>
+  }
 
-    @if (successMessage()) {
-      <p-message severity="success">{{ successMessage() }}</p-message>
-    }
+  @if (successMessage()) {
+    <p-message severity="success">{{ successMessage() }}</p-message>
+  }
 
-    @if (errorMessage()) {
-      <p-message severity="error">{{ errorMessage() }}</p-message>
-    }
+  @if (errorMessage()) {
+    <p-message severity="error">{{ errorMessage() }}</p-message>
+  }
 
-    <div class="actions">
-      <p-button (onClick)="goLogin()" [label]="ui().common.login" icon="pi pi-sign-in"></p-button>
-    </div>
+  <div class="actions">
+    <p-button (onClick)="goLogin()" [label]="ui().common.login" icon="pi pi-sign-in"></p-button>
   </div>
-</div>
+</app-auth-card>

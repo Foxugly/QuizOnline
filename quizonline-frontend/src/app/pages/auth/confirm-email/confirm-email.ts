@@ -10,10 +10,11 @@ import {MessageModule} from 'primeng/message';
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
 @Component({
   selector: 'app-confirm-email',
-  imports: [MessageModule, ButtonModule],
+  imports: [MessageModule, ButtonModule, AuthCardComponent],
   templateUrl: './confirm-email.html',
   styleUrl: './confirm-email.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

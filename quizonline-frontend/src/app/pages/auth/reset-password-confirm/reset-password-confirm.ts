@@ -12,10 +12,11 @@ import {PasswordModule} from 'primeng/password';
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
 @Component({
   selector: 'app-reset-password-confirm',
-  imports: [ReactiveFormsModule, RouterLink, PasswordModule, MessageModule, ButtonModule],
+  imports: [ReactiveFormsModule, RouterLink, PasswordModule, MessageModule, ButtonModule, AuthCardComponent],
   templateUrl: './reset-password-confirm.html',
   styleUrl: './reset-password-confirm.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

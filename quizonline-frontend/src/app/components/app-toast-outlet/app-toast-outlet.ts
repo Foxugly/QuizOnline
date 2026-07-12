@@ -38,7 +38,7 @@ import {AppToastService} from '../../shared/toast/app-toast.service';
 
     .toast {
       align-items: start;
-      border: 1px solid rgba(148, 163, 184, 0.28);
+      border: 1px solid var(--border);
       border-left-width: 4px;
       border-radius: 1rem;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
@@ -50,27 +50,27 @@ import {AppToastService} from '../../shared/toast/app-toast.service';
     }
 
     .toast--info {
-      background: #eff6ff;
-      border-left-color: #2563eb;
-      color: #1e3a8a;
+      background: var(--info-soft);
+      border-left-color: var(--info);
+      color: var(--info-strong);
     }
 
     .toast--success {
-      background: #ecfdf5;
-      border-left-color: #16a34a;
-      color: #166534;
+      background: var(--success-soft);
+      border-left-color: var(--success);
+      color: var(--success-strong);
     }
 
     .toast--warn {
-      background: #fffbeb;
-      border-left-color: #d97706;
-      color: #92400e;
+      background: var(--warn-soft);
+      border-left-color: var(--warn);
+      color: var(--warn-strong);
     }
 
     .toast--error {
-      background: #fef2f2;
-      border-left-color: #dc2626;
-      color: #991b1b;
+      background: var(--danger-soft);
+      border-left-color: var(--danger);
+      color: var(--danger-strong);
     }
 
     .toast__body {
