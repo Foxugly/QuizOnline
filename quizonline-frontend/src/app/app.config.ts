@@ -4,6 +4,7 @@ import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/h
 import {provideTransloco} from '@jsverse/transloco';
 import {routes} from './app.routes';
 import {providePrimeNG} from 'primeng/config';
+import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
 import {NetworkInterceptor} from './network-interceptor';
@@ -13,6 +14,29 @@ import {resolveApiBaseUrl} from './shared/api/runtime-api-base-url';
 import {PrimeNGTranslationService} from './shared/i18n/primeng-translation.service';
 import {BundledTranslocoLoader} from './core/i18n/transloco-loader';
 import {TranslocoLangSync} from './core/i18n/transloco-lang-sync.service';
+
+// Emerald is the single fleet accent (STANDARD-frontend-layout.md §9). Remap BOTH
+// the `primary` semantic AND the `green` primitive onto Emerald so that
+// `severity="success"` renders in the exact same emerald as `primary` — otherwise
+// `success` falls back to PrimeNG's default green and the UI shows two greens.
+const EMERALD_SCALE = {
+  50: '{emerald.50}',
+  100: '{emerald.100}',
+  200: '{emerald.200}',
+  300: '{emerald.300}',
+  400: '{emerald.400}',
+  500: '{emerald.500}',
+  600: '{emerald.600}',
+  700: '{emerald.700}',
+  800: '{emerald.800}',
+  900: '{emerald.900}',
+  950: '{emerald.950}',
+} as const;
+
+const QuizOnlineAura = definePreset(Aura, {
+  primitive: {green: {...EMERALD_SCALE}},
+  semantic: {primary: {...EMERALD_SCALE}},
+});
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,11 +51,16 @@ export const appConfig: ApplicationConfig = {
         new Configuration({basePath: resolveApiBaseUrl()}),
     },
     provideAnimationsAsync('noop'),
-    // 🔹 Configuration du thème PrimeNG
+    // 🔹 PrimeNG theme — emerald fleet accent + dark mode via `.dark-mode`
+    //    (toggled on <html> by ThemeService / the anti-FOUC script).
     providePrimeNG({
       theme: {
-        preset: Aura, //AuraLight
-      }
+        preset: QuizOnlineAura,
+        options: {
+          darkModeSelector: '.dark-mode',
+          cssLayer: false,
+        },
+      },
     }),
     // Transloco engine (fleet convention). Text is rendered through the typed
     // ``UiTextService`` façade; Transloco is wired for conformance + tests. The

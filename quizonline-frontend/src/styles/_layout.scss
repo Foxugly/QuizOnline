@@ -29,7 +29,7 @@ $page-max-width: 1440px;
   .subtitle {
     margin: 0;
     font-size: 0.95rem;
-    color: t.$muted;
+    color: var(--muted);
   }
 
   .header-actions {

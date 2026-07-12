@@ -2,14 +2,16 @@
 @use 'tokens' as t;
 
 .card {
-  background: t.$surface;
-  border: 1px solid t.$border;
+  // CSS custom properties (not the compile-time SCSS tokens) so the surface
+  // flips with .dark-mode. Radius/shadow don't need to react to the theme.
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: t.$radius;
   box-shadow: t.$shadow;
   padding: 1rem;
 
   .muted {
-    color: t.$muted;
+    color: var(--muted);
   }
 }
 
@@ -39,15 +41,15 @@
 
 .badge {
   font-size: 0.8rem;
-  color: t.$muted;
-  border: 1px solid t.$border;
+  color: var(--muted);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
 }
 
 .divider {
   height: 1px;
-  background: t.$border;
+  background: var(--border);
   margin: 0.1rem 0 0.6rem;
 }
 

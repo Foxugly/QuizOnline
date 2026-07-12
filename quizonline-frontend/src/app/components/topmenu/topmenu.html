@@ -190,6 +190,15 @@
           }
         </div>
       }
+      <button
+        (click)="theme.toggle()"
+        [attr.aria-label]="ui().topmenu.themeToggle"
+        [pTooltip]="ui().topmenu.themeToggle"
+        class="theme-toggle"
+        type="button"
+      >
+        <i [class]="theme.isDark() ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+      </button>
       <app-language-switcher
         (langChange)="onLangChange($event)"
         [lang]="currentLang"
