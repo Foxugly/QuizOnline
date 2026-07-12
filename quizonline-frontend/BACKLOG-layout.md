@@ -20,9 +20,22 @@
   `detail-page-shell`) alignées sur **`var(--content-max)` (80rem)** — plus aucun `1440px`.
 - **Breakpoints canoniques** : 480/720/960/1180 → **640/768/1024/1280** (drawer topmenu à 1024).
 
+## ✅ Audit profond 2026-07-12 (déployé)
+- **Footer dark mode** : hex en dur → tokens (`--surface-2`/`--muted`/`--ink`/`--border`) → bascule en sombre.
+- **`app-auth-card` partagé** créé (`shared/components/auth-card`, `[icon]`/`[title]`) : **5 pages auth** migrées
+  (login/reset-confirm/confirm-email/change-password/register-pending) — carte de chrome dédupliquée.
+- **Topmenu** : blocs restants (`.brand`/`.nav`/`domain-trigger`…) renommés en **BEM `topbar__*`**.
+- **Breakpoints éparses résiduels** `860/900px` → 768/1024 (le `900px` de `_prime-overrides` = largeur PickList,
+  laissé).
+- **Fond de shell dark-adapté** : `app.scss :host` avait un dégradé clair en dur sans override → la page restait
+  claire en dark (seuls cartes/chrome/footer basculaient) ; `color`→`var(--ink)` + dégradé sombre en `.dark-mode`.
+- **Toast maison → `p-toast`** : `AppToastService` délègue désormais au `MessageService` PrimeNG (`<p-toast>` à
+  la racine du shell), API conservée (~120 sites d'appel inchangés) ; composant `app-toast-outlet` supprimé.
+  Thème (emerald + dark) + cycle de vie gérés par PrimeNG.
+
 ## Reste — optionnel (différé)
 - [ ] **Shell formalisé** : extraire `main-layout` / `public-layout` sous `core/layout/` + `[mode]` sur le
-  topmenu (aujourd'hui shell simple assemblé dans `app.html`, skip-link + `p-toast` présents). **Faible
+  topmenu (aujourd'hui shell simple assemblé dans `app.html`, skip-link + `<p-toast>` présents). **Faible
   valeur** pour le shell mono de QO (pas de vraie séparation public/authentifié) → non prioritaire.
 
 ## Note
