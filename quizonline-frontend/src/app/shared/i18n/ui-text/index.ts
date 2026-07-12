@@ -1,11 +1,17 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 
-import {EN} from './en';
-import {ES} from './es';
-import {FR} from './fr';
-import {IT} from './it';
-import {NL} from './nl';
+import EN_JSON from './en.json';
+import ES_JSON from './es.json';
+import FR_JSON from './fr.json';
+import IT_JSON from './it.json';
+import NL_JSON from './nl.json';
 import type {UiText} from './types';
+
+const EN = EN_JSON as UiText;
+const FR = FR_JSON as UiText;
+const NL = NL_JSON as UiText;
+const IT = IT_JSON as UiText;
+const ES = ES_JSON as UiText;
 
 const UI_TEXT: Partial<Record<LanguageEnumDto, UiText>> = {
   [LanguageEnumDto.Fr]: FR,

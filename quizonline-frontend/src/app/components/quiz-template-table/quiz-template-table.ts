@@ -6,6 +6,7 @@ import {TableModule} from 'primeng/table';
 import {QuizTemplateListItem} from '../../pages/quiz/list/quiz-list.models';
 import {TooltipModule} from 'primeng/tooltip';
 import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
+import {interp} from '../../shared/i18n/format';
 
 @Component({
   selector: 'app-quiz-template-table',
@@ -57,10 +58,10 @@ export class QuizTemplateTableComponent {
     const start = template.started_at ? Date.parse(template.started_at) : NaN;
     const end = template.ended_at ? Date.parse(template.ended_at) : NaN;
     if (Number.isFinite(start) && now < start) {
-      return this.uiText().templates.actions.startDisabledNotYet(this.formatDateTime(template.started_at));
+      return interp(this.uiText().templates.actions.startDisabledNotYet, {when: this.formatDateTime(template.started_at)});
     }
     if (Number.isFinite(end) && now > end) {
-      return this.uiText().templates.actions.startDisabledExpired(this.formatDateTime(template.ended_at));
+      return interp(this.uiText().templates.actions.startDisabledExpired, {when: this.formatDateTime(template.ended_at)});
     }
     return this.uiText().templates.actions.startDisabledGeneric;
   }

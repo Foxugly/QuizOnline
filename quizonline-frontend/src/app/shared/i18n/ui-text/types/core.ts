@@ -1,3 +1,6 @@
+import type {PluralForms} from '../../format';
+import type {KindLineCopy, RelativeCopy} from '../../notifications.util';
+
 export type TopMenuUiText = {
   quiz: string;
   domains: string;
@@ -47,8 +50,8 @@ export type NotificationsUiText = {
   emptyHint: string;
   actionMarkRead: string;
   actionDelete: string;
-  relative: (totalSeconds: number) => string;
-  kindLine: (kind: string, payload: Record<string, unknown>) => string;
+  relative: RelativeCopy;
+  kindLine: KindLineCopy;
 };
 
 export type UserMenuUiText = {
@@ -91,8 +94,8 @@ export type HomeUiText = {
   featuresValue: string;
   contactCta: string;
   moderationTileTitle: string;
-  moderationTileSubtitle: (total: number) => string;
-  moderationTileCount: (n: number) => string;
+  moderationTileSubtitle: string;
+  moderationTileCount: PluralForms;
 };
 
 export type PreferencesUiText = {
@@ -184,12 +187,13 @@ export type PreferencesUiText = {
   deleteAccountDescription: string;
   deleteAccountCta: string;
   deleteConfirmHeader: string;
-  deleteConfirmMessage: (username: string) => string;
+  deleteConfirmMessage: string;
   deleteConfirmPlaceholder: string;
   deleteConfirmAccept: string;
   deleteConfirmCancel: string;
-  /** Server error when the user still owns ``n`` domain(s). */
-  deleteOwnedDomainsBlock: (count: number) => string;
+  /** Server error when the user still owns ``n`` domain(s). Plural keyed on
+   *  ``{count}`` rather than ``{n}``. */
+  deleteOwnedDomainsBlock: PluralForms;
   deleteSuccess: string;
   deleteError: string;
 };

@@ -1,0 +1,33 @@
+<div #menuRoot class="language-switcher">
+  <button
+    type="button"
+    class="language-switcher__trigger"
+    (click)="toggleMenu($event)"
+    [attr.aria-expanded]="menuOpen"
+    aria-haspopup="menu"
+  >
+    <span>{{ internalLang.toUpperCase() }}</span>
+  </button>
+
+  @if (menuOpen) {
+    <div class="language-switcher__menu" role="menu">
+      @for (option of langOptions; track option.value; let i = $index) {
+        <button
+          #menuitem
+          type="button"
+          role="menuitem"
+          class="language-switcher__item"
+          [class.is-active]="option.value === internalLang"
+          [attr.aria-current]="option.value === internalLang ? 'true' : null"
+          [attr.tabindex]="i === focusedIndex ? 0 : -1"
+          (click)="onInternalChange(option.value)"
+        >
+          <span>{{ option.label }}</span>
+          @if (option.value === internalLang) {
+            <i class="pi pi-check language-switcher__check" aria-hidden="true"></i>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

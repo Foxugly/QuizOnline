@@ -10,6 +10,7 @@ import {NotificationService} from '../../services/notification/notification.serv
 import {notificationQueryFor, notificationRouteFor} from '../../services/notification/notification-routes';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {buildNotificationLine, formatRelativeTime} from '../../shared/i18n/notifications.util';
 
 @Component({
   selector: 'app-notifications-bell',
@@ -115,12 +116,12 @@ export class NotificationsBellComponent implements OnInit {
       if (!Number.isFinite(ts)) {
         return '';
       }
-      return this.ui().notifications.relative(Math.max(0, (now - ts) / 1000));
+      return formatRelativeTime(Math.max(0, (now - ts) / 1000), this.ui().notifications.relative);
     };
   });
 
   protected lineFor(row: NotificationReadDto): string {
-    return this.ui().notifications.kindLine(row.kind, (row.payload as Record<string, unknown>) ?? {});
+    return buildNotificationLine(row.kind, (row.payload as Record<string, unknown>) ?? {}, this.ui().notifications.kindLine);
   }
 
   protected readonly trackById = (_: number, row: NotificationReadDto) => row.id;

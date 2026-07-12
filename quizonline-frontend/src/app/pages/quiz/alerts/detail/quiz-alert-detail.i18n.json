@@ -1,0 +1,112 @@
+{
+  "en": {
+    "back": "← Back to messages",
+    "loadingConversation": "Loading the conversation…",
+    "quizBadge": "Quiz",
+    "statusOpen": "Open",
+    "statusClosed": "Closed",
+    "questionLabel": "Question",
+    "userFallback": "User",
+    "unreadBadge": "Unread",
+    "replyPlaceholder": "Write your reply…",
+    "conversationClosedNote": "Conversation closed. Reopen it to reply or to re-enable replies.",
+    "reporterReplyToggle": "User replies",
+    "assignmentIntroFallback": "A new quiz has been assigned to you:",
+    "errors": {
+      "invalidMessageId": "Invalid message id.",
+      "loadFailed": "Unable to load this message.",
+      "sendFailed": "Unable to send this message.",
+      "updateFailed": "Unable to update this conversation.",
+      "closeFailed": "Unable to close this conversation.",
+      "reopenFailed": "Unable to reopen this conversation."
+    }
+  },
+  "fr": {
+    "back": "← Retour aux messages",
+    "loadingConversation": "Chargement de la conversation…",
+    "quizBadge": "Quiz",
+    "statusOpen": "Ouverte",
+    "statusClosed": "Fermée",
+    "questionLabel": "Question",
+    "userFallback": "Utilisateur",
+    "unreadBadge": "Non lu",
+    "replyPlaceholder": "Écrire votre réponse…",
+    "conversationClosedNote": "Conversation fermée. Rouvrez-la pour répondre ou réautoriser les réponses.",
+    "reporterReplyToggle": "Réponses utilisateur",
+    "assignmentIntroFallback": "Un nouveau quiz vous a été assigné :",
+    "errors": {
+      "invalidMessageId": "Identifiant de message invalide.",
+      "loadFailed": "Impossible de charger ce message.",
+      "sendFailed": "Impossible d'envoyer ce message.",
+      "updateFailed": "Impossible de modifier cette conversation.",
+      "closeFailed": "Impossible de clôturer cette conversation.",
+      "reopenFailed": "Impossible de rouvrir cette conversation."
+    }
+  },
+  "nl": {
+    "back": "← Terug naar berichten",
+    "loadingConversation": "Conversatie laden…",
+    "quizBadge": "Quiz",
+    "statusOpen": "Open",
+    "statusClosed": "Gesloten",
+    "questionLabel": "Vraag",
+    "userFallback": "Gebruiker",
+    "unreadBadge": "Ongelezen",
+    "replyPlaceholder": "Schrijf uw antwoord…",
+    "conversationClosedNote": "Conversatie gesloten. Heropen om te antwoorden of om antwoorden weer toe te staan.",
+    "reporterReplyToggle": "Gebruikersantwoorden",
+    "assignmentIntroFallback": "Een nieuwe quiz is aan u toegewezen:",
+    "errors": {
+      "invalidMessageId": "Ongeldige bericht-id.",
+      "loadFailed": "Kan dit bericht niet laden.",
+      "sendFailed": "Kan dit bericht niet verzenden.",
+      "updateFailed": "Kan deze conversatie niet bijwerken.",
+      "closeFailed": "Kan deze conversatie niet sluiten.",
+      "reopenFailed": "Kan deze conversatie niet heropenen."
+    }
+  },
+  "it": {
+    "back": "← Torna ai messaggi",
+    "loadingConversation": "Caricamento della conversazione…",
+    "quizBadge": "Quiz",
+    "statusOpen": "Aperta",
+    "statusClosed": "Chiusa",
+    "questionLabel": "Domanda",
+    "userFallback": "Utente",
+    "unreadBadge": "Non letto",
+    "replyPlaceholder": "Scrivi la tua risposta…",
+    "conversationClosedNote": "Conversazione chiusa. Riaprila per rispondere o per riabilitare le risposte.",
+    "reporterReplyToggle": "Risposte utente",
+    "assignmentIntroFallback": "Ti è stato assegnato un nuovo quiz:",
+    "errors": {
+      "invalidMessageId": "Identificativo del messaggio non valido.",
+      "loadFailed": "Impossibile caricare questo messaggio.",
+      "sendFailed": "Impossibile inviare questo messaggio.",
+      "updateFailed": "Impossibile modificare questa conversazione.",
+      "closeFailed": "Impossibile chiudere questa conversazione.",
+      "reopenFailed": "Impossibile riaprire questa conversazione."
+    }
+  },
+  "es": {
+    "back": "← Volver a los mensajes",
+    "loadingConversation": "Cargando la conversación…",
+    "quizBadge": "Cuestionario",
+    "statusOpen": "Abierta",
+    "statusClosed": "Cerrada",
+    "questionLabel": "Pregunta",
+    "userFallback": "Usuario",
+    "unreadBadge": "No leído",
+    "replyPlaceholder": "Escribe tu respuesta…",
+    "conversationClosedNote": "Conversación cerrada. Vuelve a abrirla para responder o para volver a permitir respuestas.",
+    "reporterReplyToggle": "Respuestas del usuario",
+    "assignmentIntroFallback": "Se te ha asignado un nuevo cuestionario:",
+    "errors": {
+      "invalidMessageId": "Id de mensaje no válido.",
+      "loadFailed": "No se puede cargar este mensaje.",
+      "sendFailed": "No se puede enviar este mensaje.",
+      "updateFailed": "No se puede actualizar esta conversación.",
+      "closeFailed": "No se puede cerrar esta conversación.",
+      "reopenFailed": "No se puede reabrir esta conversación."
+    }
+  }
+}

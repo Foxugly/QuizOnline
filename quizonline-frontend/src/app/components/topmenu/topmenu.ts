@@ -6,7 +6,7 @@ import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/rout
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
 import {UserService} from '../../services/user/user';
-import {LangSelectComponent} from '../lang-select/lang-select';
+import {LanguageSwitcherComponent} from '../../core/i18n/language-switcher/language-switcher';
 import {UserMenuComponent} from '../user-menu/user-menu';
 import {SupportedLanguage} from '../../../environments/language';
 import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
@@ -50,7 +50,7 @@ type AdminNavItem = {
   imports: [
     RouterLink,
     RouterLinkActive,
-    LangSelectComponent,
+    LanguageSwitcherComponent,
     UserMenuComponent,
     NotificationsBellComponent,
   ],

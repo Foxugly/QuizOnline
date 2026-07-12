@@ -8,6 +8,7 @@ import {DomainJoinRequestReadDto} from '../../../api/generated/model/domain-join
 import {DomainEditApi, JoinRequestStatusFilter} from '../../../services/domain/domain-edit-api';
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {interp} from '../../../shared/i18n/format';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {getDomainEditUiText} from './domain-edit.i18n';
 
@@ -157,10 +158,13 @@ export class DomainEditJoinRequestsController {
 
   private notifyBulkResult(result: DomainJoinRequestBulkResultDto): void {
     const labels = this.adminUi().admin.joinRequests;
+    const detail = result.skipped > 0
+      ? interp(labels.bulkResultDetail.withSkipped, {processed: result.processed, skipped: result.skipped})
+      : interp(labels.bulkResultDetail.noSkipped, {processed: result.processed});
     this.toast.add({
       severity: result.skipped > 0 ? 'warn' : 'success',
       summary: labels.bulkResultTitle,
-      detail: labels.bulkResultDetail(result.processed, result.skipped),
+      detail,
     });
   }
 }

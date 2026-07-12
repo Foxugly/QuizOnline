@@ -10,6 +10,7 @@ import {FormsModule} from '@angular/forms';
 
 import {CATALOG, COURSE_DETAIL, LESSON_EDIT, LESSON_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
@@ -105,9 +106,17 @@ export class LessonView implements OnInit, OnDestroy {
     if (!l?.section_title || !l?.position_in_section) {
       return lessonTitle;
     }
-    const pos = this.ui().positionInSection(l.position_in_section.current, l.position_in_section.total);
+    const pos = interp(this.ui().positionInSection, {
+      current: l.position_in_section.current,
+      total: l.position_in_section.total,
+    });
     return `${l.section_title.toUpperCase()} - ${pos} : ${lessonTitle}`;
   });
+
+  /** Interpolated "Saved at {time}" hint for the private notes section. */
+  protected notesSavedAtText(time: string): string {
+    return interp(this.ui().notesSavedAt, {time});
+  }
 
   protected readonly blocks = computed<ContentBlock[]>(() => this.lesson()?.blocks ?? []);
 

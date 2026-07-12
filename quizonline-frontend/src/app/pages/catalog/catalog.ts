@@ -17,6 +17,7 @@ import {DomainService} from '../../services/domain/domain';
 import {logApiError} from '../../shared/api/api-errors';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {getLocalizedDomainName} from '../../shared/i18n/domain-label';
+import {plural} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getLearningCommonUiText} from '../../shared/learning/learning-common.i18n';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
@@ -24,6 +25,7 @@ import {CatalogService} from '../../services/catalog/catalog.service';
 import {UserService} from '../../services/user/user';
 
 import {getCatalogUiText} from './catalog.i18n';
+import {formatCatalogDuration} from './catalog-duration.util';
 
 /** Shape we render from the catalog API. ``unknown[]`` from the service is narrowed at usage. */
 interface CatalogCourseRow {
@@ -223,9 +225,9 @@ export class Catalog implements OnInit {
           : null,
         statusIsPublished: isPublished,
         lessonCountLabel: typeof c.lesson_count === 'number' && c.lesson_count > 0
-          ? ui.lessonCount(c.lesson_count) : null,
+          ? plural(ui.lessonCount, c.lesson_count) : null,
         durationLabel: typeof c.total_duration_minutes === 'number' && c.total_duration_minutes > 0
-          ? ui.duration(c.total_duration_minutes) : null,
+          ? formatCatalogDuration(c.total_duration_minutes, ui.duration) : null,
         isEnrolled: enrolled,
         progressPercent: me?.progress_percent ?? 0,
       };

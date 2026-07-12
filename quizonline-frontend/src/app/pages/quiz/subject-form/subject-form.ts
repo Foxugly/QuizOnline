@@ -19,6 +19,7 @@ import {QuizSubjectCreatePayload} from '../../../services/quiz/quiz';
 import {SubjectService} from '../../../services/subject/subject';
 import {UserService} from '../../../services/user/user';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {interp} from '../../../shared/i18n/format';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {getSubjectFormUiText} from './subject-form.i18n';
@@ -53,6 +54,12 @@ type QuizSubjectFormModel = {
 export class QuizSubjectForm implements OnInit {
   readonly ui = inject(UiTextService).editor;
   readonly pageText = inject(UiTextService).localized(getSubjectFormUiText);
+
+  /** Interpolated "Number of questions (max: {max})" label. */
+  protected questionCountWithMax(max: number): string {
+    return interp(this.pageText().questionCountWithMax, {max});
+  }
+
   loading = signal(false);
   error = signal<string | null>(null);
   domains = signal<DomainReadDto[]>([]);

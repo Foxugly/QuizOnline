@@ -27,6 +27,7 @@ import {TableSkeleton} from '../../../shared/components/loading-skeleton/table-s
 import {StatusBadgeComponent} from '../../../shared/components/status-badge/status-badge';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {plural} from '../../../shared/i18n/format';
 import {getQuestionListUiText} from './question-list.i18n';
 
 type BulkAction =
@@ -108,6 +109,11 @@ export class QuestionList implements OnInit {
   });
 
   readonly selectedCount = computed(() => this.selectedRows().length);
+
+  protected bulkSelectedText(n: number): string {
+    return plural(this.text().bulkSelectedCount, n);
+  }
+
   readonly allFilteredSelected = computed(() => this.totalRecords() > 0 && this.selectedRows().length === this.totalRecords());
   readonly someFilteredSelected = computed(() => this.selectedRows().length > 0 && !this.allFilteredSelected());
 
@@ -304,7 +310,7 @@ export class QuestionList implements OnInit {
 
     const t = this.text();
     this.confirmationService.confirm({
-      message: t.bulkDeleteConfirm(ids.length),
+      message: plural(t.bulkDeleteConfirm, ids.length),
       header: t.bulkDelete,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: t.bulkDelete,

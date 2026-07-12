@@ -19,10 +19,12 @@ import {CourseAnalyticsDto, EnrollmentService} from '../../../../services/enroll
 import {CourseAuditEntryDto, CatalogService} from '../../../../services/catalog/catalog.service';
 import {logApiError} from '../../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../../shared/components/empty-state/empty-state';
+import {interp} from '../../../../shared/i18n/format';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {RelativeDatePipe} from '../../../../shared/pipes/relative-date.pipe';
 
 import {getCourseEditAnalyticsTabUiText} from './analytics-tab.i18n';
+import {auditActionLabel} from './analytics-audit-action.util';
 
 /** Row shape consumed by the inline sparkline. Pre-computed in a
  *  ``computed`` so each tooltip + bar height is plain template data. */
@@ -96,7 +98,9 @@ export class CourseEditAnalyticsTab {
     if (!counts || counts.total === 0) {
       return '';
     }
-    return this.ui().kpiHints.pctOfTotal(Math.round((counts.completed / counts.total) * 100));
+    return interp(this.ui().kpiHints.pctOfTotal, {
+      pct: Math.round((counts.completed / counts.total) * 100),
+    });
   });
 
   protected readonly activeHint = computed(() => {
@@ -104,8 +108,20 @@ export class CourseEditAnalyticsTab {
     if (!counts || counts.total === 0) {
       return '';
     }
-    return this.ui().kpiHints.pctOfTotal(Math.round((counts.active / counts.total) * 100));
+    return interp(this.ui().kpiHints.pctOfTotal, {
+      pct: Math.round((counts.active / counts.total) * 100),
+    });
   });
+
+  /** Median invite-decision time label, e.g. "6 h". */
+  protected decisionHoursValue(hours: number): string {
+    return interp(this.ui().invite.decisionHoursValue, {hours});
+  }
+
+  /** Localized audit-action label, falling back to the raw code. */
+  protected auditAction(rawAction: string): string {
+    return auditActionLabel(rawAction, this.ui().auditAction);
+  }
 
   /** Normalize the 30-day trend into bars with a relative height. Each
    *  bar's height is its count divided by the window's peak so the

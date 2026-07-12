@@ -23,7 +23,7 @@
         [placeholder]="t().bulkPlaceholder"
         [applyLabel]="t().bulkApply"
         [count]="selectedCount()"
-        [countText]="t().bulkSelectedCount(selectedCount())"
+        [countText]="bulkSelectedText(selectedCount())"
         [applying]="applyingBulk()"
         (apply)="applyBulk($event)">
       </app-bulk-actions>
@@ -111,7 +111,7 @@
   [modal]="true"
   [style]="{ width: '32rem' }"
 >
-  <p class="muted">{{ t().bulkRejectMessage(selectedCount()) }}</p>
+  <p class="muted">{{ bulkRejectMessageText(selectedCount()) }}</p>
   <textarea
     pInputTextarea
     [(ngModel)]="bulkRejectReason"

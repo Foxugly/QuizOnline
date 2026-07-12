@@ -29,7 +29,7 @@
             [placeholder]="adminLabels().bulkPlaceholder"
             [applyLabel]="adminLabels().bulkApply"
             [count]="selectedCount()"
-            [countText]="adminLabels().bulkSelectedCount(selectedCount())"
+            [countText]="bulkSelectedText(selectedCount())"
             [applying]="applyingBulk()"
             (apply)="applyBulk($event)">
           </app-bulk-actions>
@@ -221,7 +221,7 @@
   [(visible)]="bulkRejectDialogVisible"
   [modal]="true"
   [style]="{ width: '32rem' }">
-  <p class="muted">{{ adminLabels().bulkRejectMessage(pendingBulkIds().length) }}</p>
+  <p class="muted">{{ bulkRejectMessageText(pendingBulkIds().length) }}</p>
   <textarea
     pInputTextarea
     [ngModel]="bulkRejectReason()"
@@ -305,10 +305,10 @@
                 [class.is-invalid]="r.status === 'invalid'"
                 [class.is-forbidden]="r.status === 'forbidden_domain'">
               @switch (r.status) {
-                @case ('sent') { {{ text().members.inviteResultSent(r.email) }} }
-                @case ('already_member') { {{ text().members.inviteResultAlreadyMember(r.email) }} }
-                @case ('forbidden_domain') { {{ text().members.inviteResultForbidden(r.email) }} }
-                @default { {{ text().members.inviteResultInvalid(r.email) }} }
+                @case ('sent') { {{ inviteResultSentText(r.email) }} }
+                @case ('already_member') { {{ inviteResultAlreadyMemberText(r.email) }} }
+                @case ('forbidden_domain') { {{ inviteResultForbiddenText(r.email) }} }
+                @default { {{ inviteResultInvalidText(r.email) }} }
               }
             </li>
           }

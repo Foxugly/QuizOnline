@@ -1,0 +1,32 @@
+{
+  "en": {
+    "header": "Question preview",
+    "loading": "Loading preview…",
+    "notFound": "Question not found.",
+    "loadFailed": "Unable to load the question preview."
+  },
+  "fr": {
+    "header": "Aperçu de la question",
+    "loading": "Chargement de l’aperçu…",
+    "notFound": "Question introuvable.",
+    "loadFailed": "Impossible de charger l’aperçu de la question."
+  },
+  "nl": {
+    "header": "Voorbeeld van de vraag",
+    "loading": "Voorbeeld laden…",
+    "notFound": "Vraag niet gevonden.",
+    "loadFailed": "Kan het voorbeeld van de vraag niet laden."
+  },
+  "it": {
+    "header": "Anteprima della domanda",
+    "loading": "Caricamento dell’anteprima…",
+    "notFound": "Domanda non trovata.",
+    "loadFailed": "Impossibile caricare l’anteprima della domanda."
+  },
+  "es": {
+    "header": "Vista previa de la pregunta",
+    "loading": "Cargando la vista previa…",
+    "notFound": "Pregunta no encontrada.",
+    "loadFailed": "No se puede cargar la vista previa de la pregunta."
+  }
+}

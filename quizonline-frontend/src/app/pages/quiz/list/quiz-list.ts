@@ -28,6 +28,7 @@ import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {UserSummaryDto} from '../../../api/generated/model/user-summary';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {interp, plural} from '../../../shared/i18n/format';
 import {getQuizListUiText} from './quiz-list.i18n';
 import {ROUTES} from '../../../app.routes-paths';
 import {getLocalizedDomainName} from '../../../shared/i18n/domain-label';
@@ -80,6 +81,14 @@ export class QuizListPage implements OnInit {
   selectedTemplates = signal<QuizTemplateListItem[]>([]);
   applyingBulk = signal(false);
   readonly selectedCount = computed(() => this.selectedTemplates().length);
+
+  protected bulkSelectedText(n: number): string {
+    return plural(this.uiText().bulk.selectedCount, n);
+  }
+
+  protected pendingApprovalBannerText(domains: string): string {
+    return interp(this.uiText().messages.pendingApprovalBanner, {domains});
+  }
 
   private readonly quizService = inject(QuizService);
   private readonly quizTemplateService = inject(QuizTemplateService);
@@ -301,7 +310,7 @@ export class QuizListPage implements OnInit {
     const labels = this.editorUi().bulkList;
     this.confirmationService.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteTemplates(ids.length),
+      message: plural(labels.confirmDeleteTemplates, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmDeleteAccept,
       rejectLabel: labels.confirmDeleteCancel,
@@ -361,7 +370,7 @@ export class QuizListPage implements OnInit {
       )
       .subscribe({
         next: (created) => {
-          this.success.set(this.uiText().messages.assignSuccess(created.length));
+          this.success.set(interp(this.uiText().messages.assignSuccess, {count: created.length}));
           this.closeAssignDialog();
           void this.router.navigate(ROUTES.quiz.templateResults(template.id));
         },

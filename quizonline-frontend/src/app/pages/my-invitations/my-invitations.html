@@ -24,11 +24,11 @@
                   <h3 class="invitation-card__title">{{ inv.course_title }}</h3>
                   <p class="muted invitation-card__meta">
                     <i class="pi pi-user"></i>
-                    {{ ui().invitationFrom(inviterDisplayName(inv)) }}
+                    {{ invitationFrom(inviterDisplayName(inv)) }}
                   </p>
                   <p class="muted invitation-card__meta">
                     <i class="pi pi-clock"></i>
-                    {{ ui().expiresAt((inv.expires_at | date:'medium') ?? '') }}
+                    {{ expiresAt((inv.expires_at | date:'medium') ?? '') }}
                   </p>
                   <div class="invitation-card__actions">
                     <p-button
@@ -61,11 +61,11 @@
                   </div>
                   <p class="muted invitation-card__meta">
                     <i class="pi pi-user"></i>
-                    {{ ui().invitationFrom(inviterDisplayName(inv)) }}
+                    {{ invitationFrom(inviterDisplayName(inv)) }}
                   </p>
                   <p class="muted invitation-card__meta">
                     <i class="pi pi-calendar"></i>
-                    {{ ui().historyDateLabel((inv.updated_at | date:'medium') ?? '') }}
+                    {{ historyDateLabel((inv.updated_at | date:'medium') ?? '') }}
                   </p>
                   @if (inv.status === 'accepted') {
                     <div class="invitation-card__actions">

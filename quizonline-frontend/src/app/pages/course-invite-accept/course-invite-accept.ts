@@ -16,6 +16,7 @@ import {CATALOG, COURSE_DETAIL} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {CourseInviteDto, EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {InvitationCountService} from '../../services/invitation/invitation-count.service';
@@ -110,6 +111,21 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
     () => !!(this.invite()?.course_learning_objectives ?? '').trim(),
   );
 
+  /** "{inviter} invited you to {course}" banner. */
+  protected invitationFrom(inviter: string, course: string): string {
+    return interp(this.ui().invitationFrom, {inviter, course});
+  }
+
+  /** "This invitation expires on {when}" hint. */
+  protected expiresAtLabel(when: string): string {
+    return interp(this.ui().expiresAt, {when});
+  }
+
+  /** Estimated-duration meta label, e.g. "45 min". */
+  protected durationLabel(minutes: number): string {
+    return interp(this.ui().durationLabel, {minutes});
+  }
+
   protected levelLabel(level: string): string {
     const choices = this.ui().levelChoices;
     if (level === 'beginner') return choices.beginner;
@@ -192,7 +208,7 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
     const t = this.ui();
     this.confirmer.confirm({
       header: t.declineConfirmHeader,
-      message: t.declineConfirmMessage(inv.course_title),
+      message: interp(t.declineConfirmMessage, {courseTitle: inv.course_title}),
       icon: 'pi pi-times-circle',
       acceptLabel: t.declineConfirmAccept,
       rejectLabel: t.declineConfirmReject,

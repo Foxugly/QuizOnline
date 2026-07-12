@@ -8,6 +8,8 @@ import {TableModule} from 'primeng/table';
 import {DomainAnalyticsDto} from '../../api/generated/model/domain-analytics';
 import {AnalyticsRange} from '../../services/domain/domain-edit-api';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
+import {plural} from '../../shared/i18n/format';
+import {formatDomainEditDuration} from '../../pages/domain/edit/domain-edit-duration.util';
 
 @Component({
   selector: 'app-domain-analytics-tab',
@@ -57,8 +59,12 @@ export class DomainAnalyticsTab {
     if (!a || a.median_decision_seconds === null || a.median_decision_seconds === undefined) {
       return this.labels().medianDecisionUnknown;
     }
-    return this.labels().durationFormat(a.median_decision_seconds);
+    return formatDomainEditDuration(a.median_decision_seconds, this.labels().durationFormat);
   });
+
+  protected decisionsLabelText(n: number): string {
+    return plural(this.labels().decisionsLabel, n);
+  }
 
   protected onRangeChange(value: AnalyticsRange | null | undefined): void {
     if (value && value !== this.range()) {

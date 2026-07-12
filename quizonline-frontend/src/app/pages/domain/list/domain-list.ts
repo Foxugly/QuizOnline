@@ -20,6 +20,7 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 import {logApiError} from '../../../shared/api/api-errors';
+import {plural} from '../../../shared/i18n/format';
 import {getDomainListUiText} from './domain-list.i18n';
 
 type BulkAction = 'activate' | 'deactivate' | 'delete';
@@ -80,6 +81,10 @@ export class DomainList implements OnInit {
   });
 
   rows = 10;
+
+  protected bulkSelectedText(n: number): string {
+    return plural(this.uiText().bulkSelectedCount, n);
+  }
 
   getDTDto(d: DomainReadDto): DomainTranslationDto {
     return <DomainTranslationDto>selectTranslation<DomainTranslationDto>(
@@ -197,7 +202,7 @@ export class DomainList implements OnInit {
     const labels = this.uiText();
     this.confirmationService.confirm({
       header: labels.bulkDeleteHeader,
-      message: labels.bulkDeleteConfirm(ids.length),
+      message: plural(labels.bulkDeleteConfirm, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.bulkDelete,
       rejectLabel: labels.bulkConfirmCancel,

@@ -16,7 +16,7 @@
         [placeholder]="text().bulkPlaceholder"
         [applyLabel]="text().bulkApply"
         [count]="selectedCount()"
-        [countText]="text().bulkSelectedCount(selectedCount())"
+        [countText]="bulkSelectedText(selectedCount())"
         [applying]="applyingBulk()"
         (apply)="applyBulkAction($event)">
       </app-bulk-actions>

@@ -6,6 +6,7 @@ import {ButtonModule} from 'primeng/button';
 import {AuthService} from '../../services/auth/auth';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {getPrivacyUiText} from './privacy.i18n';
 
@@ -28,6 +29,16 @@ export class Privacy {
   /** Address rendered in the contact section. Single source of truth so
    *  the operator can change it without touching translation strings. */
   protected readonly contactEmail = 'privacy@foxugly.com';
+
+  /** Interpolated "Last updated: {date}" meta line. */
+  protected lastUpdated(date: string): string {
+    return interp(this.pageText().lastUpdated, {date});
+  }
+
+  /** Interpolated contact paragraph naming the {email} address. */
+  protected contactBody(email: string): string {
+    return interp(this.pageText().contactBody, {email});
+  }
 
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);

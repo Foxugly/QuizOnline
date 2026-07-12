@@ -23,7 +23,7 @@
                 <div class="course-list__bar">
                   <p-progressBar [value]="row.progress_percent" [showValue]="false" />
                   <span class="course-list__pct">
-                    {{ ui().tiles.courses.progressLabel(row.progress_percent) }}
+                    {{ progressLabel(row.progress_percent) }}
                   </span>
                 </div>
               </li>
@@ -56,7 +56,7 @@
         } @else {
           <div class="big-count">
             <span class="big-count__value">{{ certificatesCount() }}</span>
-            <span class="big-count__hint">{{ ui().tiles.certificates.count(certificatesCount()) }}</span>
+            <span class="big-count__hint">{{ certificatesCountLabel(certificatesCount()) }}</span>
           </div>
         }
       </div>
@@ -112,7 +112,7 @@
                 <li class="course-list__row" [routerLink]="inviteHref(inv.token)" (click)="$event.stopPropagation()">
                   <span class="course-list__title">{{ inv.course_title }}</span>
                   <span class="course-list__hint">
-                    {{ ui().tiles.invitations.inviterLine(inv.inviter_detail?.username || '') }}
+                    {{ inviterLine(inv.inviter_detail?.username || '') }}
                   </span>
                 </li>
               }

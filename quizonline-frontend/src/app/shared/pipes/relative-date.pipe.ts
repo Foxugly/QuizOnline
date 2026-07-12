@@ -3,6 +3,7 @@ import {DatePipe} from '@angular/common';
 
 import {UserService} from '../../services/user/user';
 import {UiTextService} from '../i18n/ui-text.service';
+import {formatRelativeTime} from '../i18n/notifications.util';
 
 /**
  * Renders a date as a relative string for recent events ("à l'instant",
@@ -39,7 +40,7 @@ export class RelativeDatePipe implements PipeTransform {
     const ageSeconds = Math.max(0, (Date.now() - ts) / 1000);
     const sevenDays = 7 * 24 * 3600;
     if (ageSeconds < sevenDays) {
-      return this.uiText.ui().notifications.relative(ageSeconds);
+      return formatRelativeTime(ageSeconds, this.uiText.ui().notifications.relative);
     }
     return this.datePipe.transform(new Date(ts), absoluteFormat) ?? '';
   }

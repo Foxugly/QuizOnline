@@ -18,6 +18,7 @@ import {DomainTransferStateDto} from '../../api/generated/model/domain-transfer-
 import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 import {getTransferAcceptUiText} from './transfer-accept.i18n';
@@ -44,6 +45,16 @@ export class TransferAcceptPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly text = inject(UiTextService).localized(getTransferAcceptUiText);
+
+  /** Interpolated transfer explanation for the ``ready_to_accept`` state. */
+  protected readyExplain(domainName: string, initiatorUsername: string): string {
+    return interp(this.text().states.readyExplain, {domainName, initiatorUsername});
+  }
+
+  /** Interpolated ``wrong_account`` hint naming the intended new owner. */
+  protected wrongAccount(futureOwnerUsername: string): string {
+    return interp(this.text().states.wrongAccount, {futureOwnerUsername});
+  }
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);

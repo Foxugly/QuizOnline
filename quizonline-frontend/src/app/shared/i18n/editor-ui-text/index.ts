@@ -1,10 +1,17 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+
+import EN_JSON from './en.json';
+import ES_JSON from './es.json';
+import FR_JSON from './fr.json';
+import IT_JSON from './it.json';
+import NL_JSON from './nl.json';
 import type {EditorUiText} from './types';
-import {FR} from './fr';
-import {EN} from './en';
-import {NL} from './nl';
-import {IT} from './it';
-import {ES} from './es';
+
+const EN = EN_JSON as EditorUiText;
+const FR = FR_JSON as EditorUiText;
+const NL = NL_JSON as EditorUiText;
+const IT = IT_JSON as EditorUiText;
+const ES = ES_JSON as EditorUiText;
 
 export type {EditorUiText} from './types';
 

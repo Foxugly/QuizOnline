@@ -162,7 +162,7 @@
           <li>
             <span class="analytics-counters__label">{{ ui().invite.kpi.medianDecisionHours }}</span>
             <span class="analytics-counters__value">
-              {{ ui().invite.decisionHoursValue(analytics()!.invite_median_decision_hours) }}
+              {{ decisionHoursValue(analytics()!.invite_median_decision_hours) }}
             </span>
           </li>
         </ul>
@@ -179,7 +179,7 @@
         <ul class="analytics-audit__list">
           @for (entry of auditEntries(); track entry.id) {
             <li class="analytics-audit__row">
-              <span class="analytics-audit__action">{{ ui().auditAction(entry.action) }}</span>
+              <span class="analytics-audit__action">{{ auditAction(entry.action) }}</span>
               <span class="analytics-audit__actor">{{ entry.actor_username || '—' }}</span>
               <span class="analytics-audit__date"
                     [attr.title]="entry.created_at | date:'medium'">

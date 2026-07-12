@@ -1,5 +1,6 @@
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {plural} from '../../../shared/i18n/format';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
@@ -167,7 +168,7 @@ export class UserListPage implements OnInit {
     const labels = this.ui().bulkList;
     this.confirmationService.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteUsers(ids.length),
+      message: plural(labels.confirmDeleteUsers, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmDeleteAccept,
       rejectLabel: labels.confirmDeleteCancel,

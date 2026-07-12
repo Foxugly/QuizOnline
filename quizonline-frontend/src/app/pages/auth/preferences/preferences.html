@@ -324,7 +324,7 @@
   [style]="{ width: 'min(32rem, 92vw)' }"
   (visibleChange)="!$event && closeDeleteAccountDialog()">
   @if (currentUser(); as me) {
-    <p>{{ ui().preferences.deleteConfirmMessage(me.username) }}</p>
+    <p>{{ deleteConfirmMessage(me.username) }}</p>
     <input
       pInputText
       type="text"

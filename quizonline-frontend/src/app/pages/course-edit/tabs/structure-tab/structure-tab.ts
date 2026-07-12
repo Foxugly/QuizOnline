@@ -36,6 +36,7 @@ import {
 import {EmptyStateComponent} from '../../../../shared/components/empty-state/empty-state';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
 import {isEmptyRichText} from '../../../../shared/html/is-empty-rich-text';
+import {interp} from '../../../../shared/i18n/format';
 import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 
@@ -735,7 +736,7 @@ export class CourseEditStructureTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteSection(title),
+      message: interp(labels.confirmDeleteSection, {title}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmAccept,
       rejectLabel: labels.confirmReject,
@@ -749,7 +750,7 @@ export class CourseEditStructureTab {
     const labels = this.ui();
     this.confirmer.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteLesson(title),
+      message: interp(labels.confirmDeleteLesson, {title}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmAccept,
       rejectLabel: labels.confirmReject,

@@ -1,3 +1,12 @@
+import type {PluralForms} from '../../format';
+
+/** Bulk moderation result copy — two templates the consumer picks between by
+ *  whether any request was skipped. Placeholders ``{processed}``/``{skipped}``. */
+export type BulkResultDetailCopy = {
+  withSkipped: string;
+  noSkipped: string;
+};
+
 export type AdminUiText = {
   menuLabel: string;
   connections: {
@@ -100,11 +109,11 @@ export type AdminUiText = {
     bulkApprove: string;
     bulkReject: string;
     bulkCancel: string;
-    bulkSelectedCount: (n: number) => string;
+    bulkSelectedCount: PluralForms;
     bulkRejectHeader: string;
-    bulkRejectMessage: (n: number) => string;
+    bulkRejectMessage: string;
     bulkActionFailed: string;
     bulkResultTitle: string;
-    bulkResultDetail: (processed: number, skipped: number) => string;
+    bulkResultDetail: BulkResultDetailCopy;
   };
 };

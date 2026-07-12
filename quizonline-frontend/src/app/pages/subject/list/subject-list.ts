@@ -1,6 +1,7 @@
 import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
+import {plural} from '../../../shared/i18n/format';
 import {FormsModule} from '@angular/forms';
 import {catchError, debounceTime, distinctUntilChanged, forkJoin, merge, of, Subject, switchMap} from 'rxjs';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
@@ -77,6 +78,10 @@ export class SubjectList implements OnInit {
   selectedRows = signal<SubjectListRow[]>([]);
   applyingBulk = signal(false);
   readonly selectedCount = computed(() => this.selectedRows().length);
+
+  protected bulkSelectedText(n: number): string {
+    return plural(this.pageText().bulk.selectedCount, n);
+  }
 
   readonly bulkActionOptions = computed<BulkActionOption[]>(() => {
     const labels = this.editorUi().bulkList;
@@ -227,7 +232,7 @@ export class SubjectList implements OnInit {
     const labels = this.editorUi().bulkList;
     this.confirmationService.confirm({
       header: labels.confirmDeleteHeader,
-      message: labels.confirmDeleteSubjects(ids.length),
+      message: plural(labels.confirmDeleteSubjects, ids.length),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmDeleteAccept,
       rejectLabel: labels.confirmDeleteCancel,

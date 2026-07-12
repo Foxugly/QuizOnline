@@ -17,6 +17,7 @@ import {ROUTES} from '../../../../app.routes-paths';
 import {logApiError, userFacingApiMessage} from '../../../../shared/api/api-errors';
 import {EmptyStateComponent} from '../../../../shared/components/empty-state/empty-state';
 import {formatLocalizedDateTime} from '../../../../shared/i18n/date-time';
+import {interp} from '../../../../shared/i18n/format';
 import {getQuizAlertListUiText} from './quiz-alert-list.i18n';
 
 type AlertStatusFilter = 'all' | 'open' | 'closed';
@@ -146,11 +147,19 @@ export class QuizAlertList implements OnInit {
       .trim();
 
     if (!sanitized) {
-      return t.assignmentPreview(thread.quiz_template_title);
+      return interp(t.assignmentPreview, {title: thread.quiz_template_title});
     }
 
     const prefix = sanitized.endsWith('.') ? sanitized.slice(0, -1) : sanitized;
-    return t.assignmentPreviewWithIntro(prefix, thread.quiz_template_title);
+    return interp(t.assignmentPreviewWithIntro, {intro: prefix, title: thread.quiz_template_title});
+  }
+
+  protected questionPrefixText(id: number): string {
+    return interp(this.pageText().questionPrefix, {id});
+  }
+
+  protected questionOrderText(order: number): string {
+    return interp(this.pageText().questionOrder, {order});
   }
 
   formatThreadDate(value: string): string {

@@ -71,7 +71,7 @@
       <div class="field field--stat">
         <label for="nbQuestions">
           @if (availableQuestionCount() > 0) {
-            {{ pageText().questionCountWithMax(availableQuestionCount()) }}
+            {{ questionCountWithMax(availableQuestionCount()) }}
           } @else {
             {{ pageText().questionCount }}
           }

@@ -1,0 +1,52 @@
+{
+  "fr": {
+    "title": "Sujets",
+    "searchPlaceholder": "Rechercher…",
+    "bulk": {
+      "placeholder": "Actions groupées…",
+      "apply": "Appliquer",
+      "selectedCount": {"one": "{n} sélectionné", "other": "{n} sélectionnés"}
+    },
+    "columns": {"name": "Nom", "active": "Actif", "domain": "Domaine", "questions": "Questions", "actions": "Actions"}
+  },
+  "en": {
+    "title": "Topics",
+    "searchPlaceholder": "Search…",
+    "bulk": {
+      "placeholder": "Bulk actions…",
+      "apply": "Apply",
+      "selectedCount": {"one": "{n} selected", "other": "{n} selected"}
+    },
+    "columns": {"name": "Name", "active": "Active", "domain": "Domain", "questions": "Questions", "actions": "Actions"}
+  },
+  "nl": {
+    "title": "Onderwerpen",
+    "searchPlaceholder": "Zoeken…",
+    "bulk": {
+      "placeholder": "Bulkacties…",
+      "apply": "Toepassen",
+      "selectedCount": {"one": "{n} geselecteerd", "other": "{n} geselecteerd"}
+    },
+    "columns": {"name": "Naam", "active": "Actief", "domain": "Domein", "questions": "Vragen", "actions": "Acties"}
+  },
+  "it": {
+    "title": "Argomenti",
+    "searchPlaceholder": "Cerca…",
+    "bulk": {
+      "placeholder": "Azioni in blocco…",
+      "apply": "Applica",
+      "selectedCount": {"one": "{n} selezionato", "other": "{n} selezionati"}
+    },
+    "columns": {"name": "Nome", "active": "Attivo", "domain": "Dominio", "questions": "Domande", "actions": "Azioni"}
+  },
+  "es": {
+    "title": "Temas",
+    "searchPlaceholder": "Buscar…",
+    "bulk": {
+      "placeholder": "Acciones masivas…",
+      "apply": "Aplicar",
+      "selectedCount": {"one": "{n} seleccionado", "other": "{n} seleccionados"}
+    },
+    "columns": {"name": "Nombre", "active": "Activo", "domain": "Dominio", "questions": "Preguntas", "actions": "Acciones"}
+  }
+}

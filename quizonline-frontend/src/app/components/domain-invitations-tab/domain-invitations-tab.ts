@@ -20,6 +20,7 @@ import {DomainJoinRequestReadDto} from '../../api/generated/model/domain-join-re
 import {JoinRequestStatusEnumDto} from '../../api/generated/model/join-request-status-enum';
 import {DomainEditUiText} from '../../pages/domain/edit/domain-edit.i18n';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {interp, plural} from '../../shared/i18n/format';
 import {BulkActionsComponent, BulkActionOption} from '../../shared/components/bulk-actions/bulk-actions';
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {RelativeDatePipe} from '../../shared/pipes/relative-date.pipe';
@@ -102,6 +103,30 @@ export class DomainInvitationsTab {
   private readonly uiText = inject(UiTextService);
   private readonly confirmationService = inject(ConfirmationService);
   readonly adminLabels = computed(() => this.uiText.ui().admin.joinRequests);
+
+  protected bulkSelectedText(n: number): string {
+    return plural(this.adminLabels().bulkSelectedCount, n);
+  }
+
+  protected bulkRejectMessageText(n: number): string {
+    return interp(this.adminLabels().bulkRejectMessage, {n});
+  }
+
+  protected inviteResultSentText(email: string): string {
+    return interp(this.text().members.inviteResultSent, {email});
+  }
+
+  protected inviteResultAlreadyMemberText(email: string): string {
+    return interp(this.text().members.inviteResultAlreadyMember, {email});
+  }
+
+  protected inviteResultForbiddenText(email: string): string {
+    return interp(this.text().members.inviteResultForbidden, {email});
+  }
+
+  protected inviteResultInvalidText(email: string): string {
+    return interp(this.text().members.inviteResultInvalid, {email});
+  }
 
   readonly statusOptions = computed(() => {
     const labels = this.adminLabels();
@@ -269,7 +294,7 @@ export class DomainInvitationsTab {
     const labels = this.text().members;
     this.confirmationService.confirm({
       header: labels.invitationConfirmRevokeHeader,
-      message: labels.invitationConfirmRevokeMessage(invite.email),
+      message: interp(labels.invitationConfirmRevokeMessage, {email: invite.email}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.invitationConfirmRevokeAccept,
       rejectLabel: labels.invitationConfirmRevokeCancel,

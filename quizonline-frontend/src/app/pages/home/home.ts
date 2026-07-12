@@ -12,6 +12,7 @@ import {DomainService} from '../../services/domain/domain';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
 import {openContactEmail} from '../../shared/contact';
+import {interp, plural} from '../../shared/i18n/format';
 
 @Component({
   selector: 'app-home',
@@ -53,6 +54,14 @@ export class Home implements OnInit {
     if (this.isAuthenticated()) {
       this.loadModerationSummary();
     }
+  }
+
+  protected moderationSubtitle(): string {
+    return interp(this.ui().home.moderationTileSubtitle, {total: this.moderationTotal()});
+  }
+
+  protected moderationCount(pending: number | undefined): string {
+    return plural(this.ui().home.moderationTileCount, pending ?? 0);
   }
 
   goModerate(domainId: number): void {

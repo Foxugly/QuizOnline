@@ -1,4 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import data from './lesson-edit.i18n.json';
 
 /**
  * Page-scoped dictionary for ``/lesson/{id}/edit``. The shell-level
@@ -21,58 +22,10 @@ export interface LessonEditUiText {
   editModeButton: string;
 }
 
+const CATALOG = data as Record<string, LessonEditUiText>;
+
 export function getLessonEditUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): LessonEditUiText {
-  switch (lang) {
-    case LanguageEnumDto.Fr:
-    case 'fr':
-      return {
-        pageTitle: 'Édition de la leçon',
-        blockErrorToast: 'L\'opération sur le bloc a échoué.',
-        emptyTitle: 'Leçon vide',
-        emptyHint: 'Ajoutez un premier bloc à l\'aide de la barre ci-dessous.',
-        previewButton: 'Aperçu',
-        editModeButton: 'Édition',
-      };
-    case LanguageEnumDto.Nl:
-    case 'nl':
-      return {
-        pageTitle: 'Les bewerken',
-        blockErrorToast: 'De blok-bewerking is mislukt.',
-        emptyTitle: 'Lege les',
-        emptyHint: 'Voeg een eerste blok toe via de balk hieronder.',
-        previewButton: 'Voorbeeld',
-        editModeButton: 'Bewerken',
-      };
-    case LanguageEnumDto.It:
-    case 'it':
-      return {
-        pageTitle: 'Modifica lezione',
-        blockErrorToast: 'Operazione sul blocco non riuscita.',
-        emptyTitle: 'Lezione vuota',
-        emptyHint: 'Aggiungi un primo blocco usando la barra qui sotto.',
-        previewButton: 'Anteprima',
-        editModeButton: 'Modifica',
-      };
-    case LanguageEnumDto.Es:
-    case 'es':
-      return {
-        pageTitle: 'Editar lección',
-        blockErrorToast: 'La operación sobre el bloque falló.',
-        emptyTitle: 'Lección vacía',
-        emptyHint: 'Añade un primer bloque desde la barra de abajo.',
-        previewButton: 'Vista previa',
-        editModeButton: 'Editar',
-      };
-    default:
-      return {
-        pageTitle: 'Edit lesson',
-        blockErrorToast: 'Block operation failed.',
-        emptyTitle: 'Empty lesson',
-        emptyHint: 'Add a first block from the bar below.',
-        previewButton: 'Preview',
-        editModeButton: 'Edit',
-      };
-  }
+  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
 }

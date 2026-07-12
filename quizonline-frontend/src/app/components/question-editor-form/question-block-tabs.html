@@ -85,7 +85,7 @@
           @for (row of answerRows(); track row.id; let i = $index) {
             <div class="answer-card" [class.answer-card--correct]="row.is_correct">
               <header class="answer-card__header">
-                <span class="answer-card__title">{{ ui().answerHeading(i + 1) }}</span>
+                <span class="answer-card__title">{{ answerHeadingText(i + 1) }}</span>
                 <label class="answer-card__correct">
                   <p-checkbox
                     [binary]="true"

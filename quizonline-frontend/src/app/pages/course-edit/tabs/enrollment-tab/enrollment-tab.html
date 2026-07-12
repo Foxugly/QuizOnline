@@ -30,7 +30,7 @@
             type="button"
             icon="pi pi-send"
             [label]="selectedInvitees().length > 1
-              ? ui().invite.sendBulkButton(selectedInvitees().length)
+              ? sendBulkButton(selectedInvitees().length)
               : ui().invite.sendButton"
             [disabled]="selectedInvitees().length === 0 || sending()"
             [loading]="sending()"

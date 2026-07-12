@@ -15,6 +15,7 @@ import {EmptyStateComponent} from '../../shared/components/empty-state/empty-sta
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
+import {interp} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
 import {AppToastService} from '../../shared/toast/app-toast.service';
@@ -208,6 +209,11 @@ export class CourseDetail implements OnInit {
     const sections = this.sectionsVm();
     return sections.some((s) => s.lessons.length > 0);
   });
+
+  /** "Invited by X" banner — interpolates the inviter display name. */
+  protected invitedByBanner(inviter: string): string {
+    return interp(this.ui().invitedByBanner, {inviter});
+  }
 
   ngOnInit(): void {
     // switchMap cancels the previous slug's in-flight request when the route
