@@ -9,7 +9,7 @@
   justify-content: flex-end;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .quick-page__actions {
     flex-direction: column-reverse;
   }

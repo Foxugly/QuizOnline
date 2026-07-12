@@ -275,11 +275,11 @@ $danger-ink: #7f1d1d;
 
 .delete-dialog__error { display: block; margin-top: 0.75rem; }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .preferences-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .hero {
     align-items: flex-start;
     flex-direction: column;
