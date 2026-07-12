@@ -38,7 +38,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 999px;
+  border-radius: var(--radius);
   background: var(--p-red-500, #e53935);
   color: #fff;
   font-size: 0.7rem;
