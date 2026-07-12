@@ -804,12 +804,12 @@ class DomainInviteAcceptView(APIView):
 
         User = get_user_model()
         inviter = User.objects.filter(pk=payload["inviter_id"]).first()
-        inviter_username = inviter.username if inviter else ""
+        inviter_name = inviter.get_display_name() if inviter else ""
 
         base_payload = {
             "domain_id": domain.id,
             "domain_name": safe_domain_name(domain),
-            "inviter_username": inviter_username,
+            "inviter_name": inviter_name,
             "invited_email": invited_email,
         }
 
@@ -937,16 +937,16 @@ class DomainTransferAcceptView(APIView):
             base = {
                 "domain_id": domain.id,
                 "domain_name": domain_name,
-                "initiator_username": initiator.username if initiator else "",
-                "future_owner_username": future_owner.username if future_owner else "",
+                "initiator_name": initiator.get_display_name() if initiator else "",
+                "future_owner_name": future_owner.get_display_name() if future_owner else "",
             }
             return Response({**base, "state": "no_longer_eligible"})
 
         base_payload = {
             "domain_id": domain.id,
             "domain_name": domain_name,
-            "initiator_username": initiator.username,
-            "future_owner_username": future_owner.username,
+            "initiator_name": initiator.get_display_name(),
+            "future_owner_name": future_owner.get_display_name(),
         }
 
         user = getattr(request, "user", None)

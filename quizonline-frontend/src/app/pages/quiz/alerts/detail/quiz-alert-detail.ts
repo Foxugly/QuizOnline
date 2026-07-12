@@ -180,9 +180,9 @@ export class QuizAlertDetail implements OnInit {
       return '';
     }
     if (thread.owner === me.id) {
-      return thread.reporter_summary?.username || '';
+      return thread.reporter_summary?.name || '';
     }
-    return thread.owner_summary?.username || '';
+    return thread.owner_summary?.name || '';
   }
 
   isAssignmentIntroMessage(thread: QuizAlertThreadDetailDto, messageId: number): boolean {

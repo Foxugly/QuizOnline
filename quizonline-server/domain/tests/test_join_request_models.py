@@ -11,7 +11,7 @@ User = get_user_model()
 class DomainJoinPolicyTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pwd")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pwd")
 
     def test_join_policy_defaults_to_auto(self):
         domain = Domain.objects.create(owner=self.owner, name="D1", description="", active=True)
@@ -21,8 +21,8 @@ class DomainJoinPolicyTests(TestCase):
 class DomainJoinRequestModelTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner2", password="pwd")
-        self.user = User.objects.create_user(username="joiner", password="pwd")
+        self.owner = User.objects.create_user(email="owner2@example.test", password="pwd")
+        self.user = User.objects.create_user(email="joiner@example.test", password="pwd")
         self.domain = Domain.objects.create(owner=self.owner, name="D2", description="", active=True)
 
     def test_default_status_is_pending(self):

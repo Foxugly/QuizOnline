@@ -31,10 +31,10 @@ class DomainJoinRequestDecideEndpointTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pwd", email="owner@x.test")
-        self.manager = User.objects.create_user(username="mgr", password="pwd", email="mgr@x.test")
-        self.requester = User.objects.create_user(username="req", password="pwd", email="req@x.test")
-        self.other = User.objects.create_user(username="other", password="pwd", email="other@x.test")
+        self.owner = User.objects.create_user(password="pwd", email="owner@x.test")
+        self.manager = User.objects.create_user(password="pwd", email="mgr@x.test")
+        self.requester = User.objects.create_user(password="pwd", email="req@x.test")
+        self.other = User.objects.create_user(password="pwd", email="other@x.test")
 
         self.domain = Domain.objects.create(
             owner=self.owner,

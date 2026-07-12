@@ -47,7 +47,7 @@ def five_courses(db, owner, domain, fr_lang):
         Lesson.objects.create(section=s, slug=f"l-{i}-1", order=1, is_published=True, estimated_duration=15)
         courses.append(c)
     # Enrol on two of them.
-    learner = CustomUser.objects.create_user(username="bulk-learner", password="x")
+    learner = CustomUser.objects.create_user(email="bulk-learner@example.test", password="x")
     domain.members.add(learner)
     CourseEnrollment.objects.create(user=learner, course=courses[0])
     CourseEnrollment.objects.create(user=learner, course=courses[1])

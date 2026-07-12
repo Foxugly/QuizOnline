@@ -85,13 +85,13 @@
             <p-tableCheckbox [value]="req" [disabled]="!isPending(req)"></p-tableCheckbox>
           </td>
         }
-        <td>{{ req.user_summary?.username || ('#' + req.user) }}</td>
+        <td>{{ req.user_summary?.name || ('#' + req.user) }}</td>
         <td>{{ req.user_summary?.email || adminLabels().noReason }}</td>
         <td [attr.title]="req.created_at | date:'medium'">{{ req.created_at | relativeDate }}</td>
         <td>
           <p-tag [value]="statusLabel(req.status)" [severity]="statusSeverity(req.status)"></p-tag>
         </td>
-        <td>{{ req.decided_by_summary?.username || adminLabels().noReason }}</td>
+        <td>{{ req.decided_by_summary?.name || adminLabels().noReason }}</td>
         <td [attr.title]="req.decided_at ? (req.decided_at | date:'medium') : null">{{ req.decided_at ? (req.decided_at | relativeDate) : adminLabels().noReason }}</td>
         <td>{{ req.reject_reason || adminLabels().noReason }}</td>
         @if (canModerate()) {

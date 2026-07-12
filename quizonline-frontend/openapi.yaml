@@ -1484,7 +1484,7 @@ paths:
 
         Filtres optionnels (combinables) :
         - ``action`` : nom exact de l'action (ex. ``member.promote``).
-        - ``actor`` : sous-chaîne, insensible à la casse, recherchée dans le ``username`` ou l'``email`` de l'acteur.
+        - ``actor`` : sous-chaîne, insensible à la casse, recherchée dans le nom ou l'``email`` de l'acteur.
         - ``since`` / ``until`` : ISO-8601 (date ou datetime) sur ``created_at``.
       summary: Journal d'audit d'un domaine
       parameters:
@@ -1497,7 +1497,7 @@ paths:
         name: actor
         schema:
           type: string
-        description: Case-insensitive substring on the actor username or email.
+        description: Case-insensitive substring on the actor name or email.
       - in: path
         name: domain_id
         schema:
@@ -5586,6 +5586,7 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/CustomUserAdminUpdateRequest'
+        required: true
       security:
       - jwtAuth: []
       responses:
@@ -5875,7 +5876,7 @@ paths:
         au compte de l''utilisateur connecté. Couvre le profil, les domaines (owned
         / managed / membre), les demandes d''adhésion et les sessions de quiz. Pensé
         pour le droit d''accès / portabilité du RGPD : le frontend télécharge la réponse
-        en ``application/json`` sous le nom ``quizonline-export-<username>.json``.'
+        en ``application/json`` sous le nom ``quizonline-export-<email>.json``.'
       summary: 'Export GDPR : toutes les données du compte courant'
       tags:
       - User
@@ -6793,7 +6794,7 @@ components:
       type: object
       description: |-
         Read-only enrollment row. ``user`` stays as an int FK for write-side
-        compatibility; ``user_detail`` carries the username/email/display-name
+        compatibility; ``user_detail`` carries the name/email/display-name
         needed by the instructor-facing enrollment table without a chatty extra
         request per row.
       properties:
@@ -6835,7 +6836,7 @@ components:
       type: object
       description: |-
         Read-only enrollment row. ``user`` stays as an int FK for write-side
-        compatibility; ``user_detail`` carries the username/email/display-name
+        compatibility; ``user_detail`` carries the name/email/display-name
         needed by the instructor-facing enrollment table without a chatty extra
         request per row.
       properties:
@@ -7253,7 +7254,7 @@ components:
         email:
           type: string
           format: email
-          nullable: true
+          minLength: 1
           title: Email address
           maxLength: 254
         first_name:
@@ -7280,20 +7281,15 @@ components:
         nb_domain_max:
           type: integer
           minimum: 0
+      required:
+      - email
     CustomUserCreateRequest:
       type: object
       properties:
-        username:
-          type: string
-          minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
         email:
           type: string
           format: email
-          nullable: true
+          minLength: 1
           title: Email address
           maxLength: 254
         first_name:
@@ -7327,23 +7323,17 @@ components:
           type: string
           writeOnly: true
       required:
+      - email
       - password
-      - username
     CustomUserRead:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          readOnly: true
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
         email:
           type: string
           format: email
-          nullable: true
           title: Email address
           maxLength: 254
         first_name:
@@ -7403,6 +7393,7 @@ components:
         notification_prefs: {}
       required:
       - current_domain_title
+      - email
       - email_confirmed
       - id
       - is_active
@@ -7413,7 +7404,6 @@ components:
       - owned_domain_ids
       - password_change_required
       - pending_join_requests
-      - username
     DashboardStatsResponse:
       type: object
       properties:
@@ -7463,13 +7453,13 @@ components:
     DomainAnalyticsDecider:
       type: object
       properties:
-        username:
+        name:
           type: string
         count:
           type: integer
       required:
       - count
-      - username
+      - name
     DomainAuditLogRead:
       type: object
       description: Lightweight view of an audit-log row for the per-domain audit page.
@@ -7480,10 +7470,10 @@ components:
         action:
           type: string
           readOnly: true
-        actor_username:
+        actor_name:
           type: string
           readOnly: true
-        target_username:
+        target_name:
           type: string
           readOnly: true
         metadata:
@@ -7494,11 +7484,11 @@ components:
           readOnly: true
       required:
       - action
-      - actor_username
+      - actor_name
       - created_at
       - id
       - metadata
-      - target_username
+      - target_name
     DomainDetail:
       type: object
       properties:
@@ -7608,7 +7598,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/DomainInviteReadStatusEnum'
           readOnly: true
-        inviter_username:
+        inviter_name:
           type: string
           readOnly: true
         created_at:
@@ -7628,7 +7618,7 @@ components:
       - email
       - expires_at
       - id
-      - inviter_username
+      - inviter_name
       - last_sent_at
       - status
     DomainInviteReadStatusEnum:
@@ -7713,7 +7703,7 @@ components:
           type: integer
         domain_name:
           type: string
-        inviter_username:
+        inviter_name:
           type: string
         invited_email:
           type: string
@@ -7722,7 +7712,7 @@ components:
       - domain_id
       - domain_name
       - invited_email
-      - inviter_username
+      - inviter_name
       - state
     DomainInviteStateStateEnum:
       enum:
@@ -7999,15 +7989,15 @@ components:
           type: integer
         domain_name:
           type: string
-        initiator_username:
+        initiator_name:
           type: string
-        future_owner_username:
+        future_owner_name:
           type: string
       required:
       - domain_id
       - domain_name
-      - future_owner_username
-      - initiator_username
+      - future_owner_name
+      - initiator_name
       - state
     DomainTransferStateStateEnum:
       enum:
@@ -8102,7 +8092,7 @@ components:
     EmailConfirmedTokenObtainPairRequest:
       type: object
       properties:
-        username:
+        email:
           type: string
           writeOnly: true
           minLength: 1
@@ -8111,8 +8101,8 @@ components:
           writeOnly: true
           minLength: 1
       required:
+      - email
       - password
-      - username
     EnrollmentModeEnum:
       enum:
       - open
@@ -9455,7 +9445,7 @@ components:
         email:
           type: string
           format: email
-          nullable: true
+          minLength: 1
           title: Email address
           maxLength: 254
         first_name:
@@ -9488,7 +9478,7 @@ components:
         email:
           type: string
           format: email
-          nullable: true
+          minLength: 1
           title: Email address
           maxLength: 254
         first_name:
@@ -10319,7 +10309,7 @@ components:
         last_message_preview:
           type: string
           readOnly: true
-        counterpart_username:
+        counterpart_name:
           type: string
           readOnly: true
         reporter:
@@ -10363,7 +10353,7 @@ components:
       - can_reply
       - closed_at
       - closed_by
-      - counterpart_username
+      - counterpart_name
       - created_at
       - id
       - kind
@@ -10437,11 +10427,11 @@ components:
         last_message_preview:
           type: string
           readOnly: true
-        counterpart_username:
+        counterpart_name:
           type: string
           readOnly: true
       required:
-      - counterpart_username
+      - counterpart_name
       - created_at
       - id
       - kind
@@ -10917,7 +10907,7 @@ components:
         created_by:
           type: integer
           readOnly: true
-        created_by_username:
+        created_by_name:
           type: string
           readOnly: true
           default: ''
@@ -10930,7 +10920,7 @@ components:
       - can_answer
       - created_at
       - created_by
-      - created_by_username
+      - created_by_name
       - description
       - domain
       - id
@@ -11053,7 +11043,7 @@ components:
         created_by:
           type: integer
           readOnly: true
-        created_by_username:
+        created_by_name:
           type: string
           readOnly: true
           default: ''
@@ -11061,7 +11051,7 @@ components:
       - can_answer
       - created_at
       - created_by
-      - created_by_username
+      - created_by_name
       - description
       - domain
       - id
@@ -11471,8 +11461,9 @@ components:
       properties:
         id:
           type: integer
-        username:
+        name:
           type: string
+          default: ''
         first_name:
           type: string
           default: ''
@@ -11485,7 +11476,6 @@ components:
           default: ''
       required:
       - id
-      - username
     VideoProviderEnum:
       enum:
       - youtube

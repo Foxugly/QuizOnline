@@ -8,7 +8,7 @@
   @if (quiz(); as currentQuiz) {
     <p class="intro">
       {{ ui().pages.quizSessionDelete.introPrefix }} <strong>{{ currentQuiz.quiz_template_title }}</strong>
-      {{ ui().pages.quizSessionDelete.introSeparator }} <strong>{{ currentQuiz.user_summary?.username || (ui().pages.quizSessionDelete.userFallbackPrefix + currentQuiz.user) }}</strong>.
+      {{ ui().pages.quizSessionDelete.introSeparator }} <strong>{{ currentQuiz.user_summary?.name || (ui().pages.quizSessionDelete.userFallbackPrefix + currentQuiz.user) }}</strong>.
     </p>
   } @else if (!error()) {
     <p class="intro">{{ ui().pages.quizSessionDelete.loading }}</p>

@@ -56,7 +56,7 @@
       </div>
     } @else if (decision(); as dec) {
       <p class="decide-line">
-        {{ requesterLine(dec.request.user_summary?.username ?? ('#' + dec.request.user), dec.request.user_summary?.email ?? '') }}
+        {{ requesterLine(dec.request.user_summary?.name ?? ('#' + dec.request.user), dec.request.user_summary?.email ?? '') }}
       </p>
 
       <p class="decide-line">
@@ -81,7 +81,7 @@
           {{ statusLine(statusLabel()) }}
         </p>
 
-        @if (dec.request.decided_by_summary?.username; as decidedByUsername) {
+        @if (dec.request.decided_by_summary?.name; as decidedByUsername) {
           <p class="decide-line">
             {{ decidedBy(decidedByUsername, dec.request.decided_at ? ((dec.request.decided_at | date:'medium') ?? '') : '') }}
           </p>

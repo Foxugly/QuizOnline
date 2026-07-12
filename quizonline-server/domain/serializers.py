@@ -598,7 +598,7 @@ def _user_summary(user, *, include_email: bool = True) -> dict:
     # shape — and the OpenAPI contract — is unchanged).
     return {
         "id": user.id,
-        "username": user.username,
+        "name": user.get_display_name(),
         "first_name": user.first_name or "",
         "last_name": user.last_name or "",
         "email": (user.email or "") if include_email else "",
@@ -642,7 +642,7 @@ class DomainJoinRequestDecideResponseSerializer(serializers.Serializer):
 
 
 class DomainAnalyticsDeciderSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    name = serializers.CharField()
     count = serializers.IntegerField()
 
 
@@ -660,26 +660,26 @@ class DomainAnalyticsSerializer(serializers.Serializer):
 
 class DomainAuditLogReadSerializer(serializers.ModelSerializer):
     """Lightweight view of an audit-log row for the per-domain audit page."""
-    actor_username = serializers.SerializerMethodField()
-    target_username = serializers.SerializerMethodField()
+    actor_name = serializers.SerializerMethodField()
+    target_name = serializers.SerializerMethodField()
 
     class Meta:
         model = DomainAuditLog
         fields = [
             "id",
             "action",
-            "actor_username",
-            "target_username",
+            "actor_name",
+            "target_name",
             "metadata",
             "created_at",
         ]
         read_only_fields = fields
 
-    def get_actor_username(self, obj) -> str:
-        return obj.actor.username if obj.actor_id else ""
+    def get_actor_name(self, obj) -> str:
+        return obj.actor.get_display_name() if obj.actor_id else ""
 
-    def get_target_username(self, obj) -> str:
-        return obj.target_user.username if obj.target_user_id else ""
+    def get_target_name(self, obj) -> str:
+        return obj.target_user.get_display_name() if obj.target_user_id else ""
 
 
 class ModerationSummaryItemSerializer(serializers.Serializer):
@@ -692,7 +692,7 @@ class ModerationSummaryItemSerializer(serializers.Serializer):
 class DomainInviteReadSerializer(serializers.ModelSerializer):
     """Lightweight view over a persisted DomainInvite row."""
 
-    inviter_username = serializers.SerializerMethodField()
+    inviter_name = serializers.SerializerMethodField()
 
     class Meta:
         model = DomainInvite
@@ -700,15 +700,15 @@ class DomainInviteReadSerializer(serializers.ModelSerializer):
             "id",
             "email",
             "status",
-            "inviter_username",
+            "inviter_name",
             "created_at",
             "expires_at",
             "last_sent_at",
         ]
         read_only_fields = fields
 
-    def get_inviter_username(self, obj) -> str:
-        return obj.inviter.username if obj.inviter_id else ""
+    def get_inviter_name(self, obj) -> str:
+        return obj.inviter.get_display_name() if obj.inviter_id else ""
 
 
 class DomainInviteRequestSerializer(serializers.Serializer):
@@ -779,8 +779,8 @@ class DomainTransferStateSerializer(serializers.Serializer):
     ))
     domain_id = serializers.IntegerField()
     domain_name = serializers.CharField()
-    initiator_username = serializers.CharField()
-    future_owner_username = serializers.CharField()
+    initiator_name = serializers.CharField()
+    future_owner_name = serializers.CharField()
 
 
 class DomainInviteStateSerializer(serializers.Serializer):
@@ -795,5 +795,5 @@ class DomainInviteStateSerializer(serializers.Serializer):
     ))
     domain_id = serializers.IntegerField()
     domain_name = serializers.CharField()
-    inviter_username = serializers.CharField()
+    inviter_name = serializers.CharField()
     invited_email = serializers.EmailField()

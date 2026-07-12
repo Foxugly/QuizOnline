@@ -71,7 +71,6 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
 
   form: FormGroup = this.fb.nonNullable.group(
     {
-      username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       first_name: ['', [Validators.required]],
       last_name: ['', [Validators.required]],
@@ -186,11 +185,10 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isSubmitting.set(true);
-    const {username, email, first_name, last_name, language, requested_domain_ids, password} = this.form.getRawValue();
+    const {email, first_name, last_name, language, requested_domain_ids, password} = this.form.getRawValue();
 
     this.authService
       .register({
-        username,
         email,
         first_name,
         last_name,

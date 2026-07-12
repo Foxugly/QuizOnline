@@ -82,7 +82,7 @@
             <p-message severity="info" [closable]="false">
               <span>
                 <i class="pi pi-clock"></i>
-                {{ transferPendingToText(pending.username) }}
+                {{ transferPendingToText(pending.name ?? '') }}
               </span>
             </p-message>
           }
@@ -238,9 +238,9 @@
               <ng-template #body let-row>
                 <tr>
                   <td [attr.title]="row.created_at | date:'medium'">{{ row.created_at | relativeDate }}</td>
-                  <td>{{ row.actor_username || editText().audit.systemActor }}</td>
+                  <td>{{ row.actor_name || editText().audit.systemActor }}</td>
                   <td>{{ auditActionLabelText(row.action) }}</td>
-                  <td>{{ row.target_username || '—' }}</td>
+                  <td>{{ row.target_name || '—' }}</td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>

@@ -203,7 +203,7 @@ def _decision_urls(*, join_request, recipient) -> tuple[str, str]:
 def _build_request_body(recipient, *, join_request, requester, domain) -> str:
     copy = _domain_join_copy(user_language(recipient))
     domain_name = _domain_name_for(domain, recipient)
-    requester_name = getattr(requester, "get_display_name", lambda: requester.username)()
+    requester_name = requester.get_display_name()
     approve_url, reject_url = _decision_urls(join_request=join_request, recipient=recipient)
     return (
         f"{copy['greeting']} {recipient.get_display_name()},\n\n"
@@ -217,7 +217,7 @@ def _build_request_body(recipient, *, join_request, requester, domain) -> str:
 def _build_request_html(recipient, *, join_request, requester, domain) -> str:
     copy = _domain_join_copy(user_language(recipient))
     domain_name = _domain_name_for(domain, recipient)
-    requester_name = getattr(requester, "get_display_name", lambda: requester.username)()
+    requester_name = requester.get_display_name()
     approve_url, reject_url = _decision_urls(join_request=join_request, recipient=recipient)
     return render_html_email(
         heading=f"{copy['greeting']} {recipient.get_display_name()},",
@@ -242,7 +242,7 @@ def send_join_request_created_email(*, join_request, recipients) -> None:
                 "domain_id": domain.id,
                 "domain_name": _domain_name_for(domain, recipient),
                 "requester_id": getattr(requester, "id", None),
-                "requester_username": getattr(requester, "username", ""),
+                "requester_name": requester.get_display_name() if requester else "",
                 "requester_email": getattr(requester, "email", ""),
                 "join_request_id": join_request.id,
             },

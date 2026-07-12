@@ -30,7 +30,7 @@ def _enrollment_user_summary(user) -> dict:
     object instead of an opaque dict."""
     return {
         "id": user.id,
-        "username": user.username,
+        "name": user.get_display_name(),
         "first_name": user.first_name or "",
         "last_name": user.last_name or "",
         "email": user.email or "",
@@ -39,7 +39,7 @@ def _enrollment_user_summary(user) -> dict:
 
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     """Read-only enrollment row. ``user`` stays as an int FK for write-side
-    compatibility; ``user_detail`` carries the username/email/display-name
+    compatibility; ``user_detail`` carries the name/email/display-name
     needed by the instructor-facing enrollment table without a chatty extra
     request per row."""
 

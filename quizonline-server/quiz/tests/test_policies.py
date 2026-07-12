@@ -21,8 +21,8 @@ class QuizPoliciesTestCase(TestCase):
     def setUp(self):
         super().setUp()
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pass")
-        self.staff = User.objects.create_user(username="staff", password="pass", is_staff=True)
+        self.owner = User.objects.create_user(email="owner@example.test", password="pass")
+        self.staff = User.objects.create_user(email="staff@example.test", password="pass", is_staff=True)
         self.domain = Domain.objects.create(owner=self.owner, name="Domaine", description="", active=True)
 
     def tearDown(self):
@@ -57,7 +57,7 @@ class QuizPoliciesTestCase(TestCase):
         return Quiz.objects.create(**defaults)
 
     def test_is_quiz_admin_detects_staff_and_superuser(self):
-        superuser = User.objects.create_user(username="root", password="pass", is_superuser=True)
+        superuser = User.objects.create_user(email="root@example.test", password="pass", is_superuser=True)
 
         self.assertFalse(is_quiz_admin(self.owner))
         self.assertTrue(is_quiz_admin(self.staff))

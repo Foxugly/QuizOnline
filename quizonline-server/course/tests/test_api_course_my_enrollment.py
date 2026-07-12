@@ -55,7 +55,7 @@ def test_lesson_count_and_duration(owner, published_course, two_lessons):
 
 @pytest.mark.django_db
 def test_my_enrollment_null_when_not_enrolled(published_course, two_lessons, db):
-    other = CustomUser.objects.create_user(username="other", password="x")
+    other = CustomUser.objects.create_user(email="other@example.test", password="x")
     # Make ``other`` a domain member so the published course is visible
     # to them — the catalog visibility filter scopes "member" reads to
     # the domains they belong to.
@@ -67,7 +67,7 @@ def test_my_enrollment_null_when_not_enrolled(published_course, two_lessons, db)
 
 @pytest.mark.django_db
 def test_my_enrollment_returns_status_and_next_lesson(published_course, two_lessons, db):
-    learner = CustomUser.objects.create_user(username="learner", password="x")
+    learner = CustomUser.objects.create_user(email="learner@example.test", password="x")
     published_course.domain.members.add(learner)
     CourseEnrollment.objects.create(
         user=learner, course=published_course, status=CourseEnrollment.STATUS_ACTIVE,
@@ -85,7 +85,7 @@ def test_my_enrollment_returns_status_and_next_lesson(published_course, two_less
 
 @pytest.mark.django_db
 def test_my_enrollment_skips_completed_lessons(published_course, two_lessons, db):
-    learner = CustomUser.objects.create_user(username="learner2", password="x")
+    learner = CustomUser.objects.create_user(email="learner2@example.test", password="x")
     published_course.domain.members.add(learner)
     CourseEnrollment.objects.create(user=learner, course=published_course)
     LessonProgress.objects.create(user=learner, lesson=two_lessons[0], is_completed=True)
@@ -96,7 +96,7 @@ def test_my_enrollment_skips_completed_lessons(published_course, two_lessons, db
 
 @pytest.mark.django_db
 def test_my_enrollment_next_lesson_null_when_all_done(published_course, two_lessons, db):
-    learner = CustomUser.objects.create_user(username="learner3", password="x")
+    learner = CustomUser.objects.create_user(email="learner3@example.test", password="x")
     published_course.domain.members.add(learner)
     CourseEnrollment.objects.create(user=learner, course=published_course)
     for lesson in two_lessons:

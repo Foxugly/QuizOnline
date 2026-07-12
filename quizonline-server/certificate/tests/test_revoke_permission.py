@@ -20,7 +20,7 @@ def _auth(user):
 @pytest.fixture
 def superuser(db):
     return CustomUser.objects.create_user(
-        username="root", email="root@example.com", password="x",
+        email="root@example.com", password="x",
         is_superuser=True, is_staff=True,
     )
 

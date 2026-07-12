@@ -6,7 +6,7 @@ from connectionlog.models import ConnectionEvent
 
 @pytest.mark.django_db
 def test_capture_records_event_with_server_fields():
-    user = get_user_model().objects.create(email="u@x.com", username="u@x.com")
+    user = get_user_model().objects.create(email="u@x.com")
     c = APIClient()
     c.force_authenticate(user)
     resp = c.post("/api/connection-log/", {
@@ -34,7 +34,7 @@ def test_capture_requires_auth():
 def test_capture_ip_is_not_spoofable_via_xff():
     """A client-forged left-most X-Forwarded-For token must be ignored; the
     recorded IP is nginx's appended real peer (right-most token)."""
-    user = get_user_model().objects.create(email="u@x.com", username="u@x.com")
+    user = get_user_model().objects.create(email="u@x.com")
     c = APIClient()
     c.force_authenticate(user)
     # client spoofs 1.2.3.4; nginx appends the real peer 9.9.9.9 as last token
@@ -48,7 +48,7 @@ def test_capture_ip_is_not_spoofable_via_xff():
 
 @pytest.mark.django_db
 def test_capture_prefers_x_real_ip():
-    user = get_user_model().objects.create(email="u@x.com", username="u@x.com")
+    user = get_user_model().objects.create(email="u@x.com")
     c = APIClient()
     c.force_authenticate(user)
     resp = c.post(

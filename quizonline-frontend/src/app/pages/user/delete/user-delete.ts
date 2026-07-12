@@ -23,7 +23,7 @@ export class UserDeletePage implements OnInit {
 
   readonly ui = inject(UiTextService).editor;
   readonly userId = signal(0);
-  readonly username = signal('');
+  readonly displayName = signal('');
   readonly submitError = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -36,7 +36,9 @@ export class UserDeletePage implements OnInit {
     this.userId.set(id);
 
     this.userService.retrieveAdmin(id).subscribe({
-      next: (user) => this.username.set(user.username),
+      next: (user) => this.displayName.set(
+        `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email,
+      ),
       error: (err) => {
         logApiError('user.delete.load', err);
         this.submitError.set(userFacingApiMessage(err, errors.loadFailed));

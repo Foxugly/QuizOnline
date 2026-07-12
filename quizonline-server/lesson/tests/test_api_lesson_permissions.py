@@ -40,7 +40,7 @@ def _ensure_published_chain(db, course):
 def outsider(db):
     """A user who is not a member of the lesson's domain at all."""
     return CustomUser.objects.create_user(
-        username="outsider", email="outsider@x.com", password="x",
+        email="outsider@x.com", password="x",
     )
 
 
@@ -49,7 +49,7 @@ def learner(db, domain):
     """A regular learner who has been added to the domain's members
     list — gets read access to published lessons, no write access."""
     u = CustomUser.objects.create_user(
-        username="learner", email="learner@x.com", password="x",
+        email="learner@x.com", password="x",
     )
     domain.members.add(u)
     return u

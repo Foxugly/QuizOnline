@@ -5,7 +5,7 @@ from domain.models import Domain
 from language.models import Language
 
 User = get_user_model()
-OWNER_USERNAME = "admin"
+OWNER_EMAIL = "admin@example.com"
 
 
 def _get_or_create_domain(owner, key: str, translations: dict):
@@ -48,9 +48,9 @@ def _get_or_create_domain(owner, key: str, translations: dict):
 @transaction.atomic
 def run():
     try:
-        owner = User.objects.get(username=OWNER_USERNAME)
+        owner = User.objects.get(email=OWNER_EMAIL)
     except User.DoesNotExist as e:
-        raise Exception(f"Owner user '{OWNER_USERNAME}' not found.") from e
+        raise Exception(f"Owner user '{OWNER_EMAIL}' not found.") from e
 
     all_langs = list(Language.objects.all())
     if not all_langs:

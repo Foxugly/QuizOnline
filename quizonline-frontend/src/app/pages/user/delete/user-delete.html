@@ -5,7 +5,7 @@
       <span class="badge badge--danger">{{ ui().pages.userDelete.irreversibleBadge }}</span>
     </div>
 
-    <p>{{ ui().pages.userDelete.confirmPrefix }} <strong>{{ username() || (ui().pages.userDelete.userFallbackPrefix + userId()) }}</strong>{{ ui().pages.userDelete.confirmSuffix }}</p>
+    <p>{{ ui().pages.userDelete.confirmPrefix }} <strong>{{ displayName() || (ui().pages.userDelete.userFallbackPrefix + userId()) }}</strong>{{ ui().pages.userDelete.confirmSuffix }}</p>
 
     @if (submitError()) {
       <p-message [text]="submitError()!" severity="error"></p-message>

@@ -88,7 +88,7 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
     )
     accept_url = frontend_url(f"transfer/accept/{token}")
     domain_name = _domain_name_for(domain)
-    initiator_name = getattr(initiator, "get_display_name", lambda: initiator.username)()
+    initiator_name = initiator.get_display_name() if initiator else ""
     copy = _transfer_copy(user_language(future_owner))
     subject = copy["subject"]
     body = (
@@ -122,7 +122,7 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
             "domain_id": domain.id,
             "domain_name": domain_name,
             "initiator_id": getattr(initiator, "id", None),
-            "initiator_username": getattr(initiator, "username", ""),
+            "initiator_name": initiator.get_display_name() if initiator else "",
         },
         domain=domain,
         email_callable=lambda: queue_email(

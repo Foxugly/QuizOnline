@@ -26,10 +26,10 @@ User = get_user_model()
 
 class AutoDeclineStalePendingTests(TestCase):
     def setUp(self):
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.user_a = User.objects.create_user(username="a", password="p", email="a@x.test")
-        self.user_b = User.objects.create_user(username="b", password="p", email="b@x.test")
-        self.user_c = User.objects.create_user(username="c", password="p", email="c@x.test")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.user_a = User.objects.create_user(password="p", email="a@x.test")
+        self.user_b = User.objects.create_user(password="p", email="b@x.test")
+        self.user_c = User.objects.create_user(password="p", email="c@x.test")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -95,15 +95,15 @@ class DomainsWithPendingForUserTests(TestCase):
     def setUp(self):
         from django.core.cache import cache
         cache.clear()
-        self.owner = User.objects.create_user(username="own", password="p")
-        self.manager = User.objects.create_user(username="mgr", password="p")
-        self.stranger = User.objects.create_user(username="x", password="p")
+        self.owner = User.objects.create_user(email="own@example.test", password="p")
+        self.manager = User.objects.create_user(email="mgr@example.test", password="p")
+        self.stranger = User.objects.create_user(email="x@example.test", password="p")
         self.superuser = User.objects.create_user(
-            username="root", password="p", is_superuser=True, is_staff=True,
+            email="root@example.test", password="p", is_superuser=True, is_staff=True,
         )
 
-        self.applicant1 = User.objects.create_user(username="a1", password="p")
-        self.applicant2 = User.objects.create_user(username="a2", password="p")
+        self.applicant1 = User.objects.create_user(email="a1@example.test", password="p")
+        self.applicant2 = User.objects.create_user(email="a2@example.test", password="p")
 
         # Domain A: owner+managers policy, owner sees it, manager sees it.
         self.domain_a = Domain.objects.create(
@@ -236,8 +236,8 @@ class SendExpiringJoinRequestWarningsTests(TestCase):
     def setUp(self):
         from django.utils import translation
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.user = User.objects.create_user(username="u", password="p", email="u@x.test")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.user = User.objects.create_user(password="p", email="u@x.test")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -297,8 +297,8 @@ class ModerationSummaryEndpointTests(TestCase):
         # user id (the DB rolls back, the process cache doesn't).
         cache.clear()
 
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.applicant = User.objects.create_user(username="a", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.applicant = User.objects.create_user(email="a@example.test", password="p")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -320,7 +320,7 @@ class ModerationSummaryEndpointTests(TestCase):
         self.assertTrue(item["name"])
 
     def test_returns_empty_for_unrelated_user(self):
-        other = User.objects.create_user(username="x", password="p")
+        other = User.objects.create_user(email="x@example.test", password="p")
         self.client.force_authenticate(other)
         resp = self.client.get(self.URL)
         self.assertEqual(resp.status_code, 200)

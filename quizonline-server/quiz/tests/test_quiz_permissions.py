@@ -13,9 +13,9 @@ User = get_user_model()
 class QuizPermissionsTest(APITestCase):
     def setUp(self):
         translation.activate("fr")
-        self.admin = User.objects.create_user("admin", "a@a.com", "pass", is_staff=True, is_superuser=True)
-        self.u1 = User.objects.create_user("u1", "u1@u1.com", "pass")
-        self.u2 = User.objects.create_user("u2", "u2@u2.com", "pass")
+        self.admin = User.objects.create_user("a@a.com", "pass", is_staff=True, is_superuser=True)
+        self.u1 = User.objects.create_user("u1@u1.com", "pass")
+        self.u2 = User.objects.create_user("u2@u2.com", "pass")
 
         self.domain = Domain.objects.create(owner=self.admin, name="D1", description="", active=True)
         self.qt = QuizTemplate.objects.create(title="T1", domain=self.domain, permanent=True, active=True)

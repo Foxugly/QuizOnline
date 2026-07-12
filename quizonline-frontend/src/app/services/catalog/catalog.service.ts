@@ -11,7 +11,7 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 export interface CourseAuditEntryDto {
   id: number;
   action: string;
-  actor_username: string | null;
+  actor_name: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
 }

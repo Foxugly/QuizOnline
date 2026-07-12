@@ -22,7 +22,7 @@ class SubjectModelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(username="owner", password="pwd")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pwd")
 
         # Languages (utile pour Parler / cohérence globale)
         cls.lang_fr = Language.objects.create(code="fr", name="Français", active=True)

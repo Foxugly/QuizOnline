@@ -38,7 +38,7 @@
         <td class="center-cell">{{ modeLabel(template.mode) }}</td>
         <td class="center-cell">{{ template.questions_count }}</td>
         <td>{{ createdAtLabel(template) }}</td>
-        <td>{{ template.ownerLabel || template.created_by_username || ('User #' + template.created_by) }}</td>
+        <td>{{ template.ownerLabel || template.created_by_name || ('User #' + template.created_by) }}</td>
         <td class="center-cell">
           <i class="pi"
              [class.pi-check-circle]="template.is_public"

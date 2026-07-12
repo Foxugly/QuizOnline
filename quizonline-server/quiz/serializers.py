@@ -144,7 +144,7 @@ class QuizTemplateSerializer(RequestUserMixin, serializers.ModelSerializer):
     can_answer = serializers.BooleanField(read_only=True)
     quiz_questions = QuizQuestionSerializer(many=True, read_only=True)
     created_by = serializers.IntegerField(source="created_by_id", read_only=True)
-    created_by_username = serializers.CharField(source="created_by.username", read_only=True, default="")
+    created_by_name = serializers.CharField(source="created_by.get_display_name", read_only=True, default="")
 
     class Meta:
         model = QuizTemplate
@@ -173,7 +173,7 @@ class QuizTemplateSerializer(RequestUserMixin, serializers.ModelSerializer):
             "shuffle_questions",
             "is_public",
             "created_by",
-            "created_by_username",
+            "created_by_name",
             "quiz_questions",
         ]
         read_only_fields = ["slug", "created_at", "questions_count", "can_answer"]
@@ -600,7 +600,7 @@ class QuizListSerializer(RequestUserMixin, serializers.ModelSerializer):
             return None
         return {
             "id": obj.user_id,
-            "username": obj.user.username,
+            "name": obj.user.get_display_name(),
         }
 
     def get_can_answer(self, obj) -> bool:
@@ -944,7 +944,7 @@ class QuizAlertMessageSerializer(RequestUserMixin, serializers.ModelSerializer):
             return None
         return {
             "id": obj.author_id,
-            "username": obj.author.username,
+            "name": obj.author.get_display_name(),
         }
 
     def get_is_mine(self, obj) -> bool:
@@ -959,7 +959,7 @@ class QuizAlertThreadListSerializer(RequestUserMixin, serializers.ModelSerialize
     unread = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
     last_message_preview = serializers.SerializerMethodField()
-    counterpart_username = serializers.SerializerMethodField()
+    counterpart_name = serializers.SerializerMethodField()
     question_id = serializers.IntegerField(read_only=True, allow_null=True)
     question_order = serializers.IntegerField(read_only=True, allow_null=True)
     question_title = serializers.CharField(read_only=True, allow_blank=True)
@@ -983,7 +983,7 @@ class QuizAlertThreadListSerializer(RequestUserMixin, serializers.ModelSerialize
             "unread",
             "unread_count",
             "last_message_preview",
-            "counterpart_username",
+            "counterpart_name",
         ]
         read_only_fields = fields
 
@@ -998,13 +998,12 @@ class QuizAlertThreadListSerializer(RequestUserMixin, serializers.ModelSerialize
     def get_last_message_preview(self, obj) -> str:
         return alert_last_message_preview(obj)
 
-    def get_counterpart_username(self, obj) -> str:
+    def get_counterpart_name(self, obj) -> str:
         user = self.request_user()
         if not user or not user.is_authenticated:
             return ""
-        if obj.owner_id == user.id:
-            return getattr(obj.reporter, "username", "") or ""
-        return getattr(obj.owner, "username", "") or ""
+        counterpart = obj.reporter if obj.owner_id == user.id else obj.owner
+        return counterpart.get_display_name() if counterpart else ""
 
     def get_quiz_template_title(self, obj) -> str:
         language = obj.reported_language or self.preferred_language()
@@ -1038,7 +1037,7 @@ class QuizAlertThreadDetailSerializer(QuizAlertThreadListSerializer):
             return None
         return {
             "id": obj.reporter_id,
-            "username": obj.reporter.username,
+            "name": obj.reporter.get_display_name(),
         }
 
     @extend_schema_field(UserSummarySerializer(allow_null=True))
@@ -1047,7 +1046,7 @@ class QuizAlertThreadDetailSerializer(QuizAlertThreadListSerializer):
             return None
         return {
             "id": obj.owner_id,
-            "username": obj.owner.username,
+            "name": obj.owner.get_display_name(),
         }
 
     def get_can_reply(self, obj) -> bool:

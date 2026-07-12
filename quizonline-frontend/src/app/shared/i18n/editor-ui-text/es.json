@@ -80,9 +80,7 @@
     "noCopyToastDetail": "Copia desactivada durante el cuestionario."
   },
   "userAdminForm": {
-    "badgeSuperuser": "Superusuario",
-    "usernameLabel": "Usuario",
-    "isActiveLabel": "Activo",
+    "badgeSuperuser": "Superusuario",    "isActiveLabel": "Activo",
     "languageLabel": "Idioma",
     "nbDomainMaxLabel": "Dominios máx.",
     "emailLabel": "Correo",
@@ -317,9 +315,7 @@
     "userList": {
       "title": "Usuarios",
       "subtitle": "Gestion de usuarios",
-      "id": "ID",
-      "username": "Usuario",
-      "name": "Nombre",
+      "id": "ID",      "name": "Nombre",
       "email": "Correo",
       "nbDomainMax": "Dominios max",
       "active": "Activo",

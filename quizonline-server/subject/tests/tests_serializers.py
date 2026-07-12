@@ -24,7 +24,7 @@ User = get_user_model()
 class SubjectSerializersTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(username="owner", password="pwd")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pwd")
 
         # Domain (Parler)
         cls.domain = Domain.objects.create(owner=cls.owner, active=True)

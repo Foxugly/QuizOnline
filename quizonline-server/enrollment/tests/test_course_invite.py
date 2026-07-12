@@ -54,7 +54,7 @@ def invite_course(course):
 def stranger(db):
     """A registered user who is NOT a member of the course's domain."""
     return CustomUser.objects.create_user(
-        username="stranger", email="stranger@x.com", password="x",
+        email="stranger@x.com", password="x",
     )
 
 
@@ -62,7 +62,7 @@ def stranger(db):
 def manager(db, domain):
     """A second instructor (non-owner) of the course's domain."""
     m = CustomUser.objects.create_user(
-        username="manager", email="manager@x.com", password="x",
+        email="manager@x.com", password="x",
     )
     domain.managers.add(m)
     domain.members.add(m)
@@ -847,7 +847,7 @@ def test_notify_instructors_helper_fans_out_to_owner_and_managers(
     assert row.payload["course_id"] == course.id
     assert row.payload["course_slug"] == course.slug
     assert row.payload["user_id"] == learner.id
-    assert row.payload["user_username"] == learner.username
+    assert row.payload["user_name"] == learner.get_display_name()
 
 
 @pytest.mark.django_db

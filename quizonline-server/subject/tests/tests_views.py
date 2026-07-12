@@ -30,11 +30,11 @@ class SubjectViewSetTestCase(TestCase):
     def setUpTestData(cls):
         cls.factory = APIRequestFactory()
 
-        cls.user = User.objects.create_user(username="u1", password="pwd")
-        cls.admin = User.objects.create_user(username="admin", password="pwd", is_staff=True)
-        cls.domain_staff = User.objects.create_user(username="domain_staff", password="pwd")
-        cls.domain_member = User.objects.create_user(username="domain_member", password="pwd")
-        cls.outsider = User.objects.create_user(username="outsider", password="pwd")
+        cls.user = User.objects.create_user(email="u1@example.test", password="pwd")
+        cls.admin = User.objects.create_user(email="admin@example.test", password="pwd", is_staff=True)
+        cls.domain_staff = User.objects.create_user(email="domain_staff@example.test", password="pwd")
+        cls.domain_member = User.objects.create_user(email="domain_member@example.test", password="pwd")
+        cls.outsider = User.objects.create_user(email="outsider@example.test", password="pwd")
 
         # Domain (parler): créer puis poser une traduction si tu veux tester domain_name
         cls.domain = Domain.objects.create(owner=cls.admin, active=True)

@@ -78,7 +78,6 @@ export class UserListPage implements OnInit {
           return true;
         }
         const haystack = [
-          user.username ?? '',
           user.email ?? '',
           user.first_name ?? '',
           user.last_name ?? '',

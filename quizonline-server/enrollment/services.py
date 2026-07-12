@@ -116,7 +116,7 @@ def _notify_instructors_of_pending_request(enrollment: CourseEnrollment) -> None
             "title", any_language=True,
         ) or "",
         "user_id": enrollment.user_id,
-        "user_username": enrollment.user.username,
+        "user_name": enrollment.user.get_display_name(),
         "user_display_name": enrollment.user.get_display_name(),
     }
     notify_many(
@@ -280,9 +280,9 @@ def _course_invite_payload(invite: CourseInvite) -> dict:
         "course_slug": course.slug,
         "course_title": course.safe_translation_getter("title", any_language=True) or "",
         "invitee_id": invite.invitee_id,
-        "invitee_username": invite.invitee.username,
+        "invitee_name": invite.invitee.get_display_name(),
         "inviter_id": invite.created_by_id,
-        "inviter_username": invite.created_by.username if invite.created_by else "",
+        "inviter_name": invite.created_by.get_display_name() if invite.created_by else "",
     }
 
 

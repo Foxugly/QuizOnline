@@ -373,11 +373,14 @@ export class DomainEdit implements OnInit {
         // resolves the owner's username by injecting it from the DTO.
         const opts: UserOption[] = (users ?? [])
           .filter(u => typeof u.id === 'number')
-          .map(u => ({label: u.username, value: u.id}));
+          .map(u => ({
+            label: `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || (u.email ?? ''),
+            value: u.id,
+          }));
         const ownerRef = domain.owner;
         if (ownerRef && typeof ownerRef.id === 'number'
           && !opts.some(o => o.value === ownerRef.id)) {
-          opts.unshift({label: ownerRef.username, value: ownerRef.id});
+          opts.unshift({label: ownerRef.name ?? (ownerRef.email ?? ''), value: ownerRef.id});
         }
 
         this.ownerOptions.set(opts);

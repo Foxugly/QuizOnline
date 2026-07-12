@@ -11,10 +11,10 @@ class IsSelfOrStaffOrSuperuserUnitTest(TestCase):
         self.factory = APIRequestFactory()
         self.perm = IsSelfOrStaffOrSuperuser()
 
-        self.u1 = User.objects.create_user(username="u1", password="pass")
-        self.u2 = User.objects.create_user(username="u2", password="pass")
-        self.staff = User.objects.create_user(username="staff", password="pass", is_staff=True)
-        self.superuser = User.objects.create_user(username="root", password="pass", is_superuser=True)
+        self.u1 = User.objects.create_user(email="u1@example.test", password="pass")
+        self.u2 = User.objects.create_user(email="u2@example.test", password="pass")
+        self.staff = User.objects.create_user(email="staff@example.test", password="pass", is_staff=True)
+        self.superuser = User.objects.create_user(email="root@example.test", password="pass", is_superuser=True)
 
     def test_has_permission_requires_auth(self):
         req = self.factory.get("/fake")

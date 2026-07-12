@@ -21,10 +21,10 @@ class DomainLeaveEndpointTests(TestCase):
     URL = "/api/domain/{}/leave/"
 
     def setUp(self):
-        self.owner = User.objects.create_user(username="ow", password="pwd")
-        self.member = User.objects.create_user(username="mb", password="pwd")
-        self.manager = User.objects.create_user(username="mg", password="pwd")
-        self.stranger = User.objects.create_user(username="sg", password="pwd")
+        self.owner = User.objects.create_user(email="ow@example.test", password="pwd")
+        self.member = User.objects.create_user(email="mb@example.test", password="pwd")
+        self.manager = User.objects.create_user(email="mg@example.test", password="pwd")
+        self.stranger = User.objects.create_user(email="sg@example.test", password="pwd")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.AUTO,
         )

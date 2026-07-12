@@ -24,11 +24,11 @@ class DomainInviteEndpointTests(TestCase):
     URL = "/api/domain/{}/invite/"
 
     def setUp(self):
-        self.owner = User.objects.create_user(username="ow", password="p", email="o@x.test")
-        self.manager = User.objects.create_user(username="mg", password="p", email="m@x.test")
-        self.stranger = User.objects.create_user(username="sg", password="p", email="s@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.manager = User.objects.create_user(password="p", email="m@x.test")
+        self.stranger = User.objects.create_user(password="p", email="s@x.test")
         self.existing_member = User.objects.create_user(
-            username="memb", password="p", email="memb@x.test",
+            password="p", email="memb@x.test",
         )
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER_MANAGERS,
@@ -129,8 +129,8 @@ class DomainMultiDomainInviteTests(TestCase):
     URL = "/api/domain/{}/invite/"
 
     def setUp(self):
-        self.owner = User.objects.create_user(username="ow", password="p", email="o@x.test")
-        self.stranger = User.objects.create_user(username="sg", password="p")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.stranger = User.objects.create_user(email="sg@example.test", password="p")
         # Three domains: the primary, a second one the owner also owns,
         # and a third domain owned by someone else (forbidden).
         self.primary = Domain.objects.create(
@@ -139,7 +139,7 @@ class DomainMultiDomainInviteTests(TestCase):
         self.also_mine = Domain.objects.create(
             owner=self.owner, name="A", active=True, join_policy=JoinPolicy.OWNER,
         )
-        other_owner = User.objects.create_user(username="oth", password="p")
+        other_owner = User.objects.create_user(email="oth@example.test", password="p")
         self.foreign = Domain.objects.create(
             owner=other_owner, name="F", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -248,7 +248,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
     URL = "/api/domain/invite/accept/{}/"
 
     def setUp(self):
-        self.owner = User.objects.create_user(username="ow", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -268,17 +268,17 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertEqual(resp.data["state"], "signup_required")
         self.assertEqual(resp.data["invited_email"], "newbie@x.test")
         self.assertEqual(resp.data["domain_id"], self.domain.id)
-        self.assertEqual(resp.data["inviter_username"], self.owner.username)
+        self.assertEqual(resp.data["inviter_name"], self.owner.get_display_name())
 
     def test_get_anonymous_login_required_when_account_exists(self):
-        User.objects.create_user(username="seen", password="p", email="seen@x.test")
+        User.objects.create_user(password="p", email="seen@x.test")
         token = self._token(email="seen@x.test")
         resp = self.client.get(self.URL.format(token))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["state"], "login_required")
 
     def test_get_authenticated_ready_to_accept(self):
-        user = User.objects.create_user(username="match", password="p", email="match@x.test")
+        user = User.objects.create_user(password="p", email="match@x.test")
         self.client.force_authenticate(user)
         token = self._token(email="match@x.test")
         resp = self.client.get(self.URL.format(token))
@@ -286,7 +286,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertEqual(resp.data["state"], "ready_to_accept")
 
     def test_get_authenticated_wrong_account(self):
-        user = User.objects.create_user(username="other", password="p", email="other@x.test")
+        user = User.objects.create_user(password="p", email="other@x.test")
         self.client.force_authenticate(user)
         token = self._token(email="target@x.test")
         resp = self.client.get(self.URL.format(token))
@@ -294,7 +294,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertEqual(resp.data["state"], "wrong_account")
 
     def test_get_already_member(self):
-        user = User.objects.create_user(username="already", password="p", email="already@x.test")
+        user = User.objects.create_user(password="p", email="already@x.test")
         self.domain.members.add(user)
         self.client.force_authenticate(user)
         token = self._token(email="already@x.test")
@@ -315,7 +315,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_accepts_and_adds_member(self):
-        user = User.objects.create_user(username="match", password="p", email="match@x.test")
+        user = User.objects.create_user(password="p", email="match@x.test")
         self.client.force_authenticate(user)
         token = self._token(email="match@x.test")
         resp = self.client.post(self.URL.format(token))
@@ -324,7 +324,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertTrue(self.domain.members.filter(pk=user.pk).exists())
 
     def test_post_wrong_account_refused(self):
-        user = User.objects.create_user(username="other", password="p", email="other@x.test")
+        user = User.objects.create_user(password="p", email="other@x.test")
         self.client.force_authenticate(user)
         token = self._token(email="target@x.test")
         resp = self.client.post(self.URL.format(token))
@@ -340,7 +340,7 @@ class DomainInviteAcceptEndpointTests(TestCase):
         self.assertEqual(resp.data["state"], "signup_required")
 
     def test_post_idempotent_when_already_member(self):
-        user = User.objects.create_user(username="already", password="p", email="already@x.test")
+        user = User.objects.create_user(password="p", email="already@x.test")
         self.domain.members.add(user)
         self.client.force_authenticate(user)
         token = self._token(email="already@x.test")

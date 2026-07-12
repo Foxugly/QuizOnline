@@ -33,7 +33,7 @@ describe('View', () => {
               quiz_template_title: 'Quiz',
               quiz_template_description: '',
               user: 1,
-              user_summary: {id: 1, username: 'user'},
+              user_summary: {id: 1, name: 'user'},
               mode: 'exam',
               created_at: '',
               started_at: '',

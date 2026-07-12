@@ -36,7 +36,6 @@ export class UserEditPage implements OnInit {
   readonly ui = inject(UiTextService).editor;
   readonly languageOptions = LANGUAGE_OPTIONS;
   readonly form = this.fb.group({
-    username: this.fb.control({value: '', disabled: true}, [Validators.required]),
     email: this.fb.control(''),
     first_name: this.fb.control(''),
     last_name: this.fb.control(''),
@@ -60,7 +59,6 @@ export class UserEditPage implements OnInit {
     this.userService.retrieveAdmin(id).subscribe({
       next: (user) => {
         this.form.patchValue({
-          username: user.username,
           email: user.email ?? '',
           first_name: user.first_name ?? '',
           last_name: user.last_name ?? '',

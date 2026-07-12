@@ -59,7 +59,7 @@ export interface QuizTemplateDto {
     shuffle_questions?: boolean;
     is_public?: boolean;
     readonly created_by: number;
-    readonly created_by_username: string;
+    readonly created_by_name: string;
     readonly quiz_questions: Array<QuizQuestionDto>;
 }
 

@@ -13,6 +13,6 @@ class EmailConfirmedTokenObtainPairSerializerTests(SimpleTestCase):
         serializer.user = object()
 
         with self.assertRaises(AuthenticationFailed):
-            serializer.validate({"username": "u", "password": "p"})
+            serializer.validate({"email": "u@example.test", "password": "p"})
 
         super_validate.assert_called_once()

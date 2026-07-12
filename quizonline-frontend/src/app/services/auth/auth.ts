@@ -4,11 +4,11 @@ import {finalize, Observable, shareReplay, switchMap, tap} from 'rxjs';
 
 import {CustomUserCreateRequestDto} from '../../api/generated/model/custom-user-create-request';
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
+import {EmailConfirmedTokenObtainPairRequestDto} from '../../api/generated/model/email-confirmed-token-obtain-pair-request';
 import {PasswordChangeRequestDto} from '../../api/generated/model/password-change-request';
 import {PasswordResetConfirmRequestDto} from '../../api/generated/model/password-reset-confirm-request';
 import {PasswordResetRequestRequestDto} from '../../api/generated/model/password-reset-request-request';
 import {TokenObtainPairDto} from '../../api/generated/model/token-obtain-pair';
-import {TokenObtainPairRequestDto} from '../../api/generated/model/token-obtain-pair-request';
 import {TokenRefreshDto} from '../../api/generated/model/token-refresh';
 import {TokenRefreshRequestDto} from '../../api/generated/model/token-refresh-request';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
@@ -23,7 +23,7 @@ export type RegisterPayload = Omit<CustomUserCreateRequestDto, 'managed_domain_i
 export class AuthService {
   private readonly ACCESS_KEY = 'access_token';
   private readonly REFRESH_KEY = 'refresh_token';
-  private readonly USER_KEY = 'username';
+  private readonly USER_KEY = 'displayName';
   private readonly REMEMBER_KEY = 'remember_me';
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
 
@@ -47,18 +47,34 @@ export class AuthService {
     return this.isLoggedIn();
   }
 
-  getToken(payload: TokenObtainPairRequestDto): Observable<TokenObtainPairDto> {
+  getToken(payload: EmailConfirmedTokenObtainPairRequestDto): Observable<TokenObtainPairDto> {
     return this.http.post<TokenObtainPairDto>(`${this.apiBaseUrl}/token/`, payload);
   }
 
-  login(username: string, password: string, remember = false): Observable<CustomUserReadDto> {
-    const payload: TokenObtainPairRequestDto = {username, password};
+  /**
+   * Derives the user's display name — full name when available, falling back
+   * to the email address. Kept language-agnostic; the empty-string case is
+   * only possible for a malformed user with neither a name nor an email.
+   */
+  displayNameOf(
+    user: {first_name?: string | null; last_name?: string | null; email?: string | null} | null | undefined,
+  ): string {
+    if (!user) {
+      return '';
+    }
+    return `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || (user.email ?? '');
+  }
+
+  login(email: string, password: string, remember = false): Observable<CustomUserReadDto> {
+    const payload: EmailConfirmedTokenObtainPairRequestDto = {email, password};
     return this.getToken(payload).pipe(
       tap((dto) => {
         this.setTokens(dto.access, dto.refresh, remember);
-        this.setUsername(username, remember);
       }),
       switchMap(() => this.userService.getMe()),
+      tap((user) => {
+        this.setDisplayName(this.displayNameOf(user), remember);
+      }),
     );
   }
 
@@ -72,7 +88,11 @@ export class AuthService {
    */
   loginWithTokens(access: string, refresh: string, remember = true): Observable<CustomUserReadDto> {
     this.setTokens(access, refresh, remember);
-    return this.userService.getMe();
+    return this.userService.getMe().pipe(
+      tap((user) => {
+        this.setDisplayName(this.displayNameOf(user), remember);
+      }),
+    );
   }
 
   refreshTokens(): Observable<TokenRefreshDto> | null {
@@ -134,7 +154,7 @@ export class AuthService {
     return !!(this.accessToken || this.refreshToken);
   }
 
-  getUsername(): string {
+  getDisplayName(): string {
     // Returns the empty string when nothing is stored — the caller is
     // responsible for the i18n fallback so the auth service stays
     // language-agnostic. See user-menu.html for the rendered fallback.
@@ -200,12 +220,12 @@ export class AuthService {
     sessionStorage.removeItem(this.REMEMBER_KEY);
   }
 
-  private setUsername(username: string, remember: boolean): void {
+  private setDisplayName(displayName: string, remember: boolean): void {
     if (remember) {
-      localStorage.setItem(this.USER_KEY, username);
+      localStorage.setItem(this.USER_KEY, displayName);
       return;
     }
-    sessionStorage.setItem(this.USER_KEY, username);
+    sessionStorage.setItem(this.USER_KEY, displayName);
   }
 
   private rememberEnabled(): boolean {

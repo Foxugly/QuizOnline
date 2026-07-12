@@ -28,7 +28,7 @@ def test_verify_endpoint_uses_anon_throttle(course, settings):
     from django.core.cache import cache
     cache.clear()
 
-    user = CustomUser.objects.create_user(username="u2", email="u2@x.com", password="x")
+    user = CustomUser.objects.create_user(email="u2@x.com", password="x")
     Certificate.objects.create(
         user=user, course=course, certificate_number="QO-T-2", verification_token="tok2",
     )

@@ -17,17 +17,17 @@ class DashboardStatsTests(APITestCase):
     def setUp(self):
         # --- users ---
         self.superuser = User.objects.create_superuser(
-            username="super", password="pass1234", email="super@example.com",
+            password="pass1234", email="super@example.com",
         )
         self.staff_user = User.objects.create_user(
-            username="staff", password="pass1234", email="staff@example.com",
+            password="pass1234", email="staff@example.com",
             is_staff=True,
         )
         self.regular_user = User.objects.create_user(
-            username="regular", password="pass1234", email="regular@example.com",
+            password="pass1234", email="regular@example.com",
         )
         self.other_staff = User.objects.create_user(
-            username="other_staff", password="pass1234", email="other@example.com",
+            password="pass1234", email="other@example.com",
             is_staff=True,
         )
 

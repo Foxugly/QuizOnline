@@ -66,7 +66,7 @@ def test_export_returns_full_payload(owner, populated_course):
 
 @pytest.mark.django_db
 def test_export_endpoint_instructor_gated(populated_course, db):
-    stranger = CustomUser.objects.create_user(username="stranger", password="x")
+    stranger = CustomUser.objects.create_user(email="stranger@example.test", password="x")
     resp = _auth(stranger).get(f"/api/course/{populated_course.id}/export/")
     # 403 (instructor check) or 404 (visibility filter) is acceptable.
     assert resp.status_code in (403, 404)

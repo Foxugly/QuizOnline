@@ -144,7 +144,7 @@ export class CourseEditEnrollmentTab {
   /** All domain members — used as the autocomplete source. Fetched
    *  once per course / domain change. Each row carries a precomputed
    *  ``displayName`` so the picker's ``field="displayName"`` binding
-   *  can render the "First Last (username)" shape without needing a
+   *  can render the "First Last" (email fallback) shape without needing a
    *  function-valued ``[field]`` binding (PrimeNG only supports a
    *  string property name there). */
   private readonly domainMembers = signal<MemberPickerItem[]>([]);
@@ -236,9 +236,9 @@ export class CourseEditEnrollmentTab {
     const first = (u.first_name ?? '').trim();
     const last = (u.last_name ?? '').trim();
     if (first && last) {
-      return `${first} ${last} (${u.username})`;
+      return `${first} ${last}`;
     }
-    return u.username || `#${row.user}`;
+    return u.name || u.email || `#${row.user}`;
   }
 
   protected userEmail(row: CourseEnrollmentDto): string {
@@ -327,9 +327,9 @@ export class CourseEditEnrollmentTab {
     const first = (u.first_name ?? '').trim();
     const last = (u.last_name ?? '').trim();
     if (first && last) {
-      return `${first} ${last} (${u.username})`;
+      return `${first} ${last}`;
     }
-    return u.username || `#${u.id}`;
+    return u.name || u.email || `#${u.id}`;
   }
 
   protected inviteStatusLabel(status: CourseInviteDto['status']): string {
@@ -362,7 +362,7 @@ export class CourseEditEnrollmentTab {
     this.memberSuggestions.set(
       eligible.filter((m) => {
         const haystack = [
-          m.username,
+          m.name,
           m.first_name ?? '',
           m.last_name ?? '',
           m.email ?? '',

@@ -4,18 +4,6 @@
     <span class="badge">{{ ui().userAdminForm.badgeSuperuser }}</span>
   </div>
 
-  <!-- Username (visible when not disabled) -->
-  @if (form().contains('username')) {
-    <div class="meta-grid" style="grid-template-columns: 1fr;">
-      <div class="meta-item">
-        <label class="meta-label" for="username">{{ ui().userAdminForm.usernameLabel }}</label>
-        <div class="meta-value">
-          <input formControlName="username" id="username" pInputText />
-        </div>
-      </div>
-    </div>
-  }
-
   <!-- Row 1: Active, Language, Nb domain max -->
   @if (showFlags()) {
     <div class="meta-grid" style="grid-template-columns: 1fr 1fr 1fr;">

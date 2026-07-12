@@ -95,20 +95,20 @@ def _derive_unique_course_slug(language, translations: dict | None) -> str:
 class CourseAuditLogSerializer(serializers.ModelSerializer):
     """Read-only audit row exposed by ``/api/course/{id}/audit-log/``.
 
-    ``actor_username`` resolves the FK once at serializer time so the
+    ``actor_name`` resolves the FK once at serializer time so the
     consumer doesn't have to do its own lookup — frontends typically
     just want "who did it" rendered as a name, not a foreign key id.
     """
-    actor_username = serializers.SerializerMethodField()
+    actor_name = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseAuditLog
-        fields = ["id", "action", "actor", "actor_username", "metadata", "created_at"]
+        fields = ["id", "action", "actor", "actor_name", "metadata", "created_at"]
         read_only_fields = fields
 
     @extend_schema_field(serializers.CharField(allow_null=True))
-    def get_actor_username(self, obj) -> str | None:
-        return obj.actor.username if obj.actor_id else None
+    def get_actor_name(self, obj) -> str | None:
+        return obj.actor.get_display_name() if obj.actor_id else None
 
 
 class CourseListSerializer(serializers.ModelSerializer):

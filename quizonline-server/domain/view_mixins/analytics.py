@@ -103,9 +103,9 @@ class DomainAnalyticsActionsMixin:
             "" if data["median_decision_seconds"] is None else data["median_decision_seconds"],
         ])
         writer.writerow([])
-        writer.writerow(["top_decider_username", "decision_count"])
+        writer.writerow(["top_decider_name", "decision_count"])
         for row in data["top_deciders"]:
-            writer.writerow([row["username"], row["count"]])
+            writer.writerow([row["name"], row["count"]])
 
         response = HttpResponse(buf.getvalue(), content_type="text/csv; charset=utf-8")
         filename = f"domain-{domain.id}-analytics-{range_key}.csv"

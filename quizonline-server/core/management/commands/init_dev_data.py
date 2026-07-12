@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        owner = self._ensure_owner_user(username="admin", email="admin@example.com")
+        owner = self._ensure_owner_user(email="admin@example.com")
 
         self._init_languages()
         waterpolo, it_domain = self._init_domains(owner=owner)
@@ -31,18 +31,18 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("✅ Dev data initialized"))
 
     # ---------- USERS ----------
-    def _ensure_owner_user(self, *, username: str, email: str) -> User:
+    def _ensure_owner_user(self, *, email: str) -> User:
         user, created = User.objects.get_or_create(
-            username=username,
-            defaults={"email": email, "is_staff": True, "is_superuser": True},
+            email=email,
+            defaults={"is_staff": True, "is_superuser": True},
         )
         if created:
             # mot de passe simple en dev; change-le si tu veux
             user.set_password("SuperPassword123")
             user.save(update_fields=["password"])
-            self.stdout.write(self.style.SUCCESS(f"✔ user '{username}' created (password=admin)"))
+            self.stdout.write(self.style.SUCCESS(f"✔ user '{email}' created (password=admin)"))
         else:
-            self.stdout.write(f"✔ user '{username}' exists")
+            self.stdout.write(f"✔ user '{email}' exists")
         return user
 
     # ---------- LANGUAGES ----------

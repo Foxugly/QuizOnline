@@ -59,7 +59,7 @@ export class Privacy {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `quizonline-export-${this.auth.getUsername() || 'me'}.json`;
+          a.download = `quizonline-export-${this.auth.getDisplayName() || 'me'}.json`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);

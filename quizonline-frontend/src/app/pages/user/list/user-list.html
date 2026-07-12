@@ -40,7 +40,7 @@
     </div>
 
     @if (initialLoad()) {
-      <app-table-skeleton [rows]="6" [columns]="7" />
+      <app-table-skeleton [rows]="6" [columns]="6" />
     } @else {
     <p-table
       [dataKey]="'id'"
@@ -60,7 +60,6 @@
       <ng-template #header>
         <tr>
           <th class="col-checkbox" style="width: 3rem"></th>
-          <th pSortableColumn="username" style="text-align: center;">{{ ui().pages.userList.username }} <p-sortIcon field="username"></p-sortIcon></th>
           <th pSortableColumn="fullName" style="text-align: center;">{{ ui().pages.userList.name }} <p-sortIcon field="fullName"></p-sortIcon></th>
           <th pSortableColumn="email" style="text-align: center;">{{ ui().pages.userList.email }} <p-sortIcon field="email"></p-sortIcon></th>
           <th pSortableColumn="nb_domain_max" style="text-align: center;">{{ ui().pages.userList.nbDomainMax }} <p-sortIcon field="nb_domain_max"></p-sortIcon></th>
@@ -75,7 +74,6 @@
           <td class="col-checkbox">
             <p-tableCheckbox [value]="user"></p-tableCheckbox>
           </td>
-          <td>{{ user.username }}</td>
           <td>{{ user.fullName || '-' }}</td>
           <td>{{ user.email || '-' }}</td>
           <td style="text-align: center;">{{ user.nb_domain_max ?? 0 }}</td>

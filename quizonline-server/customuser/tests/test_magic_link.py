@@ -34,7 +34,7 @@ class MagicLinkRequestTests(TestCase):
         translation.activate("fr")
         _reset_throttles()
         self.user = User.objects.create_user(
-            username="alice", password="pwd", email="alice@x.test",
+            password="pwd", email="alice@x.test",
         )
         self.user.email_confirmed = True
         self.user.save(update_fields=["email_confirmed"])
@@ -83,7 +83,7 @@ class MagicLinkExchangeTests(TestCase):
         translation.activate("fr")
         _reset_throttles()
         self.user = User.objects.create_user(
-            username="alice", password="pwd", email="alice@x.test",
+            password="pwd", email="alice@x.test",
         )
         self.user.email_confirmed = True
         self.user.save(update_fields=["email_confirmed"])

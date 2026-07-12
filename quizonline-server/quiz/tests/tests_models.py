@@ -22,7 +22,7 @@ User = get_user_model()
 class QuizModelsTestCase(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.u1 = User.objects.create_user(username="u1", password="u1pass")
+        self.u1 = User.objects.create_user(email="u1@example.test", password="u1pass")
 
         # ✅ Domain obligatoire pour Question.domain (NOT NULL) + Domain.owner obligatoire
         self.domain = Domain.objects.create(

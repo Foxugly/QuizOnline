@@ -47,7 +47,7 @@ export class LoginPage implements OnInit {
   errorMsg = signal<string | null>(null);
   infoMsg = signal<string | null>(null);
 
-  // Magic-link mode: hides the username + password fields and asks the
+  // Magic-link mode: hides the email + password fields and asks the
   // user for their email only. The success path replaces the form
   // with a one-line confirmation; no JWT is exchanged here (the user
   // clicks through the email link).
@@ -56,7 +56,7 @@ export class LoginPage implements OnInit {
   readonly magicLinkEmail = signal('');
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(4)]],
     remember: [false],
   });
@@ -122,8 +122,8 @@ export class LoginPage implements OnInit {
     }
 
     this.loading.set(true);
-    const {username, password, remember} = this.form.getRawValue();
-    this.auth.login(username, password, remember).subscribe({
+    const {email, password, remember} = this.form.getRawValue();
+    this.auth.login(email, password, remember).subscribe({
       next: (user) => {
         this.loading.set(false);
         // Fire-and-forget connection-log capture on real success only.

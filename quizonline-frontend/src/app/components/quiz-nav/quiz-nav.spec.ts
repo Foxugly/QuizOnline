@@ -16,7 +16,7 @@ function makeQuestion(answerOptions: {id: number; is_correct: boolean | null}[] 
       active: true,
       subjects_count: 0,
       questions_count: 0,
-      owner: {id: 1, username: 'owner'},
+      owner: {id: 1, name: 'owner'},
       managers: [],
       members: [],
       created_at: '',

@@ -72,7 +72,7 @@ def _domain_display_name(domain, language_code: str) -> str:
 
 
 def _inviter_display_name(inviter) -> str:
-    return getattr(inviter, "get_display_name", lambda: inviter.username)()
+    return inviter.get_display_name() if inviter else ""
 
 
 def _build_invite_body(*, recipient_email, domain, inviter, copy, accept_url) -> str:
@@ -152,7 +152,7 @@ def send_domain_invite_email(*, email: str, domain, inviter, language: str = "en
                         "name", language_code=getattr(existing, "language", language), any_language=True,
                     ) or f"Domain#{domain.pk}",
                     "inviter_id": getattr(inviter, "id", None),
-                    "inviter_username": getattr(inviter, "username", ""),
+                    "inviter_name": inviter.get_display_name() if inviter else "",
                     "email": email,
                 },
             )

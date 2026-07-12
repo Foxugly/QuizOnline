@@ -69,12 +69,12 @@ def test_audit_log_endpoint_returns_rows_for_instructor(owner, publishable_cours
     body = resp.json()
     assert len(body) == 1
     assert body[0]["action"] == "course.publish"
-    assert body[0]["actor_username"] == owner.username
+    assert body[0]["actor_name"] == owner.get_display_name()
 
 
 @pytest.mark.django_db
 def test_audit_log_endpoint_is_instructor_gated(publishable_course, db):
-    stranger = CustomUser.objects.create_user(username="stranger", password="x")
+    stranger = CustomUser.objects.create_user(email="stranger@example.test", password="x")
     resp = _auth(stranger).get(f"/api/course/{publishable_course.id}/audit-log/")
     # Stranger isn't a domain member at all → catalog visibility filter
     # turns the course into a 404 before the instructor check fires.

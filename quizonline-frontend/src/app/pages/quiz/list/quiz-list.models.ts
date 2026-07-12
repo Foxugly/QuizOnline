@@ -9,7 +9,7 @@ export type QuizTemplateListItem = QuizTemplateDto & {
   is_public?: boolean;
   created_by?: number | null;
   domain?: number | null;
-  created_by_username?: string;
+  created_by_name?: string;
   ownerLabel?: string;
   canManage?: boolean;
   canAssign?: boolean;
@@ -20,6 +20,6 @@ export type QuizTemplateListItem = QuizTemplateDto & {
 
 export interface AssignableRecipient {
   id: number;
-  username: string;
+  name: string;
   role: 'owner' | 'manager' | 'member';
 }

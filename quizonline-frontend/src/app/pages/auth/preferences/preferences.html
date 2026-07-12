@@ -34,11 +34,6 @@
                     [appDirtyGuard]="form.dirty && !saving()">
                 <div class="field-grid">
                   <div class="field">
-                    <label for="username">{{ ui().preferences.username }}</label>
-                    <input id="username" pInputText formControlName="username">
-                  </div>
-
-                  <div class="field">
                     <label for="email">{{ ui().preferences.email }}</label>
                     <input id="email" pInputText formControlName="email" type="email">
                   </div>
@@ -324,7 +319,7 @@
   [style]="{ width: 'min(32rem, 92vw)' }"
   (visibleChange)="!$event && closeDeleteAccountDialog()">
   @if (currentUser(); as me) {
-    <p>{{ deleteConfirmMessage(me.username) }}</p>
+    <p>{{ deleteConfirmMessage(me.email) }}</p>
     <input
       pInputText
       type="text"

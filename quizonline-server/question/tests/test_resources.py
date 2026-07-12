@@ -22,7 +22,6 @@ class AnswerOptionResourceTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.owner = User.objects.create_user(
-            username="owner",
             email="owner@test.com",
             password="pass",
         )

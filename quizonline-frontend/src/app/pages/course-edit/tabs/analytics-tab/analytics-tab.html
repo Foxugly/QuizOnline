@@ -180,7 +180,7 @@
           @for (entry of auditEntries(); track entry.id) {
             <li class="analytics-audit__row">
               <span class="analytics-audit__action">{{ auditAction(entry.action) }}</span>
-              <span class="analytics-audit__actor">{{ entry.actor_username || '—' }}</span>
+              <span class="analytics-audit__actor">{{ entry.actor_name || '—' }}</span>
               <span class="analytics-audit__date"
                     [attr.title]="entry.created_at | date:'medium'">
                 {{ entry.created_at | relativeDate }}

@@ -159,7 +159,7 @@ def test_outsider_cannot_create_question_block(question, db):
     """Users with no manage rights on the question's domain get 403."""
     from customuser.models import CustomUser
     outsider = CustomUser.objects.create_user(
-        username="outsider", email="o@example.com", password="x"
+        email="o@example.com", password="x"
     )
     r = _auth(outsider).post(
         "/api/block/",

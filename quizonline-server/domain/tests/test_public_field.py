@@ -31,7 +31,7 @@ class PublicFieldDefaultsTests(TestCase):
         translation.activate("fr")
 
     def test_new_domains_are_public_by_default(self):
-        owner = User.objects.create_user(username="o", password="p")
+        owner = User.objects.create_user(email="o@example.test", password="p")
         d = Domain.objects.create(owner=owner, name="D", active=True)
         self.assertTrue(d.public)
 
@@ -41,8 +41,8 @@ class AvailableForLinkingTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.outsider = User.objects.create_user(username="x", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.outsider = User.objects.create_user(email="x@example.test", password="p")
         self.public_domain = Domain.objects.create(
             owner=self.owner, name="Pub", active=True, public=True,
         )
@@ -71,8 +71,8 @@ class JoinRequestCreateOnPrivateTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.outsider = User.objects.create_user(username="x", password="p", email="x@x.test")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.outsider = User.objects.create_user(password="p", email="x@x.test")
         self.private_domain = Domain.objects.create(
             owner=self.owner, name="Priv", active=True, public=False, join_policy=JoinPolicy.AUTO,
         )
@@ -108,9 +108,9 @@ class InviteFlowWorksOnPrivateDomainTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.invited = User.objects.create_user(
-            username="invited", password="p", email="invited@x.test",
+            password="p", email="invited@x.test",
         )
         self.private_domain = Domain.objects.create(
             owner=self.owner, name="Priv", active=True, public=False,

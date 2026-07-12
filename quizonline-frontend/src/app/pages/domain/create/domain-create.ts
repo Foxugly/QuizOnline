@@ -137,7 +137,10 @@ export class DomainCreate implements OnInit {
           // 2) Users options
           const opts: UserOption[] = (users ?? [])
             .filter(u => typeof u.id === 'number')
-            .map(u => ({label: u.username, value: u.id}));
+            .map(u => ({
+              label: `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || (u.email ?? ''),
+              value: u.id,
+            }));
 
           this.ownerOptions.set(opts);
 

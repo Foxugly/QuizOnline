@@ -68,7 +68,7 @@
         }
         @case ('ready_to_accept') {
           <h2 class="invite-heading">{{ text().states.readyHeading }}</h2>
-          <p class="muted">{{ readyExplain(s.domain_name, s.inviter_username) }}</p>
+          <p class="muted">{{ readyExplain(s.domain_name, s.inviter_name) }}</p>
           <div class="footer-actions">
             <p-button (onClick)="accept()" icon="pi pi-check" [label]="accepting() ? text().states.accepting : text().states.accept" [loading]="accepting()" [disabled]="accepting()" severity="success" type="button"></p-button>
           </div>

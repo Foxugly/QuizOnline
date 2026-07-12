@@ -54,16 +54,16 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
 
         # Users
         self.admin = User.objects.create_user(
-            username="admin", password="adminpass", is_staff=True, is_superuser=True
+            email="admin@example.test", password="adminpass", is_staff=True, is_superuser=True
         )
         self.staff = User.objects.create_user(
-            username="staff", password="staffpass", is_staff=True, is_superuser=False
+            email="staff@example.test", password="staffpass", is_staff=True, is_superuser=False
         )
         self.root = User.objects.create_user(
-            username="root", password="rootpass", is_staff=False, is_superuser=True
+            email="root@example.test", password="rootpass", is_staff=False, is_superuser=True
         )
-        self.u1 = User.objects.create_user(username="u1", password="u1pass")
-        self.u2 = User.objects.create_user(username="u2", password="u2pass")
+        self.u1 = User.objects.create_user(email="u1@example.test", password="u1pass")
+        self.u2 = User.objects.create_user(email="u2@example.test", password="u2pass")
 
         # Domain (obligatoire dans tes modèles)
         self.domain = Domain.objects.create(owner=self.admin, name="D1", description="", active=True)
@@ -734,7 +734,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
 
         self.assertEqual(
             row["user_summary"],
-            {"id": self.u1.id, "username": self.u1.username},
+            {"id": self.u1.id, "name": self.u1.get_display_name()},
         )
         self.assertEqual(row["quiz_template_description"], self.qt_ok.description)
         self.assertNotIn("questions", row)
@@ -1313,7 +1313,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
 
     @patch("quiz.services.notify_quiz_assigned")
     def test_bulk_create_from_template_template_creator_forbidden_without_management_role(self, notify_quiz_assigned):
-        creator = User.objects.create_user(username="creator", password="pass", is_staff=False)
+        creator = User.objects.create_user(email="creator@example.test", password="pass", is_staff=False)
         self.domain.members.add(creator, self.u1)
         template = QuizTemplate.objects.create(
             domain=self.domain,
@@ -1347,7 +1347,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(notify_quiz_assigned.call_count, 0)
 
     def test_quiztemplate_update_creator_without_role_forbidden(self):
-        creator = User.objects.create_user(username="creator-edit", password="pass", is_staff=False)
+        creator = User.objects.create_user(email="creator-edit@example.test", password="pass", is_staff=False)
         self.domain.members.add(creator)
         template = QuizTemplate.objects.create(
             domain=self.domain,
@@ -1379,7 +1379,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_quiztemplate_sessions_creator_without_role_forbidden(self):
-        creator = User.objects.create_user(username="creator-stats", password="pass", is_staff=False)
+        creator = User.objects.create_user(email="creator-stats@example.test", password="pass", is_staff=False)
         self.domain.members.add(creator)
         template = QuizTemplate.objects.create(
             domain=self.domain,
@@ -1411,7 +1411,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_quiztemplate_destroy_creator_without_role_allowed(self):
-        creator = User.objects.create_user(username="creator-delete", password="pass", is_staff=False)
+        creator = User.objects.create_user(email="creator-delete@example.test", password="pass", is_staff=False)
         self.domain.members.add(creator)
         template = QuizTemplate.objects.create(
             domain=self.domain,
@@ -1469,7 +1469,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_bulk_create_from_template_rejects_user_from_other_domain(self):
-        other_owner = User.objects.create_user(username="other-owner", password="pass")
+        other_owner = User.objects.create_user(email="other-owner@example.test", password="pass")
         other_domain = Domain.objects.create(owner=other_owner, name="D2", description="", active=True)
         other_owner.current_domain = other_domain
         other_owner.save(update_fields=["current_domain"])
@@ -1487,7 +1487,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_quiztemplate_sessions_creator_without_role_gets_not_found(self):
-        creator = User.objects.create_user(username="creator-2", password="pass")
+        creator = User.objects.create_user(email="creator-2@example.test", password="pass")
         template = QuizTemplate.objects.create(
             domain=self.domain,
             title="T_RESULTS",
@@ -1515,7 +1515,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_quiztemplate_destroy_creator_without_role_deactivates_when_sessions_exist(self):
-        creator = User.objects.create_user(username="creator-delete-existing", password="pass", is_staff=False)
+        creator = User.objects.create_user(email="creator-delete-existing@example.test", password="pass", is_staff=False)
         self.domain.members.add(creator, self.u1)
         template = QuizTemplate.objects.create(
             domain=self.domain,

@@ -45,7 +45,7 @@ class LocalizedTestCase(TestCase):
 # Helpers (compatibles avec tes modèles Parler + Domain obligatoire)
 # -----------------------
 def make_user(username="u", is_staff=False, is_superuser=False):
-    return User.objects.create_user(username=username, password="pass", is_staff=is_staff, is_superuser=is_superuser)
+    return User.objects.create_user(email=f"{username}@example.test", password="pass", is_staff=is_staff, is_superuser=is_superuser)
 
 
 def make_domain(owner, name="Test domain", description=""):
@@ -656,7 +656,7 @@ class QuizSerializerTests(LocalizedTestCase):
     def test_list_serializer_exposes_user_summary_and_template_description(self):
         data = self._serialize_list_as(self.user)
         self.assertEqual(data["quiz_template_description"], "Description quiz")
-        self.assertEqual(data["user_summary"], {"id": self.user.id, "username": self.user.username})
+        self.assertEqual(data["user_summary"], {"id": self.user.id, "name": self.user.get_display_name()})
 
     def test_list_serializer_omits_detail_collections(self):
         data = self._serialize_list_as(self.user)

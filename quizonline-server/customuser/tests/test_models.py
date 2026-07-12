@@ -23,13 +23,13 @@ class CustomUserModelTests(TestCase):
         cls.lang_en = Language.objects.create(code="en", name="English", active=True)
 
         cls.superuser = User.objects.create_user(
-            username="su", password="pass", is_superuser=True, is_staff=True
+            email="su@example.test", password="pass", is_superuser=True, is_staff=True
         )
         cls.global_staff = User.objects.create_user(
-            username="staff", password="pass", is_staff=True, is_superuser=False
+            email="staff@example.test", password="pass", is_staff=True, is_superuser=False
         )
-        cls.owner = User.objects.create_user(username="owner", password="pass")
-        cls.other = User.objects.create_user(username="other", password="pass")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pass")
+        cls.other = User.objects.create_user(email="other@example.test", password="pass")
 
         # Domains
         cls.d_active_owned = Domain.objects.create(owner=cls.owner, active=True)
@@ -72,18 +72,17 @@ class CustomUserModelTests(TestCase):
     # __str__ / get_display_name
     # ---------------------------------------------------------------------
     def test_get_display_name_with_first_last(self):
-        u = User.objects.create_user(username="u", password="pass", first_name="Renaud", last_name="Vilain")
-        self.assertEqual(u.get_display_name(), "Renaud Vilain (u)")
-        self.assertEqual(str(u), "Renaud Vilain (u)")
+        u = User.objects.create_user(email="u@example.test", password="pass", first_name="Renaud", last_name="Vilain")
+        self.assertEqual(u.get_display_name(), "Renaud Vilain")
+        self.assertEqual(str(u), "Renaud Vilain")
 
     def test_get_display_name_fallback_username(self):
-        u = User.objects.create_user(username="u2", password="pass", first_name="", last_name="")
-        self.assertEqual(u.get_display_name(), "u2")
-        self.assertEqual(str(u), "u2")
+        u = User.objects.create_user(email="u2@example.test", password="pass", first_name="", last_name="")
+        self.assertEqual(u.get_display_name(), "u2@example.test")
+        self.assertEqual(str(u), "u2@example.test")
 
     def test_to_field_value_dict_returns_concrete_model_fields(self):
         u = User.objects.create_user(
-            username="dictuser",
             password="pass",
             email="dict@example.com",
             language="nl",
@@ -96,7 +95,6 @@ class CustomUserModelTests(TestCase):
 
         values = u.to_field_value_dict()
 
-        self.assertEqual(values["username"], "dictuser")
         self.assertEqual(values["email"], "dict@example.com")
         self.assertEqual(values["language"], "nl")
         self.assertEqual(values["current_domain_id"], self.d_active_owned.id)
@@ -188,7 +186,7 @@ class CustomUserModelTests(TestCase):
         coverage a refactor that "unifies" the two methods would
         silently break the learner dropdown.
         """
-        learner = User.objects.create_user(username="learner", password="pass")
+        learner = User.objects.create_user(email="learner@example.test", password="pass")
         self.d_other_only.members.add(learner)
 
         manageable = set(learner.get_manageable_domains(active_only=False).values_list("id", flat=True))
@@ -202,7 +200,7 @@ class CustomUserModelTests(TestCase):
     # set_current_domain
     # ---------------------------------------------------------------------
     def test_set_current_domain_none_allowed_resets_and_saves(self):
-        u = User.objects.create_user(username="u3", password="pass")
+        u = User.objects.create_user(email="u3@example.test", password="pass")
         u.current_domain = self.d_other_only
         u.save(update_fields=["current_domain"])
 
@@ -211,7 +209,7 @@ class CustomUserModelTests(TestCase):
         self.assertIsNone(u.current_domain)
 
     def test_set_current_domain_none_not_allowed_raises_value_error(self):
-        u = User.objects.create_user(username="u4", password="pass")
+        u = User.objects.create_user(email="u4@example.test", password="pass")
         with self.assertRaises(ValueError):
             u.set_current_domain(None, allow_none=False, save=False)
 
@@ -233,7 +231,7 @@ class CustomUserModelTests(TestCase):
         self.assertIn("current_domain", ctx.exception.message_dict)
 
     def test_set_current_domain_save_false_does_not_persist(self):
-        u = User.objects.create_user(username="u5", password="pass")
+        u = User.objects.create_user(email="u5@example.test", password="pass")
         self.d_active_owned.managers.add(u)
         u.set_current_domain(None, save=False)
         self.assertIsNone(u.current_domain_id)
@@ -246,7 +244,7 @@ class CustomUserModelTests(TestCase):
     # ensure_current_domain_is_valid + auto_fix
     # ---------------------------------------------------------------------
     def test_ensure_current_domain_is_valid_when_none_returns_true(self):
-        u = User.objects.create_user(username="u6", password="pass")
+        u = User.objects.create_user(email="u6@example.test", password="pass")
         self.assertTrue(u.ensure_current_domain_is_valid(auto_fix=False))
 
     def test_ensure_current_domain_is_valid_when_inactive_and_active_only_true(self):
@@ -308,7 +306,7 @@ class CustomUserModelTests(TestCase):
         self.assertEqual(u.current_domain_id, self.d_active_owned.id)
 
     def test_pick_default_current_domain_returns_none_when_no_visible(self):
-        u = User.objects.create_user(username="u7", password="pass")
+        u = User.objects.create_user(email="u7@example.test", password="pass")
         chosen = u.pick_default_current_domain(save=False, active_only=True)
         self.assertIsNone(chosen)
         self.assertIsNone(u.current_domain_id)
@@ -317,7 +315,7 @@ class CustomUserModelTests(TestCase):
     # clean()
     # ---------------------------------------------------------------------
     def test_clean_allows_current_domain_none(self):
-        u = User.objects.create_user(username="u8", password="pass")
+        u = User.objects.create_user(email="u8@example.test", password="pass")
         u.current_domain = None
         # ne doit pas lever
         u.clean()
@@ -352,7 +350,7 @@ class CustomUserModelTests(TestCase):
     # QoL properties
     # ---------------------------------------------------------------------
     def test_has_current_domain_reflects_fk_state(self):
-        u = User.objects.create_user(username="u9", password="pass")
+        u = User.objects.create_user(email="u9@example.test", password="pass")
         self.assertFalse(u.has_current_domain)
 
         u.current_domain = self.d_active_owned

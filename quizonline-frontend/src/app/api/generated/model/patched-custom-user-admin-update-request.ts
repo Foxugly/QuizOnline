@@ -11,7 +11,7 @@ import { LanguageEnumDto } from './language-enum';
 
 
 export interface PatchedCustomUserAdminUpdateRequestDto { 
-    email?: string | null;
+    email?: string;
     first_name?: string;
     last_name?: string;
     language?: LanguageEnumDto;

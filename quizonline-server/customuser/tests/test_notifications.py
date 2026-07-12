@@ -19,7 +19,7 @@ User = get_user_model()
 
 class NotificationEnabledTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
 
     def test_default_is_enabled_for_every_kind(self):
         for kind in NOTIFICATION_KINDS:
@@ -83,8 +83,8 @@ class MailerGateIntegrationTests(TestCase):
     def setUp(self):
         from django.utils import translation
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
-        self.requester = User.objects.create_user(username="r", password="p", email="r@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.requester = User.objects.create_user(password="p", email="r@x.test")
         from domain.models import Domain, DomainJoinRequest, JoinPolicy
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,

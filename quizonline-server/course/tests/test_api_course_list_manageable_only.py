@@ -21,14 +21,14 @@ from course.models import Course
 @pytest.fixture
 def second_user(db):
     return CustomUser.objects.create_user(
-        username="manager", email="manager@x.com", password="x",
+        email="manager@x.com", password="x",
     )
 
 
 @pytest.fixture
 def third_user(db):
     return CustomUser.objects.create_user(
-        username="member-only", email="member@x.com", password="x",
+        email="member@x.com", password="x",
     )
 
 
@@ -113,7 +113,7 @@ def test_manageable_only_returns_empty_for_pure_member(
     state instead of erroring."""
     owned, foreign, *_ = two_domains
     # Make a fresh pure-member user on both domains.
-    pure = CustomUser.objects.create_user(username="pure", password="x")
+    pure = CustomUser.objects.create_user(email="pure@example.test", password="x")
     owned.members.add(pure)
     foreign.members.add(pure)
 
@@ -129,7 +129,7 @@ def test_manageable_only_superuser_sees_everything(two_domains):
     """Superusers bypass the owner/manager scope — they manage every
     domain by policy."""
     su = CustomUser.objects.create_superuser(
-        username="root", email="root@x.com", password="x",
+        email="root@x.com", password="x",
     )
     client = APIClient()
     client.force_authenticate(su)

@@ -19,12 +19,12 @@ User = get_user_model()
 class ComputeAnalyticsTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.mgr = User.objects.create_user(username="mgr", password="p")
-        self.u1 = User.objects.create_user(username="u1", password="p")
-        self.u2 = User.objects.create_user(username="u2", password="p")
-        self.u3 = User.objects.create_user(username="u3", password="p")
-        self.u4 = User.objects.create_user(username="u4", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.mgr = User.objects.create_user(email="mgr@example.test", password="p")
+        self.u1 = User.objects.create_user(email="u1@example.test", password="p")
+        self.u2 = User.objects.create_user(email="u2@example.test", password="p")
+        self.u3 = User.objects.create_user(email="u3@example.test", password="p")
+        self.u4 = User.objects.create_user(email="u4@example.test", password="p")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -68,7 +68,7 @@ class ComputeAnalyticsTests(TestCase):
         # Sorted deltas: [60, 120, 300] → median = 120
         self.assertEqual(result["median_decision_seconds"], 120)
         # Owner has 2 decisions, manager has 1 → owner first.
-        self.assertEqual(result["top_deciders"][0]["username"], self.owner.username)
+        self.assertEqual(result["top_deciders"][0]["name"], self.owner.get_display_name())
         self.assertEqual(result["top_deciders"][0]["count"], 2)
 
     def test_median_even_count(self):
@@ -86,8 +86,8 @@ class AnalyticsEndpointTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.outsider = User.objects.create_user(username="x", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.outsider = User.objects.create_user(email="x@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.client = APIClient()
 
@@ -109,8 +109,8 @@ class AnalyticsRangeFilterTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.requester = User.objects.create_user(username="r", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.requester = User.objects.create_user(email="r@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.client = APIClient()
         self.client.force_authenticate(self.owner)
@@ -159,9 +159,9 @@ class AnalyticsCsvExportTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.outsider = User.objects.create_user(username="x", password="p")
-        self.requester = User.objects.create_user(username="r", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.outsider = User.objects.create_user(email="x@example.test", password="p")
+        self.requester = User.objects.create_user(email="r@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         DomainJoinRequest.objects.create(
             domain=self.domain, user=self.requester,
@@ -179,8 +179,8 @@ class AnalyticsCsvExportTests(TestCase):
         body = resp.content.decode("utf-8")
         self.assertIn("metric,value", body)
         self.assertIn("approved_count,1", body)
-        self.assertIn("top_decider_username,decision_count", body)
-        self.assertIn(f"{self.owner.username},1", body)
+        self.assertIn("top_decider_name,decision_count", body)
+        self.assertIn(f"{self.owner.get_display_name()},1", body)
 
     def test_outsider_is_404(self):
         self.client.force_authenticate(self.outsider)

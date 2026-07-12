@@ -27,7 +27,7 @@ def three_learners(db, domain):
     users = []
     for i in range(3):
         u = CustomUser.objects.create_user(
-            username=f"learner{i}", email=f"learner{i}@ex.com", password="x"
+            email=f"learner{i}@ex.com", password="x"
         )
         domain.members.add(u)
         users.append(u)
@@ -52,7 +52,7 @@ def test_instructor_sees_all_enrollments_for_their_course(course, owner, three_l
     for row in rows:
         assert "user_detail" in row
         assert row["user_detail"] is not None
-        assert "username" in row["user_detail"]
+        assert "name" in row["user_detail"]
         assert "email" in row["user_detail"]
 
 

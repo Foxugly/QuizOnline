@@ -189,7 +189,7 @@ def send_quiz_completed_email(quiz) -> None:
             "template_id": getattr(template, "id", None),
             "template_title": getattr(template, "title", ""),
             "user_id": getattr(user, "id", None),
-            "user_username": getattr(user, "username", ""),
+            "user_name": user.get_display_name() if user else "",
         },
         domain=getattr(template, "domain", None),
         email_callable=lambda: send_user_email(
