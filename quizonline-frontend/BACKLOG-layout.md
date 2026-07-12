@@ -2,7 +2,9 @@
 
 > **Cible :** `STANDARD-frontend-layout.md` (repo `foxugly-ops`).
 > Écart principal : **pas de thème** + **i18n maison à migrer vers Transloco**.
-> **Statut :** à faire (audit 2026-07-10).
+> **Statut :** standard **VALIDÉ 2026-07-11** — implémentation de **référence complète : `FoxRunner_frontend`**
+> (copier ses tokens `_tokens.scss`/`_breakpoints.scss`, son chrome et ses pages). Exécuter sur
+> branche **`feat/scss-standard`** — **jamais `main`** (auto-deploy prod). Plan ci-dessous.
 
 ## ✅ Déjà conforme
 - `app-topmenu` · BEM `topbar__*` ; cloches msg + notif ; `app-user-menu` + login « Se connecter ».
