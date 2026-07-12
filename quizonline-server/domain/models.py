@@ -328,5 +328,5 @@ class DomainAuditLog(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        actor = self.actor.username if self.actor_id else "system"
+        actor = self.actor.get_display_name() if self.actor_id else "system"
         return f"[{self.created_at:%Y-%m-%d %H:%M}] {actor} {self.action} on {self.domain_id}"

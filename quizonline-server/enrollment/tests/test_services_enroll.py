@@ -62,7 +62,7 @@ def test_approve_enrollment_flips_to_active(course, learner, owner):
 @pytest.mark.django_db
 def test_approve_enrollment_rejects_non_instructor(course, learner):
     from customuser.models import CustomUser
-    intruder = CustomUser.objects.create_user(username="intr", email="intr@x.com", password="x")
+    intruder = CustomUser.objects.create_user(email="intr@x.com", password="x")
     course.enrollment_mode = Course.ENROLL_APPROVAL
     course.save()
     e = enroll_user_to_course(user=learner, course=course)

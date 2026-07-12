@@ -11,7 +11,7 @@ def _auth(user):
 @pytest.mark.django_db
 def test_non_member_cannot_list_course(course):
     from customuser.models import CustomUser
-    intruder = CustomUser.objects.create_user(username="intr", email="intr@x.com", password="x")
+    intruder = CustomUser.objects.create_user(email="intr@x.com", password="x")
     r = _auth(intruder).get("/api/course/")
     assert r.status_code == 200
     assert r.data["count"] == 0
@@ -20,7 +20,7 @@ def test_non_member_cannot_list_course(course):
 @pytest.mark.django_db
 def test_member_sees_published_course_only(course, domain):
     from customuser.models import CustomUser
-    learner = CustomUser.objects.create_user(username="lr", email="lr@x.com", password="x")
+    learner = CustomUser.objects.create_user(email="lr@x.com", password="x")
     domain.members.add(learner)
     r = _auth(learner).get("/api/course/")
     assert r.status_code == 200
@@ -36,7 +36,7 @@ def test_member_sees_published_course_only(course, domain):
 @pytest.mark.django_db
 def test_member_cannot_create_course(domain, fr_lang):
     from customuser.models import CustomUser
-    learner = CustomUser.objects.create_user(username="lr", email="lr@x.com", password="x")
+    learner = CustomUser.objects.create_user(email="lr@x.com", password="x")
     domain.members.add(learner)
     r = _auth(learner).post("/api/course/", {
         "slug": "x", "level": "beginner",
@@ -69,7 +69,7 @@ def test_owner_can_publish_course(course, owner):
 @pytest.mark.django_db
 def test_learner_cannot_publish_course(course, domain):
     from customuser.models import CustomUser
-    learner = CustomUser.objects.create_user(username="lr", email="lr@x.com", password="x")
+    learner = CustomUser.objects.create_user(email="lr@x.com", password="x")
     domain.members.add(learner)
     r = _auth(learner).post(f"/api/course/{course.id}/publish/")
     assert r.status_code in (403, 404)
@@ -78,7 +78,7 @@ def test_learner_cannot_publish_course(course, domain):
 @pytest.mark.django_db
 def test_verify_anonymous_works(course):
     from customuser.models import CustomUser
-    user = CustomUser.objects.create_user(username="u", email="u@x.com", password="x")
+    user = CustomUser.objects.create_user(email="u@x.com", password="x")
     from certificate.models import Certificate
     Certificate.objects.create(
         user=user, course=course, certificate_number="QO-T-1", verification_token="abc",

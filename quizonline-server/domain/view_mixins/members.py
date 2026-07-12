@@ -98,7 +98,7 @@ class DomainMembersActionsMixin:
                 return Response(
                     {
                         "id": target.id,
-                        "username": target.username,
+                        "name": target.get_display_name(),
                         "is_active": target.is_active,
                         "is_staff": target.is_staff,
                         "is_domain_manager": False,
@@ -180,7 +180,7 @@ class DomainMembersActionsMixin:
         return Response(
             {
                 "id": target.id,
-                "username": target.username,
+                "name": target.get_display_name(),
                 "is_active": target.is_active,
                 "is_staff": target.is_staff,
                 "is_domain_manager": is_domain_manager,

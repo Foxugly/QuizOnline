@@ -13,7 +13,7 @@ User = get_user_model()
 
 class TranslateBatchViewTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="translator", password="translatorpass123!")
+        self.user = User.objects.create_user(email="translator@example.test", password="translatorpass123!")
         self.url = reverse("api:translate-api:translate-batch")
 
     def test_translate_batch_requires_authentication(self):

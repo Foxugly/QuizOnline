@@ -63,7 +63,7 @@
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="user_summary.username">{{ editorUi().pages.quizTemplateResults.colUser }} <p-sortIcon field="user_summary.username"></p-sortIcon></th>
+          <th pSortableColumn="user_summary.name">{{ editorUi().pages.quizTemplateResults.colUser }} <p-sortIcon field="user_summary.name"></p-sortIcon></th>
           <th pSortableColumn="status">{{ editorUi().pages.quizTemplateResults.colStatus }} <p-sortIcon field="status"></p-sortIcon></th>
           <th pSortableColumn="created_at">{{ editorUi().quiz.createdOn }} <p-sortIcon field="created_at"></p-sortIcon></th>
           <th pSortableColumn="started_at">{{ editorUi().quiz.startedOn }} <p-sortIcon field="started_at"></p-sortIcon></th>
@@ -76,7 +76,7 @@
 
       <ng-template #body let-quiz>
         <tr>
-          <td>{{ quiz.user_summary?.username || '-' }}</td>
+          <td>{{ quiz.user_summary?.name || '-' }}</td>
           <td style="text-align: center;">{{ statusLabel(quiz) }}</td>
           <td>{{ formatDateTime(quiz.created_at) }}</td>
           <td>{{ formatDateTime(quiz.started_at) }}</td>

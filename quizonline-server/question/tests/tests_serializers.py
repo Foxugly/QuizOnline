@@ -47,9 +47,9 @@ class QuestionSerializersTestCase(TestCase):
         translation.activate("fr")
 
         # Users
-        self.owner = User.objects.create_user(username="owner", password="pwd")
-        self.staff = User.objects.create_user(username="staff", password="pwd", is_staff=True)
-        self.outsider = User.objects.create_user(username="outsider", password="pwd")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pwd")
+        self.staff = User.objects.create_user(email="staff@example.test", password="pwd", is_staff=True)
+        self.outsider = User.objects.create_user(email="outsider@example.test", password="pwd")
 
         # Languages (doivent correspondre à settings.LANGUAGES)
         self.lang_fr = Language.objects.create(code="fr", name="Français", active=True)

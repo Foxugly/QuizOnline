@@ -10,7 +10,6 @@ describe('UserAdminFormComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(UserAdminFormComponent);
     fixture.componentRef.setInput('form', new FormGroup({
-      username: new FormControl(''),
       email: new FormControl(''),
       first_name: new FormControl(''),
       last_name: new FormControl(''),

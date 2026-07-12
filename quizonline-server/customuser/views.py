@@ -287,7 +287,7 @@ class CustomUserViewSet(
             "d'adhésion et les sessions de quiz. Pensé pour le droit "
             "d'accès / portabilité du RGPD : le frontend télécharge la "
             "réponse en ``application/json`` sous le nom "
-            "``quizonline-export-<username>.json``."
+            "``quizonline-export-<email>.json``."
         ),
         responses={status.HTTP_200_OK: OpenApiTypes.OBJECT},
     )
@@ -327,7 +327,7 @@ class CustomUserViewSet(
             "exported_at": timezone.now().isoformat(),
             "profile": {
                 "id": user.id,
-                "username": user.username,
+                "name": user.get_display_name(),
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
@@ -386,14 +386,15 @@ class CustomUserViewSet(
                 },
                 status=status.HTTP_409_CONFLICT,
             )
-        # Capture the username before delete so the audit row keeps a
+        # Capture identifying info before delete so the audit row keeps a
         # human-readable trace even though the FK becomes NULL.
-        username = user.username
+        display_name = user.get_display_name()
+        email = user.email
         user_id = user.id
         user.delete()
         logger.info(
             "user.self_delete",
-            extra={"user_id": user_id, "username": username},
+            extra={"user_id": user_id, "email": email, "name": display_name},
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -25,7 +25,7 @@ describe('quiz session state helpers', () => {
     questions_count: 0,
     owner: {
       id: 1,
-      username: 'owner',
+      name: 'owner',
     },
     managers: [],
     members: [],

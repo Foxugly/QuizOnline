@@ -85,7 +85,7 @@ export class QuizAlertList implements OnInit {
       return this.normalize([
         thread.kind,
         thread.question_title,
-        thread.counterpart_username,
+        thread.counterpart_name,
         thread.quiz_template_title,
         thread.last_message_preview,
         thread.reported_language,

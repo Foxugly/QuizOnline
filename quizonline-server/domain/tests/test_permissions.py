@@ -14,15 +14,15 @@ User = get_user_model()
 class IsDomainOwnerOrManagerTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(username="owner", password="pass")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pass")
         cls.staff_global = User.objects.create_user(
-            username="staff_global", password="pass", is_staff=True
+            email="staff_global@example.test", password="pass", is_staff=True
         )
         cls.superuser = User.objects.create_user(
-            username="admin", password="pass", is_superuser=True
+            email="admin@example.test", password="pass", is_superuser=True
         )
-        cls.staff_member = User.objects.create_user(username="staff_member", password="pass")
-        cls.other = User.objects.create_user(username="other", password="pass")
+        cls.staff_member = User.objects.create_user(email="staff_member@example.test", password="pass")
+        cls.other = User.objects.create_user(email="other@example.test", password="pass")
 
         cls.domain = Domain.objects.create(owner=cls.owner, active=True)
         cls.domain.managers.add(cls.staff_member)

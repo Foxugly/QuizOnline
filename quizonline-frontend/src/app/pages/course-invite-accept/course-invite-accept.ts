@@ -85,7 +85,7 @@ export class CourseInviteAccept implements OnInit, OnDestroy {
     const first = (u.first_name ?? '').trim();
     const last = (u.last_name ?? '').trim();
     if (first && last) return `${first} ${last}`;
-    return u.username || '';
+    return u.name || '';
   });
 
   protected readonly courseDetailHref = computed(() => {

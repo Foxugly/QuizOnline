@@ -80,7 +80,7 @@ export interface UserRetrieveRequestParams {
 
 export interface UserUpdateRequestParams {
     userId: string;
-    customUserAdminUpdateRequestDto?: CustomUserAdminUpdateRequestDto;
+    customUserAdminUpdateRequestDto: CustomUserAdminUpdateRequestDto;
 }
 
 
@@ -422,7 +422,7 @@ export class UserApi extends BaseService {
 
     /**
      * Export GDPR : toutes les données du compte courant
-     * Retourne un dump JSON de toutes les données personnelles associées au compte de l\&#39;utilisateur connecté. Couvre le profil, les domaines (owned / managed / membre), les demandes d\&#39;adhésion et les sessions de quiz. Pensé pour le droit d\&#39;accès / portabilité du RGPD : le frontend télécharge la réponse en &#x60;&#x60;application/json&#x60;&#x60; sous le nom &#x60;&#x60;quizonline-export-&lt;username&gt;.json&#x60;&#x60;.
+     * Retourne un dump JSON de toutes les données personnelles associées au compte de l\&#39;utilisateur connecté. Couvre le profil, les domaines (owned / managed / membre), les demandes d\&#39;adhésion et les sessions de quiz. Pensé pour le droit d\&#39;accès / portabilité du RGPD : le frontend télécharge la réponse en &#x60;&#x60;application/json&#x60;&#x60; sous le nom &#x60;&#x60;quizonline-export-&lt;email&gt;.json&#x60;&#x60;.
      * @endpoint get /api/user/me/export/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -880,6 +880,9 @@ export class UserApi extends BaseService {
             throw new Error('Required parameter userId was null or undefined when calling userUpdate.');
         }
         const customUserAdminUpdateRequestDto = requestParameters?.customUserAdminUpdateRequestDto;
+        if (customUserAdminUpdateRequestDto === null || customUserAdminUpdateRequestDto === undefined) {
+            throw new Error('Required parameter customUserAdminUpdateRequestDto was null or undefined when calling userUpdate.');
+        }
 
         let localVarHeaders = this.defaultHeaders;
 

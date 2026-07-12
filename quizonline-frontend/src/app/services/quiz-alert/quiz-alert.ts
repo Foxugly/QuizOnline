@@ -11,7 +11,7 @@ const POLL_INTERVAL_MS = 60_000;
 
 export interface AlertUserSummary {
   id: number;
-  username: string;
+  name: string;
 }
 
 export interface QuizAlertMessageDto {
@@ -40,7 +40,7 @@ export interface QuizAlertThreadListDto {
   unread: boolean;
   unread_count: number;
   last_message_preview: string;
-  counterpart_username: string;
+  counterpart_name: string;
 }
 
 export interface QuizAlertThreadDetailDto extends QuizAlertThreadListDto {

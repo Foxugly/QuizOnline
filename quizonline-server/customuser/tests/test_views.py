@@ -42,16 +42,16 @@ class UserViewsTests(APITestCase):
         cache.clear()
         self.lang_fr = Language.objects.create(code="fr", name="Francais", active=True)
         self.u1 = User.objects.create_user(
-            username="u1", password="u1pass123!", email="u1@example.com", first_name="U", last_name="One"
+            password="u1pass123!", email="u1@example.com", first_name="U", last_name="One"
         )
         self.u2 = User.objects.create_user(
-            username="u2", password="u2pass123!", email="u2@example.com", first_name="U", last_name="Two"
+            password="u2pass123!", email="u2@example.com", first_name="U", last_name="Two"
         )
         self.staff = User.objects.create_user(
-            username="staff", password="staffpass123!", email="staff@example.com", is_staff=True
+            password="staffpass123!", email="staff@example.com", is_staff=True
         )
         self.superuser = User.objects.create_user(
-            username="admin", password="adminpass123!", email="admin@example.com", is_superuser=True, is_staff=True
+            password="adminpass123!", email="admin@example.com", is_superuser=True, is_staff=True
         )
         self.domain = Domain.objects.create(owner=self.staff, active=True)
         self.domain.allowed_languages.set([self.lang_fr])
@@ -92,7 +92,6 @@ class UserViewsTests(APITestCase):
 
     def test_user_create_is_public_and_hashes_password(self):
         payload = {
-            "username": "newbie",
             "email": "newbie@example.com",
             "first_name": "New",
             "last_name": "Bie",
@@ -100,14 +99,13 @@ class UserViewsTests(APITestCase):
         }
         res = self.client.post(self.USER_LIST_CREATE_URL, payload, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data["username"], "newbie")
+        self.assertEqual(res.data["email"], "newbie@example.com")
 
-        created = User.objects.get(username="newbie")
+        created = User.objects.get(email="newbie@example.com")
         self.assertTrue(created.check_password("SecretPass123!"))
 
     def test_user_create_can_link_managed_domains(self):
         payload = {
-            "username": "domain-newbie",
             "email": "domain-newbie@example.com",
             "first_name": "New",
             "last_name": "Bie",
@@ -118,13 +116,12 @@ class UserViewsTests(APITestCase):
         res = self.client.post(self.USER_LIST_CREATE_URL, payload, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        created = User.objects.get(username="domain-newbie")
+        created = User.objects.get(email="domain-newbie@example.com")
         self.assertEqual(list(created.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(created.current_domain_id, self.domain.id)
 
     def test_user_create_can_link_requested_domains(self):
         payload = {
-            "username": "requested-newbie",
             "email": "requested-newbie@example.com",
             "first_name": "New",
             "last_name": "Bie",
@@ -135,14 +132,13 @@ class UserViewsTests(APITestCase):
         res = self.client.post(self.USER_LIST_CREATE_URL, payload, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        created = User.objects.get(username="requested-newbie")
+        created = User.objects.get(email="requested-newbie@example.com")
         self.assertEqual(list(created.linked_domains.values_list("id", flat=True)), [self.domain.id])
         self.assertEqual(created.current_domain_id, self.domain.id)
 
     # --- Cloudflare Turnstile (captcha) -----------------------------------
     def _register_payload(self, **overrides):
         payload = {
-            "username": "captcha-newbie",
             "email": "captcha-newbie@example.com",
             "first_name": "New",
             "last_name": "Bie",
@@ -165,7 +161,7 @@ class UserViewsTests(APITestCase):
             format="json",
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(User.objects.filter(username="captcha-newbie").exists())
+        self.assertTrue(User.objects.filter(email="captcha-newbie@example.com").exists())
 
     @override_settings(TURNSTILE_SECRET_KEY="test-secret")
     @patch("customuser.views.verify_turnstile_token", return_value=False)
@@ -177,7 +173,7 @@ class UserViewsTests(APITestCase):
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data["code"], "captcha_failed")
-        self.assertFalse(User.objects.filter(username="captcha-newbie").exists())
+        self.assertFalse(User.objects.filter(email="captcha-newbie@example.com").exists())
 
     @override_settings(TURNSTILE_SECRET_KEY="test-secret")
     @patch("customuser.views.verify_turnstile_token", return_value=True)
@@ -215,7 +211,7 @@ class UserViewsTests(APITestCase):
         self.client.force_authenticate(user=self.u1)
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data["username"], "u1")
+        self.assertEqual(res.data["email"], "u1@example.com")
 
         self.client.force_authenticate(user=self.staff)
         res = self.client.get(self.USER_DETAIL_URL(self.u1.id))
@@ -447,7 +443,7 @@ class UserViewsTests(APITestCase):
 
         res = self.client.post(
             self.TOKEN_URL,
-            {"username": "u1", "password": "u1pass123!"},
+            {"email": "u1@example.com", "password": "u1pass123!"},
             format="json",
         )
 
@@ -460,7 +456,7 @@ class UserViewsTests(APITestCase):
 
         res = self.client.post(
             self.TOKEN_URL,
-            {"username": "u1", "password": "u1pass123!"},
+            {"email": "u1@example.com", "password": "u1pass123!"},
             format="json",
         )
 
@@ -476,14 +472,14 @@ class UserViewsTests(APITestCase):
             for _ in range(2):
                 res = self.client.post(
                     self.TOKEN_URL,
-                    {"username": "u1", "password": "u1pass123!"},
+                    {"email": "u1@example.com", "password": "u1pass123!"},
                     format="json",
                 )
                 self.assertEqual(res.status_code, status.HTTP_200_OK)
 
             res = self.client.post(
                 self.TOKEN_URL,
-                {"username": "u1", "password": "u1pass123!"},
+                {"email": "u1@example.com", "password": "u1pass123!"},
                 format="json",
             )
         self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -581,7 +577,7 @@ class UserViewsTests(APITestCase):
         self.u1.save(update_fields=["must_change_password"])
         res = self.client.get(self.ME_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data["username"], "u1")
+        self.assertEqual(res.data["email"], "u1@example.com")
         self.assertTrue(res.data["password_change_required"])
 
     def test_me_patch_updates_profile_but_not_sensitive_fields(self):
@@ -592,7 +588,6 @@ class UserViewsTests(APITestCase):
         self.u1.refresh_from_db()
         self.assertEqual(self.u1.email, "me-new@example.com")
         self.assertEqual(self.u1.language, "fr")
-        self.assertEqual(self.u1.username, "u1")
 
         res = self.client.patch(self.ME_URL, {"current_domain": 999}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
@@ -668,7 +663,7 @@ class UserViewsTests(APITestCase):
         from domain.models import DomainJoinRequest, JoinPolicy
         from django.utils import translation
         translation.activate("fr")
-        other_user = User.objects.create_user(username="other", password="o", email="o@e.test")
+        other_user = User.objects.create_user(password="o", email="o@e.test")
 
         def _make_validation_domain(name: str):
             d = Domain.objects.create(owner=self.staff, active=True)

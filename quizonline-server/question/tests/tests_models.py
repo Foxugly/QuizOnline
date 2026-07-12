@@ -21,7 +21,6 @@ class QuestionModelsTestCase(TestCase):
     def setUpTestData(cls):
         # ---------- User ----------
         cls.owner = User.objects.create_user(
-            username="owner",
             email="owner@test.com",
             password="pass",
         )

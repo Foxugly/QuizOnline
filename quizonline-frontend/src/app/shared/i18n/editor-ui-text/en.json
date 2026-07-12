@@ -80,9 +80,7 @@
     "noCopyToastDetail": "Copy is disabled during the quiz."
   },
   "userAdminForm": {
-    "badgeSuperuser": "Superuser",
-    "usernameLabel": "Username",
-    "isActiveLabel": "Active",
+    "badgeSuperuser": "Superuser",    "isActiveLabel": "Active",
     "languageLabel": "Language",
     "nbDomainMaxLabel": "Max domains",
     "emailLabel": "Email",
@@ -317,9 +315,7 @@
     "userList": {
       "title": "Users",
       "subtitle": "User management",
-      "id": "ID",
-      "username": "Username",
-      "name": "Name",
+      "id": "ID",      "name": "Name",
       "email": "Email",
       "nbDomainMax": "Max domains",
       "active": "Active",

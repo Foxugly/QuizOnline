@@ -305,7 +305,7 @@ export class QuizSubjectForm implements OnInit {
     const user = this.userService.currentUser();
     const userLabel = [user?.first_name?.trim(), user?.last_name?.trim()]
       .filter((value): value is string => !!value)
-      .join('-') || user?.username || 'user';
+      .join('-') || user?.email || 'user';
 
     return `${stamp}-quiz-${userLabel}`;
   }

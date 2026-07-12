@@ -63,10 +63,10 @@ export interface KindLineCopy {
  * Build the human-readable line for a notification ``kind`` from its ``payload``,
  * reproducing the legacy switch (including the ``{ru || defaultUser}`` style
  * fallbacks and the ``default: return kind``). Payload extraction:
- * ``domain_name`` → ``dn``, ``requester_username`` → ``ru``,
- * ``inviter_username`` → ``iu``, ``initiator_username`` → ``ii``,
+ * ``domain_name`` → ``dn``, ``requester_name`` → ``ru``,
+ * ``inviter_name`` → ``iu``, ``initiator_name`` → ``ii``,
  * ``outcome`` → ``oc``, ``template_title`` → ``title``,
- * ``user_username`` → ``user``.
+ * ``user_name`` → ``user``.
  */
 export function buildNotificationLine(
   kind: string,
@@ -75,12 +75,12 @@ export function buildNotificationLine(
 ): string {
   const p = (payload ?? {}) as Record<string, unknown>;
   const dn = String(p['domain_name'] ?? '');
-  const ru = String(p['requester_username'] ?? '');
-  const iu = String(p['inviter_username'] ?? '');
-  const ii = String(p['initiator_username'] ?? '');
+  const ru = String(p['requester_name'] ?? '');
+  const iu = String(p['inviter_name'] ?? '');
+  const ii = String(p['initiator_name'] ?? '');
   const oc = String(p['outcome'] ?? '');
   const title = String(p['template_title'] ?? '');
-  const user = String(p['user_username'] ?? '');
+  const user = String(p['user_name'] ?? '');
 
   switch (kind) {
     case 'domain.join_request.created':

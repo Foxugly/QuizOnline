@@ -15,7 +15,7 @@ def fr_lang(db):
 
 @pytest.fixture
 def owner(db):
-    return CustomUser.objects.create_user(username="owner", email="owner@example.com", password="x")
+    return CustomUser.objects.create_user(email="owner@example.com", password="x")
 
 
 @pytest.fixture
@@ -53,6 +53,6 @@ def quiz_template(db, domain, owner):
 @pytest.fixture
 def learner(db, domain):
     from customuser.models import CustomUser
-    u = CustomUser.objects.create_user(username="learner", email="learner@x.com", password="x")
+    u = CustomUser.objects.create_user(email="learner@x.com", password="x")
     domain.members.add(u)
     return u

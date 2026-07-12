@@ -6,7 +6,9 @@ from rest_framework import serializers
 
 class UserSummarySerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    username = serializers.CharField()
+    # ``name`` is the user's display name (full name, falling back to email).
+    # Replaces the former ``username`` field now that usernames are gone.
+    name = serializers.CharField(default="")
     first_name = serializers.CharField(default="")
     last_name = serializers.CharField(default="")
     email = serializers.EmailField(default="")

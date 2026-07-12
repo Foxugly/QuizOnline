@@ -89,7 +89,7 @@ def test_invite_analytics_metrics(course, owner, learner, url):
 
     # Declined: another user, 2 hours latency.
     other = CustomUser.objects.create_user(
-        username="other", email="other@x.com", password="x",
+        email="other@x.com", password="x",
     )
     course.domain.members.add(other)
     declined = invite_user_to_course(course=course, invitee=other, inviter=owner)
@@ -100,7 +100,7 @@ def test_invite_analytics_metrics(course, owner, learner, url):
 
     # Pending: a third user, no decision yet.
     third = CustomUser.objects.create_user(
-        username="third", email="third@x.com", password="x",
+        email="third@x.com", password="x",
     )
     course.domain.members.add(third)
     invite_user_to_course(course=course, invitee=third, inviter=owner)
@@ -121,17 +121,17 @@ def test_invite_analytics_metrics(course, owner, learner, url):
 def test_enrollment_counts_and_completion_rate(owner, course, url):
     # 4 active, 1 completed, 2 cancelled, 1 pending
     for i in range(4):
-        u = CustomUser.objects.create_user(username=f"a{i}", password="x")
+        u = CustomUser.objects.create_user(email=f"a{i}@example.test", password="x")
         CourseEnrollment.objects.create(user=u, course=course, status=CourseEnrollment.STATUS_ACTIVE)
-    u_done = CustomUser.objects.create_user(username="done", password="x")
+    u_done = CustomUser.objects.create_user(email="done@example.test", password="x")
     CourseEnrollment.objects.create(
         user=u_done, course=course, status=CourseEnrollment.STATUS_COMPLETED,
         completed_at=timezone.now(),
     )
     for i in range(2):
-        u = CustomUser.objects.create_user(username=f"c{i}", password="x")
+        u = CustomUser.objects.create_user(email=f"c{i}@example.test", password="x")
         CourseEnrollment.objects.create(user=u, course=course, status=CourseEnrollment.STATUS_CANCELLED)
-    u_pending = CustomUser.objects.create_user(username="p", password="x")
+    u_pending = CustomUser.objects.create_user(email="p@example.test", password="x")
     CourseEnrollment.objects.create(user=u_pending, course=course, status=CourseEnrollment.STATUS_PENDING)
 
     body = _auth(owner).get(url).json()
@@ -146,11 +146,11 @@ def test_enrollment_counts_and_completion_rate(owner, course, url):
 def test_median_progress_only_counts_non_cancelled(owner, course, url):
     progress_values = [0, 25, 50, 75, 100]
     for i, pct in enumerate(progress_values):
-        u = CustomUser.objects.create_user(username=f"u{i}", password="x")
+        u = CustomUser.objects.create_user(email=f"u{i}@example.test", password="x")
         CourseEnrollment.objects.create(user=u, course=course, status=CourseEnrollment.STATUS_ACTIVE)
         CourseProgress.objects.create(user=u, course=course, progress_percent=pct)
     # A cancelled enrollee with 0% should not drag the median down.
-    cancelled = CustomUser.objects.create_user(username="cancelled", password="x")
+    cancelled = CustomUser.objects.create_user(email="cancelled@example.test", password="x")
     CourseEnrollment.objects.create(user=cancelled, course=course, status=CourseEnrollment.STATUS_CANCELLED)
     CourseProgress.objects.create(user=cancelled, course=course, progress_percent=0)
 
@@ -160,8 +160,8 @@ def test_median_progress_only_counts_non_cancelled(owner, course, url):
 
 @pytest.mark.django_db
 def test_certificates_count_excludes_revoked(owner, course, url):
-    learner1 = CustomUser.objects.create_user(username="l1", password="x")
-    learner2 = CustomUser.objects.create_user(username="l2", password="x")
+    learner1 = CustomUser.objects.create_user(email="l1@example.test", password="x")
+    learner2 = CustomUser.objects.create_user(email="l2@example.test", password="x")
     Certificate.objects.create(
         user=learner1, course=course, certificate_number="LMS-2026-001",
         verification_token="t1",
@@ -181,7 +181,7 @@ def test_enrollment_trend_30d_buckets(owner, course, url):
     now = timezone.now()
     offsets = [0, 0, 1, 14, 29, 40]  # 40 is older than the window
     for i, offset in enumerate(offsets):
-        u = CustomUser.objects.create_user(username=f"trend-{i}-{offset}", password="x")
+        u = CustomUser.objects.create_user(email=f"trend-{i}-{offset}@example.test", password="x")
         CourseEnrollment.objects.create(user=u, course=course)
         # Backdate enrolled_at — auto_now_add prevents the constructor path,
         # so we rewrite after the fact.

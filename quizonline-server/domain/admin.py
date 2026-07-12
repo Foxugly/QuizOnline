@@ -39,7 +39,8 @@ class DomainAdmin(ImportExportMixin, TranslatableAdmin):
     search_fields = (
         "translations__name",
         "translations__description",
-        "owner__username",
+        "owner__first_name",
+        "owner__last_name",
         "owner__email",
     )
 

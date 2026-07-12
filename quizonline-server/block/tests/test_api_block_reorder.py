@@ -148,7 +148,7 @@ def test_reorder_rejects_unknown_host_type(owner):
 def test_reorder_blocks_non_instructor(question, domain):
     """A learner of the domain cannot reorder blocks."""
     from customuser.models import CustomUser
-    plain_member = CustomUser.objects.create_user(username="plain", password="x")
+    plain_member = CustomUser.objects.create_user(email="plain@example.test", password="x")
     domain.members.add(plain_member)
     p1 = _make_block(question, order=0, role=Block.ROLE_PROMPT)
     p2 = _make_block(question, order=1, role=Block.ROLE_PROMPT)

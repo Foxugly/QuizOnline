@@ -11,7 +11,6 @@ User = get_user_model()
 class CustomUserServicesTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="service-user",
             password="OldPass123!",
             email="service@example.com",
         )

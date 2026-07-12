@@ -432,7 +432,7 @@ export class QuizListPage implements OnInit {
 
     return {
       ...template,
-      ownerLabel: template.created_by_username || (template.created_by ? `User #${template.created_by}` : '-'),
+      ownerLabel: template.created_by_name || (template.created_by ? `User #${template.created_by}` : '-'),
       canManage: managesDomain,
       canAssign: managesDomain,
       canEdit: managesDomain,
@@ -460,7 +460,7 @@ export class QuizListPage implements OnInit {
         }
         return;
       }
-      recipients.set(user.id, {id: user.id, username: user.username, role});
+      recipients.set(user.id, {id: user.id, name: user.name ?? '', role});
     };
 
     addRecipient(domain.owner, 'owner');
@@ -471,7 +471,7 @@ export class QuizListPage implements OnInit {
       addRecipient(member, 'member');
     }
 
-    return [...recipients.values()].sort((left, right) => left.username.localeCompare(right.username));
+    return [...recipients.values()].sort((left, right) => left.name.localeCompare(right.name));
   }
 
   private canManageDomain(domain: DomainReadDto): boolean {

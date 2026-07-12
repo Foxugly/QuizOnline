@@ -65,8 +65,8 @@
                 <span class="alert-card__topic">{{ pageText().topicQuiz }}</span>
               }
               <strong class="alert-card__title">{{ thread.question_title }}</strong>
-              @if (thread.counterpart_username) {
-                <span class="alert-card__pill">{{ thread.counterpart_username }}</span>
+              @if (thread.counterpart_name) {
+                <span class="alert-card__pill">{{ thread.counterpart_name }}</span>
               }
               @if (thread.kind === 'question' && thread.question_id !== null) {
                 <span class="alert-card__pill">{{ questionPrefixText(thread.question_id) }}</span>

@@ -16,7 +16,7 @@ def lessonquiz(db, lesson, quiz_template):
 def outsider(db):
     """A user with no domain membership -- must not see the LessonQuiz."""
     return CustomUser.objects.create_user(
-        username="outsider", email="outsider@x.com", password="x",
+        email="outsider@x.com", password="x",
     )
 
 

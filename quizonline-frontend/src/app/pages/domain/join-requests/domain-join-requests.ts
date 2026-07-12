@@ -341,13 +341,13 @@ export class DomainJoinRequestsPage implements OnInit {
   private buildUserMap(domain: DomainReadDto): void {
     this.userMap.clear();
     if (domain.owner) {
-      this.userMap.set(domain.owner.id, domain.owner.username);
+      this.userMap.set(domain.owner.id, domain.owner.name ?? '');
     }
     for (const m of domain.managers ?? []) {
-      this.userMap.set(m.id, m.username);
+      this.userMap.set(m.id, m.name ?? '');
     }
     for (const m of domain.members ?? []) {
-      this.userMap.set(m.id, m.username);
+      this.userMap.set(m.id, m.name ?? '');
     }
   }
 

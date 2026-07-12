@@ -37,7 +37,7 @@ export class QuizTemplateAssignDialogComponent {
     const role = this.roleFilter();
     return this.users().filter((user) => {
       const matchesRole = role === 'all' || user.role === role;
-      const matchesTerm = !term || user.username.toLowerCase().includes(term);
+      const matchesTerm = !term || user.name.toLowerCase().includes(term);
       return matchesRole && matchesTerm;
     });
   });

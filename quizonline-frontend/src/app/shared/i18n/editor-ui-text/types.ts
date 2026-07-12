@@ -86,7 +86,6 @@ export type EditorUiText = {
   };
   userAdminForm: {
     badgeSuperuser: string;
-    usernameLabel: string;
     isActiveLabel: string;
     languageLabel: string;
     nbDomainMaxLabel: string;
@@ -305,7 +304,7 @@ export type EditorUiText = {
         deleteFailed: string;
       };
     };
-    userList: {title: string; subtitle: string; id: string; username: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string; bulkActionsPlaceholder: string; bulkActionsApply: string; selectedSingular: string; selectedPlural: string; searchPlaceholder: string;};
+    userList: {title: string; subtitle: string; id: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string; bulkActionsPlaceholder: string; bulkActionsApply: string; selectedSingular: string; selectedPlural: string; searchPlaceholder: string;};
     quizTemplateResults: {
       title: string;
       titleWithTemplate: string;

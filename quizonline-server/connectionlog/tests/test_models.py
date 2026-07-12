@@ -5,7 +5,7 @@ from connectionlog.models import ConnectionEvent
 
 @pytest.mark.django_db
 def test_connection_event_minimal_create():
-    user = get_user_model().objects.create(email="a@b.com", username="a@b.com")
+    user = get_user_model().objects.create(email="a@b.com")
     ev = ConnectionEvent.objects.create(
         user=user, account_email="a@b.com", login_method="password", ip="1.2.3.4",
     )

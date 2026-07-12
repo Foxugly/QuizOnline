@@ -26,9 +26,9 @@ class TransferInitiateTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
-        self.future = User.objects.create_user(username="f", password="p", email="f@x.test")
-        self.manager = User.objects.create_user(username="m", password="p", email="m@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.future = User.objects.create_user(password="p", email="f@x.test")
+        self.manager = User.objects.create_user(password="p", email="m@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.domain.managers.add(self.manager)
         self.client = APIClient()
@@ -62,7 +62,7 @@ class TransferInitiateTests(TestCase):
 
     def test_pending_transfer_surfaces_in_detail(self):
         """After the owner initiates a transfer the domain detail
-        endpoint should expose ``pending_transfer = {id, username}``
+        endpoint should expose ``pending_transfer = {id, name}``
         so the frontend can show "transfer in flight" on /edit."""
         self.client.force_authenticate(self.owner)
         # Detail before: no pending transfer.
@@ -81,7 +81,7 @@ class TransferInitiateTests(TestCase):
         self.assertEqual(after.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(after.data["pending_transfer"])
         self.assertEqual(after.data["pending_transfer"]["id"], self.future.id)
-        self.assertEqual(after.data["pending_transfer"]["username"], self.future.username)
+        self.assertEqual(after.data["pending_transfer"]["name"], self.future.get_display_name())
 
     def test_pending_transfer_cleared_after_accept(self):
         """Once the future owner has accepted, ``pending_transfer``
@@ -121,8 +121,8 @@ class TransferAcceptTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
-        self.future = User.objects.create_user(username="f", password="p", email="f@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.future = User.objects.create_user(password="p", email="f@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.client = APIClient()
 
@@ -165,7 +165,7 @@ class TransferAcceptTests(TestCase):
         )
 
     def test_post_wrong_account_refused(self):
-        other = User.objects.create_user(username="other", password="p", email="other@x.test")
+        other = User.objects.create_user(password="p", email="other@x.test")
         self.client.force_authenticate(other)
         token = self._token()
         resp = self.client.post(self.URL.format(token))
@@ -176,7 +176,7 @@ class TransferAcceptTests(TestCase):
     def test_no_longer_eligible_when_owner_changed(self):
         # Owner changes after the token was minted: original initiator
         # is no longer the current owner → refusal.
-        third = User.objects.create_user(username="third", password="p", email="t@x.test")
+        third = User.objects.create_user(password="p", email="t@x.test")
         token = self._token()
         self.domain.owner = third
         self.domain.save(update_fields=["owner"])

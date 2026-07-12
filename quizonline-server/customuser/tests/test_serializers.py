@@ -23,7 +23,6 @@ User = get_user_model()
 class CustomUserReadSerializerTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="u1",
             password="secret1234",
             email="u1@example.com",
             first_name="U",
@@ -39,7 +38,6 @@ class CustomUserReadSerializerTests(TestCase):
             set(data.keys()),
             {
                 "id",
-                "username",
                 "email",
                 "first_name",
                 "last_name",
@@ -58,7 +56,7 @@ class CustomUserReadSerializerTests(TestCase):
                 "notification_prefs",
             },
         )
-        self.assertEqual(data["username"], "u1")
+        self.assertEqual(data["email"], "u1@example.com")
 
     def test_read_serializer_does_not_expose_password(self):
         data = CustomUserReadSerializer(instance=self.user).data
@@ -78,8 +76,8 @@ class CustomUserReadSerializerTests(TestCase):
         from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
         translation.activate("fr")
-        user = User.objects.create_user(username="u-pjr", password="pwd")
-        owner = User.objects.create_user(username="o-pjr", password="pwd")
+        user = User.objects.create_user(email="u-pjr@example.test", password="pwd")
+        owner = User.objects.create_user(email="o-pjr@example.test", password="pwd")
         val_domain = Domain.objects.create(owner=owner, active=True)
         val_domain.set_current_language("fr")
         val_domain.name = "val-pjr"
@@ -97,7 +95,7 @@ class CustomUserCreateSerializerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.lang_fr = Language.objects.create(code="fr", name="Francais", active=True)
-        cls.owner = User.objects.create_user(username="owner", password="OwnerPass123!")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="OwnerPass123!")
         cls.domain = Domain.objects.create(owner=cls.owner, active=True)
         cls.domain.allowed_languages.set([cls.lang_fr])
         cls.domain.set_current_language("fr")
@@ -107,7 +105,6 @@ class CustomUserCreateSerializerTests(TestCase):
 
     def test_create_serializer_creates_user_and_hashes_password(self):
         payload = {
-            "username": "newuser",
             "email": "new@example.com",
             "first_name": "New",
             "last_name": "User",
@@ -118,14 +115,12 @@ class CustomUserCreateSerializerTests(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         user = serializer.save()
 
-        self.assertEqual(user.username, "newuser")
         self.assertEqual(user.email, "new@example.com")
         self.assertFalse(user.email_confirmed)
         self.assertTrue(user.check_password("SecretPass123!"))
 
     def test_create_serializer_links_managed_domains_when_provided(self):
         payload = {
-            "username": "linkeduser",
             "email": "linked@example.com",
             "first_name": "Linked",
             "last_name": "User",
@@ -142,7 +137,6 @@ class CustomUserCreateSerializerTests(TestCase):
 
     def test_create_serializer_links_requested_domains_when_provided(self):
         payload = {
-            "username": "requesteduser",
             "email": "requested@example.com",
             "first_name": "Requested",
             "last_name": "User",
@@ -160,7 +154,6 @@ class CustomUserCreateSerializerTests(TestCase):
     def test_create_serializer_rejects_conflicting_requested_and_managed_domains(self):
         serializer = CustomUserCreateSerializer(
             data={
-                "username": "conflictuser",
                 "email": "conflict@example.com",
                 "first_name": "Conflict",
                 "last_name": "User",
@@ -173,19 +166,18 @@ class CustomUserCreateSerializerTests(TestCase):
         self.assertIn("requested_domain_ids", serializer.errors)
 
     def test_create_serializer_password_is_write_only(self):
-        user = User.objects.create_user(username="u2", password="SecretPass123!")
+        user = User.objects.create_user(email="u2@example.test", password="SecretPass123!")
         data = CustomUserCreateSerializer(instance=user).data
         self.assertNotIn("password", data)
 
     def test_create_serializer_requires_password(self):
-        payload = {"username": "no-pass"}
+        payload = {"email": "no-pass@example.test"}
         serializer = CustomUserCreateSerializer(data=payload)
         self.assertFalse(serializer.is_valid())
         self.assertIn("password", serializer.errors)
 
     def test_create_serializer_validates_password(self):
         payload = {
-            "username": "newuser",
             "email": "new@example.com",
             "first_name": "New",
             "last_name": "User",
@@ -200,7 +192,7 @@ class CustomUserCreateSerializerTests(TestCase):
         from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
         translation.activate("fr")
-        owner = User.objects.create_user(username="o-mix", password="pwd")
+        owner = User.objects.create_user(email="o-mix@example.test", password="pwd")
         auto_domain = Domain.objects.create(owner=owner, active=True)
         auto_domain.set_current_language("fr")
         auto_domain.name = "auto-mix"
@@ -213,7 +205,6 @@ class CustomUserCreateSerializerTests(TestCase):
 
         s = CustomUserCreateSerializer(
             data={
-                "username": "newbie-mix",
                 "email": "newbie-mix@e.test",
                 "first_name": "N",
                 "last_name": "B",
@@ -241,7 +232,7 @@ class CustomUserCreateSerializerTests(TestCase):
         from django.utils import translation
 
         translation.activate("fr")
-        owner = User.objects.create_user(username="o-mail", password="pwd")
+        owner = User.objects.create_user(email="o-mail@example.test", password="pwd")
         val_domain = Domain.objects.create(owner=owner, active=True)
         val_domain.set_current_language("fr")
         val_domain.name = "mail-test"
@@ -252,7 +243,6 @@ class CustomUserCreateSerializerTests(TestCase):
             with self.captureOnCommitCallbacks(execute=True):
                 s = CustomUserCreateSerializer(
                     data={
-                        "username": "newbie-mail",
                         "email": "newbie-mail@e.test",
                         "first_name": "N",
                         "last_name": "B",
@@ -265,7 +255,7 @@ class CustomUserCreateSerializerTests(TestCase):
             # Exiting captureOnCommitCallbacks executes queued on_commit callbacks.
         mock_send.assert_called_once()
         call_kwargs = mock_send.call_args.kwargs
-        self.assertEqual(call_kwargs["join_request"].user.username, "newbie-mail")
+        self.assertEqual(call_kwargs["join_request"].user.email, "newbie-mail@e.test")
         self.assertEqual(call_kwargs["join_request"].domain_id, val_domain.id)
         self.assertIn(owner, call_kwargs["recipients"])
 
@@ -274,14 +264,13 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
     def setUp(self):
         self.lang_fr = Language.objects.create(code="fr", name="Francais", active=True)
         self.user = User.objects.create_user(
-            username="u3",
             password="OldPass123!",
             email="old@example.com",
             first_name="Old",
             last_name="Name",
             is_active=True,
         )
-        self.domain_owner = User.objects.create_user(username="domain-owner", password="DomainPass123!")
+        self.domain_owner = User.objects.create_user(email="domain-owner@example.test", password="DomainPass123!")
         self.domain = Domain.objects.create(owner=self.domain_owner, active=True)
         self.domain.allowed_languages.set([self.lang_fr])
         self.domain.set_current_language("fr")
@@ -320,8 +309,8 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
         from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
         translation.activate("fr")
-        user = User.objects.create_user(username="u-pu1", password="pwd")
-        owner = User.objects.create_user(username="o-pu1", password="pwd")
+        user = User.objects.create_user(email="u-pu1@example.test", password="pwd")
+        owner = User.objects.create_user(email="o-pu1@example.test", password="pwd")
         val_domain = Domain.objects.create(owner=owner, active=True)
         val_domain.set_current_language("fr")
         val_domain.name = "val-pu1"
@@ -345,8 +334,8 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
         from domain.models import Domain
         from django.utils import translation
         translation.activate("fr")
-        user = User.objects.create_user(username="u-pu2", password="pwd")
-        owner = User.objects.create_user(username="o-pu2", password="pwd")
+        user = User.objects.create_user(email="u-pu2@example.test", password="pwd")
+        owner = User.objects.create_user(email="o-pu2@example.test", password="pwd")
         auto_domain = Domain.objects.create(owner=owner, active=True)
         auto_domain.set_current_language("fr")
         auto_domain.name = "auto-pu2"
@@ -367,7 +356,6 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
 class CustomUserAdminUpdateSerializerTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="u4",
             password="OldPass123!",
             email="old@example.com",
             first_name="Old",
@@ -431,7 +419,7 @@ class CustomUserAdminUpdateSerializerTests(TestCase):
 
 class QuizSimpleSerializerTests(TestCase):
     def test_quiz_simple_serializer_reads_title_from_quiz_template(self):
-        owner = get_user_model().objects.create_user(username="qs_owner", password="pass")
+        owner = get_user_model().objects.create_user(email="qs_owner@example.test", password="pass")
         domain = Domain.objects.create(owner=owner, name="QSDomain", description="", active=True)
         qt = QuizTemplate.objects.create(title="Template Title", slug="template-title", domain=domain)
         quiz = Quiz.objects.create(quiz_template=qt)

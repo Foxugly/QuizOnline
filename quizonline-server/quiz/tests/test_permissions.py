@@ -15,9 +15,9 @@ class IsStaffOrReadOnlyTests(TestCase):
         self.view = object()  # pas utilisé ici
 
         self.anon = SimpleNamespace(is_authenticated=False, is_staff=False, is_superuser=False)
-        self.user = User.objects.create_user(username="u1", password="pass")
-        self.staff = User.objects.create_user(username="staff", password="pass", is_staff=True)
-        self.superuser = User.objects.create_user(username="admin", password="pass", is_superuser=True)
+        self.user = User.objects.create_user(email="u1@example.test", password="pass")
+        self.staff = User.objects.create_user(email="staff@example.test", password="pass", is_staff=True)
+        self.superuser = User.objects.create_user(email="admin@example.test", password="pass", is_superuser=True)
 
     def _req(self, method: str, user):
         return SimpleNamespace(method=method, user=user)

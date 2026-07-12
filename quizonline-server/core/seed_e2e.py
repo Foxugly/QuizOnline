@@ -72,9 +72,8 @@ def ensure_e2e_languages() -> None:
 def ensure_e2e_admin():
     """Seed the ``admin`` superuser. Password ``secret123``. Idempotent."""
     admin, _ = User.objects.get_or_create(
-        username="admin",
+        email="admin@example.test",
         defaults={
-            "email": "admin@example.test",
             "is_staff": True,
             "is_superuser": True,
             "language": "fr",
@@ -95,9 +94,8 @@ def ensure_e2e_admin():
 def ensure_e2e_testuser():
     """Seed the ``testuser`` non-staff account. Password ``secret123``."""
     testuser, _ = User.objects.get_or_create(
-        username="testuser",
+        email="testuser@example.test",
         defaults={
-            "email": "testuser@example.test",
             "is_staff": False,
             "is_superuser": False,
             "language": "fr",

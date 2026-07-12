@@ -36,7 +36,7 @@ class UnreadCountsNotificationOnlyTests(TestCase):
     URL = "/api/unread-counts/"
 
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
         # 2 unread + 1 read + 1 deleted — only the 2 unread should count.
         Notification.objects.create(user=self.user, kind="a")
         Notification.objects.create(user=self.user, kind="b")
@@ -47,7 +47,7 @@ class UnreadCountsNotificationOnlyTests(TestCase):
         deleted.deleted_at = deleted.created_at
         deleted.save(update_fields=["deleted_at"])
         # Another user's rows must not leak.
-        other = User.objects.create_user(username="o", password="p")
+        other = User.objects.create_user(email="o@example.test", password="p")
         Notification.objects.create(user=other, kind="x")
 
         self.client = APIClient()
@@ -76,7 +76,7 @@ class UnreadCountsEmptyTests(TestCase):
     URL = "/api/unread-counts/"
 
     def test_no_data_returns_zeros(self):
-        user = User.objects.create_user(username="u", password="p")
+        user = User.objects.create_user(email="u@example.test", password="p")
         client = APIClient()
         client.force_authenticate(user)
         resp = client.get(self.URL)
@@ -91,8 +91,8 @@ class UnreadCountsCourseInvitationsTests(TestCase):
     URL = "/api/unread-counts/"
 
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
-        other = User.objects.create_user(username="o", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
+        other = User.objects.create_user(email="o@example.test", password="p")
         domain = Domain.objects.create(name="d", owner=other)
         fr = Language.objects.create(code="fr", name="French")
         # Three courses so the (course, invitee) unique constraint

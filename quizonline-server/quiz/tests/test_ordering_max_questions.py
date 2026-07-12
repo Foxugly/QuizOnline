@@ -21,7 +21,7 @@ class SessionQuizQuestionsCapTests(TestCase):
         # ``name`` / ``title`` assignment outside a request works.
         translation.activate("fr")
         self.addCleanup(translation.deactivate_all)
-        self.owner = User.objects.create_user(username="owner", password="x")
+        self.owner = User.objects.create_user(email="owner@example.test", password="x")
         self.domain = Domain.objects.create(owner=self.owner, name="D", description="", active=True)
         self.template = QuizTemplate.objects.create(
             domain=self.domain, title="T", max_questions=3,

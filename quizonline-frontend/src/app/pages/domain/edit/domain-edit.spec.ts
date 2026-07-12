@@ -34,7 +34,7 @@ describe('DomainEdit', () => {
               translations: {},
               allowed_languages: [],
               active: true,
-              owner: {id: 1, username: 'owner'},
+              owner: {id: 1, name: 'owner'},
               managers: [],
               created_at: '',
               updated_at: '',

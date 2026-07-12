@@ -80,9 +80,7 @@
     "noCopyToastDetail": "Kopiëren is uitgeschakeld tijdens de quiz."
   },
   "userAdminForm": {
-    "badgeSuperuser": "Superuser",
-    "usernameLabel": "Gebruikersnaam",
-    "isActiveLabel": "Actief",
+    "badgeSuperuser": "Superuser",    "isActiveLabel": "Actief",
     "languageLabel": "Taal",
     "nbDomainMaxLabel": "Max domeinen",
     "emailLabel": "E-mail",
@@ -317,9 +315,7 @@
     "userList": {
       "title": "Gebruikers",
       "subtitle": "Gebruikersbeheer",
-      "id": "ID",
-      "username": "Gebruikersnaam",
-      "name": "Naam",
+      "id": "ID",      "name": "Naam",
       "email": "E-mail",
       "nbDomainMax": "Max domeinen",
       "active": "Actief",

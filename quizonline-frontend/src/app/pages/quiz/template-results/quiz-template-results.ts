@@ -54,7 +54,7 @@ export class QuizTemplateResultsPage implements OnInit {
 
     return this.sessions().filter((quiz) =>
       this.normalize([
-        quiz.user_summary?.username,
+        quiz.user_summary?.name,
         quiz.quiz_template_title,
         quiz.mode,
         quiz.created_at,
@@ -182,7 +182,7 @@ export class QuizTemplateResultsPage implements OnInit {
       ui.pages.quizTemplateResults.colScore,
     ];
     const csvRows = [headers, ...rows.map((quiz) => [
-      quiz.user_summary?.username ?? '',
+      quiz.user_summary?.name ?? '',
       quiz.user_summary?.last_name ?? '',
       quiz.user_summary?.first_name ?? '',
       quiz.user_summary?.email ?? '',

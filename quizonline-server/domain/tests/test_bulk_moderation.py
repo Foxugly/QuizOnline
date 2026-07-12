@@ -19,9 +19,9 @@ class BulkApproveTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.users = [
-            User.objects.create_user(username=f"u{i}", password="p", email=f"u{i}@x.test")
+            User.objects.create_user(password="p", email=f"u{i}@x.test")
             for i in range(3)
         ]
         self.domain = Domain.objects.create(
@@ -94,9 +94,9 @@ class BulkRejectTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.users = [
-            User.objects.create_user(username=f"u{i}", password="p", email=f"u{i}@x.test")
+            User.objects.create_user(password="p", email=f"u{i}@x.test")
             for i in range(3)
         ]
         self.domain = Domain.objects.create(
@@ -131,7 +131,7 @@ class BulkRejectTests(TestCase):
         self.assertEqual(OutboundEmail.objects.count(), 3)
 
     def test_stranger_cannot_bulk_reject(self):
-        stranger = User.objects.create_user(username="x", password="p")
+        stranger = User.objects.create_user(email="x@example.test", password="p")
         self.client.force_authenticate(stranger)
         resp = self.client.post(
             self.URL.format(self.domain.id),

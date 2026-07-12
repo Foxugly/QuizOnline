@@ -11,11 +11,7 @@ import { LanguageEnumDto } from './language-enum';
 
 
 export interface CustomUserCreateRequestDto { 
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username: string;
-    email?: string | null;
+    email: string;
     first_name?: string;
     last_name?: string;
     password: string;

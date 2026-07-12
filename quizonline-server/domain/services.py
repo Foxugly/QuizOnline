@@ -177,7 +177,7 @@ def compute_join_request_analytics(domain, since=None) -> dict:
             "total_decisions": int,        # approved + rejected
             "accept_rate_pct": float | None,
             "median_decision_seconds": int | None,
-            "top_deciders": [{"username": str, "count": int}, ...],  # top 5
+            "top_deciders": [{"name": str, "count": int}, ...],  # top 5
         }
     """
     from django.db.models import Count
@@ -221,14 +221,22 @@ def compute_join_request_analytics(domain, since=None) -> dict:
             (deltas_seconds[n // 2 - 1] + deltas_seconds[n // 2]) // 2
         )
 
+    # No ``username`` column any more: pull the name parts + email and
+    # build the display name (full name, falling back to email) in Python.
     top_deciders_rows = (
         decided_qs.filter(decided_by__isnull=False)
-          .values("decided_by__username")
+          .values("decided_by__first_name", "decided_by__last_name", "decided_by__email")
           .annotate(c=Count("id"))
           .order_by("-c")[:5]
     )
     top_deciders = [
-        {"username": r["decided_by__username"], "count": r["c"]}
+        {
+            "name": (
+                f"{r['decided_by__first_name']} {r['decided_by__last_name']}".strip()
+                or r["decided_by__email"]
+            ),
+            "count": r["c"],
+        }
         for r in top_deciders_rows
     ]
 

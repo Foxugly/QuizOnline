@@ -10,7 +10,7 @@
 
 
 /**
- * Read-only enrollment row. ``user`` stays as an int FK for write-side compatibility; ``user_detail`` carries the username/email/display-name needed by the instructor-facing enrollment table without a chatty extra request per row.
+ * Read-only enrollment row. ``user`` stays as an int FK for write-side compatibility; ``user_detail`` carries the name/email/display-name needed by the instructor-facing enrollment table without a chatty extra request per row.
  */
 export interface CourseEnrollmentRequestDto { 
     course: number;

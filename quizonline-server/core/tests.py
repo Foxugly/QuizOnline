@@ -25,7 +25,6 @@ from quiz.models import Quiz, QuizTemplate
 class CoreMailerTests(TestCase):
     def test_send_password_reset_email_enqueues_outbound_email(self):
         user = CustomUser.objects.create_user(
-            username="mail-user",
             password="Pass1234!",
             email="mail-user@example.com",
         )
@@ -49,7 +48,6 @@ class CoreMailerTests(TestCase):
     @patch("core.mailers._common.transaction.on_commit")
     def test_send_password_reset_email_registers_automatic_delivery(self, on_commit):
         user = CustomUser.objects.create_user(
-            username="mail-user-2",
             password="Pass1234!",
             email="mail-user-2@example.com",
         )
@@ -61,7 +59,6 @@ class CoreMailerTests(TestCase):
 
     def test_password_reset_email_uses_recipient_language(self):
         user = CustomUser.objects.create_user(
-            username="mail-user-nl",
             password="Pass1234!",
             email="mail-user-nl@example.com",
             language="nl",
@@ -74,9 +71,8 @@ class CoreMailerTests(TestCase):
         self.assertIn("Hallo", outbound.body)
 
     def test_quiz_assignment_email_localizes_subject_and_deadline(self):
-        owner = CustomUser.objects.create_user(username="owner", password="Pass1234!")
+        owner = CustomUser.objects.create_user(email="owner@example.test", password="Pass1234!")
         user = CustomUser.objects.create_user(
-            username="quiz-user",
             password="Pass1234!",
             email="quiz-user@example.com",
             language="fr",
@@ -102,7 +98,6 @@ class CoreMailerTests(TestCase):
     @patch("core.tasks.deliver_outbound_emails_task.delay", side_effect=OperationalError("broker down"))
     def test_send_password_reset_email_tolerates_broker_dispatch_failure(self, _delay, _on_commit):
         user = CustomUser.objects.create_user(
-            username="mail-user-broker",
             password="Pass1234!",
             email="mail-user-broker@example.com",
         )
@@ -123,7 +118,6 @@ class CoreMailerTests(TestCase):
         _on_commit,
     ):
         user = CustomUser.objects.create_user(
-            username="mail-user-broker-log",
             password="Pass1234!",
             email="mail-user-broker-log@example.com",
         )
@@ -138,7 +132,6 @@ class CoreMailerTests(TestCase):
     @patch("core.tasks.deliver_outbound_emails_task.delay", side_effect=DjangoOperationalError("database is locked"))
     def test_send_password_reset_email_does_not_fail_when_delivery_is_deferred(self, _delay, _on_commit):
         user = CustomUser.objects.create_user(
-            username="mail-user-sqlite-lock",
             password="Pass1234!",
             email="mail-user-sqlite-lock@example.com",
         )
@@ -153,7 +146,6 @@ class CoreMailerTests(TestCase):
     @patch("core.tasks.deliver_outbound_emails_task.delay", side_effect=CeleryRetry("database is locked"))
     def test_send_password_reset_email_does_not_fail_when_delivery_retries(self, _delay, _on_commit):
         user = CustomUser.objects.create_user(
-            username="mail-user-retry-lock",
             password="Pass1234!",
             email="mail-user-retry-lock@example.com",
         )
@@ -262,12 +254,10 @@ class TestEmailEndpointTests(APITestCase):
 
     def setUp(self):
         self.admin = CustomUser.objects.create_superuser(
-            username="admin-mail",
             password="Pass1234!",
             email="admin-mail@example.com",
         )
         self.user = CustomUser.objects.create_user(
-            username="basic-mail",
             password="Pass1234!",
             email="basic-mail@example.com",
         )
@@ -318,4 +308,4 @@ class TestEmailEndpointTests(APITestCase):
         outbound = OutboundEmail.objects.get()
         self.assertEqual(outbound.subject, f"{settings.NAME_APP} - email de test")
         self.assertIn("Ceci est un email de test envoye depuis", outbound.body)
-        self.assertIn(self.admin.username, outbound.body)
+        self.assertIn(self.admin.get_display_name(), outbound.body)

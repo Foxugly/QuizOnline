@@ -26,9 +26,9 @@ class QuizAlertsApiTestCase(APITestCase):
     def setUp(self):
         super().setUp()
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pass", is_staff=True)
-        self.reporter = User.objects.create_user(username="reporter", password="pass", language="fr")
-        self.other = User.objects.create_user(username="other", password="pass")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pass", is_staff=True)
+        self.reporter = User.objects.create_user(email="reporter@example.test", password="pass", language="fr")
+        self.other = User.objects.create_user(email="other@example.test", password="pass")
         self.domain = Domain.objects.create(owner=self.owner, name="D1", description="", active=True)
         self.subject = self._make_subject("Sujet")
         self.question = self._make_question("Question 1")

@@ -17,7 +17,7 @@ export interface DomainInviteStateDto {
     state: DomainInviteStateStateEnumDto;
     domain_id: number;
     domain_name: string;
-    inviter_username: string;
+    inviter_name: string;
     invited_email: string;
 }
 

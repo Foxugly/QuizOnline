@@ -14,11 +14,11 @@ User = get_user_model()
 class CanApproveJoinRequestTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pwd")
-        self.manager = User.objects.create_user(username="mgr", password="pwd")
-        self.stranger = User.objects.create_user(username="stranger", password="pwd")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pwd")
+        self.manager = User.objects.create_user(email="mgr@example.test", password="pwd")
+        self.stranger = User.objects.create_user(email="stranger@example.test", password="pwd")
         self.superuser = User.objects.create_user(
-            username="root", password="pwd", is_superuser=True, is_staff=True
+            email="root@example.test", password="pwd", is_superuser=True, is_staff=True
         )
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.domain.managers.add(self.manager)
@@ -75,10 +75,10 @@ class JoinRequestCreateEndpointTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
-        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
-        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
-        self.member = User.objects.create_user(username="me", password="pwd")
+        self.owner = User.objects.create_user(password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(password="pwd", email="m@x.test")
+        self.joiner = User.objects.create_user(password="pwd", email="j@x.test")
+        self.member = User.objects.create_user(email="me@example.test", password="pwd")
         self.domain_auto = Domain.objects.create(owner=self.owner, name="A", active=True)
         self.domain_validation = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain_validation.join_policy = JoinPolicy.OWNER
@@ -168,10 +168,10 @@ class JoinRequestListRetrieveTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
-        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
-        self.stranger = User.objects.create_user(username="st", password="pwd")
-        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.owner = User.objects.create_user(password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(password="pwd", email="m@x.test")
+        self.stranger = User.objects.create_user(email="st@example.test", password="pwd")
+        self.joiner = User.objects.create_user(password="pwd", email="j@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain.join_policy = JoinPolicy.OWNER
         self.domain.save(update_fields=["join_policy"])
@@ -240,9 +240,9 @@ class JoinRequestApproveRejectTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd", email="o@x.test")
-        self.manager = User.objects.create_user(username="mg", password="pwd", email="m@x.test")
-        self.joiner = User.objects.create_user(username="jo", password="pwd", email="j@x.test")
+        self.owner = User.objects.create_user(password="pwd", email="o@x.test")
+        self.manager = User.objects.create_user(password="pwd", email="m@x.test")
+        self.joiner = User.objects.create_user(password="pwd", email="j@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain.join_policy = JoinPolicy.OWNER
         self.domain.save(update_fields=["join_policy"])
@@ -330,10 +330,10 @@ class JoinRequestCancelTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd")
-        self.joiner = User.objects.create_user(username="jo", password="pwd")
-        self.other = User.objects.create_user(username="ot", password="pwd")
-        self.superuser = User.objects.create_user(username="root", password="pwd", is_superuser=True, is_staff=True)
+        self.owner = User.objects.create_user(email="ow@example.test", password="pwd")
+        self.joiner = User.objects.create_user(email="jo@example.test", password="pwd")
+        self.other = User.objects.create_user(email="ot@example.test", password="pwd")
+        self.superuser = User.objects.create_user(email="root@example.test", password="pwd", is_superuser=True, is_staff=True)
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain.join_policy = JoinPolicy.OWNER
         self.domain.save(update_fields=["join_policy"])
@@ -375,8 +375,8 @@ class MemberRolePromotesPendingRequestTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd")
-        self.joiner = User.objects.create_user(username="jo", password="pwd")
+        self.owner = User.objects.create_user(email="ow@example.test", password="pwd")
+        self.joiner = User.objects.create_user(email="jo@example.test", password="pwd")
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain.join_policy = JoinPolicy.OWNER
         self.domain.save(update_fields=["join_policy"])
@@ -405,9 +405,9 @@ class MemberRolePromotesPendingRequestTests(TestCase):
 class PolicyTransitionAutoApprovesPendingTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow", password="pwd")
-        self.joiner1 = User.objects.create_user(username="j1", password="pwd", email="j1@e.test")
-        self.joiner2 = User.objects.create_user(username="j2", password="pwd", email="j2@e.test")
+        self.owner = User.objects.create_user(email="ow@example.test", password="pwd")
+        self.joiner1 = User.objects.create_user(password="pwd", email="j1@e.test")
+        self.joiner2 = User.objects.create_user(password="pwd", email="j2@e.test")
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         self.domain.join_policy = JoinPolicy.OWNER
         self.domain.save(update_fields=["join_policy"])

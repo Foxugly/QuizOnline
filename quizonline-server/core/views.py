@@ -42,7 +42,7 @@ class TestEmailView(APIView):
         subject = serializer.validated_data.get("subject") or f"{settings.NAME_APP} - email de test"
         body = serializer.validated_data.get("body") or (
             f"Ceci est un email de test envoye depuis {settings.NAME_APP}.\n\n"
-            f"Declenche par: {request.user.username}\n"
+            f"Declenche par: {request.user.get_display_name()}\n"
             f"Date: {timezone.localtime().strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
         )
 

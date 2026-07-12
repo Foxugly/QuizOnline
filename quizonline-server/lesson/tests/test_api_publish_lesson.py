@@ -20,7 +20,7 @@ from lesson.models import Lesson
 def member(db, domain):
     """A plain domain member — read access only, no instructor rights."""
     u = CustomUser.objects.create_user(
-        username="member", email="member@x.com", password="x",
+        email="member@x.com", password="x",
     )
     domain.members.add(u)
     return u

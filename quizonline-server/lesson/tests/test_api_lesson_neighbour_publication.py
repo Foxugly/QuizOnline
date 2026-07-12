@@ -21,7 +21,7 @@ def _auth(user):
 @pytest.fixture
 def learner(db, domain):
     u = CustomUser.objects.create_user(
-        username="learner", email="learner@example.com", password="x"
+        email="learner@example.com", password="x"
     )
     domain.members.add(u)
     return u

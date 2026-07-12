@@ -27,7 +27,7 @@ User = get_user_model()
 
 class EmitNotificationHelperTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
 
     def test_emit_creates_row_with_payload(self):
         notif = emit_notification(
@@ -63,8 +63,8 @@ class NotificationApiListTests(TestCase):
     URL = "/api/notification/"
 
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
-        self.other = User.objects.create_user(username="o", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
+        self.other = User.objects.create_user(email="o@example.test", password="p")
         self.unread = Notification.objects.create(user=self.user, kind="domain.invite.received")
         self.read = Notification.objects.create(user=self.user, kind="x")
         self.read.read_at = self.read.created_at
@@ -113,7 +113,7 @@ class NotificationApiUnreadCountTests(TestCase):
     URL = "/api/notification/unread-count/"
 
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
         Notification.objects.create(user=self.user, kind="a")
         Notification.objects.create(user=self.user, kind="b")
         deleted = Notification.objects.create(user=self.user, kind="c")
@@ -123,7 +123,7 @@ class NotificationApiUnreadCountTests(TestCase):
         read.read_at = read.created_at
         read.save(update_fields=["read_at"])
         # Another user's rows must not bleed in.
-        other = User.objects.create_user(username="o", password="p")
+        other = User.objects.create_user(email="o@example.test", password="p")
         Notification.objects.create(user=other, kind="x")
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -136,8 +136,8 @@ class NotificationApiUnreadCountTests(TestCase):
 
 class NotificationApiMarkReadTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
-        self.other = User.objects.create_user(username="o", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
+        self.other = User.objects.create_user(email="o@example.test", password="p")
         self.notif = Notification.objects.create(user=self.user, kind="a")
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -167,8 +167,8 @@ class NotificationApiMarkReadTests(TestCase):
 
 class NotificationApiSoftDeleteTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="u", password="p")
-        self.other = User.objects.create_user(username="o", password="p")
+        self.user = User.objects.create_user(email="u@example.test", password="p")
+        self.other = User.objects.create_user(email="o@example.test", password="p")
         self.notif = Notification.objects.create(user=self.user, kind="a")
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -195,9 +195,9 @@ class TwoChannelResolutionTests(TestCase):
         self.channel_enabled = channel_enabled
         self.notify = notify
         self.user = User.objects.create_user(
-            username="u", password="p", email="u@x.test",
+            password="p", email="u@x.test",
         )
-        self.owner = User.objects.create_user(username="o", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -356,9 +356,9 @@ class MailerEmitsWebNotificationTests(TestCase):
     """The 5 mailers must always drop a Notification row."""
 
     def setUp(self):
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.requester = User.objects.create_user(
-            username="r", password="p", email="r@x.test",
+            password="p", email="r@x.test",
         )
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
@@ -437,7 +437,7 @@ class MailerEmitsWebNotificationTests(TestCase):
     def test_domain_transfer_emits_web(self):
         from core.mailers.domain_transfer import send_domain_transfer_email
         future_owner = User.objects.create_user(
-            username="f", password="p", email="f@x.test",
+            password="p", email="f@x.test",
         )
         send_domain_transfer_email(
             domain=self.domain, initiator=self.owner, future_owner=future_owner,
@@ -490,10 +490,10 @@ class QuizMailerEmitsWebNotificationTests(TestCase):
     def setUp(self):
         from quiz.models import QuizTemplate, Quiz
         self.creator = User.objects.create_user(
-            username="creator", password="p", email="c@x.test",
+            password="p", email="c@x.test",
         )
         self.assignee = User.objects.create_user(
-            username="assignee", password="p", email="a@x.test",
+            password="p", email="a@x.test",
         )
         self.domain = Domain.objects.create(
             owner=self.creator, name="D", active=True,
@@ -521,7 +521,7 @@ class QuizMailerEmitsWebNotificationTests(TestCase):
         self.assertTrue(
             Notification.objects.filter(
                 user=self.creator, kind="quiz.completed",
-                payload__user_username="assignee",
+                payload__user_name="a@x.test",
             ).exists()
         )
 

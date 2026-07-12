@@ -23,8 +23,7 @@ class Command(BaseCommand):
         en, _ = Language.objects.get_or_create(code="en", defaults={"name": "English"})
 
         owner, _ = User.objects.get_or_create(
-            username="lms-demo-owner",
-            defaults={"email": "lms-demo@example.com"},
+            email="lms-demo@example.com",
         )
 
         domain = Domain.objects.filter(owner=owner).first()

@@ -3,9 +3,9 @@ export type LoginUiText = {
   eyebrow: string;
   title: string;
   subtitle: string;
-  username: string;
-  usernamePlaceholder: string;
-  usernameError: string;
+  email: string;
+  emailPlaceholder: string;
+  emailError: string;
   password: string;
   passwordPlaceholder: string;
   passwordError: string;
@@ -39,7 +39,6 @@ export type RegisterUiText = {
   identityBadge: string;
   securityTitle: string;
   securityBadge: string;
-  username: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -52,7 +51,6 @@ export type RegisterUiText = {
   confirmPassword: string;
   createAccount: string;
   cancel: string;
-  usernameRequired: string;
   emailRequired: string;
   emailInvalid: string;
   firstNameRequired: string;

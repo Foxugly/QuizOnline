@@ -14,11 +14,11 @@ User = get_user_model()
 class QuizQuerysetsTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="owner", password="pass")
-        self.user = User.objects.create_user(username="user", password="pass")
-        self.other_user = User.objects.create_user(username="other", password="pass")
-        self.staff_user = User.objects.create_user(username="staff", password="pass", is_staff=True)
-        self.domain_staff = User.objects.create_user(username="domainstaff", password="pass")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pass")
+        self.user = User.objects.create_user(email="user@example.test", password="pass")
+        self.other_user = User.objects.create_user(email="other@example.test", password="pass")
+        self.staff_user = User.objects.create_user(email="staff@example.test", password="pass", is_staff=True)
+        self.domain_staff = User.objects.create_user(email="domainstaff@example.test", password="pass")
 
         self.domain = Domain.objects.create(owner=self.owner, name="Domain A", description="", active=True)
         self.other_domain = Domain.objects.create(owner=self.owner, name="Domain B", description="", active=True)

@@ -17,13 +17,13 @@ def test_is_lms_instructor_anonymous(course):
 @pytest.mark.django_db
 def test_is_lms_instructor_random_user(course):
     from customuser.models import CustomUser
-    u = CustomUser.objects.create_user(username="rnd", email="rnd@x.com", password="x")
+    u = CustomUser.objects.create_user(email="rnd@x.com", password="x")
     assert is_lms_instructor(u, course) is False
 
 
 @pytest.mark.django_db
 def test_is_lms_learner_member(course, domain):
     from customuser.models import CustomUser
-    learner = CustomUser.objects.create_user(username="ln", email="ln@x.com", password="x")
+    learner = CustomUser.objects.create_user(email="ln@x.com", password="x")
     domain.members.add(learner)
     assert is_lms_learner(learner, course) is True

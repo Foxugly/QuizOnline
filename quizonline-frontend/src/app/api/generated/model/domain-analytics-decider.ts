@@ -10,7 +10,7 @@
 
 
 export interface DomainAnalyticsDeciderDto { 
-    username: string;
+    name: string;
     count: number;
 }
 

@@ -98,7 +98,6 @@ export class Preferences implements OnInit {
   }
 
   readonly form = this.fb.nonNullable.group({
-    username: [{value: '', disabled: true}],
     email: ['', [Validators.email]],
     first_name: [''],
     last_name: [''],
@@ -147,7 +146,7 @@ export class Preferences implements OnInit {
         role: isOwner
           ? this.ui().preferences.roleOwner
           : (isDomainManager ? this.ui().preferences.roleManager : this.ui().preferences.roleMember),
-        ownerName: domain.owner?.username || '-',
+        ownerName: domain.owner?.name || '-',
         isCurrent: me.current_domain === domain.id,
         canSetCurrent: me.current_domain !== domain.id,
         canUnlink: isLinkedOnly,
@@ -193,7 +192,6 @@ export class Preferences implements OnInit {
           this.availableDomains.set(availableDomains ?? []);
           this.visibleDomains.set(visibleDomains ?? []);
           this.form.patchValue({
-            username: currentUser.username ?? '',
             email: currentUser.email ?? '',
             first_name: currentUser.first_name ?? '',
             last_name: currentUser.last_name ?? '',
@@ -236,7 +234,6 @@ export class Preferences implements OnInit {
         this.currentUser.set(updatedUser);
         this.visibleDomains.set(visibleDomains ?? []);
         this.form.patchValue({
-          username: updatedUser.username ?? '',
           email: updatedUser.email ?? '',
           first_name: updatedUser.first_name ?? '',
           last_name: updatedUser.last_name ?? '',
@@ -281,10 +278,10 @@ export class Preferences implements OnInit {
   }
 
   /** Guard: only enable the destructive button once the user has typed
-   *  their own username exactly. Cheap accidental-click protection. */
+   *  their own email exactly. Cheap accidental-click protection. */
   readonly deleteConfirmReady = (): boolean => {
     const me = this.currentUser();
-    return !!me && this.deleteConfirmInput().trim() === me.username;
+    return !!me && this.deleteConfirmInput().trim() === me.email;
   };
 
   confirmDeleteAccount(): void {
@@ -321,8 +318,10 @@ export class Preferences implements OnInit {
       });
   }
 
-  protected deleteConfirmMessage(username: string): string {
-    return interp(this.ui().preferences.deleteConfirmMessage, {username});
+  protected deleteConfirmMessage(email: string): string {
+    // The i18n string still carries a ``{username}`` placeholder; feed it
+    // the email now used as the confirmation token.
+    return interp(this.ui().preferences.deleteConfirmMessage, {username: email});
   }
 
   toggleDomainToLink(domainId: number): void {

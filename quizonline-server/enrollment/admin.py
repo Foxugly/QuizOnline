@@ -9,7 +9,7 @@ from .services import approve_enrollment
 class CourseEnrollmentAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "course", "status", "enrolled_at", "completed_at")
     list_filter = ("status", "course__domain")
-    search_fields = ("user__email", "user__username", "course__translations__title")
+    search_fields = ("user__email", "user__first_name", "user__last_name", "course__translations__title")
     list_select_related = ("user", "course")
     autocomplete_fields = ("user", "course")
     readonly_fields = ("enrolled_at", "completed_at", "created_by", "updated_by")
@@ -54,7 +54,7 @@ class CourseInviteAdmin(admin.ModelAdmin):
 
     list_display = ("id", "course", "invitee", "created_by", "status", "expires_at", "created_at")
     list_filter = ("status", "course__domain")
-    search_fields = ("invitee__email", "invitee__username", "course__translations__title")
+    search_fields = ("invitee__email", "invitee__first_name", "invitee__last_name", "course__translations__title")
     list_select_related = ("course", "invitee", "created_by")
     autocomplete_fields = ("course", "invitee", "created_by")
     readonly_fields = (

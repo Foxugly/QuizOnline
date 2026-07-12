@@ -11,7 +11,6 @@ class CustomUserApiTests(APITestCase):
     def test_create_user(self, send_registration_confirmation_email):
         url = reverse("api:user-api:api-root")  # /api/user/
         payload = {
-            "username": "JohnDoe",
             "email": "john@example.com",
             "first_name": "John",
             "last_name": "Doe",
@@ -22,7 +21,7 @@ class CustomUserApiTests(APITestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(CustomUser.objects.count(), 1)
-        user = CustomUser.objects.get(username="JohnDoe")
+        user = CustomUser.objects.get(email="john@example.com")
         self.assertEqual(user.email, "john@example.com")
         send_registration_confirmation_email.assert_called_once_with(user)
 
@@ -30,7 +29,6 @@ class CustomUserApiTests(APITestCase):
 class CustomUserListTests(APITestCase):
     def setUp(self):
         self.admin = CustomUser.objects.create_superuser(
-            username="admin",
             email="admin@example.com",
             password="AdminPass123",
         )
@@ -57,7 +55,6 @@ class CustomUserDeleteSelfTests(APITestCase):
 
     def setUp(self):
         self.user = CustomUser.objects.create_user(
-            username="alice",
             email="alice@example.com",
             password="Pwd!2026Alice",
         )

@@ -6,9 +6,15 @@ from django.db import models
 from django.db.models import QuerySet, Q
 from django.utils.translation import gettext_lazy as _
 
+from .managers import CustomUserManager
+
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(_("email address"), unique=True, blank=True, null=True, default=None)
+    # Email-only authentication: the ``username`` column is dropped entirely
+    # (``username = None`` removes the field inherited from ``AbstractUser``)
+    # and ``email`` becomes the login identifier.
+    username = None
+    email = models.EmailField(_("email address"), unique=True, blank=False, null=False)
     language = models.CharField(_("language"), max_length=8, choices=settings.LANGUAGES,
                                 default=getattr(settings, "LANGUAGE_CODE", "en"))
     email_confirmed = models.BooleanField(default=False)
@@ -29,6 +35,11 @@ class CustomUser(AbstractUser):
         related_name="current_users",
     )
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+
     # -------------------------
     # Helpers internes
     # -------------------------
@@ -37,12 +48,6 @@ class CustomUser(AbstractUser):
         # Évite les imports circulaires
         return apps.get_model("domain", "Domain")
 
-    def save(self, *args, **kwargs):
-        # Normalize blank email to None so the unique constraint allows multiple empty emails.
-        if not self.email:
-            self.email = None
-        super().save(*args, **kwargs)
-
     # -------------------------
     # Représentation
     # -------------------------
@@ -50,9 +55,10 @@ class CustomUser(AbstractUser):
         return self.get_display_name()
 
     def get_display_name(self):
-        if self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name} ({self.username})"
-        return self.username
+        # Email-only auth: no username to fall back on, so we render the
+        # full name and drop back to the email (the login id) when the
+        # name is empty.
+        return f"{self.first_name} {self.last_name}".strip() or self.email
 
     def to_field_value_dict(self) -> dict[str, object]:
         """

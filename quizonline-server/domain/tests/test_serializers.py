@@ -25,10 +25,10 @@ class DomainSerializersTestCase(TestCase):
     def setUpTestData(cls):
         cls.factory = APIRequestFactory()
 
-        cls.owner = User.objects.create_user(username="owner", password="x")
-        cls.staff1 = User.objects.create_user(username="staff1", password="x")
-        cls.staff2 = User.objects.create_user(username="staff2", password="x")
-        cls.member1 = User.objects.create_user(username="member1", password="x")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="x")
+        cls.staff1 = User.objects.create_user(email="staff1@example.test", password="x")
+        cls.staff2 = User.objects.create_user(email="staff2@example.test", password="x")
+        cls.member1 = User.objects.create_user(email="member1@example.test", password="x")
 
         cls.lang_fr = Language.objects.create(code="fr", name="Français", active=True)
         cls.lang_nl = Language.objects.create(code="nl", name="Nederlands", active=True)
@@ -92,13 +92,13 @@ class DomainSerializersTestCase(TestCase):
 
         # owner/staff
         self.assertEqual(data["owner"]["id"], self.owner.id)
-        self.assertEqual(data["owner"]["username"], self.owner.username)
+        self.assertEqual(data["owner"]["name"], self.owner.get_display_name())
 
-        staff_usernames = {u["username"] for u in data["managers"]}
-        self.assertSetEqual(staff_usernames, {self.staff1.username, self.staff2.username})
+        staff_usernames = {u["name"] for u in data["managers"]}
+        self.assertSetEqual(staff_usernames, {self.staff1.get_display_name(), self.staff2.get_display_name()})
 
-        member_usernames = {u["username"] for u in data["members"]}
-        self.assertSetEqual(member_usernames, {self.staff1.username, self.staff2.username, self.member1.username})
+        member_usernames = {u["name"] for u in data["members"]}
+        self.assertSetEqual(member_usernames, {self.staff1.get_display_name(), self.staff2.get_display_name(), self.member1.get_display_name()})
 
     def test_domain_read_serializer_allowed_languages_filters_active(self):
         s = DomainReadSerializer(instance=self.domain, context={"request": self.factory.get("/")})
@@ -242,8 +242,8 @@ class DomainSerializersTestCase(TestCase):
 
         self.assertFalse(obj.active)
         self.assertEqual(list(obj.allowed_languages.values_list("code", flat=True)), ["fr"])
-        self.assertEqual(list(obj.managers.values_list("username", flat=True)), ["staff1"])
-        self.assertEqual(set(obj.members.values_list("username", flat=True)), {"staff1", "staff2", "member1"})
+        self.assertEqual(list(obj.managers.values_list("email", flat=True)), ["staff1@example.test"])
+        self.assertEqual(set(obj.members.values_list("email", flat=True)), {"staff1@example.test", "staff2@example.test", "member1@example.test"})
 
         obj.set_current_language("fr")
         self.assertEqual(obj.name, "Updated FR")
@@ -441,7 +441,7 @@ class DomainReadSerializerJoinPolicyTests(TestCase):
         from django.utils import translation
 
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="pwd")
+        self.owner = User.objects.create_user(email="o@example.test", password="pwd")
         self.domain = Domain.objects.create(owner=self.owner, active=True)
 
     def test_join_policy_field_is_serialized(self):
@@ -454,8 +454,8 @@ class DomainWriteSerializerJoinPolicyTests(TestCase):
         from django.utils import translation
 
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="pwd")
-        self.manager = User.objects.create_user(username="m", password="pwd")
+        self.owner = User.objects.create_user(email="o@example.test", password="pwd")
+        self.manager = User.objects.create_user(email="m@example.test", password="pwd")
         self.domain = Domain.objects.create(owner=self.owner, active=True)
         self.domain.managers.add(self.manager)
         self.factory = APIRequestFactory()
@@ -515,9 +515,9 @@ class DomainReadSerializerComputedFieldsTests(TestCase):
         from django.utils import translation
 
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="ow-cf", password="pwd")
-        self.stranger = User.objects.create_user(username="st-cf", password="pwd")
-        self.joiner = User.objects.create_user(username="jo-cf", password="pwd")
+        self.owner = User.objects.create_user(email="ow-cf@example.test", password="pwd")
+        self.stranger = User.objects.create_user(email="st-cf@example.test", password="pwd")
+        self.joiner = User.objects.create_user(email="jo-cf@example.test", password="pwd")
         self.domain = Domain.objects.create(owner=self.owner, name="V", active=True)
         from domain.models import JoinPolicy
         self.domain.join_policy = JoinPolicy.OWNER

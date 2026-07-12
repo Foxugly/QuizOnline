@@ -22,8 +22,8 @@ User = get_user_model()
 class RecordAuditHelperTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.target = User.objects.create_user(username="t", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.target = User.objects.create_user(email="t@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
 
     def test_creates_row_with_actor_target_and_metadata(self):
@@ -58,8 +58,8 @@ class RecordAuditHelperTests(TestCase):
 class MemberRoleActionsRecordAuditTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.target = User.objects.create_user(username="t", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.target = User.objects.create_user(email="t@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.domain.members.add(self.target)
         self.client = APIClient()
@@ -92,8 +92,8 @@ class MemberRoleActionsRecordAuditTests(TestCase):
 class JoinRequestActionsRecordAuditTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.joiner = User.objects.create_user(username="j", password="p", email="j@x.test")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.joiner = User.objects.create_user(password="p", email="j@x.test")
         self.domain = Domain.objects.create(
             owner=self.owner, name="D", active=True, join_policy=JoinPolicy.OWNER,
         )
@@ -141,7 +141,7 @@ class JoinRequestActionsRecordAuditTests(TestCase):
 class InviteActionRecordAuditTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.client = APIClient()
         self.client.force_authenticate(self.owner)
@@ -165,8 +165,8 @@ class AuditLogEndpointTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.outsider = User.objects.create_user(username="x", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.outsider = User.objects.create_user(email="x@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         # Two audit rows on this domain, one on another (must not leak).
         DomainAuditLog.objects.create(
@@ -203,7 +203,7 @@ class AuditLogEndpointTests(TestCase):
 
     def test_filter_by_actor_username_substring(self):
         # Add a second actor and a row for it
-        other_actor = User.objects.create_user(username="alice", password="p")
+        other_actor = User.objects.create_user(email="alice@example.test", password="p")
         self.domain.members.add(other_actor)
         DomainAuditLog.objects.create(
             domain=self.domain, actor=other_actor, action="member.demote", metadata={},
@@ -212,11 +212,11 @@ class AuditLogEndpointTests(TestCase):
         resp = self.client.get(self.URL.format(self.domain.id), {"actor": "alic"})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         rows = resp.data.get("results", resp.data)
-        self.assertEqual([r["actor_username"] for r in rows], ["alice"])
+        self.assertEqual([r["actor_name"] for r in rows], ["alice@example.test"])
 
     def test_filter_by_actor_email_substring(self):
         other_actor = User.objects.create_user(
-            username="z", password="p", email="bob@example.com",
+            password="p", email="bob@example.com",
         )
         self.domain.members.add(other_actor)
         DomainAuditLog.objects.create(
@@ -226,7 +226,7 @@ class AuditLogEndpointTests(TestCase):
         resp = self.client.get(self.URL.format(self.domain.id), {"actor": "bob@"})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         rows = resp.data.get("results", resp.data)
-        self.assertEqual({r["actor_username"] for r in rows}, {"z"})
+        self.assertEqual({r["actor_name"] for r in rows}, {"bob@example.com"})
 
     def test_filter_by_date_range(self):
         from datetime import timedelta
@@ -270,8 +270,8 @@ class AuditLogEndpointTests(TestCase):
 class LeaveActionRecordAuditTests(TestCase):
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p")
-        self.member = User.objects.create_user(username="m", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
+        self.member = User.objects.create_user(email="m@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.domain.members.add(self.member)
         self.client = APIClient()

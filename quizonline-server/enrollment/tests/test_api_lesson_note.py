@@ -61,7 +61,7 @@ def test_put_rejects_non_string_content(owner, url):
 
 @pytest.mark.django_db
 def test_notes_are_private_per_user(owner, url, lesson):
-    other = CustomUser.objects.create_user(username="other-learner", password="x")
+    other = CustomUser.objects.create_user(email="other-learner@example.test", password="x")
     _auth(owner).put(url, {"content": "Owner's note"}, format="json")
     _auth(other).put(url, {"content": "Other's note"}, format="json")
     # Each user sees only their own row.

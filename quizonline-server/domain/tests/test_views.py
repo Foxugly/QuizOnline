@@ -35,10 +35,10 @@ class DomainViewSetTests(TestCase):
         # is never the failure cause for the unrelated CRUD tests in
         # this module. The quota itself is covered by
         # ``test_create_quota.py``.
-        cls.owner = User.objects.create_user(username="owner", password="pwd", nb_domain_max=10)
-        cls.other = User.objects.create_user(username="other", password="pwd", nb_domain_max=10)
-        cls.global_staff = User.objects.create_user(username="staff", password="pwd", is_staff=True, nb_domain_max=10)
-        cls.member = User.objects.create_user(username="member", password="pwd", nb_domain_max=10)
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pwd", nb_domain_max=10)
+        cls.other = User.objects.create_user(email="other@example.test", password="pwd", nb_domain_max=10)
+        cls.global_staff = User.objects.create_user(email="staff@example.test", password="pwd", is_staff=True, nb_domain_max=10)
+        cls.member = User.objects.create_user(email="member@example.test", password="pwd", nb_domain_max=10)
 
         # Languages
         cls.lang_fr = Language.objects.create(code="fr", name="Français", active=True)
@@ -425,7 +425,7 @@ class DomainViewSetTests(TestCase):
         self.assertTrue(self.domain_active.members.filter(pk=self.member.pk).exists())
 
     def test_member_role_superuser_can_promote_linked_user_to_global_staff(self):
-        root = User.objects.create_user(username="root", password="pwd", is_superuser=True, is_staff=True)
+        root = User.objects.create_user(email="root@example.test", password="pwd", is_superuser=True, is_staff=True)
         view = DomainViewSet.as_view({"post": "member_role"})
         request = self.factory.post(
             f"/api/domain/{self.domain_active.id}/member-role/",
@@ -473,15 +473,15 @@ class DomainMemberRoleHardeningTests(TestCase):
 
     def setUp(self):
         # Owner of the primary domain. Acts as the requester in most tests.
-        self.owner = User.objects.create_user(username="owner", password="pwd")
-        self.other_manager = User.objects.create_user(username="mgr2", password="pwd")
-        self.exclusive_member = User.objects.create_user(username="solo", password="pwd")
-        self.shared_member = User.objects.create_user(username="shared", password="pwd")
+        self.owner = User.objects.create_user(email="owner@example.test", password="pwd")
+        self.other_manager = User.objects.create_user(email="mgr2@example.test", password="pwd")
+        self.exclusive_member = User.objects.create_user(email="solo@example.test", password="pwd")
+        self.shared_member = User.objects.create_user(email="shared@example.test", password="pwd")
         self.superuser = User.objects.create_user(
-            username="root", password="pwd", is_staff=True, is_superuser=True
+            email="root@example.test", password="pwd", is_staff=True, is_superuser=True
         )
         self.target_su = User.objects.create_user(
-            username="otherroot", password="pwd", is_staff=True, is_superuser=True
+            email="otherroot@example.test", password="pwd", is_staff=True, is_superuser=True
         )
 
         self.domain = Domain.objects.create(owner=self.owner, active=True)
@@ -612,7 +612,7 @@ class DomainMemberRoleHardeningTests(TestCase):
         # Promote a second manager and have the original owner try to kick them.
         # Owner is allowed (they own the domain), so this rule applies to the
         # peer-manager case where the requester is themselves a manager.
-        peer = User.objects.create_user(username="peer-mgr", password="pwd")
+        peer = User.objects.create_user(email="peer-mgr@example.test", password="pwd")
         self.domain.members.add(peer)
         self.domain.managers.add(peer)
 

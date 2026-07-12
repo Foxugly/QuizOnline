@@ -93,7 +93,7 @@ export interface DomainAuditListRequestParams {
     domainId: number;
     /** Exact match on the action name. */
     action?: string;
-    /** Case-insensitive substring on the actor username or email. */
+    /** Case-insensitive substring on the actor name or email. */
     actor?: string;
     /** A page number within the paginated result set. */
     page?: number;
@@ -453,7 +453,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Journal d\&#39;audit d\&#39;un domaine
-     * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).  Filtres optionnels (combinables) : - &#x60;&#x60;action&#x60;&#x60; : nom exact de l\&#39;action (ex. &#x60;&#x60;member.promote&#x60;&#x60;). - &#x60;&#x60;actor&#x60;&#x60; : sous-chaîne, insensible à la casse, recherchée dans le &#x60;&#x60;username&#x60;&#x60; ou l\&#39;&#x60;&#x60;email&#x60;&#x60; de l\&#39;acteur. - &#x60;&#x60;since&#x60;&#x60; / &#x60;&#x60;until&#x60;&#x60; : ISO-8601 (date ou datetime) sur &#x60;&#x60;created_at&#x60;&#x60;.
+     * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).  Filtres optionnels (combinables) : - &#x60;&#x60;action&#x60;&#x60; : nom exact de l\&#39;action (ex. &#x60;&#x60;member.promote&#x60;&#x60;). - &#x60;&#x60;actor&#x60;&#x60; : sous-chaîne, insensible à la casse, recherchée dans le nom ou l\&#39;&#x60;&#x60;email&#x60;&#x60; de l\&#39;acteur. - &#x60;&#x60;since&#x60;&#x60; / &#x60;&#x60;until&#x60;&#x60; : ISO-8601 (date ou datetime) sur &#x60;&#x60;created_at&#x60;&#x60;.
      * @endpoint get /api/domain/{domain_id}/audit/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

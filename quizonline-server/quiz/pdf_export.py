@@ -141,9 +141,9 @@ def generate_quiz_pdf(quiz: Quiz, language: str = "en") -> bytes:
     elements.append(Spacer(1, 4 * mm))
 
     # --- User info ---
-    username = quiz.user.get_full_name() or quiz.user.username if quiz.user else "-"
+    display_name = quiz.user.get_display_name() if quiz.user else "-"
     info_data = [
-        ["User", username],
+        ["User", display_name],
         ["Started", _fmt_datetime(quiz.started_at)],
         ["Ended", _fmt_datetime(quiz.ended_at)],
     ]

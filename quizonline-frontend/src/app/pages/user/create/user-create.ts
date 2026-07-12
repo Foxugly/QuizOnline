@@ -32,8 +32,7 @@ export class UserCreatePage {
   readonly ui = inject(UiTextService).editor;
   readonly languageOptions = LANGUAGE_OPTIONS;
   readonly form = this.fb.group({
-    username: this.fb.control('', [Validators.required]),
-    email: this.fb.control(''),
+    email: this.fb.control('', [Validators.required]),
     first_name: this.fb.control(''),
     last_name: this.fb.control(''),
     language: this.fb.control(LanguageEnumDto.Fr),
@@ -54,8 +53,7 @@ export class UserCreatePage {
 
     const value = this.form.getRawValue();
     this.userService.createAdmin({
-      username: value.username,
-      email: value.email || undefined,
+      email: value.email ?? '',
       first_name: value.first_name || undefined,
       last_name: value.last_name || undefined,
       language: value.language,

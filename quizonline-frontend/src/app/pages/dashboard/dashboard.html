@@ -112,7 +112,7 @@
                 <li class="course-list__row" [routerLink]="inviteHref(inv.token)" (click)="$event.stopPropagation()">
                   <span class="course-list__title">{{ inv.course_title }}</span>
                   <span class="course-list__hint">
-                    {{ inviterLine(inv.inviter_detail?.username || '') }}
+                    {{ inviterLine(inv.inviter_detail?.name || '') }}
                   </span>
                 </li>
               }

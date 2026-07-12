@@ -132,7 +132,7 @@ class QuizAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "quiz_template__title",
-        "user__username",
+        "user__email",
         "user__first_name",
         "user__last_name",
     )
@@ -144,7 +144,7 @@ class QuizAdmin(admin.ModelAdmin):
     def get_user_display(self, obj):
         if obj.user:
             full_name = obj.user.get_full_name()
-            return full_name or obj.user.username
+            return full_name or obj.user.email
         return "Anonyme"
 
     get_user_display.short_description = "Utilisateur"
@@ -181,7 +181,7 @@ class QuizQuestionAnswerAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "quiz__quiz_template__title",
-        "quiz__user__username",
+        "quiz__user__email",
         "quiz__user__first_name",
         "quiz__user__last_name",
         "quizquestion__question__title",
@@ -194,7 +194,7 @@ class QuizQuestionAnswerAdmin(admin.ModelAdmin):
         user = obj.quiz.user
         if user:
             full_name = user.get_full_name()
-            return full_name or user.username
+            return full_name or user.email
         return "Anonyme"
 
     get_user_display.short_description = "Utilisateur"
@@ -235,8 +235,8 @@ class QuizAlertThreadAdmin(admin.ModelAdmin):
     search_fields = (
         "quiz__quiz_template__title",
         "quizquestion__question__title",
-        "reporter__username",
-        "owner__username",
+        "reporter__email",
+        "owner__email",
     )
     autocomplete_fields = ("quiz", "quizquestion", "reporter", "owner", "closed_by")
     readonly_fields = (
@@ -252,6 +252,6 @@ class QuizAlertThreadAdmin(admin.ModelAdmin):
 @admin.register(QuizAlertMessage)
 class QuizAlertMessageAdmin(admin.ModelAdmin):
     list_display = ("id", "thread", "author", "created_at")
-    search_fields = ("thread__quiz__quiz_template__title", "author__username", "body")
+    search_fields = ("thread__quiz__quiz_template__title", "author__email", "body")
     autocomplete_fields = ("thread", "author")
     readonly_fields = ("created_at",)

@@ -17,7 +17,7 @@ export interface DomainInviteReadDto {
     readonly id: number;
     readonly email: string;
     readonly status: DomainInviteReadStatusEnumDto;
-    readonly inviter_username: string;
+    readonly inviter_name: string;
     readonly created_at: string;
     readonly expires_at: string;
     readonly last_sent_at: string;

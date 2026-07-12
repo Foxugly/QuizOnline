@@ -41,7 +41,7 @@ def _build_payload(lang: Language) -> dict:
 def test_create_domain_blocks_when_quota_is_zero(quota_fr_lang):
     """A user with the default ``nb_domain_max=0`` cannot create any
     domain at all — the safe default."""
-    user = User.objects.create_user(username="quota-zero", password="x")
+    user = User.objects.create_user(email="quota-zero@example.test", password="x")
     assert user.nb_domain_max == 0
 
     client = APIClient()
@@ -55,7 +55,7 @@ def test_create_domain_blocks_when_quota_is_zero(quota_fr_lang):
 def test_create_domain_allowed_within_quota(quota_fr_lang):
     """A user with ``nb_domain_max=2`` and 0 owned domains can
     create — quota check passes."""
-    user = User.objects.create_user(username="quota-two", password="x")
+    user = User.objects.create_user(email="quota-two@example.test", password="x")
     user.nb_domain_max = 2
     user.save(update_fields=["nb_domain_max"])
 
@@ -70,7 +70,7 @@ def test_create_domain_allowed_within_quota(quota_fr_lang):
 def test_create_domain_blocks_when_quota_exhausted(quota_fr_lang):
     """A user at the cap (owned == quota) cannot create one more —
     the second POST is refused even though the first succeeded."""
-    user = User.objects.create_user(username="quota-one", password="x")
+    user = User.objects.create_user(email="quota-one@example.test", password="x")
     user.nb_domain_max = 1
     user.save(update_fields=["nb_domain_max"])
 
@@ -89,7 +89,7 @@ def test_superuser_bypasses_quota(quota_fr_lang):
     """Superusers always pass — the quota is a platform-level lever
     for restricting normal users, not the operator."""
     superuser = User.objects.create_superuser(
-        username="root", email="root@x.com", password="x",
+        email="root@x.com", password="x",
     )
     assert superuser.nb_domain_max == 0
 

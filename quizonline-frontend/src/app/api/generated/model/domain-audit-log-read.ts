@@ -15,8 +15,8 @@
 export interface DomainAuditLogReadDto { 
     readonly id: number;
     readonly action: string;
-    readonly actor_username: string;
-    readonly target_username: string;
+    readonly actor_name: string;
+    readonly target_name: string;
     readonly metadata: any | null;
     readonly created_at: string;
 }

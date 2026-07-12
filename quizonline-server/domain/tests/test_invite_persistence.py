@@ -22,7 +22,7 @@ User = get_user_model()
 
 class UpsertInviteTests(TestCase):
     def setUp(self):
-        self.owner = User.objects.create_user(username="o", password="p")
+        self.owner = User.objects.create_user(email="o@example.test", password="p")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
 
     def test_creates_pending_row(self):
@@ -64,9 +64,9 @@ class UpsertInviteTests(TestCase):
 
 class AutoAcceptOnSignupTests(TestCase):
     def setUp(self):
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.user = User.objects.create_user(
-            username="newbie", password="p", email="newbie@x.test",
+            password="p", email="newbie@x.test",
         )
         self.d1 = Domain.objects.create(owner=self.owner, name="D1", active=True)
         self.d2 = Domain.objects.create(owner=self.owner, name="D2", active=True)

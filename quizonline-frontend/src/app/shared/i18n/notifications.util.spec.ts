@@ -51,7 +51,7 @@ describe('formatRelativeTime', () => {
 
 describe('buildNotificationLine', () => {
   it('uses the requester username when present', () => {
-    expect(buildNotificationLine('domain.join_request.created', {requester_username: 'ada', domain_name: 'Math'}, kind))
+    expect(buildNotificationLine('domain.join_request.created', {requester_name: 'ada', domain_name: 'Math'}, kind))
       .toBe('ada requested to join "Math".');
   });
 
@@ -82,7 +82,7 @@ describe('buildNotificationLine', () => {
   it('renders quiz lines from the template title and acting user', () => {
     expect(buildNotificationLine('quiz.assignment', {template_title: 'Algebra'}, kind))
       .toBe('A new quiz "Algebra" has been assigned to you.');
-    expect(buildNotificationLine('quiz.completed', {user_username: 'ada', template_title: 'Algebra'}, kind))
+    expect(buildNotificationLine('quiz.completed', {user_name: 'ada', template_title: 'Algebra'}, kind))
       .toBe('ada just completed "Algebra".');
     expect(buildNotificationLine('quiz.completed', {template_title: 'Algebra'}, kind))
       .toBe('A user just completed "Algebra".');

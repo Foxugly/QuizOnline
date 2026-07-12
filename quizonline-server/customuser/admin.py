@@ -9,12 +9,12 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = (
-        'username', 'email', 'first_name', 'last_name', 'language', 'email_confirmed', 'password_change_required',
+        'email', 'first_name', 'last_name', 'language', 'email_confirmed', 'password_change_required',
         'current_domain', 'is_active', 'is_superuser',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'email_confirmed', 'must_change_password', 'current_domain')
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'language', 'email_confirmed')}),
+        (None, {'fields': ('email', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'language', 'email_confirmed')}),
         (_('Domains'), {'fields': ('current_domain', 'owned_domains_display', 'managed_domains_display', 'linked_domains_display')}),
         (_('Security'), {'fields': ('must_change_password', 'password_change_required')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',)}),
@@ -23,11 +23,11 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
+            'fields': ('email', 'password1', 'password2'),
         }),
     )
-    search_fields = ('username', 'first_name', 'last_name', 'email')
-    ordering = ('username',)
+    search_fields = ('first_name', 'last_name', 'email')
+    ordering = ('email',)
     readonly_fields = ('password_change_required', 'owned_domains_display', 'managed_domains_display', 'linked_domains_display')
     autocomplete_fields = ('current_domain',)
 

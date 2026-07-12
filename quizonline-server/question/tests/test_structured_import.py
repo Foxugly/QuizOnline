@@ -11,7 +11,6 @@ User = get_user_model()
 class StructuredImportDomainLanguagesTests(TestCase):
     def setUp(self):
         self.superuser = User.objects.create_superuser(
-            username="import-admin",
             email="import-admin@example.com",
             password="secret123",
         )

@@ -21,9 +21,9 @@ class DomainModelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.owner = User.objects.create_user(username="owner", password="pwd")
-        cls.staff1 = User.objects.create_user(username="staff1", password="pwd")
-        cls.staff2 = User.objects.create_user(username="staff2", password="pwd")
+        cls.owner = User.objects.create_user(email="owner@example.test", password="pwd")
+        cls.staff1 = User.objects.create_user(email="staff1@example.test", password="pwd")
+        cls.staff2 = User.objects.create_user(email="staff2@example.test", password="pwd")
 
         # Langues
         cls.lang_fr = Language.objects.create(code="fr", name="Français", active=True)
@@ -146,7 +146,7 @@ class DomainModelTestCase(TestCase):
     def test_staff_m2m_can_be_set(self):
         d = self._mk_domain()
         d.managers.set([self.staff1, self.staff2])
-        self.assertEqual(set(d.managers.values_list("username", flat=True)), {"staff1", "staff2"})
+        self.assertEqual(set(d.managers.values_list("email", flat=True)), {"staff1@example.test", "staff2@example.test"})
 
     def test_staff_added_becomes_member_automatically(self):
         d = self._mk_domain()

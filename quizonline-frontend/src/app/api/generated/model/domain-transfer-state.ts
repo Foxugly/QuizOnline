@@ -17,8 +17,8 @@ export interface DomainTransferStateDto {
     state: DomainTransferStateStateEnumDto;
     domain_id: number;
     domain_name: string;
-    initiator_username: string;
-    future_owner_username: string;
+    initiator_name: string;
+    future_owner_name: string;
 }
 
 

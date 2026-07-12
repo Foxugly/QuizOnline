@@ -108,7 +108,6 @@ export type PreferencesUiText = {
   summaryTitle: string;
   summarySubtitle: string;
   loading: string;
-  username: string;
   email: string;
   firstName: string;
   lastName: string;

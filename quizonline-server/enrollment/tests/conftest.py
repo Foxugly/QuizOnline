@@ -14,7 +14,7 @@ def fr_lang(db):
 
 @pytest.fixture
 def owner(db):
-    return CustomUser.objects.create_user(username="owner", email="owner@example.com", password="x")
+    return CustomUser.objects.create_user(email="owner@example.com", password="x")
 
 
 @pytest.fixture
@@ -44,7 +44,7 @@ def lesson(db, course):
 
 @pytest.fixture
 def learner(db, domain):
-    u = CustomUser.objects.create_user(username="learner", email="learner@x.com", password="x")
+    u = CustomUser.objects.create_user(email="learner@x.com", password="x")
     domain.members.add(u)
     return u
 

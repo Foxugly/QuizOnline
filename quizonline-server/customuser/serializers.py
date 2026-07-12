@@ -35,7 +35,6 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-            "username",
             "email",
             "first_name",
             "last_name",
@@ -55,7 +54,6 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "username",
             "email_confirmed",
             "password_change_required",
             "is_staff",
@@ -131,7 +129,6 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
     class Meta:
         model = User
         fields = [
-            "username",
             "email",
             "first_name",
             "last_name",

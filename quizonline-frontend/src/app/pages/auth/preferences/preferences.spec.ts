@@ -52,11 +52,10 @@ describe('Preferences', () => {
 
   describe('danger zone — account deletion', () => {
     // Set up a pretend logged-in user so ``deleteConfirmReady`` has a
-    // target username to compare typed input against. We don't go through
+    // target email to compare typed input against. We don't go through
     // the real /me load because the test runs without a backend.
     const fakeUser = {
       id: 1,
-      username: 'alice',
       email: 'alice@example.com',
       first_name: '',
       last_name: '',
@@ -66,16 +65,16 @@ describe('Preferences', () => {
       component.currentUser.set(fakeUser);
     });
 
-    it('keeps the destructive button disabled until the user retypes their username', () => {
+    it('keeps the destructive button disabled until the user retypes their email', () => {
       expect(component.deleteConfirmReady()).toBe(false);
 
-      component.deleteConfirmInput.set('alic');
+      component.deleteConfirmInput.set('alice@example');
       expect(component.deleteConfirmReady()).toBe(false);
 
-      component.deleteConfirmInput.set('Alice'); // wrong case
+      component.deleteConfirmInput.set('Alice@Example.com'); // wrong case
       expect(component.deleteConfirmReady()).toBe(false);
 
-      component.deleteConfirmInput.set('alice');
+      component.deleteConfirmInput.set('alice@example.com');
       expect(component.deleteConfirmReady()).toBe(true);
     });
 
@@ -89,7 +88,7 @@ describe('Preferences', () => {
       const toastSpy = vi.spyOn(toast, 'add');
 
       component.openDeleteAccountDialog();
-      component.deleteConfirmInput.set('alice');
+      component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
       const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));
@@ -110,7 +109,7 @@ describe('Preferences', () => {
       const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
       component.openDeleteAccountDialog();
-      component.deleteConfirmInput.set('alice');
+      component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
       const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));
@@ -134,7 +133,7 @@ describe('Preferences', () => {
       const errorToastSpy = vi.spyOn(toast, 'addApiError');
 
       component.openDeleteAccountDialog();
-      component.deleteConfirmInput.set('alice');
+      component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
       const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));

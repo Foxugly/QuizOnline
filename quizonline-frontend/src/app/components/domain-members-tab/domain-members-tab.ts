@@ -15,7 +15,7 @@ import {EmptyStateComponent} from '../../shared/components/empty-state/empty-sta
 
 type MemberRow = {
   id: number;
-  username: string;
+  name: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -79,7 +79,7 @@ export class DomainMembersTab {
       seen.add(user.id);
       rows.push({
         id: user.id,
-        username: user.username,
+        name: user.name ?? '',
         email: user.email ?? '',
         firstName: user.first_name ?? '',
         lastName: user.last_name ?? '',
@@ -148,7 +148,7 @@ export class DomainMembersTab {
     const labels = this.text().members;
     this.confirmationService.confirm({
       header: labels.confirmRemoveHeader,
-      message: interp(labels.confirmRemoveMessage, {username: row.username}),
+      message: interp(labels.confirmRemoveMessage, {username: row.name}),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: labels.confirmRemoveAccept,
       rejectLabel: labels.confirmRemoveCancel,

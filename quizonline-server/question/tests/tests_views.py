@@ -31,7 +31,7 @@ class QuestionViewSetTests(APITestCase):
     # -------------------------
     def _mk_user(self, *, is_staff: bool) -> User:
         return User.objects.create_user(
-            username=f"u_{uuid.uuid4().hex[:8]}",
+            email=f"u_{uuid.uuid4().hex[:8]}@example.test",
             password="pass",
             is_staff=is_staff,
         )

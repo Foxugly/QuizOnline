@@ -95,7 +95,7 @@ export class MyInvitations implements OnInit {
     const first = (u.first_name ?? '').trim();
     const last = (u.last_name ?? '').trim();
     if (first && last) return `${first} ${last}`;
-    return u.username || '';
+    return u.name || '';
   }
 
   protected hrefFor(token: string): string {

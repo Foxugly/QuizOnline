@@ -12,13 +12,13 @@ class LanguageViewSetTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.admin = User.objects.create_user(
-            username="admin",
+            email="admin@example.test",
             password="adminpass",
             is_staff=True,
             is_superuser=True,
         )
         cls.user = User.objects.create_user(
-            username="user",
+            email="user@example.test",
             password="userpass",
             is_staff=False,
             is_superuser=False,

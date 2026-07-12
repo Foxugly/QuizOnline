@@ -72,7 +72,7 @@ class DomainAuditActionsMixin:
             "Filtres optionnels (combinables) :\n"
             "- ``action`` : nom exact de l'action (ex. ``member.promote``).\n"
             "- ``actor`` : sous-chaîne, insensible à la casse, recherchée "
-            "dans le ``username`` ou l'``email`` de l'acteur.\n"
+            "dans le nom ou l'``email`` de l'acteur.\n"
             "- ``since`` / ``until`` : ISO-8601 (date ou datetime) sur "
             "``created_at``."
         ),
@@ -83,7 +83,7 @@ class DomainAuditActionsMixin:
             ),
             OpenApiParameter(
                 "actor", OpenApiTypes.STR, OpenApiParameter.QUERY,
-                description="Case-insensitive substring on the actor username or email.",
+                description="Case-insensitive substring on the actor name or email.",
             ),
             OpenApiParameter(
                 "since", OpenApiTypes.DATETIME, OpenApiParameter.QUERY,
@@ -113,7 +113,8 @@ class DomainAuditActionsMixin:
         actor_param = (request.query_params.get("actor") or "").strip()
         if actor_param:
             qs = qs.filter(
-                Q(actor__username__icontains=actor_param)
+                Q(actor__first_name__icontains=actor_param)
+                | Q(actor__last_name__icontains=actor_param)
                 | Q(actor__email__icontains=actor_param)
             )
 

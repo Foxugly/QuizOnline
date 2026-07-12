@@ -23,18 +23,19 @@
           autocomplete="on">
 
           <div class="field">
-            <label for="username">{{ ui().login.username }}</label>
+            <label for="email">{{ ui().login.email }}</label>
             <input
-              id="username"
-              type="text"
+              id="email"
+              type="email"
               pInputText
-              formControlName="username"
-              [placeholder]="ui().login.usernamePlaceholder"
+              formControlName="email"
+              autocomplete="email"
+              [placeholder]="ui().login.emailPlaceholder"
               autofocus
             />
-            @if (f.username.touched && f.username.invalid) {
+            @if (f.email.touched && f.email.invalid) {
               <small class="field__error">
-                {{ ui().login.usernameError }}
+                {{ ui().login.emailError }}
               </small>
             }
           </div>

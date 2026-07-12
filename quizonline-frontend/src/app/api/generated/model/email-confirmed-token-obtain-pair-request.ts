@@ -10,7 +10,7 @@
 
 
 export interface EmailConfirmedTokenObtainPairRequestDto { 
-    username: string;
+    email: string;
     password: string;
 }
 

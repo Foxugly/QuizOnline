@@ -30,8 +30,8 @@ class ListInvitationsTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
-        self.stranger = User.objects.create_user(username="x", password="p", email="x@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.stranger = User.objects.create_user(password="p", email="x@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         # Two pending and one already-accepted invitation.
         DomainInvite.objects.create(
@@ -57,7 +57,7 @@ class ListInvitationsTests(TestCase):
         self.assertEqual(emails, ["a@x.test", "b@x.test"])
         for row in resp.data:
             self.assertEqual(row["status"], "pending")
-            self.assertEqual(row["inviter_username"], self.owner.username)
+            self.assertEqual(row["inviter_name"], self.owner.get_display_name())
 
     def test_stranger_cannot_list(self):
         self.client.force_authenticate(self.stranger)
@@ -70,7 +70,7 @@ class ResendInvitationTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.invite = DomainInvite.objects.create(
             domain=self.domain, email="a@x.test", inviter=self.owner,
@@ -107,8 +107,8 @@ class RevokeInvitationTests(TestCase):
 
     def setUp(self):
         translation.activate("fr")
-        self.owner = User.objects.create_user(username="o", password="p", email="o@x.test")
-        self.invited = User.objects.create_user(username="i", password="p", email="invited@x.test")
+        self.owner = User.objects.create_user(password="p", email="o@x.test")
+        self.invited = User.objects.create_user(password="p", email="invited@x.test")
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.invite = DomainInvite.objects.create(
             domain=self.domain, email="invited@x.test", inviter=self.owner,

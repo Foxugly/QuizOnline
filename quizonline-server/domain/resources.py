@@ -24,7 +24,7 @@ def build_domain_resource():
         "owner": fields.Field(
             attribute="owner",
             column_name="owner",
-            widget=ForeignKeyWidget(User, "username"),
+            widget=ForeignKeyWidget(User, "email"),
         ),
         "allowed_languages": fields.Field(
             attribute="allowed_languages",
@@ -34,12 +34,12 @@ def build_domain_resource():
         "managers": fields.Field(
             attribute="managers",
             column_name="managers",
-            widget=ManyToManyWidget(User, field="username", separator="|"),
+            widget=ManyToManyWidget(User, field="email", separator="|"),
         ),
         "members": fields.Field(
             attribute="members",
             column_name="members",
-            widget=ManyToManyWidget(User, field="username", separator="|"),
+            widget=ManyToManyWidget(User, field="email", separator="|"),
         ),
         "translation_columns": translation_columns,
         "__module__": __name__,

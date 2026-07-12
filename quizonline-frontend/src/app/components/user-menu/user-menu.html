@@ -7,7 +7,7 @@
         (click)="toggleMenu($event)"
       >
         <i class="pi pi-user"></i>
-        <span>{{ auth.getUsername() || ui().userMenu.userFallback }}</span>
+        <span>{{ auth.getDisplayName() || ui().userMenu.userFallback }}</span>
         @if (invitationCount.pendingCount() > 0) {
           <span class="user-trigger__badge"
                 [attr.aria-label]="ui().userMenu.myInvitations">{{ invitationCount.pendingCount() }}</span>
