@@ -1,4 +1,5 @@
-import {Injectable, signal} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
+import {MessageService} from 'primeng/api';
 
 import {userFacingApiMessage} from '../api/api-errors';
 
@@ -11,25 +12,23 @@ export type AppToastMessage = {
   life?: number;
 };
 
-export type AppToastItem = Required<Pick<AppToastMessage, 'severity' | 'summary' | 'detail'>> & {
-  id: number;
-  life: number;
-};
-
+/**
+ * Façade toast de l'app, adossée au ``MessageService`` de PrimeNG (rendu par le
+ * ``<p-toast>`` monté à la racine du shell dans ``app.html``). L'API historique
+ * (``add`` / ``addApiError`` / ``clear``) est conservée pour ne pas toucher les
+ * ~120 sites d'appel ; PrimeNG gère le cycle de vie (``life``, fermeture) et le
+ * thème (accent emerald + dark mode via ``darkModeSelector``). Les sévérités
+ * (``success``/``info``/``warn``/``error``) correspondent 1:1 à celles de PrimeNG.
+ */
 @Injectable({providedIn: 'root'})
 export class AppToastService {
-  readonly messages = signal<AppToastItem[]>([]);
-  private nextId = 1;
-  private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
+  private readonly messageService = inject(MessageService);
 
   /**
-   * Shortcut for the common "operation failed" path: extracts the
-   * API ``detail``/``message`` from the error when present and
-   * surfaces it under the localised ``fallback`` summary. If the
-   * API has nothing useful to say (network drop, generic 500), the
-   * toast falls back to the summary alone — the user is never left
-   * with a vague "L'action a échoué." when the backend gave us
-   * "Permission refusée pour ce domaine.".
+   * Shortcut for the common "operation failed" path: extracts the API
+   * ``detail``/``message`` from the error when present and surfaces it under the
+   * localised ``fallback`` summary. If the API has nothing useful to say
+   * (network drop, generic 500), the toast falls back to the summary alone.
    */
   addApiError(error: unknown, fallback: string): void {
     const detail = userFacingApiMessage(error, '');
@@ -41,34 +40,15 @@ export class AppToastService {
   }
 
   add(message: AppToastMessage): void {
-    const item: AppToastItem = {
-      id: this.nextId++,
+    this.messageService.add({
       severity: message.severity ?? 'info',
       summary: message.summary ?? '',
       detail: message.detail ?? '',
       life: message.life ?? 4000,
-    };
-
-    this.messages.update((items) => [...items, item]);
-
-    if (item.life > 0) {
-      const timer = setTimeout(() => this.remove(item.id), item.life);
-      this.timers.set(item.id, timer);
-    }
-  }
-
-  remove(id: number): void {
-    const timer = this.timers.get(id);
-    if (timer !== undefined) {
-      clearTimeout(timer);
-      this.timers.delete(id);
-    }
-    this.messages.update((items) => items.filter((item) => item.id !== id));
+    });
   }
 
   clear(): void {
-    this.timers.forEach((timer) => clearTimeout(timer));
-    this.timers.clear();
-    this.messages.set([]);
+    this.messageService.clear();
   }
 }

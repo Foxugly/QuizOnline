@@ -10,11 +10,11 @@ import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
 import {UiTextService} from './shared/i18n/ui-text.service';
-import {AppToastOutletComponent} from './components/app-toast-outlet/app-toast-outlet';
+import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TopMenuComponent, FooterComponent, AppToastOutletComponent],
+  imports: [RouterOutlet, TopMenuComponent, FooterComponent, Toast],
   templateUrl: './app.html',
   //template: `
   //  <app-topmenu></app-topmenu>

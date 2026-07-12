@@ -4,6 +4,7 @@ import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/h
 import {provideTransloco} from '@jsverse/transloco';
 import {routes} from './app.routes';
 import {providePrimeNG} from 'primeng/config';
+import {MessageService} from 'primeng/api';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
@@ -51,6 +52,8 @@ export const appConfig: ApplicationConfig = {
         new Configuration({basePath: resolveApiBaseUrl()}),
     },
     provideAnimationsAsync('noop'),
+    // MessageService alimente le <p-toast> unique (app.html) via AppToastService.
+    MessageService,
     // 🔹 PrimeNG theme — emerald fleet accent + dark mode via `.dark-mode`
     //    (toggled on <html> by ThemeService / the anti-FOUC script).
     providePrimeNG({
