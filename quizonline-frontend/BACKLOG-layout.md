@@ -33,10 +33,13 @@
   la racine du shell), API conservée (~120 sites d'appel inchangés) ; composant `app-toast-outlet` supprimé.
   Thème (emerald + dark) + cycle de vie gérés par PrimeNG.
 
-## Reste — optionnel (différé)
-- [ ] **Shell formalisé** : extraire `main-layout` / `public-layout` sous `core/layout/` + `[mode]` sur le
-  topmenu (aujourd'hui shell simple assemblé dans `app.html`, skip-link + `<p-toast>` présents). **Faible
-  valeur** pour le shell mono de QO (pas de vraie séparation public/authentifié) → non prioritaire.
+## ✅ Shell formalisé (2026-07-13, déployé)
+- [x] **`public-layout` + `main-layout`** créés sous `core/layout/` + `_shell.scss` partagé ; shell sorti de
+  `app.html` (devenu minimal : bannière backend + `<p-toast>` + `<router-outlet>`) ; routes scindées en 2
+  parents par accessibilité anonyme (gardes des enfants inchangées) ; input **`[mode]`** ajouté au topmenu.
+  Routage vérifié (pages publiques OK, routes gardées → `/login`), build + 182 tests verts.
+
+**Aucune tâche restante.**
 
 ## Note
 - Le sélecteur de domaine (Domaines) est spécifique à QuizOnline → à conserver dans les actions.
