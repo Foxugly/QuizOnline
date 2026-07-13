@@ -1,21 +1,8 @@
-:host {
-  background:
-    radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 30%),
-    linear-gradient(180deg, #f8fafc, #eef2f7);
-  color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-// Le fond de shell était un dégradé clair en dur sans override → la page restait
-// claire en dark (seuls cartes/chrome/footer basculaient). Dégradé sombre en dark.
-:host-context(.dark-mode) {
-  background:
-    radial-gradient(circle at top, rgba(56, 189, 248, 0.06), transparent 30%),
-    linear-gradient(180deg, #0f172a, #0b1220);
-}
-
+// The shell chrome (flex column, dark-adapted background, skip-link,
+// .main-container) moved to the shared src/styles/_shell.scss when the shell
+// was formalized into public-layout / main-layout. Only the global
+// backend-down banner is rendered directly by app-root, so only its style
+// remains here.
 .backend-banner {
   width: 100%;
   padding: 10px 16px;
@@ -24,41 +11,4 @@
   border-bottom: 1px solid #fecaca;
   font-weight: 600;
   text-align: center;
-}
-
-.main-container {
-  box-sizing: border-box;
-  flex: 1;
-  margin: 0 auto;
-  max-width: var(--content-max);
-  padding: var(--s-6, 24px);
-  width: 100%;
-
-  // The skip link drops keyboard focus on <main>, which then needs to be
-  // focusable but should not show the default browser focus ring around
-  // the entire page body.
-  &:focus { outline: none; }
-}
-
-// Visually-hidden until focused; revealed at the top-left when a keyboard
-// user tabs into the page. Lets them jump over the topmenu directly to
-// the page content.
-.skip-link {
-  position: absolute;
-  left: 0.75rem;
-  top: -3rem;
-  z-index: 1000;
-  padding: 0.6rem 1rem;
-  background: #0f172a;
-  color: #fff;
-  border-radius: 0 0 0.5rem 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: top 120ms ease-out;
-
-  &:focus {
-    top: 0;
-    outline: 2px solid #38bdf8;
-    outline-offset: 2px;
-  }
 }

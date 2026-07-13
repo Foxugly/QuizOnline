@@ -52,11 +52,14 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render shell components', () => {
+  it('renders the router outlet (shell chrome now lives in the layouts)', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('app-topmenu')).toBeTruthy();
-    expect(compiled.querySelector('app-footer')).toBeTruthy();
+    // The skip-link, topmenu, <main> and footer moved to public-layout /
+    // main-layout; app-root only hosts the global banner/toast + the outlet.
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    expect(compiled.querySelector('app-topmenu')).toBeNull();
+    expect(compiled.querySelector('app-footer')).toBeNull();
   });
 });

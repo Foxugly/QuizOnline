@@ -1,34 +1,28 @@
 import {Component, computed, DestroyRef, effect, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router, RouterOutlet} from '@angular/router';
-import {TopMenuComponent} from './core/layout/topmenu/topmenu';
 import {BackendStatusService} from './services/status/status';
-import {FooterComponent} from './core/layout/footer/footer';
 import {AuthService} from './services/auth/auth';
 import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
-import {UiTextService} from './shared/i18n/ui-text.service';
 import {Toast} from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TopMenuComponent, FooterComponent, Toast],
+  // Minimal shell root: the global backend-down banner and a single
+  // ``<p-toast>`` above every page, then the ``<router-outlet>`` whose routes
+  // render inside the ``public-layout`` / ``main-layout`` shells (which own the
+  // skip-link, topmenu, ``<main>`` and footer).
+  imports: [RouterOutlet, Toast],
   templateUrl: './app.html',
-  //template: `
-  //  <app-topmenu></app-topmenu>
-  //  <main>
-  //    <router-outlet></router-outlet>
-  //  </main>
-  //    `,
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
   status = inject(BackendStatusService);
   backendDown = computed(() => this.status.backendUp() === false);
-  readonly ui = inject(UiTextService).ui;
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);

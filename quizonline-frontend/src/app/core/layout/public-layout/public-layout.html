@@ -1,0 +1,13 @@
+<div class="qo-shell">
+  <!-- Keyboard-only skip link: visually hidden until focused. Lets screen-reader
+       and keyboard users jump past the top menu straight to the page body. -->
+  <a class="skip-link" href="#main-content">{{ ui().a11y.skipToContent }}</a>
+
+  <app-topmenu [mode]="'public'"></app-topmenu>
+
+  <main id="main-content" tabindex="-1" class="main-container">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer></app-footer>
+</div>

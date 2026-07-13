@@ -1,0 +1,67 @@
+/* ----------------------------------------------------------------
+ * Shell chrome shared by the layout components (core/layout/*-layout).
+ *
+ * Formerly inlined on the ``app-root`` ``:host`` in ``app.scss``. Moved here
+ * (global) when the shell was formalized into ``public-layout`` /
+ * ``main-layout`` so both layouts share one flex-column shell that keeps the
+ * footer pinned to the bottom, the dark-adapted background, the skip link and
+ * the focusable ``<main>``. Applied to the ``.qo-shell`` wrapper the layouts
+ * render (a class, not ``:host``, so these rules stay global and are not
+ * trapped by a component's emulated encapsulation).
+ * ---------------------------------------------------------------- */
+
+.qo-shell {
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fafc, #eef2f7);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// The shell background was a hard-coded light gradient with no dark override →
+// the page stayed light in dark mode (only cards/chrome/footer flipped). Dark
+// gradient in dark mode.
+.dark-mode .qo-shell {
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.06), transparent 30%),
+    linear-gradient(180deg, #0f172a, #0b1220);
+}
+
+.qo-shell .main-container {
+  box-sizing: border-box;
+  flex: 1;
+  margin: 0 auto;
+  max-width: var(--content-max);
+  padding: var(--s-6, 24px);
+  width: 100%;
+
+  // The skip link drops keyboard focus on <main>, which then needs to be
+  // focusable but should not show the default browser focus ring around
+  // the entire page body.
+  &:focus { outline: none; }
+}
+
+// Visually-hidden until focused; revealed at the top-left when a keyboard
+// user tabs into the page. Lets them jump over the topmenu directly to
+// the page content.
+.qo-shell .skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 0 0 0.5rem 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 120ms ease-out;
+
+  &:focus {
+    top: 0;
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+  }
+}
