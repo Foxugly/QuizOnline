@@ -1,22 +1,13 @@
-<!-- Keyboard-only skip link: visually hidden until focused. Lets screen-reader
-     and keyboard users jump past the top menu straight to the page body. -->
-<a class="skip-link" href="#main-content">{{ ui().a11y.skipToContent }}</a>
-
-<!-- Bandeau "backend KO" -->
+<!-- Bandeau "backend KO" — global, au-dessus de tous les shells. -->
 @if (backendDown()) {
   <div class="backend-banner">
     {{ status.lastError() || 'API inaccessible.' }}
   </div>
 }
 
-<!-- Menu principal -->
-<app-topmenu></app-topmenu>
-
+<!-- Toast unique pour toute l'application. -->
 <p-toast position="top-right" />
 
-<!-- Contenu principal -->
-<main id="main-content" tabindex="-1" class="main-container">
-  <router-outlet></router-outlet>
-</main>
-
-<app-footer></app-footer>
+<!-- Les routes rendent le shell public/authentifié (skip-link + topmenu +
+     main#main-content + footer) via public-layout / main-layout. -->
+<router-outlet></router-outlet>

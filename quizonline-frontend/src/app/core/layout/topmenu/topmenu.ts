@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, input, OnInit, signal, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
@@ -77,6 +77,16 @@ export class TopMenuComponent implements OnInit {
   private readonly unreadBadges = inject(UnreadBadgesService);
   private readonly destroyRef = inject(DestroyRef);
   readonly theme = inject(ThemeService);
+
+  /**
+   * Fleet-standard chrome mode, supplied by the wrapping layout
+   * (`public-layout` → `'public'`, `main-layout` → `'authenticated'`). The nav
+   * still keys off the live session (`currentUser`) so a signed-in visitor on a
+   * public page keeps the app nav; `mode` only acts as a safe fallback for the
+   * authenticated shell (whose routes are guarded, so a user is always present)
+   * and documents the shell contract. Defaults to `'authenticated'`.
+   */
+  readonly mode = input<'public' | 'authenticated'>('authenticated');
   app = window.__APP__!;
   currentLang: SupportedLanguage = this.userService.currentLang;
   readonly ui = inject(UiTextService).ui;
@@ -164,7 +174,11 @@ export class TopMenuComponent implements OnInit {
   }
 
   get navItems(): NavItem[] {
-    const isAuthenticated = !!this.currentUser;
+    // Session is the source of truth; `mode` is a safe fallback for the
+    // authenticated shell. The two never diverge on a rendered page: public
+    // routes (mode 'public') are where anonymous visitors land, and the
+    // authenticated shell's routes are all guarded (currentUser always set).
+    const isAuthenticated = !!this.currentUser || this.mode() === 'authenticated';
     const items: NavItem[] = [];
 
     // ----------------------------------------------------------------------
