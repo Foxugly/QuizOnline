@@ -138,7 +138,7 @@ export class LoginPage implements OnInit {
           return;
         }
         const safeNext = nextUrl && nextUrl.startsWith('/') && !nextUrl.includes('://') ? nextUrl : null;
-        void this.router.navigateByUrl(safeNext || ROUTES.home()[0]);
+        void this.router.navigateByUrl(safeNext || ROUTES.dashboard()[0]);
       },
       error: (err) => {
         this.loading.set(false);

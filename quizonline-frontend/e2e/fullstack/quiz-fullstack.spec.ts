@@ -11,7 +11,7 @@ async function login(page: import('@playwright/test').Page): Promise<void> {
   await page.locator('#username').fill('admin');
   await page.locator('input[type="password"]').fill('secret123');
   await page.locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 }
 
 async function getAccessToken(

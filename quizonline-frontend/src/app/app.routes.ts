@@ -1,3 +1,4 @@
+import {inject} from '@angular/core';
 import {Routes} from '@angular/router';
 
 import {authGuard} from './guards/auth.guard';
@@ -5,9 +6,16 @@ import {domainAccessGuard} from './guards/domain-access.guard';
 import {superuserGuard} from './guards/superuser.guard';
 import {MainLayoutComponent} from './core/layout/main-layout/main-layout';
 import {PublicLayoutComponent} from './core/layout/public-layout/public-layout';
+import {AuthService} from './services/auth/auth';
 
 export const routes: Routes = [
-  {path: '', redirectTo: 'home', pathMatch: 'full'},
+  // Signed-in visitors land on their dashboard; anonymous visitors on the
+  // marketing home. Function redirect runs in an injection context.
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: () => (inject(AuthService).isLoggedIn() ? 'dashboard' : 'home'),
+  },
 
   // ----------------------------------------------------------------------
   // Authenticated shell. Wraps the guarded application routes. The parent

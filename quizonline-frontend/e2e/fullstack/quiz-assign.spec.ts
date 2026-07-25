@@ -17,7 +17,7 @@ async function login(
   await page.locator('#username').fill(username);
   await page.locator('input[type="password"]').fill(password);
   await page.locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 }
 
 async function getAccessToken(

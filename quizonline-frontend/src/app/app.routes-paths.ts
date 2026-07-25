@@ -6,6 +6,7 @@ import {SubjectDelete} from './pages/subject/delete/subject-delete';
 
 export let ROUTES = {
   home : () =>['/home'] as const,
+  dashboard : () => ['/dashboard'] as const,
   auth : {
     register: () => ['/register/'] as const,
     registerPending: () => ['/register/confirmation'] as const,

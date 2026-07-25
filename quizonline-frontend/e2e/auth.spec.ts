@@ -21,7 +21,7 @@ test.skip('permet de se connecter et charge /me', async ({page}) => {
   await page.locator('input[type="password"]').fill('secret123');
   await page.getByRole('button', {name: 'Se connecter'}).click();
 
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
   expect(api.requests.login).toEqual([
     {username: 'admin', password: 'secret123'},
   ]);
