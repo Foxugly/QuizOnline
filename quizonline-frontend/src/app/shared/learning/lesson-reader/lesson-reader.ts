@@ -72,6 +72,10 @@ export class LessonReader implements OnDestroy {
 
   readonly blocks = input.required<ContentBlock[]>();
   readonly scrollSpy = input<boolean>(false);
+  /** Optional extra outline entry rendered below a divider — used by the
+   *  learner page to link the lesson plan to the private-notes section
+   *  (whose element lives in the host page, not in this component). */
+  readonly notesLink = input<{label: string; anchor: string} | null>(null);
 
   protected readonly activeAnchor = signal<string | null>(null);
   private observer: IntersectionObserver | null = null;

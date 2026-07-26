@@ -102,6 +102,17 @@ export class LessonView implements OnInit, OnDestroy {
   // the reader advances meaningfully past it.
   private lastReportedProgress = 0;
 
+  // Driven by the browser's ``fullscreenchange`` event so the button icon
+  // stays correct even when the user exits via Esc.
+  protected readonly isFullscreen = signal(false);
+
+  /** Extra lesson-plan entry (below a divider) linking to the private-notes
+   *  section, whose heading carries id="lesson-notes-heading". */
+  protected readonly notesLink = computed(() => ({
+    label: this.ui().notesHeading,
+    anchor: 'lesson-notes-heading',
+  }));
+
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
   private routeSub: Subscription | null = null;
 
@@ -187,6 +198,21 @@ export class LessonView implements OnInit, OnDestroy {
     this.noteSub = this.noteInput$
       .pipe(debounceTime(600))
       .subscribe(({lessonId, content}) => this.persistNote(lessonId, content));
+    // Keep the fullscreen toggle in sync with the actual state (covers Esc
+    // and the browser's own exit affordances).
+    fromEvent(document, 'fullscreenchange')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.isFullscreen.set(document.fullscreenElement != null));
+  }
+
+  protected toggleFullscreen(): void {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else {
+      document.documentElement
+        .requestFullscreen()
+        .catch((err: unknown) => logApiError('lms.lesson-view.fullscreen', err));
+    }
   }
 
   ngOnDestroy(): void {
