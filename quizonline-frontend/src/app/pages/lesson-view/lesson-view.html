@@ -79,6 +79,12 @@
         [label]="ui().nextLessonButton + ' — ' + next.title" />
     }
   </footer>
+} @else if (loadError()) {
+  <div class="empty-cell">
+    <h3>{{ ui().errorTitle }}</h3>
+    <p>{{ ui().errorMessage }}</p>
+    <p-button icon="pi pi-refresh" [label]="ui().retryButton" severity="primary" (onClick)="retryLoad()" />
+  </div>
 } @else {
   <app-loading-skeleton [rows]="4" [attr.aria-label]="ui().pageLoading" />
 }

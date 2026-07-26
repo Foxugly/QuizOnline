@@ -18,6 +18,7 @@ from .views import (
     enroll_to_course,
     my_course_invitations,
     my_lesson_note,
+    record_lesson_progress_view,
     start_lesson,
 )
 
@@ -47,6 +48,7 @@ urlpatterns = router.urls + [
     path("course-invite/<str:token>/decline/", course_invite_decline, name="course-invite-decline"),
     path("me/invitations/", my_course_invitations, name="my-course-invitations"),
     path("lesson/<int:lesson_id>/start/", start_lesson, name="start-lesson"),
+    path("lesson/<int:lesson_id>/progress/", record_lesson_progress_view, name="record-lesson-progress"),
     path("lesson/<int:lesson_id>/complete/", complete_lesson, name="complete-lesson"),
     path("lesson/<int:lesson_id>/note/", my_lesson_note, name="lesson-note"),
 ]

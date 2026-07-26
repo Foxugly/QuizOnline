@@ -16,6 +16,9 @@ import data from './lesson-view.i18n.json';
 export interface LessonViewUiText {
   pageTitle: string;
   pageLoading: string;
+  errorTitle: string;
+  errorMessage: string;
+  retryButton: string;
   markCompletedButton: string;
   alreadyCompletedBadge: string;
   lessonCompletedToast: string;

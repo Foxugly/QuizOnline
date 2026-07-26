@@ -197,6 +197,27 @@ def mark_lesson_started(*, user, lesson: Lesson) -> LessonProgress:
 
 
 @transaction.atomic
+def record_lesson_progress(*, user, lesson: Lesson, progress_percent: int) -> LessonProgress:
+    """Persist a scroll-derived reading progress for ``lesson`` WITHOUT
+    marking it completed — completion stays an explicit learner action.
+    Monotonic (never lowers an already-recorded percentage) and clamped to
+    0..100. Used by the lesson reader's scroll tracker."""
+    percent = max(0, min(100, int(progress_percent)))
+    progress, _ = LessonProgress.objects.select_for_update().get_or_create(
+        user=user, lesson=lesson,
+        defaults={"is_started": True, "started_at": timezone.now()},
+    )
+    progress.is_started = True
+    if progress.started_at is None:
+        progress.started_at = timezone.now()
+    progress.progress_percent = max(progress.progress_percent, percent)
+    progress.save(
+        update_fields=["is_started", "started_at", "progress_percent", "last_seen_at"],
+    )
+    return progress
+
+
+@transaction.atomic
 def mark_lesson_completed(
     *, user, lesson: Lesson, progress_percent: int = 100,
 ) -> LessonProgress:

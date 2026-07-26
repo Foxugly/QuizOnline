@@ -48,6 +48,7 @@ from .services import (
     invite_user_to_course,
     mark_lesson_completed,
     mark_lesson_started,
+    record_lesson_progress,
     reject_enrollment,
     resend_course_invite,
     revoke_course_invite,
@@ -195,6 +196,24 @@ def start_lesson(request, lesson_id: int):
     if not lesson:
         return Response(status=status.HTTP_404_NOT_FOUND)
     p = mark_lesson_started(user=request.user, lesson=lesson)
+    return Response(LessonProgressSerializer(p).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def record_lesson_progress_view(request, lesson_id: int):
+    """Persist scroll-derived reading progress without completing the lesson."""
+    lesson = Lesson.objects.filter(pk=lesson_id).first()
+    if not lesson:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        percent = int(request.data.get("progress_percent", 0))
+    except (TypeError, ValueError):
+        return Response(
+            {"detail": "progress_percent must be an integer."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    p = record_lesson_progress(user=request.user, lesson=lesson, progress_percent=percent)
     return Response(LessonProgressSerializer(p).data)
 
 
