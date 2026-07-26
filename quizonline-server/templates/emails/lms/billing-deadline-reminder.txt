@@ -1,0 +1,10 @@
+{% load i18n %}{% blocktrans %}Hello,{% endblocktrans %}
+
+{% blocktrans with domain=domain_name count days=days %}The free hosting period for {{ domain }} ends in {{ days }} day.{% plural %}The free hosting period for {{ domain }} ends in {{ days }} days.{% endblocktrans %}
+
+{% blocktrans with members=member_count price=monthly_price %}Your domain currently has {{ members }} members, which corresponds to {{ price }} EUR/month (excl. VAT).{% endblocktrans %}
+
+{% trans "To keep your domain active after the deadline, please arrange payment. You can review your subscription on QuizOnline." %}
+
+{% trans "Best regards," %}
+QuizOnline

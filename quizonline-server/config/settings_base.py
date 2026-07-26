@@ -151,6 +151,7 @@ INSTALLED_APPS = [
     "block.apps.BlockConfig",
     "enrollment.apps.EnrollmentConfig",
     "certificate.apps.CertificateConfig",
+    "billing.apps.BillingConfig",
     "assessment.apps.AssessmentConfig",
     "connectionlog.apps.ConnectionLogConfig",
 ]
@@ -358,6 +359,11 @@ CELERY_BEAT_SCHEDULE = {
         "task": "certificate.tasks.send_certificate_expiry_reminders",
         "schedule": 24 * 3600.0,  # once a day — idempotency comes from the
         # per-row 30d/7d stamps, not the cadence.
+    },
+    "recompute-and-remind-billing": {
+        "task": "billing.tasks.recompute_and_remind_billing",
+        "schedule": 24 * 3600.0,  # once a day — refresh member counts and send
+        # free-deadline reminders (idempotent via per-row 14d/3d stamps).
     },
 }
 

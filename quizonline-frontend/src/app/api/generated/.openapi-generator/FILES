@@ -74,6 +74,7 @@ model/dashboard-stats-response.ts
 model/domain-analytics-decider.ts
 model/domain-analytics.ts
 model/domain-audit-log-read.ts
+model/domain-billing.ts
 model/domain-detail.ts
 model/domain-invite-read-status-enum.ts
 model/domain-invite-read.ts
@@ -178,6 +179,7 @@ model/patched-quiz-question-partial-request.ts
 model/patched-quiz-template-partial-request.ts
 model/patched-section-request.ts
 model/patched-subject-partial-request.ts
+model/plan-enum.ts
 model/question-answer-option-read.ts
 model/question-answer-option-write-payload-request.ts
 model/question-answer-option-write-request.ts

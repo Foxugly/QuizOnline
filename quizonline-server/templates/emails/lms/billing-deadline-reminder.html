@@ -1,0 +1,10 @@
+{% load i18n %}
+<p>{% blocktrans %}Hello,{% endblocktrans %}</p>
+
+<p>{% blocktrans with domain=domain_name count days=days %}The free hosting period for <strong>{{ domain }}</strong> ends in {{ days }} day.{% plural %}The free hosting period for <strong>{{ domain }}</strong> ends in {{ days }} days.{% endblocktrans %}</p>
+
+<p>{% blocktrans with members=member_count price=monthly_price %}Your domain currently has {{ members }} members, which corresponds to <strong>{{ price }} EUR/month</strong> (excl. VAT).{% endblocktrans %}</p>
+
+<p>{% trans "To keep your domain active after the deadline, please arrange payment. You can review your subscription on QuizOnline." %}</p>
+
+<p>{% trans "Best regards," %}<br>QuizOnline</p>
