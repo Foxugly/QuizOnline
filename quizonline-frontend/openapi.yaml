@@ -2898,6 +2898,24 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/lesson/{lesson_id}/progress/:
+    post:
+      operationId: lesson_progress_create
+      description: Persist scroll-derived reading progress without completing the
+        lesson.
+      parameters:
+      - in: path
+        name: lesson_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - lesson
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/lesson/{lesson_id}/start/:
     post:
       operationId: lesson_start_create

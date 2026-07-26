@@ -1,7 +1,8 @@
-import {ChangeDetectionStrategy, Component, ElementRef, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {Subject, Subscription, debounceTime} from 'rxjs';
+import {Subject, Subscription, auditTime, debounceTime, fromEvent} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TagModule} from 'primeng/tag';
 import {TextareaModule} from 'primeng/textarea';
@@ -89,7 +90,17 @@ export class LessonView implements OnInit, OnDestroy {
   protected readonly currentLang = this.userService.lang;
 
   protected readonly lesson = signal<LessonDetailDto | null>(null);
+  // True when the last load() failed — kept distinct from "lesson is null
+  // while loading" so the template shows a retry instead of an endless
+  // skeleton on a network error.
+  protected readonly loadError = signal(false);
   protected readonly completing = signal(false);
+
+  private readonly destroyRef = inject(DestroyRef);
+  // Highest reading percentage already reported to the backend for the
+  // current lesson. Reset on navigation; the scroll tracker only POSTs when
+  // the reader advances meaningfully past it.
+  private lastReportedProgress = 0;
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
   private routeSub: Subscription | null = null;
@@ -158,9 +169,16 @@ export class LessonView implements OnInit, OnDestroy {
         this.lesson.set(null);
         return;
       }
+      this.lastReportedProgress = 0;
       this.loadLesson(id);
       this.loadNote(id);
     });
+    // Scroll-spy: report reading progress as the learner scrolls through the
+    // lesson. ``auditTime`` caps it to at most one sample per second while
+    // scrolling; ``trackScrollProgress`` only POSTs on a meaningful advance.
+    fromEvent(window, 'scroll', {passive: true})
+      .pipe(auditTime(1000), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.trackScrollProgress());
     // Debounced auto-save: every keystroke streams through this
     // subject and only the final value (after 600ms of inactivity)
     // hits the backend. Matches the block-editor's 500ms — slightly
@@ -261,6 +279,8 @@ export class LessonView implements OnInit, OnDestroy {
   }
 
   private loadLesson(id: number): void {
+    this.loadError.set(false);
+    this.lesson.set(null);
     this.http.get<LessonDetailDto>(`${this.apiBaseUrl}/lesson/${id}/`).subscribe({
       next: (detail) => {
         this.lesson.set(detail);
@@ -270,8 +290,39 @@ export class LessonView implements OnInit, OnDestroy {
       },
       error: (err: unknown) => {
         logApiError('lms.lesson-view.load', err);
+        // Flag the error so the template shows a retry rather than an endless
+        // skeleton (the skeleton renders whenever ``lesson()`` is null).
         this.lesson.set(null);
+        this.loadError.set(true);
       },
     });
+  }
+
+  /** Called (throttled) on window scroll: compute how far the reader is
+   *  through the page and report it — but only when it advances at least
+   *  10 points past what we last sent, so a scroll session is a handful of
+   *  POSTs, not one per pixel. Completion stays an explicit button action. */
+  private trackScrollProgress(): void {
+    const id = this.lesson()?.id;
+    if (!id || this.loadError()) {
+      return;
+    }
+    const doc = document.documentElement;
+    const scrollable = doc.scrollHeight - doc.clientHeight;
+    const percent = scrollable > 0 ? Math.round((doc.scrollTop / scrollable) * 100) : 100;
+    if (percent < this.lastReportedProgress + 10) {
+      return;
+    }
+    this.lastReportedProgress = percent;
+    this.enrollment.recordLessonProgress(id, percent).subscribe({
+      error: (err: unknown) => logApiError('lms.lesson-view.progress', err),
+    });
+  }
+
+  protected retryLoad(): void {
+    const id = this.lesson()?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+    if (Number.isFinite(id) && id > 0) {
+      this.loadLesson(id);
+    }
   }
 }

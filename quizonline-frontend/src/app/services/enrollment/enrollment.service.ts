@@ -135,6 +135,13 @@ export class EnrollmentService {
     return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/start/`, {});
   }
 
+  /** Persist scroll-derived reading progress WITHOUT completing the lesson
+   *  (completion stays an explicit action). The backend clamps + keeps the
+   *  max, so out-of-order / lower values are harmless. */
+  recordLessonProgress(lessonId: number, percent: number): Observable<unknown> {
+    return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/progress/`, {progress_percent: percent});
+  }
+
   completeLesson(lessonId: number, progress = 100): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/lesson/${lessonId}/complete/`, {progress_percent: progress});
   }
