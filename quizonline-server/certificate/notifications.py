@@ -22,6 +22,23 @@ def _send_html_email(*, to_email: str, subject: str, template_base: str, context
     queue_email(subject, text_body, [to_email], html_body)
 
 
+def notify_certificate_expiring(cert, *, days: int) -> None:
+    """Email the holder that their certificate expires in ``days`` days,
+    with a nudge to renew (re-complete the course). Called synchronously
+    from the expiry-reminder beat task (already outside a request), so no
+    ``on_commit`` wrapper — the task stamps the row before calling this."""
+    lang = cert.user.language or "fr"
+    with translation.override(lang):
+        subject = _("Your certificate for %(course)s expires soon") % {
+            "course": cert.course.safe_translation_getter("title", language_code=lang, any_language=True),
+        }
+    _send_html_email(
+        to_email=cert.user.email, subject=subject,
+        template_base="certificate-expiry-reminder",
+        context={"cert": cert, "days": days}, lang=lang,
+    )
+
+
 def notify_certificate_issued_on_commit(cert) -> None:
     def _send():
         lang = cert.user.language or "fr"

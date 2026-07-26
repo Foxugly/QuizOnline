@@ -1,0 +1,10 @@
+{% load i18n %}{% blocktrans with name=cert.user.get_display_name %}Hello {{ name }},{% endblocktrans %}
+
+{% blocktrans with course=cert.course count days=days %}Your certificate for {{ course }} expires in {{ days }} day.{% plural %}Your certificate for {{ course }} expires in {{ days }} days.{% endblocktrans %}
+
+{% blocktrans with num=cert.certificate_number %}Certificate number: {{ num }}{% endblocktrans %}
+
+{% trans "To keep it valid, complete the course again on QuizOnline to renew your certificate." %}
+
+{% trans "Best regards," %}
+QuizOnline

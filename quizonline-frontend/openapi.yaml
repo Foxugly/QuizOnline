@@ -6468,6 +6468,20 @@ components:
       - revoked_at
       - user
       - verification_token
+    CertificateValidityMonthsEnum:
+      enum:
+      - 0
+      - 12
+      - 24
+      - 60
+      - 120
+      type: integer
+      description: |-
+        * `0` - Never (lifetime)
+        * `12` - 1 year
+        * `24` - 2 years
+        * `60` - 5 years
+        * `120` - 10 years
     ConnectionEventRead:
       type: object
       properties:
@@ -6655,11 +6669,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
         lesson_count:
           type: integer
           readOnly: true
@@ -6781,11 +6802,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
       required:
       - domain
       - slug
@@ -7045,11 +7073,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
         lesson_count:
           type: integer
           readOnly: true
@@ -7181,11 +7216,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
       required:
       - domain
       - id
@@ -7232,11 +7274,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
       required:
       - domain
       - language_code
@@ -9434,11 +9483,18 @@ components:
         issues_certificate:
           type: boolean
         certificate_validity_months:
-          type: integer
-          maximum: 9223372036854775807
+          allOf:
+          - $ref: '#/components/schemas/CertificateValidityMonthsEnum'
+          description: |-
+            0 = never expires (lifetime).
+
+            * `0` - Never (lifetime)
+            * `12` - 1 year
+            * `24` - 2 years
+            * `60` - 5 years
+            * `120` - 10 years
           minimum: 0
-          format: int64
-          description: 0 = no expiration.
+          maximum: 9223372036854775807
     PatchedCustomUserAdminUpdateRequest:
       type: object
       properties:

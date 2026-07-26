@@ -10,6 +10,7 @@ export * from './block-request';
 export * from './block-type-enum';
 export * from './bulk-create-from-template-input-request';
 export * from './certificate';
+export * from './certificate-validity-months-enum';
 export * from './connection-event-read';
 export * from './connection-event-read-request';
 export * from './course-detail';
