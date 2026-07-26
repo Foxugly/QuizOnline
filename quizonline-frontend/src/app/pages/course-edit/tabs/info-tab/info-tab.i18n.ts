@@ -36,6 +36,7 @@ export interface CourseEditInfoTabUiText {
     learningObjectivesHint: string;
   };
   enrollmentLabels: Record<'open' | 'approval' | 'invite', string>;
+  certificateValidityLabels: Record<'never' | 'y1' | 'y2' | 'y5' | 'y10', string>;
   inviteOnlyHint: string;
   translateButton: string;
   uploadButton: string;

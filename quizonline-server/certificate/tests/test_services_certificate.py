@@ -51,6 +51,52 @@ def test_certificate_reissue_after_revoke(fully_completable_course, learner):
 
 
 @pytest.mark.django_db
+def test_expired_certificate_is_renewed_on_recompletion(fully_completable_course, learner):
+    """An expired (but not revoked) certificate is renewed: re-running the
+    issuance revokes the stale row and issues a fresh one with a new
+    validity window, rather than returning the dead certificate."""
+    from django.utils import timezone
+    from datetime import timedelta
+
+    fully_completable_course.certificate_validity_months = 12
+    fully_completable_course.save(update_fields=["certificate_validity_months"])
+    enroll_user_to_course(user=learner, course=fully_completable_course)
+    lesson = fully_completable_course.sections.first().lessons.first()
+    mark_lesson_completed(user=learner, lesson=lesson)
+
+    cert = Certificate.objects.get(user=learner, course=fully_completable_course)
+    # Force it into the past.
+    cert.expires_at = timezone.now() - timedelta(days=1)
+    cert.save(update_fields=["expires_at"])
+
+    renewed = issue_certificate_if_eligible(user=learner, course=fully_completable_course)
+    assert renewed is not None
+    assert renewed.pk != cert.pk
+    assert renewed.expires_at > timezone.now()
+
+    cert.refresh_from_db()
+    assert cert.revoked_at is not None  # old one superseded
+    # Exactly one active (non-revoked) certificate remains.
+    assert Certificate.objects.filter(
+        user=learner, course=fully_completable_course, revoked_at__isnull=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+def test_valid_certificate_not_reissued(fully_completable_course, learner):
+    """A still-valid certificate is returned as-is (no renewal churn)."""
+    fully_completable_course.certificate_validity_months = 12
+    fully_completable_course.save(update_fields=["certificate_validity_months"])
+    enroll_user_to_course(user=learner, course=fully_completable_course)
+    lesson = fully_completable_course.sections.first().lessons.first()
+    mark_lesson_completed(user=learner, lesson=lesson)
+
+    cert = Certificate.objects.get(user=learner, course=fully_completable_course)
+    again = issue_certificate_if_eligible(user=learner, course=fully_completable_course)
+    assert again.pk == cert.pk
+
+
+@pytest.mark.django_db
 def test_certificate_skipped_when_course_opted_out(fully_completable_course, learner):
     """Courses with ``issues_certificate=False`` complete normally but
     do not produce a certificate row."""

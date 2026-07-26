@@ -179,6 +179,19 @@ export class CourseEditInfoTab {
     ];
   });
 
+  // Certificate validity is a fixed set of durations (months), mirroring the
+  // backend Course.CERT_VALIDITY_CHOICES. 0 = lifetime.
+  protected readonly certificateValidityChoices = computed(() => {
+    const labels = this.pageText().certificateValidityLabels;
+    return [
+      {value: 0, label: labels.never},
+      {value: 12, label: labels.y1},
+      {value: 24, label: labels.y2},
+      {value: 60, label: labels.y5},
+      {value: 120, label: labels.y10},
+    ];
+  });
+
   // ---- Form ---------------------------------------------------------------
 
   protected readonly form = this.fb.group({

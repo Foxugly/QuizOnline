@@ -23,6 +23,12 @@ class Certificate(models.Model):
     pdf_rendered_at = models.DateTimeField(null=True, blank=True)
     revoked_at = models.DateTimeField(null=True, blank=True)
     revoke_reason = models.TextField(blank=True)
+    # Idempotency stamps for the expiry-reminder beat task: each milestone
+    # (30 days / 7 days before ``expires_at``) is sent at most once. The task
+    # excludes rows whose stamp is already set, so the cadence it runs at does
+    # not matter — mirrors CourseInvite.reminder_sent_at.
+    expiry_reminder_30d_sent_at = models.DateTimeField(null=True, blank=True)
+    expiry_reminder_7d_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [

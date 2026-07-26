@@ -74,7 +74,17 @@ def issue_certificate_if_eligible(*, user, course: Course) -> Certificate | None
         user=user, course=course, revoked_at__isnull=True,
     ).first()
     if existing:
-        return existing
+        now = timezone.now()
+        if existing.expires_at is None or existing.expires_at > now:
+            # Still valid (or lifetime) — nothing to re-issue.
+            return existing
+        # Expired: renew. Revoke the stale certificate and fall through to
+        # issue a fresh one (new number, new validity window). The partial
+        # unique constraint keys on ``revoked_at IS NULL``, so revoking the
+        # old row frees the slot for the new one.
+        existing.revoked_at = now
+        existing.revoke_reason = "superseded by renewal"
+        existing.save(update_fields=["revoked_at", "revoke_reason"])
     cert = Certificate.objects.create(
         user=user,
         course=course,

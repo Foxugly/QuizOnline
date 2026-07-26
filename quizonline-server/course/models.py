@@ -51,12 +51,22 @@ class Course(AuditMixin, PublishableMixin, TranslatableModel):
     # misleading. Default True preserves the legacy behaviour.
     issues_certificate = models.BooleanField(default=True)
     # Validity window for the certificate, in months. ``0`` means
-    # "no expiration" (current behaviour). The value is read once at
-    # certificate issue time and frozen on the row — changing the policy
-    # later does NOT retroactively expire already-issued certificates.
+    # "no expiration" / lifetime (current behaviour). The value is read
+    # once at certificate issue time and frozen on the row — changing the
+    # policy later does NOT retroactively expire already-issued
+    # certificates. Constrained to a fixed set of durations so the UI
+    # offers a simple dropdown (never / 1 / 2 / 5 / 10 years).
+    CERT_VALIDITY_CHOICES = [
+        (0, _("Never (lifetime)")),
+        (12, _("1 year")),
+        (24, _("2 years")),
+        (60, _("5 years")),
+        (120, _("10 years")),
+    ]
     certificate_validity_months = models.PositiveSmallIntegerField(
         default=0,
-        help_text=_("0 = no expiration."),
+        choices=CERT_VALIDITY_CHOICES,
+        help_text=_("0 = never expires (lifetime)."),
     )
     is_published = models.BooleanField(default=False, db_index=True)
     published_at = models.DateTimeField(null=True, blank=True)

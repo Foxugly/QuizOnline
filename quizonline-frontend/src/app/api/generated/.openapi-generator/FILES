@@ -47,6 +47,7 @@ model/block-request.ts
 model/block-type-enum.ts
 model/block.ts
 model/bulk-create-from-template-input-request.ts
+model/certificate-validity-months-enum.ts
 model/certificate.ts
 model/connection-event-read-request.ts
 model/connection-event-read.ts

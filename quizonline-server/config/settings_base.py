@@ -354,6 +354,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 3600.0,  # once an hour — idempotency comes from
         # the per-row ``reminder_sent_at`` stamp, not the cadence.
     },
+    "send-certificate-expiry-reminders": {
+        "task": "certificate.tasks.send_certificate_expiry_reminders",
+        "schedule": 24 * 3600.0,  # once a day — idempotency comes from the
+        # per-row 30d/7d stamps, not the cadence.
+    },
 }
 
 # Course-invite feature kill switch. When False, every invite endpoint

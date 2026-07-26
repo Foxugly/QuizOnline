@@ -58,7 +58,7 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
 | P1 | P1 | QCM tout-ou-rien uniquement : pas de crédit partiel, ni question ouverte/numérique/appariement. Le champ `given_answer` existe mais n'est jamais évalué (vestige). → mérite un brainstorming dédié (`question_type` + stratégies de scoring). | `quiz/models.py:480`, `question/models.py:50`, `quiz/models.py:437` | ⬜ |
-| P2 | P2 | Certificats expirables sans relance ni renouvellement : `expires_at` existe, aucune tâche beat ne prévient l'apprenant (asymétrie avec les invitations). | `certificate/models.py:19`, `config/settings_base.py:333` | ⬜ |
+| P2 | P2 | Certificats expirables sans relance ni renouvellement : `expires_at` existe, aucune tâche beat ne prévient l'apprenant (asymétrie avec les invitations). | `certificate/models.py:19`, `config/settings_base.py:333` | ✅ (durée = choix jamais/1/2/5/10 ans défaut jamais ; relance email J-30/J-7 idempotente via beat quotidien ; renouvellement = ré-émission quand expiré ; dropdown course-edit ; testé) |
 | P3 | P2 | Progression de leçon binaire : `LessonProgress.progress_percent` jamais alimenté (complétion = bouton manuel), alors qu'un scroll-spy existe. | `enrollment/models.py:52` | ⬜ |
 | P4 | P3 | Pas d'avis/notes apprenants sur les cours (pas de preuve sociale ni boucle de feedback). | `course/models.py` | ⬜ |
 | P5 | P3 | Pas de fil de discussion / Q&A pédagogique par leçon (réutiliser le pattern thread/message de `QuizAlert*`). | `enrollment/models.py:205`, `quiz/models.py:500` | ⬜ |

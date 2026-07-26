@@ -9,6 +9,7 @@
  */
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
+import { CertificateValidityMonthsEnumDto } from './certificate-validity-months-enum';
 
 
 export interface CourseWriteDto { 
@@ -29,9 +30,9 @@ export interface CourseWriteDto {
     translations: { [key: string]: { [key: string]: string; }; };
     issues_certificate?: boolean;
     /**
-     * 0 = no expiration.
+     * 0 = never expires (lifetime).  * `0` - Never (lifetime) * `12` - 1 year * `24` - 2 years * `60` - 5 years * `120` - 10 years
      */
-    certificate_validity_months?: number;
+    certificate_validity_months?: CertificateValidityMonthsEnumDto;
 }
 
 
