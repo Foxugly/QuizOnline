@@ -1,8 +1,9 @@
-import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import {finalize, forkJoin} from 'rxjs';
+import {debounceTime, finalize, forkJoin, Subject} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
 import {TooltipModule} from 'primeng/tooltip';
 import {CheckboxModule} from 'primeng/checkbox';
@@ -58,11 +59,20 @@ export class DomainList implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private toast = inject(AppToastService);
+  private destroyRef = inject(DestroyRef);
+
+  // Search box keystrokes feed this subject; a 300 ms debounce collapses a
+  // burst of keystrokes into a single backend list() call (was one call PER
+  // keystroke).
+  private readonly searchDebounce$ = new Subject<void>();
 
   readonly editorUi = inject(UiTextService).editor;
   readonly ui = inject(UiTextService).ui;
   readonly uiText = inject(UiTextService).localized(getDomainListUiText);
   domains = signal<DomainReadDto[]>([]);
+  // True when the last load() failed. Kept distinct from "empty list" so the
+  // template can show a real error + retry instead of the empty-state.
+  loadError = signal(false);
   q = signal('');
   currentLang = computed(() => this.userService.currentLang);
   rowsData = computed<DomainListRow[]>(() => this.domains().map((domain) => this.toRow(domain)));
@@ -99,24 +109,30 @@ export class DomainList implements OnInit {
   }
 
   ngOnInit() {
+    this.searchDebounce$
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.load());
     this.load();
   }
 
   load() {
+    this.loadError.set(false);
     this.domainService.list({search: this.q() || undefined}).subscribe({
       next: (domains) => {
         this.domains.set(domains);
       },
       error: (err: unknown) => {
         logApiError('domain.list.load', err);
-        this.domains.set([]);
+        // Do NOT clear the list to [] — that renders as "no domains" and hides
+        // the failure. Flag the error so the template shows a retry instead.
+        this.loadError.set(true);
       }
     });
   }
 
   onSearchChange(term: string) {
     this.q.set(term);
-    this.load();
+    this.searchDebounce$.next();
   }
 
   goNew() {

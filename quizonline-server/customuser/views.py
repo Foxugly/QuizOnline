@@ -54,6 +54,7 @@ from .throttling import (
     MagicLinkRequestRateThrottle,
     PasswordResetConfirmRateThrottle,
     PasswordResetRateThrottle,
+    RegisterRateThrottle,
 )
 from .magic_link_token import (
     MagicLinkTokenExpired,
@@ -199,6 +200,14 @@ class CustomUserViewSet(
             | Q(managed_domains__in=scoped_domain_ids)
             | Q(owned_domains__in=scoped_domain_ids)
         ).distinct()
+
+    def get_throttles(self):
+        # Anonymous registration (``create``) was the only auth endpoint with
+        # no rate limit. Cap it per-IP so a deployment with an empty
+        # TURNSTILE_SECRET_KEY can't be used for mass sign-ups / email bombing.
+        if self.action == "create":
+            return [RegisterRateThrottle()]
+        return super().get_throttles()
 
     def get_permissions(self):
         if self.action == "create":
