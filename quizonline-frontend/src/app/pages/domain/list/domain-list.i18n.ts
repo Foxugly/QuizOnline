@@ -26,6 +26,7 @@ export type DomainListUiText = {
   errorTitle: string;
   errorMessage: string;
   retryButton: string;
+  subscriptionAction: string;
 };
 
 const DICT = data as Record<string, DomainListUiText>;

@@ -130,6 +130,19 @@
               }
 
               <p-button
+                (click)="goSubscription(d.id)"
+                icon="pi pi-wallet"
+                id="btn_subscription_domain"
+                [pTooltip]="uiText().subscriptionAction"
+                tooltipPosition="top"
+                [attr.aria-label]="uiText().subscriptionAction"
+                severity="secondary"
+                size="small"
+                text
+                type="button">
+              </p-button>
+
+              <p-button
                 (click)="goEdit(d.id)"
                 icon="pi pi-pencil"
                 id="btn_edit_domain"

@@ -60,6 +60,11 @@ export const routes: Routes = [
         canActivate: [authGuard, domainAccessGuard],
       },
       {
+        path: 'domain/:id/subscription',
+        loadComponent: () => import('./pages/domain/subscription/domain-subscription').then((m) => m.DomainSubscription),
+        canActivate: [authGuard, domainAccessGuard],
+      },
+      {
         path: 'domain/:id/edit',
         loadComponent: () => import('./pages/domain/edit/domain-edit').then((m) => m.DomainEdit),
         canActivate: [authGuard, domainAccessGuard],

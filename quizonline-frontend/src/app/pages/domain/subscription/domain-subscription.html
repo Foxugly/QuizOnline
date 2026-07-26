@@ -1,0 +1,57 @@
+<section class="page">
+  <app-page-header [title]="ui().pageTitle">
+    <p-button slot="left"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-arrow-left"
+      [routerLink]="domainListLink"
+      [label]="ui().back" />
+  </app-page-header>
+
+  @if (loading()) {
+    <app-loading-skeleton [rows]="4" />
+  } @else if (loadError()) {
+    <div class="empty-cell">
+      <h3>{{ ui().errorTitle }}</h3>
+      <p>{{ ui().errorMessage }}</p>
+      <p-button icon="pi pi-refresh" [label]="ui().retryButton" severity="primary" (onClick)="load()" />
+    </div>
+  } @else if (billing(); as b) {
+    <div class="subscription">
+      <div class="subscription__callout" [attr.data-severity]="statusSeverity()">
+        {{ statusMessage() }}
+      </div>
+
+      <dl class="subscription__grid">
+        <div class="subscription__row">
+          <dt>{{ ui().planLabel }}</dt>
+          <dd>
+            <p-tag [severity]="b.plan === 'paid' ? 'success' : 'info'" [value]="planLabel()" />
+          </dd>
+        </div>
+
+        <div class="subscription__row">
+          <dt>{{ ui().membersLabel }}</dt>
+          <dd>{{ b.member_count }}</dd>
+        </div>
+
+        <div class="subscription__row">
+          <dt>{{ ui().monthlyPriceLabel }}</dt>
+          <dd><strong>{{ b.monthly_price_eur_htva }} {{ b.currency }}</strong> <span class="subscription__muted">({{ ui().vatNote }})</span></dd>
+        </div>
+
+        <div class="subscription__row">
+          <dt>{{ ui().deadlineLabel }}</dt>
+          <dd>
+            @if (b.free_until) {
+              {{ b.free_until | date: 'longDate' }}
+            } @else {
+              <span class="subscription__muted">{{ ui().noDeadline }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+    </div>
+  }
+</section>
