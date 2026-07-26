@@ -11,7 +11,16 @@ permissions:
   contents: read
 
 jobs:
-  backend-auth:
+  backend:
+    # Full backend suite via pytest. pytest.ini's ``testpaths = .`` auto-discovers
+    # EVERY app's tests — both pytest-style (course / lesson / enrollment /
+    # certificate / assessment / block / connectionlog) and unittest-style
+    # (core / customuser / quiz / language / domain / subject / question /
+    # translation / config). This replaces the old hand-partitioned
+    # ``manage.py test <app>.tests`` jobs whose app lists silently omitted the
+    # entire pytest-based LMS core — those ~hundreds of tests never ran in CI.
+    # Auto-discovery is the anti-drift guarantee: a new app's tests can no longer
+    # be forgotten by nobody updating a module list.
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,63 +37,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run auth and core tests
+      - name: Run backend test suite (pytest)
         env:
           DJANGO_ENV: test
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
-        run: python manage.py test core.tests customuser.tests --verbosity 2 --parallel 2
-
-  backend-catalog:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: quizonline-server
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install backend dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run catalog tests
-        env:
-          DJANGO_ENV: test
-          SECRET_KEY: ci-secret-key
-          DEBUG: "False"
-          PYTHONUNBUFFERED: "1"
-        run: python manage.py test language.tests domain.tests subject.tests question.tests translation.tests --verbosity 2 --parallel 2
-
-  backend-quiz:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: quizonline-server
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install backend dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run quiz tests
-        env:
-          DJANGO_ENV: test
-          SECRET_KEY: ci-secret-key
-          DEBUG: "False"
-          PYTHONUNBUFFERED: "1"
-        run: python manage.py test quiz.tests --verbosity 2 --parallel 2
+        run: python -m pytest
 
   backend-quality:
     runs-on: ubuntu-latest
@@ -186,12 +145,55 @@ jobs:
       - name: Run e2e tests
         run: npm run test:e2e
 
+  e2e-fullstack:
+    # Real Angular ↔ DRF integration: Playwright boots the actual Django backend
+    # (scripts/run-fullstack-backend.sh) + ng serve and drives the SPA. Previously
+    # this suite only ran locally on Windows, so no integration regression was
+    # gated in CI.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: quizonline-server
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: quizonline-frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: quizonline-frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: quizonline-frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run fullstack e2e (real Django backend)
+        working-directory: quizonline-frontend
+        run: npm run test:e2e:fullstack
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-fullstack-report
+          path: quizonline-frontend/playwright-report/
+          retention-days: 7
+
   contract:
     runs-on: ubuntu-latest
     needs:
-      - backend-auth
-      - backend-catalog
-      - backend-quiz
+      - backend
       - backend-quality
       - frontend
     steps:

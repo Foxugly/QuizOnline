@@ -30,7 +30,7 @@ test.beforeEach(async ({page}) => {
 
 async function login(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/login');
-  await page.locator('#username').fill('admin');
+  await page.locator('#email').fill('admin@example.test');
   await page.locator('input[type="password"]').fill('secret123');
   await page.locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -46,9 +46,10 @@ test.describe('smoke — known regressions', () => {
     const table = page.locator('p-table table');
     await expect(table).toBeVisible();
 
-    // The seed_lms_e2e fixture inserts a Course with slug
-    // ``e2e-invite-only``. It must be in the first page of results.
-    await expect(page.getByRole('cell', {name: /e2e-invite-only/i}).first()).toBeVisible();
+    // The seed_lms_e2e fixture inserts a Course titled "Cours sur
+    // invitation (E2E)" (slug e2e-invite-only). The table shows the title,
+    // not the slug. It must be in the first page of results.
+    await expect(page.getByRole('cell', {name: /Cours sur invitation \(E2E\)/i}).first()).toBeVisible();
 
     // Negative assertion: the skeleton component should be gone once
     // the data is on screen. If the deadlock came back the skeleton
@@ -68,9 +69,11 @@ test.describe('smoke — known regressions', () => {
     await page.locator('tr', {hasText: 'Question de seed'}).locator('#btn_edit_question').first().click();
     await expect(page).toHaveURL(/\/question\/\d+\/edit$/);
 
-    // Click the eye (preview) icon in the header trio (duplicate / view /
-    // delete). It carries an ``aria-label`` of "Voir" in FR.
-    await page.locator('button[aria-label="Voir"]').first().click();
+    // Click the eye (preview) button in the header trio (view / duplicate /
+    // delete). PrimeNG puts the aria-label on the p-button host wrapper, not
+    // the inner <button>, so target the eye icon it renders instead — stable
+    // and translation-independent.
+    await page.locator('button:has(.pi-eye)').first().click();
 
     // The dialog must materialise AND swap from its loading shimmer to
     // the actual question content within a reasonable network window.

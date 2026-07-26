@@ -1,5 +1,13 @@
 import {defineConfig, devices} from '@playwright/test';
 
+// The backend boot script has two flavours kept in lockstep: a PowerShell one
+// for local Windows dev and a POSIX one for Linux CI. Pick by platform so the
+// same `test:e2e:fullstack` command works in both places.
+const backendCommand =
+  process.platform === 'win32'
+    ? 'powershell -NoProfile -ExecutionPolicy Bypass -File ..\\scripts\\run-fullstack-backend.ps1'
+    : 'bash ../scripts/run-fullstack-backend.sh';
+
 export default defineConfig({
   testDir: './e2e/fullstack',
   timeout: 45_000,
@@ -15,7 +23,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'powershell -NoProfile -ExecutionPolicy Bypass -File ..\\scripts\\run-fullstack-backend.ps1',
+      command: backendCommand,
       url: 'http://127.0.0.1:8001/api/docs/',
       reuseExistingServer: false,
       timeout: 120_000,
