@@ -19,6 +19,8 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { DomainAnalyticsDto } from '../model/domain-analytics';
 // @ts-ignore
+import { DomainBillingDto } from '../model/domain-billing';
+// @ts-ignore
 import { DomainDetailDto } from '../model/domain-detail';
 // @ts-ignore
 import { DomainInviteReadDto } from '../model/domain-invite-read';
@@ -101,6 +103,10 @@ export interface DomainAuditListRequestParams {
     since?: string;
     /** ISO-8601 upper bound (inclusive) on created_at. */
     until?: string;
+}
+
+export interface DomainBillingRetrieveRequestParams {
+    domainId: number;
 }
 
 export interface DomainCreateRequestParams {
@@ -607,6 +613,66 @@ export class DomainApi extends BaseService {
         let localVarPath = `/api/domain/available-for-linking/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainWriteDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Subscription status for a domain — visible to its owner/manager.  Reports the current plan, the operator-set free deadline, the live member count and the monthly price (EUR HTVA) that count implies.
+     * @endpoint get /api/domain/{domain_id}/billing/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainBillingRetrieve(requestParameters: DomainBillingRetrieveRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DomainBillingDto>;
+    public domainBillingRetrieve(requestParameters: DomainBillingRetrieveRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DomainBillingDto>>;
+    public domainBillingRetrieve(requestParameters: DomainBillingRetrieveRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DomainBillingDto>>;
+    public domainBillingRetrieve(requestParameters: DomainBillingRetrieveRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainBillingRetrieve.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/billing/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DomainBillingDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

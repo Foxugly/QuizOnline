@@ -1559,6 +1559,31 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/domain/{domain_id}/billing/:
+    get:
+      operationId: domain_billing_retrieve
+      description: |-
+        Subscription status for a domain — visible to its owner/manager.
+
+        Reports the current plan, the operator-set free deadline, the live member
+        count and the monthly price (EUR HTVA) that count implies.
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - domain
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainBilling'
+          description: ''
   /api/domain/{domain_id}/details/:
     get:
       operationId: domain_details_retrieve
@@ -7556,6 +7581,47 @@ components:
       - id
       - metadata
       - target_name
+    DomainBilling:
+      type: object
+      description: |-
+        Read-only subscription view for the domain owner/manager. Plan and
+        deadline are operator-managed (Django admin), so they are not writable
+        here.
+      properties:
+        plan:
+          allOf:
+          - $ref: '#/components/schemas/PlanEnum'
+          readOnly: true
+        free_until:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        member_count:
+          type: integer
+          readOnly: true
+        member_count_updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        monthly_price_eur_htva:
+          type: integer
+          readOnly: true
+        is_past_deadline:
+          type: boolean
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+      required:
+      - currency
+      - free_until
+      - is_past_deadline
+      - member_count
+      - member_count_updated_at
+      - monthly_price_eur_htva
+      - plan
     DomainDetail:
       type: object
       properties:
@@ -9848,6 +9914,14 @@ components:
           type: integer
         active:
           type: boolean
+    PlanEnum:
+      enum:
+      - free
+      - paid
+      type: string
+      description: |-
+        * `free` - Free
+        * `paid` - Paid
     QuestionAnswerOptionRead:
       type: object
       properties:
