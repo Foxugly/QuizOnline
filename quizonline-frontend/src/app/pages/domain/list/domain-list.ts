@@ -143,6 +143,10 @@ export class DomainList implements OnInit {
     this.domainService.goEdit(id);
   }
 
+  goSubscription(id: number) {
+    void this.router.navigate(['/domain', id, 'subscription']);
+  }
+
   goDelete(id: number) {
     this.domainService.goDelete(id);
   }

@@ -34,6 +34,7 @@ export let ROUTES = {
   domain : {
     add: () => ['/domain/add'] as const,
     edit: (domain_id: number) => ['/domain', domain_id, 'edit'] as const,
+    subscription: (domain_id: number) => ['/domain', domain_id, 'subscription'] as const,
     delete: (domain_id: number) => ['/domain', domain_id, 'delete'] as const,
     list: () => ['/domain/list'] as const,
   },
