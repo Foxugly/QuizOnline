@@ -16,6 +16,15 @@
           </li>
         }
       </ol>
+      @if (notesLink(); as nl) {
+        <hr class="lesson-outline__divider" />
+        <a class="lesson-outline__link lesson-outline__link--notes"
+           [href]="anchorHref(nl.anchor)"
+           (click)="scrollToBlock($event, nl.anchor)">
+          <i class="pi pi-pencil"></i>
+          <span class="lesson-outline__label">{{ nl.label }}</span>
+        </a>
+      }
     </aside>
   }
 

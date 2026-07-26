@@ -89,6 +89,19 @@
       color: #fff;
     }
   }
+
+  /* Notes shortcut rendered below the divider — no index bullet, muted
+   * until hover to read as a secondary action, not another plan step. */
+  &--notes {
+    color: var(--muted, #64748b);
+    font-weight: 500;
+  }
+}
+
+.lesson-outline__divider {
+  border: 0;
+  border-top: 1px solid var(--border, #e2e8f0);
+  margin: 0.6rem 0;
 }
 
 .lesson-outline__index {

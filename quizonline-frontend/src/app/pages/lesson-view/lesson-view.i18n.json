@@ -15,7 +15,9 @@
     "notesSavedAt": "Saved at {time}",
     "errorTitle": "Couldn’t load",
     "errorMessage": "This lesson couldn’t be loaded. Please try again.",
-    "retryButton": "Retry"
+    "retryButton": "Retry",
+    "fullscreenButton": "Fullscreen",
+    "exitFullscreenButton": "Exit fullscreen"
   },
   "fr": {
     "pageTitle": "Leçon",
@@ -33,7 +35,9 @@
     "notesSavedAt": "Enregistré à {time}",
     "errorTitle": "Chargement impossible",
     "errorMessage": "Cette leçon n’a pas pu être chargée. Veuillez réessayer.",
-    "retryButton": "Réessayer"
+    "retryButton": "Réessayer",
+    "fullscreenButton": "Plein écran",
+    "exitFullscreenButton": "Quitter le plein écran"
   },
   "nl": {
     "pageTitle": "Les",
@@ -51,7 +55,9 @@
     "notesSavedAt": "Opgeslagen om {time}",
     "errorTitle": "Laden mislukt",
     "errorMessage": "Deze les kon niet worden geladen. Probeer het opnieuw.",
-    "retryButton": "Opnieuw proberen"
+    "retryButton": "Opnieuw proberen",
+    "fullscreenButton": "Volledig scherm",
+    "exitFullscreenButton": "Volledig scherm verlaten"
   },
   "it": {
     "pageTitle": "Lezione",
@@ -69,7 +75,9 @@
     "notesSavedAt": "Salvato alle {time}",
     "errorTitle": "Caricamento non riuscito",
     "errorMessage": "Impossibile caricare questa lezione. Riprova.",
-    "retryButton": "Riprova"
+    "retryButton": "Riprova",
+    "fullscreenButton": "Schermo intero",
+    "exitFullscreenButton": "Esci da schermo intero"
   },
   "es": {
     "pageTitle": "Lección",
@@ -87,6 +95,8 @@
     "notesSavedAt": "Guardado a las {time}",
     "errorTitle": "No se pudo cargar",
     "errorMessage": "No se pudo cargar esta lección. Inténtalo de nuevo.",
-    "retryButton": "Reintentar"
+    "retryButton": "Reintentar",
+    "fullscreenButton": "Pantalla completa",
+    "exitFullscreenButton": "Salir de pantalla completa"
   }
 }

@@ -10,6 +10,15 @@
     @if (isCompleted()) {
       <p-tag slot="right" severity="success" [value]="ui().alreadyCompletedBadge" />
     }
+    <p-button slot="right"
+      type="button"
+      severity="secondary"
+      [outlined]="true"
+      [icon]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+      (onClick)="toggleFullscreen()"
+      [pTooltip]="isFullscreen() ? ui().exitFullscreenButton : ui().fullscreenButton"
+      tooltipPosition="bottom"
+      [attr.aria-label]="isFullscreen() ? ui().exitFullscreenButton : ui().fullscreenButton" />
     @if (editHref(); as href) {
       <p-button slot="right"
         type="button"
@@ -23,7 +32,7 @@
     }
   </app-page-header>
 
-  <app-lesson-reader [blocks]="blocks()" [scrollSpy]="true" />
+  <app-lesson-reader [blocks]="blocks()" [scrollSpy]="true" [notesLink]="notesLink()" />
 
   <!-- Private per-learner notes. Persisted via debounced PUT every
        600 ms of inactivity so the apprenant never loses progress
