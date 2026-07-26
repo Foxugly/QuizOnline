@@ -17,6 +17,7 @@ from customuser.throttling import (
     EmailConfirmRateThrottle,
     PasswordResetConfirmRateThrottle,
     PasswordResetRateThrottle,
+    RegisterRateThrottle,
     TokenObtainRateThrottle,
 )
 
@@ -480,6 +481,24 @@ class UserViewsTests(APITestCase):
             res = self.client.post(
                 self.TOKEN_URL,
                 {"email": "u1@example.com", "password": "u1pass123!"},
+                format="json",
+            )
+        self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_register_is_rate_limited(self):
+        # A single IP can only register a capped number of times per window.
+        with patch.object(RegisterRateThrottle, "rate", "2/hour", create=True):
+            for i in range(2):
+                res = self.client.post(
+                    self.USER_LIST_CREATE_URL,
+                    self._register_payload(email=f"rl-newbie-{i}@example.com"),
+                    format="json",
+                )
+                self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+            res = self.client.post(
+                self.USER_LIST_CREATE_URL,
+                self._register_payload(email="rl-newbie-2@example.com"),
                 format="json",
             )
         self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

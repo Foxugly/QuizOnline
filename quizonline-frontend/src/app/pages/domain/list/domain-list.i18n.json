@@ -13,11 +13,20 @@
     "bulkActivate": "Rendre actif",
     "bulkDeactivate": "Rendre inactif",
     "bulkDelete": "Supprimer",
-    "bulkSelectedCount": {"one": "{n} sélectionné", "other": "{n} sélectionnés"},
+    "bulkSelectedCount": {
+      "one": "{n} sélectionné",
+      "other": "{n} sélectionnés"
+    },
     "bulkDeleteHeader": "Supprimer",
-    "bulkDeleteConfirm": {"one": "Supprimer {n} domaine ? Cette action est irréversible.", "other": "Supprimer {n} domaines ? Cette action est irréversible."},
+    "bulkDeleteConfirm": {
+      "one": "Supprimer {n} domaine ? Cette action est irréversible.",
+      "other": "Supprimer {n} domaines ? Cette action est irréversible."
+    },
     "bulkConfirmCancel": "Annuler",
-    "bulkErrorToast": "L'action groupée a échoué."
+    "bulkErrorToast": "L'action groupée a échoué.",
+    "errorTitle": "Chargement impossible",
+    "errorMessage": "Les domaines n’ont pas pu être chargés. Veuillez réessayer.",
+    "retryButton": "Réessayer"
   },
   "en": {
     "title": "Domains",
@@ -33,11 +42,20 @@
     "bulkActivate": "Set active",
     "bulkDeactivate": "Set inactive",
     "bulkDelete": "Delete",
-    "bulkSelectedCount": {"one": "{n} selected", "other": "{n} selected"},
+    "bulkSelectedCount": {
+      "one": "{n} selected",
+      "other": "{n} selected"
+    },
     "bulkDeleteHeader": "Delete",
-    "bulkDeleteConfirm": {"one": "Delete {n} domain? This action is irreversible.", "other": "Delete {n} domains? This action is irreversible."},
+    "bulkDeleteConfirm": {
+      "one": "Delete {n} domain? This action is irreversible.",
+      "other": "Delete {n} domains? This action is irreversible."
+    },
     "bulkConfirmCancel": "Cancel",
-    "bulkErrorToast": "The bulk action failed."
+    "bulkErrorToast": "The bulk action failed.",
+    "errorTitle": "Couldn’t load",
+    "errorMessage": "The domains couldn’t be loaded. Please try again.",
+    "retryButton": "Retry"
   },
   "nl": {
     "title": "Domeinen",
@@ -53,11 +71,20 @@
     "bulkActivate": "Activeren",
     "bulkDeactivate": "Deactiveren",
     "bulkDelete": "Verwijderen",
-    "bulkSelectedCount": {"one": "{n} geselecteerd", "other": "{n} geselecteerd"},
+    "bulkSelectedCount": {
+      "one": "{n} geselecteerd",
+      "other": "{n} geselecteerd"
+    },
     "bulkDeleteHeader": "Verwijderen",
-    "bulkDeleteConfirm": {"one": "{n} domein verwijderen? Deze actie is onomkeerbaar.", "other": "{n} domeinen verwijderen? Deze actie is onomkeerbaar."},
+    "bulkDeleteConfirm": {
+      "one": "{n} domein verwijderen? Deze actie is onomkeerbaar.",
+      "other": "{n} domeinen verwijderen? Deze actie is onomkeerbaar."
+    },
     "bulkConfirmCancel": "Annuleren",
-    "bulkErrorToast": "De bulkactie is mislukt."
+    "bulkErrorToast": "De bulkactie is mislukt.",
+    "errorTitle": "Laden mislukt",
+    "errorMessage": "De domeinen konden niet worden geladen. Probeer het opnieuw.",
+    "retryButton": "Opnieuw proberen"
   },
   "it": {
     "title": "Domini",
@@ -73,11 +100,20 @@
     "bulkActivate": "Attiva",
     "bulkDeactivate": "Disattiva",
     "bulkDelete": "Elimina",
-    "bulkSelectedCount": {"one": "{n} selezionato", "other": "{n} selezionati"},
+    "bulkSelectedCount": {
+      "one": "{n} selezionato",
+      "other": "{n} selezionati"
+    },
     "bulkDeleteHeader": "Elimina",
-    "bulkDeleteConfirm": {"one": "Eliminare {n} dominio? Questa azione è irreversibile.", "other": "Eliminare {n} domini? Questa azione è irreversibile."},
+    "bulkDeleteConfirm": {
+      "one": "Eliminare {n} dominio? Questa azione è irreversibile.",
+      "other": "Eliminare {n} domini? Questa azione è irreversibile."
+    },
     "bulkConfirmCancel": "Annulla",
-    "bulkErrorToast": "L'azione in blocco non è riuscita."
+    "bulkErrorToast": "L'azione in blocco non è riuscita.",
+    "errorTitle": "Caricamento non riuscito",
+    "errorMessage": "Impossibile caricare i domini. Riprova.",
+    "retryButton": "Riprova"
   },
   "es": {
     "title": "Dominios",
@@ -93,10 +129,19 @@
     "bulkActivate": "Activar",
     "bulkDeactivate": "Desactivar",
     "bulkDelete": "Eliminar",
-    "bulkSelectedCount": {"one": "{n} seleccionado", "other": "{n} seleccionados"},
+    "bulkSelectedCount": {
+      "one": "{n} seleccionado",
+      "other": "{n} seleccionados"
+    },
     "bulkDeleteHeader": "Eliminar",
-    "bulkDeleteConfirm": {"one": "¿Eliminar {n} dominio? Esta acción es irreversible.", "other": "¿Eliminar {n} dominios? Esta acción es irreversible."},
+    "bulkDeleteConfirm": {
+      "one": "¿Eliminar {n} dominio? Esta acción es irreversible.",
+      "other": "¿Eliminar {n} dominios? Esta acción es irreversible."
+    },
     "bulkConfirmCancel": "Cancelar",
-    "bulkErrorToast": "La acción masiva falló."
+    "bulkErrorToast": "La acción masiva falló.",
+    "errorTitle": "No se pudo cargar",
+    "errorMessage": "No se pudieron cargar los dominios. Inténtalo de nuevo.",
+    "retryButton": "Reintentar"
   }
 }

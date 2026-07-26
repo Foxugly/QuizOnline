@@ -23,6 +23,9 @@ export type DomainListUiText = {
   bulkDeleteConfirm: PluralForms;
   bulkConfirmCancel: string;
   bulkErrorToast: string;
+  errorTitle: string;
+  errorMessage: string;
+  retryButton: string;
 };
 
 const DICT = data as Record<string, DomainListUiText>;

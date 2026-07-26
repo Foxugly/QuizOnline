@@ -52,6 +52,7 @@ env = environ.Env(
     # Format follows DRF: ``<int>/<period>`` where period is one of
     # ``second / minute / hour / day``.
     THROTTLE_TOKEN_OBTAIN=(str, "5/min"),
+    THROTTLE_REGISTER=(str, "10/hour"),
     THROTTLE_PASSWORD_RESET=(str, "3/hour"),
     THROTTLE_PASSWORD_RESET_CONFIRM=(str, "10/hour"),
     THROTTLE_EMAIL_CONFIRM=(str, "10/hour"),
@@ -244,6 +245,7 @@ REST_FRAMEWORK = {
     #     per-hour budget must be much tighter than ``domain_invite``.
     "DEFAULT_THROTTLE_RATES": {
         "token_obtain": env("THROTTLE_TOKEN_OBTAIN"),
+        "register": env("THROTTLE_REGISTER"),
         "password_reset": env("THROTTLE_PASSWORD_RESET"),
         "password_reset_confirm": env("THROTTLE_PASSWORD_RESET_CONFIRM"),
         "email_confirm": env("THROTTLE_EMAIL_CONFIRM"),

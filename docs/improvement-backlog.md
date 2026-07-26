@@ -29,7 +29,7 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
-| S1 | P2 | Endpoint d'inscription sans throttling — seul endpoint d'auth sans `ScopedRateThrottle`, protégé uniquement par Turnstile (désactivé si `TURNSTILE_SECRET_KEY` vide) → risque de création de comptes en masse + email-bombing. | `customuser/views.py:203`, `config/settings_base.py:118` | ⬜ |
+| S1 | P2 | Endpoint d'inscription sans throttling — seul endpoint d'auth sans `ScopedRateThrottle`, protégé uniquement par Turnstile (désactivé si `TURNSTILE_SECRET_KEY` vide) → risque de création de comptes en masse + email-bombing. | `customuser/views.py:203`, `config/settings_base.py:118` | ✅ (`RegisterRateThrottle` scope `register`, défaut 10/h, testé) |
 | S2 | P3 | Fuite du texte d'exception interne vers le client sur les imports JSON (`str(exc)` renvoyé, et `course` ne logue même pas). | `course/views.py:309`, `question/views.py:487` | ⬜ |
 | S3 | P3 | `SENTRY_SEND_DEFAULT_PII=True` par défaut envoie IP + email à Sentry — documenté/intentionnel, à revalider vs politique de confidentialité. | `config/settings_base.py:88,106` | ⬜ |
 
@@ -44,8 +44,8 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
-| FE1 | P1 | Recherche domaine = 1 appel API par frappe (pas de debounce) → rafale de requêtes + résultats qui se doublent. | `pages/domain/list/domain-list.html:29` | ⬜ |
-| FE2 | P2 | États « erreur » confondus avec « chargement/vide » : sur échec réseau `lesson-view` affiche un skeleton à l'infini, `domain-list` affiche « aucun domaine ». | `pages/lesson-view/lesson-view.ts:273`, `pages/domain/list/domain-list.ts:112` | ⬜ |
+| FE1 | P1 | Recherche domaine = 1 appel API par frappe (pas de debounce) → rafale de requêtes + résultats qui se doublent. | `pages/domain/list/domain-list.html:29` | ✅ (debounce 300 ms via Subject) |
+| FE2 | P2 | États « erreur » confondus avec « chargement/vide » : sur échec réseau `lesson-view` affiche un skeleton à l'infini, `domain-list` affiche « aucun domaine ». | `pages/lesson-view/lesson-view.ts:273`, `pages/domain/list/domain-list.ts:112` | 🔄 (domain-list fait : signal `loadError` + bloc retry ; lesson-view à faire avec FE3) |
 | FE3 | P2 | Typage aux frontières API : `any` dans `quiz-question` (composant de jeu principal), `http.get` brut hors client généré dans `lesson-view`, casts `as … & {…}` pour des champs absents du DTO. | `components/quiz-question/quiz-question.ts:206`, `pages/lesson-view/lesson-view.ts:34`, `pages/domain/list/domain-list.ts:231` | ⬜ |
 | FE4 | P2 | Patterns de recherche divergents entre listes (rechargement serveur / filtrage client / debounce) → comportement incohérent, maintenance dispersée. | `domain-list` vs `quiz-list`/`user-list` vs `subject-list`/`course-list`/`catalog` | ⬜ |
 | FE5 | P3 | Le polling ne se met pas en pause onglet caché (`interval(60_000)` ignore `document.hidden`). | `services/unread-badges/unread-badges.service.ts:56` | ⬜ |
@@ -69,3 +69,22 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
 | Q1 | P3 | Logique métier (~85 lignes) dans `QuizViewSet.create` alors qu'un `quiz/services.py` existe → non réutilisable / dur à tester hors HTTP. | `quiz/views.py:587` | ⬜ |
+
+## G. Commercial / Facturation (spec validée 2026-07-26)
+
+Nouvelle app `billing` attachée au **Domaine** (chaque domaine = une organisation cliente ; l'admin du domaine est le payeur).
+
+**Décisions verrouillées :**
+- **Entité de facturation** = le Domaine.
+- **Prix mensuel HTVA** = `20 € × (1 + ⌈membres ⁄ 100⌉)` → 1-100 : 40 € · 101-200 : 60 € · 201-300 : 80 € · +20 €/tranche de 100.
+- **Décompte** = tous les **membres du domaine** (simple, prévisible).
+- **Offre gratuite** = champ `plan` (`free`/`paid`) + date `free_until` (deadline). Avant l'échéance : 0 €.
+- **Paiement** = **facturation manuelle** pour commencer (l'app calcule le prix + suit l'état à jour/en retard ; encaissement hors plateforme). Stripe = phase 2.
+- **Application** :
+  - Avant la deadline → **bandeau + emails de rappel** (J-14 / J-3), rien de bloqué.
+  - Deadline dépassée sans conversion → **blocage complet** du domaine (contenu suspendu), sauf l'admin qui garde accès à la **page d'abonnement** pour régulariser.
+- **Tâche beat** quotidienne (réutilise le pattern des rappels d'invitation) : recalcule `member_count`, envoie les rappels, applique le blocage post-deadline.
+
+| # | Prio | Constat | Référence | État |
+|---|------|---------|-----------|------|
+| G1 | P1 | App `billing` : modèle sur Domaine (`plan`, `free_until`, `member_count`, prix dérivé), page « Abonnement » dans l'admin de domaine, tâche beat (rappels + blocage post-deadline), garde d'accès (lecture bloquée hors admin quand suspendu). Paiement manuel (Stripe = phase 2). | app `billing` (à créer), `domain/models.py`, `config/settings_base.py` (beat) | ⬜ (spec prête) |
