@@ -17,6 +17,11 @@
   flex-direction: column;
   gap: 1rem;
 
+  .layout__toolbar {
+    display: flex;
+    justify-content: flex-end;
+  }
+
   /* le panel reste visible quand on scrolle */
   position: sticky;
   top: 4rem;

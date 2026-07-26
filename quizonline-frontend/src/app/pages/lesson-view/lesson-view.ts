@@ -14,6 +14,7 @@ import {logApiError} from '../../shared/api/api-errors';
 import {interp} from '../../shared/i18n/format';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
+import {FullscreenButton} from '../../shared/components/fullscreen-button/fullscreen-button';
 import {PageHeader} from '../../shared/components/page-header/page-header';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {ContentBlock} from '../../shared/learning/content-block.types';
@@ -56,6 +57,7 @@ interface LessonDetailDto {
     TextareaModule,
     TooltipModule,
     LoadingSkeleton,
+    FullscreenButton,
     PageHeader,
     LessonReader,
   ],
@@ -101,10 +103,6 @@ export class LessonView implements OnInit, OnDestroy {
   // current lesson. Reset on navigation; the scroll tracker only POSTs when
   // the reader advances meaningfully past it.
   private lastReportedProgress = 0;
-
-  // Driven by the browser's ``fullscreenchange`` event so the button icon
-  // stays correct even when the user exits via Esc.
-  protected readonly isFullscreen = signal(false);
 
   /** Extra lesson-plan entry (below a divider) linking to the private-notes
    *  section, whose heading carries id="lesson-notes-heading". */
@@ -198,21 +196,6 @@ export class LessonView implements OnInit, OnDestroy {
     this.noteSub = this.noteInput$
       .pipe(debounceTime(600))
       .subscribe(({lessonId, content}) => this.persistNote(lessonId, content));
-    // Keep the fullscreen toggle in sync with the actual state (covers Esc
-    // and the browser's own exit affordances).
-    fromEvent(document, 'fullscreenchange')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.isFullscreen.set(document.fullscreenElement != null));
-  }
-
-  protected toggleFullscreen(): void {
-    if (document.fullscreenElement) {
-      void document.exitFullscreen();
-    } else {
-      document.documentElement
-        .requestFullscreen()
-        .catch((err: unknown) => logApiError('lms.lesson-view.fullscreen', err));
-    }
   }
 
   ngOnDestroy(): void {
