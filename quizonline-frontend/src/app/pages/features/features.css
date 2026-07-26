@@ -8,7 +8,7 @@
 }
 
 .features-section:nth-of-type(odd) {
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
 }
 
 .features-section__container {
@@ -42,7 +42,7 @@
 }
 
 .features-section__title {
-  color: #0f172a;
+  color: var(--ink);
   font-size: clamp(1.7rem, 2.6vw, 2.3rem);
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -50,7 +50,7 @@
 }
 
 .features-section__intro {
-  color: #475569;
+  color: var(--muted);
   font-size: 1.05rem;
   line-height: 1.65;
   margin: 0;
@@ -90,8 +90,8 @@
 
 .feature-card {
   align-content: start;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 18px;
   display: grid;
   gap: 0.65rem;
@@ -121,14 +121,14 @@
 }
 
 .feature-card h3 {
-  color: #0f172a;
+  color: var(--ink);
   font-size: 1.05rem;
   letter-spacing: -0.005em;
   margin: 0;
 }
 
 .feature-card p {
-  color: #475569;
+  color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
@@ -142,4 +142,27 @@
   .features-section__header {
     margin-bottom: 2rem;
   }
+}
+
+/* Dark mode: the per-category badge/icon accent colours above are dark, saturated
+   hues chosen for a light card. Swap them for lighter variants so the badge text
+   and card-icon glyphs stay legible on the dark --surface. */
+.dark-mode .features-section[data-slug='domains'] {
+  --badge-color: #38bdf8;
+}
+
+.dark-mode .features-section[data-slug='subjects'] {
+  --badge-color: #c084fc;
+}
+
+.dark-mode .features-section[data-slug='questions'] {
+  --badge-color: #34d399;
+}
+
+.dark-mode .features-section[data-slug='quizzes'] {
+  --badge-color: #fbbf24;
+}
+
+.dark-mode .features-section[data-slug='platform'] {
+  --badge-color: #cbd5e1;
 }
