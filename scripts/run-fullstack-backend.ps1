@@ -6,7 +6,10 @@ $pythonExe = Join-Path $repoRoot '.venv\Scripts\python.exe'
 $dbPath = Join-Path $backendRoot 'db.fullstack.sqlite3'
 $mediaPath = Join-Path $backendRoot 'media-fullstack'
 
-$env:SQLITE_NAME = 'db.fullstack.sqlite3'
+# Isolated sqlite DB via DATABASE_URL (SQLITE_NAME is read by nothing — the DB
+# is selected by DATABASE_URL, default db.sqlite3). Keep in lockstep with the
+# POSIX run-fullstack-backend.sh used by CI.
+$env:DATABASE_URL = 'sqlite:///db.fullstack.sqlite3'
 $env:MEDIA_ROOT_DIR = 'media-fullstack'
 $env:PYTHONUNBUFFERED = '1'
 # Tests legitimately exceed the 5/min token_obtain rate (each test logs in via

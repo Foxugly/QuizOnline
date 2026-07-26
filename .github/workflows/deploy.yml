@@ -173,3 +173,32 @@ jobs:
           done
           echo "Timed out waiting for SSM command after 15 minutes"
           exit 1
+
+      - name: Verify /health/ after deploy
+        env:
+          HEALTH_URL: https://quizonline.foxugly.com/health/
+        run: |
+          # /health/ returns 503 (not 200) when db/cache/celery are down
+          # (config/views_health.py), so a broken boot — failed migration,
+          # dead DB, bad env — now FAILS the deploy instead of going green.
+          # SSM "Success" only means the commands exited 0, not that the app
+          # actually serves. Retry to absorb the brief window while gunicorn
+          # workers come back after restart.
+          code=000
+          for attempt in $(seq 1 10); do
+            code=$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 10 "$HEALTH_URL" || echo 000)
+            echo "Attempt $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "::group::/health/ body"
+              cat /tmp/health.json; echo
+              echo "::endgroup::"
+              echo "Post-deploy health check passed."
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "::error::Post-deploy health check failed (last HTTP $code)"
+          echo "::group::last /health/ body"
+          cat /tmp/health.json 2>/dev/null || true; echo
+          echo "::endgroup::"
+          exit 1
