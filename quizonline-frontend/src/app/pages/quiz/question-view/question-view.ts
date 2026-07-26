@@ -22,6 +22,7 @@ import {
 } from '../../../shared/quiz/quiz-session-state';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
 import {QuizCountdownComponent} from '../../../shared/components/quiz-countdown/quiz-countdown';
+import {FullscreenButton} from '../../../shared/components/fullscreen-button/fullscreen-button';
 import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
 import {UserService} from '../../../services/user/user';
 
@@ -36,6 +37,7 @@ import {UserService} from '../../../services/user/user';
     QuizQuestionComponent,
     QuizNav,
     QuizCountdownComponent,
+    FullscreenButton,
   ],
   providers: [ConfirmationService],
   templateUrl: './question-view.html',

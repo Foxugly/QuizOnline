@@ -1,5 +1,8 @@
 <div class="layout">
   <aside class="layout__left">
+    <div class="layout__toolbar">
+      <app-fullscreen-button />
+    </div>
     @if (!reviewMode) {
       <app-quiz-countdown
         [endedAt]="quizSession()?.ended_at"

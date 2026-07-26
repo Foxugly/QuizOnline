@@ -19,8 +19,6 @@ export interface LessonViewUiText {
   errorTitle: string;
   errorMessage: string;
   retryButton: string;
-  fullscreenButton: string;
-  exitFullscreenButton: string;
   markCompletedButton: string;
   alreadyCompletedBadge: string;
   lessonCompletedToast: string;

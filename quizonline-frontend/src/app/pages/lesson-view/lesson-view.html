@@ -10,15 +10,7 @@
     @if (isCompleted()) {
       <p-tag slot="right" severity="success" [value]="ui().alreadyCompletedBadge" />
     }
-    <p-button slot="right"
-      type="button"
-      severity="secondary"
-      [outlined]="true"
-      [icon]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
-      (onClick)="toggleFullscreen()"
-      [pTooltip]="isFullscreen() ? ui().exitFullscreenButton : ui().fullscreenButton"
-      tooltipPosition="bottom"
-      [attr.aria-label]="isFullscreen() ? ui().exitFullscreenButton : ui().fullscreenButton" />
+    <app-fullscreen-button slot="right" />
     @if (editHref(); as href) {
       <p-button slot="right"
         type="button"
