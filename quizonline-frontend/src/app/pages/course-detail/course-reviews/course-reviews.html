@@ -1,0 +1,94 @@
+@if (!loading() && data(); as d) {
+  <section class="reviews">
+    <header class="reviews__head">
+      <h2 class="reviews__title">{{ ui().heading }}</h2>
+      @if (d.summary.rating_count > 0) {
+        <div class="reviews__summary">
+          <span class="reviews__avg">{{ d.summary.average_rating }}</span>
+          <span class="reviews__stars" aria-hidden="true">
+            @for (s of stars; track s) {
+              <i class="pi" [class.pi-star-fill]="s <= avgStars()" [class.pi-star]="s > avgStars()"></i>
+            }
+          </span>
+          <span class="reviews__meta">{{ ratingCountLabel(d.summary.rating_count) }}</span>
+        </div>
+      }
+    </header>
+
+    <!-- Learner's own review / write form -->
+    @if (d.can_review) {
+      @if (!showForm()) {
+        <p-button type="button" severity="primary" [outlined]="true" icon="pi pi-star"
+          [label]="d.my_review ? ui().editReview : ui().writeReview" (onClick)="openForm()" />
+      } @else {
+        <div class="reviews__form">
+          @if (d.config.allow_rating) {
+            <div class="reviews__field">
+              <span class="reviews__label">{{ ui().ratingLabel }}</span>
+              <span class="reviews__rate">
+                @for (s of stars; track s) {
+                  <button type="button" class="reviews__rate-star" (click)="setRating(s)"
+                    [attr.aria-label]="s">
+                    <i class="pi" [class.pi-star-fill]="s <= formRating()" [class.pi-star]="s > formRating()"></i>
+                  </button>
+                }
+              </span>
+            </div>
+          }
+          @if (d.config.allow_comment) {
+            <div class="reviews__field">
+              <span class="reviews__label">{{ ui().commentLabel }}</span>
+              <textarea pTextarea rows="3" class="reviews__textarea"
+                [ngModel]="formComment()" (ngModelChange)="formComment.set($event)"
+                [placeholder]="ui().commentPlaceholder"></textarea>
+            </div>
+          }
+          <div class="reviews__actions">
+            <p-button type="button" severity="primary" icon="pi pi-check"
+              [label]="ui().submit" [loading]="saving()" (onClick)="submit()" />
+            @if (d.my_review) {
+              <p-button type="button" severity="danger" [text]="true" icon="pi pi-trash"
+                [label]="ui().delete" (onClick)="deleteMine()" />
+            }
+          </div>
+        </div>
+      }
+    } @else if (!d.my_review) {
+      <p class="reviews__hint">{{ ui().onlyCompleted }}</p>
+    }
+
+    <!-- Review list -->
+    @if (d.reviews.length === 0) {
+      <p class="reviews__empty">{{ ui().noReviews }}</p>
+    } @else {
+      <ul class="reviews__list">
+        @for (r of d.reviews; track r.id) {
+          <li class="review" [class.review--hidden]="r.hidden_at">
+            <div class="review__head">
+              <span class="review__author">{{ r.author_name }}</span>
+              @if (r.rating !== null) {
+                <span class="review__stars" aria-hidden="true">
+                  @for (s of stars; track s) {
+                    <i class="pi" [class.pi-star-fill]="s <= r.rating" [class.pi-star]="s > r.rating"></i>
+                  }
+                </span>
+              }
+              <span class="review__date">{{ r.created_at | date: 'mediumDate' }}</span>
+              @if (r.hidden_at && d.can_moderate) {
+                <span class="review__hidden-badge">{{ ui().hiddenBadge }}</span>
+              }
+            </div>
+            @if (r.comment) {
+              <p class="review__comment">{{ r.comment }}</p>
+            }
+            @if (d.can_moderate) {
+              <p-button type="button" size="small" [text]="true"
+                [icon]="r.hidden_at ? 'pi pi-eye' : 'pi pi-eye-slash'"
+                [label]="r.hidden_at ? ui().unhide : ui().hide" (onClick)="toggleHide(r)" />
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

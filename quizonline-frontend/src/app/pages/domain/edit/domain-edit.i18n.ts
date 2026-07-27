@@ -5,6 +5,11 @@ import {DomainEditDurationCopy} from './domain-edit-duration.util';
 import data from './domain-edit.i18n.json';
 
 export type DomainEditUiText = {
+  reviews: {
+    title: string;
+    allowRating: string;
+    allowComment: string;
+  };
   tabs: {
     config: string;
     notifications: string;

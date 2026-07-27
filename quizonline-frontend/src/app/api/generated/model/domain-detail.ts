@@ -21,6 +21,8 @@ export interface DomainDetailDto {
     readonly active: boolean;
     readonly 'public': boolean;
     readonly join_policy: JoinPolicyEnumDto;
+    readonly reviews_allow_rating: boolean;
+    readonly reviews_allow_comment: boolean;
     readonly pending_join_requests_count: number | null;
     readonly my_join_request_status: string | null;
     readonly owner: UserSummaryDto;

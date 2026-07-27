@@ -124,3 +124,24 @@
   flex: 1;
   margin-right: 1rem;
 }
+
+.reviews-config {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.reviews-config__title {
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+
+.reviews-config__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}

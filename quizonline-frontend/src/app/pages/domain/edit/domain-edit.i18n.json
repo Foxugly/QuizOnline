@@ -1,6 +1,18 @@
 {
   "fr": {
-    "tabs": {"config": "Configuration", "notifications": "Notifications", "invitations": "Invitations & demandes", "members": "Membres", "audit": "Journal", "analytics": "Statistiques"},
+    "reviews": {
+      "title": "Avis des apprenants",
+      "allowRating": "Autoriser les notes",
+      "allowComment": "Autoriser les commentaires"
+    },
+    "tabs": {
+      "config": "Configuration",
+      "notifications": "Notifications",
+      "invitations": "Invitations & demandes",
+      "members": "Membres",
+      "audit": "Journal",
+      "analytics": "Statistiques"
+    },
     "audit": {
       "title": "Journal des actions",
       "empty": "Aucune action enregistrée.",
@@ -82,7 +94,10 @@
       "inviteResultAlreadyMember": "{email} : déjà membre.",
       "inviteResultInvalid": "{email} : adresse invalide.",
       "inviteResultForbidden": "{email} : vous n'avez pas le droit d'inviter sur ce domaine.",
-      "inviteResultSummary": {"one": "{n} invitation envoyée sur {total}.", "other": "{n} invitations envoyées sur {total}."},
+      "inviteResultSummary": {
+        "one": "{n} invitation envoyée sur {total}.",
+        "other": "{n} invitations envoyées sur {total}."
+      },
       "inviteAdditionalDomainsLabel": "Inviter aussi sur d'autres domaines",
       "inviteAdditionalDomainsHint": "Optionnel. Les mêmes adresses recevront une invitation pour chacun des domaines choisis.",
       "inviteAdditionalDomainsPlaceholder": "Choisir un ou plusieurs domaines…",
@@ -116,8 +131,18 @@
       "topDecidersEmpty": "Aucune décision enregistrée.",
       "colDecider": "Modérateur",
       "colDecisionCount": "Décisions",
-      "decisionsLabel": {"one": "{n} décision", "other": "{n} décisions"},
-      "durationFormat": {"seconds": "{n} s", "minutes": "{n} min", "hoursOnly": "{h} h", "hoursMinutes": "{h} h {m} min", "daysOnly": "{d} j", "daysHours": "{d} j {h} h"},
+      "decisionsLabel": {
+        "one": "{n} décision",
+        "other": "{n} décisions"
+      },
+      "durationFormat": {
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "hoursOnly": "{h} h",
+        "hoursMinutes": "{h} h {m} min",
+        "daysOnly": "{d} j",
+        "daysHours": "{d} j {h} h"
+      },
       "rangeLabel": "Période",
       "range7d": "7 jours",
       "range30d": "30 jours",
@@ -145,7 +170,19 @@
     }
   },
   "en": {
-    "tabs": {"config": "Configuration", "notifications": "Notifications", "invitations": "Invitations & requests", "members": "Members", "audit": "Activity", "analytics": "Analytics"},
+    "reviews": {
+      "title": "Learner reviews",
+      "allowRating": "Allow ratings",
+      "allowComment": "Allow comments"
+    },
+    "tabs": {
+      "config": "Configuration",
+      "notifications": "Notifications",
+      "invitations": "Invitations & requests",
+      "members": "Members",
+      "audit": "Activity",
+      "analytics": "Analytics"
+    },
     "audit": {
       "title": "Activity log",
       "empty": "No action recorded yet.",
@@ -227,7 +264,10 @@
       "inviteResultAlreadyMember": "{email}: already a member.",
       "inviteResultInvalid": "{email}: invalid address.",
       "inviteResultForbidden": "{email}: you cannot invite to this domain.",
-      "inviteResultSummary": {"one": "{n} invitation sent out of {total}.", "other": "{n} invitations sent out of {total}."},
+      "inviteResultSummary": {
+        "one": "{n} invitation sent out of {total}.",
+        "other": "{n} invitations sent out of {total}."
+      },
       "inviteAdditionalDomainsLabel": "Also invite to other domains",
       "inviteAdditionalDomainsHint": "Optional. The same addresses will receive an invitation for every domain you pick.",
       "inviteAdditionalDomainsPlaceholder": "Pick one or more domains…",
@@ -261,8 +301,18 @@
       "topDecidersEmpty": "No decisions recorded yet.",
       "colDecider": "Moderator",
       "colDecisionCount": "Decisions",
-      "decisionsLabel": {"one": "{n} decision", "other": "{n} decisions"},
-      "durationFormat": {"seconds": "{n} s", "minutes": "{n} min", "hoursOnly": "{h} h", "hoursMinutes": "{h} h {m} min", "daysOnly": "{d} d", "daysHours": "{d} d {h} h"},
+      "decisionsLabel": {
+        "one": "{n} decision",
+        "other": "{n} decisions"
+      },
+      "durationFormat": {
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "hoursOnly": "{h} h",
+        "hoursMinutes": "{h} h {m} min",
+        "daysOnly": "{d} d",
+        "daysHours": "{d} d {h} h"
+      },
       "rangeLabel": "Range",
       "range7d": "7 days",
       "range30d": "30 days",
@@ -290,7 +340,19 @@
     }
   },
   "nl": {
-    "tabs": {"config": "Configuratie", "notifications": "Meldingen", "invitations": "Uitnodigingen & aanvragen", "members": "Leden", "audit": "Activiteit", "analytics": "Statistieken"},
+    "reviews": {
+      "title": "Beoordelingen",
+      "allowRating": "Scores toestaan",
+      "allowComment": "Opmerkingen toestaan"
+    },
+    "tabs": {
+      "config": "Configuratie",
+      "notifications": "Meldingen",
+      "invitations": "Uitnodigingen & aanvragen",
+      "members": "Leden",
+      "audit": "Activiteit",
+      "analytics": "Statistieken"
+    },
     "audit": {
       "title": "Activiteitenlogboek",
       "empty": "Nog geen actie geregistreerd.",
@@ -372,7 +434,10 @@
       "inviteResultAlreadyMember": "{email}: is al lid.",
       "inviteResultInvalid": "{email}: ongeldig adres.",
       "inviteResultForbidden": "{email}: u mag niet uitnodigen voor dit domein.",
-      "inviteResultSummary": {"one": "{n} van {total} uitnodigingen verzonden.", "other": "{n} van {total} uitnodigingen verzonden."},
+      "inviteResultSummary": {
+        "one": "{n} van {total} uitnodigingen verzonden.",
+        "other": "{n} van {total} uitnodigingen verzonden."
+      },
       "inviteAdditionalDomainsLabel": "Ook uitnodigen voor andere domeinen",
       "inviteAdditionalDomainsHint": "Optioneel. Dezelfde adressen ontvangen een uitnodiging voor elk gekozen domein.",
       "inviteAdditionalDomainsPlaceholder": "Kies een of meer domeinen…",
@@ -406,8 +471,18 @@
       "topDecidersEmpty": "Nog geen beslissingen geregistreerd.",
       "colDecider": "Moderator",
       "colDecisionCount": "Beslissingen",
-      "decisionsLabel": {"one": "{n} beslissing", "other": "{n} beslissingen"},
-      "durationFormat": {"seconds": "{n} s", "minutes": "{n} min", "hoursOnly": "{h} u", "hoursMinutes": "{h} u {m} min", "daysOnly": "{d} d", "daysHours": "{d} d {h} u"},
+      "decisionsLabel": {
+        "one": "{n} beslissing",
+        "other": "{n} beslissingen"
+      },
+      "durationFormat": {
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "hoursOnly": "{h} u",
+        "hoursMinutes": "{h} u {m} min",
+        "daysOnly": "{d} d",
+        "daysHours": "{d} d {h} u"
+      },
       "rangeLabel": "Periode",
       "range7d": "7 dagen",
       "range30d": "30 dagen",
@@ -435,7 +510,19 @@
     }
   },
   "it": {
-    "tabs": {"config": "Configurazione", "notifications": "Notifiche", "invitations": "Inviti e richieste", "members": "Membri", "audit": "Attività", "analytics": "Statistiche"},
+    "reviews": {
+      "title": "Recensioni",
+      "allowRating": "Consenti voti",
+      "allowComment": "Consenti commenti"
+    },
+    "tabs": {
+      "config": "Configurazione",
+      "notifications": "Notifiche",
+      "invitations": "Inviti e richieste",
+      "members": "Membri",
+      "audit": "Attività",
+      "analytics": "Statistiche"
+    },
     "audit": {
       "title": "Registro attività",
       "empty": "Nessuna azione registrata.",
@@ -517,7 +604,10 @@
       "inviteResultAlreadyMember": "{email}: già membro.",
       "inviteResultInvalid": "{email}: indirizzo non valido.",
       "inviteResultForbidden": "{email}: non puoi invitare su questo dominio.",
-      "inviteResultSummary": {"one": "{n} invito inviato su {total}.", "other": "{n} inviti inviati su {total}."},
+      "inviteResultSummary": {
+        "one": "{n} invito inviato su {total}.",
+        "other": "{n} inviti inviati su {total}."
+      },
       "inviteAdditionalDomainsLabel": "Invita anche su altri domini",
       "inviteAdditionalDomainsHint": "Facoltativo. Gli stessi indirizzi riceveranno un invito per ciascun dominio scelto.",
       "inviteAdditionalDomainsPlaceholder": "Scegli uno o più domini…",
@@ -551,8 +641,18 @@
       "topDecidersEmpty": "Nessuna decisione registrata.",
       "colDecider": "Moderatore",
       "colDecisionCount": "Decisioni",
-      "decisionsLabel": {"one": "{n} decisione", "other": "{n} decisioni"},
-      "durationFormat": {"seconds": "{n} s", "minutes": "{n} min", "hoursOnly": "{h} h", "hoursMinutes": "{h} h {m} min", "daysOnly": "{d} g", "daysHours": "{d} g {h} h"},
+      "decisionsLabel": {
+        "one": "{n} decisione",
+        "other": "{n} decisioni"
+      },
+      "durationFormat": {
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "hoursOnly": "{h} h",
+        "hoursMinutes": "{h} h {m} min",
+        "daysOnly": "{d} g",
+        "daysHours": "{d} g {h} h"
+      },
       "rangeLabel": "Periodo",
       "range7d": "7 giorni",
       "range30d": "30 giorni",
@@ -580,7 +680,19 @@
     }
   },
   "es": {
-    "tabs": {"config": "Configuración", "notifications": "Notificaciones", "invitations": "Invitaciones y solicitudes", "members": "Miembros", "audit": "Actividad", "analytics": "Estadísticas"},
+    "reviews": {
+      "title": "Reseñas",
+      "allowRating": "Permitir valoraciones",
+      "allowComment": "Permitir comentarios"
+    },
+    "tabs": {
+      "config": "Configuración",
+      "notifications": "Notificaciones",
+      "invitations": "Invitaciones y solicitudes",
+      "members": "Miembros",
+      "audit": "Actividad",
+      "analytics": "Estadísticas"
+    },
     "audit": {
       "title": "Registro de actividad",
       "empty": "No hay acciones registradas.",
@@ -662,7 +774,10 @@
       "inviteResultAlreadyMember": "{email}: ya es miembro.",
       "inviteResultInvalid": "{email}: dirección no válida.",
       "inviteResultForbidden": "{email}: no puedes invitar a este dominio.",
-      "inviteResultSummary": {"one": "{n} invitación enviada de {total}.", "other": "{n} invitaciones enviadas de {total}."},
+      "inviteResultSummary": {
+        "one": "{n} invitación enviada de {total}.",
+        "other": "{n} invitaciones enviadas de {total}."
+      },
       "inviteAdditionalDomainsLabel": "Invitar también a otros dominios",
       "inviteAdditionalDomainsHint": "Opcional. Las mismas direcciones recibirán una invitación para cada dominio elegido.",
       "inviteAdditionalDomainsPlaceholder": "Elige uno o más dominios…",
@@ -696,8 +811,18 @@
       "topDecidersEmpty": "Aún no hay decisiones registradas.",
       "colDecider": "Moderador",
       "colDecisionCount": "Decisiones",
-      "decisionsLabel": {"one": "{n} decisión", "other": "{n} decisiones"},
-      "durationFormat": {"seconds": "{n} s", "minutes": "{n} min", "hoursOnly": "{h} h", "hoursMinutes": "{h} h {m} min", "daysOnly": "{d} d", "daysHours": "{d} d {h} h"},
+      "decisionsLabel": {
+        "one": "{n} decisión",
+        "other": "{n} decisiones"
+      },
+      "durationFormat": {
+        "seconds": "{n} s",
+        "minutes": "{n} min",
+        "hoursOnly": "{h} h",
+        "hoursMinutes": "{h} h {m} min",
+        "daysOnly": "{d} d",
+        "daysHours": "{d} d {h} h"
+      },
       "rangeLabel": "Período",
       "range7d": "7 días",
       "range30d": "30 días",
