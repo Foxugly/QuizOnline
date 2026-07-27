@@ -3,6 +3,7 @@ import {RouterOutlet} from '@angular/router';
 
 import {TopMenuComponent} from '../topmenu/topmenu';
 import {FooterComponent} from '../footer/footer';
+import {BillingBanner} from '../billing-banner/billing-banner';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 /**
@@ -15,7 +16,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
  */
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, TopMenuComponent, FooterComponent],
+  imports: [RouterOutlet, TopMenuComponent, FooterComponent, BillingBanner],
   templateUrl: './main-layout.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
