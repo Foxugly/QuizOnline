@@ -29,4 +29,5 @@ urlpatterns = [
     path("", include(("certificate.api_urls", "certificate"), namespace="certificate-api")),
     path("", include(("connectionlog.api_urls", "connectionlog"), namespace="connectionlog-api")),
     path("", include(("billing.api_urls", "billing"), namespace="billing-api")),
+    path("", include(("review.api_urls", "review"), namespace="review-api")),
 ]

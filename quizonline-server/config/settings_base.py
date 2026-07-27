@@ -158,6 +158,7 @@ INSTALLED_APPS = [
     "enrollment.apps.EnrollmentConfig",
     "certificate.apps.CertificateConfig",
     "billing.apps.BillingConfig",
+    "review.apps.ReviewConfig",
     "assessment.apps.AssessmentConfig",
     "connectionlog.apps.ConnectionLogConfig",
 ]

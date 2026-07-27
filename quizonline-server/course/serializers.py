@@ -275,12 +275,25 @@ class CourseDetailSerializer(CourseListSerializer):
     sections = SectionSerializer(many=True, read_only=True)
     available_lang_codes = serializers.SerializerMethodField()
     can_manage = serializers.SerializerMethodField()
+    review_summary = serializers.SerializerMethodField()
 
     class Meta(CourseListSerializer.Meta):
         fields = CourseListSerializer.Meta.fields + [
-            "sections", "available_lang_codes", "can_manage",
+            "sections", "available_lang_codes", "can_manage", "review_summary",
             "created_at", "updated_at",
         ]
+
+    @extend_schema_field({
+        "type": "object",
+        "properties": {
+            "average_rating": {"type": "number", "nullable": True},
+            "rating_count": {"type": "integer"},
+            "review_count": {"type": "integer"},
+        },
+    })
+    def get_review_summary(self, obj) -> dict:
+        from review.services import course_review_summary
+        return course_review_summary(obj)
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_available_lang_codes(self, obj) -> list[str]:

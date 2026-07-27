@@ -71,6 +71,8 @@ class DomainSerializersTestCase(TestCase):
             "active",
             "public",
             "join_policy",
+            "reviews_allow_rating",
+            "reviews_allow_comment",
             "pending_join_requests_count",
             "my_join_request_status",
             "owner",

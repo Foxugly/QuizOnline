@@ -10,6 +10,7 @@
 import { SectionDto } from './section';
 import { CourseDetailMyPendingInviteDto } from './course-detail-my-pending-invite';
 import { CourseDetailMyEnrollmentDto } from './course-detail-my-enrollment';
+import { CourseDetailReviewSummaryDto } from './course-detail-review-summary';
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
 import { CertificateValidityMonthsEnumDto } from './certificate-validity-months-enum';
@@ -45,6 +46,7 @@ export interface CourseDetailDto {
     readonly sections: Array<SectionDto>;
     readonly available_lang_codes: Array<string>;
     readonly can_manage: boolean;
+    review_summary: CourseDetailReviewSummaryDto;
     readonly created_at: string;
     readonly updated_at: string;
 }

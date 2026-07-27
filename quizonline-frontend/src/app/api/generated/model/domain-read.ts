@@ -20,6 +20,8 @@ export interface DomainReadDto {
     readonly active: boolean;
     readonly 'public': boolean;
     readonly join_policy: JoinPolicyEnumDto;
+    readonly reviews_allow_rating: boolean;
+    readonly reviews_allow_comment: boolean;
     readonly subjects_count: number;
     readonly questions_count: number;
     readonly pending_join_requests_count: number | null;
