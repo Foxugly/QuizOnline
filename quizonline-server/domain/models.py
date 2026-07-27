@@ -62,6 +62,13 @@ class Domain(AuditMixin, ActivatableMixin, TranslatableModel):
         default=JoinPolicy.AUTO,
     )
 
+    # Course-review configuration, decided by the domain owner/manager for all
+    # courses in the domain. Learners who completed a course can leave a review;
+    # these two flags gate whether that review may carry a star rating and/or a
+    # free-text comment.
+    reviews_allow_rating = models.BooleanField(default=True)
+    reviews_allow_comment = models.BooleanField(default=True)
+
     owner = models.ForeignKey(
         User,
         on_delete=models.PROTECT,

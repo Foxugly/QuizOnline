@@ -50,6 +50,8 @@ class DomainReadSerializer(serializers.ModelSerializer):
             "active",
             "public",
             "join_policy",
+            "reviews_allow_rating",
+            "reviews_allow_comment",
             "subjects_count",
             "questions_count",
             "pending_join_requests_count",
@@ -191,6 +193,8 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             "active",
             "public",
             "join_policy",
+            "reviews_allow_rating",
+            "reviews_allow_comment",
             "owner",
             "managers",
             "notification_settings",
@@ -423,6 +427,8 @@ class DomainPartialSerializer(DomainWriteSerializer):
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     active = serializers.BooleanField(required=False)
     public = serializers.BooleanField(required=False)
+    reviews_allow_rating = serializers.BooleanField(required=False)
+    reviews_allow_comment = serializers.BooleanField(required=False)
 
     def validate(self, attrs):
         self._validate_owner_change(attrs)

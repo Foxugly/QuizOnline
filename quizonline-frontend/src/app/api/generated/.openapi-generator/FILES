@@ -23,6 +23,7 @@ api/quiz-alert.service.ts
 api/quiz-answer.service.ts
 api/quiz-template.service.ts
 api/quiz.service.ts
+api/review.service.ts
 api/schema.service.ts
 api/section.service.ts
 api/subject.service.ts
@@ -54,6 +55,7 @@ model/connection-event-read.ts
 model/course-detail-my-enrollment.ts
 model/course-detail-my-pending-invite.ts
 model/course-detail-request.ts
+model/course-detail-review-summary.ts
 model/course-detail.ts
 model/course-enrollment-request.ts
 model/course-enrollment-status-enum.ts

@@ -854,6 +854,52 @@ paths:
                 items:
                   $ref: '#/components/schemas/CourseInvite'
           description: ''
+  /api/course/{course_id}/reviews/:
+    get:
+      operationId: course_reviews_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: course_reviews_update
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: course_reviews_destroy
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/course/{id}/:
     get:
       operationId: course_retrieve
@@ -4706,6 +4752,23 @@ paths:
           description: ''
         '400':
           description: Input invalide / aucune question trouvée
+  /api/review/{review_id}/moderate/:
+    post:
+      operationId: review_moderate_create
+      description: Owner/manager of the course's domain hides/unhides a review.
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - review
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/schema/:
     get:
       operationId: schema_retrieve
@@ -6778,6 +6841,17 @@ components:
         can_manage:
           type: boolean
           readOnly: true
+        review_summary:
+          type: object
+          properties:
+            average_rating:
+              type: number
+              nullable: true
+            rating_count:
+              type: integer
+            review_count:
+              type: integer
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -6796,6 +6870,7 @@ components:
       - lesson_count
       - my_enrollment
       - my_pending_invite
+      - review_summary
       - sections
       - slug
       - total_duration_minutes
@@ -8038,6 +8113,12 @@ components:
           allOf:
           - $ref: '#/components/schemas/JoinPolicyEnum'
           readOnly: true
+        reviews_allow_rating:
+          type: boolean
+          readOnly: true
+        reviews_allow_comment:
+          type: boolean
+          readOnly: true
         subjects_count:
           type: integer
           readOnly: true
@@ -8100,6 +8181,8 @@ components:
       - pending_join_requests_count
       - public
       - questions_count
+      - reviews_allow_comment
+      - reviews_allow_rating
       - subjects_count
       - translations
       - updated_at
@@ -8157,6 +8240,10 @@ components:
           type: boolean
         join_policy:
           $ref: '#/components/schemas/JoinPolicyEnum'
+        reviews_allow_rating:
+          type: boolean
+        reviews_allow_comment:
+          type: boolean
         owner:
           type: integer
         managers:
@@ -8192,6 +8279,10 @@ components:
           type: boolean
         join_policy:
           $ref: '#/components/schemas/JoinPolicyEnum'
+        reviews_allow_rating:
+          type: boolean
+        reviews_allow_comment:
+          type: boolean
         owner:
           type: integer
         managers:
@@ -9653,6 +9744,10 @@ components:
           type: boolean
         join_policy:
           $ref: '#/components/schemas/JoinPolicyEnum'
+        reviews_allow_rating:
+          type: boolean
+        reviews_allow_comment:
+          type: boolean
         owner:
           type: integer
         managers:

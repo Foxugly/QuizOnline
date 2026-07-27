@@ -15,6 +15,8 @@ export interface DomainWriteDto {
     active?: boolean;
     'public'?: boolean;
     join_policy?: JoinPolicyEnumDto;
+    reviews_allow_rating?: boolean;
+    reviews_allow_comment?: boolean;
     owner?: number;
     managers: Array<number>;
     notification_settings?: any | null;
