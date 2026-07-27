@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import Coalesce
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
@@ -32,6 +35,8 @@ from .services import (
     unpublish_course,
     unpublish_section,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema_view(
@@ -306,8 +311,17 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
             new_course = import_course_from_dict(
                 payload=payload, target_domain=target_domain, by_user=request.user,
             )
-        except Exception as exc:
-            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except DjangoValidationError as exc:
+            # Crafted, translated validation messages — safe to surface to the
+            # caller (e.g. "Unknown language", "Missing course payload").
+            return Response({"detail": "; ".join(exc.messages)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            # Unexpected internal error: log it, but don't leak the raw text.
+            logger.exception("import_json: unexpected error during course import")
+            return Response(
+                {"detail": "Import failed due to an unexpected error."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         return Response(
             CourseDetailSerializer(new_course, context={"request": request}).data,
             status=status.HTTP_201_CREATED,

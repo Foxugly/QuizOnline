@@ -148,6 +148,33 @@ class QuizAlertsApiTestCase(APITestCase):
         thread.refresh_from_db()
         self.assertIsNotNone(thread.owner_last_read_at)
 
+    def test_alert_list_unread_uses_prefetch_no_n_plus_1(self):
+        """Computing unread state for a list of alert threads must reuse the
+        message prefetch cache — 0 extra queries — not 2 (COUNT + EXISTS) per
+        thread as before."""
+        from quiz.alerting import (
+            alert_thread_queryset_for_user,
+            is_alert_unread,
+            unread_count_for_alert,
+        )
+
+        for i in range(3):
+            t = QuizAlertThread.objects.create(
+                quiz=self.quiz,
+                quizquestion=self.quizquestion,
+                reporter=self.reporter,
+                owner=self.owner,
+                reported_language="fr",
+            )
+            t.messages.create(author=self.reporter, body=f"msg {i}")
+
+        threads = list(alert_thread_queryset_for_user(self.owner))
+        self.assertEqual(len(threads), 3)
+        with self.assertNumQueries(0):
+            for t in threads:
+                unread_count_for_alert(t, self.owner)
+                is_alert_unread(t, self.owner)
+
     def test_unread_count_only_tracks_new_incoming_messages(self):
         thread = QuizAlertThread.objects.create(
             quiz=self.quiz,

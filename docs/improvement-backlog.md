@@ -30,15 +30,15 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
 | S1 | P2 | Endpoint d'inscription sans throttling — seul endpoint d'auth sans `ScopedRateThrottle`, protégé uniquement par Turnstile (désactivé si `TURNSTILE_SECRET_KEY` vide) → risque de création de comptes en masse + email-bombing. | `customuser/views.py:203`, `config/settings_base.py:118` | ✅ (`RegisterRateThrottle` scope `register`, défaut 10/h, testé) |
-| S2 | P3 | Fuite du texte d'exception interne vers le client sur les imports JSON (`str(exc)` renvoyé, et `course` ne logue même pas). | `course/views.py:309`, `question/views.py:487` | ⬜ |
+| S2 | P3 | Fuite du texte d'exception interne vers le client sur les imports JSON (`str(exc)` renvoyé, et `course` ne logue même pas). | `course/views.py:309`, `question/views.py:487` | ✅ (course : `ValidationError`→400 msg, catch-all→log+500 générique ; question : catch-all généralisé) |
 | S3 | P3 | `SENTRY_SEND_DEFAULT_PII=True` par défaut envoie IP + email à Sentry — documenté/intentionnel, à revalider vs politique de confidentialité. | `config/settings_base.py:88,106` | ⬜ |
 
 ## C. Performance (backend)
 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
-| B1 | P2 | N+1 sur la liste des fils d'alerte : `unread`/`unread_count` reconstruisent un queryset (`.count()`/`.exists()`) sans réutiliser le prefetch → ~2 requêtes/fil (page de 20 → ~40 en trop). | `quiz/serializers.py:990`, `quiz/alerting.py:82` | ⬜ |
-| B2 | P3 | Filtre `created_at__date__gte/lte` sur `ConnectionEvent` casse l'usage de l'index B-tree (cast de date) → full scan progressif sur table de logs. | `connectionlog/views.py:36` | ⬜ |
+| B1 | P2 | N+1 sur la liste des fils d'alerte : `unread`/`unread_count` reconstruisent un queryset (`.count()`/`.exists()`) sans réutiliser le prefetch → ~2 requêtes/fil (page de 20 → ~40 en trop). | `quiz/serializers.py:990`, `quiz/alerting.py:82` | ✅ (helpers `unread_count_for_alert`/`is_alert_unread` cache-aware, fallback queryset ; test 0 requête) |
+| B2 | P3 | Filtre `created_at__date__gte/lte` sur `ConnectionEvent` casse l'usage de l'index B-tree (cast de date) → full scan progressif sur table de logs. | `connectionlog/views.py:36` | ✅ (bornes datetime sur colonne brute, fin de jour incluse via `< end+1j` ; testé) |
 
 ## D. Frontend (Angular)
 

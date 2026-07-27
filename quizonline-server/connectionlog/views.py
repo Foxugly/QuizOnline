@@ -1,3 +1,7 @@
+from datetime import datetime, time, timedelta
+
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from rest_framework import mixins, viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -28,15 +32,18 @@ class ConnectionEventViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
     def get_queryset(self):
         qs = ConnectionEvent.objects.all()
-        # ``__date`` is extracted in the project TIME_ZONE; the admin tool is
-        # operated from that zone so range edges align. A superuser in another
-        # timezone may see off-by-one-day inclusion at the boundaries.
-        start = self.request.query_params.get("start")
-        end = self.request.query_params.get("end")
+        # Filter on datetime bounds against the raw ``created_at`` column so the
+        # index is usable (``created_at__date`` wraps the column in a cast and
+        # forces a full scan on this potentially large log table). Same
+        # inclusive-day range as before, computed in the project TIME_ZONE: the
+        # end day is included via ``< end + 1 day``. Invalid dates are ignored.
+        tz = timezone.get_current_timezone()
+        start = parse_date(self.request.query_params.get("start") or "")
+        end = parse_date(self.request.query_params.get("end") or "")
         if start:
-            qs = qs.filter(created_at__date__gte=start)
+            qs = qs.filter(created_at__gte=timezone.make_aware(datetime.combine(start, time.min), tz))
         if end:
-            qs = qs.filter(created_at__date__lte=end)
+            qs = qs.filter(created_at__lt=timezone.make_aware(datetime.combine(end + timedelta(days=1), time.min), tz))
         return qs
 
     def create(self, request, *args, **kwargs):
