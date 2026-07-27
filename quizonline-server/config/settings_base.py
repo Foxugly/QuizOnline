@@ -118,6 +118,12 @@ NAME_APP = "QuizOnline"
 # §3.14). See customuser/turnstile.py.
 TURNSTILE_SECRET_KEY = env("TURNSTILE_SECRET_KEY", default="")
 
+# Hosting-billing enforcement: when True, a domain past its free-plan deadline
+# is hidden from its non-owner/manager members (get_visible_domains excludes
+# it), which locks them out of all that domain's content. Safety valve — set
+# to False to instantly disable the block without a deploy.
+BILLING_ENFORCE_BLOCK = env.bool("BILLING_ENFORCE_BLOCK", default=True)
+
 # Directory holding the MaxMind GeoLite2-City.mmdb file. Empty disables
 # geolocation (connection events still record, just without geo fields).
 GEOIP_PATH = env("GEOIP_PATH")

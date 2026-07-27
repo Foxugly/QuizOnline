@@ -174,6 +174,19 @@ class CustomUser(AbstractUser):
             ).distinct()
         if active_only:
             qs = qs.filter(active=True)
+        # Hosting-billing block (OPERATIONS.md / billing app): a domain past its
+        # free-plan deadline is hidden from members who don't own/manage it,
+        # which locks them out of ALL that domain's content through this shared
+        # scoping method. Owner/manager (and superuser, short-circuited above)
+        # keep access so they can still see the subscription page / regularize.
+        # Gated by a setting so it can be disabled instantly without a deploy.
+        if getattr(settings, "BILLING_ENFORCE_BLOCK", True) and not self.is_superuser:
+            from billing.services import blocked_domain_ids  # lazy: avoid app-load cycle
+            to_hide = blocked_domain_ids(domain_qs=qs) - set(
+                self.get_manageable_domains().values_list("id", flat=True)
+            )
+            if to_hide:
+                qs = qs.exclude(id__in=to_hide)
         return qs
 
     def set_current_domain(self, domain, *, allow_none: bool = True, save: bool = True) -> None:

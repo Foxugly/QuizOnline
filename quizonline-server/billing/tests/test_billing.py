@@ -114,6 +114,64 @@ def test_task_skips_paid_and_no_deadline(mock_notify, domain):
     mock_notify.assert_not_called()
 
 
+# ---- Access block (get_visible_domains) -----------------------------------
+
+def _visible_ids(user):
+    return set(user.get_visible_domains(active_only=False).values_list("id", flat=True))
+
+
+@pytest.mark.django_db
+def test_blocked_domain_hidden_from_member_kept_for_owner_and_manager(domain, owner, settings):
+    member = CustomUser.objects.create_user(email="mem@ex.com", password="x")
+    domain.members.add(member)
+    manager = CustomUser.objects.create_user(email="mgr@ex.com", password="x")
+    domain.managers.add(manager)
+    domain.members.add(manager)
+
+    b = get_or_create_billing(domain)
+    b.free_until = timezone.now() - timedelta(days=1)  # elapsed => blocked
+    b.save(update_fields=["free_until"])
+
+    settings.BILLING_ENFORCE_BLOCK = True
+    assert domain.id not in _visible_ids(member)   # locked out
+    assert domain.id in _visible_ids(owner)        # owner keeps access
+    assert domain.id in _visible_ids(manager)      # manager keeps access
+
+
+@pytest.mark.django_db
+def test_block_can_be_disabled_by_setting(domain, settings):
+    member = CustomUser.objects.create_user(email="mem2@ex.com", password="x")
+    domain.members.add(member)
+    b = get_or_create_billing(domain)
+    b.free_until = timezone.now() - timedelta(days=1)
+    b.save(update_fields=["free_until"])
+
+    settings.BILLING_ENFORCE_BLOCK = False
+    assert domain.id in _visible_ids(member)  # safety valve off => visible again
+
+
+@pytest.mark.django_db
+def test_free_without_deadline_is_not_blocked(domain, settings):
+    member = CustomUser.objects.create_user(email="mem3@ex.com", password="x")
+    domain.members.add(member)
+    get_or_create_billing(domain)  # free, free_until=None
+
+    settings.BILLING_ENFORCE_BLOCK = True
+    assert domain.id in _visible_ids(member)
+
+
+@pytest.mark.django_db
+def test_future_deadline_is_not_blocked(domain, settings):
+    member = CustomUser.objects.create_user(email="mem4@ex.com", password="x")
+    domain.members.add(member)
+    b = get_or_create_billing(domain)
+    b.free_until = timezone.now() + timedelta(days=5)
+    b.save(update_fields=["free_until"])
+
+    settings.BILLING_ENFORCE_BLOCK = True
+    assert domain.id in _visible_ids(member)
+
+
 # ---- Endpoint -------------------------------------------------------------
 
 @pytest.mark.django_db
