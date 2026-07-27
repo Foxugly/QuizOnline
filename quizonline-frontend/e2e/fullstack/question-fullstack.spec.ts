@@ -49,6 +49,13 @@ function normalizeHtmlText(value: string): string {
 // the seeded image/video no longer render an <img>/<video> whose src contains
 // "question_media" in the dialog (media URL scheme / rendering changed). Needs
 // the real current media URL pattern. Tracked in docs/improvement-backlog.md (O6).
+// TODO(O6): needs a rewrite, not a rehab. The media model changed: question
+// media moved to polymorphic Blocks (image uploads to lms/blocks/img/, video is
+// a video_url/embed, not a question_media/*.mp4 file), AND seed_quiz_e2e's
+// _seed_block now only creates rich_text blocks — the seeded question has no
+// media at all. Rehabilitating means re-adding image/video/embed blocks to the
+// seed and rewriting these assertions to the new block URLs. Tracked in
+// docs/improvement-backlog.md (O6).
 test.skip('charge une question seedee avec ses medias reels', async ({page}) => {
   await login(page);
 

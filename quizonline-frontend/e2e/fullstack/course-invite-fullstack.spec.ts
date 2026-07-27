@@ -37,12 +37,7 @@ async function getAccessToken(
 // /course-invite/…), but the invitation UI flow (user-menu badge, "Mes
 // invitations" navigation, accept view) still needs re-alignment with the
 // current SPA before this can gate. Tracked in docs/improvement-backlog.md (O6).
-// TODO(O6): partially rehabilitated. Login + badge + user-menu → /me/invitations
-// now work (used the unambiguous "Voir mes invitations" button). Still drifts
-// downstream: the invitation card's open action ("Voir l'invitation" link) label/
-// role changed on /me/invitations, and the accept flow past it is unverified.
-// Tracked in docs/improvement-backlog.md (O6).
-test.skip('testuser accepts a pending course invitation and lands enrolled', async ({page}) => {
+test('testuser accepts a pending course invitation and lands enrolled', async ({page}) => {
   // The seed (``seed_fullstack_e2e`` management command) plants:
   //   - admin owns "Sciences" domain
   //   - testuser is a member of the domain
@@ -65,9 +60,11 @@ test.skip('testuser accepts a pending course invitation and lands enrolled', asy
   await page.getByRole('button', {name: 'Voir mes invitations'}).click();
   await expect(page).toHaveURL(/\/me\/invitations$/);
 
-  // One invitation card is visible — click "Voir l'invitation".
+  // One invitation card is visible — open it. The "view invitation" action is a
+  // p-button (routerLink) rendered as a <button role=button>; the FR label uses
+  // a curly apostrophe, so match it with a wildcard.
   await expect(page.getByRole('heading', {name: /Cours sur invitation/i})).toBeVisible();
-  await page.getByRole('link', {name: /Voir l'invitation/i}).click();
+  await page.getByRole('button', {name: /Voir l.invitation/i}).click();
   await expect(page).toHaveURL(/\/course-invite\/.+$/);
 
   // Accept button + course context render.

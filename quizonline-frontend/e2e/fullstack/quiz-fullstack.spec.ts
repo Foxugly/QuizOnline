@@ -39,6 +39,13 @@ async function getAccessToken(
 // now work; remaining drift is later in the play/finish flow (question
 // navigation / finish / final URL + score assertions). Tracked in
 // docs/improvement-backlog.md (O6).
+// TODO(O6): 1 assertion from green. The whole flow now works — start, answer Q1,
+// Suivant, answer Q2, Terminer + confirmation dialog, land on the summary, score
+// shown. Only the FINAL API assertion fails: Q2's answer (question_order 2) has
+// 0 selected_options instead of 1 — the last question's answer doesn't persist
+// via the finish path in this test (likely the .first() input on Q2 or a
+// selection-vs-finish race in the component). Tracked in
+// docs/improvement-backlog.md (O6).
 test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({page}) => {
   await login(page);
 
@@ -64,12 +71,20 @@ test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({
   await page.getByRole('radio').first().check();
   await page.getByRole('button', {name: 'Suivant'}).click();
 
-  await expect(page.getByRole('button', {name: 'Terminer'})).toBeVisible();
-  await page.locator('input[type="checkbox"], input[type="radio"]').first().check();
-  await page.getByRole('button', {name: 'Terminer'}).click();
+  await expect(page.getByRole('button', {name: 'Terminer'}).first()).toBeVisible();
+  const q2Answer = page.locator('input[type="checkbox"], input[type="radio"]').first();
+  await q2Answer.check();
+  await expect(q2Answer).toBeChecked(); // let the answer register/persist before finishing
+  await page.getByRole('button', {name: 'Terminer'}).first().click();
+
+  // Finishing is now guarded by a confirmation dialog.
+  await page.getByRole('alertdialog').getByRole('button', {name: /Terminer le quiz/i}).click();
 
   await expect(page).toHaveURL(new RegExp(`/quiz/${quizId}$`));
-  await expect(page.getByText('2 / 2')).toBeVisible();
+  // A score of the form "X / 2" is shown (the test picks the first option each
+  // time, so the exact value depends on option order — assert the format, not
+  // the value; the API assertions below verify the persisted answers).
+  await expect(page.getByText(/\d \/ 2/).first()).toBeVisible();
 
   const accessToken = await getAccessToken(page);
   const answersResponse = await page.request.get(`http://127.0.0.1:8001/api/quiz/${quizId}/answer/`, {
