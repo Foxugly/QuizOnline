@@ -484,8 +484,11 @@ class QuestionViewSet(MyModelViewSet):
             return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
         except StructuredImportError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as exc:
+        except Exception:
             logger.exception("import_structured: unexpected error")
-            return Response({"detail": f"Erreur inattendue : {exc}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"detail": "Erreur inattendue lors de l'import."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(result, status=status.HTTP_200_OK)

@@ -34,3 +34,25 @@ def test_list_daterange_filter():
     resp = c.get(f"/api/connection-log/?start={start}")
     assert resp.status_code == 200
     assert [r["account_email"] for r in resp.data["results"]] == ["b"]
+
+
+@pytest.mark.django_db
+def test_list_daterange_end_is_inclusive():
+    """The ``end`` bound includes events from that whole day (implemented as
+    ``created_at < end + 1 day`` so the index stays usable)."""
+    from django.utils import timezone
+    from datetime import timedelta
+    U = get_user_model()
+    su = U.objects.create(email="s2@x.com", is_superuser=True)
+    ConnectionEvent.objects.create(account_email="today", login_method="password")  # now
+    c = APIClient()
+    c.force_authenticate(su)
+
+    today = timezone.localdate().isoformat()
+    resp = c.get(f"/api/connection-log/?end={today}")
+    assert resp.status_code == 200
+    assert "today" in [r["account_email"] for r in resp.data["results"]]
+
+    yesterday = (timezone.localdate() - timedelta(days=1)).isoformat()
+    resp2 = c.get(f"/api/connection-log/?end={yesterday}")
+    assert "today" not in [r["account_email"] for r in resp2.data["results"]]

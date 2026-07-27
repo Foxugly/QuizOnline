@@ -90,11 +90,35 @@ def unread_messages_queryset(thread: "QuizAlertThread", user):
     return queryset
 
 
+def _cached_messages(thread: "QuizAlertThread"):
+    """Prefetched messages for the thread, or ``None`` when not prefetched.
+    ``alert_thread_queryset`` prefetches ``messages`` for list endpoints; using
+    the cache avoids an extra COUNT/EXISTS query per row."""
+    return getattr(thread, "_prefetched_objects_cache", {}).get("messages")
+
+
+def _is_unread_message(msg, user, last_read_at) -> bool:
+    return msg.author_id != user.id and (last_read_at is None or msg.created_at > last_read_at)
+
+
 def unread_count_for_alert(thread: "QuizAlertThread", user) -> int:
+    if not is_alert_participant(thread, user):
+        return 0
+    cached = _cached_messages(thread)
+    if cached is not None:
+        last_read_at = participant_last_read_at(thread, user)
+        return sum(1 for m in cached if _is_unread_message(m, user, last_read_at))
+    # No prefetch (single-thread contexts): let the DB do the counting.
     return unread_messages_queryset(thread, user).count()
 
 
 def is_alert_unread(thread: "QuizAlertThread", user) -> bool:
+    if not is_alert_participant(thread, user):
+        return False
+    cached = _cached_messages(thread)
+    if cached is not None:
+        last_read_at = participant_last_read_at(thread, user)
+        return any(_is_unread_message(m, user, last_read_at) for m in cached)
     return unread_messages_queryset(thread, user).exists()
 
 
