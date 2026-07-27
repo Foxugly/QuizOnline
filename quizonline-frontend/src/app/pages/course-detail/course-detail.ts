@@ -25,6 +25,7 @@ import {InvitationCountService} from '../../services/invitation/invitation-count
 import {UserService} from '../../services/user/user';
 
 import {getCourseDetailUiText} from './course-detail.i18n';
+import {CourseReviews} from './course-reviews/course-reviews';
 
 interface CourseLessonDto {
   id: number;
@@ -83,7 +84,7 @@ interface SectionVm {
 
 @Component({
   selector: 'app-course-detail',
-  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, TooltipModule, EmptyStateComponent, LoadingSkeleton, PageHeader, StatusBadgeComponent],
+  imports: [RouterLink, ButtonModule, MessageModule, ProgressBarModule, TagModule, TooltipModule, EmptyStateComponent, LoadingSkeleton, PageHeader, StatusBadgeComponent, CourseReviews],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -109,6 +109,22 @@
             (certificateLogoRemoved)="removeCurrentCertificateLogo()"
             (certificateLogoSelectionCleared)="clearSelectedCertificateLogo()">
           </app-domain-editor-form>
+
+          <fieldset class="reviews-config">
+            <legend class="reviews-config__title">{{ editText().reviews.title }}</legend>
+            <label class="reviews-config__row">
+              <p-toggleswitch [formControl]="form.controls.reviews_allow_rating"
+                inputId="reviews-allow-rating"
+                [attr.aria-label]="editText().reviews.allowRating" />
+              <span>{{ editText().reviews.allowRating }}</span>
+            </label>
+            <label class="reviews-config__row">
+              <p-toggleswitch [formControl]="form.controls.reviews_allow_comment"
+                inputId="reviews-allow-comment"
+                [attr.aria-label]="editText().reviews.allowComment" />
+              <span>{{ editText().reviews.allowComment }}</span>
+            </label>
+          </fieldset>
           </div>
         </p-tabpanel>
 

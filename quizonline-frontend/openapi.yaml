@@ -7722,6 +7722,12 @@ components:
           allOf:
           - $ref: '#/components/schemas/JoinPolicyEnum'
           readOnly: true
+        reviews_allow_rating:
+          type: boolean
+          readOnly: true
+        reviews_allow_comment:
+          type: boolean
+          readOnly: true
         pending_join_requests_count:
           type: integer
           nullable: true
@@ -7788,6 +7794,8 @@ components:
       - pending_join_requests_count
       - pending_transfer
       - public
+      - reviews_allow_comment
+      - reviews_allow_rating
       - subjects
       - translations
       - updated_at

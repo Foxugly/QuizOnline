@@ -187,6 +187,8 @@ export class DomainEdit implements OnInit {
     owner: new FormControl<number | null>(null),
     managers: new FormControl<number[]>([], {nonNullable: true}),
     join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
+    reviews_allow_rating: new FormControl<boolean>(true, {nonNullable: true}),
+    reviews_allow_comment: new FormControl<boolean>(true, {nonNullable: true}),
 
     allowed_language_codes: new FormControl<LangCode[]>([], {
       nonNullable: true,
@@ -667,6 +669,8 @@ export class DomainEdit implements OnInit {
       owner: ownerId,
       managers: managerIds,
       join_policy: (dto.join_policy as JoinPolicyEnumDto | undefined) ?? JoinPolicyEnumDto.Auto,
+      reviews_allow_rating: dto.reviews_allow_rating ?? true,
+      reviews_allow_comment: dto.reviews_allow_comment ?? true,
       certificate_signatory_name: dto.certificate_signatory_name ?? '',
     });
     // Reset the logo-edit signals each time we reseed from the DTO —
@@ -708,6 +712,8 @@ export class DomainEdit implements OnInit {
       public: this.form.controls.public.value,
       managers: this.form.controls.managers.value,
       join_policy: this.form.controls.join_policy.value,
+      reviews_allow_rating: this.form.controls.reviews_allow_rating.value,
+      reviews_allow_comment: this.form.controls.reviews_allow_comment.value,
       allowed_languages,
       translations,
       certificate_signatory_name: this.form.controls.certificate_signatory_name.value,

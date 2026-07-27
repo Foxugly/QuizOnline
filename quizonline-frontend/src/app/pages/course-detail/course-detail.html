@@ -105,6 +105,8 @@
       [title]="ui().emptyContentTitle"
       [hint]="ui().emptyContentMessage" />
   }
+
+  <app-course-reviews [courseId]="c.id" />
 } @else {
   <app-loading-skeleton [rows]="3" [attr.aria-label]="ui().loading" />
 }
