@@ -48,10 +48,10 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 | FE2 | P2 | États « erreur » confondus avec « chargement/vide » : sur échec réseau `lesson-view` affiche un skeleton à l'infini, `domain-list` affiche « aucun domaine ». | `pages/lesson-view/lesson-view.ts:273`, `pages/domain/list/domain-list.ts:112` | ✅ (domain-list + lesson-view : signal `loadError` + bloc erreur/retry, 5 langues) |
 | FE3 | P2 | Typage aux frontières API : `any` dans `quiz-question` (composant de jeu principal), `http.get` brut hors client généré dans `lesson-view`, casts `as … & {…}` pour des champs absents du DTO. | `components/quiz-question/quiz-question.ts:206`, `pages/lesson-view/lesson-view.ts:34`, `pages/domain/list/domain-list.ts:231` | ⬜ |
 | FE4 | P2 | Patterns de recherche divergents entre listes (rechargement serveur / filtrage client / debounce) → comportement incohérent, maintenance dispersée. | `domain-list` vs `quiz-list`/`user-list` vs `subject-list`/`course-list`/`catalog` | ⬜ |
-| FE5 | P3 | Le polling ne se met pas en pause onglet caché (`interval(60_000)` ignore `document.hidden`). | `services/unread-badges/unread-badges.service.ts:56` | ⬜ |
-| FE6 | P3 | Aucun retry/backoff sur les échecs transitoires (timeout 30 s mais zéro `retry`). | `network-interceptor.ts` | ⬜ |
-| FE7 | P3 | Code de polling mort et dupliqué (`startPolling` jamais appelé sur `notification.service` et `quiz-alert`). | `services/notification/notification.service.ts:41`, `services/quiz-alert/quiz-alert.ts:78` | ⬜ |
-| FE8 | P3 | Catch silencieux à tracer (`question-view.ts:254`, `change-password.ts:106`) — ajouter `logApiError`. | idem | ⬜ |
+| FE5 | P3 | Le polling ne se met pas en pause onglet caché (`interval(60_000)` ignore `document.hidden`). | `services/unread-badges/unread-badges.service.ts:56` | ✅ (tick sauté si `document.hidden` + rafraîchissement au retour d'onglet) |
+| FE6 | P3 | Aucun retry/backoff sur les échecs transitoires (timeout 30 s mais zéro `retry`). | `network-interceptor.ts` | ✅ (retry 2× backoff sur GET, status 0/5xx uniquement ; non-GET/non-transitoire re-throw) |
+| FE7 | P3 | Code de polling mort et dupliqué (`startPolling` jamais appelé sur `notification.service` et `quiz-alert`). | `services/notification/notification.service.ts:41`, `services/quiz-alert/quiz-alert.ts:78` | ✅ (start/stopPolling morts supprimés des 2 services + imports/const nettoyés ; seul UnreadBadgesService poll) |
+| FE8 | P3 | Catch silencieux à tracer (`question-view.ts:254`, `change-password.ts:106`) — ajouter `logApiError`. | idem | ✅ (`logApiError` ajouté sur le re-fetch de session quiz et l'échec `getMe` post-changement de mdp) |
 
 ## E. Produit / Fonctionnel
 

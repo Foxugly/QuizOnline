@@ -253,7 +253,8 @@ export class QuizQuestionView implements OnInit {
           }
           this.error.set(userFacingApiMessage(err, ui.saveAnswerFailed));
         },
-        error: () => {
+        error: (refetchErr: unknown) => {
+          logApiError('quiz.question.session-refetch', refetchErr);
           // Re-fetch itself failed (network etc.). Fall back to whatever the
           // local timer thinks.
           if (this.isTimedOut()) {

@@ -1,6 +1,6 @@
 import {DestroyRef, Injectable, computed, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Subscription, interval} from 'rxjs';
+import {Subscription, fromEvent, interval} from 'rxjs';
 
 import {UnreadCountsApi} from '../../api/generated/api/unread-counts.service';
 import {InvitationCountService} from '../invitation/invitation-count.service';
@@ -60,7 +60,24 @@ export class UnreadBadgesService {
     this.fetchOnce();
     this.pollSubscription = interval(POLL_INTERVAL_MS)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.fetchOnce());
+      // Skip the network round-trip while the tab is in the background — no
+      // point refreshing badges nobody is looking at (battery + server load,
+      // multiplied by every open tab).
+      .subscribe(() => {
+        if (!document.hidden) {
+          this.fetchOnce();
+        }
+      });
+    // Catch up promptly when the user returns to the tab (the skipped ticks
+    // may have left the badges stale). Guarded by pollSubscription so it stays
+    // inert after stopPolling() (logout).
+    fromEvent(document, 'visibilitychange')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.pollSubscription && !document.hidden) {
+          this.fetchOnce();
+        }
+      });
   }
 
   stopPolling(): void {

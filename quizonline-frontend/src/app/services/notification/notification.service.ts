@@ -1,6 +1,5 @@
-import {DestroyRef, Injectable, computed, inject, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Observable, Subscription, interval, map} from 'rxjs';
+import {Injectable, computed, inject, signal} from '@angular/core';
+import {Observable, map} from 'rxjs';
 
 import {NotificationApi} from '../../api/generated/api/notification.service';
 import {NotificationReadDto} from '../../api/generated/model/notification-read';
@@ -12,12 +11,9 @@ export interface NotificationListResult {
   total: number;
 }
 
-const POLL_INTERVAL_MS = 60_000;
-
 @Injectable({providedIn: 'root'})
 export class NotificationService {
   private readonly api = inject(NotificationApi);
-  private readonly destroyRef = inject(DestroyRef);
 
   private readonly _unread = signal<number>(0);
   readonly unread = this._unread.asReadonly();
@@ -31,30 +27,9 @@ export class NotificationService {
     this._unread.set(Math.max(0, value));
   }
 
-  private pollSubscription: Subscription | null = null;
-
-  /**
-   * Start the 60 s polling of ``/unread-count/`` so the topbar badge
-   * stays in sync without any websocket plumbing. Safe to call several
-   * times — duplicate calls are no-ops.
-   */
-  startPolling(): void {
-    if (this.pollSubscription) {
-      return;
-    }
-    this.refreshUnread();
-    this.pollSubscription = interval(POLL_INTERVAL_MS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshUnread());
-  }
-
-  stopPolling(): void {
-    this.pollSubscription?.unsubscribe();
-    this.pollSubscription = null;
-    this._unread.set(0);
-  }
-
-  /** Force-refresh the unread counter (used after mutations). */
+  /** Force-refresh the unread counter (used after mutations). The
+   *  coalesced 60 s polling lives in ``UnreadBadgesService``; this service
+   *  just holds the signal + one-shot refreshes. */
   refreshUnread(): void {
     this.api.notificationUnreadCountRetrieve().subscribe({
       next: (res) => {
