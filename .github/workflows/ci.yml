@@ -37,13 +37,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run backend test suite (pytest)
+      - name: Run backend test suite (pytest + coverage gate)
         env:
           DJANGO_ENV: test
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
-        run: python -m pytest
+        # Coverage config (source + omit) lives in .coveragerc. The suite sits
+        # around 85%; the 82% floor is a ratchet that catches a real regression
+        # without flapping on small legitimate dips. Raise it as coverage grows.
+        run: |
+          python -m coverage run -m pytest
+          python -m coverage report --fail-under=82
 
   backend-quality:
     runs-on: ubuntu-latest
@@ -130,8 +135,12 @@ jobs:
       - name: Run i18n completeness check
         run: npm run check:i18n
 
-      - name: Run unit tests
-        run: npm test
+      - name: Run unit tests (with coverage gate)
+        # Coverage config (exclusions + thresholds) lives in angular.json's
+        # ``coverage`` configuration. Generated API client + specs are excluded;
+        # the suite sits ~37% statements, thresholds are set a few points under
+        # as a ratchet against dropping tests. Raise them as coverage grows.
+        run: npm run test:coverage
 
       - name: Run production build
         run: npm run build
