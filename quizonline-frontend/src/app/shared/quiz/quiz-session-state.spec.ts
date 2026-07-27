@@ -21,6 +21,8 @@ describe('quiz session state helpers', () => {
     allowed_languages: [],
     active: true,
     public: true,
+    reviews_allow_rating: true,
+    reviews_allow_comment: true,
     subjects_count: 0,
     questions_count: 0,
     owner: {
