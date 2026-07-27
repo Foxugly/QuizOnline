@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.utils import timezone
 from drf_spectacular.utils import (
     extend_schema,
@@ -35,7 +35,7 @@ from .querysets import (
 )
 from .alerting import alert_thread_queryset_for_user
 from .session_integrity import synchronize_closed_quiz_answers
-from .notifications import notify_quiz_assigned_on_commit
+from .services import QuizAlreadyStartedError, create_quiz_for_user
 from .serializers import (
     QuizTemplateSerializer,
     QuizTemplateListSerializer,
@@ -632,43 +632,28 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
             target_user = get_object_or_404(get_user_model(), pk=user_id)
             validate_target_user_domain(qt, target_user)
 
-        if qt.mode == QuizTemplate.MODE_EXAM:
-            with transaction.atomic():
-                qt = QuizTemplate.objects.select_for_update().get(pk=qt.pk)
-                existing_exam_quiz = (
-                    Quiz.objects.select_for_update()
-                    .filter(quiz_template=qt, user=target_user)
-                    .order_by("-created_at", "-id")
-                    .first()
-                )
-                if existing_exam_quiz is not None:
-                    if existing_exam_quiz.started_at or existing_exam_quiz.ended_at:
-                        return Response(
-                            {"detail": "Ce quiz a deja ete commence."},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                    serializer = self.get_serializer(existing_exam_quiz)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-
-                quiz = Quiz.objects.create(
-                    domain_id=qt.domain_id,
-                    quiz_template=qt,
-                    user=target_user,
-                    active=False,
-                )
-        else:
-            quiz = Quiz.objects.create(
-                domain_id=qt.domain_id,
-                quiz_template=qt,
-                user=target_user,
-                active=False,
+        # Business logic (single-attempt exam locking, creation, assignment
+        # notification) lives in the service so it is reusable + testable
+        # outside the HTTP cycle. The view keeps request parsing + permissions.
+        try:
+            quiz, created = create_quiz_for_user(
+                quiz_template=qt, target_user=target_user, assigned_by=request.user,
             )
-        if target_user.id != request.user.id:
-            notify_quiz_assigned_on_commit(quiz, assigned_by=request.user)
-        logger.debug("create: created quiz_id=%s user_id=%s qt_id=%s", quiz.id, request.user.id,
-                    qt.id)
+        except QuizAlreadyStartedError:
+            logger.warning("create: exam already started qt_id=%s user_id=%s", qt.id, target_user.id)
+            return Response(
+                {"detail": "Ce quiz a deja ete commence."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        logger.debug(
+            "create: created=%s quiz_id=%s user_id=%s qt_id=%s",
+            created, quiz.id, request.user.id, qt.id,
+        )
         serializer = self.get_serializer(quiz)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
     def update(self, request, *args, **kwargs):
         self._log_call(
