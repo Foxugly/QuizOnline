@@ -12,6 +12,7 @@ import {PasswordChangeRequestDto} from '../../../api/generated/model/password-ch
 import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
+import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 
@@ -103,7 +104,10 @@ export class ChangePasswordPage {
           next: () => {
             this.handlePasswordChangeSuccess();
           },
-          error: () => {
+          error: (err: unknown) => {
+            // The password DID change; refreshing /me just failed. Proceed to
+            // the success flow anyway, but leave a trace for observability.
+            logApiError('auth.change-password.refresh-me', err);
             this.handlePasswordChangeSuccess();
           },
         });

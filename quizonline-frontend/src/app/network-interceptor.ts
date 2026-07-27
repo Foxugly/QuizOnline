@@ -1,6 +1,6 @@
 import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
-import {catchError, throwError, timeout} from 'rxjs';
+import {catchError, retry, throwError, timeout, timer} from 'rxjs';
 import {environment} from '../environments/environment';
 import {BackendStatusService} from './services/status/status';
 
@@ -15,6 +15,20 @@ export const NetworkInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     timeout(REQ_TIMEOUT_MS),
+    // Retry idempotent GETs on transient failures (connection dropped = status
+    // 0, or a 5xx) with a short backoff, so a blip doesn't surface as an error.
+    // Non-GET or non-transient errors are re-thrown immediately (retry stops).
+    retry({
+      count: 2,
+      delay: (error, retryCount) => {
+        const transient =
+          error instanceof HttpErrorResponse && (error.status === 0 || error.status >= 500);
+        if (req.method !== 'GET' || !transient) {
+          return throwError(() => error);
+        }
+        return timer(retryCount * 500); // 500 ms, then 1000 ms
+      },
+    }),
     catchError((err: unknown) => {
       // Timeout RxJS "simule" un status 0 pour nous
       if (err instanceof HttpErrorResponse) {
