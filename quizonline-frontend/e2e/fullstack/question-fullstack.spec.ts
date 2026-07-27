@@ -44,6 +44,11 @@ function normalizeHtmlText(value: string): string {
 // field), but the question view/edit UI assertions still need re-alignment with
 // the current SPA before these can gate. Tracked in
 // docs/improvement-backlog.md (O6).
+// TODO(O6): partially rehabilitated. The preview dialog opens with content
+// (heading + "Bonne reponse" assert fine); remaining drift is the media itself —
+// the seeded image/video no longer render an <img>/<video> whose src contains
+// "question_media" in the dialog (media URL scheme / rendering changed). Needs
+// the real current media URL pattern. Tracked in docs/improvement-backlog.md (O6).
 test.skip('charge une question seedee avec ses medias reels', async ({page}) => {
   await login(page);
 
@@ -57,20 +62,26 @@ test.skip('charge une question seedee avec ses medias reels', async ({page}) => 
   const previewDialog = page.locator('.p-dialog').filter({hasText: 'Question de seed'}).first();
   await expect(previewDialog).toBeVisible();
   await expect(previewDialog.getByText('Bonne reponse')).toBeVisible();
-  await expect(previewDialog.locator('p-image.quiz-question__media-image img')).toHaveAttribute(
+  // Media is rendered as content blocks now (no bespoke quiz-question__media-*
+  // classes), so assert on the real backend URLs directly — markup-agnostic.
+  await expect(previewDialog.locator('img[src*="question_media"]').first()).toHaveAttribute(
     'src',
-    /question_media\/[^/]{1,12}\.png/,
+    /question_media\/.+\.png/,
   );
-  await expect(previewDialog.locator('video.quiz-question__media-video')).toHaveAttribute(
-    'src',
-    /question_media\/[^/]{1,12}\.mp4/,
-  );
-  await expect(previewDialog.locator('iframe')).toHaveAttribute(
+  await expect(
+    previewDialog.locator('video[src*="question_media"], video source[src*="question_media"]').first(),
+  ).toHaveAttribute('src', /question_media\/.+\.mp4/);
+  await expect(previewDialog.locator('iframe[src*="youtube"]').first()).toHaveAttribute(
     'src',
     /youtube(?:-nocookie)?\.com\/embed\/dQw4w9WgXcQ/,
   );
 });
 
+// TODO(O6): still skipped — the answer-editing UI moved from a simple
+// per-answer rich-text field (`.answer__content .ql-editor`) to an
+// `app-block-list-editor` (block editor) per answer. Rehabilitating this needs
+// a rewrite of the answer-filling interaction to drive the block editor, not a
+// selector tweak. Tracked in docs/improvement-backlog.md (O6).
 test.skip('edite une question et persiste les traductions et reponses cote backend', async ({page}) => {
   await login(page);
 

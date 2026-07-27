@@ -37,6 +37,11 @@ async function getAccessToken(
 // /course-invite/…), but the invitation UI flow (user-menu badge, "Mes
 // invitations" navigation, accept view) still needs re-alignment with the
 // current SPA before this can gate. Tracked in docs/improvement-backlog.md (O6).
+// TODO(O6): partially rehabilitated. Login + badge + user-menu → /me/invitations
+// now work (used the unambiguous "Voir mes invitations" button). Still drifts
+// downstream: the invitation card's open action ("Voir l'invitation" link) label/
+// role changed on /me/invitations, and the accept flow past it is unverified.
+// Tracked in docs/improvement-backlog.md (O6).
 test.skip('testuser accepts a pending course invitation and lands enrolled', async ({page}) => {
   // The seed (``seed_fullstack_e2e`` management command) plants:
   //   - admin owns "Sciences" domain
@@ -52,9 +57,12 @@ test.skip('testuser accepts a pending course invitation and lands enrolled', asy
     page.locator('.user-trigger__badge'),
   ).toContainText('1');
 
-  // Open the user menu and click "Mes invitations".
+  // Open the user menu and go to the invitations page. The menu shows a
+  // pending-invitations preview with an unambiguous "Voir mes invitations"
+  // button (the "Mes invitations" label alone matches the trigger + badge +
+  // menu item, hence the explicit button name).
   await page.locator('.user-trigger').click();
-  await page.getByRole('button', {name: /Mes invitations/i}).click();
+  await page.getByRole('button', {name: 'Voir mes invitations'}).click();
   await expect(page).toHaveURL(/\/me\/invitations$/);
 
   // One invitation card is visible — click "Voir l'invitation".
