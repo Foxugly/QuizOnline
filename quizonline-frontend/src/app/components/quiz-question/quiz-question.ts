@@ -18,6 +18,7 @@ import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-answer-option-read';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
+import {LocalizedQuestionTranslationDto} from '../../api/generated/model/localized-question-translation';
 import {UserService} from '../../services/user/user';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {NoCopyDirective} from '../../shared/directives/no-copy.directive';
@@ -203,9 +204,9 @@ export class QuizQuestionComponent {
     return 'answer-line';
   }
 
-  protected getT(question: QuestionReadDto): any {
+  protected getT(question: QuestionReadDto): LocalizedQuestionTranslationDto | null {
     const lang: LanguageEnumDto = this.currentLang();
-    const translations: any = question.translations;
+    const translations = question.translations;
     return translations?.[lang] ?? Object.values(translations ?? {})[0] ?? null;
   }
 

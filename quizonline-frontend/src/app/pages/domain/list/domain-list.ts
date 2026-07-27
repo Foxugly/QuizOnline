@@ -248,12 +248,12 @@ export class DomainList implements OnInit {
   }
 
   private toRow(domain: DomainReadDto): DomainListRow {
-    const domainWithCounts = domain as DomainReadDto & { subjects_count?: number; questions_count?: number };
+    // subjects_count / questions_count are part of DomainReadDto now — no cast.
     return {
       ...domain,
       name: this.getName(domain),
-      subjectsCount: domainWithCounts.subjects_count ?? 0,
-      questionsCount: domainWithCounts.questions_count ?? 0,
+      subjectsCount: domain.subjects_count ?? 0,
+      questionsCount: domain.questions_count ?? 0,
       pendingJoinRequests: domain.pending_join_requests_count ?? 0,
     };
   }
