@@ -68,7 +68,7 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 
 | # | Prio | Constat | Référence | État |
 |---|------|---------|-----------|------|
-| Q1 | P3 | Logique métier (~85 lignes) dans `QuizViewSet.create` alors qu'un `quiz/services.py` existe → non réutilisable / dur à tester hors HTTP. | `quiz/views.py:587` | ⬜ |
+| Q1 | P3 | Logique métier (~85 lignes) dans `QuizViewSet.create` alors qu'un `quiz/services.py` existe → non réutilisable / dur à tester hors HTTP. | `quiz/views.py:587` | ✅ (extrait en `create_quiz_for_user` + `QuizAlreadyStartedError` ; la vue garde parsing+permissions ; testé hors HTTP, 5 tests) |
 
 ## G. Commercial / Facturation (spec validée 2026-07-26)
 
