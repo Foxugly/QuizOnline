@@ -42,7 +42,7 @@ async function getAccessToken(
 // field, user lookup by email), but the assign-dialog UI flow still needs
 // re-alignment with the current SPA before this can gate. Tracked in
 // docs/improvement-backlog.md (O6).
-test.skip('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa liste', async ({page}) => {
+test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa liste', async ({page}) => {
   await login(page);
   const adminToken = await getAccessToken(page);
 
@@ -97,11 +97,12 @@ test.skip('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans 
   await page.goto('/quiz/list');
   await expect(page.getByRole('heading', {name: 'Quiz'})).toBeVisible();
 
-  const sessionsTab = page.getByRole('tab', {name: /Mes quiz/i});
-  if (await sessionsTab.isVisible()) {
-    await sessionsTab.click();
-  }
+  // Always switch to the "Mes quiz" (sessions) tab — the assigned quiz lives
+  // there, not in the default "Templates" tab. The old conditional click made
+  // this flaky when Templates happened to be the active tab.
+  await page.getByRole('tab', {name: /Mes quiz/i}).click();
   const sessionsPanel = page.locator('p-tabpanel').filter({has: page.locator('app-quiz-session-table')}).first();
+  await expect(sessionsPanel.locator('app-quiz-session-table')).toBeVisible();
   await expect(sessionsPanel.getByRole('cell', {name: 'Quiz full-stack', exact: true}).first()).toBeVisible();
 
   const testuserToken = await getAccessToken(page, 'testuser@example.test');

@@ -35,6 +35,10 @@ async function getAccessToken(
 // TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/token/ email
 // field), but the quiz-play UI flow still needs re-alignment with the current
 // SPA before this can gate. Tracked in docs/improvement-backlog.md (O6).
+// TODO(O6): partially rehabilitated. Login + "Démarrer le quiz" (accent fixed)
+// now work; remaining drift is later in the play/finish flow (question
+// navigation / finish / final URL + score assertions). Tracked in
+// docs/improvement-backlog.md (O6).
 test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({page}) => {
   await login(page);
 
@@ -52,7 +56,7 @@ test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({
   expect(quizIdMatch).toBeTruthy();
   const quizId = quizIdMatch![1];
 
-  await page.getByRole('button', {name: /Demarrer le quiz/i}).click();
+  await page.getByRole('button', {name: /Démarrer le quiz/i}).click();
 
   await expect(page).toHaveURL(new RegExp(`/quiz/${quizId}/questions$`));
   await expect(page.getByText('Bonne reponse')).toBeVisible();
