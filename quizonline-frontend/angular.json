@@ -107,6 +107,26 @@
             "setupFiles": [
               "src/test-setup.ts"
             ]
+          },
+          "configurations": {
+            "coverage": {
+              "coverage": true,
+              "coverageReporters": ["text-summary"],
+              "coverageExclude": [
+                "src/app/api/generated/**",
+                "src/**/*.spec.ts",
+                "src/**/*.i18n.ts",
+                "src/main.ts",
+                "src/test-setup.ts",
+                "src/environments/**"
+              ],
+              "coverageThresholds": {
+                "statements": 33,
+                "branches": 28,
+                "functions": 15,
+                "lines": 34
+              }
+            }
           }
         }
       }
