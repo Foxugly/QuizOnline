@@ -82,11 +82,11 @@ env = environ.Env(
     # Send IP / user / cookies to the ingest endpoint. The SDK still scrubs
     # known sensitive headers (Authorization, Cookie, CSRF) on its own; what
     # this flag toggles is request-IP, user.id/email when set on the scope,
-    # and the URL query string. Default True matches the deployed prod
-    # value — operators wanting an extra-conservative posture (e.g. before
-    # the privacy policy lists Sentry as a sub-processor) can override
-    # SENTRY_SEND_DEFAULT_PII=False in .env.
-    SENTRY_SEND_DEFAULT_PII=(bool, True),
+    # and the URL query string. Default False = GDPR-conservative: Sentry does
+    # NOT receive IP/email. Opt in explicitly (SENTRY_SEND_DEFAULT_PII=true)
+    # only once the privacy policy lists Sentry as a sub-processor and a DPA is
+    # in place. settings_prod already defaulted to False; this aligns base/dev.
+    SENTRY_SEND_DEFAULT_PII=(bool, False),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))

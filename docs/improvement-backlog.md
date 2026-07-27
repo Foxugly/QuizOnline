@@ -31,7 +31,7 @@ Légende priorité : **P1** = fort ROI / faible risque · **P2** = durcissement 
 |---|------|---------|-----------|------|
 | S1 | P2 | Endpoint d'inscription sans throttling — seul endpoint d'auth sans `ScopedRateThrottle`, protégé uniquement par Turnstile (désactivé si `TURNSTILE_SECRET_KEY` vide) → risque de création de comptes en masse + email-bombing. | `customuser/views.py:203`, `config/settings_base.py:118` | ✅ (`RegisterRateThrottle` scope `register`, défaut 10/h, testé) |
 | S2 | P3 | Fuite du texte d'exception interne vers le client sur les imports JSON (`str(exc)` renvoyé, et `course` ne logue même pas). | `course/views.py:309`, `question/views.py:487` | ✅ (course : `ValidationError`→400 msg, catch-all→log+500 générique ; question : catch-all généralisé) |
-| S3 | P3 | `SENTRY_SEND_DEFAULT_PII=True` par défaut envoie IP + email à Sentry — documenté/intentionnel, à revalider vs politique de confidentialité. | `config/settings_base.py:88,106` | ⬜ |
+| S3 | P3 | ✅ Défaut passé à `SENTRY_SEND_DEFAULT_PII=False` (base+dev alignés sur prod qui l'était déjà) — Sentry ne reçoit plus IP/email ; opt-in explicite requis (RGPD). SSM prod ne définit pas la variable → confirmé off. | `config/settings_base.py:89` | ✅ |
 
 ## C. Performance (backend)
 
