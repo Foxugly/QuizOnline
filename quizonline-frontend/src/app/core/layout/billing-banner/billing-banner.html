@@ -1,0 +1,6 @@
+@if (state(); as s) {
+  <div class="billing-banner" [attr.data-severity]="s.severity" role="status">
+    <span class="billing-banner__msg">{{ s.message }}</span>
+    <a class="billing-banner__cta" [routerLink]="s.link">{{ ui().cta }}</a>
+  </div>
+}

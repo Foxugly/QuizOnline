@@ -6,6 +6,7 @@ import {TooltipModule} from 'primeng/tooltip';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
+import {logApiError} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
 import {LanguageSwitcherComponent} from '../../i18n/language-switcher/language-switcher';
 import {UserMenuComponent} from '../../../components/user-menu/user-menu';
@@ -552,9 +553,36 @@ export class TopMenuComponent implements OnInit {
     }
 
     this.domainService.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (domains) => this.visibleDomains.set(domains),
+      next: (domains) => {
+        this.visibleDomains.set(domains);
+        this.recoverFromUnavailableCurrentDomain(domains);
+      },
       error: () => this.visibleDomains.set([]),
     });
+  }
+
+  private domainRecoveryAttempted = false;
+
+  /** If the user's current domain is no longer among their visible domains
+   *  (e.g. its hosting was suspended past the free deadline, hiding it), switch
+   *  to the first domain they can still use so they aren't stranded on an empty,
+   *  inaccessible domain. One-shot per page load; after the reload the new
+   *  current domain is visible, so this does not re-trigger. */
+  private recoverFromUnavailableCurrentDomain(domains: DomainReadDto[]): void {
+    if (this.domainRecoveryAttempted) {
+      return;
+    }
+    const currentId = this.userService.currentUser()?.current_domain ?? null;
+    if (!currentId || domains.length === 0 || domains.some((d) => d.id === currentId)) {
+      return;
+    }
+    this.domainRecoveryAttempted = true;
+    this.userService.setCurrentDomain(domains[0].id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => window.location.reload(),
+        error: (err: unknown) => logApiError('topmenu.domain-recovery', err),
+      });
   }
 
 }
