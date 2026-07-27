@@ -20,7 +20,11 @@ repos:
         language: system
         entry: bash -c 'cd quizonline-frontend && npx --no-install tsx scripts/check-i18n.ts'
         pass_filenames: false
-        files: ^quizonline-frontend/src/app/(shared/i18n/|.*\.i18n\.ts$)
+        # Trigger on the shared catalogs AND any per-page i18n file — both the
+        # ``.i18n.ts`` type/getter and the ``.i18n.json`` catalog. The JSON was
+        # previously uncovered, so adding a key there had no local guard (only CI
+        # caught it).
+        files: ^quizonline-frontend/src/app/(shared/i18n/|.*\.i18n\.(ts|json)$)
 
       - id: openapi-sync-check
         name: OpenAPI sync guard (backend API changes need a regen)
