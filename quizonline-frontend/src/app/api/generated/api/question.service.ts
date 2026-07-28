@@ -109,7 +109,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Créer une question (JSON)
-     * Crée une question.  Payload : JSON. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: liste  Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via &#x60;/api/block/&#x60;. 
+     * Crée une question.  Payload : JSON. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: liste  Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via &#x60;/api/v1/block/&#x60;. 
      * @endpoint post /api/v1/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

@@ -10,7 +10,7 @@
 
 
 /**
- * Payload for ``POST /api/auth/magic-link/exchange/``.
+ * Payload for ``POST /api/v1/auth/magic-link/exchange/``.
  */
 export interface MagicLinkExchangeRequestRequestDto { 
     token: string;

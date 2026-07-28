@@ -111,7 +111,7 @@ export class LessonView implements OnInit, OnDestroy {
     anchor: 'lesson-notes-heading',
   }));
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
   private routeSub: Subscription | null = null;
 
   /** One-line composite page-header title:

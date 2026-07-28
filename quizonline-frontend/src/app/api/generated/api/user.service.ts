@@ -366,7 +366,7 @@ export class UserApi extends BaseService {
 
     /**
      * Supprimer son compte (droit à l\&#39;effacement RGPD)
-     * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
+     * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/v1/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
      * @endpoint delete /api/v1/user/me/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

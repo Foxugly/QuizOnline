@@ -10,7 +10,7 @@
 
 
 /**
- * Shape returned by ``GET /api/notification/`` and friends.
+ * Shape returned by ``GET /api/v1/notification/`` and friends.
  */
 export interface NotificationReadDto { 
     readonly id: number;

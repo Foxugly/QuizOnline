@@ -52,7 +52,7 @@ export class CourseReviews implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly toast = inject(AppToastService);
   protected readonly ui = inject(UiTextService).localized(getCourseReviewsUiText);
-  private readonly apiBase = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBase = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   protected readonly data = signal<ReviewsResponse | null>(null);
   protected readonly loading = signal(true);

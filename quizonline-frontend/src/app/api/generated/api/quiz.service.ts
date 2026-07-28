@@ -373,7 +373,7 @@ export class QuizApi extends BaseService {
     }
 
     /**
-     * GET /api/quiz/{quiz_id}/export-pdf/  Returns a PDF report of the quiz results. The caller must be the quiz owner or a superuser. The quiz template\&#39;s result visibility rules are respected.
+     * GET /api/v1/quiz/{quiz_id}/export-pdf/  Returns a PDF report of the quiz results. The caller must be the quiz owner or a superuser. The quiz template\&#39;s result visibility rules are respected.
      * @endpoint get /api/v1/quiz/{quiz_id}/export-pdf/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

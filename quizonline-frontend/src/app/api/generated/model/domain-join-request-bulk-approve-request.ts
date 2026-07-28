@@ -10,7 +10,7 @@
 
 
 /**
- * Payload for ``POST /api/domain/{id}/join-request/bulk-approve/``.
+ * Payload for ``POST /api/v1/domain/{id}/join-request/bulk-approve/``.
  */
 export interface DomainJoinRequestBulkApproveRequestDto { 
     request_ids: Array<number>;

@@ -181,7 +181,7 @@ export class BlockListEditor {
     return this.ALL_BLOCK_TYPES.filter((t) => t.value !== 'quiz');
   });
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   /** Stable composite anchor id so several block lists in the same
    *  page (prompt / answer 1 / answer 2 / explanation) never collide

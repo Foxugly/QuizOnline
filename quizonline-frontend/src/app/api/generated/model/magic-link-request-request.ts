@@ -10,7 +10,7 @@
 
 
 /**
- * Payload for ``POST /api/auth/magic-link/request/``.
+ * Payload for ``POST /api/v1/auth/magic-link/request/``.
  */
 export interface MagicLinkRequestRequestDto { 
     email: string;

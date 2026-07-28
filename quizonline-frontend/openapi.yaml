@@ -1795,7 +1795,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/:
     get:
       operationId: domain_join_request_list
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       parameters:
       - in: path
         name: domain_id
@@ -1821,7 +1821,7 @@ paths:
           description: ''
     post:
       operationId: domain_join_request_create
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       parameters:
       - in: path
         name: domain_id
@@ -1842,7 +1842,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/{req_id}/:
     get:
       operationId: domain_join_request_retrieve
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       parameters:
       - in: path
         name: domain_id
@@ -1868,7 +1868,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/{req_id}/approve/:
     post:
       operationId: domain_join_request_approve_create
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       parameters:
       - in: path
         name: domain_id
@@ -1936,7 +1936,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/{req_id}/reject/:
     post:
       operationId: domain_join_request_reject_create
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       parameters:
       - in: path
         name: domain_id
@@ -1962,7 +1962,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/bulk-approve/:
     post:
       operationId: domain_join_request_bulk_approve_create
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       summary: Approuver plusieurs demandes en une requête
       parameters:
       - in: path
@@ -1996,7 +1996,7 @@ paths:
   /api/v1/domain/{domain_id}/join-request/bulk-reject/:
     post:
       operationId: domain_join_request_bulk_reject_create
-      description: Nested under /api/domain/{domain_id}/join-request/.
+      description: Nested under /api/v1/domain/{domain_id}/join-request/.
       summary: Refuser plusieurs demandes en une requête
       parameters:
       - in: path
@@ -3475,7 +3475,7 @@ paths:
         - `subject_ids`: liste d'IDs
         - `answer_options`: liste
 
-        Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via `/api/block/`.
+        Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via `/api/v1/block/`.
       summary: Créer une question (JSON)
       tags:
       - Question
@@ -4098,7 +4098,7 @@ paths:
     get:
       operationId: quiz_export_pdf_retrieve
       description: |-
-        GET /api/quiz/{quiz_id}/export-pdf/
+        GET /api/v1/quiz/{quiz_id}/export-pdf/
 
         Returns a PDF report of the quiz results.
         The caller must be the quiz owner or a superuser.
@@ -5069,7 +5069,7 @@ paths:
     get:
       operationId: stats_dashboard_retrieve
       description: |-
-        GET /api/stats/dashboard/
+        GET /api/v1/stats/dashboard/
         Returns platform statistics scoped by the requesting user's domain access.
         Superusers see everything; other staff see only domains they own or manage.
       summary: Statistiques du tableau de bord
@@ -5916,7 +5916,7 @@ paths:
       description: |-
         Supprime définitivement le compte de l'utilisateur connecté.
 
-        **Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur possède encore au moins un domaine actif. Il doit d'abord transférer la propriété (``POST /api/domain/{id}/transfer/``) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.
+        **Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur possède encore au moins un domaine actif. Il doit d'abord transférer la propriété (``POST /api/v1/domain/{id}/transfer/``) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.
 
         **Effets en cascade** : tout le contenu créé par l'utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
       summary: Supprimer son compte (droit à l'effacement RGPD)
@@ -7118,7 +7118,7 @@ components:
     CourseInviteSendRequest:
       type: object
       description: |-
-        Write shape for ``POST /api/course/{id}/invite/``. The
+        Write shape for ``POST /api/v1/course/{id}/invite/``. The
         instructor picks an invitee by their ``user_id``; that user must
         already be a member of the course's domain (enforced by the
         service layer).
@@ -7585,7 +7585,7 @@ components:
       - totals
     DomainAnalytics:
       type: object
-      description: Shape returned by ``GET /api/domain/{id}/analytics/``.
+      description: Shape returned by ``GET /api/v1/domain/{id}/analytics/``.
       properties:
         pending_count:
           type: integer
@@ -7850,7 +7850,7 @@ components:
     DomainInviteRequestRequest:
       type: object
       description: |-
-        Payload for ``POST /api/domain/{id}/invite/``.
+        Payload for ``POST /api/v1/domain/{id}/invite/``.
 
         ``language`` is optional and used to pick the email locale when we
         have no User row to read a preference from yet (fresh invitations to
@@ -7911,7 +7911,7 @@ components:
         * `forbidden_domain` - forbidden_domain
     DomainInviteState:
       type: object
-      description: Shape of GET/POST ``/api/domain/invite/accept/{token}/``.
+      description: Shape of GET/POST ``/api/v1/domain/invite/accept/{token}/``.
       properties:
         state:
           $ref: '#/components/schemas/DomainInviteStateStateEnum'
@@ -7948,7 +7948,7 @@ components:
         * `accepted` - accepted
     DomainJoinRequestBulkApproveRequest:
       type: object
-      description: Payload for ``POST /api/domain/{id}/join-request/bulk-approve/``.
+      description: Payload for ``POST /api/v1/domain/{id}/join-request/bulk-approve/``.
       properties:
         request_ids:
           type: array
@@ -7961,7 +7961,7 @@ components:
       - request_ids
     DomainJoinRequestBulkRejectRequest:
       type: object
-      description: Payload for ``POST /api/domain/{id}/join-request/bulk-reject/``.
+      description: Payload for ``POST /api/v1/domain/{id}/join-request/bulk-reject/``.
       properties:
         request_ids:
           type: array
@@ -8196,7 +8196,7 @@ components:
       - updated_at
     DomainTransferRequestRequest:
       type: object
-      description: Payload for ``POST /api/domain/{id}/transfer/``.
+      description: Payload for ``POST /api/v1/domain/{id}/transfer/``.
       properties:
         user_id:
           type: integer
@@ -8205,7 +8205,7 @@ components:
       - user_id
     DomainTransferState:
       type: object
-      description: Shape of GET/POST ``/api/domain/transfer/accept/{token}/``.
+      description: Shape of GET/POST ``/api/v1/domain/transfer/accept/{token}/``.
       properties:
         state:
           $ref: '#/components/schemas/DomainTransferStateStateEnum'
@@ -8856,7 +8856,7 @@ components:
         * `magic_link` - Magic link
     MagicLinkExchangeRequestRequest:
       type: object
-      description: Payload for ``POST /api/auth/magic-link/exchange/``.
+      description: Payload for ``POST /api/v1/auth/magic-link/exchange/``.
       properties:
         token:
           type: string
@@ -8877,7 +8877,7 @@ components:
       - refresh
     MagicLinkRequestRequest:
       type: object
-      description: Payload for ``POST /api/auth/magic-link/request/``.
+      description: Payload for ``POST /api/v1/auth/magic-link/request/``.
       properties:
         email:
           type: string
@@ -8909,7 +8909,7 @@ components:
       - pending_count
     NotificationRead:
       type: object
-      description: Shape returned by ``GET /api/notification/`` and friends.
+      description: Shape returned by ``GET /api/v1/notification/`` and friends.
       properties:
         id:
           type: integer

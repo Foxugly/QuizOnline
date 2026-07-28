@@ -67,7 +67,7 @@ export interface CourseAnalyticsDto {
 @Injectable({providedIn: 'root'})
 export class EnrollmentService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   myEnrollments(params: {status?: string} = {}): Observable<unknown> {
     let httpParams = new HttpParams();

@@ -27,7 +27,7 @@ export interface CourseAuditEntryDto {
 @Injectable({providedIn: 'root'})
 export class CatalogService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   list(
     params: {

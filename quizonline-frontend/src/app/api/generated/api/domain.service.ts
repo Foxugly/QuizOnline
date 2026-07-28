@@ -1268,7 +1268,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint post /api/v1/domain/{domain_id}/join-request/{req_id}/approve/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1333,7 +1333,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Approuver plusieurs demandes en une requête
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint post /api/v1/domain/{domain_id}/join-request/bulk-approve/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1410,7 +1410,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Refuser plusieurs demandes en une requête
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint post /api/v1/domain/{domain_id}/join-request/bulk-reject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1550,7 +1550,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint post /api/v1/domain/{domain_id}/join-request/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1732,7 +1732,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint get /api/v1/domain/{domain_id}/join-request/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1805,7 +1805,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint post /api/v1/domain/{domain_id}/join-request/{req_id}/reject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1869,7 +1869,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * Nested under /api/domain/{domain_id}/join-request/.
+     * Nested under /api/v1/domain/{domain_id}/join-request/.
      * @endpoint get /api/v1/domain/{domain_id}/join-request/{req_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

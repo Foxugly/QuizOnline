@@ -11,7 +11,7 @@ import { DomainTransferStateStateEnumDto } from './domain-transfer-state-state-e
 
 
 /**
- * Shape of GET/POST ``/api/domain/transfer/accept/{token}/``.
+ * Shape of GET/POST ``/api/v1/domain/transfer/accept/{token}/``.
  */
 export interface DomainTransferStateDto { 
     state: DomainTransferStateStateEnumDto;

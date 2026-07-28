@@ -173,7 +173,7 @@ export class AdminApi extends BaseService {
 
     /**
      * Statistiques du tableau de bord
-     * GET /api/stats/dashboard/ Returns platform statistics scoped by the requesting user\&#39;s domain access. Superusers see everything; other staff see only domains they own or manage.
+     * GET /api/v1/stats/dashboard/ Returns platform statistics scoped by the requesting user\&#39;s domain access. Superusers see everything; other staff see only domains they own or manage.
      * @endpoint get /api/v1/stats/dashboard/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

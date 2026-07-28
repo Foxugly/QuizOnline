@@ -25,7 +25,7 @@ export class AuthService {
   private readonly REFRESH_KEY = 'refresh_token';
   private readonly USER_KEY = 'displayName';
   private readonly REMEMBER_KEY = 'remember_me';
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   private accessToken: string | null = null;
   private refreshToken: string | null = null;

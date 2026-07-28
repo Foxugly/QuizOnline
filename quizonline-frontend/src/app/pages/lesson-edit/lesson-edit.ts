@@ -96,7 +96,7 @@ export class LessonEdit implements OnInit, OnDestroy {
     this.previewMode.update((v) => !v);
   }
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
   private routeSub: Subscription | null = null;
 
   ngOnInit(): void {

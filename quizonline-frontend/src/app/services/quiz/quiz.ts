@@ -33,7 +33,7 @@ export type QuizTemplateAssignmentSessionDto = QuizAssignmentListDto;
   providedIn: 'root',
 })
 export class QuizService {
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
     private readonly quizApi = inject(QuizApiService);
   private readonly qtApi = inject(QuizTemplateApiService);

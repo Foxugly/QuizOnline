@@ -461,7 +461,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/domain\/\d+\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/domain\/\d+\/$/) && request.method() === 'GET') {
       const id = path.split('/').filter(Boolean).at(-1) ?? '';
       await fulfillJson(route, domainDetails[id] ?? defaultDomain, 200);
       return;
@@ -498,7 +498,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/question\/\d+\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/question\/\d+\/$/) && request.method() === 'GET') {
       const id = path.split('/').filter(Boolean).at(-1) ?? '';
       await fulfillJson(route, questionDetails[id] ?? defaultQuestion, 200);
       return;
@@ -551,7 +551,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/\d+\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/quiz\/\d+\/$/) && request.method() === 'GET') {
       const id = path.split('/').filter(Boolean).at(-1) ?? '';
       await fulfillJson(route, quizDetails[id] ?? (id === '701' && createdQuiz ? createdQuiz : defaultQuiz), 200);
       return;
@@ -595,13 +595,13 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/template\/\d+\/sessions\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/quiz\/template\/\d+\/sessions\/$/) && request.method() === 'GET') {
       const templateId = path.split('/').filter(Boolean).at(-2) ?? '';
       await fulfillJson(route, paginated(templateSessions[templateId] ?? []), 200);
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/template\/\d+\/question\/$/) && request.method() === 'POST') {
+    if (path.match(/^\/api\/v1\/quiz\/template\/\d+\/question\/$/) && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.quizTemplateQuestionCreate.push(body);
       await fulfillJson(route, {
@@ -613,12 +613,12 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/\d+\/answer\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/quiz\/\d+\/answer\/$/) && request.method() === 'GET') {
       await fulfillJson(route, paginated(Object.values(answersByOrder)), 200);
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/\d+\/answer\/\d+\/$/) && request.method() === 'GET') {
+    if (path.match(/^\/api\/v1\/quiz\/\d+\/answer\/\d+\/$/) && request.method() === 'GET') {
       const segments = path.split('/').filter(Boolean);
       const answerId = segments.at(-1) ?? '';
       const answer = answersByOrder[answerId];
@@ -630,14 +630,14 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/\d+\/answer\/$/) && request.method() === 'POST') {
+    if (path.match(/^\/api\/v1\/quiz\/\d+\/answer\/$/) && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.quizAnswerCreate.push(body);
       await fulfillJson(route, body, 201);
       return;
     }
 
-    if (path.match(/^\/api\/quiz\/\d+\/answer\/\d+\/$/) && request.method() === 'PUT') {
+    if (path.match(/^\/api\/v1\/quiz\/\d+\/answer\/\d+\/$/) && request.method() === 'PUT') {
       const body = parseBody(request);
       state.requests.quizAnswerUpdate.push(body);
       await fulfillJson(route, body, 200);
