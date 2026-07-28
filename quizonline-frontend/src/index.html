@@ -8,7 +8,7 @@
        the tab during the ~10–50 ms between parse and bundle exec. -->
   <title>Loading…</title>
   <meta name="color-scheme" content="light dark">
-  <script>
+  <script data-theme-init>
     // Anti-FOUC (fleet standard): set .dark-mode on <html> BEFORE the Angular
     // bootstrap so a reload doesn't flash the light theme. ThemeService takes
     // over once the app runs.
@@ -20,7 +20,7 @@
       } catch (e) {}
     })();
   </script>
-  <script>
+  <script data-logo-init>
     document.addEventListener('DOMContentLoaded', () => {
       if (window.__APP__) {
         const logo = document.getElementById('logo'); // <link id="logo" ...>
