@@ -39,7 +39,7 @@ export class ReviewApi extends BaseService {
 
     /**
      * Owner/manager of the course\&#39;s domain hides/unhides a review.
-     * @endpoint post /api/review/{review_id}/moderate/
+     * @endpoint post /api/v1/review/{review_id}/moderate/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -81,7 +81,7 @@ export class ReviewApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/review/${this.configuration.encodeParam({name: "reviewId", value: reviewId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/moderate/`;
+        let localVarPath = `/api/v1/review/${this.configuration.encodeParam({name: "reviewId", value: reviewId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/moderate/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {

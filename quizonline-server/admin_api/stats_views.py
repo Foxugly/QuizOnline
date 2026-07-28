@@ -51,7 +51,7 @@ class DashboardStatsResponseSerializer(serializers.Serializer):
 )
 class DashboardStatsView(APIView):
     """
-    GET /api/stats/dashboard/
+    GET /api/v1/stats/dashboard/
     Returns platform statistics scoped by the requesting user's domain access.
     Superusers see everything; other staff see only domains they own or manage.
     """

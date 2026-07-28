@@ -151,7 +151,7 @@ class QuizTemplateViewSet(
     def list(self, request, *args, **kwargs):
         self._log_call(
             method_name="list",
-            endpoint="GET /api/quiz/template/",
+            endpoint="GET /api/v1/quiz/template/",
             input_expected="query params (optionnels), body vide",
             output="200 + [QuizTemplateSerializer] (paginé si pagination activée)",
         )
@@ -170,7 +170,7 @@ class QuizTemplateViewSet(
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/quiz/template/{qt_id}/",
+            endpoint="GET /api/v1/quiz/template/{qt_id}/",
             input_expected="path param: id (qt_id)",
             output="200 + QuizTemplateSerializer | 404",
             extra={"pk": kwargs.get("qt_id")},
@@ -196,7 +196,7 @@ class QuizTemplateViewSet(
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/quiz/template/",
+            endpoint="POST /api/v1/quiz/template/",
             input_expected="body JSON: QuizTemplateSerializer (champs write)",
             output="201 + QuizTemplateSerializer | 400",
         )
@@ -209,7 +209,7 @@ class QuizTemplateViewSet(
     def update(self, request, *args, **kwargs):
         self._log_call(
             method_name="update",
-            endpoint="PUT /api/quiz/template/{qt_id}/",
+            endpoint="PUT /api/v1/quiz/template/{qt_id}/",
             input_expected="path qt_id + body JSON complet (QuizTemplateSerializer)",
             output="200 + QuizTemplateSerializer | 400 | 404",
             extra={"pk": kwargs.get("qt_id")},
@@ -225,7 +225,7 @@ class QuizTemplateViewSet(
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/quiz/template/{qt_id}/",
+            endpoint="PATCH /api/v1/quiz/template/{qt_id}/",
             input_expected="path pk + body JSON partiel (QuizTemplateSerializer)",
             output="200 + QuizTemplateSerializer | 400 | 404",
             extra={"pk": kwargs.get("qt_id")},
@@ -241,7 +241,7 @@ class QuizTemplateViewSet(
     def destroy(self, request, *args, **kwargs):
         self._log_call(
             method_name="destroy",
-            endpoint="DELETE /api/quiz/template/{id}/",
+            endpoint="DELETE /api/v1/quiz/template/{id}/",
             input_expected="path pk, body vide",
             output="204 | 404",
             extra={"pk": kwargs.get("pk")},
@@ -556,7 +556,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def list(self, request, *args, **kwargs):
         self._log_call(
             method_name="list",
-            endpoint="GET /api/quiz/",
+            endpoint="GET /api/v1/quiz/",
             input_expected="query params optionnels, body vide",
             output="200 + [QuizListSerializer] (paginé si pagination activée)",
         )
@@ -574,7 +574,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/quiz/{quiz_id}/",
+            endpoint="GET /api/v1/quiz/{quiz_id}/",
             input_expected="path param: quiz_id",
             output="200 + QuizSerializer | 404",
             extra={"pk": kwargs.get("quiz_id")},
@@ -587,7 +587,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/quiz/",
+            endpoint="POST /api/v1/quiz/",
             input_expected="body: {quiz_template_id:int, user_id?:int}",
             output="201 + QuizSerializer  | 400 | 403 | 404",
         )
@@ -658,7 +658,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def update(self, request, *args, **kwargs):
         self._log_call(
             method_name="update",
-            endpoint="PUT /api/quiz/{quiz_id}/",
+            endpoint="PUT /api/v1/quiz/{quiz_id}/",
             input_expected="path pk + body JSON complet (QuizSerializer)",
             output="200 + QuizSerializer | 400 | 404",
             extra={"pk": kwargs.get("quiz_id")},
@@ -668,7 +668,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/quiz/{quiz_id}/",
+            endpoint="PATCH /api/v1/quiz/{quiz_id}/",
             input_expected="path pk + body JSON partiel (QuizSerializer)",
             output="200 + QuizSerializer | 400 | 404",
             extra={"pk": kwargs.get("quiz_id")},
@@ -678,7 +678,7 @@ class QuizViewSet(QuizBulkCreateMixin, QuizLifecycleMixin, MyModelViewSet):
     def destroy(self, request, *args, **kwargs):
         self._log_call(
             method_name="destroy",
-            endpoint="DELETE /api/quiz/{quiz_id}/",
+            endpoint="DELETE /api/v1/quiz/{quiz_id}/",
             input_expected="path pk, body vide",
             output="204 | 404",
             extra={"pk": kwargs.get("quiz_id")},
@@ -745,7 +745,7 @@ class QuizAlertThreadViewSet(
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/quiz/alerts/{alert_id}/",
+            endpoint="GET /api/v1/quiz/alerts/{alert_id}/",
             input_expected="path alert_id",
             output="200 + QuizAlertThreadDetailSerializer | 404",
             extra={"alert_id": kwargs.get("alert_id")},
@@ -758,7 +758,7 @@ class QuizAlertThreadViewSet(
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/quiz/alerts/",
+            endpoint="POST /api/v1/quiz/alerts/",
             input_expected="body {quiz_id, question_id, body}",
             output="201 + QuizAlertThreadDetailSerializer | 400",
         )
@@ -771,7 +771,7 @@ class QuizAlertThreadViewSet(
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/quiz/alerts/{alert_id}/",
+            endpoint="PATCH /api/v1/quiz/alerts/{alert_id}/",
             input_expected="body {reporter_reply_allowed}",
             output="200 + QuizAlertThreadDetailSerializer | 400 | 404",
             extra={"alert_id": kwargs.get("alert_id")},
@@ -876,7 +876,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def list(self, request, *args, **kwargs):
         self._log_call(
             method_name="list",
-            endpoint="GET /api/quiz/{quiz_id}/answer/",
+            endpoint="GET /api/v1/quiz/{quiz_id}/answer/",
             input_expected="path quiz_id, query params optionnels, body vide",
             output="200 + [QuizQuestionAnswerSerializer] (paginé)",
         )
@@ -885,7 +885,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/quiz/{quiz_id}/answer/{answer_id}/",
+            endpoint="GET /api/v1/quiz/{quiz_id}/answer/{answer_id}/",
             input_expected="path quiz_id + answer_id, body vide",
             output="200 + QuizQuestionAnswerSerializer | 404",
             extra={"answer_id": kwargs.get("answer_id")}
@@ -895,7 +895,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/quiz/{quiz_id}/answer/",
+            endpoint="POST /api/v1/quiz/{quiz_id}/answer/",
             input_expected="path quiz_id + body JSON (QuizQuestionAnswerSerializer write fields). Quiz imposé par URL.",
             output="201 + QuizQuestionAnswerSerializer | 400 | 404",
         )
@@ -912,7 +912,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def update(self, request, *args, **kwargs):
         self._log_call(
             method_name="update",
-            endpoint="PUT /api/quiz/{quiz_id}/answer/{answer_id}/",
+            endpoint="PUT /api/v1/quiz/{quiz_id}/answer/{answer_id}/",
             input_expected="path quiz_id + answer_id + body JSON complet (QuizQuestionAnswerSerializer)",
             output="200 + QuizQuestionAnswerSerializer | 400 | 404",
             extra={"answer_id": kwargs.get("answer_id")}
@@ -928,7 +928,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/quiz/{quiz_id}/answer/{answer_id}/",
+            endpoint="PATCH /api/v1/quiz/{quiz_id}/answer/{answer_id}/",
             input_expected="path quiz_id + answer_id + body JSON partiel (QuizQuestionAnswerSerializer)",
             output="200 + QuizQuestionAnswerSerializer | 400 | 404",
             extra={"answer_id": kwargs.get("answer_id")}
@@ -939,7 +939,7 @@ class QuizQuestionAnswerViewSet(MyModelViewSet):
     def destroy(self, request, *args, **kwargs):
         self._log_call(
             method_name="destroy",
-            endpoint="DELETE /api/quiz/{quiz_id}/answer/{answer_id}/",
+            endpoint="DELETE /api/v1/quiz/{quiz_id}/answer/{answer_id}/",
             input_expected="path quiz_id + answer_id, body vide",
             output="204 | 404",
             extra={"answer_id": kwargs.get("answer_id")}

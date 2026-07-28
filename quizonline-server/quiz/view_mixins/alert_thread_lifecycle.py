@@ -29,7 +29,7 @@ class AlertThreadLifecycleMixin:
     def close(self, request, *args, **kwargs):
         self._log_call(
             method_name="close",
-            endpoint="POST /api/quiz/alerts/{alert_id}/close/",
+            endpoint="POST /api/v1/quiz/alerts/{alert_id}/close/",
             input_expected="body vide",
             output="200 + QuizAlertThreadDetailSerializer | 403 | 404",
             extra={"alert_id": kwargs.get("alert_id")},
@@ -49,7 +49,7 @@ class AlertThreadLifecycleMixin:
     def reopen(self, request, *args, **kwargs):
         self._log_call(
             method_name="reopen",
-            endpoint="POST /api/quiz/alerts/{alert_id}/reopen/",
+            endpoint="POST /api/v1/quiz/alerts/{alert_id}/reopen/",
             input_expected="body vide",
             output="200 + QuizAlertThreadDetailSerializer | 403 | 404",
             extra={"alert_id": kwargs.get("alert_id")},

@@ -15,7 +15,7 @@ User = get_user_model()
 
 
 class BulkApproveTests(TestCase):
-    URL = "/api/domain/{}/join-request/bulk-approve/"
+    URL = "/api/v1/domain/{}/join-request/bulk-approve/"
 
     def setUp(self):
         translation.activate("fr")
@@ -90,7 +90,7 @@ class BulkApproveTests(TestCase):
 
 
 class BulkRejectTests(TestCase):
-    URL = "/api/domain/{}/join-request/bulk-reject/"
+    URL = "/api/v1/domain/{}/join-request/bulk-reject/"
 
     def setUp(self):
         translation.activate("fr")

@@ -25,7 +25,7 @@ interface PagedEnvelope<T> {
 }
 
 /** Server-side analytics payload for a single course. Mirrors the shape
- *  returned by ``GET /api/course/{id}/analytics/``. */
+ *  returned by ``GET /api/v1/course/{id}/analytics/``. */
 export interface CourseAnalyticsDto {
   enrollment_counts: {
     total: number;

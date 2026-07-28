@@ -1,9 +1,9 @@
 """
 Tests for the passwordless magic-link sign-in flow:
 
-- ``POST /api/auth/magic-link/request/`` (always 200, ungrammatical
+- ``POST /api/v1/auth/magic-link/request/`` (always 200, ungrammatical
   per-account leakage forbidden)
-- ``POST /api/auth/magic-link/exchange/`` (token → JWT pair)
+- ``POST /api/v1/auth/magic-link/exchange/`` (token → JWT pair)
 """
 
 from unittest.mock import patch
@@ -28,7 +28,7 @@ def _reset_throttles():
 
 
 class MagicLinkRequestTests(TestCase):
-    URL = "/api/auth/magic-link/request/"
+    URL = "/api/v1/auth/magic-link/request/"
 
     def setUp(self):
         translation.activate("fr")
@@ -77,7 +77,7 @@ class MagicLinkRequestTests(TestCase):
 
 
 class MagicLinkExchangeTests(TestCase):
-    URL = "/api/auth/magic-link/exchange/"
+    URL = "/api/v1/auth/magic-link/exchange/"
 
     def setUp(self):
         translation.activate("fr")

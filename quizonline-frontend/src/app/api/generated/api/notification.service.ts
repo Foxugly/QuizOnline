@@ -55,7 +55,7 @@ export class NotificationApi extends BaseService {
     /**
      * Supprimer (soft) une notification
      * Marque la ligne &#x60;&#x60;deleted_at &#x3D; now&#x60;&#x60; — elle disparaît de la liste unread/all mais reste accessible via &#x60;&#x60;?status&#x3D;deleted&#x60;&#x60;.
-     * @endpoint delete /api/notification/{id}/
+     * @endpoint delete /api/v1/notification/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -97,7 +97,7 @@ export class NotificationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/notification/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/notification/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -115,7 +115,7 @@ export class NotificationApi extends BaseService {
     /**
      * Lister les notifications de l\&#39;utilisateur
      * Renvoie les notifications de l\&#39;utilisateur courant, paginées et triées de la plus récente à la plus ancienne.  Filtre optionnel &#x60;&#x60;status&#x60;&#x60; : - &#x60;&#x60;unread&#x60;&#x60; (défaut) : non lues et non supprimées - &#x60;&#x60;all&#x60;&#x60; : non supprimées (lues + non lues) - &#x60;&#x60;deleted&#x60;&#x60; : supprimées (corbeille)
-     * @endpoint get /api/notification/
+     * @endpoint get /api/v1/notification/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -176,7 +176,7 @@ export class NotificationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/notification/`;
+        let localVarPath = `/api/v1/notification/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedNotificationReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -195,7 +195,7 @@ export class NotificationApi extends BaseService {
     /**
      * Marquer toutes les notifications comme lues
      * Une seule requête UPDATE — ne touche pas les supprimées.
-     * @endpoint post /api/notification/read-all/
+     * @endpoint post /api/v1/notification/read-all/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -233,7 +233,7 @@ export class NotificationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/notification/read-all/`;
+        let localVarPath = `/api/v1/notification/read-all/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('post', `${basePath}${localVarPath}`,
             {
@@ -251,7 +251,7 @@ export class NotificationApi extends BaseService {
     /**
      * Marquer une notification comme lue
      * Per-user notifications inbox.
-     * @endpoint post /api/notification/{id}/read/
+     * @endpoint post /api/v1/notification/{id}/read/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -294,7 +294,7 @@ export class NotificationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/notification/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/read/`;
+        let localVarPath = `/api/v1/notification/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/read/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<NotificationReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -312,7 +312,7 @@ export class NotificationApi extends BaseService {
     /**
      * Compteur de notifications non lues
      * Endpoint léger pour le polling du badge dans le topmenu. Renvoie &#x60;&#x60;{\&quot;unread\&quot;: &lt;int&gt;}&#x60;&#x60; — pas de pagination, pas de serializer.
-     * @endpoint get /api/notification/unread-count/
+     * @endpoint get /api/v1/notification/unread-count/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -350,7 +350,7 @@ export class NotificationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/notification/unread-count/`;
+        let localVarPath = `/api/v1/notification/unread-count/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
             {

@@ -24,7 +24,7 @@ export default defineConfig({
   webServer: [
     {
       command: backendCommand,
-      url: 'http://127.0.0.1:8001/api/docs/',
+      url: 'http://127.0.0.1:8001/api/v1/docs/',
       reuseExistingServer: false,
       timeout: 120_000,
     },

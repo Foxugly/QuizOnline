@@ -2,8 +2,8 @@
 Analytics slice of ``DomainViewSet``.
 
 Two endpoints:
-- ``GET /api/domain/{id}/analytics/`` — JSON counters + median + top deciders.
-- ``GET /api/domain/{id}/analytics/export/`` — same data as a CSV download.
+- ``GET /api/v1/domain/{id}/analytics/`` — JSON counters + median + top deciders.
+- ``GET /api/v1/domain/{id}/analytics/export/`` — same data as a CSV download.
 
 Both honour the ``range`` query parameter (``7d`` / ``30d`` / ``90d``
 / ``all``, default ``all``). The actual stat computation lives in

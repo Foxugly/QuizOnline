@@ -3,9 +3,9 @@ Coalesced unread-counts endpoint.
 
 The topbar shows three badges that each used to poll their own
 endpoint:
-- ``GET /api/notification/unread-count/`` → unread in-app notifications
-- ``GET /api/quiz/alerts/unread-count/``  → unread quiz alert messages
-- ``GET /api/me/invitations/``            → pending course invitations
+- ``GET /api/v1/notification/unread-count/`` → unread in-app notifications
+- ``GET /api/v1/quiz/alerts/unread-count/``  → unread quiz alert messages
+- ``GET /api/v1/me/invitations/``            → pending course invitations
                                             (full list, just counted)
 
 That is three round-trips per page navigation. This endpoint returns

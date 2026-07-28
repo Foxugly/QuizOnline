@@ -30,7 +30,7 @@ import {getBlockRenderersUiText} from './block-renderers.i18n';
  *   template:
  *
  *   * no prior session, or all sessions closed → **Start quiz** (POST
- *     ``/api/quiz/``, then navigate to the player),
+ *     ``/api/v1/quiz/``, then navigate to the player),
  *   * active session → **Resume quiz** (link to the player),
  *   * closed session → score tag + **View result** + a **Retake** CTA
  *     when the template still accepts answers,
@@ -40,7 +40,7 @@ import {getBlockRenderersUiText} from './block-renderers.i18n';
  * row with a Retry button so the rest of the lesson keeps rendering.
  * This is in-line formative quizzing — it is NOT wired to the
  * ``LessonQuiz`` validation-gate (those are a separate block type and
- * use the ``/api/lesson-quiz/`` endpoints).
+ * use the ``/api/v1/lesson-quiz/`` endpoints).
  */
 type ActionState =
   | {kind: 'start'}
@@ -287,7 +287,7 @@ export class QuizBlockRenderer implements OnInit {
 
   /**
    * Picks the most recent session this user has against ``templateId``.
-   * ``/api/quiz/`` returns sessions visible to the caller — we filter
+   * ``/api/v1/quiz/`` returns sessions visible to the caller — we filter
    * client-side to ``user === me`` to be defensive against backend
    * permission widening.
    */

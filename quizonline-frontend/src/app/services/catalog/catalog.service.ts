@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
-/** Read-only row exposed by ``GET /api/course/{id}/audit-log/``.
+/** Read-only row exposed by ``GET /api/v1/course/{id}/audit-log/``.
  *  Mirrors the ``CourseAuditLogSerializer`` shape — kept here as a
  *  local type rather than going through the generated OpenAPI client
  *  to match the rest of this service. */
@@ -120,7 +120,7 @@ export class CatalogService {
   }
 
   /**
-   * Delete a course via ``DELETE /api/course/{id}/``. Cascades to all
+   * Delete a course via ``DELETE /api/v1/course/{id}/``. Cascades to all
    * sections, lessons, content blocks and learner enrollments / progress
    * via standard ORM ``on_delete=CASCADE`` rules. Will surface a 4xx
    * error from the backend when a non-cascade FK protects deletion
@@ -132,7 +132,7 @@ export class CatalogService {
   }
 
   /**
-   * Update a course via ``PATCH /api/course/{id}/``. ``payload`` is
+   * Update a course via ``PATCH /api/v1/course/{id}/``. ``payload`` is
    * forwarded as JSON — for cover-image uploads use the dedicated
    * :meth:`uploadCourseCoverImage` companion below which switches to
    * multipart form-data.
@@ -161,7 +161,7 @@ export class CatalogService {
     return this.http.post<unknown>(`${this.baseUrl}/section/${sectionId}/lesson/reorder/`, {ids});
   }
 
-  // Block reorder now goes through the generic ``POST /api/block/reorder/``
+  // Block reorder now goes through the generic ``POST /api/v1/block/reorder/``
   // endpoint — see ``<app-block-list-editor>`` for the call site.
 
   // -- Section CRUD --------------------------------------------------------
@@ -174,7 +174,7 @@ export class CatalogService {
     return this.http.patch<unknown>(`${this.baseUrl}/section/${id}/`, payload);
   }
 
-  /** Audited publish via ``POST /api/section/{id}/publish/`` — flips
+  /** Audited publish via ``POST /api/v1/section/{id}/publish/`` — flips
    *  ``is_published`` and records a ``section.publish`` row on the
    *  parent course's audit log (parity with the course-level action). */
   publishSection(id: number): Observable<unknown> {
@@ -199,7 +199,7 @@ export class CatalogService {
     return this.http.patch<unknown>(`${this.baseUrl}/lesson/${id}/`, payload);
   }
 
-  /** Audited publish via ``POST /api/lesson/{id}/publish/`` — flips
+  /** Audited publish via ``POST /api/v1/lesson/{id}/publish/`` — flips
    *  ``is_published`` and records a ``lesson.publish`` row on the
    *  parent course's audit log (parity with the course-level action). */
   publishLesson(id: number): Observable<unknown> {

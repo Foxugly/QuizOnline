@@ -87,7 +87,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Créer un sujet
-     * @endpoint post /api/subject/
+     * @endpoint post /api/v1/subject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -141,7 +141,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/`;
+        let localVarPath = `/api/v1/subject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SubjectReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -159,7 +159,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Supprimer un sujet
-     * @endpoint delete /api/subject/{subject_id}/
+     * @endpoint delete /api/v1/subject/{subject_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -202,7 +202,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -219,7 +219,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Récupérer un sujet avec détails
-     * @endpoint get /api/subject/{subject_id}/details/
+     * @endpoint get /api/v1/subject/{subject_id}/details/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -262,7 +262,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
+        let localVarPath = `/api/v1/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SubjectDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -280,7 +280,7 @@ export class SubjectApi extends BaseService {
     /**
      * Lister les sujets
      * Liste paginée des sujets.  Supporte : - &#x60;search&#x60; (filtre name__icontains) - &#x60;active&#x60;, &#x60;domain&#x60; via DjangoFilterBackend 
-     * @endpoint get /api/subject/
+     * @endpoint get /api/v1/subject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -361,7 +361,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/`;
+        let localVarPath = `/api/v1/subject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedSubjectReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -379,7 +379,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Mettre à jour un sujet (PATCH)
-     * @endpoint patch /api/subject/{subject_id}/
+     * @endpoint patch /api/v1/subject/{subject_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -434,7 +434,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SubjectReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -452,7 +452,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Récupérer un sujet
-     * @endpoint get /api/subject/{subject_id}/
+     * @endpoint get /api/v1/subject/{subject_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -495,7 +495,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SubjectReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -512,7 +512,7 @@ export class SubjectApi extends BaseService {
 
     /**
      * Mettre à jour un sujet (PUT)
-     * @endpoint put /api/subject/{subject_id}/
+     * @endpoint put /api/v1/subject/{subject_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -570,7 +570,7 @@ export class SubjectApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/subject/${this.configuration.encodeParam({name: "subjectId", value: subjectId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SubjectReadDto>('put', `${basePath}${localVarPath}`,
             {

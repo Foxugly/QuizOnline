@@ -58,7 +58,7 @@ export interface QuizAlertCreatePayload {
 @Injectable({providedIn: 'root'})
 export class QuizAlertService {
   readonly unreadCount = signal(0);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/quiz/alerts`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/quiz/alerts`;
 
     private readonly http = inject(HttpClient);
 

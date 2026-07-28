@@ -2,7 +2,7 @@
 Requester-only cancellation action on ``DomainJoinRequestViewSet``.
 
 Single endpoint:
-- ``POST /api/domain/{domain_id}/join-request/{req_id}/cancel/``
+- ``POST /api/v1/domain/{domain_id}/join-request/{req_id}/cancel/``
 
 Kept separate from ``JoinRequestModerationMixin`` because the
 authorisation rule is fundamentally different: cancellation is a

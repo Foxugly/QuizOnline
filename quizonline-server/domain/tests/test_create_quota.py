@@ -1,4 +1,4 @@
-"""``nb_domain_max`` quota enforcement on POST /api/domain/.
+"""``nb_domain_max`` quota enforcement on POST /api/v1/domain/.
 
 The quota is per-user, set by a superuser via the user-admin form,
 default 0. ``DomainViewSet.perform_create`` refuses the request when
@@ -46,7 +46,7 @@ def test_create_domain_blocks_when_quota_is_zero(quota_fr_lang):
 
     client = APIClient()
     client.force_authenticate(user)
-    response = client.post("/api/domain/", _build_payload(quota_fr_lang), format="json")
+    response = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert response.status_code == 403
     assert Domain.objects.filter(owner=user).count() == 0
 
@@ -61,7 +61,7 @@ def test_create_domain_allowed_within_quota(quota_fr_lang):
 
     client = APIClient()
     client.force_authenticate(user)
-    response = client.post("/api/domain/", _build_payload(quota_fr_lang), format="json")
+    response = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert response.status_code == 201
     assert Domain.objects.filter(owner=user).count() == 1
 
@@ -76,10 +76,10 @@ def test_create_domain_blocks_when_quota_exhausted(quota_fr_lang):
 
     client = APIClient()
     client.force_authenticate(user)
-    first = client.post("/api/domain/", _build_payload(quota_fr_lang), format="json")
+    first = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert first.status_code == 201
 
-    second = client.post("/api/domain/", _build_payload(quota_fr_lang), format="json")
+    second = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert second.status_code == 403
     assert Domain.objects.filter(owner=user).count() == 1
 
@@ -95,5 +95,5 @@ def test_superuser_bypasses_quota(quota_fr_lang):
 
     client = APIClient()
     client.force_authenticate(superuser)
-    response = client.post("/api/domain/", _build_payload(quota_fr_lang), format="json")
+    response = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert response.status_code == 201

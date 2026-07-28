@@ -43,7 +43,7 @@ class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         )
 
     # Block reorder for lesson hosts now goes through the generic
-    # ``POST /api/block/reorder/`` endpoint exposed by BlockViewSet,
+    # ``POST /api/v1/block/reorder/`` endpoint exposed by BlockViewSet,
     # so the per-host action that used to live here is gone — one
     # endpoint handles every host type.
 

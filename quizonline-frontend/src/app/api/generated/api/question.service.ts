@@ -110,7 +110,7 @@ export class QuestionApi extends BaseService {
     /**
      * Créer une question (JSON)
      * Crée une question.  Payload : JSON. - &#x60;subject_ids&#x60;: liste d\&#39;IDs - &#x60;answer_options&#x60;: liste  Les médias (image / vidéo / fichier) sont désormais stockés sous forme de content blocks via &#x60;/api/block/&#x60;. 
-     * @endpoint post /api/question/
+     * @endpoint post /api/v1/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -162,7 +162,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/`;
+        let localVarPath = `/api/v1/question/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -180,7 +180,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Supprimer une question
-     * @endpoint delete /api/question/{question_id}/
+     * @endpoint delete /api/v1/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -223,7 +223,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -240,7 +240,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Export les questions (filtrées par domain&#x3D; et/ou ids&#x3D;) en JSON ou ZIP (si médias).
-     * @endpoint get /api/question/export-structured/
+     * @endpoint get /api/v1/question/export-structured/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -278,7 +278,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/export-structured/`;
+        let localVarPath = `/api/v1/question/export-structured/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionWriteDto>('get', `${basePath}${localVarPath}`,
             {
@@ -295,7 +295,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Importe des questions depuis un JSON structuré. Accepte un fichier multipart (&#x60;&#x60;json_file&#x60;&#x60;) ou un body JSON direct.
-     * @endpoint post /api/question/import-structured/
+     * @endpoint post /api/v1/question/import-structured/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -419,7 +419,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/import-structured/`;
+        let localVarPath = `/api/v1/question/import-structured/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionWriteDto>('post', `${basePath}${localVarPath}`,
             {
@@ -438,7 +438,7 @@ export class QuestionApi extends BaseService {
     /**
      * Lister les questions
      * Liste paginée des questions.  Supporte : - &#x60;search&#x60; (filtre title__icontains) 
-     * @endpoint get /api/question/
+     * @endpoint get /api/v1/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -559,7 +559,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/`;
+        let localVarPath = `/api/v1/question/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -577,7 +577,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Mettre à jour une question (PATCH)
-     * @endpoint patch /api/question/{question_id}/
+     * @endpoint patch /api/v1/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -632,7 +632,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -650,7 +650,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Récupérer une question
-     * @endpoint get /api/question/{question_id}/
+     * @endpoint get /api/v1/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -693,7 +693,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -710,7 +710,7 @@ export class QuestionApi extends BaseService {
 
     /**
      * Mettre à jour une question (PUT)
-     * @endpoint put /api/question/{question_id}/
+     * @endpoint put /api/v1/question/{question_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -766,7 +766,7 @@ export class QuestionApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/question/${this.configuration.encodeParam({name: "questionId", value: questionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuestionReadDto>('put', `${basePath}${localVarPath}`,
             {

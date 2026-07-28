@@ -125,7 +125,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Créer un template de quiz
-     * @endpoint post /api/quiz/template/
+     * @endpoint post /api/v1/quiz/template/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -179,7 +179,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/`;
+        let localVarPath = `/api/v1/quiz/template/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizTemplateDto>('post', `${basePath}${localVarPath}`,
             {
@@ -197,7 +197,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Supprimer un template de quiz
-     * @endpoint delete /api/quiz/template/{qt_id}/
+     * @endpoint delete /api/v1/quiz/template/{qt_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -239,7 +239,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -256,7 +256,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Générer un template depuis des sujets
-     * @endpoint post /api/quiz/template/generate-from-subjects/
+     * @endpoint post /api/v1/quiz/template/generate-from-subjects/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -310,7 +310,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/generate-from-subjects/`;
+        let localVarPath = `/api/v1/quiz/template/generate-from-subjects/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizTemplateDto>('post', `${basePath}${localVarPath}`,
             {
@@ -328,7 +328,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Lister les templates de quiz
-     * @endpoint get /api/quiz/template/
+     * @endpoint get /api/v1/quiz/template/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -379,7 +379,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/`;
+        let localVarPath = `/api/v1/quiz/template/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuizTemplateListListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -397,7 +397,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Mettre à jour partiellement un template de quiz
-     * @endpoint patch /api/quiz/template/{qt_id}/
+     * @endpoint patch /api/v1/quiz/template/{qt_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -452,7 +452,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizTemplateDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -470,7 +470,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Créer une QuizQuestion dans un template (nested)
-     * @endpoint post /api/quiz/template/{qt_id}/question/
+     * @endpoint post /api/v1/quiz/template/{qt_id}/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -528,7 +528,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizQuestionReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -546,7 +546,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Supprimer une QuizQuestion (nested)
-     * @endpoint delete /api/quiz/template/{qt_id}/question/{qq_id}/
+     * @endpoint delete /api/v1/quiz/template/{qt_id}/question/{qq_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -592,7 +592,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -609,7 +609,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Lister les QuizQuestion d’un template (nested)
-     * @endpoint get /api/quiz/template/{qt_id}/question/
+     * @endpoint get /api/v1/quiz/template/{qt_id}/question/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -664,7 +664,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuizQuestionReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -682,7 +682,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Mettre à jour partiellement une QuizQuestion (nested)
-     * @endpoint patch /api/quiz/template/{qt_id}/question/{qq_id}/
+     * @endpoint patch /api/v1/quiz/template/{qt_id}/question/{qq_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -741,7 +741,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizQuestionReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -759,7 +759,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Détail d’une QuizQuestion d’un template (nested)
-     * @endpoint get /api/quiz/template/{qt_id}/question/{qq_id}/
+     * @endpoint get /api/v1/quiz/template/{qt_id}/question/{qq_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -806,7 +806,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizQuestionReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -823,7 +823,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Mettre à jour une QuizQuestion (nested)
-     * @endpoint put /api/quiz/template/{qt_id}/question/{qq_id}/
+     * @endpoint put /api/v1/quiz/template/{qt_id}/question/{qq_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -885,7 +885,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/question/${this.configuration.encodeParam({name: "qqId", value: qqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizQuestionReadDto>('put', `${basePath}${localVarPath}`,
             {
@@ -903,7 +903,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Détail d’un template de quiz
-     * @endpoint get /api/quiz/template/{qt_id}/
+     * @endpoint get /api/v1/quiz/template/{qt_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -946,7 +946,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizTemplateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -963,7 +963,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Lister les sessions envoyées pour un template
-     * @endpoint get /api/quiz/template/{qt_id}/sessions/
+     * @endpoint get /api/v1/quiz/template/{qt_id}/sessions/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1018,7 +1018,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/sessions/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/sessions/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuizAssignmentListListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1036,7 +1036,7 @@ export class QuizTemplateApi extends BaseService {
 
     /**
      * Mettre à jour un template de quiz
-     * @endpoint put /api/quiz/template/{qt_id}/
+     * @endpoint put /api/v1/quiz/template/{qt_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1094,7 +1094,7 @@ export class QuizTemplateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/template/${this.configuration.encodeParam({name: "qtId", value: qtId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizTemplateDto>('put', `${basePath}${localVarPath}`,
             {

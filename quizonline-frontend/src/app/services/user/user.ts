@@ -45,7 +45,7 @@ export class UserService {
   isSuperuser = computed(() => this.currentUser()?.is_superuser === true);
 
   private readonly STORAGE_KEY = 'lang';
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/user`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/user`;
   private readonly _lang = signal<SupportedLanguage>(this.loadInitialLang());
   /** Reactive language signal — prefer this over `currentLang` in templates/computeds for explicit reactivity. */
   readonly lang = this._lang.asReadonly();

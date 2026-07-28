@@ -27,7 +27,7 @@ import {LessonReader} from '../../shared/learning/lesson-reader/lesson-reader';
 import {getLessonViewUiText} from './lesson-view.i18n';
 
 /**
- * Shape consumed from ``GET /api/lesson/{id}/``. The backend
+ * Shape consumed from ``GET /api/v1/lesson/{id}/``. The backend
  * serializer nests blocks under ``blocks`` ordered by ``order`` and
  * surfaces a ``completed`` flag derived from the caller's progress row —
  * we treat both fields as optional so the page degrades gracefully if

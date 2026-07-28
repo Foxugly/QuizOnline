@@ -21,7 +21,7 @@ type StatusSeverity = 'success' | 'info' | 'warn' | 'danger';
 /**
  * Read-only subscription page for a domain (owner/manager). Shows the plan,
  * the live member count, the computed monthly price and the free-period
- * deadline, plus a status callout. Backend: ``GET /api/domain/{id}/billing/``.
+ * deadline, plus a status callout. Backend: ``GET /api/v1/domain/{id}/billing/``.
  * Plan + deadline are operator-managed (Django admin) — nothing is editable
  * here yet (manual invoicing; self-service payment is a later phase).
  */

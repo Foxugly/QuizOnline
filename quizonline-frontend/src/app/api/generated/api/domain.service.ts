@@ -262,7 +262,7 @@ export class DomainApi extends BaseService {
     /**
      * Export CSV des statistiques de modération
      * Renvoie un CSV (UTF-8, en-tête sur la première ligne) résumant les statistiques du domaine pour la fenêtre demandée. Honore le paramètre &#x60;&#x60;range&#x60;&#x60; comme l\&#39;endpoint JSON. Idéal pour reporting hors-app.
-     * @endpoint get /api/domain/{domain_id}/analytics/export/
+     * @endpoint get /api/v1/domain/{domain_id}/analytics/export/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -306,7 +306,7 @@ export class DomainApi extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/export/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/export/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request('get', `${basePath}${localVarPath}`,
             {
@@ -325,7 +325,7 @@ export class DomainApi extends BaseService {
     /**
      * Statistiques de modération pour un domaine
      * Counts par statut, taux d\&#39;acceptation, délai médian de décision et top des modérateurs. Accessible aux owner / managers du domaine (via la queryset scope habituelle).  Le paramètre &#x60;&#x60;range&#x60;&#x60; (&#x60;&#x60;7d&#x60;&#x60;, &#x60;&#x60;30d&#x60;&#x60;, &#x60;&#x60;90d&#x60;&#x60; ou &#x60;&#x60;all&#x60;&#x60;, défaut &#x60;&#x60;all&#x60;&#x60;) restreint les statistiques de décision (approuvées, refusées, taux, médiane, top) à la fenêtre demandée. &#x60;&#x60;pending_count&#x60;&#x60; et &#x60;&#x60;cancelled_count&#x60;&#x60; restent toujours des instantanés courants.
-     * @endpoint get /api/domain/{domain_id}/analytics/
+     * @endpoint get /api/v1/domain/{domain_id}/analytics/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -380,7 +380,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainAnalyticsDto>('get', `${basePath}${localVarPath}`,
             {
@@ -399,7 +399,7 @@ export class DomainApi extends BaseService {
     /**
      * Actions distinctes journalisées sur un domaine
      * Liste triée et dédupliquée des valeurs &#x60;&#x60;action&#x60;&#x60; déjà enregistrées sur ce domaine. Sert à alimenter le filtre « action » de la page d\&#39;audit sans hardcoder la liste côté client.
-     * @endpoint get /api/domain/{domain_id}/audit/actions/
+     * @endpoint get /api/v1/domain/{domain_id}/audit/actions/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -442,7 +442,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/actions/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/actions/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
             {
@@ -460,7 +460,7 @@ export class DomainApi extends BaseService {
     /**
      * Journal d\&#39;audit d\&#39;un domaine
      * Liste paginée des dernières actions administratives sur le domaine. Réservée aux owner / managers / superusers (la queryset du viewset gère déjà la confidentialité).  Filtres optionnels (combinables) : - &#x60;&#x60;action&#x60;&#x60; : nom exact de l\&#39;action (ex. &#x60;&#x60;member.promote&#x60;&#x60;). - &#x60;&#x60;actor&#x60;&#x60; : sous-chaîne, insensible à la casse, recherchée dans le nom ou l\&#39;&#x60;&#x60;email&#x60;&#x60; de l\&#39;acteur. - &#x60;&#x60;since&#x60;&#x60; / &#x60;&#x60;until&#x60;&#x60; : ISO-8601 (date ou datetime) sur &#x60;&#x60;created_at&#x60;&#x60;.
-     * @endpoint get /api/domain/{domain_id}/audit/
+     * @endpoint get /api/v1/domain/{domain_id}/audit/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -555,7 +555,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedDomainAuditLogReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -572,7 +572,7 @@ export class DomainApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/domain/available-for-linking/
+     * @endpoint get /api/v1/domain/available-for-linking/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -610,7 +610,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/available-for-linking/`;
+        let localVarPath = `/api/v1/domain/available-for-linking/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainWriteDto>('get', `${basePath}${localVarPath}`,
             {
@@ -627,7 +627,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Subscription status for a domain — visible to its owner/manager.  Reports the current plan, the operator-set free deadline, the live member count and the monthly price (EUR HTVA) that count implies.
-     * @endpoint get /api/domain/{domain_id}/billing/
+     * @endpoint get /api/v1/domain/{domain_id}/billing/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -670,7 +670,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/billing/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/billing/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainBillingDto>('get', `${basePath}${localVarPath}`,
             {
@@ -688,7 +688,7 @@ export class DomainApi extends BaseService {
     /**
      * Créer un domaine
      * Crée un nouveau domaine.  - &#x60;owner&#x60; est forcé au user courant (même si fourni dans le payload). - Le user courant est ajouté à &#x60;staff&#x60; automatiquement. - &#x60;allowed_languages&#x60; doit être un sous-ensemble de &#x60;settings.LANGUAGES&#x60;.
-     * @endpoint post /api/domain/
+     * @endpoint post /api/v1/domain/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -742,7 +742,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/`;
+        let localVarPath = `/api/v1/domain/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -761,7 +761,7 @@ export class DomainApi extends BaseService {
     /**
      * Supprimer un domaine
      * Supprime un domaine.  - Réservé à : superuser / staff global / owner / staff du domaine. ⚠️ La suppression peut échouer si le domaine est référencé ailleurs (FK en PROTECT côté modèles liés).
-     * @endpoint delete /api/domain/{domain_id}/
+     * @endpoint delete /api/v1/domain/{domain_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -803,7 +803,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -820,7 +820,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Récupérer un domaine avec détails
-     * @endpoint get /api/domain/{domain_id}/details/
+     * @endpoint get /api/v1/domain/{domain_id}/details/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -863,7 +863,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/details/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -880,7 +880,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Lister les invitations en attente sur un domaine
-     * @endpoint get /api/domain/{domain_id}/invitations/
+     * @endpoint get /api/v1/domain/{domain_id}/invitations/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -923,7 +923,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DomainInviteReadDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -941,7 +941,7 @@ export class DomainApi extends BaseService {
     /**
      * Renvoyer une invitation existante
      * Refresh &#x60;&#x60;last_sent_at&#x60;&#x60; + &#x60;&#x60;expires_at&#x60;&#x60; du row pending et réémet l\&#39;e-mail avec un nouveau token signé. Idempotent : la ligne reste la même, seule la date d\&#39;envoi change.
-     * @endpoint post /api/domain/{domain_id}/invitations/{invite_id}/resend/
+     * @endpoint post /api/v1/domain/{domain_id}/invitations/{invite_id}/resend/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -988,7 +988,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/${this.configuration.encodeParam({name: "inviteId", value: inviteId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/resend/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/${this.configuration.encodeParam({name: "inviteId", value: inviteId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/resend/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainInviteReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1006,7 +1006,7 @@ export class DomainApi extends BaseService {
     /**
      * Révoquer une invitation en attente
      * Marque l\&#39;invitation &#x60;&#x60;revoked&#x60;&#x60; : le token déjà émis ne matche plus la table, le destinataire ne peut plus l\&#39;utiliser.
-     * @endpoint post /api/domain/{domain_id}/invitations/{invite_id}/revoke/
+     * @endpoint post /api/v1/domain/{domain_id}/invitations/{invite_id}/revoke/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1053,7 +1053,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/${this.configuration.encodeParam({name: "inviteId", value: inviteId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/revoke/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invitations/${this.configuration.encodeParam({name: "inviteId", value: inviteId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/revoke/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -1071,7 +1071,7 @@ export class DomainApi extends BaseService {
     /**
      * Accepter l\&#39;invitation (utilisateur authentifié)
      * Ajoute l\&#39;utilisateur connecté aux membres du domaine si son adresse e-mail correspond à celle encodée dans le token. Sinon renvoie 403 &#x60;&#x60;wrong_account&#x60;&#x60; — l\&#39;invitation reste valide pour le bon compte jusqu\&#39;à expiration.
-     * @endpoint post /api/domain/invite/accept/{token}/
+     * @endpoint post /api/v1/domain/invite/accept/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1114,7 +1114,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainInviteStateDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1132,7 +1132,7 @@ export class DomainApi extends BaseService {
     /**
      * Décoder un token d\&#39;invitation
      * Décode le lien d\&#39;invitation reçu par mail et renvoie l\&#39;état du destinataire vis-à-vis du domaine : prêt à accepter, doit se connecter, doit s\&#39;inscrire, etc.  Endpoint public : la page d\&#39;acceptation est volontairement accessible avant l\&#39;authentification pour pouvoir orienter le visiteur vers la bonne action (login / signup).
-     * @endpoint get /api/domain/invite/accept/{token}/
+     * @endpoint get /api/v1/domain/invite/accept/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1175,7 +1175,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/invite/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainInviteStateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1193,7 +1193,7 @@ export class DomainApi extends BaseService {
     /**
      * Inviter un ou plusieurs utilisateurs par e-mail
      * Envoie une invitation signée à chaque adresse de la liste. Le destinataire suivra un lien qui pointe sur la page d\&#39;acceptation frontend ; aucun objet d\&#39;invitation n\&#39;est créé côté DB (le token est l\&#39;invitation).  Accessible aux owners et aux managers du domaine.
-     * @endpoint post /api/domain/{domain_id}/invite/
+     * @endpoint post /api/v1/domain/{domain_id}/invite/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1251,7 +1251,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<DomainInviteResultDto>>('post', `${basePath}${localVarPath}`,
             {
@@ -1269,7 +1269,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/approve/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/{req_id}/approve/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1316,7 +1316,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1334,7 +1334,7 @@ export class DomainApi extends BaseService {
     /**
      * Approuver plusieurs demandes en une requête
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint post /api/domain/{domain_id}/join-request/bulk-approve/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/bulk-approve/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1392,7 +1392,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-approve/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-approve/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestBulkResultDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1411,7 +1411,7 @@ export class DomainApi extends BaseService {
     /**
      * Refuser plusieurs demandes en une requête
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint post /api/domain/{domain_id}/join-request/bulk-reject/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/bulk-reject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1469,7 +1469,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-reject/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/bulk-reject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestBulkResultDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1487,7 +1487,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Cancel a pending join request.  Two intentional design choices that should NOT be \&quot;fixed\&quot;:  1. No &#x60;transaction.atomic&#x60; / &#x60;select_for_update&#x60;. Cancellation is a    monotonic single-column write (pending → cancelled) with no side    effects. Two concurrent cancels collapse to the same terminal    state — idempotent at the row level. An approve-vs-cancel race    is last-write-wins by design (the HTTP client that lost the race    observes the final state on next fetch).  2. The approver gate (&#x60;_check_can_approve&#x60;) is intentionally NOT    reused here. Cancellation is a requester-only action: only the    user who created the request (or a superuser) can cancel it.    The domain owner can approve and reject, but cannot cancel    someone else\&#39;s request — that\&#39;s a different concept.
-     * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/cancel/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/{req_id}/cancel/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1534,7 +1534,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1551,7 +1551,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint post /api/domain/{domain_id}/join-request/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1594,7 +1594,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1612,7 +1612,7 @@ export class DomainApi extends BaseService {
     /**
      * Exécuter la décision portée par un token de mail
      * Exécute l\&#39;action (&#x60;approve&#x60; ou &#x60;reject&#x60;) encodée dans le token. Le clic depuis le mail compte comme une décision explicite : si la demande avait déjà été tranchée (côté app ou autre mail), la nouvelle décision écrase l\&#39;ancienne (last-decision-wins), avec un renvoi de mail à l\&#39;utilisateur concerné.
-     * @endpoint post /api/domain/join-request/decide/{token}/
+     * @endpoint post /api/v1/domain/join-request/decide/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1655,7 +1655,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestDecideResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1673,7 +1673,7 @@ export class DomainApi extends BaseService {
     /**
      * Décoder un token de décision (depuis un lien email)
      * Décode le token signé envoyé par mail, vérifie que l\&#39;utilisateur connecté en est bien le destinataire, et renvoie l\&#39;état courant de la demande pour que le frontend puisse afficher un récapitulatif avant exécution.  Aucune écriture n\&#39;est faite par ce GET — il sert uniquement à alimenter la page de confirmation.
-     * @endpoint get /api/domain/join-request/decide/{token}/
+     * @endpoint get /api/v1/domain/join-request/decide/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1716,7 +1716,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/join-request/decide/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestDecideResponseDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1733,7 +1733,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint get /api/domain/{domain_id}/join-request/
+     * @endpoint get /api/v1/domain/{domain_id}/join-request/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1788,7 +1788,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedDomainJoinRequestReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1806,7 +1806,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint post /api/domain/{domain_id}/join-request/{req_id}/reject/
+     * @endpoint post /api/v1/domain/{domain_id}/join-request/{req_id}/reject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1853,7 +1853,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1870,7 +1870,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Nested under /api/domain/{domain_id}/join-request/.
-     * @endpoint get /api/domain/{domain_id}/join-request/{req_id}/
+     * @endpoint get /api/v1/domain/{domain_id}/join-request/{req_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1917,7 +1917,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/join-request/${this.configuration.encodeParam({name: "reqId", value: reqId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainJoinRequestReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1935,7 +1935,7 @@ export class DomainApi extends BaseService {
     /**
      * Quitter le domaine (action volontaire de l\&#39;utilisateur)
      * L\&#39;utilisateur connecté se retire du domaine. Refuse :  - si l\&#39;utilisateur est le owner (il doit d\&#39;abord transférer la propriété) ; - si l\&#39;utilisateur n\&#39;est pas membre du domaine.  Tout statut de manager est aussi retiré. Idempotent au niveau du M2M (&#x60;remove&#x60; sur un non-membre est un no-op).
-     * @endpoint post /api/domain/{domain_id}/leave/
+     * @endpoint post /api/v1/domain/{domain_id}/leave/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1978,7 +1978,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/leave/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/leave/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -1996,7 +1996,7 @@ export class DomainApi extends BaseService {
     /**
      * Lister les domaines accessibles
      * Retourne la liste des domaines visibles par l\&#39;utilisateur courant.  - **Superuser / staff global** : voit tous les domaines - **Utilisateur normal** : voit uniquement les domaines dont il est &#x60;owner&#x60; ou membre de &#x60;staff&#x60;
-     * @endpoint get /api/domain/
+     * @endpoint get /api/v1/domain/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2047,7 +2047,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/`;
+        let localVarPath = `/api/v1/domain/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedDomainReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -2066,7 +2066,7 @@ export class DomainApi extends BaseService {
     /**
      * Modifier le rôle d\&#39;un membre
      * Trois intentions exclusives selon le payload : &#x60;&#x60;is_domain_manager&#x60;&#x60; (promouvoir / rétrograder), &#x60;&#x60;is_active&#x60;&#x60; (toggle global avec garde-fous), &#x60;&#x60;remove_member&#x60;&#x60; (retirer du domaine, scope local).
-     * @endpoint post /api/domain/{domain_id}/member-role/
+     * @endpoint post /api/v1/domain/{domain_id}/member-role/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2124,7 +2124,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/member-role/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/member-role/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('post', `${basePath}${localVarPath}`,
             {
@@ -2143,7 +2143,7 @@ export class DomainApi extends BaseService {
     /**
      * Tableau de bord modération : domaines avec demandes en attente
      * Pour l\&#39;utilisateur connecté, renvoie la liste des domaines qu\&#39;il peut modérer et qui ont au moins une demande d\&#39;adhésion en attente. Trié par nombre de demandes décroissant.  Endpoint volontairement léger (aucune action), pensé pour une tuile d\&#39;accueil.
-     * @endpoint get /api/domain/moderation-summary/
+     * @endpoint get /api/v1/domain/moderation-summary/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -2181,7 +2181,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/moderation-summary/`;
+        let localVarPath = `/api/v1/domain/moderation-summary/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<ModerationSummaryItemDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -2199,7 +2199,7 @@ export class DomainApi extends BaseService {
     /**
      * Modifier partiellement un domaine
      * Met à jour partiellement un domaine (PATCH).  - Réservé à : superuser / staff global / owner / staff du domaine. - &#x60;owner&#x60; est **read-only** (ne peut pas être modifié via l\&#39;API).
-     * @endpoint patch /api/domain/{domain_id}/
+     * @endpoint patch /api/v1/domain/{domain_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2254,7 +2254,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -2273,7 +2273,7 @@ export class DomainApi extends BaseService {
     /**
      * Récupérer un domaine
      * Retourne un domaine (par &#x60;domain_id&#x60;).  ⚠️ Si l\&#39;utilisateur n\&#39;a pas accès au domaine, l\&#39;API renvoie généralement **404** (car &#x60;get_queryset()&#x60; ne retourne pas l\&#39;objet).
-     * @endpoint get /api/domain/{domain_id}/
+     * @endpoint get /api/v1/domain/{domain_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2316,7 +2316,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -2334,7 +2334,7 @@ export class DomainApi extends BaseService {
     /**
      * Accepter le transfert (utilisateur authentifié)
      * Si l\&#39;utilisateur connecté est le destinataire encodé dans le token, transfère la propriété : l\&#39;ancien owner est ajouté aux membres, le nouveau owner devient &#x60;&#x60;Domain.owner&#x60;&#x60; et est aussi ajouté aux membres / managers. Idempotent si déjà transféré.
-     * @endpoint post /api/domain/transfer/accept/{token}/
+     * @endpoint post /api/v1/domain/transfer/accept/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2377,7 +2377,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainTransferStateDto>('post', `${basePath}${localVarPath}`,
             {
@@ -2395,7 +2395,7 @@ export class DomainApi extends BaseService {
     /**
      * Décoder un token de transfert de propriété
      * Public-GET / auth-POST view that consumes a transfer token. GET is open so the landing page can render even for a not-yet-logged-in visitor (and route them to &#x60;&#x60;/login?next&#x3D;...&#x60;&#x60;); POST requires the invited account to be authenticated.
-     * @endpoint get /api/domain/transfer/accept/{token}/
+     * @endpoint get /api/v1/domain/transfer/accept/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2438,7 +2438,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/transfer/accept/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainTransferStateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -2456,7 +2456,7 @@ export class DomainApi extends BaseService {
     /**
      * Initier un transfert de propriété
      * Le propriétaire envoie une proposition de transfert au futur propriétaire désigné par &#x60;&#x60;user_id&#x60;&#x60;. Un e-mail signé est envoyé : tant que le destinataire n\&#39;a pas cliqué le lien et confirmé, la propriété ne change pas.  Refusé si l\&#39;appelant n\&#39;est pas le propriétaire actuel, ou si la cible est elle-même déjà le propriétaire.
-     * @endpoint post /api/domain/{domain_id}/transfer/
+     * @endpoint post /api/v1/domain/{domain_id}/transfer/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2514,7 +2514,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/transfer/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/transfer/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -2533,7 +2533,7 @@ export class DomainApi extends BaseService {
     /**
      * Mettre à jour un domaine
      * Met à jour un domaine (PUT).  - Réservé à : superuser / staff global / owner / staff du domaine. - &#x60;owner&#x60; est **read-only** (ne peut pas être modifié via l\&#39;API).
-     * @endpoint put /api/domain/{domain_id}/
+     * @endpoint put /api/v1/domain/{domain_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -2591,7 +2591,7 @@ export class DomainApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DomainReadDto>('put', `${basePath}${localVarPath}`,
             {

@@ -12,7 +12,7 @@ import data from './lesson-edit.i18n.json';
 export interface LessonEditUiText {
   pageTitle: string;
   /** Single load-error toast — surfaces a backend failure when the
-   *  initial ``GET /api/lesson/{id}/`` rejects. */
+   *  initial ``GET /api/v1/lesson/{id}/`` rejects. */
   blockErrorToast: string;
   emptyTitle: string;
   emptyHint: string;

@@ -1,8 +1,8 @@
 """
 Tests for the email-invitation flow:
 
-- ``POST /api/domain/{id}/invite/`` (owner/manager only, sends mails)
-- ``GET/POST /api/domain/invite/accept/<token>/`` (public landing,
+- ``POST /api/v1/domain/{id}/invite/`` (owner/manager only, sends mails)
+- ``GET/POST /api/v1/domain/invite/accept/<token>/`` (public landing,
   authenticated accept)
 """
 
@@ -21,7 +21,7 @@ User = get_user_model()
 
 
 class DomainInviteEndpointTests(TestCase):
-    URL = "/api/domain/{}/invite/"
+    URL = "/api/v1/domain/{}/invite/"
 
     def setUp(self):
         self.owner = User.objects.create_user(password="p", email="o@x.test")
@@ -126,7 +126,7 @@ class DomainInviteEndpointTests(TestCase):
 class DomainMultiDomainInviteTests(TestCase):
     """Phase C #18: fan an invite out to additional domains in one call."""
 
-    URL = "/api/domain/{}/invite/"
+    URL = "/api/v1/domain/{}/invite/"
 
     def setUp(self):
         self.owner = User.objects.create_user(password="p", email="o@x.test")
@@ -245,7 +245,7 @@ class DomainMultiDomainInviteTests(TestCase):
 
 
 class DomainInviteAcceptEndpointTests(TestCase):
-    URL = "/api/domain/invite/accept/{}/"
+    URL = "/api/v1/domain/invite/accept/{}/"
 
     def setUp(self):
         self.owner = User.objects.create_user(password="p", email="o@x.test")

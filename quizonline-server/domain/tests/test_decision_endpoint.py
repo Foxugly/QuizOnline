@@ -1,6 +1,6 @@
 """
 Tests for the public moderation endpoint reached from email accept/reject
-links: ``/api/domain/join-request/decide/<token>/``.
+links: ``/api/v1/domain/join-request/decide/<token>/``.
 
 Covers:
 - The token must verify, point at a real request, and authenticate the
@@ -27,7 +27,7 @@ User = get_user_model()
 
 
 class DomainJoinRequestDecideEndpointTests(TestCase):
-    URL = "/api/domain/join-request/decide/{}/"
+    URL = "/api/v1/domain/join-request/decide/{}/"
 
     def setUp(self):
         translation.activate("fr")

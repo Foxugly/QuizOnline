@@ -145,7 +145,7 @@ export class QuizCreateCompositionController {
 
   /**
    * After the parent template has been saved, dispatch DELETE / PATCH /
-   * POST calls against ``/api/quiz/template/{id}/question/{qq_id}/`` so
+   * POST calls against ``/api/v1/quiz/template/{id}/question/{qq_id}/`` so
    * the server side mirrors the in-memory selection.
    *
    * - rows present in ``originalQuizQuestionIds`` but absent from the

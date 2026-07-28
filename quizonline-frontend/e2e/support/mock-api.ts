@@ -377,7 +377,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
   let createdQuizTemplate: JsonObject | null = null;
   let createdQuiz: JsonObject | null = null;
 
-  await page.route('http://127.0.0.1:8000/api/**', async (route) => {
+  await page.route('http://127.0.0.1:8000/api/v1/**', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     const path = url.pathname;
@@ -390,14 +390,14 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/token/' && request.method() === 'POST') {
+    if (path === '/api/v1/token/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.login.push(body);
       await fulfillJson(route, {access: 'test-access', refresh: 'test-refresh'}, 200);
       return;
     }
 
-    if (path === '/api/user/' && request.method() === 'POST') {
+    if (path === '/api/v1/user/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.register.push(body);
       await fulfillJson(route, {
@@ -415,24 +415,24 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/user/email/confirm/' && request.method() === 'POST') {
+    if (path === '/api/v1/user/email/confirm/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.confirmEmail.push(body);
       await fulfillJson(route, {detail: 'ok'}, 200);
       return;
     }
 
-    if (path === '/api/user/' && request.method() === 'GET') {
+    if (path === '/api/v1/user/' && request.method() === 'GET') {
       await fulfillJson(route, paginated(users), 200);
       return;
     }
 
-    if (path === '/api/user/me/' && request.method() === 'GET') {
+    if (path === '/api/v1/user/me/' && request.method() === 'GET') {
       await fulfillJson(route, options.me ?? defaultMe, 200);
       return;
     }
 
-    if (path === '/api/user/me/current-domain/' && request.method() === 'POST') {
+    if (path === '/api/v1/user/me/current-domain/' && request.method() === 'POST') {
       const body = parseBody(request);
       await fulfillJson(route, {
         ...(options.me ?? defaultMe),
@@ -442,21 +442,21 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/user/password/reset/' && request.method() === 'POST') {
+    if (path === '/api/v1/user/password/reset/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.passwordReset.push(body);
       await fulfillJson(route, {detail: 'ok'}, 200);
       return;
     }
 
-    if (path === '/api/user/password/reset/confirm/' && request.method() === 'POST') {
+    if (path === '/api/v1/user/password/reset/confirm/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.passwordResetConfirm.push(body);
       await fulfillJson(route, {detail: 'ok'}, 200);
       return;
     }
 
-    if (path === '/api/domain/' && request.method() === 'GET') {
+    if (path === '/api/v1/domain/' && request.method() === 'GET') {
       await fulfillJson(route, paginated(domains), 200);
       return;
     }
@@ -467,17 +467,17 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/subject/' && request.method() === 'GET') {
+    if (path === '/api/v1/subject/' && request.method() === 'GET') {
       await fulfillJson(route, paginated(subjects), 200);
       return;
     }
 
-    if (path === '/api/question/' && request.method() === 'GET') {
+    if (path === '/api/v1/question/' && request.method() === 'GET') {
       await fulfillJson(route, paginated(questions), 200);
       return;
     }
 
-    if (path === '/api/question/media/' && request.method() === 'POST') {
+    if (path === '/api/v1/question/media/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.mediaCreate.push(body);
       await fulfillJson(route, {
@@ -491,7 +491,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/question/' && request.method() === 'POST') {
+    if (path === '/api/v1/question/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.questionCreate.push(body);
       await fulfillJson(route, buildQuestionCreateResponse(body), 201);
@@ -504,24 +504,24 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/quiz/' && request.method() === 'GET') {
+    if (path === '/api/v1/quiz/' && request.method() === 'GET') {
       const payload = createdQuiz ? [createdQuiz, ...quizzes] : quizzes;
       await fulfillJson(route, paginated(payload), 200);
       return;
     }
 
-    if (path === '/api/quiz/alerts/unread-count/' && request.method() === 'GET') {
+    if (path === '/api/v1/quiz/alerts/unread-count/' && request.method() === 'GET') {
       await fulfillJson(route, {count: 0}, 200);
       return;
     }
 
-    if (path === '/api/quiz/template/' && request.method() === 'GET') {
+    if (path === '/api/v1/quiz/template/' && request.method() === 'GET') {
       const payload = createdQuizTemplate ? [createdQuizTemplate, ...templates] : templates;
       await fulfillJson(route, paginated(payload), 200);
       return;
     }
 
-    if (path === '/api/quiz/' && request.method() === 'POST') {
+    if (path === '/api/v1/quiz/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.quizCreate.push(body);
       createdQuiz = {
@@ -557,7 +557,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/quiz/template/' && request.method() === 'POST') {
+    if (path === '/api/v1/quiz/template/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.quizTemplateCreate.push(body);
       createdQuizTemplate = {
@@ -573,7 +573,7 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
       return;
     }
 
-    if (path === '/api/quiz/bulk-create-from-template/' && request.method() === 'POST') {
+    if (path === '/api/v1/quiz/bulk-create-from-template/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.quizTemplateBulkAssign.push(body);
       await fulfillJson(route, [

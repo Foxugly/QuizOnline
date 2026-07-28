@@ -38,7 +38,7 @@ class QuizLifecycleMixin:
     def start(self, request, quiz_id=None, *args, **kwargs):
         self._log_call(
             method_name="start",
-            endpoint="POST /api/quiz/{quiz_id}/start/",
+            endpoint="POST /api/v1/quiz/{quiz_id}/start/",
             input_expected="path pk, body vide",
             output="200 + QuizSerializer | 400 | 404",
             extra={"pk": quiz_id},
@@ -71,7 +71,7 @@ class QuizLifecycleMixin:
     def close(self, request, quiz_id=None, *args, **kwargs):
         self._log_call(
             method_name="close",
-            endpoint="POST /api/quiz/{quiz_id}/close/",
+            endpoint="POST /api/v1/quiz/{quiz_id}/close/",
             input_expected="path quiz_id, body vide",
             output="200 + QuizSerializer | 404",
             extra={"quiz_id": quiz_id},

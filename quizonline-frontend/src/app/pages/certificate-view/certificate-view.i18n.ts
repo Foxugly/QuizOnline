@@ -4,7 +4,7 @@ import data from './certificate-view.i18n.json';
 /**
  * Per-language UI text for the single-certificate detail page.
  *
- * Renders the certificate the caller owns (``GET /api/certificate/{id}/``)
+ * Renders the certificate the caller owns (``GET /api/v1/certificate/{id}/``)
  * with its number, course, issue date and a PDF download. The
  * verification token is exposed by the backend, so the public verify
  * link is rendered as well. The course title is localized server-side

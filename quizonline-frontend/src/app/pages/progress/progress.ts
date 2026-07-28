@@ -18,7 +18,7 @@ import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {getProgressUiText} from './progress.i18n';
 
 /**
- * Shape we render from ``GET /api/progress/``. ``course_title`` is
+ * Shape we render from ``GET /api/v1/progress/``. ``course_title`` is
  * a ``SerializerMethodField`` on the backend that returns the localized
  * Course title (falling back to the slug server-side), so it is always
  * a non-empty string at this layer.

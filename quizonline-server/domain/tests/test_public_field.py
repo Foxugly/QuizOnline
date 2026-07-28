@@ -3,7 +3,7 @@ Regression tests for the ``Domain.public`` field.
 
 Private (``public=False``) domains are hidden from:
 
-- the public discovery catalog (``/api/domain/available-for-linking/``);
+- the public discovery catalog (``/api/v1/domain/available-for-linking/``);
 - the join-request create action (which returns 404 to avoid leaking
   the existence of a private domain to outsiders).
 
@@ -37,7 +37,7 @@ class PublicFieldDefaultsTests(TestCase):
 
 
 class AvailableForLinkingTests(TestCase):
-    URL = "/api/domain/available-for-linking/"
+    URL = "/api/v1/domain/available-for-linking/"
 
     def setUp(self):
         translation.activate("fr")
@@ -67,7 +67,7 @@ class AvailableForLinkingTests(TestCase):
 
 
 class JoinRequestCreateOnPrivateTests(TestCase):
-    URL = "/api/domain/{}/join-request/"
+    URL = "/api/v1/domain/{}/join-request/"
 
     def setUp(self):
         translation.activate("fr")
@@ -120,7 +120,7 @@ class InviteFlowWorksOnPrivateDomainTests(TestCase):
     def test_owner_can_invite_to_private_domain(self):
         self.client.force_authenticate(self.owner)
         resp = self.client.post(
-            f"/api/domain/{self.private_domain.id}/invite/",
+            f"/api/v1/domain/{self.private_domain.id}/invite/",
             {"emails": ["invited@x.test"], "language": "en"},
             format="json",
         )
@@ -134,7 +134,7 @@ class InviteFlowWorksOnPrivateDomainTests(TestCase):
             inviter_id=self.owner.id,
         )
         self.client.force_authenticate(self.invited)
-        resp = self.client.post(f"/api/domain/invite/accept/{token}/")
+        resp = self.client.post(f"/api/v1/domain/invite/accept/{token}/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["state"], "accepted")
         self.assertTrue(

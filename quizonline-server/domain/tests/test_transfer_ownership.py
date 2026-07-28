@@ -1,8 +1,8 @@
 """
 Tests for the domain-ownership-transfer flow:
 
-- ``POST /api/domain/{id}/transfer/`` (owner-only, queues a signed mail)
-- ``GET/POST /api/domain/transfer/accept/<token>/`` (public-GET,
+- ``POST /api/v1/domain/{id}/transfer/`` (owner-only, queues a signed mail)
+- ``GET/POST /api/v1/domain/transfer/accept/<token>/`` (public-GET,
   authenticated-POST)
 """
 
@@ -22,7 +22,7 @@ User = get_user_model()
 
 
 class TransferInitiateTests(TestCase):
-    URL = "/api/domain/{}/transfer/"
+    URL = "/api/v1/domain/{}/transfer/"
 
     def setUp(self):
         translation.activate("fr")
@@ -66,7 +66,7 @@ class TransferInitiateTests(TestCase):
         so the frontend can show "transfer in flight" on /edit."""
         self.client.force_authenticate(self.owner)
         # Detail before: no pending transfer.
-        before = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        before = self.client.get(f"/api/v1/domain/{self.domain.id}/details/")
         self.assertEqual(before.status_code, status.HTTP_200_OK)
         self.assertIsNone(before.data["pending_transfer"])
 
@@ -77,7 +77,7 @@ class TransferInitiateTests(TestCase):
             format="json",
         )
 
-        after = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        after = self.client.get(f"/api/v1/domain/{self.domain.id}/details/")
         self.assertEqual(after.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(after.data["pending_transfer"])
         self.assertEqual(after.data["pending_transfer"]["id"], self.future.id)
@@ -104,7 +104,7 @@ class TransferInitiateTests(TestCase):
             metadata={},
         )
         self.client.force_authenticate(self.owner)
-        resp = self.client.get(f"/api/domain/{self.domain.id}/details/")
+        resp = self.client.get(f"/api/v1/domain/{self.domain.id}/details/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIsNone(resp.data["pending_transfer"])
 
@@ -117,7 +117,7 @@ class TransferInitiateTests(TestCase):
 
 
 class TransferAcceptTests(TestCase):
-    URL = "/api/domain/transfer/accept/{}/"
+    URL = "/api/v1/domain/transfer/accept/{}/"
 
     def setUp(self):
         translation.activate("fr")

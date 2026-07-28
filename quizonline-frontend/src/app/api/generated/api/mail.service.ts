@@ -46,7 +46,7 @@ export class MailApi extends BaseService {
     /**
      * Envoyer un email de test
      * Enfile un email texte brut dans l\&#39;outbox applicative puis declenche la livraison via le flux email standard.
-     * @endpoint post /api/mail/test/
+     * @endpoint post /api/v1/mail/test/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -100,7 +100,7 @@ export class MailApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/mail/test/`;
+        let localVarPath = `/api/v1/mail/test/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TestEmailResponseDto>('post', `${basePath}${localVarPath}`,
             {

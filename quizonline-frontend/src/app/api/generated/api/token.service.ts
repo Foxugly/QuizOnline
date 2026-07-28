@@ -49,7 +49,7 @@ export class TokenApi extends BaseService {
 
     /**
      * Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of those credentials.
-     * @endpoint post /api/token/
+     * @endpoint post /api/v1/token/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -99,7 +99,7 @@ export class TokenApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/token/`;
+        let localVarPath = `/api/v1/token/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -117,7 +117,7 @@ export class TokenApi extends BaseService {
 
     /**
      * Takes a refresh type JSON web token and returns an access type JSON web token if the refresh token is valid.
-     * @endpoint post /api/token/refresh/
+     * @endpoint post /api/v1/token/refresh/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -168,7 +168,7 @@ export class TokenApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/token/refresh/`;
+        let localVarPath = `/api/v1/token/refresh/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TokenRefreshDto>('post', `${basePath}${localVarPath}`,
             {

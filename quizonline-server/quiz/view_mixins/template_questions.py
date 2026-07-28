@@ -2,7 +2,7 @@
 Question CRUD slice of ``QuizTemplateViewSet``.
 
 Three flat actions that manage the ``QuizQuestion`` rows attached to a
-template directly from the template URL (``/api/quiz/template/{qt_id}/``)
+template directly from the template URL (``/api/v1/quiz/template/{qt_id}/``)
 so the SPA doesn't have to navigate to the nested viewset for simple
 edits. The nested ``QuizTemplateQuizQuestionViewSet`` is still the
 canonical CRUD entry point for the list/retrieve flow.
@@ -47,7 +47,7 @@ class TemplateQuestionActionsMixin:
     def add_question(self, request, pk=None, *args, **kwargs):
         self._log_call(
             method_name="add_question",
-            endpoint="POST /api/quiz/template/{qt_id}/question/",
+            endpoint="POST /api/v1/quiz/template/{qt_id}/question/",
             input_expected="body: QuizQuestionSerializer fields (question_id, sort_order?, weight?)",
             output="201 + QuizQuestionSerializer | 400 | 404",
             extra={"pk": pk},
@@ -84,7 +84,7 @@ class TemplateQuestionActionsMixin:
     def update_question(self, request, pk=None, qq_id=None, *args, **kwargs):
         self._log_call(
             method_name="update_question",
-            endpoint="PUT/PATCH /api/quiz/template/{qt_id}/question/{qq_id}/",
+            endpoint="PUT/PATCH /api/v1/quiz/template/{qt_id}/question/{qq_id}/",
             input_expected="path pk + quizquestion_id + body (QuizQuestionSerializer)",
             output="200 + QuizQuestionSerializer | 400 | 404",
             extra={"qt_id": pk, "qq_id": qq_id},
@@ -125,7 +125,7 @@ class TemplateQuestionActionsMixin:
     def delete_question(self, request, pk=None, qq_id=None, *args, **kwargs):
         self._log_call(
             method_name="delete_question",
-            endpoint="DELETE /api/quiz/template/{qt_id}/question/{qq_id}/",
+            endpoint="DELETE /api/v1/quiz/template/{qt_id}/question/{qq_id}/",
             input_expected="path pk + quizquestion_id, body vide",
             output="204 | 404",
             extra={"pk": pk, "quizquestion_id": qq_id},

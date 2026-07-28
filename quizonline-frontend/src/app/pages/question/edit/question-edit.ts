@@ -44,10 +44,10 @@ import {selectTranslation} from '../../../shared/i18n/select-translation';
  * Layout:
  * 1. ``<app-question-editor-form>`` — the context card on top
  *    (domain, subjects, mode flags, per-language title, media). Saved
- *    via ``PATCH /api/question/<id>/``.
+ *    via ``PATCH /api/v1/question/<id>/``.
  * 2. ``<app-question-block-tabs>`` — the 3-tab block editor below
  *    (Question / Réponses / Explication). Each tab embeds an
- *    ``<app-block-list-editor>`` that calls ``/api/block/`` directly,
+ *    ``<app-block-list-editor>`` that calls ``/api/v1/block/`` directly,
  *    so block-level changes are persisted independently of the
  *    metadata form.
  *
@@ -338,7 +338,7 @@ export class QuestionEdit implements OnInit {
   /** Single-block payload PATCH succeeded server-side. Merge the
    *  fresh ContentBlock into whichever local list owns it — prompt,
    *  explanation, or one of the answer rows — keyed by ``block.id``.
-   *  Avoids the full ``GET /api/question/{id}/`` that ``onBlocksChanged``
+   *  Avoids the full ``GET /api/v1/question/{id}/`` that ``onBlocksChanged``
    *  fires for structural mutations: on a typical editing session
    *  (debounced keystrokes on Quill, image alt-text typing, …) this
    *  cuts the round-trips per save in half. */

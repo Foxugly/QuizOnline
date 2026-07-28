@@ -84,7 +84,7 @@ export class LanguageApi extends BaseService {
 
     /**
      * Créer une langue
-     * @endpoint post /api/lang/
+     * @endpoint post /api/v1/lang/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -138,7 +138,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/`;
+        let localVarPath = `/api/v1/lang/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LanguageReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -156,7 +156,7 @@ export class LanguageApi extends BaseService {
 
     /**
      * Supprimer une langue
-     * @endpoint delete /api/lang/{lang_id}/
+     * @endpoint delete /api/v1/lang/{lang_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -199,7 +199,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -217,7 +217,7 @@ export class LanguageApi extends BaseService {
     /**
      * Lister les langues
      * Liste paginée des langues.  Supporte : - &#x60;search&#x60; (DRF SearchFilter sur &#x60;code&#x60;, &#x60;name&#x60;) - &#x60;ordering&#x60; (DRF OrderingFilter sur &#x60;code&#x60;, &#x60;name&#x60;, &#x60;id&#x60;) 
-     * @endpoint get /api/lang/
+     * @endpoint get /api/v1/lang/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -318,7 +318,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/`;
+        let localVarPath = `/api/v1/lang/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedLanguageReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -336,7 +336,7 @@ export class LanguageApi extends BaseService {
 
     /**
      * Mettre à jour une langue (PATCH)
-     * @endpoint patch /api/lang/{lang_id}/
+     * @endpoint patch /api/v1/lang/{lang_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -391,7 +391,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LanguageReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -409,7 +409,7 @@ export class LanguageApi extends BaseService {
 
     /**
      * Récupérer une langue
-     * @endpoint get /api/lang/{lang_id}/
+     * @endpoint get /api/v1/lang/{lang_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -452,7 +452,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LanguageReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -469,7 +469,7 @@ export class LanguageApi extends BaseService {
 
     /**
      * Mettre à jour une langue (PUT)
-     * @endpoint put /api/lang/{lang_id}/
+     * @endpoint put /api/v1/lang/{lang_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -527,7 +527,7 @@ export class LanguageApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/lang/${this.configuration.encodeParam({name: "langId", value: langId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LanguageReadDto>('put', `${basePath}${localVarPath}`,
             {

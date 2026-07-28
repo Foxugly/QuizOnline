@@ -39,7 +39,7 @@ export interface AuditListResult {
 export class DomainEditApi {
   private readonly api = inject(DomainApiService);
   private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/domain`;
 
   listAudit(domainId: number, params: AuditListParams = {}): Observable<AuditListResult> {
     return this.api.domainAuditList({

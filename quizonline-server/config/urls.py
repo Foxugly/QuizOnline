@@ -15,19 +15,19 @@ urlpatterns = [
     path("health/", health_check),
 
     # API module question
-    path("api/", include(("config.api_urls", "api"), namespace="api")),
+    path("api/v1/", include(("config.api_urls", "api"), namespace="api")),
 
     # OpenAPI/Swagger
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
+    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/v1/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
 
     # Auth JWT
-    path("api/token/", EmailConfirmedTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/v1/token/", EmailConfirmedTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/v1/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # Passwordless / magic-link sign-in.
-    path("api/auth/magic-link/request/", MagicLinkRequestView.as_view(), name="magic_link_request"),
-    path("api/auth/magic-link/exchange/", MagicLinkExchangeView.as_view(), name="magic_link_exchange"),
+    path("api/v1/auth/magic-link/request/", MagicLinkRequestView.as_view(), name="magic_link_request"),
+    path("api/v1/auth/magic-link/exchange/", MagicLinkExchangeView.as_view(), name="magic_link_exchange"),
 ]
 
 if settings.DEBUG:

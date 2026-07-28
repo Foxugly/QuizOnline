@@ -2,7 +2,7 @@
 """
 PDF export for quiz results.
 
-Endpoint: GET /api/quiz/{quiz_id}/export-pdf/
+Endpoint: GET /api/v1/quiz/{quiz_id}/export-pdf/
 Generates a formatted PDF report of a user's quiz attempt.
 """
 
@@ -255,7 +255,7 @@ def generate_quiz_pdf(quiz: Quiz, language: str = "en") -> bytes:
 @throttle_classes([ScopedRateThrottle])
 def export_quiz_pdf(request, quiz_id: int):
     """
-    GET /api/quiz/{quiz_id}/export-pdf/
+    GET /api/v1/quiz/{quiz_id}/export-pdf/
 
     Returns a PDF report of the quiz results.
     The caller must be the quiz owner or a superuser.

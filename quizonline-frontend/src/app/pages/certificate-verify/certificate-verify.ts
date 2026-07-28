@@ -13,7 +13,7 @@ import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {getCertificateVerifyUiText} from './certificate-verify.i18n';
 
 /**
- * Payload shape returned by the PUBLIC ``GET /api/verify/{token}/``
+ * Payload shape returned by the PUBLIC ``GET /api/v1/verify/{token}/``
  * endpoint (``CertificateVerifySerializer``). The endpoint is anonymous
  * and always returns 200 with ``valid: boolean`` — even when the token
  * is unknown — so we treat HTTP errors as "invalid" too.

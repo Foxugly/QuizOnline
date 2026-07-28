@@ -82,7 +82,7 @@ class ComputeAnalyticsTests(TestCase):
 
 
 class AnalyticsEndpointTests(TestCase):
-    URL = "/api/domain/{}/analytics/"
+    URL = "/api/v1/domain/{}/analytics/"
 
     def setUp(self):
         translation.activate("fr")
@@ -105,7 +105,7 @@ class AnalyticsEndpointTests(TestCase):
 
 
 class AnalyticsRangeFilterTests(TestCase):
-    URL = "/api/domain/{}/analytics/"
+    URL = "/api/v1/domain/{}/analytics/"
 
     def setUp(self):
         translation.activate("fr")
@@ -155,7 +155,7 @@ class AnalyticsRangeFilterTests(TestCase):
 
 
 class AnalyticsCsvExportTests(TestCase):
-    URL = "/api/domain/{}/analytics/export/"
+    URL = "/api/v1/domain/{}/analytics/export/"
 
     def setUp(self):
         translation.activate("fr")

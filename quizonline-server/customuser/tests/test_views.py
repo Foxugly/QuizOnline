@@ -25,19 +25,19 @@ User = get_user_model()
 
 
 class UserViewsTests(APITestCase):
-    USER_LIST_CREATE_URL = "/api/user/"
-    PASSWORD_RESET_REQUEST_URL = "/api/user/password/reset/"
-    PASSWORD_RESET_CONFIRM_URL = "/api/user/password/reset/confirm/"
-    EMAIL_CONFIRM_URL = "/api/user/email/confirm/"
-    PASSWORD_CHANGE_URL = "/api/user/password/change/"
-    ME_URL = "/api/user/me/"
-    TOKEN_URL = "/api/token/"
+    USER_LIST_CREATE_URL = "/api/v1/user/"
+    PASSWORD_RESET_REQUEST_URL = "/api/v1/user/password/reset/"
+    PASSWORD_RESET_CONFIRM_URL = "/api/v1/user/password/reset/confirm/"
+    EMAIL_CONFIRM_URL = "/api/v1/user/email/confirm/"
+    PASSWORD_CHANGE_URL = "/api/v1/user/password/change/"
+    ME_URL = "/api/v1/user/me/"
+    TOKEN_URL = "/api/v1/token/"
 
     def USER_DETAIL_URL(self, user_id):
-        return f"/api/user/{user_id}/"
+        return f"/api/v1/user/{user_id}/"
 
     def USER_QUIZ_LIST_URL(self, user_id):
-        return f"/api/user/{user_id}/quizzes/"
+        return f"/api/v1/user/{user_id}/quizzes/"
 
     def setUp(self):
         cache.clear()
@@ -717,7 +717,7 @@ class UserViewsTests(APITestCase):
         DomainJoinRequest.objects.create(domain=domain1, user=other_user)
 
         self.client.force_authenticate(user=self.u1)
-        res = self.client.get("/api/user/me/join-requests/")
+        res = self.client.get("/api/v1/user/me/join-requests/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         statuses = [r["status"] for r in res.data]
         domain_ids = [r["domain"] for r in res.data]

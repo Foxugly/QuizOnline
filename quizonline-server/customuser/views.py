@@ -365,7 +365,7 @@ class CustomUserViewSet(
             "Supprime définitivement le compte de l'utilisateur connecté.\n\n"
             "**Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur "
             "possède encore au moins un domaine actif. Il doit d'abord "
-            "transférer la propriété (``POST /api/domain/{id}/transfer/``) "
+            "transférer la propriété (``POST /api/v1/domain/{id}/transfer/``) "
             "ou désactiver/supprimer le domaine. Cela évite de laisser "
             "un domaine orphelin sans propriétaire.\n\n"
             "**Effets en cascade** : tout le contenu créé par l'utilisateur "
@@ -643,7 +643,7 @@ class EmailConfirmView(GenericAPIView):
     responses={status.HTTP_200_OK: ErrorDetailSerializer},
 )
 class MagicLinkRequestView(GenericAPIView):
-    """``POST /api/auth/magic-link/request/`` — passwordless login mailer."""
+    """``POST /api/v1/auth/magic-link/request/`` — passwordless login mailer."""
     permission_classes = [AllowAny]
     throttle_classes = [MagicLinkRequestRateThrottle]
     serializer_class = MagicLinkRequestSerializer
@@ -674,7 +674,7 @@ class MagicLinkRequestView(GenericAPIView):
     },
 )
 class MagicLinkExchangeView(GenericAPIView):
-    """``POST /api/auth/magic-link/exchange/`` — token → JWT pair."""
+    """``POST /api/v1/auth/magic-link/exchange/`` — token → JWT pair."""
     permission_classes = [AllowAny]
     throttle_classes = [MagicLinkExchangeRateThrottle]
     serializer_class = MagicLinkExchangeRequestSerializer

@@ -71,7 +71,7 @@ class CanApproveJoinRequestTests(TestCase):
 
 
 class JoinRequestCreateEndpointTests(TestCase):
-    URL = "/api/domain/{}/join-request/"
+    URL = "/api/v1/domain/{}/join-request/"
 
     def setUp(self):
         translation.activate("fr")
@@ -163,8 +163,8 @@ class JoinRequestCreateEndpointTests(TestCase):
 
 
 class JoinRequestListRetrieveTests(TestCase):
-    URL_LIST = "/api/domain/{}/join-request/"
-    URL_DETAIL = "/api/domain/{}/join-request/{}/"
+    URL_LIST = "/api/v1/domain/{}/join-request/"
+    URL_DETAIL = "/api/v1/domain/{}/join-request/{}/"
 
     def setUp(self):
         translation.activate("fr")
@@ -235,8 +235,8 @@ class JoinRequestListRetrieveTests(TestCase):
 
 
 class JoinRequestApproveRejectTests(TestCase):
-    URL_APPROVE = "/api/domain/{}/join-request/{}/approve/"
-    URL_REJECT = "/api/domain/{}/join-request/{}/reject/"
+    URL_APPROVE = "/api/v1/domain/{}/join-request/{}/approve/"
+    URL_REJECT = "/api/v1/domain/{}/join-request/{}/reject/"
 
     def setUp(self):
         translation.activate("fr")
@@ -326,7 +326,7 @@ class JoinRequestApproveRejectTests(TestCase):
 
 
 class JoinRequestCancelTests(TestCase):
-    URL = "/api/domain/{}/join-request/{}/cancel/"
+    URL = "/api/v1/domain/{}/join-request/{}/cancel/"
 
     def setUp(self):
         translation.activate("fr")
@@ -371,7 +371,7 @@ class JoinRequestCancelTests(TestCase):
 
 
 class MemberRolePromotesPendingRequestTests(TestCase):
-    URL = "/api/domain/{}/member-role/"
+    URL = "/api/v1/domain/{}/member-role/"
 
     def setUp(self):
         translation.activate("fr")
@@ -425,7 +425,7 @@ class PolicyTransitionAutoApprovesPendingTests(TestCase):
         self.client.force_authenticate(user=self.owner)
         with self.captureOnCommitCallbacks(execute=True):
             res = self.client.patch(
-                f"/api/domain/{self.domain.id}/",
+                f"/api/v1/domain/{self.domain.id}/",
                 {"join_policy": "auto"},
                 format="json",
             )

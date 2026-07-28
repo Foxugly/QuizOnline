@@ -78,7 +78,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Clôturer une conversation d\&#39;alerte quiz
-     * @endpoint post /api/quiz/alerts/{alert_id}/close/
+     * @endpoint post /api/v1/quiz/alerts/{alert_id}/close/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -121,7 +121,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/close/`;
+        let localVarPath = `/api/v1/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/close/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -138,7 +138,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Créer une alerte sur une question de quiz
-     * @endpoint post /api/quiz/alerts/
+     * @endpoint post /api/v1/quiz/alerts/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -192,7 +192,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/`;
+        let localVarPath = `/api/v1/quiz/alerts/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -210,7 +210,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Lister les conversations d\&#39;alerte quiz
-     * @endpoint get /api/quiz/alerts/
+     * @endpoint get /api/v1/quiz/alerts/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -261,7 +261,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/`;
+        let localVarPath = `/api/v1/quiz/alerts/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuizAlertThreadListListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -279,7 +279,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Répondre à une conversation d\&#39;alerte quiz
-     * @endpoint post /api/quiz/alerts/{alert_id}/message/
+     * @endpoint post /api/v1/quiz/alerts/{alert_id}/message/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -337,7 +337,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/message/`;
+        let localVarPath = `/api/v1/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/message/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertMessageDto>('post', `${basePath}${localVarPath}`,
             {
@@ -355,7 +355,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Modifier les droits de réponse de l\&#39;utilisateur
-     * @endpoint patch /api/quiz/alerts/{alert_id}/
+     * @endpoint patch /api/v1/quiz/alerts/{alert_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -410,7 +410,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertThreadDetailDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -428,7 +428,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Rouvrir une conversation d\&#39;alerte quiz
-     * @endpoint post /api/quiz/alerts/{alert_id}/reopen/
+     * @endpoint post /api/v1/quiz/alerts/{alert_id}/reopen/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -471,7 +471,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reopen/`;
+        let localVarPath = `/api/v1/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reopen/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertThreadDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -488,7 +488,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Lire une conversation d\&#39;alerte quiz
-     * @endpoint get /api/quiz/alerts/{alert_id}/
+     * @endpoint get /api/v1/quiz/alerts/{alert_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -531,7 +531,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/quiz/alerts/${this.configuration.encodeParam({name: "alertId", value: alertId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<QuizAlertThreadDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -548,7 +548,7 @@ export class QuizAlertApi extends BaseService {
 
     /**
      * Compter les alertes non lues de l\&#39;utilisateur courant
-     * @endpoint get /api/quiz/alerts/unread-count/
+     * @endpoint get /api/v1/quiz/alerts/unread-count/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -585,7 +585,7 @@ export class QuizAlertApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/quiz/alerts/unread-count/`;
+        let localVarPath = `/api/v1/quiz/alerts/unread-count/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {

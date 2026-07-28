@@ -49,7 +49,7 @@ export class ConnectionLogApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/connection-log/
+     * @endpoint post /api/v1/connection-log/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -100,7 +100,7 @@ export class ConnectionLogApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/connection-log/`;
+        let localVarPath = `/api/v1/connection-log/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ConnectionEventReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -117,7 +117,7 @@ export class ConnectionLogApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/connection-log/
+     * @endpoint get /api/v1/connection-log/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -168,7 +168,7 @@ export class ConnectionLogApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/connection-log/`;
+        let localVarPath = `/api/v1/connection-log/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedConnectionEventReadListDto>('get', `${basePath}${localVarPath}`,
             {

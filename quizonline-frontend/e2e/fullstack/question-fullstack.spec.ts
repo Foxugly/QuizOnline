@@ -22,8 +22,8 @@ async function getAccessToken(
   // The SPA never persists the access token (XSS hardening). Obtain one
   // directly from the backend so the test can call the API as a bearer
   // client without depending on AuthService internals. Email-only auth:
-  // /api/token/ keys on USERNAME_FIELD = "email".
-  const response = await page.request.post('http://127.0.0.1:8001/api/token/', {
+  // /api/v1/token/ keys on USERNAME_FIELD = "email".
+  const response = await page.request.post('http://127.0.0.1:8001/api/v1/token/', {
     data: {email, password},
   });
   expect(response.ok()).toBeTruthy();
@@ -40,7 +40,7 @@ function normalizeHtmlText(value: string): string {
     .trim();
 }
 
-// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/token/ email
+// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/v1/token/ email
 // field), but the question view/edit UI assertions still need re-alignment with
 // the current SPA before these can gate. Tracked in
 // docs/improvement-backlog.md (O6).
@@ -122,7 +122,7 @@ test.skip('edite une question et persiste les traductions et reponses cote backe
   const questionId = questionIdMatch![1];
   const accessToken = await getAccessToken(page);
 
-  const response = await page.request.get(`http://127.0.0.1:8001/api/question/${questionId}/`, {
+  const response = await page.request.get(`http://127.0.0.1:8001/api/v1/question/${questionId}/`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

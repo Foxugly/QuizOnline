@@ -1,4 +1,4 @@
-"""Tests for the unified ``POST /api/block/reorder/`` endpoint.
+"""Tests for the unified ``POST /api/v1/block/reorder/`` endpoint.
 
 The endpoint accepts a ``(host_type, host_id, ids, block_role)``
 payload and runs the two-phase reorder primitive against the
@@ -58,7 +58,7 @@ def test_reorder_lesson_blocks(lesson, owner):
     )
     client = _auth(owner)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {"host_type": "lesson", "host_id": lesson.id, "ids": [c.id, a.id, b.id]},
         format="json",
     )
@@ -79,7 +79,7 @@ def test_reorder_question_prompt_blocks_respects_role(question, owner):
 
     client = _auth(owner)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {
             "host_type": "question", "host_id": question.id,
             "ids": [p2.id, p1.id], "block_role": "prompt",
@@ -103,7 +103,7 @@ def test_reorder_answer_option_blocks(answer_option, owner):
     )
     client = _auth(owner)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {"host_type": "answer_option", "host_id": answer_option.id, "ids": [b.id, a.id]},
         format="json",
     )
@@ -123,7 +123,7 @@ def test_reorder_rejects_mismatched_ids(question, owner):
 
     client = _auth(owner)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {
             "host_type": "question", "host_id": question.id,
             "ids": [p1.id], "block_role": "prompt",  # missing p2
@@ -137,7 +137,7 @@ def test_reorder_rejects_mismatched_ids(question, owner):
 def test_reorder_rejects_unknown_host_type(owner):
     client = _auth(owner)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {"host_type": "course", "host_id": 1, "ids": [1]},
         format="json",
     )
@@ -154,7 +154,7 @@ def test_reorder_blocks_non_instructor(question, domain):
     p2 = _make_block(question, order=1, role=Block.ROLE_PROMPT)
     client = _auth(plain_member)
     response = client.post(
-        "/api/block/reorder/",
+        "/api/v1/block/reorder/",
         {
             "host_type": "question", "host_id": question.id,
             "ids": [p2.id, p1.id], "block_role": "prompt",

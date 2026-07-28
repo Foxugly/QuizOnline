@@ -1,5 +1,5 @@
 """
-Tests for the coalesced ``/api/unread-counts/`` endpoint.
+Tests for the coalesced ``/api/v1/unread-counts/`` endpoint.
 
 The endpoint returns three counts in one response:
 - unread in-app notifications
@@ -25,7 +25,7 @@ User = get_user_model()
 
 
 class UnreadCountsAnonymousTests(TestCase):
-    URL = "/api/unread-counts/"
+    URL = "/api/v1/unread-counts/"
 
     def test_anonymous_is_401(self):
         resp = APIClient().get(self.URL)
@@ -33,7 +33,7 @@ class UnreadCountsAnonymousTests(TestCase):
 
 
 class UnreadCountsNotificationOnlyTests(TestCase):
-    URL = "/api/unread-counts/"
+    URL = "/api/v1/unread-counts/"
 
     def setUp(self):
         self.user = User.objects.create_user(email="u@example.test", password="p")
@@ -73,7 +73,7 @@ class UnreadCountsNotificationOnlyTests(TestCase):
 
 
 class UnreadCountsEmptyTests(TestCase):
-    URL = "/api/unread-counts/"
+    URL = "/api/v1/unread-counts/"
 
     def test_no_data_returns_zeros(self):
         user = User.objects.create_user(email="u@example.test", password="p")
@@ -88,7 +88,7 @@ class UnreadCountsEmptyTests(TestCase):
 
 
 class UnreadCountsCourseInvitationsTests(TestCase):
-    URL = "/api/unread-counts/"
+    URL = "/api/v1/unread-counts/"
 
     def setUp(self):
         self.user = User.objects.create_user(email="u@example.test", password="p")

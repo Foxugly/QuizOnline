@@ -618,7 +618,7 @@ class DomainJoinRequestRejectSerializer(serializers.Serializer):
 
 
 class DomainJoinRequestBulkApproveSerializer(serializers.Serializer):
-    """Payload for ``POST /api/domain/{id}/join-request/bulk-approve/``."""
+    """Payload for ``POST /api/v1/domain/{id}/join-request/bulk-approve/``."""
     request_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1),
         min_length=1,
@@ -627,7 +627,7 @@ class DomainJoinRequestBulkApproveSerializer(serializers.Serializer):
 
 
 class DomainJoinRequestBulkRejectSerializer(serializers.Serializer):
-    """Payload for ``POST /api/domain/{id}/join-request/bulk-reject/``."""
+    """Payload for ``POST /api/v1/domain/{id}/join-request/bulk-reject/``."""
     request_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=1),
         min_length=1,
@@ -655,7 +655,7 @@ class DomainAnalyticsDeciderSerializer(serializers.Serializer):
 
 
 class DomainAnalyticsSerializer(serializers.Serializer):
-    """Shape returned by ``GET /api/domain/{id}/analytics/``."""
+    """Shape returned by ``GET /api/v1/domain/{id}/analytics/``."""
     pending_count = serializers.IntegerField()
     approved_count = serializers.IntegerField()
     rejected_count = serializers.IntegerField()
@@ -721,7 +721,7 @@ class DomainInviteReadSerializer(serializers.ModelSerializer):
 
 class DomainInviteRequestSerializer(serializers.Serializer):
     """
-    Payload for ``POST /api/domain/{id}/invite/``.
+    Payload for ``POST /api/v1/domain/{id}/invite/``.
 
     ``language`` is optional and used to pick the email locale when we
     have no User row to read a preference from yet (fresh invitations to
@@ -773,12 +773,12 @@ class DomainInviteResultSerializer(serializers.Serializer):
 
 
 class DomainTransferRequestSerializer(serializers.Serializer):
-    """Payload for ``POST /api/domain/{id}/transfer/``."""
+    """Payload for ``POST /api/v1/domain/{id}/transfer/``."""
     user_id = serializers.IntegerField(min_value=1)
 
 
 class DomainTransferStateSerializer(serializers.Serializer):
-    """Shape of GET/POST ``/api/domain/transfer/accept/{token}/``."""
+    """Shape of GET/POST ``/api/v1/domain/transfer/accept/{token}/``."""
     state = serializers.ChoiceField(choices=(
         "ready_to_accept",
         "wrong_account",
@@ -792,7 +792,7 @@ class DomainTransferStateSerializer(serializers.Serializer):
 
 
 class DomainInviteStateSerializer(serializers.Serializer):
-    """Shape of GET/POST ``/api/domain/invite/accept/{token}/``."""
+    """Shape of GET/POST ``/api/v1/domain/invite/accept/{token}/``."""
     state = serializers.ChoiceField(choices=(
         "ready_to_accept",
         "login_required",

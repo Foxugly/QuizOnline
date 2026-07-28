@@ -250,7 +250,7 @@ class MicrosoftGraphEmailBackendTests(TestCase):
 
 
 class TestEmailEndpointTests(APITestCase):
-    URL = "/api/mail/test/"
+    URL = "/api/v1/mail/test/"
 
     def setUp(self):
         self.admin = CustomUser.objects.create_superuser(

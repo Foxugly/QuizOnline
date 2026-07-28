@@ -34,7 +34,7 @@ interface ReviewsResponse {
 
 /**
  * Course reviews block for the course-detail page. Reads the composite
- * ``GET /api/course/{id}/reviews/`` payload (untyped in the schema — a
+ * ``GET /api/v1/course/{id}/reviews/`` payload (untyped in the schema — a
  * function view — so typed locally), renders the aggregate + review list, a
  * write/edit form for eligible learners (gated by the domain's rating/comment
  * config), and hide/unhide moderation for the owner/manager.

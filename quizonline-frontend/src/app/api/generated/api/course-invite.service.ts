@@ -59,7 +59,7 @@ export class CourseInviteApi extends BaseService {
 
     /**
      * Invitee accepts a pending invitation. Creates the active &#x60;&#x60;CourseEnrollment&#x60;&#x60; and notifies the inviter.
-     * @endpoint post /api/course-invite/{token}/accept/
+     * @endpoint post /api/v1/course-invite/{token}/accept/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -102,7 +102,7 @@ export class CourseInviteApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/accept/`;
+        let localVarPath = `/api/v1/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/accept/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -119,7 +119,7 @@ export class CourseInviteApi extends BaseService {
 
     /**
      * Invitee declines a pending invitation.
-     * @endpoint post /api/course-invite/{token}/decline/
+     * @endpoint post /api/v1/course-invite/{token}/decline/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -162,7 +162,7 @@ export class CourseInviteApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/decline/`;
+        let localVarPath = `/api/v1/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/decline/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteDto>('post', `${basePath}${localVarPath}`,
             {
@@ -179,7 +179,7 @@ export class CourseInviteApi extends BaseService {
 
     /**
      * Instructor re-sends a pending invitation.
-     * @endpoint post /api/course-invite/{id}/resend/
+     * @endpoint post /api/v1/course-invite/{id}/resend/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -222,7 +222,7 @@ export class CourseInviteApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/resend/`;
+        let localVarPath = `/api/v1/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/resend/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteDto>('post', `${basePath}${localVarPath}`,
             {
@@ -239,7 +239,7 @@ export class CourseInviteApi extends BaseService {
 
     /**
      * Token-keyed lookup. Returns the invitation (any status) for the invitee or any instructor of the course — used by the &#x60;&#x60;/course-invite/{token}/&#x60;&#x60; acceptance page to render the invitation card before the user clicks Accept or Decline.
-     * @endpoint get /api/course-invite/{token}/
+     * @endpoint get /api/v1/course-invite/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -282,7 +282,7 @@ export class CourseInviteApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course-invite/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteDto>('get', `${basePath}${localVarPath}`,
             {
@@ -299,7 +299,7 @@ export class CourseInviteApi extends BaseService {
 
     /**
      * Instructor revokes a pending invitation.
-     * @endpoint post /api/course-invite/{id}/revoke/
+     * @endpoint post /api/v1/course-invite/{id}/revoke/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -342,7 +342,7 @@ export class CourseInviteApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
+        let localVarPath = `/api/v1/course-invite/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteDto>('post', `${basePath}${localVarPath}`,
             {

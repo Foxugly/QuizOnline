@@ -47,7 +47,7 @@ export class AdminApi extends BaseService {
 
     /**
      * Lancer un check systeme
-     * @endpoint post /api/admin/system-check/
+     * @endpoint post /api/v1/admin/system-check/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -101,7 +101,7 @@ export class AdminApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/admin/system-check/`;
+        let localVarPath = `/api/v1/admin/system-check/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<SystemCheckResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -119,7 +119,7 @@ export class AdminApi extends BaseService {
 
     /**
      * Lire la configuration systeme effective
-     * @endpoint get /api/admin/system-config/
+     * @endpoint get /api/v1/admin/system-config/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -156,7 +156,7 @@ export class AdminApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/admin/system-config/`;
+        let localVarPath = `/api/v1/admin/system-config/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {
@@ -174,7 +174,7 @@ export class AdminApi extends BaseService {
     /**
      * Statistiques du tableau de bord
      * GET /api/stats/dashboard/ Returns platform statistics scoped by the requesting user\&#39;s domain access. Superusers see everything; other staff see only domains they own or manage.
-     * @endpoint get /api/stats/dashboard/
+     * @endpoint get /api/v1/stats/dashboard/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -212,7 +212,7 @@ export class AdminApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/stats/dashboard/`;
+        let localVarPath = `/api/v1/stats/dashboard/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<DashboardStatsResponseDto>('get', `${basePath}${localVarPath}`,
             {

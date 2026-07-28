@@ -293,7 +293,7 @@ class QuizTemplateSerializerTests(LocalizedTestCase):
             "detail_visibility": VISIBILITY_IMMEDIATE,
         }
         factory = APIRequestFactory()
-        request = factory.post("/api/quiz/template/")
+        request = factory.post("/api/v1/quiz/template/")
         request.user = self.user
 
         serializer = QuizTemplateWriteSerializer(data=payload, context={"request": request})
@@ -321,7 +321,7 @@ class QuizTemplateSerializerTests(LocalizedTestCase):
             "detail_visibility": VISIBILITY_IMMEDIATE,
         }
         factory = APIRequestFactory()
-        request = factory.post("/api/quiz/template/")
+        request = factory.post("/api/v1/quiz/template/")
         request.user = self.user
 
         serializer = QuizTemplateWriteSerializer(data=payload, context={"request": request})
@@ -348,7 +348,7 @@ class QuizTemplateSerializerTests(LocalizedTestCase):
             "detail_visibility": VISIBILITY_IMMEDIATE,
         }
         factory = APIRequestFactory()
-        request = factory.post("/api/quiz/template/")
+        request = factory.post("/api/v1/quiz/template/")
         request.user = self.user
 
         serializer = QuizTemplateWriteSerializer(data=payload, context={"request": request})

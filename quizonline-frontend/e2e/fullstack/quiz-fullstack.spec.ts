@@ -22,8 +22,8 @@ async function getAccessToken(
   // The SPA never persists the access token (XSS hardening). Obtain one
   // directly from the backend so the test can call the API as a bearer
   // client without depending on AuthService internals. Email-only auth:
-  // /api/token/ keys on USERNAME_FIELD = "email".
-  const response = await page.request.post('http://127.0.0.1:8001/api/token/', {
+  // /api/v1/token/ keys on USERNAME_FIELD = "email".
+  const response = await page.request.post('http://127.0.0.1:8001/api/v1/token/', {
     data: {email, password},
   });
   expect(response.ok()).toBeTruthy();
@@ -32,7 +32,7 @@ async function getAccessToken(
   return payload.access!;
 }
 
-// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/token/ email
+// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/v1/token/ email
 // field), but the quiz-play UI flow still needs re-alignment with the current
 // SPA before this can gate. Tracked in docs/improvement-backlog.md (O6).
 // TODO(O6): partially rehabilitated. Login + "Démarrer le quiz" (accent fixed)
@@ -87,7 +87,7 @@ test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({
   await expect(page.getByText(/\d \/ 2/).first()).toBeVisible();
 
   const accessToken = await getAccessToken(page);
-  const answersResponse = await page.request.get(`http://127.0.0.1:8001/api/quiz/${quizId}/answer/`, {
+  const answersResponse = await page.request.get(`http://127.0.0.1:8001/api/v1/quiz/${quizId}/answer/`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -102,7 +102,7 @@ test.skip('parcourt un quiz reel et persiste une reponse cote backend', async ({
   expect(answersPayload[1].question_order).toBe(2);
   expect(answersPayload[1].selected_options).toHaveLength(1);
 
-  const quizResponse = await page.request.get(`http://127.0.0.1:8001/api/quiz/${quizId}/`, {
+  const quizResponse = await page.request.get(`http://127.0.0.1:8001/api/v1/quiz/${quizId}/`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

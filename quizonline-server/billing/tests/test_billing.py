@@ -176,7 +176,7 @@ def test_future_deadline_is_not_blocked(domain, settings):
 
 @pytest.mark.django_db
 def test_billing_endpoint_owner_ok_stranger_forbidden(domain, owner):
-    url = f"/api/domain/{domain.id}/billing/"
+    url = f"/api/v1/domain/{domain.id}/billing/"
 
     client = APIClient()
     client.force_authenticate(owner)

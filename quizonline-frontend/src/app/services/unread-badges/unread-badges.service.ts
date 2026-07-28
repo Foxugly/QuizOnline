@@ -11,8 +11,8 @@ import {QuizAlertService} from '../quiz-alert/quiz-alert';
  * Coalesced poller for the three topbar counters.
  *
  * Replaces three independent fetches
- * (``/api/notification/unread-count/`` + ``/api/quiz/alerts/unread-count/``
- * + ``/api/me/invitations/``) with a single ``/api/unread-counts/``
+ * (``/api/v1/notification/unread-count/`` + ``/api/v1/quiz/alerts/unread-count/``
+ * + ``/api/v1/me/invitations/``) with a single ``/api/v1/unread-counts/``
  * round-trip per tick. The response carries all three numbers; we
  * push them into the existing per-service signals so every consumer
  * (the notifications bell, the topmenu alert badge, the user-menu

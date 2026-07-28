@@ -3,7 +3,7 @@ info:
   title: QuizOnline API
   version: 1.0.0
 paths:
-  /api/admin/system-check/:
+  /api/v1/admin/system-check/:
     post:
       operationId: admin_system_check_create
       summary: Lancer un check systeme
@@ -48,7 +48,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/admin/system-config/:
+  /api/v1/admin/system-config/:
     get:
       operationId: admin_system_config_retrieve
       summary: Lire la configuration systeme effective
@@ -59,7 +59,7 @@ paths:
       responses:
         '200':
           description: System configuration snapshot
-  /api/auth/magic-link/exchange/:
+  /api/v1/auth/magic-link/exchange/:
     post:
       operationId: auth_magic_link_exchange_create
       description: Valide la signature et la TTL du token, vérifie que l'utilisateur
@@ -102,7 +102,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/auth/magic-link/request/:
+  /api/v1/auth/magic-link/request/:
     post:
       operationId: auth_magic_link_request_create
       description: Envoie un lien de connexion par e-mail si un compte actif et confirmé
@@ -133,7 +133,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/block/:
+  /api/v1/block/:
     get:
       operationId: block_list
       parameters:
@@ -179,7 +179,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Block'
           description: ''
-  /api/block/{id}/:
+  /api/v1/block/{id}/:
     get:
       operationId: block_retrieve
       parameters:
@@ -279,7 +279,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/block/reorder/:
+  /api/v1/block/reorder/:
     post:
       operationId: block_reorder_create
       description: |-
@@ -328,7 +328,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedBlockList'
           description: ''
-  /api/certificate/:
+  /api/v1/certificate/:
     get:
       operationId: certificate_list
       parameters:
@@ -349,7 +349,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedCertificateList'
           description: ''
-  /api/certificate/{id}/:
+  /api/v1/certificate/{id}/:
     get:
       operationId: certificate_retrieve
       parameters:
@@ -370,7 +370,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Certificate'
           description: ''
-  /api/certificate/{id}/pdf/:
+  /api/v1/certificate/{id}/pdf/:
     get:
       operationId: certificate_pdf_retrieve
       parameters:
@@ -391,7 +391,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Certificate'
           description: ''
-  /api/certificate/{id}/revoke/:
+  /api/v1/certificate/{id}/revoke/:
     post:
       operationId: certificate_revoke_create
       parameters:
@@ -412,7 +412,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Certificate'
           description: ''
-  /api/connection-log/:
+  /api/v1/connection-log/:
     get:
       operationId: connection_log_list
       parameters:
@@ -457,7 +457,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectionEventRead'
           description: ''
-  /api/course/:
+  /api/v1/course/:
     get:
       operationId: course_list
       description: |-
@@ -535,7 +535,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseWrite'
           description: ''
-  /api/course-invite/{id}/resend/:
+  /api/v1/course-invite/{id}/resend/:
     post:
       operationId: course_invite_resend_create
       description: Instructor re-sends a pending invitation.
@@ -556,7 +556,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course-invite/{id}/revoke/:
+  /api/v1/course-invite/{id}/revoke/:
     post:
       operationId: course_invite_revoke_create
       description: Instructor revokes a pending invitation.
@@ -577,7 +577,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course-invite/{token}/:
+  /api/v1/course-invite/{token}/:
     get:
       operationId: course_invite_retrieve
       description: |-
@@ -602,7 +602,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course-invite/{token}/accept/:
+  /api/v1/course-invite/{token}/accept/:
     post:
       operationId: course_invite_accept_create
       description: |-
@@ -625,7 +625,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseEnrollment'
           description: ''
-  /api/course-invite/{token}/decline/:
+  /api/v1/course-invite/{token}/decline/:
     post:
       operationId: course_invite_decline_create
       description: Invitee declines a pending invitation.
@@ -646,7 +646,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course/{course_id}/analytics/:
+  /api/v1/course/{course_id}/analytics/:
     get:
       operationId: course_analytics_retrieve
       description: |-
@@ -688,7 +688,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/course/{course_id}/enroll/:
+  /api/v1/course/{course_id}/enroll/:
     post:
       operationId: course_enroll_create
       parameters:
@@ -704,7 +704,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/course/{course_id}/invite/:
+  /api/v1/course/{course_id}/invite/:
     post:
       operationId: course_invite_create
       description: Instructor invites a domain member to an ``ENROLL_INVITE`` course.
@@ -737,7 +737,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course/{course_id}/invite-bulk/:
+  /api/v1/course/{course_id}/invite-bulk/:
     post:
       operationId: course_invite_bulk_create
       description: |-
@@ -784,7 +784,7 @@ paths:
                 - processed
                 - skipped
           description: ''
-  /api/course/{course_id}/invite-bulk-resend/:
+  /api/v1/course/{course_id}/invite-bulk-resend/:
     post:
       operationId: course_invite_bulk_resend_create
       description: |-
@@ -831,7 +831,7 @@ paths:
                 - processed
                 - skipped
           description: ''
-  /api/course/{course_id}/invites/:
+  /api/v1/course/{course_id}/invites/:
     get:
       operationId: course_invites_list
       description: List invitations for a course. Instructor-only.
@@ -854,7 +854,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/course/{course_id}/reviews/:
+  /api/v1/course/{course_id}/reviews/:
     get:
       operationId: course_reviews_retrieve
       parameters:
@@ -900,7 +900,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/course/{id}/:
+  /api/v1/course/{id}/:
     get:
       operationId: course_retrieve
       parameters:
@@ -1000,7 +1000,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/course/{id}/audit-log/:
+  /api/v1/course/{id}/audit-log/:
     get:
       operationId: course_audit_log_retrieve
       description: |-
@@ -1025,7 +1025,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/{id}/clone/:
+  /api/v1/course/{id}/clone/:
     post:
       operationId: course_clone_create
       parameters:
@@ -1058,7 +1058,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/{id}/export/:
+  /api/v1/course/{id}/export/:
     get:
       operationId: course_export_retrieve
       description: |-
@@ -1085,7 +1085,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/{id}/publish/:
+  /api/v1/course/{id}/publish/:
     post:
       operationId: course_publish_create
       parameters:
@@ -1118,7 +1118,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/{id}/section/reorder/:
+  /api/v1/course/{id}/section/reorder/:
     post:
       operationId: course_section_reorder_create
       parameters:
@@ -1151,7 +1151,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/{id}/unpublish/:
+  /api/v1/course/{id}/unpublish/:
     post:
       operationId: course_unpublish_create
       parameters:
@@ -1184,7 +1184,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/by-slug/{slug}/:
+  /api/v1/course/by-slug/{slug}/:
     get:
       operationId: course_by_slug_retrieve
       parameters:
@@ -1205,7 +1205,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/course/import/:
+  /api/v1/course/import/:
     post:
       operationId: course_import_create
       description: |-
@@ -1237,7 +1237,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-  /api/domain/:
+  /api/v1/domain/:
     get:
       operationId: domain_list
       description: |-
@@ -1301,7 +1301,7 @@ paths:
           description: Validation error.
         '401':
           description: Authentication required.
-  /api/domain/{domain_id}/:
+  /api/v1/domain/{domain_id}/:
     get:
       operationId: domain_retrieve
       description: |-
@@ -1449,7 +1449,7 @@ paths:
           description: Forbidden.
         '404':
           description: Not found (domain non visible ou inexistant).
-  /api/domain/{domain_id}/analytics/:
+  /api/v1/domain/{domain_id}/analytics/:
     get:
       operationId: domain_analytics_retrieve
       description: |-
@@ -1486,7 +1486,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainAnalytics'
           description: ''
-  /api/domain/{domain_id}/analytics/export/:
+  /api/v1/domain/{domain_id}/analytics/export/:
     get:
       operationId: domain_analytics_export_retrieve
       description: Renvoie un CSV (UTF-8, en-tête sur la première ligne) résumant
@@ -1522,7 +1522,7 @@ paths:
                 type: string
                 format: binary
           description: ''
-  /api/domain/{domain_id}/audit/:
+  /api/v1/domain/{domain_id}/audit/:
     get:
       operationId: domain_audit_list
       description: |-
@@ -1579,7 +1579,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedDomainAuditLogReadList'
           description: ''
-  /api/domain/{domain_id}/audit/actions/:
+  /api/v1/domain/{domain_id}/audit/actions/:
     get:
       operationId: domain_audit_actions_retrieve
       description: Liste triée et dédupliquée des valeurs ``action`` déjà enregistrées
@@ -1605,7 +1605,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/domain/{domain_id}/billing/:
+  /api/v1/domain/{domain_id}/billing/:
     get:
       operationId: domain_billing_retrieve
       description: |-
@@ -1630,7 +1630,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainBilling'
           description: ''
-  /api/domain/{domain_id}/details/:
+  /api/v1/domain/{domain_id}/details/:
     get:
       operationId: domain_details_retrieve
       summary: Récupérer un domaine avec détails
@@ -1659,7 +1659,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
-  /api/domain/{domain_id}/invitations/:
+  /api/v1/domain/{domain_id}/invitations/:
     get:
       operationId: domain_invitations_list
       summary: Lister les invitations en attente sur un domaine
@@ -1683,7 +1683,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/DomainInviteRead'
           description: ''
-  /api/domain/{domain_id}/invitations/{invite_id}/resend/:
+  /api/v1/domain/{domain_id}/invitations/{invite_id}/resend/:
     post:
       operationId: domain_invitations_resend_create
       description: 'Refresh ``last_sent_at`` + ``expires_at`` du row pending et réémet
@@ -1720,7 +1720,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/{domain_id}/invitations/{invite_id}/revoke/:
+  /api/v1/domain/{domain_id}/invitations/{invite_id}/revoke/:
     post:
       operationId: domain_invitations_revoke_create
       description: 'Marque l''invitation ``revoked`` : le token déjà émis ne matche
@@ -1752,7 +1752,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/{domain_id}/invite/:
+  /api/v1/domain/{domain_id}/invite/:
     post:
       operationId: domain_invite_create
       description: |-
@@ -1792,7 +1792,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/DomainInviteResult'
           description: ''
-  /api/domain/{domain_id}/join-request/:
+  /api/v1/domain/{domain_id}/join-request/:
     get:
       operationId: domain_join_request_list
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -1839,7 +1839,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
-  /api/domain/{domain_id}/join-request/{req_id}/:
+  /api/v1/domain/{domain_id}/join-request/{req_id}/:
     get:
       operationId: domain_join_request_retrieve
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -1865,7 +1865,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
-  /api/domain/{domain_id}/join-request/{req_id}/approve/:
+  /api/v1/domain/{domain_id}/join-request/{req_id}/approve/:
     post:
       operationId: domain_join_request_approve_create
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -1891,7 +1891,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
-  /api/domain/{domain_id}/join-request/{req_id}/cancel/:
+  /api/v1/domain/{domain_id}/join-request/{req_id}/cancel/:
     post:
       operationId: domain_join_request_cancel_create
       description: |-
@@ -1933,7 +1933,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
-  /api/domain/{domain_id}/join-request/{req_id}/reject/:
+  /api/v1/domain/{domain_id}/join-request/{req_id}/reject/:
     post:
       operationId: domain_join_request_reject_create
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -1959,7 +1959,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestRead'
           description: ''
-  /api/domain/{domain_id}/join-request/bulk-approve/:
+  /api/v1/domain/{domain_id}/join-request/bulk-approve/:
     post:
       operationId: domain_join_request_bulk_approve_create
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -1993,7 +1993,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestBulkResult'
           description: ''
-  /api/domain/{domain_id}/join-request/bulk-reject/:
+  /api/v1/domain/{domain_id}/join-request/bulk-reject/:
     post:
       operationId: domain_join_request_bulk_reject_create
       description: Nested under /api/domain/{domain_id}/join-request/.
@@ -2027,7 +2027,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainJoinRequestBulkResult'
           description: ''
-  /api/domain/{domain_id}/leave/:
+  /api/v1/domain/{domain_id}/leave/:
     post:
       operationId: domain_leave_create
       description: |-
@@ -2065,7 +2065,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/{domain_id}/member-role/:
+  /api/v1/domain/{domain_id}/member-role/:
     post:
       operationId: domain_member_role_create
       description: 'Trois intentions exclusives selon le payload : ``is_domain_manager``
@@ -2103,7 +2103,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/domain/{domain_id}/transfer/:
+  /api/v1/domain/{domain_id}/transfer/:
     post:
       operationId: domain_transfer_create
       description: |-
@@ -2149,7 +2149,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/available-for-linking/:
+  /api/v1/domain/available-for-linking/:
     get:
       operationId: domain_available_for_linking_retrieve
       tags:
@@ -2164,7 +2164,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DomainWrite'
           description: ''
-  /api/domain/invite/accept/{token}/:
+  /api/v1/domain/invite/accept/{token}/:
     get:
       operationId: domain_invite_accept_retrieve
       description: |-
@@ -2260,7 +2260,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/join-request/decide/{token}/:
+  /api/v1/domain/join-request/decide/{token}/:
     get:
       operationId: domain_join_request_decide_retrieve
       description: |-
@@ -2358,7 +2358,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/domain/moderation-summary/:
+  /api/v1/domain/moderation-summary/:
     get:
       operationId: domain_moderation_summary_list
       description: |-
@@ -2379,7 +2379,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/ModerationSummaryItem'
           description: ''
-  /api/domain/transfer/accept/{token}/:
+  /api/v1/domain/transfer/accept/{token}/:
     get:
       operationId: domain_transfer_accept_retrieve
       description: |-
@@ -2483,7 +2483,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/enrollment/:
+  /api/v1/enrollment/:
     get:
       operationId: enrollment_list
       parameters:
@@ -2504,7 +2504,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedCourseEnrollmentList'
           description: ''
-  /api/enrollment/{id}/:
+  /api/v1/enrollment/{id}/:
     get:
       operationId: enrollment_retrieve
       parameters:
@@ -2525,7 +2525,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseEnrollment'
           description: ''
-  /api/enrollment/{id}/approve/:
+  /api/v1/enrollment/{id}/approve/:
     post:
       operationId: enrollment_approve_create
       parameters:
@@ -2558,7 +2558,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseEnrollment'
           description: ''
-  /api/enrollment/{id}/cancel/:
+  /api/v1/enrollment/{id}/cancel/:
     post:
       operationId: enrollment_cancel_create
       parameters:
@@ -2591,7 +2591,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseEnrollment'
           description: ''
-  /api/enrollment/{id}/reject/:
+  /api/v1/enrollment/{id}/reject/:
     post:
       operationId: enrollment_reject_create
       parameters:
@@ -2624,7 +2624,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseEnrollment'
           description: ''
-  /api/lang/:
+  /api/v1/lang/:
     get:
       operationId: lang_list
       description: |
@@ -2709,7 +2709,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/lang/{lang_id}/:
+  /api/v1/lang/{lang_id}/:
     get:
       operationId: lang_retrieve
       summary: Récupérer une langue
@@ -2860,7 +2860,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/lesson/:
+  /api/v1/lesson/:
     get:
       operationId: lesson_list
       parameters:
@@ -2906,7 +2906,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-  /api/lesson/{lesson_id}/complete/:
+  /api/v1/lesson/{lesson_id}/complete/:
     post:
       operationId: lesson_complete_create
       parameters:
@@ -2922,7 +2922,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/lesson/{lesson_id}/note/:
+  /api/v1/lesson/{lesson_id}/note/:
     get:
       operationId: lesson_note_retrieve
       description: |-
@@ -2969,7 +2969,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/lesson/{lesson_id}/progress/:
+  /api/v1/lesson/{lesson_id}/progress/:
     post:
       operationId: lesson_progress_create
       description: Persist scroll-derived reading progress without completing the
@@ -2987,7 +2987,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/lesson/{lesson_id}/start/:
+  /api/v1/lesson/{lesson_id}/start/:
     post:
       operationId: lesson_start_create
       parameters:
@@ -3003,7 +3003,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/lesson/{id}/:
+  /api/v1/lesson/{id}/:
     get:
       operationId: lesson_retrieve
       parameters:
@@ -3103,7 +3103,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/lesson/{id}/publish/:
+  /api/v1/lesson/{id}/publish/:
     post:
       operationId: lesson_publish_create
       parameters:
@@ -3136,7 +3136,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-  /api/lesson/{id}/unpublish/:
+  /api/v1/lesson/{id}/unpublish/:
     post:
       operationId: lesson_unpublish_create
       parameters:
@@ -3169,7 +3169,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-  /api/mail/test/:
+  /api/v1/mail/test/:
     post:
       operationId: mail_test_create
       description: Enfile un email texte brut dans l'outbox applicative puis declenche
@@ -3216,7 +3216,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/me/invitations/:
+  /api/v1/me/invitations/:
     get:
       operationId: me_invitations_list
       description: |-
@@ -3241,7 +3241,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CourseInvite'
           description: ''
-  /api/notification/:
+  /api/v1/notification/:
     get:
       operationId: notification_list
       description: |-
@@ -3279,7 +3279,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedNotificationReadList'
           description: ''
-  /api/notification/{id}/:
+  /api/v1/notification/{id}/:
     delete:
       operationId: notification_destroy
       description: Marque la ligne ``deleted_at = now`` — elle disparaît de la liste
@@ -3298,7 +3298,7 @@ paths:
       responses:
         '204':
           description: Deleted.
-  /api/notification/{id}/read/:
+  /api/v1/notification/{id}/read/:
     post:
       operationId: notification_read_create
       description: Per-user notifications inbox.
@@ -3320,7 +3320,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotificationRead'
           description: ''
-  /api/notification/read-all/:
+  /api/v1/notification/read-all/:
     post:
       operationId: notification_read_all_create
       description: Une seule requête UPDATE — ne touche pas les supprimées.
@@ -3337,7 +3337,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/notification/unread-count/:
+  /api/v1/notification/unread-count/:
     get:
       operationId: notification_unread_count_retrieve
       description: 'Endpoint léger pour le polling du badge dans le topmenu. Renvoie
@@ -3355,7 +3355,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/progress/:
+  /api/v1/progress/:
     get:
       operationId: progress_list
       parameters:
@@ -3376,7 +3376,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedCourseProgressList'
           description: ''
-  /api/progress/{id}/:
+  /api/v1/progress/{id}/:
     get:
       operationId: progress_retrieve
       parameters:
@@ -3397,7 +3397,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseProgress'
           description: ''
-  /api/question/:
+  /api/v1/question/:
     get:
       operationId: question_list
       description: |
@@ -3507,7 +3507,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/question/{question_id}/:
+  /api/v1/question/{question_id}/:
     get:
       operationId: question_retrieve
       summary: Récupérer une question
@@ -3667,7 +3667,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/question/export-structured/:
+  /api/v1/question/export-structured/:
     get:
       operationId: question_export_structured_retrieve
       description: Export les questions (filtrées par domain= et/ou ids=) en JSON
@@ -3683,7 +3683,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuestionWrite'
           description: ''
-  /api/question/import-structured/:
+  /api/v1/question/import-structured/:
     post:
       operationId: question_import_structured_create
       description: |-
@@ -3712,7 +3712,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuestionWrite'
           description: ''
-  /api/quiz/:
+  /api/v1/quiz/:
     get:
       operationId: quiz_list
       description: |
@@ -3788,7 +3788,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Quiz'
           description: ''
-  /api/quiz/{quiz_id}/:
+  /api/v1/quiz/{quiz_id}/:
     get:
       operationId: quiz_retrieve
       summary: Détail d’un quiz (session)
@@ -3888,7 +3888,7 @@ paths:
       responses:
         '204':
           description: No Content
-  /api/quiz/{quiz_id}/answer/:
+  /api/v1/quiz/{quiz_id}/answer/:
     get:
       operationId: quiz_answer_list
       summary: Lister les réponses d’un quiz
@@ -3950,7 +3950,7 @@ paths:
           description: Validation error
         '404':
           description: Quiz introuvable
-  /api/quiz/{quiz_id}/answer/{answer_id}/:
+  /api/v1/quiz/{quiz_id}/answer/{answer_id}/:
     get:
       operationId: quiz_answer_retrieve
       summary: Détail d’une réponse
@@ -4069,7 +4069,7 @@ paths:
       responses:
         '204':
           description: No Content
-  /api/quiz/{quiz_id}/close/:
+  /api/v1/quiz/{quiz_id}/close/:
     post:
       operationId: quiz_close_create
       summary: Clôturer un quiz (calcule les scores)
@@ -4094,7 +4094,7 @@ paths:
           description: Quiz introuvable
         '409':
           description: Quiz jamais démarré ou déjà clôturé
-  /api/quiz/{quiz_id}/export-pdf/:
+  /api/v1/quiz/{quiz_id}/export-pdf/:
     get:
       operationId: quiz_export_pdf_retrieve
       description: |-
@@ -4116,7 +4116,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/quiz/{quiz_id}/start/:
+  /api/v1/quiz/{quiz_id}/start/:
     post:
       operationId: quiz_start_create
       summary: Démarrer une session de quiz existante
@@ -4141,7 +4141,7 @@ paths:
           description: Input invalide / quiz non disponible
         '404':
           description: QuizTemplate introuvable
-  /api/quiz/alerts/:
+  /api/v1/quiz/alerts/:
     get:
       operationId: quiz_alerts_list
       summary: Lister les conversations d'alerte quiz
@@ -4189,7 +4189,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAlertThreadDetail'
           description: ''
-  /api/quiz/alerts/{alert_id}/:
+  /api/v1/quiz/alerts/{alert_id}/:
     get:
       operationId: quiz_alerts_retrieve
       summary: Lire une conversation d'alerte quiz
@@ -4241,7 +4241,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAlertThreadDetail'
           description: ''
-  /api/quiz/alerts/{alert_id}/close/:
+  /api/v1/quiz/alerts/{alert_id}/close/:
     post:
       operationId: quiz_alerts_close_create
       summary: Clôturer une conversation d'alerte quiz
@@ -4262,7 +4262,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAlertThreadDetail'
           description: ''
-  /api/quiz/alerts/{alert_id}/message/:
+  /api/v1/quiz/alerts/{alert_id}/message/:
     post:
       operationId: quiz_alerts_message_create
       summary: Répondre à une conversation d'alerte quiz
@@ -4295,7 +4295,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAlertMessage'
           description: ''
-  /api/quiz/alerts/{alert_id}/reopen/:
+  /api/v1/quiz/alerts/{alert_id}/reopen/:
     post:
       operationId: quiz_alerts_reopen_create
       summary: Rouvrir une conversation d'alerte quiz
@@ -4316,7 +4316,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAlertThreadDetail'
           description: ''
-  /api/quiz/alerts/unread-count/:
+  /api/v1/quiz/alerts/unread-count/:
     get:
       operationId: quiz_alerts_unread_count_retrieve
       summary: Compter les alertes non lues de l'utilisateur courant
@@ -4327,7 +4327,7 @@ paths:
       responses:
         '200':
           description: '{"count": int}'
-  /api/quiz/bulk-create-from-template/:
+  /api/v1/quiz/bulk-create-from-template/:
     post:
       operationId: quiz_bulk_create_from_template_create
       summary: Créer des quizzes depuis un template (bulk)
@@ -4365,7 +4365,7 @@ paths:
           description: Input invalide
         '404':
           description: QuizTemplate introuvable
-  /api/quiz/template/:
+  /api/v1/quiz/template/:
     get:
       operationId: quiz_template_list
       summary: Lister les templates de quiz
@@ -4413,7 +4413,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizTemplate'
           description: ''
-  /api/quiz/template/{qt_id}/:
+  /api/v1/quiz/template/{qt_id}/:
     get:
       operationId: quiz_template_retrieve
       summary: Détail d’un template de quiz
@@ -4513,7 +4513,7 @@ paths:
       responses:
         '204':
           description: No Content
-  /api/quiz/template/{qt_id}/question/:
+  /api/v1/quiz/template/{qt_id}/question/:
     get:
       operationId: quiz_template_question_list
       summary: Lister les QuizQuestion d’un template (nested)
@@ -4576,7 +4576,7 @@ paths:
           description: Validation error
         '404':
           description: Template introuvable
-  /api/quiz/template/{qt_id}/question/{qq_id}/:
+  /api/v1/quiz/template/{qt_id}/question/{qq_id}/:
     get:
       operationId: quiz_template_question_retrieve
       summary: Détail d’une QuizQuestion d’un template (nested)
@@ -4696,7 +4696,7 @@ paths:
       responses:
         '204':
           description: No Content
-  /api/quiz/template/{qt_id}/sessions/:
+  /api/v1/quiz/template/{qt_id}/sessions/:
     get:
       operationId: quiz_template_sessions_list
       summary: Lister les sessions envoyées pour un template
@@ -4723,7 +4723,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedQuizAssignmentListList'
           description: ''
-  /api/quiz/template/generate-from-subjects/:
+  /api/v1/quiz/template/generate-from-subjects/:
     post:
       operationId: quiz_template_generate_from_subjects_create
       summary: Générer un template depuis des sujets
@@ -4752,7 +4752,7 @@ paths:
           description: ''
         '400':
           description: Input invalide / aucune question trouvée
-  /api/review/{review_id}/moderate/:
+  /api/v1/review/{review_id}/moderate/:
     post:
       operationId: review_moderate_create
       description: Owner/manager of the course's domain hides/unhides a review.
@@ -4769,7 +4769,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/schema/:
+  /api/v1/schema/:
     get:
       operationId: schema_retrieve
       description: |-
@@ -4820,7 +4820,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/section/:
+  /api/v1/section/:
     get:
       operationId: section_list
       parameters:
@@ -4866,7 +4866,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Section'
           description: ''
-  /api/section/{id}/:
+  /api/v1/section/{id}/:
     get:
       operationId: section_retrieve
       parameters:
@@ -4966,7 +4966,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/section/{id}/lesson/reorder/:
+  /api/v1/section/{id}/lesson/reorder/:
     post:
       operationId: section_lesson_reorder_create
       parameters:
@@ -4999,7 +4999,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Section'
           description: ''
-  /api/section/{id}/publish/:
+  /api/v1/section/{id}/publish/:
     post:
       operationId: section_publish_create
       parameters:
@@ -5032,7 +5032,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Section'
           description: ''
-  /api/section/{id}/unpublish/:
+  /api/v1/section/{id}/unpublish/:
     post:
       operationId: section_unpublish_create
       parameters:
@@ -5065,7 +5065,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Section'
           description: ''
-  /api/stats/dashboard/:
+  /api/v1/stats/dashboard/:
     get:
       operationId: stats_dashboard_retrieve
       description: |-
@@ -5096,7 +5096,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (superuser only)
-  /api/subject/:
+  /api/v1/subject/:
     get:
       operationId: subject_list
       description: |
@@ -5194,7 +5194,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden (admin only)
-  /api/subject/{subject_id}/:
+  /api/v1/subject/{subject_id}/:
     get:
       operationId: subject_retrieve
       summary: Récupérer un sujet
@@ -5384,7 +5384,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
-  /api/subject/{subject_id}/details/:
+  /api/v1/subject/{subject_id}/details/:
     get:
       operationId: subject_details_retrieve
       summary: Récupérer un sujet avec détails
@@ -5424,7 +5424,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
-  /api/token/:
+  /api/v1/token/:
     post:
       operationId: token_create
       description: |-
@@ -5447,7 +5447,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/token/refresh/:
+  /api/v1/token/refresh/:
     post:
       operationId: token_refresh_create
       description: |-
@@ -5474,7 +5474,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenRefresh'
           description: ''
-  /api/translate/batch/:
+  /api/v1/translate/batch/:
     post:
       operationId: translate_batch_create
       description: Traduit une liste d'éléments en une seule requête. Chaque item
@@ -5542,7 +5542,7 @@ paths:
           description: Forbidden
         '502':
           description: DeepL upstream error
-  /api/unread-counts/:
+  /api/v1/unread-counts/:
     get:
       operationId: unread_counts_retrieve
       description: Coalesces the three topbar polls (/notification/unread-count/,
@@ -5564,7 +5564,7 @@ paths:
                 additionalProperties: {}
           description: '{"notifications": int, "quiz_alerts": int, "course_invitations":
             int}'
-  /api/user/:
+  /api/v1/user/:
     get:
       operationId: user_list
       description: Admin/staff uniquement.
@@ -5629,7 +5629,7 @@ paths:
           description: ''
         '400':
           description: Validation error
-  /api/user/{user_id}/:
+  /api/v1/user/{user_id}/:
     get:
       operationId: user_retrieve
       summary: Récupérer un utilisateur
@@ -5750,7 +5750,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/user/{user_id}/quizzes/:
+  /api/v1/user/{user_id}/quizzes/:
     get:
       operationId: user_quiz_list
       description: |-
@@ -5799,7 +5799,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Not found
-  /api/user/email/confirm/:
+  /api/v1/user/email/confirm/:
     post:
       operationId: user_email_confirm_create
       summary: Confirmer une adresse email
@@ -5833,7 +5833,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Lien invalide / token invalide
-  /api/user/me/:
+  /api/v1/user/me/:
     get:
       operationId: user_me_retrieve
       description: Retourne le profil de l'utilisateur authentifié.
@@ -5933,7 +5933,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
-  /api/user/me/current-domain/:
+  /api/v1/user/me/current-domain/:
     post:
       operationId: user_me_current_domain_create
       description: Met à jour `current_domain` sur l'utilisateur authentifié, puis
@@ -5975,7 +5975,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Forbidden
-  /api/user/me/export/:
+  /api/v1/user/me/export/:
     get:
       operationId: user_me_export_retrieve
       description: 'Retourne un dump JSON de toutes les données personnelles associées
@@ -5996,7 +5996,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-  /api/user/me/join-requests/:
+  /api/v1/user/me/join-requests/:
     get:
       operationId: user_me_join_requests_retrieve
       tags:
@@ -6010,7 +6010,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomUserRead'
           description: ''
-  /api/user/password/change/:
+  /api/v1/user/password/change/:
     post:
       operationId: user_password_change_create
       description: Utilisateur authentifié uniquement.
@@ -6050,7 +6050,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Unauthorized
-  /api/user/password/reset/:
+  /api/v1/user/password/reset/:
     post:
       operationId: user_password_reset_create
       description: |-
@@ -6087,7 +6087,7 @@ paths:
                 type: object
                 additionalProperties: {}
           description: Validation error
-  /api/user/password/reset/confirm/:
+  /api/v1/user/password/reset/confirm/:
     post:
       operationId: user_password_reset_confirm_create
       summary: Confirmer un reset de mot de passe
@@ -6121,7 +6121,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: Lien invalide / token invalide
-  /api/validation-quiz/:
+  /api/v1/validation-quiz/:
     get:
       operationId: validation_quiz_list
       parameters:
@@ -6167,7 +6167,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonQuiz'
           description: ''
-  /api/validation-quiz/{id}/:
+  /api/v1/validation-quiz/{id}/:
     get:
       operationId: validation_quiz_retrieve
       parameters:
@@ -6267,7 +6267,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/verify/{token}/:
+  /api/v1/verify/{token}/:
     get:
       operationId: verify_retrieve
       parameters:

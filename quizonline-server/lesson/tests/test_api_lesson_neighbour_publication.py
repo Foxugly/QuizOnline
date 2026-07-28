@@ -53,7 +53,7 @@ def test_learner_does_not_see_unpublished_neighbour(
     learner, published_course_with_draft_neighbour
 ):
     published = published_course_with_draft_neighbour["published"]
-    resp = _auth(learner).get(f"/api/lesson/{published.id}/")
+    resp = _auth(learner).get(f"/api/v1/lesson/{published.id}/")
     assert resp.status_code == 200
     body = resp.json()
     # The only neighbour is a draft — it must be hidden from the learner.
@@ -69,7 +69,7 @@ def test_instructor_still_sees_unpublished_neighbour(
 ):
     published = published_course_with_draft_neighbour["published"]
     draft = published_course_with_draft_neighbour["draft"]
-    resp = _auth(owner).get(f"/api/lesson/{published.id}/")
+    resp = _auth(owner).get(f"/api/v1/lesson/{published.id}/")
     assert resp.status_code == 200
     body = resp.json()
     # The course owner is an instructor — they see the draft neighbour.

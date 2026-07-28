@@ -40,7 +40,7 @@ export class SchemaApi extends BaseService {
 
     /**
      * OpenApi3 schema for this API. Format can be selected via content negotiation.  - YAML: application/vnd.oai.openapi - JSON: application/vnd.oai.openapi+json
-     * @endpoint get /api/schema/
+     * @endpoint get /api/v1/schema/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -104,7 +104,7 @@ export class SchemaApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/schema/`;
+        let localVarPath = `/api/v1/schema/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
             {

@@ -81,7 +81,7 @@ def _upsert_translations(obj, translations: dict, *, fields: list[str]) -> None:
 #   }
 #
 # Image / file uploads are NOT handled here — they still go through the
-# Block ViewSet under ``/api/block/``. The Question payload only carries
+# Block ViewSet under ``/api/v1/block/``. The Question payload only carries
 # rich_text / code / embed / video / quiz / callout blocks.
 # ──────────────────────────────────────────────────────────────────────
 
@@ -134,7 +134,7 @@ def _sync_host_blocks(
     bucket and recreate from the payload. The block-builder UX (and the
     Question editor) treats the list as a value, not an entity stream,
     so wholesale replacement is the simplest correct behaviour. The
-    BlockViewSet (``/api/block/``) is the canonical write surface for
+    BlockViewSet (``/api/v1/block/``) is the canonical write surface for
     individual edits — this Question/AnswerOption-scoped path is only
     used when callers send a full nested payload.
     """

@@ -38,7 +38,7 @@ export class VerifyApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/verify/{token}/
+     * @endpoint get /api/v1/verify/{token}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -80,7 +80,7 @@ export class VerifyApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/verify/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/verify/${this.configuration.encodeParam({name: "token", value: token, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {

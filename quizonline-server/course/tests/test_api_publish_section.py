@@ -1,7 +1,7 @@
 """Audited publish / unpublish for sections.
 
 Sections used to flip ``is_published`` through a plain PATCH with no
-audit trail. The dedicated ``POST /api/section/{id}/publish|unpublish/``
+audit trail. The dedicated ``POST /api/v1/section/{id}/publish|unpublish/``
 actions bring parity with the course-level audited actions: the mutation
 is recorded on the parent course's ``CourseAuditLog``.
 """
@@ -30,7 +30,7 @@ def test_publish_section_audits_on_parent_course(course, owner):
     client = APIClient()
     client.force_authenticate(user=owner)
 
-    response = client.post(f"/api/section/{section.id}/publish/")
+    response = client.post(f"/api/v1/section/{section.id}/publish/")
 
     assert response.status_code == 200
     section.refresh_from_db()
@@ -46,7 +46,7 @@ def test_unpublish_section_audits_on_parent_course(course, owner):
     client = APIClient()
     client.force_authenticate(user=owner)
 
-    response = client.post(f"/api/section/{section.id}/unpublish/")
+    response = client.post(f"/api/v1/section/{section.id}/unpublish/")
 
     assert response.status_code == 200
     section.refresh_from_db()
@@ -68,7 +68,7 @@ def test_unpublish_section_rejects_non_instructor(course, member):
     client = APIClient()
     client.force_authenticate(user=member)
 
-    response = client.post(f"/api/section/{section.id}/unpublish/")
+    response = client.post(f"/api/v1/section/{section.id}/unpublish/")
 
     assert response.status_code == 403
     section.refresh_from_db()

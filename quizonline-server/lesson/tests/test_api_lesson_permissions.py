@@ -59,7 +59,7 @@ def learner(db, domain):
 def test_lesson_list_rejects_anonymous(published_lesson):
     """Without authentication the lesson list endpoint returns 401."""
     client = APIClient()
-    response = client.get("/api/lesson/")
+    response = client.get("/api/v1/lesson/")
     assert response.status_code == 401
 
 
@@ -70,7 +70,7 @@ def test_lesson_list_hides_lessons_from_outsider(published_lesson, outsider):
     fully published."""
     client = APIClient()
     client.force_authenticate(user=outsider)
-    response = client.get("/api/lesson/")
+    response = client.get("/api/v1/lesson/")
     assert response.status_code == 200
     payload = response.json()
     results = payload["results"] if isinstance(payload, dict) and "results" in payload else payload
@@ -82,7 +82,7 @@ def test_lesson_retrieve_lets_learner_read_published_lesson(published_lesson, le
     """A domain member sees a published lesson via the detail endpoint."""
     client = APIClient()
     client.force_authenticate(user=learner)
-    response = client.get(f"/api/lesson/{published_lesson.id}/")
+    response = client.get(f"/api/v1/lesson/{published_lesson.id}/")
     assert response.status_code == 200
     payload = response.json()
     assert payload["id"] == published_lesson.id
@@ -95,7 +95,7 @@ def test_lesson_patch_rejects_learner(published_lesson, learner):
     client = APIClient()
     client.force_authenticate(user=learner)
     response = client.patch(
-        f"/api/lesson/{published_lesson.id}/",
+        f"/api/v1/lesson/{published_lesson.id}/",
         {"order": 99},
         format="json",
     )
@@ -108,7 +108,7 @@ def test_lesson_patch_lets_owner_through(published_lesson, owner):
     client = APIClient()
     client.force_authenticate(user=owner)
     response = client.patch(
-        f"/api/lesson/{published_lesson.id}/",
+        f"/api/v1/lesson/{published_lesson.id}/",
         {"order": 7},
         format="json",
     )

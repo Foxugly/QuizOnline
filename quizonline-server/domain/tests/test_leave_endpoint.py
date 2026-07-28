@@ -1,6 +1,6 @@
 """
 Tests for the voluntary leave-domain endpoint
-``POST /api/domain/{id}/leave/``.
+``POST /api/v1/domain/{id}/leave/``.
 
 The action is self-removal: an authenticated user takes themselves out
 of a domain's ``members`` (and ``managers``, if applicable). Owners are
@@ -18,7 +18,7 @@ User = get_user_model()
 
 
 class DomainLeaveEndpointTests(TestCase):
-    URL = "/api/domain/{}/leave/"
+    URL = "/api/v1/domain/{}/leave/"
 
     def setUp(self):
         self.owner = User.objects.create_user(email="ow@example.test", password="pwd")

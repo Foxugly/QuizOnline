@@ -91,7 +91,7 @@ describe('Preferences', () => {
       component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
-      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));
+      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/v1/user/me/'));
       req.flush(null, {status: 204, statusText: 'No Content'});
 
       expect(component.deleting()).toBe(false);
@@ -112,7 +112,7 @@ describe('Preferences', () => {
       component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
-      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));
+      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/v1/user/me/'));
       req.flush(
         {detail: 'owner_of_domains', owned_count: 3},
         {status: 409, statusText: 'Conflict'},
@@ -136,7 +136,7 @@ describe('Preferences', () => {
       component.deleteConfirmInput.set('alice@example.com');
       component.confirmDeleteAccount();
 
-      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/user/me/'));
+      const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/api/v1/user/me/'));
       req.flush({detail: 'something went wrong'}, {status: 500, statusText: 'Server Error'});
 
       expect(component.deleting()).toBe(false);

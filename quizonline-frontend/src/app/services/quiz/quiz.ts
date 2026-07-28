@@ -45,7 +45,7 @@ export class QuizService {
   /** In-flight share of the unfiltered ``listQuiz()`` (all pages). A lesson
    *  with several quiz blocks mounts that many ``QuizBlockRenderer``s, each
    *  calling ``listQuiz()`` with no params on init — without this they each
-   *  fan out an identical multi-page walk of ``GET /api/quiz/``. Sharing the
+   *  fan out an identical multi-page walk of ``GET /api/v1/quiz/``. Sharing the
    *  in-flight observable collapses them into one; the slot clears on
    *  completion so a later mount (post-session-start) refetches fresh. */
   private listQuizAll$: Observable<QuizListDto[]> | null = null;
@@ -146,7 +146,7 @@ export class QuizService {
     return this.listQuizAll$;
   }
 
-  /** One paginated page of ``GET /api/quiz/`` plus the bookkeeping the
+  /** One paginated page of ``GET /api/v1/quiz/`` plus the bookkeeping the
    *  ``expand`` in :meth:`listQuiz` needs to decide whether to fetch the
    *  next one. ``next`` is a server URL, but the generated client only
    *  accepts a numeric ``page``, so we increment it ourselves. */

@@ -9,7 +9,7 @@ from domain.models import Domain
 class CustomUserApiTests(APITestCase):
     @patch("customuser.services.send_registration_confirmation_email")
     def test_create_user(self, send_registration_confirmation_email):
-        url = reverse("api:user-api:api-root")  # /api/user/
+        url = reverse("api:user-api:api-root")  # /api/v1/user/
         payload = {
             "email": "john@example.com",
             "first_name": "John",
@@ -32,7 +32,7 @@ class CustomUserListTests(APITestCase):
             email="admin@example.com",
             password="AdminPass123",
         )
-        self.url = reverse("api:user-api:api-root")  # GET sur /api/user/
+        self.url = reverse("api:user-api:api-root")  # GET sur /api/v1/user/
 
     def test_list_users_anonymous_forbidden(self):
         response = self.client.get(self.url)
@@ -51,14 +51,14 @@ class CustomUserListTests(APITestCase):
 
 
 class CustomUserDeleteSelfTests(APITestCase):
-    """Self-service GDPR account deletion via DELETE /api/user/me/."""
+    """Self-service GDPR account deletion via DELETE /api/v1/user/me/."""
 
     def setUp(self):
         self.user = CustomUser.objects.create_user(
             email="alice@example.com",
             password="Pwd!2026Alice",
         )
-        self.url = "/api/user/me/"
+        self.url = "/api/v1/user/me/"
 
     def test_anonymous_rejected(self):
         response = self.client.delete(self.url)
