@@ -171,7 +171,7 @@ class QuestionViewSetTests(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_member_cannot_list_questions(self):
-        """Security regression (P1): the /api/question/ editor endpoint exposes
+        """Security regression (P1): the /api/v1/question/ editor endpoint exposes
         is_correct, so it must be scoped to MANAGEABLE domains (owner/managers),
         NOT visible (which also includes members/learners). A domain member must
         get an empty list; a manager of the same domain still sees the question."""

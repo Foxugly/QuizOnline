@@ -463,7 +463,7 @@ class DomainWriteSerializerJoinPolicyTests(TestCase):
         self.factory = APIRequestFactory()
 
     def _ctx(self, user):
-        request = self.factory.patch(f"/api/domain/{self.domain.id}/")
+        request = self.factory.patch(f"/api/v1/domain/{self.domain.id}/")
         request.user = user
         return {"request": request}
 
@@ -531,7 +531,7 @@ class DomainReadSerializerComputedFieldsTests(TestCase):
         self.factory = APIRequestFactory()
 
     def _ctx(self, user):
-        request = self.factory.get(f"/api/domain/{self.domain.id}/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain.id}/")
         request.user = user
         return {"request": request}
 

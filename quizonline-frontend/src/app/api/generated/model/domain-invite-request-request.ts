@@ -10,7 +10,7 @@
 
 
 /**
- * Payload for ``POST /api/domain/{id}/invite/``.  ``language`` is optional and used to pick the email locale when we have no User row to read a preference from yet (fresh invitations to addresses not on the platform).  We deliberately use a plain ``CharField`` with manual validation rather than a ``ChoiceField``: drf-spectacular would otherwise emit a new ad-hoc enum schema that collides with the shared ``LanguageEnum`` referenced everywhere else in the API.
+ * Payload for ``POST /api/v1/domain/{id}/invite/``.  ``language`` is optional and used to pick the email locale when we have no User row to read a preference from yet (fresh invitations to addresses not on the platform).  We deliberately use a plain ``CharField`` with manual validation rather than a ``ChoiceField``: drf-spectacular would otherwise emit a new ad-hoc enum schema that collides with the shared ``LanguageEnum`` referenced everywhere else in the API.
  */
 export interface DomainInviteRequestRequestDto { 
     emails: Array<string>;

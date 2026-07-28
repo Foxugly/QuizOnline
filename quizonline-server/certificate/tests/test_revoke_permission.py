@@ -35,7 +35,7 @@ def cert(db, course, learner):
 
 @pytest.mark.django_db
 def test_owner_non_staff_cannot_revoke_own_certificate(cert, learner):
-    resp = _auth(learner).post(f"/api/certificate/{cert.id}/revoke/", {}, format="json")
+    resp = _auth(learner).post(f"/api/v1/certificate/{cert.id}/revoke/", {}, format="json")
     assert resp.status_code == 403
     cert.refresh_from_db()
     assert cert.revoked_at is None
@@ -44,7 +44,7 @@ def test_owner_non_staff_cannot_revoke_own_certificate(cert, learner):
 @pytest.mark.django_db
 def test_superuser_can_revoke(cert, superuser):
     resp = _auth(superuser).post(
-        f"/api/certificate/{cert.id}/revoke/", {"reason": "fraud"}, format="json"
+        f"/api/v1/certificate/{cert.id}/revoke/", {"reason": "fraud"}, format="json"
     )
     assert resp.status_code == 200
     cert.refresh_from_db()
@@ -55,7 +55,7 @@ def test_superuser_can_revoke(cert, superuser):
 @pytest.mark.django_db
 def test_course_instructor_can_revoke(cert, owner):
     # ``owner`` owns the certificate's course's domain -> instructor.
-    resp = _auth(owner).post(f"/api/certificate/{cert.id}/revoke/", {}, format="json")
+    resp = _auth(owner).post(f"/api/v1/certificate/{cert.id}/revoke/", {}, format="json")
     assert resp.status_code == 200
     cert.refresh_from_db()
     assert cert.revoked_at is not None

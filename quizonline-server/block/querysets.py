@@ -14,7 +14,7 @@ class BlockQuerySet(TranslatableQuerySet):
         - **Question / AnswerOption** (Phase 3.5): visible when the
           calling user can manage the owning domain. Anonymous users
           never see Question-hosted blocks via this endpoint — the
-          question read path goes through ``/api/question/`` which has
+          question read path goes through ``/api/v1/question/`` which has
           its own permission gate. The block detail endpoint mirrors
           that posture and only surfaces these to domain instructors.
         """

@@ -4,7 +4,7 @@ from customuser.models import Notification
 
 
 class NotificationReadSerializer(serializers.ModelSerializer):
-    """Shape returned by ``GET /api/notification/`` and friends."""
+    """Shape returned by ``GET /api/v1/notification/`` and friends."""
 
     class Meta:
         model = Notification

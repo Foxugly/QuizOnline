@@ -185,7 +185,7 @@ class CourseInviteSerializer(serializers.ModelSerializer):
 
 
 class CourseInviteSendSerializer(serializers.Serializer):
-    """Write shape for ``POST /api/course/{id}/invite/``. The
+    """Write shape for ``POST /api/v1/course/{id}/invite/``. The
     instructor picks an invitee by their ``user_id``; that user must
     already be a member of the course's domain (enforced by the
     service layer)."""

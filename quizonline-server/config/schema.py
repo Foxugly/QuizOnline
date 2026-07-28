@@ -4,7 +4,7 @@ from drf_spectacular.extensions import OpenApiAuthenticationExtension
 
 class SimpleJWTScheme(OpenApiAuthenticationExtension):
     target_class = 'rest_framework_simplejwt.authentication.JWTAuthentication'
-    name = 'jwtAuth'  # <- le nom qui apparaîtra dans /api/docs/ (Authorize)
+    name = 'jwtAuth'  # <- le nom qui apparaîtra dans /api/v1/docs/ (Authorize)
 
     def get_security_definition(self, auto_schema):
         return {

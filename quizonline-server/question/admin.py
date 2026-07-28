@@ -63,7 +63,7 @@ class AnswerOptionInline(admin.TabularInline):
     ``content`` field is now hosted as polymorphic block rows, so the
     inline only exposes the structural fields (``is_correct`` /
     ``sort_order``). Authors edit the block content through the
-    ``/api/block/`` endpoints in the Question editor UI.
+    ``/api/v1/block/`` endpoints in the Question editor UI.
     """
     model = AnswerOption
     formset = AnswerOptionInlineFormSet

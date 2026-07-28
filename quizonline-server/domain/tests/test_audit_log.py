@@ -67,7 +67,7 @@ class MemberRoleActionsRecordAuditTests(TestCase):
 
     def test_promote_writes_audit_row(self):
         resp = self.client.post(
-            f"/api/domain/{self.domain.id}/member-role/",
+            f"/api/v1/domain/{self.domain.id}/member-role/",
             {"user_id": self.target.id, "is_domain_manager": True},
             format="json",
         )
@@ -79,7 +79,7 @@ class MemberRoleActionsRecordAuditTests(TestCase):
 
     def test_remove_writes_audit_row(self):
         resp = self.client.post(
-            f"/api/domain/{self.domain.id}/member-role/",
+            f"/api/v1/domain/{self.domain.id}/member-role/",
             {"user_id": self.target.id, "remove_member": True},
             format="json",
         )
@@ -103,7 +103,7 @@ class JoinRequestActionsRecordAuditTests(TestCase):
 
     def test_approve_writes_audit_row(self):
         resp = self.client.post(
-            f"/api/domain/{self.domain.id}/join-request/{self.req.id}/approve/",
+            f"/api/v1/domain/{self.domain.id}/join-request/{self.req.id}/approve/",
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(
@@ -114,7 +114,7 @@ class JoinRequestActionsRecordAuditTests(TestCase):
 
     def test_reject_writes_audit_row_with_reason(self):
         resp = self.client.post(
-            f"/api/domain/{self.domain.id}/join-request/{self.req.id}/reject/",
+            f"/api/v1/domain/{self.domain.id}/join-request/{self.req.id}/reject/",
             {"reason": "spam"},
             format="json",
         )
@@ -129,7 +129,7 @@ class JoinRequestActionsRecordAuditTests(TestCase):
         token = make_decision_token(
             request_id=self.req.id, recipient_user_id=self.owner.id, action="approve",
         )
-        resp = self.client.post(f"/api/domain/join-request/decide/{token}/")
+        resp = self.client.post(f"/api/v1/domain/join-request/decide/{token}/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(
             DomainAuditLog.objects.filter(
@@ -148,7 +148,7 @@ class InviteActionRecordAuditTests(TestCase):
 
     def test_invite_writes_single_bulk_audit_row(self):
         resp = self.client.post(
-            f"/api/domain/{self.domain.id}/invite/",
+            f"/api/v1/domain/{self.domain.id}/invite/",
             {"emails": ["a@x.test", "b@x.test"], "language": "fr"},
             format="json",
         )
@@ -161,7 +161,7 @@ class InviteActionRecordAuditTests(TestCase):
 
 
 class AuditLogEndpointTests(TestCase):
-    URL = "/api/domain/{}/audit/"
+    URL = "/api/v1/domain/{}/audit/"
 
     def setUp(self):
         translation.activate("fr")
@@ -278,7 +278,7 @@ class LeaveActionRecordAuditTests(TestCase):
         self.client.force_authenticate(self.member)
 
     def test_leave_writes_audit_row(self):
-        resp = self.client.post(f"/api/domain/{self.domain.id}/leave/")
+        resp = self.client.post(f"/api/v1/domain/{self.domain.id}/leave/")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         row = DomainAuditLog.objects.filter(action="member.self_leave").first()
         self.assertIsNotNone(row)

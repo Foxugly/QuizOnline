@@ -8,11 +8,11 @@ from rest_framework.test import APITestCase
 
 User = get_user_model()
 
-DASHBOARD_URL = "/api/stats/dashboard/"
+DASHBOARD_URL = "/api/v1/stats/dashboard/"
 
 
 class DashboardStatsTests(APITestCase):
-    """Tests for GET /api/stats/dashboard/."""
+    """Tests for GET /api/v1/stats/dashboard/."""
 
     def setUp(self):
         # --- users ---

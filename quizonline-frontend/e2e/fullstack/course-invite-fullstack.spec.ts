@@ -23,8 +23,8 @@ async function getAccessToken(
   email: string,
   password = 'secret123',
 ): Promise<string> {
-  // Email-only auth: /api/token/ keys on USERNAME_FIELD = "email".
-  const response = await page.request.post('http://127.0.0.1:8001/api/token/', {
+  // Email-only auth: /api/v1/token/ keys on USERNAME_FIELD = "email".
+  const response = await page.request.post('http://127.0.0.1:8001/api/v1/token/', {
     data: {email, password},
   });
   expect(response.ok()).toBeTruthy();
@@ -77,7 +77,7 @@ test('testuser accepts a pending course invitation and lands enrolled', async ({
   // Verify the enrollment row exists via the backend API.
   const accessToken = await getAccessToken(page, 'testuser@example.test');
   const enrollmentsResponse = await page.request.get(
-    'http://127.0.0.1:8001/api/enrollment/?status=active',
+    'http://127.0.0.1:8001/api/v1/enrollment/?status=active',
     {headers: {Authorization: `Bearer ${accessToken}`}},
   );
   expect(enrollmentsResponse.ok()).toBeTruthy();

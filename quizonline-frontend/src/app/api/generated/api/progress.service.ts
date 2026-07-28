@@ -48,7 +48,7 @@ export class ProgressApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/progress/
+     * @endpoint get /api/v1/progress/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -99,7 +99,7 @@ export class ProgressApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/progress/`;
+        let localVarPath = `/api/v1/progress/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedCourseProgressListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -116,7 +116,7 @@ export class ProgressApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/progress/{id}/
+     * @endpoint get /api/v1/progress/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -159,7 +159,7 @@ export class ProgressApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/progress/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/progress/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseProgressDto>('get', `${basePath}${localVarPath}`,
             {

@@ -164,6 +164,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # Alias transitoire /api/v1/ -> /api/v1/ (config/legacy_api_prefix.py). En tete
+    # pour que tout ce qui suit ne voie que le chemin canonique. A retirer quand
+    # les logs ne montrent plus de "legacy_api_prefix".
+    "config.legacy_api_prefix.LegacyApiPrefixMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -276,7 +280,7 @@ REST_FRAMEWORK = {
 }
 
 # Allow the Playwright fullstack runner (and other test harnesses) to disable
-# rate limiting via env var. Several e2e tests legitimately POST /api/token/
+# rate limiting via env var. Several e2e tests legitimately POST /api/v1/token/
 # more than 5 times per minute from 127.0.0.1 and would otherwise hit 429.
 if env.bool("DISABLE_THROTTLES", default=False):
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {

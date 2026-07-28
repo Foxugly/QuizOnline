@@ -85,7 +85,7 @@ class SubjectViewSetTestCase(TestCase):
     # ----------------------------
     # helpers
     # ----------------------------
-    def _call(self, method: str, action: str, user=None, *, path="/api/subject/", data=None, query=None, subject_id=None):
+    def _call(self, method: str, action: str, user=None, *, path="/api/v1/subject/", data=None, query=None, subject_id=None):
         view = SubjectViewSet.as_view({method: action})
 
         if query:
@@ -120,11 +120,11 @@ class SubjectViewSetTestCase(TestCase):
         self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_retrieve_requires_authentication(self):
-        resp = self._call("get", "retrieve", user=None, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
+        resp = self._call("get", "retrieve", user=None, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/")
         self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_details_requires_authentication(self):
-        resp = self._call("get", "details", user=None, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/details/")
+        resp = self._call("get", "details", user=None, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/details/")
         self.assertIn(resp.status_code, (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
 
     def test_create_requires_linked_domain(self):
@@ -135,11 +135,11 @@ class SubjectViewSetTestCase(TestCase):
 
     def test_update_requires_linked_domain(self):
         payload = {"domain": self.domain.pk, "active": True, "translations": {"fr": {"name": "Math2", "description": ""}}}
-        resp = self._call("put", "update", user=self.outsider, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/", data=payload)
+        resp = self._call("put", "update", user=self.outsider, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/", data=payload)
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_requires_linked_domain(self):
-        resp = self._call("delete", "destroy", user=self.outsider, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
+        resp = self._call("delete", "destroy", user=self.outsider, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_destroy_forbidden_for_domain_member_learner(self):
@@ -149,7 +149,7 @@ class SubjectViewSetTestCase(TestCase):
         s = Subject.objects.create(domain=self.domain, active=True)
         resp = self._call(
             "delete", "destroy", user=self.domain_member,
-            subject_id=s.pk, path=f"/api/subject/{s.pk}/",
+            subject_id=s.pk, path=f"/api/v1/subject/{s.pk}/",
         )
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Subject.objects.filter(pk=s.pk).exists())
@@ -158,7 +158,7 @@ class SubjectViewSetTestCase(TestCase):
         s = Subject.objects.create(domain=self.domain, active=True)
         resp = self._call(
             "delete", "destroy", user=self.domain_staff,
-            subject_id=s.pk, path=f"/api/subject/{s.pk}/",
+            subject_id=s.pk, path=f"/api/v1/subject/{s.pk}/",
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Subject.objects.filter(pk=s.pk).exists())
@@ -243,7 +243,7 @@ class SubjectViewSetTestCase(TestCase):
     # retrieve
     # ----------------------------
     def test_retrieve_returns_read_serializer_shape(self):
-        resp = self._call("get", "retrieve", user=self.admin, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/")
+        resp = self._call("get", "retrieve", user=self.admin, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("id", resp.data)
         self.assertIn("domain", resp.data)
@@ -255,7 +255,7 @@ class SubjectViewSetTestCase(TestCase):
     # details
     # ----------------------------
     def test_details_returns_questions_only_active(self):
-        resp = self._call("get", "details", user=self.admin, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/details/")
+        resp = self._call("get", "details", user=self.admin, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/details/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("questions", resp.data)
         q_ids = {q["id"] for q in resp.data["questions"]}
@@ -276,7 +276,7 @@ class SubjectViewSetTestCase(TestCase):
 
     def test_update_as_domain_staff_returns_read_serializer(self):
         payload = {"domain": self.domain.pk, "active": False, "translations": {"fr": {"name": "Math v2", "description": "x"}}}
-        resp = self._call("put", "update", user=self.domain_staff, subject_id=self.subj1.pk, path=f"/api/subject/{self.subj1.pk}/", data=payload)
+        resp = self._call("put", "update", user=self.domain_staff, subject_id=self.subj1.pk, path=f"/api/v1/subject/{self.subj1.pk}/", data=payload)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["id"], self.subj1.pk)
         self.assertFalse(resp.data["active"])
@@ -284,7 +284,7 @@ class SubjectViewSetTestCase(TestCase):
 
     def test_partial_update_as_domain_staff(self):
         payload = {"active": True, "translations": {"fr": {"name": "Math v3", "description": ""}}, "domain": self.domain.pk}
-        resp = self._call("patch", "partial_update", user=self.domain_staff, subject_id=self.subj2.pk, path=f"/api/subject/{self.subj2.pk}/", data=payload)
+        resp = self._call("patch", "partial_update", user=self.domain_staff, subject_id=self.subj2.pk, path=f"/api/v1/subject/{self.subj2.pk}/", data=payload)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["id"], self.subj2.pk)
         self.assertTrue(resp.data["active"])
@@ -297,6 +297,6 @@ class SubjectViewSetTestCase(TestCase):
         s.description = ""
         s.save()
 
-        resp = self._call("delete", "destroy", user=self.admin, subject_id=s.pk, path=f"/api/subject/{s.pk}/")
+        resp = self._call("delete", "destroy", user=self.admin, subject_id=s.pk, path=f"/api/v1/subject/{s.pk}/")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Subject.objects.filter(pk=s.pk).exists())

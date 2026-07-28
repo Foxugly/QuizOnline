@@ -52,7 +52,7 @@ export type BlockHostType = 'lesson' | 'question' | 'answer_option';
  *
  * - On a *fresh draft* (a block created with ``+ Add`` but never
  *   persisted to a non-empty state), Cancel issues a ``DELETE
- *   /api/block/{id}/`` so the ghost row doesn't outlive the user
+ *   /api/v1/block/{id}/`` so the ghost row doesn't outlive the user
  *   walking away from the screen.
  * - On an existing block the user came back to edit, Cancel just
  *   flips the mode back to readonly — the editor's local state is
@@ -127,7 +127,7 @@ export class BlockListEditor {
   /** Fired with the freshly-stored block payload after a successful
    *  per-block explicit Save. Lets the parent merge the response into
    *  its local list without round-tripping through a full
-   *  ``GET /api/<host>/{id}/`` after every save. Structural mutations
+   *  ``GET /api/v1/<host>/{id}/`` after every save. Structural mutations
    *  (add / delete / reorder) still fall back on ``blocksChanged``. */
   readonly blockUpdated = output<ContentBlock>();
 
@@ -181,7 +181,7 @@ export class BlockListEditor {
     return this.ALL_BLOCK_TYPES.filter((t) => t.value !== 'quiz');
   });
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   /** Stable composite anchor id so several block lists in the same
    *  page (prompt / answer 1 / answer 2 / explanation) never collide
@@ -303,7 +303,7 @@ export class BlockListEditor {
     const list = [...this.blocks()];
     moveItemInArray(list, event.previousIndex, event.currentIndex);
     // Single atomic endpoint for every host type — backend
-    // ``POST /api/block/reorder/`` validates the (host_type, host_id,
+    // ``POST /api/v1/block/reorder/`` validates the (host_type, host_id,
     // block_role) tuple and re-numbers all matching blocks inside one
     // transaction. Earlier phases had a per-host endpoint for lesson
     // only and fell back to a per-block PATCH for question /

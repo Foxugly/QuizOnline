@@ -164,7 +164,7 @@ class QuestionPartialRequestSerializer(QuestionWriteSerializer):
                 "- `subject_ids`: liste d'IDs\n"
                 "- `answer_options`: liste\n\n"
                 "Les médias (image / vidéo / fichier) sont désormais "
-                "stockés sous forme de content blocks via `/api/block/`.\n"
+                "stockés sous forme de content blocks via `/api/v1/block/`.\n"
         ),
         request=QuestionWritePayloadSerializer,
         responses={
@@ -300,7 +300,7 @@ class QuestionViewSet(MyModelViewSet):
     def list(self, request, *args, **kwargs):
         self._log_call(
             method_name="list",
-            endpoint="GET /api/question/",
+            endpoint="GET /api/v1/question/",
             input_expected="query params (search?, title?, description?), body vide",
             output="200 + [QuestionSerializer] (paginé)",
         )
@@ -338,7 +338,7 @@ class QuestionViewSet(MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/question/{id}/",
+            endpoint="GET /api/v1/question/{id}/",
             input_expected="path pk, body vide",
             output="200 + QuestionSerializer | 404",
         )
@@ -348,7 +348,7 @@ class QuestionViewSet(MyModelViewSet):
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/question/",
+            endpoint="POST /api/v1/question/",
             input_expected="JSON (Question + subject_ids + answer_options)",
             output="201 + QuestionSerializer | 400",
         )
@@ -366,7 +366,7 @@ class QuestionViewSet(MyModelViewSet):
     def update(self, request, *args, **kwargs):
         self._log_call(
             method_name="update",
-            endpoint="PUT /api/question/{id}/",
+            endpoint="PUT /api/v1/question/{id}/",
             input_expected="path pk + body multipart/JSON complet",
             output="200 + QuestionSerializer | 400 | 404",
         )
@@ -376,7 +376,7 @@ class QuestionViewSet(MyModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/question/{question_id}/",
+            endpoint="PATCH /api/v1/question/{question_id}/",
             input_expected="path question_id + body multipart/JSON partiel",
             output="200 + QuestionSerializer | 400 | 404",
         )
@@ -385,7 +385,7 @@ class QuestionViewSet(MyModelViewSet):
     def destroy(self, request, *args, **kwargs):
         self._log_call(
             method_name="destroy",
-            endpoint="DELETE /api/question/{question_id}/",
+            endpoint="DELETE /api/v1/question/{question_id}/",
             input_expected="path question_id, body vide",
             output="204 | 404",
         )

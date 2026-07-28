@@ -43,7 +43,7 @@ export class Privacy {
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Hits ``GET /api/customuser/me/export/`` and downloads the JSON dump
+  /** Hits ``GET /api/v1/customuser/me/export/`` and downloads the JSON dump
    *  with a sensible filename. No-op when the user is not authenticated
    *  (the button is hidden in that case). */
   download(): void {

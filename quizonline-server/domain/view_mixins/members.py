@@ -2,9 +2,9 @@
 Member-management slice of ``DomainViewSet``.
 
 Three endpoints:
-- ``POST /api/domain/{id}/member-role/`` — promote / demote / activate / remove a member.
-- ``GET  /api/domain/moderation-summary/`` — per-user dashboard of moderable domains.
-- ``POST /api/domain/{id}/leave/`` — voluntary self-leave.
+- ``POST /api/v1/domain/{id}/member-role/`` — promote / demote / activate / remove a member.
+- ``GET  /api/v1/domain/moderation-summary/`` — per-user dashboard of moderable domains.
+- ``POST /api/v1/domain/{id}/leave/`` — voluntary self-leave.
 
 The two ``_authorize_…`` helpers express the trust model: ``is_active``
 is a global flag and needs strict guards, ``remove_member`` is scoped

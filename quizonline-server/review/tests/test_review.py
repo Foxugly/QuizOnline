@@ -116,7 +116,7 @@ def test_summary_counts_visible_ratings_only(course, learner, domain):
 @pytest.mark.django_db
 def test_endpoint_put_list_and_moderation(course, learner, owner):
     _complete(learner, course)
-    url = f"/api/course/{course.id}/reviews/"
+    url = f"/api/v1/course/{course.id}/reviews/"
 
     learner_client = APIClient()
     learner_client.force_authenticate(learner)
@@ -133,7 +133,7 @@ def test_endpoint_put_list_and_moderation(course, learner, owner):
     # Owner (manager) hides it.
     owner_client = APIClient()
     owner_client.force_authenticate(owner)
-    hide = owner_client.post(f"/api/review/{review_id}/moderate/", {"hidden": True}, format="json")
+    hide = owner_client.post(f"/api/v1/review/{review_id}/moderate/", {"hidden": True}, format="json")
     assert hide.status_code == 200
 
     # A stranger no longer sees the hidden review.
@@ -150,5 +150,5 @@ def test_stranger_cannot_moderate(course, learner):
     stranger = CustomUser.objects.create_user(email="nope-r@ex.com", password="x")
     c = APIClient()
     c.force_authenticate(stranger)
-    resp = c.post(f"/api/review/{review.id}/moderate/", {"hidden": True}, format="json")
+    resp = c.post(f"/api/v1/review/{review.id}/moderate/", {"hidden": True}, format="json")
     assert resp.status_code == 403

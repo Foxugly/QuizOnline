@@ -19,7 +19,7 @@ export type DomainTranslations = Record<string, DomainTranslationDto>;
   providedIn: 'root',
 })
 export class DomainService {
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/domain`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/domain`;
 
       private readonly api = inject(DomainApiService);
   private readonly router = inject(Router);
@@ -88,7 +88,7 @@ export class DomainService {
     this.listCache = null;
   }
 
-  /** One page of the paginated ``GET /api/domain/`` list, plus the
+  /** One page of the paginated ``GET /api/v1/domain/`` list, plus the
    *  bookkeeping ``expand`` in :meth:`list` needs to walk to the next one.
    *  The list is DRF-paginated (PAGE_SIZE 20); reading only page 1 silently
    *  truncated the visible-domains list for a superuser (or any power user)
@@ -123,7 +123,7 @@ export class DomainService {
     );
   }
 
-  /** One page of ``GET /api/domain/available-for-linking/?page=`` plus the
+  /** One page of ``GET /api/v1/domain/available-for-linking/?page=`` plus the
    *  ``next``/``nextPage`` bookkeeping for :meth:`availableForLinking`. Uses
    *  raw HttpClient because the generated client doesn't model this action. */
   private fetchAvailableForLinkingPage(

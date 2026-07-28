@@ -964,7 +964,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         domain member, even without an existing Quiz assignment.
 
         Sentry caught a real-world case where wpuser3 (member of Water-polo)
-        hit ``GET /api/quiz/template/6/`` and got a 404 even though the
+        hit ``GET /api/v1/quiz/template/6/`` and got a 404 even though the
         template had ``is_public=True``, ``active=True``, ``permanent=True``
         and ``mode=Examen``. Tracing ``user_can_access_template`` by hand
         said it should return True, so this test pins the contract: if all
@@ -1057,7 +1057,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
     def test_quiztemplate_retrieve_after_completed_exam_attempt(self):
         """**Real Sentry reproducer.** After completing an exam, the user
         must still be able to retrieve the template — the lesson-view
-        quiz-block renderer calls ``GET /api/quiz/template/<id>/`` every
+        quiz-block renderer calls ``GET /api/v1/quiz/template/<id>/`` every
         time the lesson loads, so blocking it leaves the block stuck on
         "Impossible de charger le quiz".
 
@@ -1117,7 +1117,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         """Toggling ``is_public`` via PATCH must end up persisted on the row.
 
         Companion to the visibility tests: if a manager flips Publiek=on in
-        the edit form, the resulting ``PATCH /api/quiz/template/<id>/`` body
+        the edit form, the resulting ``PATCH /api/v1/quiz/template/<id>/`` body
         carries ``is_public: true`` and the DB must mirror that. Pins this
         because Sentry caught a prod-side drift where the form toggle shows
         ON but ``is_public`` is False in the DB.
@@ -1508,7 +1508,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
             created_by=creator,
         )
         Quiz.objects.create(domain=self.domain, quiz_template=template, user=self.u1, active=False)
-        url = f"/api/quiz/template/{template.id}/sessions/"
+        url = f"/api/v1/quiz/template/{template.id}/sessions/"
 
         self._auth(creator)
         res = self.client.get(url)
@@ -1918,7 +1918,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         from rest_framework.test import APIRequestFactory
 
         factory = APIRequestFactory()
-        req = factory.get("/api/quiz/")
+        req = factory.get("/api/v1/quiz/")
         req.user = self.admin
 
         view = QuizViewSet()
@@ -2138,7 +2138,7 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         from rest_framework.test import APIRequestFactory
 
         factory = APIRequestFactory()
-        req = factory.get("/api/quiz/1/answer/")
+        req = factory.get("/api/v1/quiz/1/answer/")
         req.user = self.admin
 
         view = QuizQuestionAnswerViewSet()

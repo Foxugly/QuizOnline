@@ -30,5 +30,5 @@ export function isApiUrl(url: string): boolean {
   const base = resolveApiBaseUrl().replace(/\/+$/, '');
   const cleaned = url.replace(/\/+$/, '');
 
-  return cleaned.startsWith(base) || cleaned.startsWith('/api/');
+  return cleaned.startsWith(base) || cleaned.startsWith('/api/v1/');
 }

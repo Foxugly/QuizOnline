@@ -24,7 +24,7 @@ def outsider(db):
 def test_lessonquiz_list_rejects_anonymous(lessonquiz):
     """Without authentication, the list endpoint returns 401."""
     client = APIClient()
-    response = client.get("/api/validation-quiz/")
+    response = client.get("/api/v1/validation-quiz/")
     assert response.status_code == 401
 
 
@@ -36,7 +36,7 @@ def test_lessonquiz_list_hides_rows_from_outsider(lessonquiz, outsider):
     """
     client = APIClient()
     client.force_authenticate(user=outsider)
-    response = client.get("/api/validation-quiz/")
+    response = client.get("/api/v1/validation-quiz/")
     assert response.status_code == 200
     payload = response.json()
     results = payload["results"] if isinstance(payload, dict) and "results" in payload else payload
@@ -53,7 +53,7 @@ def test_lessonquiz_list_shows_rows_to_owner(lessonquiz, owner):
     """
     client = APIClient()
     client.force_authenticate(user=owner)
-    response = client.get("/api/validation-quiz/")
+    response = client.get("/api/v1/validation-quiz/")
     assert response.status_code == 200
     payload = response.json()
     results = payload["results"] if isinstance(payload, dict) and "results" in payload else payload

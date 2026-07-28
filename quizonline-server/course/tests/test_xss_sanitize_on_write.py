@@ -32,7 +32,7 @@ def test_write_serializer_sanitizes_description_and_objectives(domain, fr_lang):
             }
         },
     }
-    request = APIRequestFactory().post("/api/course/", payload, format="json")
+    request = APIRequestFactory().post("/api/v1/course/", payload, format="json")
     ser = CourseWriteSerializer(data=payload, context={"request": request})
     assert ser.is_valid(), ser.errors
     course = ser.save()

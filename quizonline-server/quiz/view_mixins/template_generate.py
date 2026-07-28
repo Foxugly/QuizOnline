@@ -47,7 +47,7 @@ class TemplateGenerateFromSubjectsMixin:
     def generate_from_subjects(self, request, *args, **kwargs):
         self._log_call(
             method_name="generate_from_subjects",
-            endpoint="POST /api/quiz/template/generate-from-subjects/",
+            endpoint="POST /api/v1/quiz/template/generate-from-subjects/",
             input_expected="body: {title, subject_ids[], max_questions?}",
             output="201 + QuizTemplateSerializer | 400",
         )

@@ -73,7 +73,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/validation-quiz/
+     * @endpoint post /api/v1/validation-quiz/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -127,7 +127,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/`;
+        let localVarPath = `/api/v1/validation-quiz/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LessonQuizDto>('post', `${basePath}${localVarPath}`,
             {
@@ -144,7 +144,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/validation-quiz/{id}/
+     * @endpoint delete /api/v1/validation-quiz/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -186,7 +186,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -202,7 +202,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/validation-quiz/
+     * @endpoint get /api/v1/validation-quiz/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -253,7 +253,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/`;
+        let localVarPath = `/api/v1/validation-quiz/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedLessonQuizListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -270,7 +270,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint patch /api/validation-quiz/{id}/
+     * @endpoint patch /api/v1/validation-quiz/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -325,7 +325,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LessonQuizDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -342,7 +342,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/validation-quiz/{id}/
+     * @endpoint get /api/v1/validation-quiz/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -385,7 +385,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LessonQuizDto>('get', `${basePath}${localVarPath}`,
             {
@@ -401,7 +401,7 @@ export class ValidationQuizApi extends BaseService {
     }
 
     /**
-     * @endpoint put /api/validation-quiz/{id}/
+     * @endpoint put /api/v1/validation-quiz/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -459,7 +459,7 @@ export class ValidationQuizApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/validation-quiz/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<LessonQuizDto>('put', `${basePath}${localVarPath}`,
             {

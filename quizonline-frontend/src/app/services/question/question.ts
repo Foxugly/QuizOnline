@@ -38,7 +38,7 @@ export type QuestionTranslationForm = {
  * has migrated to the polymorphic block list — each option owns its
  * own ``Block`` rows. The write payload now only carries the
  * structural metadata (``is_correct``, ``sort_order``); the answer's
- * visible content is patched through ``/api/block/`` once the
+ * visible content is patched through ``/api/v1/block/`` once the
  * option has its id.
  */
 export type AnswerOptionForm = {
@@ -128,7 +128,7 @@ export type StructuredQuestionImportResult = {
 export class QuestionService {
   private static readonly DUPLICATE_DRAFT_STORAGE_KEY = 'question.duplicateDraft';
   private duplicateDraft: QuestionDuplicateDraft | null = null;
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/question`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/question`;
 
     private readonly api = inject(QuestionApiService);
   private readonly router = inject(Router);

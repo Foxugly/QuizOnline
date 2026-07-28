@@ -2,8 +2,8 @@
 Audit-log slice of ``DomainViewSet``.
 
 Two endpoints:
-- ``GET /api/domain/{id}/audit/`` — paginated list with action/actor/since/until filters.
-- ``GET /api/domain/{id}/audit/actions/`` — distinct action names for the filter dropdown.
+- ``GET /api/v1/domain/{id}/audit/`` — paginated list with action/actor/since/until filters.
+- ``GET /api/v1/domain/{id}/audit/actions/`` — distinct action names for the filter dropdown.
 
 Mixed into ``DomainViewSet`` so the standard owner/manager queryset
 scoping + permission stack still applies (the mixin doesn't override

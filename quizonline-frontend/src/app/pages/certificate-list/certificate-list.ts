@@ -15,7 +15,7 @@ import {EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {getCertificateListUiText} from './certificate-list.i18n';
 
 /**
- * Shape returned by ``GET /api/certificate/`` — see
+ * Shape returned by ``GET /api/v1/certificate/`` — see
  * ``CertificateSerializer``. ``course_title`` is a localized
  * ``SerializerMethodField`` (slug fallback on the backend), so it is
  * always a non-empty string.

@@ -1,9 +1,9 @@
 """
 Tests for the persisted-invitation management endpoints:
 
-- ``GET /api/domain/{id}/invitations/`` — list pending invites
-- ``POST /api/domain/{id}/invitations/<invite_id>/resend/``
-- ``POST /api/domain/{id}/invitations/<invite_id>/revoke/``
+- ``GET /api/v1/domain/{id}/invitations/`` — list pending invites
+- ``POST /api/v1/domain/{id}/invitations/<invite_id>/resend/``
+- ``POST /api/v1/domain/{id}/invitations/<invite_id>/revoke/``
 
 Plus the revoke-enforcement in the accept endpoint: a token whose row
 has been revoked is no longer consumable, even though the signature
@@ -26,7 +26,7 @@ User = get_user_model()
 
 
 class ListInvitationsTests(TestCase):
-    URL = "/api/domain/{}/invitations/"
+    URL = "/api/v1/domain/{}/invitations/"
 
     def setUp(self):
         translation.activate("fr")
@@ -66,7 +66,7 @@ class ListInvitationsTests(TestCase):
 
 
 class ResendInvitationTests(TestCase):
-    URL = "/api/domain/{}/invitations/{}/resend/"
+    URL = "/api/v1/domain/{}/invitations/{}/resend/"
 
     def setUp(self):
         translation.activate("fr")
@@ -103,7 +103,7 @@ class ResendInvitationTests(TestCase):
 
 
 class RevokeInvitationTests(TestCase):
-    URL = "/api/domain/{}/invitations/{}/revoke/"
+    URL = "/api/v1/domain/{}/invitations/{}/revoke/"
 
     def setUp(self):
         translation.activate("fr")
@@ -135,7 +135,7 @@ class RevokeInvitationTests(TestCase):
         self.invite.save(update_fields=["status"])
 
         self.client.force_authenticate(self.invited)
-        resp = self.client.post(f"/api/domain/invite/accept/{token}/")
+        resp = self.client.post(f"/api/v1/domain/invite/accept/{token}/")
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(resp.data["detail"], "token_invalid")
         self.assertFalse(self.domain.members.filter(pk=self.invited.pk).exists())

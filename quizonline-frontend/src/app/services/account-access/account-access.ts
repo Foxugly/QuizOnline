@@ -10,7 +10,7 @@ import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 @Injectable({providedIn: 'root'})
 export class AccountAccessService {
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/user`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/user`;
 
     private readonly http = inject(HttpClient);
 

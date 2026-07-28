@@ -78,7 +78,7 @@ export class AuthApi extends BaseService {
     /**
      * Échanger un token magique contre une paire JWT
      * Valide la signature et la TTL du token, vérifie que l\&#39;utilisateur est actif et a confirmé son e-mail, puis émet une paire access / refresh comme l\&#39;endpoint password classique.
-     * @endpoint post /api/auth/magic-link/exchange/
+     * @endpoint post /api/v1/auth/magic-link/exchange/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -132,7 +132,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/auth/magic-link/exchange/`;
+        let localVarPath = `/api/v1/auth/magic-link/exchange/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<MagicLinkExchangeResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -151,7 +151,7 @@ export class AuthApi extends BaseService {
     /**
      * Demander un lien magique de connexion
      * Envoie un lien de connexion par e-mail si un compte actif et confirmé existe pour cette adresse. Réponse identique dans tous les cas pour ne pas divulguer l\&#39;existence d\&#39;un compte.
-     * @endpoint post /api/auth/magic-link/request/
+     * @endpoint post /api/v1/auth/magic-link/request/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -205,7 +205,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/auth/magic-link/request/`;
+        let localVarPath = `/api/v1/auth/magic-link/request/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ErrorDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -223,7 +223,7 @@ export class AuthApi extends BaseService {
 
     /**
      * Confirmer une adresse email
-     * @endpoint post /api/user/email/confirm/
+     * @endpoint post /api/v1/user/email/confirm/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -277,7 +277,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/email/confirm/`;
+        let localVarPath = `/api/v1/user/email/confirm/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
@@ -296,7 +296,7 @@ export class AuthApi extends BaseService {
     /**
      * Changer son mot de passe
      * Utilisateur authentifié uniquement.
-     * @endpoint post /api/user/password/change/
+     * @endpoint post /api/v1/user/password/change/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -350,7 +350,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/password/change/`;
+        let localVarPath = `/api/v1/user/password/change/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
@@ -368,7 +368,7 @@ export class AuthApi extends BaseService {
 
     /**
      * Confirmer un reset de mot de passe
-     * @endpoint post /api/user/password/reset/confirm/
+     * @endpoint post /api/v1/user/password/reset/confirm/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -422,7 +422,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/password/reset/confirm/`;
+        let localVarPath = `/api/v1/user/password/reset/confirm/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {
@@ -441,7 +441,7 @@ export class AuthApi extends BaseService {
     /**
      * Demander un reset de mot de passe
      * Envoie un email avec un lien de réinitialisation. Répond toujours 200 pour ne pas révéler si l\&#39;email existe.
-     * @endpoint post /api/user/password/reset/
+     * @endpoint post /api/v1/user/password/reset/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -492,7 +492,7 @@ export class AuthApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/password/reset/`;
+        let localVarPath = `/api/v1/user/password/reset/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
             {

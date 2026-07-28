@@ -39,7 +39,7 @@ def accessible_question_queryset(user):
         return queryset
 
     # MANAGEABLE (owner|managers), NOT visible (which also OR-in members): the
-    # /api/question/ endpoint is the question EDITOR and exposes is_correct, so
+    # /api/v1/question/ endpoint is the question EDITOR and exposes is_correct, so
     # a domain member/learner must not be able to list its questions and read
     # the right answers (incl. exam questions). Only domain managers do.
     allowed_domain_ids = manageable_domain_ids(user)

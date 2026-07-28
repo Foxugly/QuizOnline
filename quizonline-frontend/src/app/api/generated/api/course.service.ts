@@ -169,7 +169,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Aggregated analytics for a course\&#39;s instructor dashboard.  Returns a single, pre-aggregated payload so the frontend \&quot;Analytics\&quot; tab can render KPIs and a small trend chart without doing math in Angular. Restricted to instructors of the course (superuser / Domain owner / Domain manager) — non-instructors get a 403.  Payload shape::      {       \&quot;enrollment_counts\&quot;: {         \&quot;total\&quot;: int, \&quot;active\&quot;: int, \&quot;pending\&quot;: int,         \&quot;completed\&quot;: int, \&quot;cancelled\&quot;: int,       },       \&quot;completion_rate_pct\&quot;: int,    # completed / (active + completed)       \&quot;last_enrolled_at\&quot;: str | null,       \&quot;last_completed_at\&quot;: str | null,       \&quot;median_progress_pct\&quot;: int,    # median CourseProgress.progress_percent                                      # across non-cancelled enrollments;                                      # 0 when nobody has progress yet       \&quot;certificates_issued\&quot;: int,    # certificates with revoked_at IS NULL       \&quot;enrollment_trend_30d\&quot;: [         {\&quot;date\&quot;: \&quot;YYYY-MM-DD\&quot;, \&quot;count\&quot;: int},  # one entry per day, 30 entries       ],     }
-     * @endpoint get /api/course/{course_id}/analytics/
+     * @endpoint get /api/v1/course/{course_id}/analytics/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -211,7 +211,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/analytics/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {
@@ -228,7 +228,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Read-only audit trail of administrative actions on the course (publish / unpublish / clone / …). Instructor-gated so a learner never gets to see who took which decision when.
-     * @endpoint get /api/course/{id}/audit-log/
+     * @endpoint get /api/v1/course/{id}/audit-log/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -271,7 +271,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit-log/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/audit-log/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -287,7 +287,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/course/by-slug/{slug}/
+     * @endpoint get /api/v1/course/by-slug/{slug}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -330,7 +330,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/by-slug/${this.configuration.encodeParam({name: "slug", value: slug, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course/by-slug/${this.configuration.encodeParam({name: "slug", value: slug, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -346,7 +346,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/{id}/clone/
+     * @endpoint post /api/v1/course/{id}/clone/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -404,7 +404,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/clone/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/clone/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -421,7 +421,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/
+     * @endpoint post /api/v1/course/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -475,7 +475,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/`;
+        let localVarPath = `/api/v1/course/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseWriteDto>('post', `${basePath}${localVarPath}`,
             {
@@ -492,7 +492,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/course/{id}/
+     * @endpoint delete /api/v1/course/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -534,7 +534,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -550,7 +550,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/{course_id}/enroll/
+     * @endpoint post /api/v1/course/{course_id}/enroll/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -592,7 +592,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/enroll/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/enroll/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
             {
@@ -609,7 +609,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Return the full course (structure + translations) as a JSON-serialisable dict the operator can save and re-import. Instructor-gated so a learner doesn\&#39;t end up exfiltrating unpublished course content. Media + quiz FKs are dropped by the exporter — see &#x60;&#x60;export_course_to_dict&#x60;&#x60;.
-     * @endpoint get /api/course/{id}/export/
+     * @endpoint get /api/v1/course/{id}/export/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -652,7 +652,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/export/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/export/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -669,7 +669,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Re-create a course from an export payload into a caller-specified domain (or the caller\&#39;s current domain when &#x60;&#x60;target_domain_id&#x60;&#x60; is absent). The caller must be an instructor of the target domain — the same gate that protects manual create.
-     * @endpoint post /api/course/import/
+     * @endpoint post /api/v1/course/import/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -723,7 +723,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/import/`;
+        let localVarPath = `/api/v1/course/import/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -741,7 +741,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Instructor sends invitations to several domain members in one go.  Body: &#x60;&#x60;{\&quot;invitee_ids\&quot;: [int, ...]}&#x60;&#x60;. The endpoint short-circuits on the first permission failure (non-instructor / wrong course mode / domain mismatch) so a bad caller can\&#39;t squeeze through one successful invite. Per-invitee failures (already enrolled, etc.) are silently counted as &#x60;&#x60;skipped&#x60;&#x60; so the bulk-send doesn\&#39;t get derailed by stale picker rows.  Counts the whole call as ONE hit against the &#x60;&#x60;lms_enroll&#x60;&#x60; throttle bucket, so an instructor inviting 50 learners at once doesn\&#39;t trip the per-minute limit they would hit if they looped client-side.  Caps the request at &#x60;&#x60;settings.LMS_COURSE_INVITE_BULK_MAX&#x60;&#x60; ids (default 200) so a runaway paste cannot tie up a worker for minutes — the cap is large enough to cover a \&quot;whole cohort\&quot; invite in a single shot for any realistic course.
-     * @endpoint post /api/course/{course_id}/invite-bulk/
+     * @endpoint post /api/v1/course/{course_id}/invite-bulk/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -784,7 +784,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteBulkCreate200ResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -801,7 +801,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Resend every pending invitation on a course in one shot.  The instructor companion to &#x60;&#x60;course_invite_bulk_send&#x60;&#x60;: when a course already has a dozen pending invites and the cohort start date slips, nobody wants to click \&quot;Resend\&quot; twelve times. This endpoint pulls every &#x60;&#x60;CourseInvite&#x60;&#x60; in &#x60;&#x60;STATUS_PENDING&#x60;&#x60; for the course, runs :func:&#x60;resend_course_invite&#x60; on each, and reports a &#x60;&#x60;{processed, skipped}&#x60;&#x60; count.  &#x60;&#x60;skipped&#x60;&#x60; covers the narrow race window where a row flips out of &#x60;&#x60;pending&#x60;&#x60; between the queryset and the per-row call (someone accepting / declining / the expire sweep landing simultaneously). Returns the bulk shape the catalog already consumes for &#x60;&#x60;bulk_send&#x60;&#x60; so the same toast and refresh path apply on the frontend side.  Counts the whole call as ONE hit against the &#x60;&#x60;lms_invite_send&#x60;&#x60; throttle bucket — same rationale as bulk_send.
-     * @endpoint post /api/course/{course_id}/invite-bulk-resend/
+     * @endpoint post /api/v1/course/{course_id}/invite-bulk-resend/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -844,7 +844,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk-resend/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite-bulk-resend/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteBulkCreate200ResponseDto>('post', `${basePath}${localVarPath}`,
             {
@@ -861,7 +861,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Instructor invites a domain member to an &#x60;&#x60;ENROLL_INVITE&#x60;&#x60; course.
-     * @endpoint post /api/course/{course_id}/invite/
+     * @endpoint post /api/v1/course/{course_id}/invite/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -919,7 +919,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invite/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseInviteDto>('post', `${basePath}${localVarPath}`,
             {
@@ -937,7 +937,7 @@ export class CourseApi extends BaseService {
 
     /**
      * List invitations for a course. Instructor-only.
-     * @endpoint get /api/course/{course_id}/invites/
+     * @endpoint get /api/v1/course/{course_id}/invites/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -980,7 +980,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invites/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/invites/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<CourseInviteDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -997,7 +997,7 @@ export class CourseApi extends BaseService {
 
     /**
      * Override the default list flow to pre-aggregate the cards\&#39; meta (lesson count, total duration) on the DB side and to bulk-fetch the caller\&#39;s enrollment / progress / lesson- completion state in a fixed number of queries — irrespective of the number of courses returned. Without this, the previous &#x60;&#x60;SerializerMethodField&#x60;&#x60; pattern issued ~5 queries per course, producing a quadratic blow-up on multi-course domains.  Ordering is pinned to &#x60;&#x60;(-published_at, -created_at, -id)&#x60;&#x60; so paginator slicing is deterministic — without an explicit secondary tie-breaker DRF emits an &#x60;&#x60;UnorderedObjectList&#x60;&#x60; warning and consecutive pages may shuffle rows on courses that share the same publish timestamp.
-     * @endpoint get /api/course/
+     * @endpoint get /api/v1/course/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1078,7 +1078,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/`;
+        let localVarPath = `/api/v1/course/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedCourseListListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1095,7 +1095,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint patch /api/course/{id}/
+     * @endpoint patch /api/v1/course/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1150,7 +1150,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseWriteDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -1167,7 +1167,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/{id}/publish/
+     * @endpoint post /api/v1/course/{id}/publish/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1225,7 +1225,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/publish/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/publish/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1242,7 +1242,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/course/{id}/
+     * @endpoint get /api/v1/course/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1285,7 +1285,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('get', `${basePath}${localVarPath}`,
             {
@@ -1301,7 +1301,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/course/{course_id}/reviews/
+     * @endpoint delete /api/v1/course/{course_id}/reviews/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1343,7 +1343,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -1359,7 +1359,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/course/{course_id}/reviews/
+     * @endpoint get /api/v1/course/{course_id}/reviews/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1401,7 +1401,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('get', `${basePath}${localVarPath}`,
             {
@@ -1417,7 +1417,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint put /api/course/{course_id}/reviews/
+     * @endpoint put /api/v1/course/{course_id}/reviews/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1459,7 +1459,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "courseId", value: courseId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reviews/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('put', `${basePath}${localVarPath}`,
             {
@@ -1475,7 +1475,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/{id}/section/reorder/
+     * @endpoint post /api/v1/course/{id}/section/reorder/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1533,7 +1533,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/section/reorder/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/section/reorder/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1550,7 +1550,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/course/{id}/unpublish/
+     * @endpoint post /api/v1/course/{id}/unpublish/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1608,7 +1608,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/unpublish/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/unpublish/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseDetailDto>('post', `${basePath}${localVarPath}`,
             {
@@ -1625,7 +1625,7 @@ export class CourseApi extends BaseService {
     }
 
     /**
-     * @endpoint put /api/course/{id}/
+     * @endpoint put /api/v1/course/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -1683,7 +1683,7 @@ export class CourseApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/course/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseWriteDto>('put', `${basePath}${localVarPath}`,
             {

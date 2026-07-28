@@ -44,7 +44,7 @@ export class TranslationApi extends BaseService {
     /**
      * Traduction batch (DeepL) - texte et HTML
      * Traduit une liste d\&#39;éléments en une seule requête. Chaque item peut être en &#x60;format&#x3D;text&#x60; ou &#x60;format&#x3D;html&#x60;. Les entrées vides sont ignorées (pas d\&#39;appel DeepL), donc elles peuvent ne pas apparaître dans la map &#x60;translations&#x60;.
-     * @endpoint post /api/translate/batch/
+     * @endpoint post /api/v1/translate/batch/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -98,7 +98,7 @@ export class TranslationApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/translate/batch/`;
+        let localVarPath = `/api/v1/translate/batch/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<TranslateBatchResponseDto>('post', `${basePath}${localVarPath}`,
             {

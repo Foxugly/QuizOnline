@@ -217,7 +217,7 @@ class SubjectViewSet(MyModelViewSet):
     def list(self, request, *args, **kwargs):
         self._log_call(
             method_name="list",
-            endpoint="GET /api/subject/",
+            endpoint="GET /api/v1/subject/",
             input_expected="query params (search?, active?, domain?), body vide",
             output="200 + [SubjectSerializer] (paginé si pagination activée)",
         )
@@ -235,7 +235,7 @@ class SubjectViewSet(MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         self._log_call(
             method_name="retrieve",
-            endpoint="GET /api/subject/{subject_id}/",
+            endpoint="GET /api/v1/subject/{subject_id}/",
             input_expected="path subject_id, body vide",
             output="200 + SubjectReadSerializer | 404",
         )
@@ -245,7 +245,7 @@ class SubjectViewSet(MyModelViewSet):
     def details(self, request, *args, **kwargs):
         self._log_call(
             method_name="details",
-            endpoint="GET /api/subject/{subject_id}/details/",
+            endpoint="GET /api/v1/subject/{subject_id}/details/",
             input_expected="path subject_id, body vide",
             output="200 + SubjectDetailSerializer | 404",
         )
@@ -256,7 +256,7 @@ class SubjectViewSet(MyModelViewSet):
     def create(self, request, *args, **kwargs):
         self._log_call(
             method_name="create",
-            endpoint="POST /api/subject/",
+            endpoint="POST /api/v1/subject/",
             input_expected="body JSON: SubjectSerializer (write fields)",
             output="201 + SubjectWriteSerializer | 400",
         )
@@ -270,7 +270,7 @@ class SubjectViewSet(MyModelViewSet):
     def update(self, request, *args, **kwargs):
         self._log_call(
             method_name="update",
-            endpoint="PUT /api/subject/{subject_id}/",
+            endpoint="PUT /api/v1/subject/{subject_id}/",
             input_expected="path subject_id + body JSON complet (SubjectWriteSerializer)",
             output="200 + SubjectReadSerializer | 400 | 404",
         )
@@ -288,7 +288,7 @@ class SubjectViewSet(MyModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         self._log_call(
             method_name="partial_update",
-            endpoint="PATCH /api/subject/{subject_id}/",
+            endpoint="PATCH /api/v1/subject/{subject_id}/",
             input_expected="path subject_id + body JSON partiel (SubjectPartialSerializer)",
             output="200 + SubjectReadSerializer | 400 | 404",
         )
@@ -298,7 +298,7 @@ class SubjectViewSet(MyModelViewSet):
     def destroy(self, request, *args, **kwargs):
         self._log_call(
             method_name="destroy",
-            endpoint="DELETE /api/subject/{subject_id}/",
+            endpoint="DELETE /api/v1/subject/{subject_id}/",
             input_expected="path subject_id, body vide",
             output="204 | 403 | 404",
         )

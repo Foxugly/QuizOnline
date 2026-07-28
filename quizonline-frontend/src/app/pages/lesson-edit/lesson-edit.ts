@@ -18,7 +18,7 @@ import {LessonReader} from '../../shared/learning/lesson-reader/lesson-reader';
 import {getLessonEditUiText} from './lesson-edit.i18n';
 
 /**
- * Shape consumed from ``GET /api/lesson/{id}/``. Mirrors the
+ * Shape consumed from ``GET /api/v1/lesson/{id}/``. Mirrors the
  * subset of the lesson serializer the editor cares about: the
  * ordered list of blocks, the parent course's ``available_lang_codes``
  * which gates which language tabs every translatable block editor
@@ -73,7 +73,7 @@ export class LessonEdit implements OnInit, OnDestroy {
   protected readonly blocks = signal<ContentBlock[]>([]);
   protected readonly availableLangs = signal<string[]>(['fr', 'en']);
   /**
-   * Parent course id, sourced from ``GET /api/lesson/{id}/`` so the
+   * Parent course id, sourced from ``GET /api/v1/lesson/{id}/`` so the
    * header back-button can route the author back to the parent course
    * editor. ``0`` while loading or if the field is unexpectedly absent
    * — in that case ``back()`` falls back to the LMS catalog.
@@ -96,7 +96,7 @@ export class LessonEdit implements OnInit, OnDestroy {
     this.previewMode.update((v) => !v);
   }
 
-  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
   private routeSub: Subscription | null = null;
 
   ngOnInit(): void {

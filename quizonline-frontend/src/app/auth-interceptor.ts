@@ -8,8 +8,8 @@ import {isApiUrl} from './shared/api/runtime-api-base-url';
 
 function isAuthEndpoint(url: string): boolean {
   return (
-    url.includes('/api/token') ||
-    url.includes('/api/user/password/reset')
+    url.includes('/api/v1/token') ||
+    url.includes('/api/v1/user/password/reset')
   );
 }
 

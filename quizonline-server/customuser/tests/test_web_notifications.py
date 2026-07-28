@@ -60,7 +60,7 @@ class EmitNotificationHelperTests(TestCase):
 
 
 class NotificationApiListTests(TestCase):
-    URL = "/api/notification/"
+    URL = "/api/v1/notification/"
 
     def setUp(self):
         self.user = User.objects.create_user(email="u@example.test", password="p")
@@ -110,7 +110,7 @@ class NotificationApiListTests(TestCase):
 
 
 class NotificationApiUnreadCountTests(TestCase):
-    URL = "/api/notification/unread-count/"
+    URL = "/api/v1/notification/unread-count/"
 
     def setUp(self):
         self.user = User.objects.create_user(email="u@example.test", password="p")
@@ -143,20 +143,20 @@ class NotificationApiMarkReadTests(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_mark_one_sets_read_at(self):
-        resp = self.client.post(f"/api/notification/{self.notif.id}/read/")
+        resp = self.client.post(f"/api/v1/notification/{self.notif.id}/read/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.notif.refresh_from_db()
         self.assertIsNotNone(self.notif.read_at)
 
     def test_mark_one_for_other_user_is_404(self):
         other_notif = Notification.objects.create(user=self.other, kind="x")
-        resp = self.client.post(f"/api/notification/{other_notif.id}/read/")
+        resp = self.client.post(f"/api/v1/notification/{other_notif.id}/read/")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_mark_all_read(self):
         Notification.objects.create(user=self.user, kind="b")
         Notification.objects.create(user=self.user, kind="c")
-        resp = self.client.post("/api/notification/read-all/")
+        resp = self.client.post("/api/v1/notification/read-all/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data, {"updated": 3})
         remaining = Notification.objects.filter(
@@ -174,7 +174,7 @@ class NotificationApiSoftDeleteTests(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_delete_sets_deleted_at(self):
-        resp = self.client.delete(f"/api/notification/{self.notif.id}/")
+        resp = self.client.delete(f"/api/v1/notification/{self.notif.id}/")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.notif.refresh_from_db()
         self.assertIsNotNone(self.notif.deleted_at)
@@ -183,7 +183,7 @@ class NotificationApiSoftDeleteTests(TestCase):
 
     def test_delete_other_user_is_404(self):
         other_notif = Notification.objects.create(user=self.other, kind="x")
-        resp = self.client.delete(f"/api/notification/{other_notif.id}/")
+        resp = self.client.delete(f"/api/v1/notification/{other_notif.id}/")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
 

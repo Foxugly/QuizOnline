@@ -4,10 +4,10 @@ Owner/manager moderation actions on ``DomainJoinRequestViewSet``.
 Four endpoints — all gated by ``_check_can_approve`` from the host
 viewset:
 
-- ``POST /api/domain/{domain_id}/join-request/{req_id}/approve/``
-- ``POST /api/domain/{domain_id}/join-request/{req_id}/reject/``
-- ``POST /api/domain/{domain_id}/join-request/bulk-approve/``
-- ``POST /api/domain/{domain_id}/join-request/bulk-reject/``
+- ``POST /api/v1/domain/{domain_id}/join-request/{req_id}/approve/``
+- ``POST /api/v1/domain/{domain_id}/join-request/{req_id}/reject/``
+- ``POST /api/v1/domain/{domain_id}/join-request/bulk-approve/``
+- ``POST /api/v1/domain/{domain_id}/join-request/bulk-reject/``
 
 The mixin relies on ``_get_domain()`` and ``_check_can_approve()``
 defined on the host viewset, plus the standard DRF ``get_serializer()``

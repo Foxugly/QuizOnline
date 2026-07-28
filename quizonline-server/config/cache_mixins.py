@@ -1,7 +1,7 @@
 """Lightweight cache-header mixins for DRF viewsets.
 
-The frontend's hot read paths (``GET /api/course/<id>/``,
-``GET /api/lesson/<id>/``) are pure functions of the URL — the same
+The frontend's hot read paths (``GET /api/v1/course/<id>/``,
+``GET /api/v1/lesson/<id>/``) are pure functions of the URL — the same
 authenticated user, browsing back-and-forth in a learning session,
 asks for the same payload several times within a few seconds. Adding
 a short browser-cache window keeps those revisits off the wire

@@ -83,7 +83,7 @@ class DomainViewSetTests(TestCase):
     # ----------------------------
     def test_list_anonymous_returns_only_active_domains(self):
         view = DomainViewSet.as_view({"get": "list"})
-        request = self.factory.get("/api/domain/")
+        request = self.factory.get("/api/v1/domain/")
         response = view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -97,7 +97,7 @@ class DomainViewSetTests(TestCase):
 
     def test_list_authenticated_user_returns_only_owned_or_staff(self):
         view = DomainViewSet.as_view({"get": "list"})
-        request = self.factory.get("/api/domain/")
+        request = self.factory.get("/api/v1/domain/")
         force_authenticate(request, user=self.owner)
         response = view(request)
 
@@ -112,7 +112,7 @@ class DomainViewSetTests(TestCase):
 
     def test_list_authenticated_member_sees_linked_domain(self):
         view = DomainViewSet.as_view({"get": "list"})
-        request = self.factory.get("/api/domain/")
+        request = self.factory.get("/api/v1/domain/")
         force_authenticate(request, user=self.member)
         response = view(request)
 
@@ -124,7 +124,7 @@ class DomainViewSetTests(TestCase):
 
     def test_list_global_staff_without_linked_domain_sees_none(self):
         view = DomainViewSet.as_view({"get": "list"})
-        request = self.factory.get("/api/domain/")
+        request = self.factory.get("/api/v1/domain/")
         force_authenticate(request, user=self.global_staff)
         response = view(request)
 
@@ -144,7 +144,7 @@ class DomainViewSetTests(TestCase):
             domain.save()
 
         view = DomainViewSet.as_view({"get": "list"})
-        request = self.factory.get("/api/domain/")
+        request = self.factory.get("/api/v1/domain/")
         response = view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -156,7 +156,7 @@ class DomainViewSetTests(TestCase):
 
     def test_available_for_linking_allows_anonymous_and_returns_active_domains(self):
         view = DomainViewSet.as_view({"get": "available_for_linking"})
-        request = self.factory.get("/api/domain/available-for-linking/")
+        request = self.factory.get("/api/v1/domain/available-for-linking/")
         response = view(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -167,7 +167,7 @@ class DomainViewSetTests(TestCase):
 
     def test_available_for_linking_returns_active_domains_for_authenticated_user(self):
         view = DomainViewSet.as_view({"get": "available_for_linking"})
-        request = self.factory.get("/api/domain/available-for-linking/")
+        request = self.factory.get("/api/v1/domain/available-for-linking/")
         force_authenticate(request, user=self.member)
         response = view(request)
 
@@ -182,7 +182,7 @@ class DomainViewSetTests(TestCase):
     # ----------------------------
     def test_retrieve_anonymous_active_ok(self):
         view = DomainViewSet.as_view({"get": "retrieve"})
-        request = self.factory.get(f"/api/domain/{self.domain_active.id}/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_active.id}/")
         response = view(request, domain_id=self.domain_active.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -190,7 +190,7 @@ class DomainViewSetTests(TestCase):
 
     def test_retrieve_anonymous_inactive_404(self):
         view = DomainViewSet.as_view({"get": "retrieve"})
-        request = self.factory.get(f"/api/domain/{self.domain_inactive.id}/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_inactive.id}/")
         response = view(request, domain_id=self.domain_inactive.id)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -200,7 +200,7 @@ class DomainViewSetTests(TestCase):
         retrievable by an anonymous caller."""
         private = Domain.objects.create(owner=self.owner, active=True, public=False)
         view = DomainViewSet.as_view({"get": "retrieve"})
-        request = self.factory.get(f"/api/domain/{private.id}/")
+        request = self.factory.get(f"/api/v1/domain/{private.id}/")
         response = view(request, domain_id=private.id)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -210,7 +210,7 @@ class DomainViewSetTests(TestCase):
         self.owner.email = "owner@example.test"
         self.owner.save(update_fields=["email"])
         view = DomainViewSet.as_view({"get": "retrieve"})
-        request = self.factory.get(f"/api/domain/{self.domain_active.id}/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_active.id}/")
         response = view(request, domain_id=self.domain_active.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -223,7 +223,7 @@ class DomainViewSetTests(TestCase):
         self.owner.email = "owner@example.test"
         self.owner.save(update_fields=["email"])
         view = DomainViewSet.as_view({"get": "retrieve"})
-        request = self.factory.get(f"/api/domain/{self.domain_active.id}/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_active.id}/")
         force_authenticate(request, user=self.other)  # manager of domain_active
         response = view(request, domain_id=self.domain_active.id)
 
@@ -237,7 +237,7 @@ class DomainViewSetTests(TestCase):
     # ----------------------------
     def test_details_anonymous_active_ok_and_subjects_filtered(self):
         view = DomainViewSet.as_view({"get": "details"})
-        request = self.factory.get(f"/api/domain/{self.domain_active.id}/details/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_active.id}/details/")
         response = view(request, domain_id=self.domain_active.id)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -251,7 +251,7 @@ class DomainViewSetTests(TestCase):
 
     def test_details_anonymous_inactive_404(self):
         view = DomainViewSet.as_view({"get": "details"})
-        request = self.factory.get(f"/api/domain/{self.domain_inactive.id}/details/")
+        request = self.factory.get(f"/api/v1/domain/{self.domain_inactive.id}/details/")
         response = view(request, domain_id=self.domain_inactive.id)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -267,7 +267,7 @@ class DomainViewSetTests(TestCase):
             "active": True,
             "managers": [self.other.id],
         }
-        request = self.factory.post("/api/domain/", payload, format="json")
+        request = self.factory.post("/api/v1/domain/", payload, format="json")
         response = view(request)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -280,7 +280,7 @@ class DomainViewSetTests(TestCase):
             "active": True,
             "managers": [self.other.id],  # volontairement sans owner
         }
-        request = self.factory.post("/api/domain/", payload, format="json")
+        request = self.factory.post("/api/v1/domain/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request)
 
@@ -313,7 +313,7 @@ class DomainViewSetTests(TestCase):
             "active": True,
             "managers": [],
         }
-        request = self.factory.post("/api/domain/", payload, format="json")
+        request = self.factory.post("/api/v1/domain/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request)
 
@@ -325,7 +325,7 @@ class DomainViewSetTests(TestCase):
     def test_update_sets_updated_by(self):
         view = DomainViewSet.as_view({"patch": "partial_update"})
         payload = {"active": False}
-        request = self.factory.patch(f"/api/domain/{self.domain_active.id}/", payload, format="json")
+        request = self.factory.patch(f"/api/v1/domain/{self.domain_active.id}/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request, domain_id=self.domain_active.id)
 
@@ -344,7 +344,7 @@ class DomainViewSetTests(TestCase):
             "active": False,
             "managers": [self.other.id],
         }
-        request = self.factory.put(f"/api/domain/{self.domain_active.id}/", payload, format="json")
+        request = self.factory.put(f"/api/v1/domain/{self.domain_active.id}/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request, domain_id=self.domain_active.id)
 
@@ -360,7 +360,7 @@ class DomainViewSetTests(TestCase):
     def test_partial_update_patch_active_only_owner_ok(self):
         view = DomainViewSet.as_view({"patch": "partial_update"})
         payload = {"active": True}
-        request = self.factory.patch(f"/api/domain/{self.domain_inactive.id}/", payload, format="json")
+        request = self.factory.patch(f"/api/v1/domain/{self.domain_inactive.id}/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request, domain_id=self.domain_inactive.id)
 
@@ -371,7 +371,7 @@ class DomainViewSetTests(TestCase):
     def test_partial_update_owner_can_change_owner(self):
         view = DomainViewSet.as_view({"patch": "partial_update"})
         payload = {"owner": self.other.id}
-        request = self.factory.patch(f"/api/domain/{self.domain_active.id}/", payload, format="json")
+        request = self.factory.patch(f"/api/v1/domain/{self.domain_active.id}/", payload, format="json")
         force_authenticate(request, user=self.owner)
         response = view(request, domain_id=self.domain_active.id)
 
@@ -383,7 +383,7 @@ class DomainViewSetTests(TestCase):
         self.domain_active.managers.add(self.other)
         view = DomainViewSet.as_view({"patch": "partial_update"})
         payload = {"owner": self.member.id}
-        request = self.factory.patch(f"/api/domain/{self.domain_active.id}/", payload, format="json")
+        request = self.factory.patch(f"/api/v1/domain/{self.domain_active.id}/", payload, format="json")
         force_authenticate(request, user=self.other)
         response = view(request, domain_id=self.domain_active.id)
 
@@ -401,7 +401,7 @@ class DomainViewSetTests(TestCase):
         domain.name = "A supprimer"
         domain.save()
 
-        request = self.factory.delete(f"/api/domain/{domain.id}/")
+        request = self.factory.delete(f"/api/v1/domain/{domain.id}/")
         force_authenticate(request, user=self.owner)
         response = view(request, domain_id=domain.id)
 
@@ -411,7 +411,7 @@ class DomainViewSetTests(TestCase):
     def test_member_role_can_promote_linked_user_to_domain_staff_without_global_staff_escalation(self):
         view = DomainViewSet.as_view({"post": "member_role"})
         request = self.factory.post(
-            f"/api/domain/{self.domain_active.id}/member-role/",
+            f"/api/v1/domain/{self.domain_active.id}/member-role/",
             {"user_id": self.member.id, "is_domain_manager": True},
             format="json",
         )
@@ -428,7 +428,7 @@ class DomainViewSetTests(TestCase):
         root = User.objects.create_user(email="root@example.test", password="pwd", is_superuser=True, is_staff=True)
         view = DomainViewSet.as_view({"post": "member_role"})
         request = self.factory.post(
-            f"/api/domain/{self.domain_active.id}/member-role/",
+            f"/api/v1/domain/{self.domain_active.id}/member-role/",
             {"user_id": self.member.id, "is_domain_manager": True},
             format="json",
         )
@@ -443,7 +443,7 @@ class DomainViewSetTests(TestCase):
         self.domain_active.managers.add(self.member)
         view = DomainViewSet.as_view({"post": "member_role"})
         request = self.factory.post(
-            f"/api/domain/{self.domain_active.id}/member-role/",
+            f"/api/v1/domain/{self.domain_active.id}/member-role/",
             {"user_id": self.member.id, "is_domain_manager": False},
             format="json",
         )
@@ -506,7 +506,7 @@ class DomainMemberRoleHardeningTests(TestCase):
     def _post(self, *, requester, payload, domain=None):
         target_domain = domain or self.domain
         request = self.factory.post(
-            f"/api/domain/{target_domain.id}/member-role/",
+            f"/api/v1/domain/{target_domain.id}/member-role/",
             payload,
             format="json",
         )

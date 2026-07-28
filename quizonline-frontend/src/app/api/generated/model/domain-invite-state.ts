@@ -11,7 +11,7 @@ import { DomainInviteStateStateEnumDto } from './domain-invite-state-state-enum'
 
 
 /**
- * Shape of GET/POST ``/api/domain/invite/accept/{token}/``.
+ * Shape of GET/POST ``/api/v1/domain/invite/accept/{token}/``.
  */
 export interface DomainInviteStateDto { 
     state: DomainInviteStateStateEnumDto;

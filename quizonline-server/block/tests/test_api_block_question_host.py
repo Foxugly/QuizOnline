@@ -3,12 +3,12 @@
 Phase 3.5 extends :class:`block.serializers.BlockSerializer` to accept
 ``question`` and ``answer_option`` host writes on top of the existing
 ``lesson`` host. The question editor frontend now drives the prompt,
-explanation, and per-answer block lists through ``/api/block/``,
+explanation, and per-answer block lists through ``/api/v1/block/``,
 exactly the way the lesson editor does for lesson body blocks.
 
 These tests pin the contract end-to-end:
 
-* ``POST /api/block/`` with ``{"question": <id>, "block_role": "prompt", ...}``
+* ``POST /api/v1/block/`` with ``{"question": <id>, "block_role": "prompt", ...}``
   creates a Question-hosted prompt block (and similarly for
   ``explanation`` and ``answer_option`` hosts).
 * The read response surfaces the matching ``question`` / ``answer_option``
@@ -50,7 +50,7 @@ def answer_option(db, question):
 def test_create_question_prompt_block_succeeds(question, owner):
     """POST with ``question`` host + ``block_role=prompt`` creates a prompt block."""
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "question": question.id,
             "block_type": Block.TYPE_RICH_TEXT,
@@ -74,7 +74,7 @@ def test_create_question_prompt_block_succeeds(question, owner):
 def test_create_question_explanation_block_succeeds(question, owner):
     """``block_role=explanation`` reaches the right Question.explanation_blocks() bucket."""
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "question": question.id,
             "block_type": Block.TYPE_CALLOUT,
@@ -93,7 +93,7 @@ def test_create_question_explanation_block_succeeds(question, owner):
 def test_create_answer_option_block_succeeds(answer_option, owner):
     """POST with ``answer_option`` host creates a body block on the option."""
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "answer_option": answer_option.id,
             "block_type": Block.TYPE_RICH_TEXT,
@@ -113,7 +113,7 @@ def test_create_answer_option_block_succeeds(answer_option, owner):
 def test_create_block_rejects_when_no_host_provided(owner):
     """Empty host payload must 400."""
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "block_type": Block.TYPE_RICH_TEXT,
             "order": 0,
@@ -133,7 +133,7 @@ def test_create_block_rejects_when_no_host_provided(owner):
 def test_create_block_rejects_when_multiple_hosts_provided(question, owner, visible_lesson):
     """Setting both ``question`` and ``lesson`` must 400."""
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "lesson": visible_lesson.id,
             "question": question.id,
@@ -162,7 +162,7 @@ def test_outsider_cannot_create_question_block(question, db):
         email="o@example.com", password="x"
     )
     r = _auth(outsider).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "question": question.id,
             "block_type": Block.TYPE_RICH_TEXT,
@@ -180,7 +180,7 @@ def test_patch_question_block_persists_translation(question, owner, en_lang, dom
     """PATCH with a fresh rich_text translation must reach the DB."""
     domain.allowed_languages.add(en_lang)
     r = _auth(owner).post(
-        "/api/block/",
+        "/api/v1/block/",
         {
             "question": question.id,
             "block_type": Block.TYPE_RICH_TEXT,
@@ -194,7 +194,7 @@ def test_patch_question_block_persists_translation(question, owner, en_lang, dom
     block_id = r.data["id"]
 
     r2 = _auth(owner).patch(
-        f"/api/block/{block_id}/",
+        f"/api/v1/block/{block_id}/",
         {"translations": {"fr": {"rich_text": "<p>Bonjour</p>"}}},
         format="json",
     )
@@ -208,7 +208,7 @@ def test_patch_question_block_persists_translation(question, owner, en_lang, dom
 def test_question_read_surfaces_available_lang_codes(question, owner, en_lang, domain):
     """QuestionRead must expose the owner domain's allowed_languages."""
     domain.allowed_languages.add(en_lang)
-    r = _auth(owner).get(f"/api/question/{question.id}/")
+    r = _auth(owner).get(f"/api/v1/question/{question.id}/")
     assert r.status_code == 200, r.content
     codes = r.data["available_lang_codes"]
     assert "fr" in codes and "en" in codes

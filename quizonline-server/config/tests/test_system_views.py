@@ -9,8 +9,8 @@ User = get_user_model()
 
 
 class SystemConfigViewTests(APITestCase):
-    URL = "/api/admin/system-config/"
-    CHECK_URL = "/api/admin/system-check/"
+    URL = "/api/v1/admin/system-config/"
+    CHECK_URL = "/api/v1/admin/system-check/"
 
     def setUp(self):
         self.admin = User.objects.create_superuser(

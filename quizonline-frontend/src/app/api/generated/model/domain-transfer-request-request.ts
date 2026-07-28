@@ -10,7 +10,7 @@
 
 
 /**
- * Payload for ``POST /api/domain/{id}/transfer/``.
+ * Payload for ``POST /api/v1/domain/{id}/transfer/``.
  */
 export interface DomainTransferRequestRequestDto { 
     user_id: number;

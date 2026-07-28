@@ -25,7 +25,7 @@ def _not_found():
 
 
 class TemplateSessionsPagination(PageNumberPagination):
-    """500-row cap on the ``/api/quiz/template/<id>/sessions/`` endpoint.
+    """500-row cap on the ``/api/v1/quiz/template/<id>/sessions/`` endpoint.
 
     The SPA's template-results page renders a client-side paginated
     PrimeNG table — it assumes the full session list fits in memory. A

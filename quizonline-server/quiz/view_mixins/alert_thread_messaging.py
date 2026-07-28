@@ -38,7 +38,7 @@ class AlertThreadMessagingMixin:
     def post_message(self, request, *args, **kwargs):
         self._log_call(
             method_name="post_message",
-            endpoint="POST /api/quiz/alerts/{alert_id}/message/",
+            endpoint="POST /api/v1/quiz/alerts/{alert_id}/message/",
             input_expected="body {body}",
             output="201 + QuizAlertMessageSerializer | 400 | 404",
             extra={"alert_id": kwargs.get("alert_id")},

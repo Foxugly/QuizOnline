@@ -2,10 +2,10 @@
 Invitations slice of ``DomainViewSet``.
 
 Four endpoints:
-- ``POST   /api/domain/{id}/invite/`` — multi-email + multi-domain bulk invite (rate-limited).
-- ``GET    /api/domain/{id}/invitations/`` — pending invitations.
-- ``POST   /api/domain/{id}/invitations/{invite_id}/resend/``
-- ``POST   /api/domain/{id}/invitations/{invite_id}/revoke/``
+- ``POST   /api/v1/domain/{id}/invite/`` — multi-email + multi-domain bulk invite (rate-limited).
+- ``GET    /api/v1/domain/{id}/invitations/`` — pending invitations.
+- ``POST   /api/v1/domain/{id}/invitations/{invite_id}/resend/``
+- ``POST   /api/v1/domain/{id}/invitations/{invite_id}/revoke/``
 
 The fan-out throttle (``_DomainInviteThrottle``) used by ``invite`` is
 defined here too: when the caller fans out to multiple domains we

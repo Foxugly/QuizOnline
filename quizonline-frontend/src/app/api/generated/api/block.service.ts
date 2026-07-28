@@ -81,7 +81,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/block/
+     * @endpoint post /api/v1/block/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -135,7 +135,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/`;
+        let localVarPath = `/api/v1/block/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BlockDto>('post', `${basePath}${localVarPath}`,
             {
@@ -152,7 +152,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/block/{id}/
+     * @endpoint delete /api/v1/block/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -194,7 +194,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -210,7 +210,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/block/
+     * @endpoint get /api/v1/block/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -261,7 +261,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/`;
+        let localVarPath = `/api/v1/block/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedBlockListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -278,7 +278,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint patch /api/block/{id}/
+     * @endpoint patch /api/v1/block/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -333,7 +333,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BlockDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -351,7 +351,7 @@ export class BlockApi extends BaseService {
 
     /**
      * Atomic bulk reorder for any block host.  Body shape: &#x60;&#x60;{host_type, host_id, ids, block_role}&#x60;&#x60;. &#x60;&#x60;host_type&#x60;&#x60; is one of &#x60;&#x60;lesson&#x60;&#x60; / &#x60;&#x60;question&#x60;&#x60; / &#x60;&#x60;answer_option&#x60;&#x60;; &#x60;&#x60;block_role&#x60;&#x60; defaults to &#x60;&#x60;body&#x60;&#x60; and is only consequential when the host can hold multiple disjoint block lists (Question splits into &#x60;&#x60;prompt&#x60;&#x60; + &#x60;&#x60;explanation&#x60;&#x60;).  Replaces three host-specific endpoints from earlier phases by a single source of truth — the frontend &#x60;&#x60;&lt;app-block-list-editor&gt;&#x60;&#x60; calls this once regardless of host. The two-phase reorder primitive in &#x60;&#x60;block.services&#x60;&#x60; already accepts any host via the polymorphic &#x60;&#x60;_host_filter&#x60;&#x60; helper, so this view just resolves the host instance + checks write permission and delegates.
-     * @endpoint post /api/block/reorder/
+     * @endpoint post /api/v1/block/reorder/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -417,7 +417,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/reorder/`;
+        let localVarPath = `/api/v1/block/reorder/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedBlockListDto>('post', `${basePath}${localVarPath}`,
             {
@@ -435,7 +435,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/block/{id}/
+     * @endpoint get /api/v1/block/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -478,7 +478,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BlockDto>('get', `${basePath}${localVarPath}`,
             {
@@ -494,7 +494,7 @@ export class BlockApi extends BaseService {
     }
 
     /**
-     * @endpoint put /api/block/{id}/
+     * @endpoint put /api/v1/block/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -552,7 +552,7 @@ export class BlockApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/block/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<BlockDto>('put', `${basePath}${localVarPath}`,
             {

@@ -286,7 +286,7 @@ class SendExpiringJoinRequestWarningsTests(TestCase):
 
 
 class ModerationSummaryEndpointTests(TestCase):
-    URL = "/api/domain/moderation-summary/"
+    URL = "/api/v1/domain/moderation-summary/"
 
     def setUp(self):
         from django.core.cache import cache

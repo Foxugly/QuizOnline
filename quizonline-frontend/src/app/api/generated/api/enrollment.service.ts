@@ -68,7 +68,7 @@ export class EnrollmentApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/enrollment/{id}/approve/
+     * @endpoint post /api/v1/enrollment/{id}/approve/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -126,7 +126,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
+        let localVarPath = `/api/v1/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/approve/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -143,7 +143,7 @@ export class EnrollmentApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/enrollment/{id}/cancel/
+     * @endpoint post /api/v1/enrollment/{id}/cancel/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -201,7 +201,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
+        let localVarPath = `/api/v1/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/cancel/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -218,7 +218,7 @@ export class EnrollmentApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/enrollment/
+     * @endpoint get /api/v1/enrollment/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -269,7 +269,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/`;
+        let localVarPath = `/api/v1/enrollment/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedCourseEnrollmentListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -286,7 +286,7 @@ export class EnrollmentApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/enrollment/{id}/reject/
+     * @endpoint post /api/v1/enrollment/{id}/reject/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -344,7 +344,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
+        let localVarPath = `/api/v1/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/reject/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('post', `${basePath}${localVarPath}`,
             {
@@ -361,7 +361,7 @@ export class EnrollmentApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/enrollment/{id}/
+     * @endpoint get /api/v1/enrollment/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -404,7 +404,7 @@ export class EnrollmentApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/enrollment/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CourseEnrollmentDto>('get', `${basePath}${localVarPath}`,
             {

@@ -29,7 +29,7 @@ import {AppToastService} from '../../shared/toast/app-toast.service';
 
 import {getCourseListUiText} from './course-list.i18n';
 
-/** Course shape returned by ``GET /api/course/`` — narrow subset
+/** Course shape returned by ``GET /api/v1/course/`` — narrow subset
  *  of :class:`CourseListSerializer` fields the admin table actually
  *  consumes. ``unknown[]`` from :class:`CatalogService.list` is
  *  narrowed at the call site. */

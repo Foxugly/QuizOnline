@@ -341,7 +341,7 @@ class DomainViewSet(
     def details(self, request, *args, **kwargs):
         self._log_call(
             method_name="details",
-            endpoint="GET /api/domain/{domain_id}/details/",
+            endpoint="GET /api/v1/domain/{domain_id}/details/",
             input_expected="path domain_id, body vide",
             output="200 + DomainDetailSerializer | 404",
         )
@@ -377,7 +377,7 @@ class DomainJoinRequestViewSet(
     JoinRequestCancelMixin,
     viewsets.GenericViewSet,
 ):
-    """Nested under /api/domain/{domain_id}/join-request/."""
+    """Nested under /api/v1/domain/{domain_id}/join-request/."""
     # Kept short on purpose: drf-spectacular uses the host class
     # docstring as the fallback description for any action without an
     # explicit ``@extend_schema(description=...)``, so a long body here

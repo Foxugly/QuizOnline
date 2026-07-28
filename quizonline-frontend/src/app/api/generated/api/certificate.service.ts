@@ -58,7 +58,7 @@ export class CertificateApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/certificate/
+     * @endpoint get /api/v1/certificate/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -109,7 +109,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/`;
+        let localVarPath = `/api/v1/certificate/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedCertificateListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -126,7 +126,7 @@ export class CertificateApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/certificate/{id}/pdf/
+     * @endpoint get /api/v1/certificate/{id}/pdf/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -169,7 +169,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/pdf/`;
+        let localVarPath = `/api/v1/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/pdf/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -185,7 +185,7 @@ export class CertificateApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/certificate/{id}/
+     * @endpoint get /api/v1/certificate/{id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -228,7 +228,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('get', `${basePath}${localVarPath}`,
             {
@@ -244,7 +244,7 @@ export class CertificateApi extends BaseService {
     }
 
     /**
-     * @endpoint post /api/certificate/{id}/revoke/
+     * @endpoint post /api/v1/certificate/{id}/revoke/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -287,7 +287,7 @@ export class CertificateApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
+        let localVarPath = `/api/v1/certificate/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/revoke/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CertificateDto>('post', `${basePath}${localVarPath}`,
             {

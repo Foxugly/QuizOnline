@@ -28,7 +28,7 @@ import {
  * ``title``. All visible content — the prompt, the answer texts, the
  * explanation, plus any image / video / file media — lives in the
  * polymorphic :class:`block.Block` table and is edited by
- * ``<app-question-block-tabs>`` through the ``/api/block/`` endpoint.
+ * ``<app-question-block-tabs>`` through the ``/api/v1/block/`` endpoint.
  * The legacy ``QuestionMedia`` gallery (and its ``MediaSelector``
  * picker) was retired with the block migration.
  */

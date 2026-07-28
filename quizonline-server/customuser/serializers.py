@@ -320,12 +320,12 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
 
 class MagicLinkRequestSerializer(serializers.Serializer):
-    """Payload for ``POST /api/auth/magic-link/request/``."""
+    """Payload for ``POST /api/v1/auth/magic-link/request/``."""
     email = serializers.EmailField()
 
 
 class MagicLinkExchangeRequestSerializer(serializers.Serializer):
-    """Payload for ``POST /api/auth/magic-link/exchange/``."""
+    """Payload for ``POST /api/v1/auth/magic-link/exchange/``."""
     token = serializers.CharField(max_length=2048)
 
 

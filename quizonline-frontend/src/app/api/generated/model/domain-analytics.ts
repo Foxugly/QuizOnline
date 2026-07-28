@@ -11,7 +11,7 @@ import { DomainAnalyticsDeciderDto } from './domain-analytics-decider';
 
 
 /**
- * Shape returned by ``GET /api/domain/{id}/analytics/``.
+ * Shape returned by ``GET /api/v1/domain/{id}/analytics/``.
  */
 export interface DomainAnalyticsDto { 
     pending_count: number;

@@ -96,7 +96,7 @@ export class UserApi extends BaseService {
     /**
      * Créer un utilisateur
      * Création ouverte (AllowAny).
-     * @endpoint post /api/user/
+     * @endpoint post /api/v1/user/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -150,7 +150,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/`;
+        let localVarPath = `/api/v1/user/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -167,7 +167,7 @@ export class UserApi extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/user/{user_id}/
+     * @endpoint delete /api/v1/user/{user_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -209,7 +209,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -227,7 +227,7 @@ export class UserApi extends BaseService {
     /**
      * Lister les utilisateurs
      * Admin/staff uniquement.
-     * @endpoint get /api/user/
+     * @endpoint get /api/v1/user/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -278,7 +278,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/`;
+        let localVarPath = `/api/v1/user/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedCustomUserReadListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -297,7 +297,7 @@ export class UserApi extends BaseService {
     /**
      * Définir mon domaine courant
      * Met à jour &#x60;current_domain&#x60; sur l\&#39;utilisateur authentifié, puis renvoie le profil mis à jour.
-     * @endpoint post /api/user/me/current-domain/
+     * @endpoint post /api/v1/user/me/current-domain/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -348,7 +348,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/current-domain/`;
+        let localVarPath = `/api/v1/user/me/current-domain/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('post', `${basePath}${localVarPath}`,
             {
@@ -366,8 +366,8 @@ export class UserApi extends BaseService {
 
     /**
      * Supprimer son compte (droit à l\&#39;effacement RGPD)
-     * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
-     * @endpoint delete /api/user/me/
+     * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/v1/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
+     * @endpoint delete /api/v1/user/me/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -405,7 +405,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/`;
+        let localVarPath = `/api/v1/user/me/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -423,7 +423,7 @@ export class UserApi extends BaseService {
     /**
      * Export GDPR : toutes les données du compte courant
      * Retourne un dump JSON de toutes les données personnelles associées au compte de l\&#39;utilisateur connecté. Couvre le profil, les domaines (owned / managed / membre), les demandes d\&#39;adhésion et les sessions de quiz. Pensé pour le droit d\&#39;accès / portabilité du RGPD : le frontend télécharge la réponse en &#x60;&#x60;application/json&#x60;&#x60; sous le nom &#x60;&#x60;quizonline-export-&lt;email&gt;.json&#x60;&#x60;.
-     * @endpoint get /api/user/me/export/
+     * @endpoint get /api/v1/user/me/export/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -461,7 +461,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/export/`;
+        let localVarPath = `/api/v1/user/me/export/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<{ [key: string]: any; }>('get', `${basePath}${localVarPath}`,
             {
@@ -477,7 +477,7 @@ export class UserApi extends BaseService {
     }
 
     /**
-     * @endpoint get /api/user/me/join-requests/
+     * @endpoint get /api/v1/user/me/join-requests/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -515,7 +515,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/join-requests/`;
+        let localVarPath = `/api/v1/user/me/join-requests/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -533,7 +533,7 @@ export class UserApi extends BaseService {
     /**
      * Récupérer et mettre à jour mon profil
      * Retourne le profil de l\&#39;utilisateur authentifié.
-     * @endpoint patch /api/user/me/
+     * @endpoint patch /api/v1/user/me/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -584,7 +584,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/`;
+        let localVarPath = `/api/v1/user/me/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -603,7 +603,7 @@ export class UserApi extends BaseService {
     /**
      * Récupérer et mettre à jour mon profil
      * Retourne le profil de l\&#39;utilisateur authentifié.
-     * @endpoint get /api/user/me/
+     * @endpoint get /api/v1/user/me/
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -641,7 +641,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/me/`;
+        let localVarPath = `/api/v1/user/me/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -658,7 +658,7 @@ export class UserApi extends BaseService {
 
     /**
      * Mettre à jour un utilisateur (PATCH)
-     * @endpoint patch /api/user/{user_id}/
+     * @endpoint patch /api/v1/user/{user_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -713,7 +713,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -732,7 +732,7 @@ export class UserApi extends BaseService {
     /**
      * Lister les quizzes d’un utilisateur
      * Retourne la liste des quiz liés à un utilisateur. Accès: soi-même ou staff/superuser.
-     * @endpoint get /api/user/{user_id}/quizzes/
+     * @endpoint get /api/v1/user/{user_id}/quizzes/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -787,7 +787,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/quizzes/`;
+        let localVarPath = `/api/v1/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/quizzes/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<PaginatedQuizSimpleListDto>('get', `${basePath}${localVarPath}`,
             {
@@ -805,7 +805,7 @@ export class UserApi extends BaseService {
 
     /**
      * Récupérer un utilisateur
-     * @endpoint get /api/user/{user_id}/
+     * @endpoint get /api/v1/user/{user_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -848,7 +848,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('get', `${basePath}${localVarPath}`,
             {
@@ -865,7 +865,7 @@ export class UserApi extends BaseService {
 
     /**
      * Mettre à jour un utilisateur (PUT)
-     * @endpoint put /api/user/{user_id}/
+     * @endpoint put /api/v1/user/{user_id}/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -923,7 +923,7 @@ export class UserApi extends BaseService {
             }
         }
 
-        let localVarPath = `/api/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
+        let localVarPath = `/api/v1/user/${this.configuration.encodeParam({name: "userId", value: userId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<CustomUserReadDto>('put', `${basePath}${localVarPath}`,
             {

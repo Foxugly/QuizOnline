@@ -23,7 +23,7 @@ def test_section_reorder_subset_returns_400(course, owner):
     Section.objects.create(course=course, order=1)
     # Only one of the two section ids -> strict subset.
     resp = _auth(owner).post(
-        f"/api/course/{course.id}/section/reorder/", {"ids": [s1.id]}, format="json"
+        f"/api/v1/course/{course.id}/section/reorder/", {"ids": [s1.id]}, format="json"
     )
     assert resp.status_code == 400
 
@@ -33,7 +33,7 @@ def test_section_reorder_full_set_succeeds(course, owner):
     s1 = Section.objects.create(course=course, order=0)
     s2 = Section.objects.create(course=course, order=1)
     resp = _auth(owner).post(
-        f"/api/course/{course.id}/section/reorder/",
+        f"/api/v1/course/{course.id}/section/reorder/",
         {"ids": [s2.id, s1.id]},
         format="json",
     )
@@ -49,6 +49,6 @@ def test_lesson_reorder_subset_returns_400(course, owner):
     l1 = Lesson.objects.create(section=section, slug="a", order=0)
     Lesson.objects.create(section=section, slug="b", order=1)
     resp = _auth(owner).post(
-        f"/api/section/{section.id}/lesson/reorder/", {"ids": [l1.id]}, format="json"
+        f"/api/v1/section/{section.id}/lesson/reorder/", {"ids": [l1.id]}, format="json"
     )
     assert resp.status_code == 400

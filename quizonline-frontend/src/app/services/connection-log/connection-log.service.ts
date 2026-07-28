@@ -16,7 +16,7 @@ export type LoginMethod = 'password' | 'magic_link';
 @Injectable({providedIn: 'root'})
 export class ConnectionLogService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/connection-log`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1/connection-log`;
 
   /**
    * Fire-and-forget: record the current login with browser context.

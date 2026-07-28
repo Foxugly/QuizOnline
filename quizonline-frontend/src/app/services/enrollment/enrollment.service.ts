@@ -25,7 +25,7 @@ interface PagedEnvelope<T> {
 }
 
 /** Server-side analytics payload for a single course. Mirrors the shape
- *  returned by ``GET /api/course/{id}/analytics/``. */
+ *  returned by ``GET /api/v1/course/{id}/analytics/``. */
 export interface CourseAnalyticsDto {
   enrollment_counts: {
     total: number;
@@ -67,7 +67,7 @@ export interface CourseAnalyticsDto {
 @Injectable({providedIn: 'root'})
 export class EnrollmentService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api`;
+  private readonly baseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
   myEnrollments(params: {status?: string} = {}): Observable<unknown> {
     let httpParams = new HttpParams();

@@ -28,8 +28,8 @@ async function getAccessToken(
   // The SPA never persists the access token (XSS hardening). Obtain one
   // directly from the backend so the test can call the API as a bearer
   // client without depending on AuthService internals. Email-only auth:
-  // /api/token/ keys on USERNAME_FIELD = "email".
-  const response = await page.request.post(`${API}/api/token/`, {
+  // /api/v1/token/ keys on USERNAME_FIELD = "email".
+  const response = await page.request.post(`${API}/api/v1/token/`, {
     data: {email, password},
   });
   expect(response.ok()).toBeTruthy();
@@ -38,7 +38,7 @@ async function getAccessToken(
   return payload.access!;
 }
 
-// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/token/ email
+// TODO(O6): rehabilitate — auth rot fixed (email-only login + /api/v1/token/ email
 // field, user lookup by email), but the assign-dialog UI flow still needs
 // re-alignment with the current SPA before this can gate. Tracked in
 // docs/improvement-backlog.md (O6).
@@ -46,7 +46,7 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   await login(page);
   const adminToken = await getAccessToken(page);
 
-  const usersResp = await page.request.get(`${API}/api/user/`, {
+  const usersResp = await page.request.get(`${API}/api/v1/user/`, {
     headers: {Authorization: `Bearer ${adminToken}`},
   });
   expect(usersResp.ok()).toBeTruthy();
@@ -57,7 +57,7 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   expect(testuser).toBeTruthy();
   const testuserId: number = testuser.id;
 
-  const templatesResp = await page.request.get(`${API}/api/quiz/template/`, {
+  const templatesResp = await page.request.get(`${API}/api/v1/quiz/template/`, {
     headers: {Authorization: `Bearer ${adminToken}`},
   });
   expect(templatesResp.ok()).toBeTruthy();
@@ -80,7 +80,7 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   await assignDialog.getByText('testuser', {exact: false}).click();
   await assignDialog.getByRole('button', {name: 'Envoyer'}).click();
 
-  const quizzesResp = await page.request.get(`${API}/api/quiz/?user=${testuserId}`, {
+  const quizzesResp = await page.request.get(`${API}/api/v1/quiz/?user=${testuserId}`, {
     headers: {Authorization: `Bearer ${adminToken}`},
   });
   expect(quizzesResp.ok()).toBeTruthy();
@@ -106,7 +106,7 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   await expect(sessionsPanel.getByRole('cell', {name: 'Quiz full-stack', exact: true}).first()).toBeVisible();
 
   const testuserToken = await getAccessToken(page, 'testuser@example.test');
-  const quizResp = await page.request.get(`${API}/api/quiz/${assignedQuizId}/`, {
+  const quizResp = await page.request.get(`${API}/api/v1/quiz/${assignedQuizId}/`, {
     headers: {Authorization: `Bearer ${testuserToken}`},
   });
   expect(quizResp.ok()).toBeTruthy();

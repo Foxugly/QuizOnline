@@ -1,7 +1,7 @@
 """
 Transfer-ownership slice of ``DomainViewSet``.
 
-One endpoint: ``POST /api/domain/{id}/transfer/`` initiates an
+One endpoint: ``POST /api/v1/domain/{id}/transfer/`` initiates an
 ownership transfer to the user identified by ``user_id``. The flow is
 two-step — this endpoint queues a signed email; the actual ownership
 change happens once the future owner clicks the link and confirms via

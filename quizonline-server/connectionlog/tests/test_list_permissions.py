@@ -12,9 +12,9 @@ def test_list_is_superuser_only():
     ConnectionEvent.objects.create(account_email="n@x.com", login_method="password")
     c = APIClient()
     c.force_authenticate(normal)
-    assert c.get("/api/connection-log/").status_code == 403
+    assert c.get("/api/v1/connection-log/").status_code == 403
     c.force_authenticate(su)
-    resp = c.get("/api/connection-log/")
+    resp = c.get("/api/v1/connection-log/")
     assert resp.status_code == 200
     assert len(resp.data["results"]) == 1
 
@@ -31,7 +31,7 @@ def test_list_daterange_filter():
     c = APIClient()
     c.force_authenticate(su)
     start = (timezone.now() - timedelta(days=1)).date().isoformat()
-    resp = c.get(f"/api/connection-log/?start={start}")
+    resp = c.get(f"/api/v1/connection-log/?start={start}")
     assert resp.status_code == 200
     assert [r["account_email"] for r in resp.data["results"]] == ["b"]
 
@@ -49,10 +49,10 @@ def test_list_daterange_end_is_inclusive():
     c.force_authenticate(su)
 
     today = timezone.localdate().isoformat()
-    resp = c.get(f"/api/connection-log/?end={today}")
+    resp = c.get(f"/api/v1/connection-log/?end={today}")
     assert resp.status_code == 200
     assert "today" in [r["account_email"] for r in resp.data["results"]]
 
     yesterday = (timezone.localdate() - timedelta(days=1)).isoformat()
-    resp2 = c.get(f"/api/connection-log/?end={yesterday}")
+    resp2 = c.get(f"/api/v1/connection-log/?end={yesterday}")
     assert "today" not in [r["account_email"] for r in resp2.data["results"]]
