@@ -164,10 +164,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # Alias transitoire /api/v1/ -> /api/v1/ (config/legacy_api_prefix.py). En tete
-    # pour que tout ce qui suit ne voie que le chemin canonique. A retirer quand
-    # les logs ne montrent plus de "legacy_api_prefix".
-    "config.legacy_api_prefix.LegacyApiPrefixMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
