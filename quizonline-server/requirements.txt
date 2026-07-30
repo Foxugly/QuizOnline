@@ -4,7 +4,7 @@ coverage==7.13.5
 django-cors-headers==4.9.0
 django-environ==0.13.0
 django-extensions==4.1
-django-filter==25.2
+django-filter==26.1
 django-import-export==4.4.0
 django-parler==2.3
 django-schema-viewer==0.5.3
