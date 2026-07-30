@@ -13,15 +13,18 @@ on a ``Quiz`` row. Both transitions:
   ``services.close_quiz_session`` so the same flow runs from the
   scheduled-expiry path in Celery.
 """
+
 import logging
 
 from django.db import transaction
+from django.http import Http404
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from quiz.models import Quiz
 from quiz.permissions import IsOwnerOrStaff
 from quiz.services import close_quiz_session
 
@@ -34,7 +37,47 @@ class QuizLifecycleMixin:
     # ``description``, so a mixin docstring would leak into the OpenAPI
     # description of every action that doesn't set its own.
 
-    @action(detail=True, methods=["post"], url_path="start", permission_classes=[IsOwnerOrStaff])
+    def _lock_quiz_or_404(self, quiz_id):
+        """
+        Verrouille la ligne quiz en conservant le filtrage de permissions.
+
+        On ne peut PAS verrouiller via ``self.get_queryset()``. Pour un
+        gestionnaire de domaine, ``quiz_queryset_for_user`` ajoute un
+        ``.distinct()`` (union OR entre les quiz possedes et ceux des domaines
+        gerables) et PostgreSQL refuse ``SELECT DISTINCT ... FOR UPDATE`` :
+
+            NotSupportedError: FOR UPDATE is not allowed with DISTINCT clause
+
+        Vu en production le 2026-07-23 sur POST /api/quiz/{id}/start/. Le bug
+        ne touchait que les gestionnaires de domaine non-staff : les admins
+        sortent avant le ``.distinct()``, et un apprenant simple retombe sur
+        ``filter(user=user)``, sans ``DISTINCT``.
+
+        On verifie donc l'acces via le queryset scope (meme resultat qu'avant :
+        404 si le quiz n'est pas visible par l'appelant), puis on verrouille la
+        ligne par pk sur un queryset nu, que PostgreSQL accepte.
+        """
+        if not self.get_queryset().filter(pk=quiz_id).exists():
+            raise Http404
+        return get_object_or_404(Quiz.objects.select_for_update(), pk=quiz_id)
+
+    def _scoped_quiz_or_404(self, quiz_id):
+        """
+        Recharge le quiz via le queryset scope pour la serialisation.
+
+        Le queryset nu utilise pour le verrou ne porte pas les annotations
+        ``_earned_score`` / ``_max_score``, dont ``QuizSerializer`` a besoin
+        (``source="_earned_score"``). Serialiser l'instance verrouillee
+        leverait une AttributeError.
+        """
+        return get_object_or_404(self.get_queryset(), pk=quiz_id)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="start",
+        permission_classes=[IsOwnerOrStaff],
+    )
     def start(self, request, quiz_id=None, *args, **kwargs):
         self._log_call(
             method_name="start",
@@ -44,7 +87,7 @@ class QuizLifecycleMixin:
             extra={"pk": quiz_id},
         )
         with transaction.atomic():
-            quiz = get_object_or_404(self.get_queryset().select_for_update(), pk=quiz_id)
+            quiz = self._lock_quiz_or_404(quiz_id)
             quiz = self._expire_quiz_if_needed(quiz)
             if not quiz.quiz_template.can_answer:
                 logger.warning(
@@ -58,16 +101,21 @@ class QuizLifecycleMixin:
                 )
             if quiz.started_at is not None:
                 logger.debug("start: already started quiz_id=%s", quiz.id)
-                serializer = self.get_serializer(quiz)
+                serializer = self.get_serializer(self._scoped_quiz_or_404(quiz_id))
                 return Response(serializer.data)
             quiz.started_at = timezone.now()
             quiz.active = True
             quiz.save(update_fields=["started_at", "active", "ended_at"])
         logger.debug("start: started quiz_id=%s", quiz.id)
-        serializer = self.get_serializer(quiz)
+        serializer = self.get_serializer(self._scoped_quiz_or_404(quiz_id))
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"], url_path="close", permission_classes=[IsOwnerOrStaff])
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="close",
+        permission_classes=[IsOwnerOrStaff],
+    )
     def close(self, request, quiz_id=None, *args, **kwargs):
         self._log_call(
             method_name="close",
@@ -78,11 +126,13 @@ class QuizLifecycleMixin:
         )
 
         with transaction.atomic():
-            quiz = get_object_or_404(self.get_queryset().select_for_update(), pk=quiz_id)
+            quiz = self._lock_quiz_or_404(quiz_id)
 
             if quiz.started_at is None:
                 return Response(
-                    {"detail": "Impossible de cloturer : le quiz n'a jamais ete demarre."},
+                    {
+                        "detail": "Impossible de cloturer : le quiz n'a jamais ete demarre."
+                    },
                     status=status.HTTP_409_CONFLICT,
                 )
 
