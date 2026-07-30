@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BlockVideoUrlDto } from './block-video-url';
 import { BlockTypeEnumDto } from './block-type-enum';
 import { BlockBlockRoleEnumDto } from './block-block-role-enum';
 
@@ -24,10 +25,10 @@ export interface BlockDto {
     order?: number;
     is_required?: boolean;
     image?: string | null;
-    video_url?: string;
+    video_url?: BlockVideoUrlDto;
     video_provider?: BlockDtoVideoProviderEnum;
     file?: string | null;
-    external_url?: string;
+    external_url?: BlockVideoUrlDto;
     code_language?: string;
     code_content?: string;
     quiz_template?: number | null;

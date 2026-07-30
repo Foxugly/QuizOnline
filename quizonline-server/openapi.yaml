@@ -6361,9 +6361,12 @@ components:
           format: uri
           nullable: true
         video_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         video_provider:
           oneOf:
           - $ref: '#/components/schemas/VideoProviderEnum'
@@ -6373,9 +6376,12 @@ components:
           format: uri
           nullable: true
         external_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         code_language:
           type: string
           maxLength: 32
@@ -6453,9 +6459,12 @@ components:
           format: binary
           nullable: true
         video_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         video_provider:
           oneOf:
           - $ref: '#/components/schemas/VideoProviderEnum'
@@ -6465,9 +6474,12 @@ components:
           format: binary
           nullable: true
         external_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         code_language:
           type: string
           maxLength: 32
@@ -7298,9 +7310,12 @@ components:
           type: integer
           readOnly: true
         slug:
-          type: string
-          maxLength: 220
-          pattern: ^[-a-zA-Z0-9_]+$
+          oneOf:
+          - type: string
+            maxLength: 220
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
         level:
           $ref: '#/components/schemas/LevelEnum'
         language_code:
@@ -7355,9 +7370,12 @@ components:
       type: object
       properties:
         slug:
-          type: string
-          maxLength: 220
-          pattern: ^[-a-zA-Z0-9_]+$
+          oneOf:
+          - type: string
+            maxLength: 220
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
         level:
           $ref: '#/components/schemas/LevelEnum'
         language_code:
@@ -7755,8 +7773,8 @@ components:
         certificate_logo:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         certificate_signatory_name:
           type: string
           readOnly: true
@@ -8160,8 +8178,8 @@ components:
         certificate_logo:
           type: string
           format: uri
-          readOnly: true
           nullable: true
+          readOnly: true
         certificate_signatory_name:
           type: string
           readOnly: true
@@ -9590,9 +9608,12 @@ components:
           format: binary
           nullable: true
         video_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         video_provider:
           oneOf:
           - $ref: '#/components/schemas/VideoProviderEnum'
@@ -9602,9 +9623,12 @@ components:
           format: binary
           nullable: true
         external_url:
-          type: string
-          format: uri
-          maxLength: 200
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         code_language:
           type: string
           maxLength: 32
@@ -9629,9 +9653,12 @@ components:
       type: object
       properties:
         slug:
-          type: string
-          maxLength: 220
-          pattern: ^[-a-zA-Z0-9_]+$
+          oneOf:
+          - type: string
+            maxLength: 220
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
         level:
           $ref: '#/components/schemas/LevelEnum'
         language_code:

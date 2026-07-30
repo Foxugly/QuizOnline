@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { CourseWriteSlugDto } from './course-write-slug';
 import { LevelEnumDto } from './level-enum';
 import { EnrollmentModeEnumDto } from './enrollment-mode-enum';
 import { CertificateValidityMonthsEnumDto } from './certificate-validity-months-enum';
@@ -14,7 +15,7 @@ import { CertificateValidityMonthsEnumDto } from './certificate-validity-months-
 
 export interface CourseWriteDto { 
     readonly id: number;
-    slug?: string;
+    slug?: CourseWriteSlugDto;
     level?: LevelEnumDto;
     /**
      * Code ISO (ex: fr, nl, en, fr-BE)
