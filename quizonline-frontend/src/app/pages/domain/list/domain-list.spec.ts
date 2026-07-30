@@ -9,7 +9,8 @@ describe('DomainList', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DomainList]
+      imports: [DomainList],
+      providers: [MessageService]
     })
     .compileComponents();
 
