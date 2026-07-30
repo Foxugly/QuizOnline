@@ -59,6 +59,21 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # django-parler est epingle a 2.3 en attendant une migration ecrite a la
+      # main. En 2.4 il redeclare la contrainte d'unicite des modeles de
+      # traduction, et `makemigrations` genere alors, sur SIX apps, une
+      # migration NON FONCTIONNELLE : elle emet un DROP de contrainte qui
+      # n'existe pas en base, et `sqlmigrate` echoue avant meme le deploiement
+      #
+      #   ValueError: Found wrong number (0) of constraints for
+      #   subject_subject_translation(language_code, master_id)
+      #
+      # La CI ne l'aurait pas attrape : elle joue `makemigrations --check`, pas
+      # `migrate` sur une base existante. Voir l'issue de suivi et la PR #142.
+      #
+      # Le correctif demandera un SeparateDatabaseAndState, teste sur une copie
+      # de la base de production. Aucune urgence : 2.3 ne porte aucune alerte.
+      - dependency-name: "django-parler"
 
   - package-ecosystem: "pip"
     directory: "/quizonline-server"
