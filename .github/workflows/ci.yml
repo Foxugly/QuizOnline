@@ -25,6 +25,29 @@ jobs:
     defaults:
       run:
         working-directory: quizonline-server
+    # La suite tournait sur SQLite alors que la production tourne sur
+    # PostgreSQL 16. SQLite est plus permissif, et cet ecart a laisse passer un
+    # crash en production : SELECT DISTINCT ... FOR UPDATE, accepte par SQLite,
+    # refuse par PostgreSQL (QUIZONLINE-BACKEND-9, PR #152). 1194 tests verts
+    # ne l'avaient jamais vu. On aligne donc la CI sur le moteur de prod.
+    # Aucun changement de code : settings_base lit DATABASE_URL et retombe sur
+    # SQLite quand la variable est absente (dev local inchange).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: quizonline
+        ports:
+          - 5432:5432
+        # Sans healthcheck, les premiers tests peuvent taper un serveur qui
+        # n'accepte pas encore les connexions.
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v7
 
@@ -43,6 +66,7 @@ jobs:
           SECRET_KEY: ci-secret-key
           DEBUG: "False"
           PYTHONUNBUFFERED: "1"
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/quizonline
         # Coverage config (source + omit) lives in .coveragerc. The suite sits
         # around 85%; the 82% floor is a ratchet that catches a real regression
         # without flapping on small legitimate dips. Raise it as coverage grows.
