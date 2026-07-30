@@ -46,6 +46,7 @@ model/block-reorder-request-block-role-enum.ts
 model/block-reorder-request-request.ts
 model/block-request.ts
 model/block-type-enum.ts
+model/block-video-url.ts
 model/block.ts
 model/bulk-create-from-template-input-request.ts
 model/certificate-validity-months-enum.ts
@@ -67,6 +68,7 @@ model/course-invite.ts
 model/course-list.ts
 model/course-progress.ts
 model/course-write-request.ts
+model/course-write-slug.ts
 model/course-write.ts
 model/create-quiz-input-request.ts
 model/custom-user-admin-update-request.ts
