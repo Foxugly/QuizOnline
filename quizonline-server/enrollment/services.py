@@ -446,9 +446,15 @@ def accept_course_invite(*, invite: CourseInvite, accepted_by) -> CourseEnrollme
         # the pre-check above and the save below. ``select_related``
         # carries over the FKs subsequent lines / on-commit notif
         # builders read so we don't pay a re-query per dereference.
+        # ``of=("self",)`` est obligatoire, pas une optimisation : ``created_by``
+        # est nullable, donc le ``select_related`` ci-dessous produit un LEFT
+        # OUTER JOIN, et PostgreSQL refuse
+        #     FOR UPDATE cannot be applied to the nullable side of an outer join
+        # Sans ``of``, Django verrouille toutes les tables jointes. On ne veut
+        # verrouiller que l'invitation elle-meme.
         locked = (
             CourseInvite.objects
-            .select_for_update()
+            .select_for_update(of=("self",))
             .select_related("course", "invitee", "created_by", "course__domain")
             .filter(pk=invite.pk)
             .first()

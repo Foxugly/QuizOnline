@@ -671,7 +671,15 @@ class DomainJoinRequestDecideView(APIView):
         now = timezone.now()
         with transaction.atomic():
             join_request = drf_get_object_or_404(
-                DomainJoinRequest.objects.select_for_update().select_related("user", "decided_by", "domain"),
+                # ``of=("self",)`` est obligatoire, pas une optimisation :
+                # ``decided_by`` est nullable, donc ``select_related`` produit un
+                # LEFT OUTER JOIN, et PostgreSQL refuse
+                #     FOR UPDATE cannot be applied to the nullable side of an outer join
+                # Sans ``of``, Django verrouille toutes les tables jointes. On ne
+                # veut de toute facon verrouiller que la demande elle-meme.
+                DomainJoinRequest.objects.select_for_update(of=("self",)).select_related(
+                    "user", "decided_by", "domain"
+                ),
                 pk=payload["request_id"],
             )
             denial = self._authorize(user, payload, join_request)
