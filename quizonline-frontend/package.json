@@ -45,7 +45,7 @@
     "chart.js": "^4.5.1",
     "leaflet": "^1.9.4",
     "primeicons": "^7.0.0",
-    "primeng": "^21.0.2",
+    "primeng": "^22.0.0",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
