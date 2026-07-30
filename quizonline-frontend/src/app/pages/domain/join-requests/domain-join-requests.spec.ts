@@ -1,4 +1,5 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {MessageService} from 'primeng/api';
 import {signal} from '@angular/core';
 import {of} from 'rxjs';
 import {provideRouter, ActivatedRoute} from '@angular/router';
@@ -12,7 +13,7 @@ describe('DomainJoinRequestsPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DomainJoinRequestsPage],
-      providers: [
+      providers: [MessageService, 
         provideRouter([]),
         provideHttpClient(),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
