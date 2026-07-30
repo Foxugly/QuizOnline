@@ -45,23 +45,23 @@ def assignment_alert_reporter_reply_allowed() -> bool:
     return bool(settings.QUIZ_ASSIGNMENT_ALERT_REPORTER_REPLY_ALLOWED)
 
 
-def is_alert_participant(thread: "QuizAlertThread", user) -> bool:
+def is_alert_participant(thread: QuizAlertThread, user) -> bool:
     return bool(user and user.is_authenticated and user.id in {thread.reporter_id, thread.owner_id})
 
 
-def is_alert_owner(thread: "QuizAlertThread", user) -> bool:
+def is_alert_owner(thread: QuizAlertThread, user) -> bool:
     return bool(user and user.is_authenticated and user.id == thread.owner_id)
 
 
-def is_alert_reporter(thread: "QuizAlertThread", user) -> bool:
+def is_alert_reporter(thread: QuizAlertThread, user) -> bool:
     return bool(user and user.is_authenticated and user.id == thread.reporter_id)
 
 
-def can_manage_alert(thread: "QuizAlertThread", user) -> bool:
+def can_manage_alert(thread: QuizAlertThread, user) -> bool:
     return is_alert_owner(thread, user)
 
 
-def can_reply_to_alert(thread: "QuizAlertThread", user) -> bool:
+def can_reply_to_alert(thread: QuizAlertThread, user) -> bool:
     if not is_alert_participant(thread, user):
         return False
     if thread.status != thread.STATUS_OPEN:
@@ -71,7 +71,7 @@ def can_reply_to_alert(thread: "QuizAlertThread", user) -> bool:
     return thread.reporter_reply_allowed
 
 
-def participant_last_read_at(thread: "QuizAlertThread", user):
+def participant_last_read_at(thread: QuizAlertThread, user):
     if is_alert_owner(thread, user):
         return thread.owner_last_read_at
     if is_alert_reporter(thread, user):
@@ -79,7 +79,7 @@ def participant_last_read_at(thread: "QuizAlertThread", user):
     return None
 
 
-def unread_messages_queryset(thread: "QuizAlertThread", user):
+def unread_messages_queryset(thread: QuizAlertThread, user):
     if not is_alert_participant(thread, user):
         return thread.messages.none()
 
@@ -90,7 +90,7 @@ def unread_messages_queryset(thread: "QuizAlertThread", user):
     return queryset
 
 
-def _cached_messages(thread: "QuizAlertThread"):
+def _cached_messages(thread: QuizAlertThread):
     """Prefetched messages for the thread, or ``None`` when not prefetched.
     ``alert_thread_queryset`` prefetches ``messages`` for list endpoints; using
     the cache avoids an extra COUNT/EXISTS query per row."""
@@ -101,7 +101,7 @@ def _is_unread_message(msg, user, last_read_at) -> bool:
     return msg.author_id != user.id and (last_read_at is None or msg.created_at > last_read_at)
 
 
-def unread_count_for_alert(thread: "QuizAlertThread", user) -> int:
+def unread_count_for_alert(thread: QuizAlertThread, user) -> int:
     if not is_alert_participant(thread, user):
         return 0
     cached = _cached_messages(thread)
@@ -112,7 +112,7 @@ def unread_count_for_alert(thread: "QuizAlertThread", user) -> int:
     return unread_messages_queryset(thread, user).count()
 
 
-def is_alert_unread(thread: "QuizAlertThread", user) -> bool:
+def is_alert_unread(thread: QuizAlertThread, user) -> bool:
     if not is_alert_participant(thread, user):
         return False
     cached = _cached_messages(thread)
@@ -122,7 +122,7 @@ def is_alert_unread(thread: "QuizAlertThread", user) -> bool:
     return unread_messages_queryset(thread, user).exists()
 
 
-def mark_alert_read(thread: "QuizAlertThread", user, *, at=None, save=True) -> None:
+def mark_alert_read(thread: QuizAlertThread, user, *, at=None, save=True) -> None:
     if not is_alert_participant(thread, user):
         return
 
@@ -139,18 +139,18 @@ def mark_alert_read(thread: "QuizAlertThread", user, *, at=None, save=True) -> N
         thread.save(update_fields=fields)
 
 
-def message_is_mine(message: "QuizAlertMessage", user) -> bool:
+def message_is_mine(message: QuizAlertMessage, user) -> bool:
     return bool(user and user.is_authenticated and message.author_id == user.id)
 
 
-def message_is_unread_for_user(message: "QuizAlertMessage", user) -> bool:
+def message_is_unread_for_user(message: QuizAlertMessage, user) -> bool:
     if not user or not user.is_authenticated or message.author_id == user.id:
         return False
     last_read_at = participant_last_read_at(message.thread, user)
     return last_read_at is None or message.created_at > last_read_at
 
 
-def alert_last_message_preview(thread: "QuizAlertThread") -> str:
+def alert_last_message_preview(thread: QuizAlertThread) -> str:
     # list() exploite le prefetch cache de Django si messages est prefetché ;
     # sinon déclenche une requête DB. Messages sont ordonnés created_at asc.
     messages = list(thread.messages.all())
@@ -201,12 +201,12 @@ def unread_total_for_queryset(queryset, user) -> int:
     return total
 
 
-def require_alert_owner(thread: "QuizAlertThread", user, action_label: str) -> None:
+def require_alert_owner(thread: QuizAlertThread, user, action_label: str) -> None:
     if not is_alert_owner(thread, user):
         raise PermissionDenied(f"Seul le créateur du quiz peut {action_label} cette conversation.")
 
 
-def create_alert_thread(*, reporter, quiz: "Quiz", quizquestion: "QuizQuestion", owner, body: str, language: str, now=None):
+def create_alert_thread(*, reporter, quiz: Quiz, quizquestion: QuizQuestion, owner, body: str, language: str, now=None):
     from .models import QuizAlertMessage, QuizAlertThread
 
     now = now or timezone.now()
@@ -228,7 +228,7 @@ def create_alert_thread(*, reporter, quiz: "Quiz", quizquestion: "QuizQuestion",
     return thread
 
 
-def create_assignment_alert_thread(*, reporter, quiz: "Quiz", owner, now=None):
+def create_assignment_alert_thread(*, reporter, quiz: Quiz, owner, now=None):
     from .models import QuizAlertMessage, QuizAlertThread
 
     now = now or timezone.now()
@@ -260,7 +260,7 @@ def create_assignment_alert_thread(*, reporter, quiz: "Quiz", owner, now=None):
     return thread
 
 
-def append_alert_message(*, thread: "QuizAlertThread", author, body: str, now=None):
+def append_alert_message(*, thread: QuizAlertThread, author, body: str, now=None):
     from .models import QuizAlertMessage
 
     now = now or timezone.now()

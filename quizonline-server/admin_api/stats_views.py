@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle

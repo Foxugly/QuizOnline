@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from config.models import AuditMixin
 
-
 COURSE_INVITE_DEFAULT_TTL_DAYS = 14
 
 

@@ -35,7 +35,6 @@ from django.contrib.auth import get_user_model
 from domain.models import Domain
 from language.models import Language
 
-
 User = get_user_model()
 
 PNG_1X1 = base64.b64decode(

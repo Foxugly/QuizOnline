@@ -1,32 +1,33 @@
 # quiz/tests/test_serializers_modelserializers.py
 
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
-from django.utils import timezone
-from django.utils import translation
-from unittest.mock import patch
-from domain.models import Domain
-from question.models import Question, AnswerOption
-from quiz.constants import VISIBILITY_IMMEDIATE, VISIBILITY_NEVER
-from quiz.models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer
-from quiz.serializers import (
-    GenerateFromSubjectsInputSerializer,
-    BulkCreateFromTemplateInputSerializer,
-    CreateQuizInputSerializer,
-    QuizListSerializer,
-    QuizQuestionSerializer,
-    QuizTemplateSerializer,
-    QuizTemplateWriteSerializer,
-    QuizQuestionWriteSerializer,
-    QuizQuestionAnswerSerializer,
-    QuizQuestionReadSerializer,
-    QuizSerializer,
-    QuizQuestionAnswerWriteSerializer,
-    QuizQuestionAnswerPartialSerializer,
-)
+from django.utils import timezone, translation
 from rest_framework import serializers
 from rest_framework.test import APIRequestFactory
+
+from domain.models import Domain
+from question.models import AnswerOption, Question
+from quiz.constants import VISIBILITY_IMMEDIATE, VISIBILITY_NEVER
+from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
+from quiz.serializers import (
+    BulkCreateFromTemplateInputSerializer,
+    CreateQuizInputSerializer,
+    GenerateFromSubjectsInputSerializer,
+    QuizListSerializer,
+    QuizQuestionAnswerPartialSerializer,
+    QuizQuestionAnswerSerializer,
+    QuizQuestionAnswerWriteSerializer,
+    QuizQuestionReadSerializer,
+    QuizQuestionSerializer,
+    QuizQuestionWriteSerializer,
+    QuizSerializer,
+    QuizTemplateSerializer,
+    QuizTemplateWriteSerializer,
+)
 
 User = get_user_model()
 
@@ -83,23 +84,23 @@ def make_option(question, content="A", is_correct=False, sort_order=1):
 def make_template(domain, **kwargs):
     if translation.get_language() is None:
         translation.activate("fr")
-    defaults = dict(
-        domain=domain,
-        title="Template",
-        mode=QuizTemplate.MODE_PRACTICE,
-        description="",
-        max_questions=10,
-        permanent=True,
-        started_at=None,
-        ended_at=None,
-        with_duration=True,
-        duration=10,
-        active=True,
-        result_visibility=VISIBILITY_IMMEDIATE,
-        result_available_at=None,
-        detail_visibility=VISIBILITY_IMMEDIATE,
-        detail_available_at=None,
-    )
+    defaults = {
+        "domain": domain,
+        "title": "Template",
+        "mode": QuizTemplate.MODE_PRACTICE,
+        "description": "",
+        "max_questions": 10,
+        "permanent": True,
+        "started_at": None,
+        "ended_at": None,
+        "with_duration": True,
+        "duration": 10,
+        "active": True,
+        "result_visibility": VISIBILITY_IMMEDIATE,
+        "result_available_at": None,
+        "detail_visibility": VISIBILITY_IMMEDIATE,
+        "detail_available_at": None,
+    }
     defaults.update(kwargs)
     return QuizTemplate.objects.create(**defaults)
 

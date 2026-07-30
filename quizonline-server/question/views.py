@@ -5,32 +5,36 @@ from django.http import HttpResponse, QueryDict
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_serializer,
-    extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
     OpenApiTypes,
+    extend_schema,
+    extend_schema_serializer,
+    extend_schema_view,
 )
-from rest_framework import status, serializers
+from rest_framework import serializers, status
 from rest_framework.decorators import action
-from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
-from config.tools import ErrorDetailSerializer
-from config.tools import MyModelViewSet
+
 from config.serializers import (
     LocalizedAnswerOptionTranslationSerializer,
     LocalizedQuestionTranslationSerializer,
     LocalizedTranslationsDictField,
 )
+from config.tools import ErrorDetailSerializer, MyModelViewSet
 
 from .models import Question
 from .permissions import IsQuestionDomainManager
 from .querysets import accessible_question_queryset
-from .structured_export import export_questions
-from .structured_import import import_questions, StructuredImportError, StructuredImportPermissionError
 from .serializers import QuestionReadSerializer, QuestionWriteSerializer
+from .structured_export import export_questions
+from .structured_import import (
+    StructuredImportError,
+    StructuredImportPermissionError,
+    import_questions,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -279,7 +283,7 @@ class QuestionViewSet(MyModelViewSet):
     def _coerce_json_fields(self, data):
         if isinstance(data, QueryDict):
             mutable = {}
-            for key in data.keys():
+            for key in data:
                 if key == "subject_ids":
                     raw = data.getlist(key)
                     ids: list[int] = []

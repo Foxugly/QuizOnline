@@ -1,10 +1,10 @@
-from typing import List
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+
 from domain.models import Domain, DomainJoinRequest
 from quiz.models import Quiz
-from rest_framework import serializers
 
 User = get_user_model()
 
@@ -69,16 +69,16 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         return domain.safe_translation_getter("name", any_language=True) or ""
 
     @staticmethod
-    def _related_ids(obj, relation_name: str) -> List[int]:
+    def _related_ids(obj, relation_name: str) -> list[int]:
         cache = getattr(obj, "_prefetched_objects_cache", {})
         if relation_name in cache:
             return [related.id for related in cache[relation_name]]
         return list(getattr(obj, relation_name).values_list("id", flat=True))
 
-    def get_owned_domain_ids(self, obj) -> List[int]:
+    def get_owned_domain_ids(self, obj) -> list[int]:
         return self._related_ids(obj, "owned_domains")
 
-    def get_managed_domain_ids(self, obj) -> List[int]:
+    def get_managed_domain_ids(self, obj) -> list[int]:
         return self._related_ids(obj, "managed_domains")
 
     def get_pending_join_requests(self, obj) -> list:
@@ -140,7 +140,7 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
             "turnstile_token",
         ]
 
-    def _validate_domain_id_list(self, value: List[int]) -> List[int]:
+    def _validate_domain_id_list(self, value: list[int]) -> list[int]:
         domain_ids = sorted(set(value))
         domains = Domain.objects.filter(id__in=domain_ids, active=True)
         found_ids = set(domains.values_list("id", flat=True))
@@ -155,10 +155,10 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
         validate_password(value)
         return value
 
-    def validate_requested_domain_ids(self, value: List[int]) -> List[int]:
+    def validate_requested_domain_ids(self, value: list[int]) -> list[int]:
         return self._validate_domain_id_list(value)
 
-    def validate_managed_domain_ids(self, value: List[int]) -> List[int]:
+    def validate_managed_domain_ids(self, value: list[int]) -> list[int]:
         return self._validate_domain_id_list(value)
 
     def validate(self, attrs):
@@ -206,7 +206,7 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
         model = User
         fields = ["email", "first_name", "last_name", "language", "managed_domain_ids", "notification_prefs"]
 
-    def validate_managed_domain_ids(self, value: List[int]) -> List[int]:
+    def validate_managed_domain_ids(self, value: list[int]) -> list[int]:
         domain_ids = sorted(set(value))
         domains = Domain.objects.filter(id__in=domain_ids, active=True)
         found_ids = set(domains.values_list("id", flat=True))

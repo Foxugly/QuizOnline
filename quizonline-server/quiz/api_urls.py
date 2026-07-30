@@ -1,13 +1,13 @@
 from django.urls import path
 
+from .pdf_export import export_quiz_pdf
 from .views import (
-    QuizTemplateViewSet,
-    QuizViewSet,
+    QuizAlertThreadViewSet,
     QuizQuestionAnswerViewSet,
     QuizTemplateQuizQuestionViewSet,
-    QuizAlertThreadViewSet,
+    QuizTemplateViewSet,
+    QuizViewSet,
 )
-from .pdf_export import export_quiz_pdf
 
 app_name = "quiz-api"
 #
@@ -58,7 +58,6 @@ quiz_answer_detail = QuizQuestionAnswerViewSet.as_view({
     "patch": "partial_update",
     "delete": "destroy",
 })
-#
 urlpatterns = [
     #     # QuizTemplate
     path("template/", quiztemplate_list, name="quiz-template-list"),
@@ -69,7 +68,6 @@ urlpatterns = [
     #     # Template -> questions (QuizQuestion)
     path("template/<int:qt_id>/question/", template_question_list, name="quiz-template-question-list"),
     path("template/<int:qt_id>/question/", template_question_list, name="quiz-template-add-question"),
-    #
     path("template/<int:qt_id>/question/<int:qq_id>/", template_question_detail, name="quiz-template-question-detail"),
     path("template/<int:qt_id>/question/<int:qq_id>/", template_question_detail, name="quiz-template-update-question"),
     path("template/<int:qt_id>/question/<int:qq_id>/", template_question_detail, name="quiz-template-delete-question"),

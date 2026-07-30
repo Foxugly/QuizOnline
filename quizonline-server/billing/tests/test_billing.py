@@ -5,11 +5,11 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
-from domain.models import Domain
 from billing.models import DomainBilling
 from billing.services import get_or_create_billing, recompute_member_count
 from billing.tasks import recompute_and_remind_billing
+from customuser.models import CustomUser
+from domain.models import Domain
 
 
 @pytest.fixture

@@ -1,16 +1,15 @@
 from unittest.mock import MagicMock, patch
 
 from celery.exceptions import Retry as CeleryRetry
-from kombu.exceptions import OperationalError
-
-from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core import mail
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, get_connection
 from django.db import OperationalError as DjangoOperationalError
 from django.test import TestCase
-from django.core import mail
 from django.test.utils import override_settings
 from django.utils import timezone
+from kombu.exceptions import OperationalError
 from rest_framework.test import APITestCase
 
 from core.delivery import process_pending_outbound_emails

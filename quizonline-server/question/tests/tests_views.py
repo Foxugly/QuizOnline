@@ -9,8 +9,8 @@ from rest_framework.test import APITestCase
 
 from domain.models import Domain
 from language.models import Language
-from subject.models import Subject
 from question.models import Question
+from subject.models import Subject
 
 User = get_user_model()
 

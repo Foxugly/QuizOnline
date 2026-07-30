@@ -15,7 +15,6 @@ from subject.models import Subject
 
 from .models import AnswerOption, Question
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Exceptions
 # ──────────────────────────────────────────────────────────────────────────────
@@ -335,7 +334,7 @@ def _sync_answer_options(question: Question, options_data: list[dict]) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @transaction.atomic
-def import_questions(data: dict, user, media_files: dict[str, bytes] | None = None) -> dict:  # noqa: ARG001
+def import_questions(data: dict, user, media_files: dict[str, bytes] | None = None) -> dict:
     # ``media_files`` is kept on the signature for backwards-compat
     # with the admin / API callers that still pass it on legacy ZIP
     # imports. The legacy ``QuestionMedia`` / ``MediaAsset`` pipeline

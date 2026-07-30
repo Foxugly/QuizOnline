@@ -10,7 +10,7 @@ two helpers keeps the views focused on the action-specific logic
 (authorize, execute, render state) instead of repeating boilerplate.
 """
 
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -21,7 +21,7 @@ from .signed_token import TokenExpired, TokenInvalid
 def consume_signed_token(
     token: str,
     parser: Callable[[str], dict],
-) -> Tuple[Optional[dict], Optional[Response]]:
+) -> tuple[dict | None, Response | None]:
     """
     Run ``parser(token)`` and normalise the outcome to ``(payload, error)``.
 

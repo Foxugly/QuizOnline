@@ -5,6 +5,7 @@ from django.db import IntegrityError, models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from course.models import Course
 from customuser.notifications import (
     KIND_COURSE_ENROLLMENT_REQUEST,
     KIND_COURSE_INVITE_ACCEPTED,
@@ -13,8 +14,8 @@ from customuser.notifications import (
     notify,
     notify_many,
 )
-from course.models import Course
 from lesson.models import Lesson
+
 from .models import (
     CourseEnrollment,
     CourseInvite,
@@ -318,7 +319,9 @@ def _sentry_tag_invite(invite: CourseInvite) -> None:
         sentry_sdk.set_tag("course_id", invite.course_id)
         sentry_sdk.set_tag("invite_id", invite.id)
         sentry_sdk.set_tag("invitee_id", invite.invitee_id)
-    except Exception:  # noqa: BLE001 — observability never breaks the flow
+    # L'observabilite ne doit jamais interrompre le flux metier : on avale,
+    # on journalise, on continue. Volontaire (BLE001 exclu en config).
+    except Exception:
         pass
 
 

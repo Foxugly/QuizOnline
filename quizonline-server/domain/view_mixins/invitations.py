@@ -149,7 +149,7 @@ class DomainInvitationsActionsMixin:
         # (email × domain) pair. Case-insensitive match mirrors the
         # original ``filter(email__iexact=...)`` lookup; ``deduped_emails``
         # is already lowercased above.
-        users_by_email: dict[str, "User"] = {}
+        users_by_email: dict[str, User] = {}
         if deduped_emails:
             for u in (
                 User.objects

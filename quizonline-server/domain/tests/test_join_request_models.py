@@ -31,9 +31,8 @@ class DomainJoinRequestModelTests(TestCase):
 
     def test_partial_unique_constraint_blocks_second_pending(self):
         DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            DomainJoinRequest.objects.create(domain=self.domain, user=self.user)
 
     def test_partial_unique_allows_new_pending_after_rejection(self):
         first = DomainJoinRequest.objects.create(domain=self.domain, user=self.user)

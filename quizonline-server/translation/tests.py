@@ -1,8 +1,9 @@
+from unittest.mock import patch
+
+import requests
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
-from unittest.mock import patch
-import requests
 from rest_framework import status
 from rest_framework.test import APITestCase
 

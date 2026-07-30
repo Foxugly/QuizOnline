@@ -6,28 +6,26 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
-from django.utils import translation
+from django.utils import timezone, translation
 from rest_framework import serializers
 
 from domain.models import Domain
 from language.models import Language
-from subject.models import Subject
-
+from question.answer_option_sync import sync_question_answer_options
 from question.models import (
-    Question,
     AnswerOption,
+    Question,
 )
 from question.serializers import (
-    QuestionLiteSerializer,
     QuestionAnswerOptionPublicReadSerializer,
     QuestionAnswerOptionReadSerializer,
     QuestionAnswerOptionWriteSerializer,
     QuestionInQuizQuestionSerializer,
+    QuestionLiteSerializer,
     QuestionReadSerializer,
     QuestionWriteSerializer,
 )
-from question.answer_option_sync import sync_question_answer_options
+from subject.models import Subject
 
 User = get_user_model()
 
@@ -129,8 +127,9 @@ class QuestionSerializersTestCase(TestCase):
         list. Helper creates the option row and a single rich_text
         block under the ``body`` role with the per-language content.
         """
-        from block.models import Block
         from django.contrib.contenttypes.models import ContentType
+
+        from block.models import Block
 
         ao = AnswerOption.objects.create(question=q, is_correct=is_correct, sort_order=sort_order)
         option_ct = ContentType.objects.get_for_model(AnswerOption)

@@ -1,8 +1,7 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema_field
-from domain.models import Domain
-from question.models import Question
 from rest_framework import serializers
+
 from config.serializers import (
     LocalizedNameDescriptionTranslationSerializer,
     LocalizedQuestionTitleTranslationSerializer,
@@ -11,8 +10,11 @@ from config.serializers import (
     LocalizedTranslationsDictField,
     localized_translations_map_schema,
 )
+from domain.models import Domain
+from question.models import Question
 
 from .models import Subject
+
 LANG_CODES = {code for code, _ in settings.LANGUAGES}
 
 

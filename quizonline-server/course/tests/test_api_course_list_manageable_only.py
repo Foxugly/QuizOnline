@@ -13,9 +13,9 @@ from __future__ import annotations
 import pytest
 from rest_framework.test import APIClient
 
+from course.models import Course
 from customuser.models import CustomUser
 from domain.models import Domain
-from course.models import Course
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ def two_domains(db, owner, second_user, third_user, fr_lang):
 def test_manageable_only_filters_to_owned_and_managed_courses(
     two_domains, owner, second_user, third_user,
 ):
-    owned, foreign, c_owned, c_foreign = two_domains
+    _owned, _foreign, _c_owned, _c_foreign = two_domains
 
     client = APIClient()
     client.force_authenticate(owner)

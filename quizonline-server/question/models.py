@@ -6,10 +6,10 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils.translation import gettext_lazy as _
-from parler.models import TranslatedFields, TranslatableModel
+from parler.models import TranslatableModel, TranslatedFields
+
 from config.models import ActivatableMixin, AuditMixin
 from subject.models import Subject
-
 
 # Retained for migration history only — the ``MediaAsset`` / ``QuestionMedia``
 # models that used it were dropped when image / video / file content

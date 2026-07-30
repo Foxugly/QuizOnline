@@ -10,11 +10,11 @@ POST /api/v1/course/import/       → recreate the course in a target
 import pytest
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
-from course.models import Course, Section
-from lesson.models import Lesson
 from block.models import Block
+from course.models import Course, Section
 from course.services import export_course_to_dict
+from customuser.models import CustomUser
+from lesson.models import Lesson
 
 
 def _auth(user):

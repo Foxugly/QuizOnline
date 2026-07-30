@@ -1,8 +1,14 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from .views import CustomUserViewSet, UserQuizListView, PasswordChangeView, PasswordResetConfirmView, \
-    PasswordResetRequestView, EmailConfirmView
+from .views import (
+    CustomUserViewSet,
+    EmailConfirmView,
+    PasswordChangeView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView,
+    UserQuizListView,
+)
 
 app_name = "user-api"
 

@@ -1,28 +1,27 @@
-from typing import List, Any
+from typing import Any
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.utils import translation
-from domain.models import Domain
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-from subject.models import Subject
-from subject.serializers import SubjectReadSerializer
 
 from block.models import Block
 from block.sanitizer import sanitize_rich_text
-
-from .answer_option_sync import sync_question_answer_options
-from .models import Question, AnswerOption
 from config.serializers import (
-    LocalizedTranslationsJSONField,
     LocalizedQuestionTranslationSerializer,
+    LocalizedTranslationsJSONField,
     SerializerListJSONField,
     localized_translations_map_schema,
 )
-
+from domain.models import Domain
 from domain.serializers import DomainReadSerializer
+from subject.models import Subject
+from subject.serializers import SubjectReadSerializer
+
+from .answer_option_sync import sync_question_answer_options
+from .models import AnswerOption, Question
 
 
 def _translated_value(obj, field: str) -> str:
@@ -294,7 +293,7 @@ class QuestionInQuizQuestionSerializer(serializers.ModelSerializer):
         return _translated_value(obj, "title")
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
-    def get_answer_options(self, obj) -> List[Any]:
+    def get_answer_options(self, obj) -> list[Any]:
         swagger = bool(getattr(self.context.get("view"), "swagger_fake_view", False))
         qaors = _option_read_serializer(self.context, swagger)
         return qaors(obj.answer_options.all(), many=True, context=self.context).data
@@ -359,7 +358,7 @@ class QuestionReadSerializer(serializers.ModelSerializer):
         return sorted(lang.code for lang in obj.domain.allowed_languages.all())
 
     @extend_schema_field(QuestionAnswerOptionReadSerializer(many=True))
-    def get_answer_options(self, obj) -> List[Any]:
+    def get_answer_options(self, obj) -> list[Any]:
         swagger = bool(getattr(self.context.get("view"), "swagger_fake_view", False))
         qaors = _option_read_serializer(self.context, swagger)
         return qaors(obj.answer_options.all(), many=True, context=self.context).data

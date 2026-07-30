@@ -4,9 +4,9 @@ from rest_framework.test import APIClient
 
 @pytest.mark.django_db
 def test_verify_endpoint_uses_anon_throttle(course, settings):
-    from customuser.models import CustomUser
     from certificate.models import Certificate
     from certificate.views import _LmsVerifyThrottle
+    from customuser.models import CustomUser
 
     # Set an extremely tight rate so we can trigger 429 with two calls.
     settings.REST_FRAMEWORK = {

@@ -1,4 +1,4 @@
-from .settings_base import *  # noqa: F403,F401
+from .settings_base import *
 
 DEBUG = False
 
@@ -10,5 +10,5 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
 
-LOGGING = PROD_LOGGING  # noqa: F405
+LOGGING = PROD_LOGGING
 LOGGING["root"]["level"] = "WARNING"

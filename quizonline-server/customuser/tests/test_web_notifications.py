@@ -488,7 +488,7 @@ class QuizMailerEmitsWebNotificationTests(TestCase):
     """The 4 quiz mailers should now also produce in-app rows."""
 
     def setUp(self):
-        from quiz.models import QuizTemplate, Quiz
+        from quiz.models import Quiz, QuizTemplate
         self.creator = User.objects.create_user(
             password="p", email="c@x.test",
         )

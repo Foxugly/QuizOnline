@@ -28,7 +28,7 @@ Adding a new kind:
 
 from __future__ import annotations
 
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 # Canonical kinds. Frontend uses the same string values — do NOT rename
 # without coordinating the i18n keys + the existing notification rows.

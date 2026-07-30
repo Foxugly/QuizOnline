@@ -1,6 +1,11 @@
 from django.conf import settings
 
-from ._common import build_user_token_link, frontend_url, render_html_email, send_user_email
+from ._common import (
+    build_user_token_link,
+    frontend_url,
+    render_html_email,
+    send_user_email,
+)
 
 
 def _registration_copy(language_code: str) -> dict[str, str]:

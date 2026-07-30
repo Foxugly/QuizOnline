@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.utils import translation
+from rest_framework.exceptions import ValidationError
+
 from language.models import Language
 from language.serializers import LanguageReadSerializer, LanguageWriteSerializer
-from rest_framework.exceptions import ValidationError
 
 
 class LangSerializersTests(TestCase):

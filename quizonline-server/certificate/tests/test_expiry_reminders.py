@@ -5,9 +5,9 @@ from unittest.mock import patch
 import pytest
 from django.utils import timezone
 
-from customuser.models import CustomUser
 from certificate.models import Certificate
 from certificate.tasks import send_certificate_expiry_reminders
+from customuser.models import CustomUser
 
 
 def _make_cert(user, course, *, expires_in_days):

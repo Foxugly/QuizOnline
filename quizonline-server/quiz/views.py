@@ -4,61 +4,67 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.utils import timezone
 from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
     OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
 )
-from customuser.throttling import QuizAnswerRateThrottle
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from config.tools import ErrorDetailSerializer
-from config.tools import MyModelViewSet
 
-from .models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer, QuizAlertThread
+from config.tools import ErrorDetailSerializer, MyModelViewSet
+from customuser.throttling import QuizAnswerRateThrottle
+
 from .access import (
     template_access_decision,
     user_can_create_quiz_from_template,
     user_can_edit_template,
     validate_target_user_domain,
 )
-from .permissions import IsOwnerOrStaff, IsQuizAlertParticipant, CanManageQuizTemplate
+from .alerting import alert_thread_queryset_for_user
+from .models import (
+    Quiz,
+    QuizAlertThread,
+    QuizQuestion,
+    QuizQuestionAnswer,
+    QuizTemplate,
+)
+from .permissions import CanManageQuizTemplate, IsOwnerOrStaff, IsQuizAlertParticipant
 from .querysets import (
-    quiz_answer_queryset_for_user,
     accessible_quiz_template_queryset,
-    quiz_template_list_queryset,
+    quiz_answer_queryset_for_user,
     quiz_queryset_for_user,
+    quiz_template_list_queryset,
     quiz_template_queryset,
 )
-from .alerting import alert_thread_queryset_for_user
-from .session_integrity import synchronize_closed_quiz_answers
-from .services import QuizAlreadyStartedError, create_quiz_for_user
 from .serializers import (
-    QuizTemplateSerializer,
-    QuizTemplateListSerializer,
-    QuizTemplateWriteSerializer,
-    QuizTemplatePartialSerializer,
-    QuizListSerializer,
-    QuizSerializer,
-    QuizUpdateSerializer,
-    QuizPartialUpdateSerializer,
-    QuizQuestionAnswerSerializer,
-    QuizQuestionReadSerializer,
-    QuizQuestionPartialSerializer,
-    QuizQuestionAnswerWriteSerializer,
-    QuizQuestionAnswerPartialSerializer,
-    QuizQuestionWriteSerializer,
     BulkCreateFromTemplateInputSerializer,
     CreateQuizInputSerializer,
-    QuizAlertThreadListSerializer,
-    QuizAlertThreadDetailSerializer,
-    QuizAlertThreadCreateSerializer,
-    QuizAlertThreadPartialSerializer,
     QuizAlertMessageCreateSerializer,
+    QuizAlertThreadCreateSerializer,
+    QuizAlertThreadDetailSerializer,
+    QuizAlertThreadListSerializer,
+    QuizAlertThreadPartialSerializer,
+    QuizListSerializer,
+    QuizPartialUpdateSerializer,
+    QuizQuestionAnswerPartialSerializer,
+    QuizQuestionAnswerSerializer,
+    QuizQuestionAnswerWriteSerializer,
+    QuizQuestionPartialSerializer,
+    QuizQuestionReadSerializer,
+    QuizQuestionWriteSerializer,
+    QuizSerializer,
+    QuizTemplateListSerializer,
+    QuizTemplatePartialSerializer,
+    QuizTemplateSerializer,
+    QuizTemplateWriteSerializer,
+    QuizUpdateSerializer,
 )
+from .services import QuizAlreadyStartedError, create_quiz_for_user
+from .session_integrity import synchronize_closed_quiz_answers
 from .view_mixins import (
     AlertThreadLifecycleMixin,
     AlertThreadMessagingMixin,

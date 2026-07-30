@@ -8,7 +8,8 @@ from django.db.models.functions import Coalesce
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied, ValidationError as DRFValidationError
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.response import Response
 
 from block.models import Block
@@ -189,8 +190,13 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
                 "_pending_invites_by_course": {},
             }
         # Lazy imports to avoid circulars at module load.
+        from enrollment.models import (
+            CourseEnrollment,
+            CourseInvite,
+            CourseProgress,
+            LessonProgress,
+        )
         from lesson.models import Lesson
-        from enrollment.models import CourseEnrollment, CourseInvite, CourseProgress, LessonProgress
 
         enrollments_by_course = {
             e.course_id: e
@@ -295,6 +301,7 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         instructor of the target domain — the same gate that protects
         manual create."""
         from domain.models import Domain
+
         from .permissions import _can_create  # reuse the create-permission logic
 
         payload = request.data.get("payload")

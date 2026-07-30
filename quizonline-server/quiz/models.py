@@ -4,17 +4,18 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.utils.translation import get_language
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.translation import get_language
+
 from config.models import AuditMixin
-from question.models import Question, AnswerOption
+from question.models import AnswerOption, Question
 
 from .constants import (
+    VISIBILITY_CHOICES,
     VISIBILITY_IMMEDIATE,
     VISIBILITY_NEVER,
     VISIBILITY_SCHEDULED,
-    VISIBILITY_CHOICES
 )
 
 

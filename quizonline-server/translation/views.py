@@ -1,9 +1,8 @@
 import logging
 import re
-from typing import List
 
 from django.conf import settings
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,7 +13,7 @@ from .serializers import (
     TranslateBatchRequestSerializer,
     TranslateBatchResponseSerializer,
 )
-from .services.deepl import deepl_translate_many, DeepLError
+from .services.deepl import DeepLError, deepl_translate_many
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,7 @@ def _is_effectively_empty_html(html: str) -> bool:
     return (not s) or s in ["<p><br></p>", "<p></p>"]
 
 
-def mock_deepl(texts: List, source: str, target: str, fmt: str)->List:
+def mock_deepl(texts: list, source: str, target: str, fmt: str)->list:
     logger.debug(
         "Mock DeepL translate batch requested",
         extra={

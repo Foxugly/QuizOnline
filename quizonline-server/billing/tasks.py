@@ -12,7 +12,6 @@ from .models import DomainBilling
 from .notifications import notify_billing_deadline
 from .services import get_or_create_billing, recompute_member_count
 
-
 # Pre-deadline reminder milestones on DISJOINT day-bands, so the owner is
 # emailed at most once per milestone. Idempotency is the per-row stamp, not
 # the cadence.

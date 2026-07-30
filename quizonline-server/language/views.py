@@ -1,20 +1,24 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
     OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
 )
 from rest_framework import filters
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 from config.permissions import IsSuperUser
 from config.tools import ErrorDetailSerializer, MyModelViewSet
 
 from .models import Language
-from .serializers import LanguageReadSerializer, LanguageWriteSerializer, LanguagePartialSerializer
+from .serializers import (
+    LanguagePartialSerializer,
+    LanguageReadSerializer,
+    LanguageWriteSerializer,
+)
 
 
 @extend_schema_view(

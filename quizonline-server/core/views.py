@@ -1,15 +1,15 @@
 from django.conf import settings
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
-from config.permissions import IsSuperUser
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from config.permissions import IsSuperUser
 from config.tools import ErrorDetailSerializer
+from core.mailers._common import queue_email
 from core.models import OutboundEmail
 from core.serializers import TestEmailRequestSerializer, TestEmailResponseSerializer
-from core.mailers._common import queue_email
 
 
 @extend_schema_view(

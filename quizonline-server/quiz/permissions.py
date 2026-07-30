@@ -1,9 +1,13 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from config.permissions import is_authenticated_user, is_django_admin
 
+from .access import (
+    user_can_delete_template,
+    user_can_edit_template,
+    user_can_manage_template_assignments,
+)
 from .models import Quiz, QuizAlertThread, QuizQuestion, QuizQuestionAnswer
-from .access import user_can_delete_template, user_can_edit_template, user_can_manage_template_assignments
 
 
 class IsStaffOrReadOnly(BasePermission):

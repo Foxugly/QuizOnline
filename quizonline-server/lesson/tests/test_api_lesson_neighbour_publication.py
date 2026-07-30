@@ -7,8 +7,8 @@ same predicate ``LessonQuerySet.visible_to`` uses to expose drafts.
 import pytest
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from course.models import Section
+from customuser.models import CustomUser
 from lesson.models import Lesson
 
 

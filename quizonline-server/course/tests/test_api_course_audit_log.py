@@ -8,10 +8,10 @@ returns the rows in reverse-chronological order (most recent first).
 import pytest
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from course.models import CourseAuditLog, Section
-from lesson.models import Lesson
 from course.services import clone_course, publish_course, unpublish_course
+from customuser.models import CustomUser
+from lesson.models import Lesson
 
 
 def _auth(user):

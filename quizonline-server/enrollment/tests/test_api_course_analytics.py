@@ -5,15 +5,15 @@ GET /api/v1/course/{id}/analytics/ aggregates KPIs the course-edit
 user / owner / manager) so non-instructors must see a 403.
 """
 
-import pytest
 from datetime import timedelta
 
+import pytest
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from certificate.models import Certificate
+from customuser.models import CustomUser
 from enrollment.models import CourseEnrollment, CourseProgress
 
 

@@ -8,8 +8,6 @@ from django.core.cache import cache
 from django.test import override_settings
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from domain.models import Domain
-from language.models import Language
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -20,6 +18,8 @@ from customuser.throttling import (
     RegisterRateThrottle,
     TokenObtainRateThrottle,
 )
+from domain.models import Domain
+from language.models import Language
 
 User = get_user_model()
 
@@ -679,8 +679,9 @@ class UserViewsTests(APITestCase):
         )
 
     def test_me_join_requests_returns_only_my_pending_requests(self):
-        from domain.models import DomainJoinRequest, JoinPolicy
         from django.utils import translation
+
+        from domain.models import DomainJoinRequest, JoinPolicy
         translation.activate("fr")
         other_user = User.objects.create_user(password="o", email="o@e.test")
 

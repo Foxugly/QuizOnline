@@ -1,8 +1,9 @@
-from customuser.models import CustomUser
-from django.urls import reverse
-from rest_framework.test import APITestCase
 from unittest.mock import patch
 
+from django.urls import reverse
+from rest_framework.test import APITestCase
+
+from customuser.models import CustomUser
 from domain.models import Domain
 
 

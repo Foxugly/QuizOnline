@@ -14,7 +14,7 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import translation, timezone
+from django.utils import timezone, translation
 from rest_framework import status
 from rest_framework.test import APIClient
 

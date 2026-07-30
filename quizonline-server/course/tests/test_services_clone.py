@@ -1,9 +1,9 @@
 import pytest
 
-from course.models import Section
-from lesson.models import Lesson
 from block.models import Block
+from course.models import Section
 from course.services import clone_course
+from lesson.models import Lesson
 
 
 @pytest.mark.django_db

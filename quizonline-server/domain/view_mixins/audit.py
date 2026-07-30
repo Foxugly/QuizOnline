@@ -32,7 +32,7 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
     ``end_of_day=True`` lifts a bare date to ``23:59:59.999999`` so the
     upper bound is inclusive of the whole day in UTC.
     """
-    from datetime import datetime, time
+    from datetime import date, datetime, time
 
     raw = (value or "").strip()
     if not raw:
@@ -44,7 +44,7 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
     except ValueError:
         try:
             parsed = datetime.combine(
-                datetime.strptime(raw, "%Y-%m-%d").date(),
+                date.fromisoformat(raw),
                 time.max if end_of_day else time.min,
             )
         except ValueError:

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import QuerySet, Q
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from .managers import CustomUserManager
@@ -181,7 +181,9 @@ class CustomUser(AbstractUser):
         # keep access so they can still see the subscription page / regularize.
         # Gated by a setting so it can be disabled instantly without a deploy.
         if getattr(settings, "BILLING_ENFORCE_BLOCK", True) and not self.is_superuser:
-            from billing.services import blocked_domain_ids  # lazy: avoid app-load cycle
+            from billing.services import (
+                blocked_domain_ids,  # lazy: avoid app-load cycle
+            )
             to_hide = blocked_domain_ids(domain_qs=qs) - set(
                 self.get_manageable_domains().values_list("id", flat=True)
             )

@@ -7,8 +7,8 @@ instructor of the certificate's course may revoke.
 import pytest
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from certificate.models import Certificate
+from customuser.models import CustomUser
 
 
 def _auth(user):

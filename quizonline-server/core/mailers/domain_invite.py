@@ -116,10 +116,13 @@ def send_domain_invite_email(*, email: str, domain, inviter, language: str = "en
     If a User row does exist for ``email`` and they have opted out of
     ``KIND_INVITE_RECEIVED``, the mail is silently dropped.
     """
-    from customuser.notifications import (
-        KIND_INVITE_RECEIVED, channel_enabled, emit_notification,
-    )
     from django.contrib.auth import get_user_model
+
+    from customuser.notifications import (
+        KIND_INVITE_RECEIVED,
+        channel_enabled,
+        emit_notification,
+    )
     User = get_user_model()
     if not email:
         return

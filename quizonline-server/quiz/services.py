@@ -4,11 +4,11 @@ from django.db import transaction
 from django.utils import timezone
 
 from .models import Quiz, QuizTemplate
-from .session_integrity import reconcile_quiz_answers
 from .notifications import (
     notify_quiz_assigned_on_commit,
     notify_quiz_completed_on_commit,
 )
+from .session_integrity import reconcile_quiz_answers
 
 # Backward-compatible names still referenced by some tests and patch points.
 notify_quiz_assigned = notify_quiz_assigned_on_commit

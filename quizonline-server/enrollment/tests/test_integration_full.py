@@ -1,10 +1,10 @@
 import pytest
 
 from assessment.models import LessonQuiz
-from course.models import Section
-from lesson.models import Lesson
 from certificate.models import Certificate
+from course.models import Section
 from enrollment.services import enroll_user_to_course, mark_lesson_completed
+from lesson.models import Lesson
 from quiz.models import Quiz
 
 

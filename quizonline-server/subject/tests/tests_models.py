@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import translation
+
 from domain.models import Domain
 from language.models import Language
 from subject.models import Subject

@@ -1,11 +1,11 @@
 import logging
+
+import requests
+from django.conf import settings
 from requests import Response
 from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException, Timeout
 from urllib3.util.retry import Retry
-
-import requests
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
