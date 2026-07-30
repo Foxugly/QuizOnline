@@ -2,7 +2,12 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
+from rest_framework.decorators import (
+    action,
+    api_view,
+    permission_classes,
+    throttle_classes,
+)
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response

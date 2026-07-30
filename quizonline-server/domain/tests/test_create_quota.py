@@ -17,7 +17,6 @@ from rest_framework.test import APIClient
 from domain.models import Domain
 from language.models import Language
 
-
 User = get_user_model()
 
 

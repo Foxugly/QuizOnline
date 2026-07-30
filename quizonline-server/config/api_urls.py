@@ -1,5 +1,5 @@
 # question/old_api_urls.py
-from django.urls import path, include
+from django.urls import include, path
 
 from admin_api.stats_views import DashboardStatsView
 from admin_api.system_views import SystemCheckView, SystemConfigView

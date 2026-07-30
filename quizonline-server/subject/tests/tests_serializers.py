@@ -1,21 +1,19 @@
 # subject/tests/test_serializers.py
 from __future__ import annotations
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.utils import translation
 
-from django.contrib.auth import get_user_model
-
 from domain.models import Domain
+from question.models import Question, QuestionSubject
 from subject.models import Subject
 from subject.serializers import (
     QuestionInSubjectSerializer,
-    SubjectWriteSerializer,
-    SubjectReadSerializer,
     SubjectDetailSerializer,
+    SubjectReadSerializer,
+    SubjectWriteSerializer,
 )
-
-from question.models import Question, QuestionSubject
 
 User = get_user_model()
 

@@ -1,38 +1,44 @@
 import logging
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view, OpenApiParameter
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404 as drf_get_object_or_404
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from config.tools import MyModelViewSet
 
+from config.tools import ErrorDetailSerializer, MyModelViewSet
 from core.mailers.domain_join import (
-    send_join_request_created_email,
     send_join_request_approved_email,
+    send_join_request_created_email,
     send_join_request_rejected_email,
 )
+
 from .decision_token import parse_decision_token
 from .invite_token import parse_invite_token
-from .transfer_token import parse_transfer_token
 from .models import Domain, DomainInvite, DomainJoinRequest, JoinPolicy
 from .permissions import CanApproveJoinRequest, IsDomainOwnerOrManager
 from .serializers import (
-    DomainReadSerializer,
-    DomainWriteSerializer,
-    DomainPartialSerializer,
     DomainDetailSerializer,
-    DomainJoinRequestReadSerializer,
-    DomainJoinRequestDecideResponseSerializer,
     DomainInviteStateSerializer,
+    DomainJoinRequestDecideResponseSerializer,
+    DomainJoinRequestReadSerializer,
+    DomainPartialSerializer,
+    DomainReadSerializer,
     DomainTransferStateSerializer,
+    DomainWriteSerializer,
 )
 from .services import (
     invalidate_moderation_tile_for_domain,
@@ -40,6 +46,7 @@ from .services import (
     users_who_can_approve,
 )
 from .token_view_support import consume_signed_token, safe_domain_name
+from .transfer_token import parse_transfer_token
 from .view_mixins import (
     DomainAnalyticsActionsMixin,
     DomainAuditActionsMixin,
@@ -50,8 +57,6 @@ from .view_mixins import (
     JoinRequestModerationMixin,
 )
 from .view_mixins._helpers import client_ip
-from config.tools import ErrorDetailSerializer
-from django.contrib.auth import get_user_model
 
 _logger = logging.getLogger(__name__)
 
@@ -67,7 +72,7 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
     ``end_of_day=True`` lifts a bare date to ``23:59:59.999999`` so the
     upper bound is inclusive of the whole day in UTC.
     """
-    from datetime import datetime, time
+    from datetime import date, datetime, time
 
     raw = (value or "").strip()
     if not raw:
@@ -79,7 +84,7 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
     except ValueError:
         try:
             parsed = datetime.combine(
-                datetime.strptime(raw, "%Y-%m-%d").date(),
+                date.fromisoformat(raw),
                 time.max if end_of_day else time.min,
             )
         except ValueError:

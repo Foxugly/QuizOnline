@@ -4,13 +4,14 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone, translation
+from rest_framework import status
+from rest_framework.test import APITestCase
+
 from domain.models import Domain
 from question.models import AnswerOption, Question, QuestionSubject
 from quiz.constants import VISIBILITY_IMMEDIATE
 from quiz.models import Quiz, QuizAlertThread, QuizQuestion, QuizTemplate
 from quiz.services import create_quizzes_from_template
-from rest_framework import status
-from rest_framework.test import APITestCase
 from subject.models import Subject
 
 User = get_user_model()

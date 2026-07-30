@@ -5,17 +5,21 @@ from unittest.mock import MagicMock, patch
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.urls import reverse
-from django.utils import timezone
-from django.utils import translation
-from domain.models import Domain
-from question.models import Question, AnswerOption, QuestionSubject
-from quiz.constants import VISIBILITY_IMMEDIATE
-from quiz.models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer
-from customuser.throttling import QuizAnswerRateThrottle
-from quiz.views import QuizTemplateQuizQuestionViewSet, QuizQuestionAnswerViewSet, QuizViewSet
+from django.utils import timezone, translation
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.test import APITestCase
+
+from customuser.throttling import QuizAnswerRateThrottle
+from domain.models import Domain
+from question.models import AnswerOption, Question, QuestionSubject
+from quiz.constants import VISIBILITY_IMMEDIATE
+from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
+from quiz.views import (
+    QuizQuestionAnswerViewSet,
+    QuizTemplateQuizQuestionViewSet,
+    QuizViewSet,
+)
 from subject.models import Subject
 
 User = get_user_model()
@@ -32,7 +36,7 @@ class _ReverseMixin:
         for name in candidates:
             try:
                 return reverse(name, kwargs=kwargs)
-            except Exception as e:  # noqa
+            except Exception as e:
                 last = e
         raise last  # type: ignore[misc]
 
@@ -1020,8 +1024,9 @@ class QuizViewsAPITestCase(_ReverseMixin, APITestCase):
         block can render the score).
         """
         from django.utils import timezone
-        from quiz.querysets import accessible_quiz_template_queryset
+
         from quiz.access import user_can_access_template
+        from quiz.querysets import accessible_quiz_template_queryset
         exam_qt = QuizTemplate.objects.create(
             domain=self.domain,
             title="T_EXAM_DIVERGENCE",

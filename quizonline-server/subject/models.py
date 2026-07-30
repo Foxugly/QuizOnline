@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from domain.models import Domain
-from parler.models import TranslatedFields, TranslatableModel
+from parler.models import TranslatableModel, TranslatedFields
 
 from config.models import ActivatableMixin
+from domain.models import Domain
 
 
 class Subject(ActivatableMixin, TranslatableModel):

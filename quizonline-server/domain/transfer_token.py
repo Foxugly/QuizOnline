@@ -16,8 +16,14 @@ by X".
 
 from domain.signed_token import (
     TokenError as _TokenError,
+)
+from domain.signed_token import (
     TokenExpired as _TokenExpired,
+)
+from domain.signed_token import (
     TokenInvalid as _TokenInvalid,
+)
+from domain.signed_token import (
     make_token,
     parse_token,
 )

@@ -1,7 +1,6 @@
 import pytest
 
 
-
 @pytest.mark.django_db
 def test_translations_field_serializes_existing_translations(course):
     course.set_current_language("fr")

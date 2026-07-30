@@ -5,16 +5,16 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
-from django.utils import timezone
-from django.utils import translation
+from django.utils import timezone, translation
+
 from domain.models import Domain
-from question.models import Question, AnswerOption
+from question.models import AnswerOption, Question
 from quiz.constants import (
     VISIBILITY_IMMEDIATE,
     VISIBILITY_NEVER,
     VISIBILITY_SCHEDULED,
 )
-from quiz.models import QuizTemplate, QuizQuestion, Quiz, QuizQuestionAnswer
+from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
 
 User = get_user_model()
 

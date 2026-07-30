@@ -4,8 +4,6 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from domain.models import Domain, DomainJoinRequest
-from domain.serializers import DomainJoinRequestReadSerializer
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -13,25 +11,24 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from quiz.models import Quiz
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from config.tools import ErrorDetailSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .permissions import IsSelf, IsSelfOrStaffOrSuperuser, IsSuperuserOnly
-from .turnstile import get_remote_ip, turnstile_enabled, verify_turnstile_token
-from .services import (
-    change_password,
-    confirm_email,
-    confirm_password_reset,
-    exchange_magic_link,
-    register_user,
-    request_magic_link,
-    request_password_reset,
+from config.tools import ErrorDetailSerializer
+from domain.models import Domain, DomainJoinRequest
+from domain.serializers import DomainJoinRequestReadSerializer
+from quiz.models import Quiz
+
+from .magic_link_token import (
+    MagicLinkTokenExpired,
+    MagicLinkTokenInvalid,
+    parse_magic_link_token,
 )
+from .permissions import IsSelf, IsSelfOrStaffOrSuperuser, IsSuperuserOnly
 from .serializers import (
     CustomUserAdminUpdateSerializer,
     CustomUserCreateSerializer,
@@ -48,6 +45,15 @@ from .serializers import (
     QuizSimpleSerializer,
     SetCurrentDomainSerializer,
 )
+from .services import (
+    change_password,
+    confirm_email,
+    confirm_password_reset,
+    exchange_magic_link,
+    register_user,
+    request_magic_link,
+    request_password_reset,
+)
 from .throttling import (
     EmailConfirmRateThrottle,
     MagicLinkExchangeRateThrottle,
@@ -56,12 +62,7 @@ from .throttling import (
     PasswordResetRateThrottle,
     RegisterRateThrottle,
 )
-from .magic_link_token import (
-    MagicLinkTokenExpired,
-    MagicLinkTokenInvalid,
-    parse_magic_link_token,
-)
-from rest_framework_simplejwt.tokens import RefreshToken
+from .turnstile import get_remote_ip, turnstile_enabled, verify_turnstile_token
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -403,7 +404,11 @@ class CustomUserViewSet(
         user.delete()
         logger.info(
             "user.self_delete",
-            extra={"user_id": user_id, "email": email, "name": display_name},
+            # `name` est un attribut reserve de LogRecord : le passer dans
+            # `extra` leve KeyError des que le logger est en INFO. Bug reel sur
+            # le chemin de suppression de compte, invisible en test (niveau de
+            # log plus haut), trouve par ruff 0.16 (G101).
+            extra={"user_id": user_id, "email": email, "display_name": display_name},
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 

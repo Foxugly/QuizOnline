@@ -1,15 +1,15 @@
 import logging
-from django.db import transaction
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
+from django.db import transaction
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import override
 
-from core.models import OutboundEmail
 from core.delivery import trigger_outbound_email_delivery
+from core.models import OutboundEmail
 
 logger = logging.getLogger(__name__)
 

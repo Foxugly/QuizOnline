@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import secrets
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
+from dateutil.relativedelta import relativedelta
 from django.db import transaction
 from django.utils import timezone
 
 from course.models import Course
+
 from .models import Certificate, CertificateSequence
 from .notifications import notify_certificate_issued_on_commit
 

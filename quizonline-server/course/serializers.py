@@ -7,7 +7,6 @@ from language.models import Language
 
 from .models import Course, CourseAuditLog, Section
 
-
 # Backwards-compatible alias — the helper used to be private to
 # ``course/serializers.py`` (and is still imported by tests under that
 # name). Prefer ``filter_allowed_lang_codes`` from ``core.serializers``
@@ -158,6 +157,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         if annotated is not None:
             return int(annotated or 0)
         from django.db.models import Sum
+
         from lesson.models import Lesson
         agg = Lesson.objects.filter(section__course=obj).aggregate(total=Sum("estimated_duration"))
         return int(agg["total"] or 0)
@@ -195,8 +195,8 @@ class CourseListSerializer(serializers.ModelSerializer):
             }
         # Retrieve / detail path: single-instance queries are cheap and
         # avoid forcing every caller to pre-build the context.
-        from lesson.models import Lesson
         from enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+        from lesson.models import Lesson
         enrollment = CourseEnrollment.objects.filter(course=obj, user=user).first()
         if not enrollment:
             return None

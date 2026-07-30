@@ -23,11 +23,11 @@ from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
+from course.models import Course
 from customuser.models import CustomUser
 from customuser.notifications import (
     KIND_COURSE_INVITE_RECEIVED,
 )
-from course.models import Course
 from enrollment.models import CourseEnrollment, CourseInvite
 from enrollment.services import (
     accept_course_invite,
@@ -36,7 +36,6 @@ from enrollment.services import (
     resend_course_invite,
     revoke_course_invite,
 )
-
 
 # ---------------------------------------------------------------------
 # Shared fixtures
@@ -824,8 +823,8 @@ def test_notify_instructors_helper_fans_out_to_owner_and_managers(
     it MUST emit one web row per instructor (owner + managers) and
     skip the self-enrolling user itself (so an instructor who self-
     enrolls doesn't notify themselves through the back door)."""
-    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from customuser.models import Notification
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from enrollment.models import CourseEnrollment
     from enrollment.services import _notify_instructors_of_pending_request
 
@@ -855,8 +854,8 @@ def test_notify_instructors_helper_skips_self_invitee(course, owner):
     """Edge case: the course owner self-enrolls. The helper excludes
     the enrollee from the fan-out so the owner doesn't notify
     themselves."""
-    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from customuser.models import Notification
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from enrollment.models import CourseEnrollment
     from enrollment.services import _notify_instructors_of_pending_request
 
@@ -880,8 +879,8 @@ def test_pending_enrollment_notifies_all_instructors(
     """A self-enrollment on an ``approval``-mode course fires the
     ``lms.course_enrollment_request.created`` notification on every
     instructor (owner + managers) so they don't miss it."""
-    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from customuser.models import Notification
+    from customuser.notifications import KIND_COURSE_ENROLLMENT_REQUEST
     from enrollment.services import enroll_user_to_course
 
     course.enrollment_mode = Course.ENROLL_APPROVAL

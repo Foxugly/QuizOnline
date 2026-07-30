@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from urllib.parse import parse_qs, urlparse
 
-
 YOUTUBE_HOSTS = {
     "youtube.com",
     "www.youtube.com",

@@ -10,11 +10,11 @@ from django.db import connection
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import serializers, status
-from config.permissions import IsSuperUser
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from config.permissions import IsSuperUser
 from config.tools import ErrorDetailSerializer
 from translation.services.deepl import DeepLError, deepl_translate_many
 

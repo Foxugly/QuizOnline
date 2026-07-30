@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from question.models import Question
 from config.domain_access import manageable_domain_ids
+from question.models import Question
 
 
 def question_queryset():

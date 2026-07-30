@@ -1,17 +1,17 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
-from unittest.mock import patch
 
+from domain.models import Domain
+from language.models import Language
 from question.models import (
+    AnswerOption,
     Question,
     QuestionSubject,
-    AnswerOption,
 )
-from domain.models import Domain
 from subject.models import Subject
-
-from language.models import Language
 
 User = get_user_model()
 

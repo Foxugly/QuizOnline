@@ -35,7 +35,6 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 
-
 # Resolve ``deploy/migrate-lms-split.sql`` relative to the repo root (this
 # file lives at quizonline-server/core/management/commands/, so the SQL
 # file is four ``parents`` away).
@@ -156,9 +155,8 @@ class Command(BaseCommand):
 
         self._print_header("Step 1/2 -- PG SQL rename + content_type fix-up")
         before_counts = self._collect_row_counts()
-        with transaction.atomic():
-            with connection.cursor() as cur:
-                cur.execute(sql)
+        with transaction.atomic(), connection.cursor() as cur:
+            cur.execute(sql)
         after_counts = self._collect_row_counts()
         self._report_row_movement(before_counts, after_counts)
 
@@ -179,13 +177,12 @@ class Command(BaseCommand):
         with connection.cursor() as cur:
             cur.execute("PRAGMA foreign_keys = OFF")
         try:
-            with transaction.atomic():
-                with connection.cursor() as cur:
-                    self._sqlite_rename_tables(cur)
-                    self._sqlite_update_content_types(cur)
-                    self._sqlite_reshape_block_table(cur)
-                    self._sqlite_fix_django_migrations(cur)
-                    self._sqlite_assert_fk_clean(cur)
+            with transaction.atomic(), connection.cursor() as cur:
+                self._sqlite_rename_tables(cur)
+                self._sqlite_update_content_types(cur)
+                self._sqlite_reshape_block_table(cur)
+                self._sqlite_fix_django_migrations(cur)
+                self._sqlite_assert_fk_clean(cur)
         finally:
             with connection.cursor() as cur:
                 cur.execute("PRAGMA foreign_keys = ON")

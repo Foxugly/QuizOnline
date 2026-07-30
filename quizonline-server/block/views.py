@@ -16,7 +16,6 @@ from .models import Block
 from .serializers import BlockSerializer
 from .services import compact_blocks, reorder_blocks
 
-
 # Host types that can carry a block list. Kept inline as a frozen set so
 # the reorder endpoint can reject anything else without an extra round
 # trip to ContentType.
@@ -122,7 +121,7 @@ class BlockViewSet(viewsets.ModelViewSet):
             host = ct.get_object_for_this_type(pk=data["host_id"])
         except ContentType.DoesNotExist as exc:
             raise ValidationError({"host_type": "Unknown host type."}) from exc
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             raise ValidationError({"host_id": "Host not found."}) from exc
 
         # Permission: a representative block from the host gives the

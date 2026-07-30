@@ -230,6 +230,7 @@ class AuditLogEndpointTests(TestCase):
 
     def test_filter_by_date_range(self):
         from datetime import timedelta
+
         from django.utils import timezone as dj_tz
         old_row = DomainAuditLog.objects.create(
             domain=self.domain, actor=self.owner, action="member.demote", metadata={},

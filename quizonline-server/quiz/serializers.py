@@ -1,25 +1,21 @@
 import logging
 
-from drf_spectacular.utils import extend_schema_field
 from django.db import IntegrityError, transaction
-from question.models import Question, AnswerOption
-from question.serializers import QuestionInQuizQuestionSerializer, QuestionReadSerializer
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-from config.serializers import UserSummarySerializer
+
 from config.serializers import (
     LocalizedQuizTemplateTranslationSerializer,
     LocalizedTranslationsDictField,
+    UserSummarySerializer,
     localized_translations_map_schema,
 )
-
-from .models import (
-    QuizTemplate,
-    QuizQuestion,
-    Quiz,
-    QuizQuestionAnswer,
-    QuizAlertThread,
-    QuizAlertMessage,
+from question.models import AnswerOption, Question
+from question.serializers import (
+    QuestionInQuizQuestionSerializer,
+    QuestionReadSerializer,
 )
+
 from .alerting import (
     alert_last_message_preview,
     append_alert_message,
@@ -30,6 +26,14 @@ from .alerting import (
     message_is_mine,
     message_is_unread_for_user,
     unread_count_for_alert,
+)
+from .models import (
+    Quiz,
+    QuizAlertMessage,
+    QuizAlertThread,
+    QuizQuestion,
+    QuizQuestionAnswer,
+    QuizTemplate,
 )
 from .ordering import session_position_for, session_quiz_questions
 from .policies import (
@@ -279,7 +283,7 @@ class QuizTemplateWriteSerializer(RequestUserMixin, serializers.ModelSerializer)
         if not translations:
             return "", ""
         preferred = self.preferred_language()
-        candidates = [preferred] + [lang for lang in translations.keys() if lang != preferred]
+        candidates = [preferred] + [lang for lang in translations if lang != preferred]
         for lang in candidates:
             payload = translations.get(lang) or {}
             t = str(payload.get("title", "") or "").strip()

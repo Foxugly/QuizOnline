@@ -10,10 +10,10 @@ which lesson to resume on.
 import pytest
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from course.models import Section
-from lesson.models import Lesson
+from customuser.models import CustomUser
 from enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
+from lesson.models import Lesson
 
 
 def _auth(user):

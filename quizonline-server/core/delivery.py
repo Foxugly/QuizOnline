@@ -4,12 +4,12 @@ import logging
 from datetime import timedelta
 
 from celery.exceptions import Retry as CeleryRetry
-from kombu.exceptions import KombuError
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import OperationalError as DjangoOperationalError
 from django.db import close_old_connections, transaction
 from django.utils import timezone
+from kombu.exceptions import KombuError
 
 from core.models import OutboundEmail
 

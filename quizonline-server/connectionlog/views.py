@@ -2,12 +2,13 @@ from datetime import datetime, time, timedelta
 
 from django.utils import timezone
 from django.utils.dateparse import parse_date
-from rest_framework import mixins, viewsets, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
 from config.permissions import IsSuperUser
+
 from .models import ConnectionEvent
 from .serializers import ConnectionEventReadSerializer, ConnectionEventWriteSerializer
 from .services import record_connection

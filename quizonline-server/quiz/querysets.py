@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from django.db.models import Count, FloatField, Prefetch, Q, Sum
 from django.db.models.functions import Coalesce
-from config.domain_access import manageable_domain_ids
 from django.utils import timezone
+
+from config.domain_access import manageable_domain_ids
 
 from .models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
 

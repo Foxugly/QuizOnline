@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from quiz.models import Quiz, QuizTemplate
 
-
 ANSWER_CORRECTNESS_FULL = "full"
 ANSWER_CORRECTNESS_UNKNOWN = "unknown"
 ANSWER_CORRECTNESS_HIDDEN = "hidden"

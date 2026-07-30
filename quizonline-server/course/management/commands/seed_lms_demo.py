@@ -5,12 +5,10 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from block.models import Block
+from course.models import Course, Section
 from domain.models import Domain
 from language.models import Language
 from lesson.models import Lesson
-
-from course.models import Course, Section
-
 
 User = get_user_model()
 

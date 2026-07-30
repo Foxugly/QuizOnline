@@ -1,13 +1,13 @@
 import pytest
 
-from course.models import Section
-from lesson.models import Lesson
 from certificate.models import Certificate
 from certificate.services import issue_certificate_if_eligible
+from course.models import Section
 from enrollment.services import (
     enroll_user_to_course,
     mark_lesson_completed,
 )
+from lesson.models import Lesson
 
 
 @pytest.fixture
@@ -55,8 +55,9 @@ def test_expired_certificate_is_renewed_on_recompletion(fully_completable_course
     """An expired (but not revoked) certificate is renewed: re-running the
     issuance revokes the stale row and issues a fresh one with a new
     validity window, rather than returning the dead certificate."""
-    from django.utils import timezone
     from datetime import timedelta
+
+    from django.utils import timezone
 
     fully_completable_course.certificate_validity_months = 12
     fully_completable_course.save(update_fields=["certificate_validity_months"])

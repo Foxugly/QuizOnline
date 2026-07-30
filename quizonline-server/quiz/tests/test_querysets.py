@@ -1,12 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
-from django.utils import translation
+from django.utils import timezone, translation
 
 from domain.models import Domain
 from question.models import Question
 from quiz.models import Quiz, QuizQuestion, QuizQuestionAnswer, QuizTemplate
-from quiz.querysets import accessible_quiz_template_queryset, quiz_template_queryset, template_sessions_queryset
+from quiz.querysets import (
+    accessible_quiz_template_queryset,
+    quiz_template_queryset,
+    template_sessions_queryset,
+)
 
 User = get_user_model()
 

@@ -2,11 +2,11 @@ import pytest
 from django.utils import translation
 from rest_framework.test import APIClient
 
+from course.models import Course
 from customuser.models import CustomUser
 from domain.models import Domain
-from course.models import Course
-from language.models import Language
 from enrollment.models import CourseProgress
+from language.models import Language
 from review.models import CourseReview
 from review.services import (
     ReviewNotAllowed,

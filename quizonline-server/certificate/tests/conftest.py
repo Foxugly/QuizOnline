@@ -1,9 +1,9 @@
 import pytest
 
+from course.models import Course, Section
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
-from course.models import Course, Section
 from lesson.models import Lesson
 
 

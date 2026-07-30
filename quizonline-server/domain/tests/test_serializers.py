@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from django.test import TestCase
 from unittest.mock import patch
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.test import APIRequestFactory
 
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.test import APIRequestFactory
 
 from domain.models import Domain
 from domain.serializers import (
@@ -14,8 +14,8 @@ from domain.serializers import (
     DomainReadSerializer,
     DomainWriteSerializer,
 )
-from subject.models import Subject
 from language.models import Language
+from subject.models import Subject
 
 User = get_user_model()
 

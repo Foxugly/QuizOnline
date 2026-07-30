@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from rest_framework_simplejwt.token_blacklist.models import (
+    BlacklistedToken,
+    OutstandingToken,
+)
 
 from core.mailers import send_password_reset_email, send_registration_confirmation_email
+from core.mailers.domain_join import send_join_request_created_email
 from core.mailers.magic_link import send_magic_link_email
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
 from domain.services import users_who_can_approve
-from core.mailers.domain_join import send_join_request_created_email
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from .tokens import resolve_user_from_uid, token_is_valid
 

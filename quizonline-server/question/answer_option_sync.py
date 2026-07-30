@@ -20,8 +20,9 @@ def sync_question_answer_options(
     option are applied via :func:`_sync_host_blocks` after the option
     row exists (PK known).
     """
-    from .serializers import _sync_host_blocks  # local import to avoid cycle
     from block.models import Block
+
+    from .serializers import _sync_host_blocks  # local import to avoid cycle
 
     existing_options = {option.id: option for option in question.answer_options.all()}
     referenced_existing_ids = set(

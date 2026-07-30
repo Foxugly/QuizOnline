@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import translation
+from rest_framework import status
+from rest_framework.test import APITestCase
+
 from domain.models import Domain
 from quiz.access import user_manages_template_domain
 from quiz.models import Quiz, QuizTemplate
-from rest_framework import status
-from rest_framework.test import APITestCase
 
 User = get_user_model()
 

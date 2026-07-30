@@ -13,13 +13,13 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
+from core.models import OutboundEmail
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
 from domain.services import (
     auto_decline_stale_pending_requests,
     domains_with_pending_for_user,
     send_expiring_join_request_warnings,
 )
-from core.models import OutboundEmail
 
 User = get_user_model()
 
@@ -165,6 +165,7 @@ class DomainsWithPendingForUserTests(TestCase):
 
     def test_cached_within_ttl_then_invalidates_on_mutation(self):
         from django.core.cache import cache
+
         from domain.services import invalidate_moderation_tile_for_domain
 
         cache.clear()
@@ -189,6 +190,7 @@ class DomainsWithPendingForUserTests(TestCase):
         # ``invalidate_moderation_tile_for_domain``) no longer
         # contains them.
         from django.core.cache import cache
+
         from domain.services import invalidate_moderation_tile_for_users
 
         cache.clear()

@@ -14,9 +14,9 @@ loop "create empty → patch content" cannot regress to a 400 again.
 import pytest
 from rest_framework.test import APIClient
 
+from block.models import Block
 from course.models import Section
 from lesson.models import Lesson
-from block.models import Block
 
 
 def _auth(user):

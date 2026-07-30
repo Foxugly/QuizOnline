@@ -1,7 +1,6 @@
 import pytest
 
 from course.models import Section
-from lesson.models import Lesson
 from enrollment.models import CourseEnrollment, CourseProgress, LessonProgress
 from enrollment.services import (
     enroll_user_to_course,
@@ -9,6 +8,7 @@ from enrollment.services import (
     mark_lesson_started,
     record_lesson_progress,
 )
+from lesson.models import Lesson
 
 
 @pytest.fixture
@@ -55,7 +55,7 @@ def test_record_progress_clamps_out_of_range(published_course_with_two_lessons, 
 
 @pytest.mark.django_db
 def test_mark_completed_updates_course_progress(published_course_with_two_lessons, learner):
-    c, l1, l2 = published_course_with_two_lessons
+    c, l1, _l2 = published_course_with_two_lessons
     enroll_user_to_course(user=learner, course=c)
     mark_lesson_completed(user=learner, lesson=l1)
     cp = CourseProgress.objects.get(user=learner, course=c)

@@ -26,9 +26,9 @@ from core.seed_e2e import (
     ensure_e2e_testuser,
     upsert_translation,
 )
-from language.models import Language
 from course.models import Course
 from enrollment.models import CourseEnrollment, CourseInvite
+from language.models import Language
 
 
 class Command(BaseCommand):

@@ -26,6 +26,7 @@ def _course_of(obj):
     """Navigate any LMS object up to its Course parent."""
     from block.models import Block
     from lesson.models import Lesson
+
     from .models import Course, Section
     if isinstance(obj, Course):
         return obj
@@ -64,6 +65,7 @@ def _course_of(obj):
 def _is_published_chain(obj) -> bool:
     from block.models import Block
     from lesson.models import Lesson
+
     from .models import Section
     course = _course_of(obj)
     # Question / AnswerOption-hosted blocks have no Course parent —
@@ -153,6 +155,7 @@ def _can_create(user, data) -> bool:
     # Lazy imports to avoid circulars at module load.
     from domain.models import Domain
     from lesson.models import Lesson
+
     from .models import Course, Section
 
     domain_id = data.get("domain")

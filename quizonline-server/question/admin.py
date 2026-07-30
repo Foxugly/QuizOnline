@@ -11,18 +11,20 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportMixin
-
 from parler.admin import TranslatableAdmin
 
-from .structured_export import export_questions
-from .structured_import import import_questions, StructuredImportError, StructuredImportPermissionError
-
 from .models import (
-    Question,
     AnswerOption,
+    Question,
     QuestionSubject,
 )
 from .resources import AnswerOptionResource, QuestionResource
+from .structured_export import export_questions
+from .structured_import import (
+    StructuredImportError,
+    StructuredImportPermissionError,
+    import_questions,
+)
 
 # ==========================================================
 # Formsets (validations inline)

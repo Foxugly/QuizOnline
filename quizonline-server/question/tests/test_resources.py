@@ -7,7 +7,6 @@ from language.models import Language
 from question.models import AnswerOption, Question
 from question.resources import AnswerOptionResource
 
-
 User = get_user_model()
 
 

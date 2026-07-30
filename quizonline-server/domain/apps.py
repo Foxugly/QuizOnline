@@ -6,4 +6,8 @@ class DomainConfig(AppConfig):
     name = 'domain'
 
     def ready(self):
-        from . import signals  # noqa: F401
+        # Import a SEUL EFFET DE BORD : il enregistre les handlers de signaux
+        # de l'app. Syntaxiquement 'inutilise' (F401), fonctionnellement
+        # indispensable — le supprimer desactiverait silencieusement tous les
+        # signaux de `domain`. F401 est exclu pour les apps.py en config.
+        from . import signals

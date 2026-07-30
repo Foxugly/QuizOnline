@@ -16,8 +16,7 @@ the same data into a tidy ``{language_code: {key: value}}`` mapping
 with a default fallback (``en``) honoured for unknown locales.
 """
 
-from typing import Mapping
-
+from collections.abc import Mapping
 
 CopyDict = Mapping[str, str]
 

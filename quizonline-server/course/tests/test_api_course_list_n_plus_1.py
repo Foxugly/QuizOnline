@@ -11,14 +11,14 @@ quadratic.
 """
 
 import pytest
-from django.test.utils import CaptureQueriesContext
 from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APIClient
 
-from customuser.models import CustomUser
 from course.models import Course, Section
-from lesson.models import Lesson
+from customuser.models import CustomUser
 from enrollment.models import CourseEnrollment
+from lesson.models import Lesson
 
 
 def _auth(user):

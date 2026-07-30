@@ -33,7 +33,8 @@ as named wrappers — they bind the salt, the TTL, and the payload-shape
 checker so callers do not need to remember the parameters.
 """
 
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from django.core import signing
 

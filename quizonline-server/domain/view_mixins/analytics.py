@@ -79,6 +79,7 @@ class DomainAnalyticsActionsMixin:
     def analytics_export(self, request, *args, **kwargs):
         import csv
         import io
+
         from django.http import HttpResponse
 
         domain = self.get_object()

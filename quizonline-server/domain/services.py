@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import timedelta
-from typing import Any, Mapping
+from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from domain.models import Domain, DomainAuditLog, DomainInvite, DomainJoinRequest, JoinPolicy
 from domain.invite_token import INVITE_TOKEN_TTL_SECONDS
+from domain.models import (
+    Domain,
+    DomainAuditLog,
+    DomainInvite,
+    DomainJoinRequest,
+    JoinPolicy,
+)
 
 User = get_user_model()
 
@@ -140,7 +147,7 @@ ANALYTICS_RANGES: dict[str, int | None] = {
 }
 
 
-def resolve_analytics_range(value: str | None) -> tuple[str, "object | None"]:
+def resolve_analytics_range(value: str | None) -> tuple[str, object | None]:
     """
     Map a ``range=`` query-string value to ``(range_key, since_datetime)``.
     Unknown / missing values fall back to ``"all"`` so a typo never
@@ -181,6 +188,7 @@ def compute_join_request_analytics(domain, since=None) -> dict:
         }
     """
     from django.db.models import Count
+
     from domain.models import DomainJoinRequest
 
     qs = DomainJoinRequest.objects.filter(domain=domain)

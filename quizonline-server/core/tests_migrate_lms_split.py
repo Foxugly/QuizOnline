@@ -30,7 +30,6 @@ from pathlib import Path
 from django.core.management import call_command
 from django.test import TestCase
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SQL_PATH = REPO_ROOT / "deploy" / "migrate-lms-split.sql"
 

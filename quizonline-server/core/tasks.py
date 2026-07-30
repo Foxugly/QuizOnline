@@ -28,9 +28,12 @@ def notify_visibility_unlocks() -> dict[str, int]:
       - the template visibility is SCHEDULED and available_at <= now
       - the corresponding notification timestamp is still NULL
     """
+    from core.mailers.quiz import (
+        send_detail_available_email,
+        send_result_available_email,
+    )
     from quiz.constants import VISIBILITY_SCHEDULED
     from quiz.models import Quiz
-    from core.mailers.quiz import send_detail_available_email, send_result_available_email
 
     now = timezone.now()
     result_sent = 0

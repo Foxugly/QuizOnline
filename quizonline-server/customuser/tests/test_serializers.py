@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+
 from domain.models import Domain
 from language.models import Language
 from quiz.models import Quiz, QuizTemplate
@@ -73,8 +74,9 @@ class CustomUserReadSerializerTests(TestCase):
         self.assertTrue(serializer.get_fields()["nb_domain_max"].read_only)
 
     def test_read_serializer_exposes_pending_join_requests(self):
-        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
+
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         translation.activate("fr")
         user = User.objects.create_user(email="u-pjr@example.test", password="pwd")
         owner = User.objects.create_user(email="o-pjr@example.test", password="pwd")
@@ -189,8 +191,9 @@ class CustomUserCreateSerializerTests(TestCase):
             mock_validate.assert_called_once_with("SecretPass123!")
 
     def test_create_with_mixed_auto_and_validation_domains(self):
-        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
+
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         translation.activate("fr")
         owner = User.objects.create_user(email="o-mix@example.test", password="pwd")
         auto_domain = Domain.objects.create(owner=owner, active=True)
@@ -228,8 +231,10 @@ class CustomUserCreateSerializerTests(TestCase):
     def test_create_with_validation_domain_schedules_notification_email(self):
         """Verify the mailer is called once per newly created pending request."""
         from unittest.mock import patch
-        from domain.models import Domain, JoinPolicy
+
         from django.utils import translation
+
+        from domain.models import Domain, JoinPolicy
 
         translation.activate("fr")
         owner = User.objects.create_user(email="o-mail@example.test", password="pwd")
@@ -306,8 +311,9 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
         self.assertEqual(user.current_domain_id, self.domain.id)
 
     def test_profile_update_with_validation_domain_creates_pending_not_link(self):
-        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         from django.utils import translation
+
+        from domain.models import Domain, DomainJoinRequest, JoinPolicy
         translation.activate("fr")
         user = User.objects.create_user(email="u-pu1@example.test", password="pwd")
         owner = User.objects.create_user(email="o-pu1@example.test", password="pwd")
@@ -331,8 +337,9 @@ class CustomUserProfileUpdateSerializerTests(TestCase):
         )
 
     def test_profile_update_dropping_domain_id_removes_membership(self):
-        from domain.models import Domain
         from django.utils import translation
+
+        from domain.models import Domain
         translation.activate("fr")
         user = User.objects.create_user(email="u-pu2@example.test", password="pwd")
         owner = User.objects.create_user(email="o-pu2@example.test", password="pwd")

@@ -1,12 +1,11 @@
 import pytest
 
+from course.models import Course, Section
 from customuser.models import CustomUser
 from domain.models import Domain
 from language.models import Language
 from lesson.models import Lesson
 from quiz.models import QuizTemplate
-
-from course.models import Course, Section
 
 
 @pytest.fixture

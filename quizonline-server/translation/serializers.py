@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-
 # Upper bounds on a single batch translate call. These cap the size of the
 # paid DeepL request a caller can trigger: at most ``MAX_BATCH_ITEMS`` items,
 # each at most ``MAX_ITEM_CHARS`` characters. Tuned generously enough to cover

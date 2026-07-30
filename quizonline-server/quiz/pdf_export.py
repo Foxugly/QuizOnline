@@ -12,24 +12,22 @@ from html.parser import HTMLParser
 
 from django.http import HttpResponse
 from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.throttling import ScopedRateThrottle
-
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
-    SimpleDocTemplate,
     Paragraph,
+    SimpleDocTemplate,
     Spacer,
     Table,
     TableStyle,
 )
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import ScopedRateThrottle
 
 from .models import Quiz
-
 
 # ---------------------------------------------------------------------------
 # Helpers

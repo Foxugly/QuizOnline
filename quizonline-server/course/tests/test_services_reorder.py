@@ -1,12 +1,12 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from course.models import Section
-from lesson.models import Lesson
 from block.models import Block
-from course.services import reorder_sections
-from lesson.services import reorder_lessons
 from block.services import reorder_blocks
+from course.models import Section
+from course.services import reorder_sections
+from lesson.models import Lesson
+from lesson.services import reorder_lessons
 
 
 @pytest.mark.django_db

@@ -1,12 +1,12 @@
 from django.contrib import admin
 
 from .models import (
-    QuizTemplate,
-    QuizQuestion,
     Quiz,
-    QuizQuestionAnswer,
-    QuizAlertThread,
     QuizAlertMessage,
+    QuizAlertThread,
+    QuizQuestion,
+    QuizQuestionAnswer,
+    QuizTemplate,
 )
 
 

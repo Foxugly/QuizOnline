@@ -2,18 +2,19 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from drf_spectacular.utils import extend_schema_field
-from language.models import Language
-from language.serializers import LanguageReadSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
+
 from config.serializers import (
     LocalizedTranslationsDictField,
     UserSummarySerializer,
     localized_translations_map_schema,
 )
+from language.models import Language
+from language.serializers import LanguageReadSerializer
+from subject.serializers import SubjectReadSerializer
 
 from .models import Domain, DomainAuditLog, DomainInvite, DomainJoinRequest
-from subject.serializers import SubjectReadSerializer
 
 User = get_user_model()
 LANG_CODES = {code for code, _ in settings.LANGUAGES}
@@ -364,8 +365,8 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             # rolls back the auto-approval too.
             new_policy = instance.join_policy
             if previous_policy != "auto" and new_policy == "auto":
-                from domain.services import auto_approve_pending_requests
                 from core.mailers.domain_join import send_join_request_approved_email
+                from domain.services import auto_approve_pending_requests
                 request = self.context.get("request")
                 actor = getattr(request, "user", None)
                 approved = auto_approve_pending_requests(instance, by=actor)
@@ -488,7 +489,9 @@ class DomainDetailSerializer(DomainReadSerializer):
         outstanding.
         """
         from datetime import timedelta
+
         from django.utils import timezone
+
         from domain.transfer_token import TRANSFER_TOKEN_TTL_SECONDS
 
         cutoff = timezone.now() - timedelta(seconds=TRANSFER_TOKEN_TTL_SECONDS)

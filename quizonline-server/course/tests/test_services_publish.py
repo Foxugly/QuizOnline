@@ -2,8 +2,12 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from course.models import Section
+from course.services import (
+    allowed_lang_codes_for_course,
+    publish_course,
+    unpublish_course,
+)
 from lesson.models import Lesson
-from course.services import publish_course, unpublish_course, allowed_lang_codes_for_course
 
 
 @pytest.mark.django_db

@@ -3,21 +3,27 @@ import logging
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
     OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
 )
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from config.tools import MyModelViewSet, ErrorDetailSerializer
+
+from config.tools import ErrorDetailSerializer, MyModelViewSet
 
 from .models import Subject
-from .serializers import SubjectReadSerializer, SubjectWriteSerializer, SubjectPartialSerializer, SubjectDetailSerializer
+from .serializers import (
+    SubjectDetailSerializer,
+    SubjectPartialSerializer,
+    SubjectReadSerializer,
+    SubjectWriteSerializer,
+)
 
 logger = logging.getLogger(__name__)
 

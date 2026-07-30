@@ -3,6 +3,7 @@ from django.db import transaction
 from domain.models import Domain
 from subject.models import Subject
 
+
 def _get_domain_by_name_any_lang(names: list[str]) -> Domain | None:
     qs = Domain.objects.filter(translations__name__in=names).distinct()
     return qs.first()

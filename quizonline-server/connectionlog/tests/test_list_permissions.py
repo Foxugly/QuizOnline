@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
+
 from connectionlog.models import ConnectionEvent
 
 
@@ -21,8 +22,9 @@ def test_list_is_superuser_only():
 
 @pytest.mark.django_db
 def test_list_daterange_filter():
-    from django.utils import timezone
     from datetime import timedelta
+
+    from django.utils import timezone
     U = get_user_model()
     su = U.objects.create(email="s@x.com", is_superuser=True)
     old = ConnectionEvent.objects.create(account_email="a", login_method="password")
@@ -40,8 +42,9 @@ def test_list_daterange_filter():
 def test_list_daterange_end_is_inclusive():
     """The ``end`` bound includes events from that whole day (implemented as
     ``created_at < end + 1 day`` so the index stays usable)."""
-    from django.utils import timezone
     from datetime import timedelta
+
+    from django.utils import timezone
     U = get_user_model()
     su = U.objects.create(email="s2@x.com", is_superuser=True)
     ConnectionEvent.objects.create(account_email="today", login_method="password")  # now

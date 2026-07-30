@@ -9,10 +9,9 @@ fixtures with the LMS seed so the two commands stay in sync.
 
 from __future__ import annotations
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
-
-from django.contrib.contenttypes.models import ContentType
 
 from block.models import Block
 from core.seed_e2e import (

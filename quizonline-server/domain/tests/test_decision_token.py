@@ -69,6 +69,7 @@ class ParseDecisionTokenTests(TestCase):
     def test_payload_with_wrong_shape_raises_invalid(self):
         """A signed-but-malformed payload (e.g. wrong top-level type) still rejects."""
         from django.core import signing
+
         from domain.decision_token import SALT
 
         # Valid signature with the same salt, but payload is a list, not a dict.
@@ -78,6 +79,7 @@ class ParseDecisionTokenTests(TestCase):
 
     def test_payload_with_unknown_action_raises_invalid(self):
         from django.core import signing
+
         from domain.decision_token import SALT
 
         token = signing.dumps({"rid": 1, "uid": 2, "act": "purge"}, salt=SALT)

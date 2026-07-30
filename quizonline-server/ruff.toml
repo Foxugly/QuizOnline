@@ -1,0 +1,63 @@
+# Configuration ruff — introduite le 2026-07-30.
+#
+# Le depot n'en avait aucune : la CI lancait `ruff check . --exclude migrations`
+# sur les reglages par defaut. La montee 0.15 -> 0.16 a active de nouvelles
+# regles et fait echouer la CI sur 521 signalements de code preexistant.
+
+[lint]
+ignore = [
+    # RUF012 (attribut de classe mutable sans ClassVar) representait 221 des
+    # 521 signalements — models.py (73), serializers.py (71), views.py (49),
+    # admin.py (13). Ce ne sont pas des defauts : c'est l'API DECLARATIVE de
+    # Django et DRF. `permission_classes = [IsSuperUser]`,
+    # `throttle_classes = [...]`, `Meta.ordering`, `list_display`,
+    # `fields = [...]` — la documentation officielle les ecrit exactement
+    # ainsi. Les annoter en ClassVar serait 221 modifications qui combattent
+    # le framework, pour aucun bug evite.
+    "RUF012",
+
+    # BLE001 / S110 / S112 — `except Exception`, `except: pass`,
+    # `except: continue`. 15 signalements repartis sur 9 modules, et ce sont
+    # des FRONTIERES DEFENSIVES assumees, pas des oublis : /health (dont la
+    # raison d'etre est de ne pas planter), l'endpoint de diagnostic
+    # admin_api, le repli geoip, la livraison, les invitations. Chacune
+    # journalise puis degrade. Les restreindre demanderait de reprendre la
+    # gestion d'erreur de ces neuf modules un par un — un chantier de fond,
+    # pas un effet de bord d'une montee de linter.
+    "BLE001",
+    "S110",
+    "S112",
+
+    # SIM102 / SIM117 — pur style (if imbriques, with imbriques), zero impact
+    # comportemental. ruff ne sait pas les auto-corriger ici (des commentaires
+    # s'intercalent) et les reecrire a la main dans du code qu'on ne modifie
+    # pas par ailleurs, c'est du risque sans gain.
+    "SIM102",
+    "SIM117",
+]
+
+[lint.per-file-ignores]
+# TRY002 (raise Exception nu) — uniquement dans les scripts de peuplement,
+# executes a la main, jamais dans un chemin servi. Y introduire une hierarchie
+# d'exceptions dediee serait de la ceremonie sans lecteur.
+"*/scripts/create_*.py" = ["TRY002"]
+
+# F403 / F405 (import etoile, nom possiblement issu d'un import etoile) —
+# uniquement dans les reglages Django, ou `from .settings_base import *` est
+# l'idiome canonique de decoupage base/dev/test/prod. 38 signalements, tous
+# la.
+#
+# Attention au piege de version qui a produit ce bloc : ces fichiers
+# portaient des `# noqa: F403,F401`. ruff 0.16 ne signale PLUS F403/F405
+# ici, juge donc ces noqa inutiles (RUF100) et `--fix` les supprime — ce qui
+# refait echouer ruff 0.15, qui les signale toujours. Une exclusion par
+# fichier est independante de la version ; un noqa ne l'est pas.
+"config/settings*.py" = ["F403", "F405"]
+
+# F401 dans les apps.py — `from . import signals` dans `AppConfig.ready()` est
+# un import a seul effet de bord : il enregistre les handlers. Il est
+# syntaxiquement inutilise, donc F401 le signale, mais le supprimer
+# desactiverait silencieusement les signaux de l'app. Il etait protege par un
+# `# noqa: F401` que le fixer de ruff 0.16 a retire (RUF100) — d'ou cette
+# exclusion, qui ne depend pas d'un commentaire fragile.
+"**/apps.py" = ["F401"]
