@@ -1,6 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {provideRouter} from '@angular/router';
 import {signal} from '@angular/core';
+import {MessageService} from 'primeng/api';
 import {of} from 'rxjs';
 import {App} from './app';
 import {BackendStatusService} from './services/status/status';
@@ -12,6 +13,11 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
+        // Explicite plutôt que repris du `beforeEach` de test-setup.ts : en CI,
+        // vitest n'évalue `setupFiles` qu'une fois par worker, et avec deux
+        // cœurs plusieurs fichiers partagent un worker — les suivants perdaient
+        // le provider et échouaient sur NG0201.
+        MessageService,
         provideRouter([]),
         {
           provide: BackendStatusService,
