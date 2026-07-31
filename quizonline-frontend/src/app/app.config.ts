@@ -5,6 +5,7 @@ import {provideTransloco} from '@jsverse/transloco';
 import {routes} from './app.routes';
 import {providePrimeNG} from 'primeng/config';
 import {MessageService} from 'primeng/api';
+import {StaleChunkService} from './shared/app-update/stale-chunk.service';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
@@ -92,6 +93,14 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (sync: TranslocoLangSync) => () => sync,
       deps: [TranslocoLangSync],
+      multi: true,
+    },
+    // Rattrape les onglets ouverts avant un deploiement, dont les chunks
+    // differes n'existent plus cote serveur (StaleChunkService).
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (staleChunk: StaleChunkService) => () => staleChunk.init(),
+      deps: [StaleChunkService],
       multi: true,
     },
   ],

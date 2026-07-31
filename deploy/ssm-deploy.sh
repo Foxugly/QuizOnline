@@ -39,6 +39,12 @@ FRONTEND_PARENT="$REPO_DIR/quizonline-frontend/dist/quizonline-frontend"
 LIVE_DIR="$FRONTEND_PARENT/browser"
 PREV_DIR="$FRONTEND_PARENT/browser.prev"
 STAGING_DIR="$FRONTEND_PARENT/browser.staging.$SHA"
+# Copies PURES du bundle livre (jamais fusionnees), qui servent de generation
+# precedente au deploiement suivant. Snapshoter le docroot fusionne a la place
+# ferait s'empiler les generations sans fin — constate sur foxugly, ou 135
+# bundles s'etaient accumules depuis mai.
+PURE_DIR="$FRONTEND_PARENT/browser.pure"
+PURE_PREV_DIR="$FRONTEND_PARENT/browser.pure.prev"
 
 echo "=== QuizOnline SSM deploy ==="
 echo "  SHA:    $SHA"
@@ -71,6 +77,21 @@ if [ -d "$LIVE_DIR" ]; then
   mv "$LIVE_DIR" "$PREV_DIR"
 fi
 mv "$STAGING_DIR" "$LIVE_DIR"
+
+# Les chunks portent une empreinte du contenu : un deploiement les renomme
+# tous. Un onglet ouvert AVANT reclamerait un fichier disparu des que son
+# proprietaire navigue vers une route pas encore visitee. On sert donc la
+# generation courante UNION la precedente. ``--ignore-existing`` garantit que
+# l'ancienne ne peut jamais ecraser la nouvelle (index.html en particulier).
+rm -rf "$PURE_PREV_DIR"
+if [ -d "$PURE_DIR" ]; then
+  mv "$PURE_DIR" "$PURE_PREV_DIR"
+fi
+cp -a "$LIVE_DIR" "$PURE_DIR"
+if [ -d "$PURE_PREV_DIR" ]; then
+  rsync -a --ignore-existing "$PURE_PREV_DIR/" "$LIVE_DIR/"
+  echo "  previous bundle merged (stale-chunk retention)"
+fi
 
 # Absolute /bin/systemctl so the sudoers Cmnd match is literal (usrmerge:
 # /bin -> /usr/bin); /bin/systemctl reload nginx is the exact whitelisted
