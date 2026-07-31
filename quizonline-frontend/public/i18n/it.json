@@ -1,0 +1,2953 @@
+{
+  "ui": {
+    "topmenu": {
+      "quiz": "Quiz",
+      "domains": "Domini",
+      "subjects": "Argomenti",
+      "questions": "Domande",
+      "users": "Utenti",
+      "features": "Funzionalità",
+      "donate": "Sostieni",
+      "about": "Informazioni",
+      "alertsAria": "Messaggi",
+      "themeToggle": "Cambia tema",
+      "currentDomain": "Dominio corrente",
+      "ownedDomains": "I miei domini",
+      "managedDomains": "Domini che gestisco",
+      "linkedDomains": "Domini collegati",
+      "noDomains": "Nessun dominio",
+      "preferences": "Preferenze",
+      "notificationsAria": "Notifiche",
+      "lmsMyProgress": "I miei progressi",
+      "lmsMyCertificates": "I miei certificati",
+      "coursesMenu": "Corsi",
+      "coursesMenuFormations": "Formazioni",
+      "quizMenu": "Quiz",
+      "quizMenuLabel": "Quiz",
+      "dashboard": "Cruscotto"
+    },
+    "userMenu": {
+      "preferences": "Preferenze",
+      "changePassword": "Cambia password",
+      "logout": "Disconnetti",
+      "login": "Accedi",
+      "myInvitations": "I miei inviti",
+      "userFallback": "Utente"
+    },
+    "footer": {
+      "baseline": "Piattaforma per quiz e gestione contenuti per dominio.",
+      "version": "Versione",
+      "rights": ". Tutti i diritti riservati.",
+      "privacyLink": "Privacy"
+    },
+    "home": {
+      "eyebrow": "Quiz, template e revisione",
+      "lead": "Uno spazio unico per creare quiz, assegnarli, completarli e rivedere i risultati.",
+      "primaryLoggedIn": "Vedi i miei quiz",
+      "primaryLoggedOut": "Accedi",
+      "secondaryAdmin": "Crea un template",
+      "secondaryLoggedOut": "Crea un account",
+      "mode": "Modalita",
+      "modeManager": "Gestore",
+      "modeUser": "Utente autenticato",
+      "modeVisitor": "Visitatore",
+      "languages": "Lingue",
+      "features": "Funzionalita",
+      "featuresValue": "Quiz, messaggi, assegnazioni, revisione",
+      "contactCta": "Contattami",
+      "moderationTileTitle": "Richieste da moderare",
+      "moderationTileSubtitle": "{total} in attesa nei tuoi domini.",
+      "moderationTileCount": {
+        "one": "{n} richiesta",
+        "other": "{n} richieste"
+      }
+    },
+    "login": {
+      "eyebrow": "Accesso",
+      "title": "Accedi al tuo spazio",
+      "subtitle": "Autenticati per continuare.",
+      "email": "Indirizzo email",
+      "emailPlaceholder": "Il tuo indirizzo email",
+      "emailError": "È richiesto un indirizzo email valido",
+      "password": "Password",
+      "passwordPlaceholder": "La tua password",
+      "passwordError": "Password obbligatoria (min. 4 caratteri)",
+      "remember": "Ricordami",
+      "forgotPassword": "Password dimenticata?",
+      "submit": "Accedi",
+      "noAccount": "Nessun account?",
+      "createAccount": "Crea account",
+      "invalidCredentials": "Credenziali non valide. Riprova.",
+      "confirmEmailRequired": "Conferma il tuo indirizzo email prima di accedere.",
+      "orSeparator": "oppure",
+      "magicLinkSwitch": "Accedi con un link magico",
+      "magicLinkBackToPassword": "Usa una password",
+      "magicLinkEmail": "E-mail",
+      "magicLinkEmailPlaceholder": "tua@email.com",
+      "magicLinkSubmit": "Invia il link",
+      "magicLinkSent": "Se un account esiste, ti è stato inviato un link di accesso per e-mail.",
+      "magicLinkError": "Impossibile inviare il link. Riprova.",
+      "magicLinkExchanging": "Accesso in corso…",
+      "magicLinkExchangeFailed": "Link non valido o già usato.",
+      "magicLinkExpired": "Link scaduto. Richiedine uno nuovo."
+    },
+    "register": {
+      "title": "Crea un account",
+      "subtitle": "Identita, lingua e sicurezza",
+      "back": "Indietro",
+      "create": "Crea",
+      "loading": "Caricamento...",
+      "identityTitle": "Identita",
+      "identityBadge": "profilo",
+      "securityTitle": "Sicurezza",
+      "securityBadge": "password",
+      "email": "Indirizzo email",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "language": "Lingua",
+      "domains": "Domini",
+      "chooseDomains": "Scegli uno o piu domini",
+      "domainsHint": "Seleziona i domini a cui vuoi essere collegato.",
+      "chooseLanguage": "Scegli una lingua",
+      "password": "Password",
+      "confirmPassword": "Conferma password",
+      "createAccount": "Crea il mio account",
+      "cancel": "Annulla",
+      "emailRequired": "L’indirizzo email e obbligatorio.",
+      "emailInvalid": "L’indirizzo email non e valido.",
+      "firstNameRequired": "Il nome e obbligatorio.",
+      "lastNameRequired": "Il cognome e obbligatorio.",
+      "languageRequired": "La lingua e obbligatoria.",
+      "passwordRequired": "La password e obbligatoria.",
+      "passwordMin": "Minimo 8 caratteri.",
+      "confirmRequired": "La conferma e obbligatoria.",
+      "passwordMismatch": "Le password non corrispondono.",
+      "success": "Il tuo account e stato creato. Controlla la casella email per confermare la registrazione.",
+      "loadLanguagesError": "Impossibile caricare le lingue.",
+      "loadDomainsError": "Impossibile caricare i domini.",
+      "submitError": "Registrazione fallita. Controlla i dati e riprova."
+    },
+    "registerPending": {
+      "title": "Account creato",
+      "subtitle": "Conferma il tuo indirizzo email",
+      "lead": "Il tuo account e stato creato correttamente.",
+      "body": "Controlla ora la tua casella email e fai clic sul link di conferma per attivare la registrazione.",
+      "login": "Vai al login"
+    },
+    "changePassword": {
+      "title": "QuizOnline",
+      "subtitle": "Reimposta la mia password",
+      "oldPassword": "Password attuale",
+      "newPassword": "Nuova password",
+      "confirmNewPassword": "Conferma nuova password",
+      "oldPasswordRequired": "La password attuale e obbligatoria.",
+      "newPasswordRequired": "La nuova password e obbligatoria.",
+      "newPasswordMin": "La nuova password deve contenere almeno 8 caratteri.",
+      "confirmRequired": "La conferma e obbligatoria.",
+      "mismatch": "Le password non corrispondono.",
+      "submit": "Cambia password",
+      "forceMessage": "Devi cambiare la password prima di continuare.",
+      "success": "La tua password e stata modificata.",
+      "error": "Si e verificato un errore durante la modifica della password."
+    },
+    "resetPassword": {
+      "title": "Reimposta la password",
+      "loading": "Caricamento…",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "il tuo indirizzo e-mail",
+      "emailRequired": "L'e-mail è obbligatoria.",
+      "emailInvalid": "L'indirizzo e-mail non è valido.",
+      "emailHint": "Verrà inviato un link di reimpostazione se l'indirizzo e-mail esiste.",
+      "successMessage": "Se esiste un account con questo indirizzo, è stata inviata un'e-mail di reimpostazione.",
+      "errorGeneric": "Si è verificato un errore. Riprova più tardi.",
+      "formInvalid": "Correggi gli errori nel modulo.",
+      "confirm": {
+        "title": "Nuova password",
+        "subtitle": "Scegli una nuova password per il tuo account.",
+        "confirmPassword": "Conferma password",
+        "backToLogin": "Torna ad accedere",
+        "linkInvalidOrIncomplete": "Link di reimpostazione non valido o incompleto.",
+        "linkInvalidOrExpired": "Link di reimpostazione non valido o scaduto.",
+        "successReset": "La password è stata reimpostata. Ora puoi accedere.",
+        "errorGeneric": "Impossibile reimpostare la password."
+      }
+    },
+    "confirmEmail": {
+      "title": "Conferma e-mail",
+      "subtitle": "Convalida della tua registrazione",
+      "inProgress": "Conferma in corso…",
+      "successFallback": "Indirizzo e-mail confermato con successo.",
+      "errorFallback": "Impossibile confermare questo indirizzo e-mail.",
+      "invalidLink": "Link di conferma non valido o incompleto."
+    },
+    "preferences": {
+      "eyebrow": "Il mio account",
+      "title": "Preferenze",
+      "subtitle": "Gestisci il tuo profilo, la lingua dell’interfaccia e il dominio corrente.",
+      "profileTitle": "Profilo",
+      "profileSubtitle": "Informazioni personali e preferenze di visualizzazione.",
+      "summaryTitle": "Riepilogo",
+      "summarySubtitle": "Vista rapida del tuo account corrente.",
+      "loading": "Caricamento...",
+      "email": "Email",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "language": "Lingua",
+      "domains": "Domini collegati",
+      "chooseDomains": "Scegli i domini collegati",
+      "currentDomain": "Dominio corrente",
+      "chooseLanguage": "Scegli una lingua",
+      "noDomain": "Nessun dominio",
+      "save": "Salva",
+      "changePassword": "Cambia password",
+      "role": "Ruolo",
+      "user": "Utente",
+      "currentDomainLabel": "Dominio attuale",
+      "managedDomains": "Domini gestiti",
+      "ownedDomains": "Domini posseduti",
+      "activeAccount": "Account attivo",
+      "yes": "Si",
+      "no": "No",
+      "roleSuperuser": "Superuser",
+      "roleManager": "Gestore",
+      "roleUser": "Utente",
+      "roleOwner": "Proprietario",
+      "roleMember": "Membro collegato",
+      "domainsTitle": "Domini",
+      "domainsSubtitle": "Gestisci i domini collegati e scegli quello corrente.",
+      "linkedDomainsList": "Domini visibili",
+      "currentBadge": "Corrente",
+      "setCurrent": "Imposta corrente",
+      "unlinkDomain": "Esci",
+      "addDomain": "Collega un dominio",
+      "noMoreDomains": "Nessun altro dominio disponibile.",
+      "linkSelectedDomains": "Collega selezione",
+      "cancel": "Annulla",
+      "ownerLabel": "Proprietario:",
+      "deleteDomain": "Elimina",
+      "deleteDomainSuccess": "Dominio eliminato.",
+      "deleteDomainError": "Impossibile eliminare questo dominio.",
+      "loadError": "Impossibile caricare le preferenze.",
+      "saveError": "Impossibile salvare le preferenze.",
+      "saveSuccess": "Preferenze salvate.",
+      "userMissing": "Utente non trovato.",
+      "pendingRequestsTitle": "Le mie richieste in attesa",
+      "pendingRequestsEmpty": "Nessuna richiesta in attesa.",
+      "pendingRequestsRequestedAt": "Richiesta il",
+      "pendingRequestsCancel": "Annulla richiesta",
+      "tabProfile": "Profilo",
+      "tabDomains": "Domini",
+      "tabNotifications": "Notifiche",
+      "notificationsTitle": "Notifiche e-mail",
+      "notificationsSubtitle": "Scegli quali e-mail ricevere. Le e-mail critiche (conferma registrazione, reimpostazione password, link di accesso) vengono sempre inviate.",
+      "notificationKindJoinRequestCreated": "Nuova richiesta di accesso su un dominio che modero",
+      "notificationKindJoinRequestDecided": "Decisione (approvata / rifiutata) su una mia richiesta",
+      "notificationKindJoinRequestExpiry": "Avviso prima dell'annullamento automatico di una richiesta in sospeso",
+      "notificationKindInviteReceived": "Invito a unirsi a un dominio",
+      "notificationKindTransferReceived": "Proposta di trasferimento di proprietà",
+      "notificationKindQuizAssignment": "Un quiz mi è stato assegnato",
+      "notificationKindQuizCompleted": "Un utente ha completato un mio quiz",
+      "notificationKindQuizResultAvailable": "Il mio punteggio su un quiz è disponibile",
+      "notificationKindQuizDetailAvailable": "La correzione dettagliata di un quiz è disponibile",
+      "notificationKindCourseInviteSent": "Uno dei miei inviti a un corso è stato inviato",
+      "notificationKindCourseInviteReceived": "Sono invitato a partecipare a un corso",
+      "notificationKindCourseInviteAccepted": "Uno dei miei inviti a un corso è stato accettato",
+      "notificationKindCourseEnrollmentRequest": "Nuova richiesta di iscrizione su un corso che modero",
+      "notificationCategoryDomain": "Notifiche di dominio",
+      "notificationCategoryQuiz": "Notifiche dei quiz",
+      "notificationCategoryLms": "Notifiche LMS",
+      "notificationChannelEmail": "E-mail",
+      "notificationChannelWeb": "Campanella",
+      "notificationGroupUser": "Le mie notifiche",
+      "notificationGroupManager": "Come gestore",
+      "notificationGroupOwner": "Come proprietario",
+      "notificationsSaved": "Preferenze di notifica salvate.",
+      "dangerZoneTitle": "Zona di pericolo",
+      "deleteAccountTitle": "Elimina il mio account",
+      "deleteAccountDescription": "Elimina definitivamente il tuo account e tutti i tuoi dati personali. Irreversibile. Se possiedi ancora dei domini, trasferiscili o eliminali prima.",
+      "deleteAccountCta": "Elimina il mio account…",
+      "deleteConfirmHeader": "Conferma eliminazione",
+      "deleteConfirmMessage": "Irreversibile. Per confermare, digita il tuo indirizzo email (\"{username}\") qui sotto.",
+      "deleteConfirmPlaceholder": "Indirizzo email",
+      "deleteConfirmAccept": "Elimina definitivamente",
+      "deleteConfirmCancel": "Annulla",
+      "deleteOwnedDomainsBlock": {
+        "one": "Possiedi ancora un dominio. Trasferiscilo o eliminalo prima di eliminare il tuo account.",
+        "other": "Possiedi ancora {count} domini. Trasferiscili o eliminali prima di eliminare il tuo account."
+      },
+      "deleteSuccess": "Il tuo account è stato eliminato.",
+      "deleteError": "Impossibile eliminare l'account."
+    },
+    "notifications": {
+      "bellTitle": "Notifiche",
+      "bellEmpty": "Nessuna notifica.",
+      "bellMarkAllRead": "Segna tutto come letto",
+      "bellSeeAll": "Vedi tutte le notifiche",
+      "pageTitle": "Notifiche",
+      "pageSubtitle": "Tutto quello che succede sui tuoi domini e sui tuoi inviti.",
+      "filterUnread": "Non lette",
+      "filterAll": "Tutte",
+      "filterDeleted": "Cestino",
+      "empty": "Niente da mostrare.",
+      "emptyHint": "Riceverai una notifica qui non appena succede qualcosa su uno dei tuoi domini o sui tuoi inviti.",
+      "actionMarkRead": "Segna come letta",
+      "actionDelete": "Elimina",
+      "relative": {
+        "justNow": "adesso",
+        "minutesAgo": "{n} min fa",
+        "hoursAgo": "{n} h fa",
+        "daysAgo": "{n} g fa"
+      },
+      "kindLine": {
+        "joinRequestCreated": "{ru} ha chiesto di unirsi a \"{dn}\".",
+        "joinRequestApproved": "La tua richiesta per \"{dn}\" è stata approvata.",
+        "joinRequestRejected": "La tua richiesta per \"{dn}\" è stata rifiutata.",
+        "joinRequestExpiry": "La tua richiesta per \"{dn}\" sta per scadere.",
+        "inviteReceived": "{iu} ti ha invitato a \"{dn}\".",
+        "transferReceived": "{ii} ti propone il trasferimento di \"{dn}\".",
+        "quizAssignment": "Un nuovo quiz \"{title}\" ti è stato assegnato.",
+        "quizCompleted": "{user} ha appena completato \"{title}\".",
+        "quizResult": "Il tuo punteggio su \"{title}\" è disponibile.",
+        "quizDetail": "La correzione dettagliata di \"{title}\" è disponibile.",
+        "defaultUser": "Un utente",
+        "defaultSomeone": "Qualcuno",
+        "defaultOwner": "Il proprietario"
+      }
+    },
+    "admin": {
+      "menuLabel": "Amministrazione",
+      "connections": {
+        "menuLabel": "Connessioni"
+      },
+      "stats": {
+        "title": "Statistiche",
+        "activeUsers": "Utenti attivi",
+        "activeDomains": "Domini attivi",
+        "activeQuestions": "Domande attive",
+        "completedSessions": "Sessioni completate",
+        "domain": "Dominio",
+        "members": "Membri",
+        "managers": "Gestori",
+        "questions": "Domande",
+        "templates": "Modelli",
+        "sessions": "Sessioni",
+        "completion": "Completamento"
+      },
+      "languages": {
+        "title": "Gestione delle lingue",
+        "addLanguage": "Aggiungi una lingua",
+        "code": "Codice",
+        "name": "Nome",
+        "active": "Attiva",
+        "editLanguage": "Modifica lingua",
+        "deleteConfirm": "Sei sicuro di voler eliminare questa lingua?",
+        "actions": "Azioni"
+      },
+      "mailTest": {
+        "title": "Test email",
+        "eyebrow": "SMTP / Outbox",
+        "subtitle": "Invia un messaggio di prova attraverso il flusso email reale del backend.",
+        "formTitle": "Invia una email di test",
+        "formSubtitle": "Il backend accoda il messaggio nell’outbox e avvia la consegna standard.",
+        "to": "Destinatario",
+        "toPlaceholder": "destinatario@example.com",
+        "toRequired": "L'indirizzo email è obbligatorio.",
+        "toInvalid": "L'indirizzo email non è valido.",
+        "subject": "Oggetto",
+        "subjectPlaceholder": "Lascia vuoto per usare l’oggetto predefinito",
+        "subjectHint": "Opzionale. Se vuoto, il backend genera un oggetto di test.",
+        "body": "Messaggio",
+        "bodyPlaceholder": "Lascia vuoto per usare il contenuto predefinito",
+        "bodyHint": "Opzionale. Se vuoto, il backend genera un corpo con timestamp.",
+        "send": "Invia test",
+        "sending": "Invio...",
+        "successTitle": "Email accodata",
+        "errorTitle": "Invio fallito",
+        "errorFallback": "Impossibile inviare l’email di test.",
+        "resultTitle": "Ultimo invio",
+        "resultSubtitle": "Risposta immediata dell’API dopo l’accodamento.",
+        "resultEmpty": "Nessuna email di test inviata in questa sessione.",
+        "emailId": "ID outbox",
+        "recipients": "Destinatari",
+        "deliveryNote": "Se broker o SMTP non sono disponibili, il messaggio può restare in coda o essere consegnato in modalità degradata a seconda della configurazione backend."
+      },
+      "systemConfig": {
+        "title": "Configurazione di sistema",
+        "eyebrow": "Diagnostica",
+        "subtitle": "Vista in sola lettura della configurazione runtime effettiva con controlli su richiesta.",
+        "loading": "Caricamento configurazione...",
+        "checking": "Verifica...",
+        "checkedAt": "Verificato il",
+        "checkResultTitle": "Risultato del controllo",
+        "errorTitle": "Errore di sistema",
+        "loadError": "Impossibile caricare la configurazione di sistema.",
+        "checkError": "Impossibile eseguire questo controllo.",
+        "sections": {
+          "db": {
+            "title": "Database",
+            "description": "Motore, destinazione e impostazioni di connessione con mascheramento.",
+            "check": "Test DB",
+            "fields": {
+              "engine": "Motore",
+              "name": "Nome",
+              "host": "Host",
+              "port": "Porta",
+              "conn_max_age": "Conn max age"
+            }
+          },
+          "email": {
+            "title": "Email",
+            "description": "Backend email, mittente e dipendenze di consegna.",
+            "check": "Test email",
+            "fields": {
+              "backend": "Backend",
+              "host": "Host",
+              "port": "Porta",
+              "use_tls": "TLS",
+              "host_user": "Utente",
+              "host_password_configured": "Password configurata",
+              "default_from_email": "From",
+              "celery_broker_url": "Celery broker",
+              "celery_result_backend": "Result backend"
+            }
+          },
+          "upload": {
+            "title": "Upload",
+            "description": "Directory media e limiti backend attivi per gli upload.",
+            "check": "Test scrittura",
+            "fields": {
+              "media_root": "Media root",
+              "media_root_exists": "Directory presente",
+              "data_upload_max_memory_size": "Data upload max",
+              "file_upload_max_memory_size": "File upload max",
+              "max_upload_file_size": "Dimensione max file"
+            }
+          },
+          "deepl": {
+            "title": "DeepL",
+            "description": "Stato di attivazione e presenza della chiave senza esporre il segreto.",
+            "check": "Test DeepL",
+            "fields": {
+              "enabled": "Attivo",
+              "auth_key_configured": "Chiave configurata",
+              "is_free": "Piano free"
+            }
+          }
+        }
+      },
+      "joinRequests": {
+        "title": "Richieste di accesso",
+        "user": "Utente",
+        "email": "Email",
+        "requestedAt": "Richiesto il",
+        "status": "Stato",
+        "actions": "Azioni",
+        "approve": "Approva",
+        "reject": "Rifiuta",
+        "rejectReason": "Motivo del rifiuto",
+        "rejectReasonPlaceholder": "Indica il motivo del rifiuto…",
+        "pending": "In attesa",
+        "approved": "Approvata",
+        "rejected": "Rifiutata",
+        "cancelled": "Annullata",
+        "all": "Tutte",
+        "noRequests": "Nessuna richiesta.",
+        "moderate": "Modera le richieste di accesso",
+        "decidedBy": "Deciso da",
+        "decidedAt": "Deciso il",
+        "reason": "Motivo",
+        "noReason": "—",
+        "bulkPlaceholder": "Azioni in blocco…",
+        "bulkApply": "Applica",
+        "bulkApprove": "Approva la selezione",
+        "bulkReject": "Rifiuta la selezione",
+        "bulkCancel": "Annulla",
+        "bulkSelectedCount": {
+          "one": "{n} selezionata",
+          "other": "{n} selezionate"
+        },
+        "bulkRejectHeader": "Rifiuta più richieste",
+        "bulkRejectMessage": "Il motivo qui sotto sarà salvato per le {n} richieste rifiutate.",
+        "bulkActionFailed": "Una o più azioni non sono riuscite.",
+        "bulkResultTitle": "Azione in blocco completata",
+        "bulkResultDetail": {
+          "withSkipped": "{processed} richiesta/e elaborata/e, {skipped} ignorata/e (già decisa/e o fuori ambito).",
+          "noSkipped": "{processed} richiesta/e elaborata/e."
+        }
+      }
+    },
+    "status": {
+      "active": "Attivo",
+      "inactive": "Inattivo",
+      "published": "Pubblicato",
+      "draft": "Bozza"
+    },
+    "access": {
+      "open": "Iscrizione libera",
+      "approval": "Previa approvazione",
+      "invite": "Solo su invito"
+    },
+    "a11y": {
+      "skipToContent": "Vai al contenuto principale"
+    },
+    "appUpdate": {
+      "title": "Nuova versione disponibile",
+      "detail": "L'app è stata aggiornata mentre eri qui. Ricarica la pagina per continuare."
+    }
+  },
+  "editor": {
+    "common": {
+      "back": "Indietro",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "add": "Aggiungi",
+      "create": "Crea",
+      "delete": "Elimina",
+      "confirm": "Conferma",
+      "duplicate": "Duplica",
+      "edit": "Modifica",
+      "send": "Invia",
+      "sending": "Invio...",
+      "refresh": "Aggiorna",
+      "close": "Chiudi",
+      "reopen": "Riapri",
+      "login": "Accedi",
+      "loading": "Caricamento...",
+      "translateOthers": "Traduci da questa scheda",
+      "translating": "Translating...",
+      "view": "Visualizza",
+      "previous": "Precedente",
+      "next": "Successivo",
+      "finish": "Termina",
+      "quick": "Rapido",
+      "downloadPdf": "Scarica PDF",
+      "errorTitle": "Errore",
+      "deleteFailed": "L'eliminazione non è riuscita."
+    },
+    "quiz": {
+      "newTemplate": "Nuovo template",
+      "markAnswered": "Segna come risposta",
+      "toggleFlag": "Attiva/disattiva flag",
+      "alert": "Segnala",
+      "backToQuiz": "Torna al quiz",
+      "finishReview": "Termina la revisione",
+      "startQuiz": "Inizia il quiz",
+      "continueQuiz": "Continua il quiz",
+      "viewCorrection": "Vedi la correzione",
+      "quizFinished": "Quiz terminato",
+      "backToList": "Torna alla lista",
+      "questionLabel": "Domanda",
+      "scoreAvailableOn": "Punteggio disponibile il",
+      "detailAvailableOn": "Dettagli disponibili il",
+      "statusReady": "Pronto",
+      "statusInProgress": "In corso",
+      "statusFinished": "Terminato",
+      "modePractice": "Allenamento",
+      "modeExam": "Esame",
+      "correctionLabel": "Correzione",
+      "scoreLabel": "Punteggio",
+      "timerLabel": "Durata",
+      "questionsLabel": "Domande",
+      "noTimeLimit": "Senza limite",
+      "createdOn": "Creato il",
+      "startedOn": "Iniziato il",
+      "closedOn": "Chiuso il",
+      "correctAnswersOf": "{correct} risposte corrette su {total}",
+      "invalidQuizId": "Identificativo del quiz non valido.",
+      "loadFailed": "Impossibile caricare questo quiz.",
+      "startFailed": "Impossibile avviare questo quiz.",
+      "finishQuizButton": "Termina il quiz",
+      "finishQuizConfirmHeader": "Termina il quiz",
+      "finishQuizConfirmMessage": "Questa azione è definitiva. Continuare?",
+      "timeUp": "Tempo scaduto.",
+      "timeUpAutoClose": "Tempo scaduto. Chiusura automatica in corso.",
+      "timeRemaining": "Tempo rimanente",
+      "autoClosingInProgress": "Chiusura automatica…",
+      "reviewModeLabel": "Modalità",
+      "reviewModeValue": "Correzione",
+      "quizUnavailable": "Questo quiz non è più disponibile.",
+      "saveAnswerFailed": "Impossibile salvare questa risposta.",
+      "noQuestions": "Questo quiz non contiene domande.",
+      "closeFailed": "Impossibile chiudere questo quiz.",
+      "alertSendFailed": "Impossibile inviare questa segnalazione.",
+      "reportDialogHeader": "Segnala una domanda",
+      "reportDialogBody": "Il tuo messaggio sarà inviato al creatore del quiz con la domanda corrente e la lingua attiva.",
+      "reportDialogPlaceholder": "Descrivi il problema riscontrato…",
+      "noCopyToastSummary": "Azione bloccata",
+      "noCopyToastDetail": "Copia disattivata durante il quiz."
+    },
+    "userAdminForm": {
+      "badgeSuperuser": "Superuser",
+      "isActiveLabel": "Attivo",
+      "languageLabel": "Lingua",
+      "nbDomainMaxLabel": "Domini max",
+      "emailLabel": "E-mail",
+      "emailConfirmedLabel": "E-mail confermata",
+      "firstNameLabel": "Nome",
+      "lastNameLabel": "Cognome",
+      "passwordLabel": "Password",
+      "passwordChangeRequiredLabel": "Cambio password richiesto"
+    },
+    "quizPlay": {
+      "quizTitleLabel": "Titolo del quiz",
+      "userLabel": "Utente",
+      "modeLabel": "Modalità",
+      "durationLabel": "Durata",
+      "currentQuestion": "Domanda corrente: {index}"
+    },
+    "mediaSelector": {
+      "tagImageLocal": "Immagine locale",
+      "tagVideoLocal": "Video locale",
+      "tagImageExisting": "Immagine esistente",
+      "tagVideoExisting": "Video esistente",
+      "tagYoutube": "Video YouTube",
+      "tagUnknown": "Sconosciuto",
+      "invalidYoutubeUrl": "Il link deve essere un URL YouTube valido.",
+      "imagePreviewAlt": "Anteprima immagine"
+    },
+    "bulkList": {
+      "activate": "Attiva",
+      "deactivate": "Disattiva",
+      "delete": "Elimina",
+      "confirmDeleteHeader": "Elimina",
+      "confirmDeleteAccept": "Elimina",
+      "confirmDeleteCancel": "Annulla",
+      "confirmDeleteUsers": {
+        "one": "Eliminare {n} utente? Questa azione è irreversibile.",
+        "other": "Eliminare {n} utenti? Questa azione è irreversibile."
+      },
+      "confirmDeleteSubjects": {
+        "one": "Eliminare {n} argomento? Questa azione è irreversibile.",
+        "other": "Eliminare {n} argomenti? Questa azione è irreversibile."
+      },
+      "confirmDeleteTemplates": {
+        "one": "Eliminare {n} template? Questa azione è irreversibile.",
+        "other": "Eliminare {n} template? Questa azione è irreversibile."
+      }
+    },
+    "quizSessionTable": {
+      "colTitle": "Titolo",
+      "colStatus": "Stato",
+      "colMode": "Modalità",
+      "colQuestions": "Domande",
+      "colCreatedAt": "Creato il",
+      "colStartedAt": "Iniziato il",
+      "colEndedAt": "Terminato il",
+      "colScore": "Punteggio",
+      "colActions": "Azioni",
+      "statusAnswered": "Risposto",
+      "statusInProgress": "In corso",
+      "statusNotStarted": "Non iniziato",
+      "actionView": "Vedi",
+      "actionContinue": "Continua",
+      "actionStart": "Inizia",
+      "empty": "Nessun quiz."
+    },
+    "pages": {
+      "domainCreate": {
+        "title": "Crea dominio",
+        "subtitle": "Traduzioni, stato e accesso"
+      },
+      "domainEdit": {
+        "title": "Modifica dominio",
+        "subtitle": "Traduzioni, stato e accesso"
+      },
+      "subjectEdit": {
+        "title": "Modifica argomento",
+        "subtitle": "Traduzioni e contenuto",
+        "questionsTitle": "Domande",
+        "addQuestion": "Aggiungi",
+        "noQuestions": "Nessuna domanda.",
+        "titleCol": "Titolo",
+        "actionsCol": "Azioni",
+        "emptyLanguagesMessage": "Questo dominio non ha lingue configurate.",
+        "errors": {
+          "saveFailed": "Errore durante il salvataggio.",
+          "translationFailed": "Errore durante la traduzione.",
+          "loadFailed": "Impossibile caricare l'argomento.",
+          "deleteFailed": "Errore durante l'eliminazione dell'argomento."
+        }
+      },
+      "questionCreate": {
+        "title": "Crea domanda",
+        "subtitle": "Dominio, argomenti, traduzioni e risposte",
+        "emptyLanguagesMessage": "Questo dominio non ha lingue attive configurate.",
+        "practiceTooltipFallback": "La domanda sarà pubblica e selezionabile per i quiz generati.",
+        "errors": {
+          "loadInitialFailed": "Impossibile caricare i dati iniziali.",
+          "loadDomainFailed": "Impossibile caricare il dominio selezionato.",
+          "translationFailed": "Errore durante la traduzione.",
+          "toastSummary": "Errore",
+          "missingFields": "Seleziona un dominio e compila almeno il titolo in ogni lingua e tutte le risposte.",
+          "missingCorrectAnswer": "Devi selezionare almeno una risposta corretta.",
+          "saveFailed": "Si è verificato un errore durante il salvataggio della domanda."
+        }
+      },
+      "questionEdit": {
+        "title": "Modifica domanda",
+        "subtitle": "Contesto, traduzioni e risposte",
+        "emptyLanguagesMessage": "Nessuna lingua attiva per questo dominio.",
+        "errors": {
+          "invalidId": "Identificativo della domanda non valido.",
+          "translationFailed": "Errore durante la traduzione.",
+          "deleteFailed": "Errore durante l'eliminazione della domanda.",
+          "needOneCorrect": "Devi selezionare almeno una risposta corretta.",
+          "formInvalid": "Compila il titolo e tutte le risposte in ogni lingua del dominio.",
+          "saveSuccess": "Domanda aggiornata con successo.",
+          "saveFailed": "Errore durante il salvataggio della domanda.",
+          "loadFailed": "Impossibile caricare la domanda.",
+          "duplicateFailed": "Errore durante la duplicazione della domanda.",
+          "confirmDelete": "Eliminare questa domanda?"
+        }
+      },
+      "questionView": {
+        "title": "Dettagli della domanda",
+        "revealOn": "Nascondi le risposte corrette",
+        "revealOff": "Mostra le risposte corrette",
+        "errors": {
+          "invalidId": "Identificativo della domanda non valido.",
+          "loadFailed": "Impossibile caricare questa domanda."
+        }
+      },
+      "quizQuick": {
+        "title": "Quiz rapido",
+        "subtitle": "Genera una sessione quiz da un dominio e da argomenti mirati.",
+        "submit": "Genera quiz",
+        "errors": {
+          "generateFailed": "Impossibile generare questo quiz.",
+          "titleRequired": "Il titolo del quiz è obbligatorio.",
+          "domainRequired": "Il dominio è obbligatorio.",
+          "subjectsRequired": "Seleziona almeno un argomento.",
+          "questionCountInvalid": "Il numero di domande deve essere maggiore di zero.",
+          "loadDomainsFailed": "Errore durante il caricamento dei domini.",
+          "loadSubjectsFailed": "Errore durante il caricamento degli argomenti."
+        }
+      },
+      "quizCreate": {
+        "back": "Indietro",
+        "cancel": "Annulla",
+        "loading": "Caricamento...",
+        "createQuestionForTemplate": "Crea una domanda per questo template",
+        "createQuestionForQuiz": "Crea una domanda per questo quiz",
+        "createQuestion": "Crea domanda",
+        "emptyLanguagesMessage": "Questo dominio non ha lingue attive configurate.",
+        "practiceTooltipFallback": "La domanda sarà disponibile nel dominio scelto per questo quiz.",
+        "errors": {
+          "invalidTemplateId": "Identificativo template non valido.",
+          "loadTemplateFailed": "Impossibile caricare i dati del template.",
+          "domainRequiredFirst": "Scegli prima un dominio per comporre il quiz.",
+          "translateQuestionFailed": "Errore durante la traduzione della domanda.",
+          "translateTemplateFailed": "Errore durante la traduzione del template.",
+          "needOneCorrect": "Devi selezionare almeno una risposta corretta.",
+          "createQuestionFailed": "Errore durante la creazione della domanda.",
+          "notAuthorized": "La composizione di quiz è riservata al proprietario o ai gestori del dominio.",
+          "completeQuizRequired": "Completa il quiz e aggiungi almeno una domanda.",
+          "domainChangeReset": "Il cambio di dominio ha azzerato la composizione del quiz.",
+          "loadQuestionsFailed": "Impossibile caricare le domande del dominio selezionato.",
+          "templateNotFound": "Template non trovato.",
+          "updateTemplateFailed": "Errore durante l’aggiornamento del template.",
+          "createTemplateFailed": "Errore durante la creazione del template.",
+          "createQuizFailed": "Errore durante la creazione del quiz."
+        }
+      },
+      "quizAlertList": {
+        "errors": {
+          "loadFailed": "Impossibile caricare i messaggi."
+        }
+      },
+      "userEdit": {
+        "title": "Modifica utente",
+        "subtitle": "Impostazioni account",
+        "errors": {
+          "invalidId": "ID utente non valido.",
+          "formInvalid": "Il modulo contiene errori.",
+          "loadFailed": "Impossibile caricare questo utente.",
+          "updateFailed": "Impossibile aggiornare questo utente."
+        }
+      },
+      "userCreate": {
+        "title": "Crea un utente",
+        "errors": {
+          "formInvalid": "Il modulo contiene errori.",
+          "createFailed": "Impossibile creare questo utente."
+        }
+      },
+      "userDelete": {
+        "pageTitle": "Elimina utente",
+        "irreversibleBadge": "Irreversibile",
+        "confirmPrefix": "Elimina",
+        "confirmSuffix": "?",
+        "userFallbackPrefix": "Utente n°",
+        "errors": {
+          "invalidId": "ID utente non valido.",
+          "loadFailed": "Impossibile caricare questo utente.",
+          "deleteFailed": "Impossibile eliminare questo utente."
+        }
+      },
+      "quizTemplateDelete": {
+        "errors": {
+          "invalidId": "ID template non valido.",
+          "loadFailed": "Impossibile caricare il template.",
+          "deleteFailed": "Eliminazione non possibile."
+        }
+      },
+      "quizSessionDelete": {
+        "pageTitle": "Elimina quiz",
+        "introPrefix": "Stai per eliminare il quiz",
+        "introSeparator": "per",
+        "loading": "Caricamento del quiz…",
+        "userFallbackPrefix": "Utente n°",
+        "errors": {
+          "invalidId": "ID quiz non valido.",
+          "loadFailed": "Impossibile caricare il quiz.",
+          "deleteFailed": "Eliminazione non possibile."
+        }
+      },
+      "questionDelete": {
+        "errors": {
+          "invalidId": "ID domanda non valido.",
+          "loadFailed": "Impossibile caricare la domanda.",
+          "deleteFailed": "Errore durante l'eliminazione."
+        }
+      },
+      "userList": {
+        "title": "Utenti",
+        "subtitle": "Gestione utenti",
+        "id": "ID",
+        "name": "Nome",
+        "email": "Email",
+        "nbDomainMax": "Max domini",
+        "active": "Attivo",
+        "emailConfirmed": "Email confermata",
+        "actions": "Azioni",
+        "bulkActionsPlaceholder": "Azioni di gruppo…",
+        "bulkActionsApply": "Applica",
+        "selectedSingular": "selezionato",
+        "selectedPlural": "selezionati",
+        "searchPlaceholder": "Cerca…"
+      },
+      "quizTemplateResults": {
+        "title": "Risultati del quiz",
+        "titleWithTemplate": "Risultati del quiz: {title}",
+        "searchPlaceholder": "Cerca nei quiz inviati…",
+        "exportCsv": "Esporta in CSV",
+        "loadFailed": "Impossibile caricare i risultati dei quiz inviati.",
+        "emptyMessage": "Nessun quiz inviato corrisponde al filtro.",
+        "statusAnswered": "Risposto",
+        "statusNotStarted": "Non iniziato",
+        "colUser": "Utente",
+        "colStatus": "Stato",
+        "colAnswers": "Risposte",
+        "colScore": "Punteggio",
+        "colActions": "Azioni",
+        "csvLastName": "Cognome",
+        "csvFirstName": "Nome",
+        "csvEmail": "Email"
+      }
+    },
+    "domainForm": {
+      "translations": "Traduzioni",
+      "languagesCount": "lingua/lingue",
+      "allowedLanguages": "Lingue consentite",
+      "selectOneLanguage": "Seleziona almeno una lingua.",
+      "titleLabel": "Name",
+      "titleRequired": "Il nome è obbligatorio.",
+      "description": "Description",
+      "titlePlaceholder": "Nome del dominio",
+      "parameters": "Impostazioni",
+      "statusAccess": "Stato e accesso",
+      "active": "Attivo",
+      "owner": "Owner",
+      "managers": "Managers",
+      "available": "Disponibili",
+      "selected": "Selezionati",
+      "readonly": "readonly",
+      "joinPolicy": "Adesione al dominio",
+      "joinPolicyAuto": "Automatica",
+      "joinPolicyOwner": "Approvazione del proprietario",
+      "joinPolicyOwnerManagers": "Approvazione del proprietario o di un gestore",
+      "joinPolicyHint": "Come un utente diventa membro di questo dominio: automaticamente o previa approvazione.",
+      "publicLabel": "Pubblico",
+      "publicHint": "Un dominio privato non appare nel catalogo: vi si entra solo su invito.",
+      "certificateBrandingLegend": "Branding del certificato",
+      "certificateSignatoryName": "Firmatario — nome",
+      "certificateSignatoryNamePlaceholder": "es. Mario Rossi",
+      "certificateSignatoryNameHint": "Nome stampato sotto la riga della firma sul PDF del certificato.",
+      "certificateSignatoryTitle": "Firmatario — titolo",
+      "certificateSignatoryTitlePlaceholder": "es. Presidente, Direttrice",
+      "certificateSignatoryTitleHint": "Ruolo tradotto mostrato sotto il nome del firmatario (uno per lingua).",
+      "certificateLogo": "Logo",
+      "certificateLogoUpload": "Scegli un logo…",
+      "certificateLogoRemove": "Rimuovi il logo",
+      "certificateLogoClearSelection": "Annulla selezione",
+      "certificateLogoHint": "In cima a ogni PDF di certificato emesso in questo dominio. Le proporzioni vengono mantenute."
+    },
+    "subjectForm": {
+      "domain": "Dominio",
+      "availableCount": "disponibili",
+      "chooseDomain": "Scegli un dominio",
+      "translations": "Traduzioni",
+      "languagesCount": "lingua/lingue",
+      "name": "Nome",
+      "description": "Descrizione",
+      "namePlaceholder": "Nome dell'argomento",
+      "required": "Campo obbligatorio.",
+      "emptyLanguages": "Questo dominio non ha lingue configurate."
+    },
+    "questionForm": {
+      "context": "Contesto",
+      "domain": "Dominio",
+      "domainUnavailable": "Dominio non disponibile",
+      "chooseDomain": "Scegli un dominio",
+      "subjects": "Argomenti",
+      "chooseSubjects": "Seleziona uno o più argomenti",
+      "active": "Active",
+      "mode": "Mode",
+      "practice": "Pratica",
+      "practiceHint": "Domanda disponibile nei quiz di tipo allenamento rapido.",
+      "exam": "Esame",
+      "examHint": "Domanda riservata ai quiz di tipo esame.",
+      "content": "Contenuto",
+      "title": "Titolo",
+      "titlePlaceholder": "Titolo...",
+      "description": "Description",
+      "titleRequired": "Il titolo è obbligatorio.",
+      "answers": "Answer options",
+      "correctAnswer": "Correct answer",
+      "answerContent": "Content",
+      "deleteAnswer": "Delete this answer",
+      "addAnswer": "Add answer",
+      "explanation": "Explanation",
+      "media": "Media",
+      "noActiveLanguages": "No active language on this domain.",
+      "deleteQuestion": "Delete question"
+    }
+  },
+  "pages": {
+    "transferAccept": {
+      "title": "Trasferimento di proprietà di un dominio",
+      "loading": "Caricamento…",
+      "errors": {
+        "tokenInvalid": "Link non valido.",
+        "tokenExpired": "Link scaduto.",
+        "generic": "Qualcosa è andato storto.",
+        "notFound": "Questo dominio non esiste più o non è più attivo."
+      },
+      "states": {
+        "readyHeading": "Pronto ad accettare",
+        "readyExplain": "{initiatorUsername} ti offre la proprietà di \"{domainName}\". Accettando diventi il proprietario e il proprietario precedente diventa un semplice membro.",
+        "accept": "Accetta il trasferimento",
+        "accepting": "Accettazione in corso…",
+        "transferred": "Ora sei il proprietario di questo dominio.",
+        "wrongAccount": "Questo link è per {futureOwnerUsername}. Accedi con quell'account.",
+        "noLongerEligible": "Questo trasferimento non è più possibile: la proprietà è cambiata dopo l'invio del link."
+      },
+      "buttons": {
+        "backHome": "Torna alla home"
+      }
+    },
+    "subjectList": {
+      "title": "Argomenti",
+      "searchPlaceholder": "Cerca…",
+      "bulk": {
+        "placeholder": "Azioni in blocco…",
+        "apply": "Applica",
+        "selectedCount": {
+          "one": "{n} selezionato",
+          "other": "{n} selezionati"
+        }
+      },
+      "columns": {
+        "name": "Nome",
+        "active": "Attivo",
+        "domain": "Dominio",
+        "questions": "Domande",
+        "actions": "Azioni"
+      }
+    },
+    "subjectCreate": {
+      "title": "Crea argomento",
+      "subtitle": "Scelta del dominio e traduzioni",
+      "emptyLanguagesMessage": "Questo dominio non ha lingue configurate.",
+      "toast": {
+        "loadDomainsFailed": "Impossibile caricare i domini.",
+        "loadDomainFailed": "Impossibile caricare il dominio selezionato.",
+        "nameRequired": "Compila almeno il campo \"nome\" per ogni lingua.",
+        "createFailed": "Errore durante la creazione dell'argomento.",
+        "translationFailed": "Errore durante la traduzione."
+      }
+    },
+    "subjectForm": {
+      "title": "Titolo",
+      "domain": "Dominio",
+      "domainPlaceholder": "Scegli un dominio",
+      "timer": "Timer",
+      "timerActive": "Attivo",
+      "timerInactive": "Disattivato",
+      "duration": "Durata",
+      "durationSuffix": " min",
+      "subjects": "Argomenti",
+      "subjectsPlaceholder": "Scegli uno o più argomenti",
+      "questionCount": "Numero di domande",
+      "questionCountWithMax": "Numero di domande (max: {max})"
+    },
+    "quizList": {
+      "page": {
+        "title": "Quiz",
+        "subtitle": "Ricerca, template e sessioni",
+        "searchPlaceholder": "Cerca...",
+        "compose": "Nuovo template",
+        "quickCreate": "Rapido"
+      },
+      "tabs": {
+        "templates": "Template",
+        "sessions": "I miei quiz"
+      },
+      "templates": {
+        "empty": "Nessun template visibile.",
+        "headers": {
+          "title": "Titolo",
+          "mode": "Modalita",
+          "questions": "Domande",
+          "createdAt": "Creato il",
+          "owner": "Owner",
+          "public": "Pubblico",
+          "active": "Attivo",
+          "available": "Disponibile",
+          "availabilityWindow": "Disponibilita",
+          "actions": "Azioni"
+        },
+        "modePractice": "Pratica",
+        "modeExam": "Esame",
+        "permanent": "Permanente",
+        "yes": "Si",
+        "no": "No",
+        "actions": {
+          "start": "Avvia questo quiz",
+          "startDisabledNotYet": "Non ancora disponibile (apre il {when})",
+          "startDisabledExpired": "Non più disponibile (chiuso il {when})",
+          "startDisabledGeneric": "Non disponibile al momento",
+          "assign": "Invia questo quiz a un utente collegato al dominio",
+          "results": "Vedi i risultati dei quiz inviati",
+          "edit": "Modifica questo template",
+          "delete": "Elimina questo template"
+        }
+      },
+      "assignDialog": {
+        "header": "Invia quiz",
+        "intro": "Seleziona una o piu persone collegate a questo dominio per inviare",
+        "noRecipients": "Nessun altro utente collegato a questo dominio.",
+        "searchPlaceholder": "Filtra per nome",
+        "selectAll": "Seleziona tutto",
+        "clearSelection": "Deseleziona tutto",
+        "roleAll": "Tutti i ruoli",
+        "submit": "Invia",
+        "cancel": "Annulla",
+        "roleOwner": "Proprietario",
+        "roleManager": "Gestore",
+        "roleMember": "Membro collegato"
+      },
+      "bulk": {
+        "placeholder": "Azioni in blocco…",
+        "apply": "Applica",
+        "activate": "Attiva",
+        "deactivate": "Disattiva",
+        "delete": "Elimina",
+        "selectedCount": {
+          "one": "{n} selezionato",
+          "other": "{n} selezionati"
+        }
+      },
+      "messages": {
+        "assignSuccess": "{count} quiz inviato/i.",
+        "assignError": "Impossibile inviare questo quiz.",
+        "loadError": "Impossibile caricare i quiz.",
+        "resultsError": "Impossibile caricare i risultati.",
+        "createError": "Impossibile creare questo quiz.",
+        "pendingApprovalBanner": "In attesa di approvazione per: {domains}. I quiz di questi domini appariranno una volta che il tuo accesso sarà approvato."
+      },
+      "welcome": {
+        "title": "Benvenuto — costruiamo il tuo primo quiz",
+        "hint": "Tre passaggi per iniziare. Falli di seguito o torna più tardi.",
+        "stepSubjectTitle": "1. Crea una materia",
+        "stepSubjectHint": "Raggruppa le tue domande per tema — una materia per capitolo, per competenza, …",
+        "stepQuestionTitle": "2. Aggiungi una domanda",
+        "stepQuestionHint": "Testo, immagine o video. Più risposte possibili, spiegazione facoltativa.",
+        "stepQuizTitle": "3. Componi un quiz",
+        "stepQuizHint": "Scegli le domande, regola ordine e pesi, poi attiva il quiz.",
+        "ctaSubject": "Crea una materia",
+        "ctaQuestion": "Aggiungi una domanda",
+        "ctaQuiz": "Componi un quiz"
+      }
+    },
+    "quizCreate": {
+      "textsTab": "Testi e traduzioni",
+      "configurationTab": "Configurazione",
+      "questionsTab": "Domande",
+      "sectionStatus": "Stato",
+      "sectionMode": "Modalità e timing",
+      "sectionAvailability": "Finestra di disponibilità",
+      "sectionOrdering": "Ordine delle domande",
+      "sectionResult": "Visibilità del risultato",
+      "sectionDetail": "Visibilità del dettaglio",
+      "questionPoolTitle": "Domande disponibili",
+      "questionSearchPlaceholder": "Cerca una domanda",
+      "questionSubjectFilter": "Soggetti",
+      "questionSubjectFilterPlaceholder": "Filtra per soggetti",
+      "createQuestion": "Crea domanda",
+      "selectDomainToLoadQuestions": "Scegli un dominio per caricare le domande disponibili.",
+      "loadingQuestions": "Caricamento domande...",
+      "noAvailableQuestions": "Nessuna domanda attiva disponibile per questo dominio.",
+      "compositionTitle": "Composizione del quiz",
+      "compositionHelp": "Regola ordine e peso delle domande prima del salvataggio.",
+      "compositionEmpty": "Aggiungi almeno una domanda per comporre il quiz.",
+      "weight": "Peso",
+      "weightHelp": "Il peso cambia quanto questa domanda conta nel punteggio.",
+      "createTitle": "Crea un template quiz",
+      "editTitle": "Modifica il template quiz",
+      "createSubtitle": "Un dominio, un set di domande e regole di pubblicazione chiare",
+      "editSubtitle": "Aggiorna impostazioni, visibilità e ordine delle domande",
+      "createTemplate": "Crea template",
+      "saveTemplate": "Salva template",
+      "mode": "Modalità",
+      "timer": "Timer",
+      "duration": "Durata",
+      "active": "Attivo",
+      "public": "Pubblico",
+      "permanent": "Permanente",
+      "shuffleQuestions": "Mescola le domande",
+      "startedAt": "Data inizio",
+      "endedAt": "Data fine",
+      "resultVisibility": "Visibilità risultato",
+      "resultAvailableAt": "Risultato disponibile dal",
+      "detailVisibility": "Visibilità dettagli",
+      "detailAvailableAt": "Dettagli disponibili dal",
+      "quizTitle": "Titolo",
+      "quizTitlePlaceholder": "es. Esame di chimica",
+      "quizDescription": "Descrizione",
+      "composeReservedForOwner": "La composizione del quiz è riservata al proprietario o ai gestori di un dominio.",
+      "translationsTitle": "Traduzioni",
+      "languagesCount": "lingue",
+      "translateOthers": "Traduci da questa scheda",
+      "translating": "Traduzione in corso...",
+      "translationHint": "Modifica titolo e descrizione localizzati per ogni lingua attiva.",
+      "translationRequired": "È richiesto almeno un titolo tradotto.",
+      "practiceMode": "Pratica",
+      "examMode": "Esame",
+      "visibilityImmediate": "Immediata",
+      "visibilityScheduled": "Pianificata",
+      "visibilityNever": "Mai",
+      "dateFormat": "dd/mm/yy",
+      "today": "Oggi",
+      "clear": "Cancella",
+      "weekHeader": "Sm",
+      "dayNames": [
+        "domenica",
+        "lunedì",
+        "martedì",
+        "mercoledì",
+        "giovedì",
+        "venerdì",
+        "sabato"
+      ],
+      "dayNamesShort": [
+        "dom",
+        "lun",
+        "mar",
+        "mer",
+        "gio",
+        "ven",
+        "sab"
+      ],
+      "dayNamesMin": [
+        "do",
+        "lu",
+        "ma",
+        "me",
+        "gi",
+        "ve",
+        "sa"
+      ],
+      "monthNames": [
+        "gennaio",
+        "febbraio",
+        "marzo",
+        "aprile",
+        "maggio",
+        "giugno",
+        "luglio",
+        "agosto",
+        "settembre",
+        "ottobre",
+        "novembre",
+        "dicembre"
+      ],
+      "monthNamesShort": [
+        "gen",
+        "feb",
+        "mar",
+        "apr",
+        "mag",
+        "giu",
+        "lug",
+        "ago",
+        "set",
+        "ott",
+        "nov",
+        "dic"
+      ]
+    },
+    "quizAlertList": {
+      "title": "Messaggi quiz",
+      "searchPlaceholder": "Cerca nei messaggi…",
+      "loading": "Caricamento messaggi…",
+      "statusOptions": {
+        "all": "Tutti",
+        "open": "Aperti",
+        "closed": "Chiusi"
+      },
+      "readOptions": {
+        "all": "Tutti",
+        "unread": "Non letti",
+        "read": "Letti"
+      },
+      "topicQuiz": "Quiz",
+      "questionPrefix": "Domanda #{id}",
+      "questionOrder": "#{order}",
+      "status": {
+        "open": "Aperta",
+        "closed": "Chiusa",
+        "unread": "Non letta"
+      },
+      "empty": {
+        "title": "Nessun messaggio",
+        "hint": "Nessun messaggio corrisponde al filtro attivo."
+      },
+      "noMessage": "Nessun messaggio.",
+      "assignmentPreview": "Ti è stato assegnato un nuovo quiz: {title}",
+      "assignmentPreviewWithIntro": "{intro}: {title}"
+    },
+    "quizAlertDetail": {
+      "back": "← Torna ai messaggi",
+      "loadingConversation": "Caricamento della conversazione…",
+      "quizBadge": "Quiz",
+      "statusOpen": "Aperta",
+      "statusClosed": "Chiusa",
+      "questionLabel": "Domanda",
+      "userFallback": "Utente",
+      "unreadBadge": "Non letto",
+      "replyPlaceholder": "Scrivi la tua risposta…",
+      "conversationClosedNote": "Conversazione chiusa. Riaprila per rispondere o per riabilitare le risposte.",
+      "reporterReplyToggle": "Risposte utente",
+      "assignmentIntroFallback": "Ti è stato assegnato un nuovo quiz:",
+      "errors": {
+        "invalidMessageId": "Identificativo del messaggio non valido.",
+        "loadFailed": "Impossibile caricare questo messaggio.",
+        "sendFailed": "Impossibile inviare questo messaggio.",
+        "updateFailed": "Impossibile modificare questa conversazione.",
+        "closeFailed": "Impossibile chiudere questa conversazione.",
+        "reopenFailed": "Impossibile riaprire questa conversazione."
+      }
+    },
+    "questionList": {
+      "title": "Domande",
+      "subtitle": "Ricerca, elenco e azioni",
+      "searchPlaceholder": "Cerca...",
+      "subjectsPlaceholder": "Filtra per argomenti",
+      "newQuestion": "Nuovo",
+      "importQuestions": "Importa",
+      "exportQuestions": "Esporta",
+      "exportSelected": "Esporta ({n})",
+      "selectAll": "Seleziona tutto",
+      "unselectAll": "Deseleziona tutto",
+      "titleCol": "Titolo",
+      "activeCol": "Attiva",
+      "modesCol": "Modalita",
+      "domainsCol": "Domini",
+      "subjectsCol": "Argomenti",
+      "actionsCol": "Azioni",
+      "practice": "Pratica",
+      "exam": "Esame",
+      "bulkPlaceholder": "Azioni multiple…",
+      "bulkApply": "Applica",
+      "bulkExport": "Esporta",
+      "bulkActivate": "Attiva",
+      "bulkDeactivate": "Disattiva",
+      "bulkAddPractice": "Aggiungi modalità pratica",
+      "bulkRemovePractice": "Rimuovi modalità pratica",
+      "bulkAddExam": "Aggiungi modalità esame",
+      "bulkRemoveExam": "Rimuovi modalità esame",
+      "bulkDelete": "Elimina",
+      "bulkSelectedCount": {
+        "one": "{n} selezionata",
+        "other": "{n} selezionate"
+      },
+      "bulkDeleteConfirm": {
+        "one": "Eliminare {n} domanda? L'operazione è irreversibile.",
+        "other": "Eliminare {n} domande? L'operazione è irreversibile."
+      },
+      "bulkConfirmCancel": "Annulla"
+    },
+    "questionImport": {
+      "title": "Importazione domande",
+      "subtitle": "Importa un file JSON strutturato con un dominio, dei subject e domande multilingue.",
+      "back": "Indietro",
+      "explanationTitle": "Formato atteso",
+      "explanation": "Il file deve essere un oggetto JSON con le chiavi \"version\", \"domain\", \"subjects\" e \"questions\".",
+      "exampleTitle": "Esempio di formato",
+      "exampleDescription": "Scarica un file JSON di esempio (un dominio, un subject e una domanda multilingue). Adattalo ai tuoi dati prima di importarlo.",
+      "exampleButton": "Scarica esempio",
+      "uploadTitle": "File JSON o ZIP",
+      "zipFileReady": "File ZIP pronto per l'importazione (validazione lato server).",
+      "chooseFile": "Scegli file",
+      "clearFile": "Cancella",
+      "noFile": "Nessun file selezionato.",
+      "selectedFile": "File selezionato",
+      "validationTitle": "Verifica del formato",
+      "formatValid": "Formato valido",
+      "formatInvalid": "Formato non valido",
+      "invalidJson": "Il file non contiene un JSON valido.",
+      "rootObjectError": "Il file deve contenere un oggetto JSON.",
+      "versionError": "Il file deve contenere \"version\": \"1.0\".",
+      "domainObjectError": "Il file deve contenere una chiave \"domain\" con un oggetto.",
+      "subjectsArrayError": "Il file deve contenere una chiave \"subjects\" con una lista.",
+      "questionsArrayError": "Il file deve contenere una chiave \"questions\" con una lista.",
+      "domainIdError": "Il dominio deve contenere un id intero positivo.",
+      "domainTranslationsError": "Il dominio deve contenere un oggetto \"translations\".",
+      "subjectObjectError": "Subject {item}: formato non valido.",
+      "questionObjectError": "Domanda {item}: formato non valido.",
+      "questionSubjectsReferenceError": "Domanda {item}: un subject referenziato manca in \"subjects\".",
+      "questionDomainError": "Domanda {item}: \"domain\" deve essere un intero positivo.",
+      "questionTranslationsError": "Domanda {item}: \"translations\" deve contenere almeno una lingua.",
+      "questionTranslationShapeError": "Domanda {item}: traduzione \"{lang}\" non valida.",
+      "questionSubjectsError": "Domanda {item}: \"subject_ids\" deve essere una lista di interi positivi.",
+      "questionMediaError": "Domanda {item}: \"media_asset_ids\" deve essere una lista di interi positivi.",
+      "questionAnswersError": "Domanda {item}: servono almeno 2 risposte in \"answer_options\".",
+      "questionCorrectAnswerError": "Domanda {item}: serve almeno una risposta corretta.",
+      "answerShapeError": "Domanda {item}, risposta {answer}: formato non valido.",
+      "answerTranslationsError": "Domanda {item}, risposta {answer}: \"translations\" deve contenere almeno una lingua.",
+      "answerTranslationShapeError": "Domanda {item}, risposta {answer}, lingua \"{lang}\": contenuto non valido.",
+      "fileValidated": "{count} domanda/e pronta/e per l'importazione.",
+      "importLabel": "Importa",
+      "cancelLabel": "Annulla",
+      "importDone": "Importazione completata",
+      "importSuccess": "{count} domanda/e importata/e con successo.",
+      "importPartialTitle": "Importazione parziale",
+      "importPartialMessage": "{success} domanda/e importata/e, {failed} con errore.",
+      "importFailure": "La domanda {item} non e stata importata."
+    },
+    "progress": {
+      "pageTitle": "I miei progressi",
+      "colCourse": "Corso",
+      "colProgress": "Progresso",
+      "colLastActivity": "Ultima attività",
+      "colStatus": "Stato",
+      "emptyTitle": "Nessun corso in corso",
+      "emptyMessage": "Iscriviti a un corso dal catalogo per iniziare.",
+      "exploreButton": "Sfoglia il catalogo"
+    },
+    "privacy": {
+      "title": "Informativa sulla privacy",
+      "lastUpdated": "Ultimo aggiornamento: {date}",
+      "intro": "Questa pagina descrive quali dati personali QuizOnline raccoglie, come vengono utilizzati e quali diritti hai. Contattaci per qualsiasi domanda.",
+      "sections": [
+        {
+          "heading": "Dati raccolti",
+          "body": "Profilo utente (nome, e-mail, lingua preferita), domini e quiz a cui partecipi, preferenze di notifica e registro di audit della moderazione. I token di autenticazione sono salvati nel tuo browser — strettamente necessari."
+        },
+        {
+          "heading": "Uso dei dati",
+          "body": "Esclusivamente per fornire il servizio: autenticazione, e-mail di invito e notifica, risultati e analisi. Nessun dato è venduto o condiviso con terze parti per scopi pubblicitari."
+        },
+        {
+          "heading": "Conservazione",
+          "body": "I dati sono conservati finché il tuo account è attivo. I backup del database sono conservati 14 giorni."
+        },
+        {
+          "heading": "Hosting e responsabili",
+          "body": "L'applicazione è ospitata su AWS (regione UE). Le e-mail passano dal provider SMTP configurato dall'operatore."
+        }
+      ],
+      "rightsHeading": "I tuoi diritti (GDPR)",
+      "rightsBody": "Hai diritto di accesso, rettifica, portabilità e cancellazione. Clicca sul pulsante qui sotto per scaricare tutti i tuoi dati in formato JSON. Per la cancellazione, contattaci all'indirizzo qui sotto.",
+      "exportCta": "Scarica i miei dati (JSON)",
+      "exportHint": "Genera un file ``quizonline-export-<tuo nome utente>.json`` con profilo, domini, richieste e quiz.",
+      "contactHeading": "Contatti",
+      "contactBody": "Per qualsiasi domanda sulla privacy o per richiedere la cancellazione, scrivi a {email}."
+    },
+    "myInvitations": {
+      "pageTitle": "I miei inviti",
+      "loading": "Caricamento…",
+      "invitationFrom": "Invitato da {inviter}",
+      "expiresAt": "Scade il {when}",
+      "viewInvitationButton": "Vedi l’invito",
+      "viewCourseButton": "Vai al corso",
+      "emptyTitle": "Nessun invito in corso",
+      "emptyMessage": "Non hai inviti a corsi in attesa di accettazione.",
+      "loadErrorToast": "Impossibile caricare gli inviti.",
+      "tabPending": "In corso",
+      "tabHistory": "Cronologia",
+      "emptyHistoryTitle": "Nessun invito precedente",
+      "emptyHistoryMessage": "Inviti accettati, rifiutati, scaduti o revocati appariranno qui.",
+      "statusLabels": {
+        "pending": "In attesa",
+        "accepted": "Accettato",
+        "declined": "Rifiutato",
+        "revoked": "Revocato",
+        "expired": "Scaduto"
+      },
+      "historyDateLabel": "Il {when}"
+    },
+    "lessonView": {
+      "pageTitle": "Lezione",
+      "pageLoading": "Caricamento lezione…",
+      "markCompletedButton": "Segna come completata",
+      "alreadyCompletedBadge": "Completata",
+      "lessonCompletedToast": "Lezione segnata come completata.",
+      "lessonCompletedErrorToast": "Impossibile segnare la lezione come completata.",
+      "editButton": "Modifica",
+      "prevLessonButton": "Lezione precedente",
+      "nextLessonButton": "Lezione successiva",
+      "positionInSection": "Lezione {current}/{total}",
+      "notesHeading": "I miei appunti",
+      "notesPlaceholder": "I tuoi appunti personali su questa lezione…",
+      "notesSavedAt": "Salvato alle {time}",
+      "errorTitle": "Caricamento non riuscito",
+      "errorMessage": "Impossibile caricare questa lezione. Riprova.",
+      "retryButton": "Riprova"
+    },
+    "lessonEdit": {
+      "pageTitle": "Modifica lezione",
+      "blockErrorToast": "Operazione sul blocco non riuscita.",
+      "emptyTitle": "Lezione vuota",
+      "emptyHint": "Aggiungi un primo blocco usando la barra qui sotto.",
+      "previewButton": "Anteprima",
+      "editModeButton": "Modifica"
+    },
+    "joinRequestDecide": {
+      "title": "Moderazione di una richiesta di accesso",
+      "loading": "Caricamento del link…",
+      "errors": {
+        "tokenInvalid": "Link non valido. Potrebbe essere stato alterato o copiato in modo incompleto.",
+        "tokenExpired": "Link scaduto. Accedi all'app per moderare questa richiesta.",
+        "recipientMismatch": "Questo link non è destinato al tuo account. Accedi con l'account che ha ricevuto l'e-mail.",
+        "cannotApproveAnymore": "Non hai più diritti di moderazione su questo dominio.",
+        "requestNotFound": "Questa richiesta non esiste più.",
+        "generic": "Qualcosa è andato storto. Riprova più tardi."
+      },
+      "recap": {
+        "requesterLine": {
+          "withEmail": "Richiedente: {username} ({email})",
+          "withoutEmail": "Richiedente: {username}"
+        },
+        "domainLine": "Dominio: {domain}",
+        "actionLineApprove": "Azione: approvare l'accesso.",
+        "actionLineReject": "Azione: rifiutare l'accesso.",
+        "statusLine": "Stato attuale: {status}",
+        "decidedBy": "Deciso da {username} il {when}.",
+        "requestedAt": "Richiesta ricevuta il {when}.",
+        "rejectReason": "Motivo precedente: {reason}"
+      },
+      "override": {
+        "bannerTitle": "Questa richiesta è già stata decisa.",
+        "bannerExplain": "Se confermi, la tua decisione sovrascriverà quella precedente (last-decision-wins)."
+      },
+      "status": {
+        "pending": "in attesa",
+        "approved": "approvata",
+        "rejected": "rifiutata",
+        "cancelled": "annullata"
+      },
+      "buttons": {
+        "confirmApprove": "Conferma approvazione",
+        "confirmReject": "Conferma rifiuto",
+        "overrideApprove": "Approva comunque",
+        "overrideReject": "Rifiuta comunque",
+        "backHome": "Torna alla home",
+        "submitting": "Invio in corso…"
+      },
+      "done": {
+        "approved": "Richiesta approvata. Il richiedente è stato informato.",
+        "rejected": "Richiesta rifiutata. Il richiedente è stato informato."
+      }
+    },
+    "inviteAccept": {
+      "title": "Invito a unirsi a un dominio",
+      "loading": "Caricamento dell'invito…",
+      "errors": {
+        "tokenInvalid": "Link non valido.",
+        "tokenExpired": "Link scaduto.",
+        "generic": "Qualcosa è andato storto.",
+        "notFound": "Questo dominio non esiste più o non è più attivo."
+      },
+      "states": {
+        "readyHeading": "Pronto a entrare",
+        "readyExplain": "Sei stato invitato a unirti a \"{domainName}\" da {inviterUsername}.",
+        "accept": "Accetta l'invito",
+        "accepting": "Accettazione in corso…",
+        "accepted": "Ora fai parte del dominio.",
+        "alreadyMember": "Sei già un membro di questo dominio.",
+        "wrongAccount": "Questo link è per {expectedEmail}. Accedi con quell'account.",
+        "loginRequired": "Esiste già un account per questo indirizzo. Accedi per accettare l'invito.",
+        "loginCta": "Accedi",
+        "signupRequired": "Nessun account per questo indirizzo. Creane uno per accettare l'invito.",
+        "signupCta": "Crea un account"
+      },
+      "buttons": {
+        "backHome": "Torna alla home"
+      }
+    },
+    "features": {
+      "eyebrow": "Piattaforma",
+      "title": "Tutto per creare quiz che contano",
+      "intro": "Dalla struttura organizzativa ai risultati dettagliati, QuizOnline unisce creazione di contenuti, distribuzione e monitoraggio in un'unica piattaforma multilingue.",
+      "ctaPrimary": "Crea un account",
+      "ctaSecondary": "Accedi",
+      "ctaLoggedIn": "Vedi i miei quiz",
+      "sections": {
+        "domains": {
+          "badge": "Domini",
+          "title": "Organizza i contenuti per dominio",
+          "intro": "Dai a ogni entità il suo spazio, ruoli e regole. I domini strutturano l'intera piattaforma.",
+          "features": {
+            "roles": {
+              "title": "Gerarchia di ruoli",
+              "description": "Proprietario, gestori e membri con permessi calibrati su ogni livello."
+            },
+            "policies": {
+              "title": "Politiche di adesione",
+              "description": "Tre modalità di approvazione: automatica, solo proprietario, o proprietario e gestori."
+            },
+            "requests": {
+              "title": "Richieste self-service",
+              "description": "Workflow completo di adesione con approvazione, rifiuto motivato e tracciamento dello stato."
+            },
+            "bulkModeration": {
+              "title": "Moderazione in blocco",
+              "description": "Approva o rifiuta più richieste in una singola chiamata atomica, con audit mirato."
+            },
+            "multiInvite": {
+              "title": "Inviti multi-dominio",
+              "description": "Invita lo stesso indirizzo e-mail su più domini in una sola azione, con controllo dei permessi per dominio."
+            },
+            "analytics": {
+              "title": "Statistiche di moderazione",
+              "description": "Contatori, tasso di accettazione, tempo mediano di decisione e migliori moderatori — calcolati in tempo reale."
+            },
+            "transferOwnership": {
+              "title": "Trasferimento di proprietà",
+              "description": "Cedi la proprietà di un dominio a un altro utente tramite un link firmato, senza scambio prematuro."
+            },
+            "auditLog": {
+              "title": "Registro di audit",
+              "description": "Traccia immutabile di ogni decisione e azione di moderazione, consultabile per dominio."
+            },
+            "notifications": {
+              "title": "Notifiche email",
+              "description": "Proprietari e richiedenti informati a ogni passaggio, nella propria lingua."
+            },
+            "multilingual": {
+              "title": "Multilingue nativo",
+              "description": "Nome e descrizione traducibili in cinque lingue: FR, EN, NL, IT, ES."
+            },
+            "aiTranslate": {
+              "title": "Traduzioni AI",
+              "description": "Precompila le traduzioni con un clic grazie all'integrazione DeepL."
+            },
+            "languageGate": {
+              "title": "Lingue consentite",
+              "description": "Limita le lingue di redazione per ogni singolo dominio."
+            }
+          }
+        },
+        "subjects": {
+          "badge": "Argomenti",
+          "title": "Categorizza con flessibilità",
+          "intro": "Gli argomenti permettono di organizzare liberamente le tematiche di ogni dominio.",
+          "features": {
+            "crud": {
+              "title": "Gestione completa",
+              "description": "Crea, modifica e attiva argomenti specifici per ogni dominio."
+            },
+            "multilingual": {
+              "title": "Contenuti multilingue",
+              "description": "Nome e descrizione traducibili in cinque lingue."
+            },
+            "aiTranslate": {
+              "title": "Traduzioni DeepL",
+              "description": "Generazione automatica delle traduzioni, pronta per la revisione."
+            },
+            "tagging": {
+              "title": "Collegamento alle domande",
+              "description": "Tagging multi-argomento con ordinamento personalizzabile per argomento."
+            },
+            "autoCreate": {
+              "title": "Auto-creazione all'import",
+              "description": "Gli argomenti mancanti vengono creati automaticamente durante l'import."
+            }
+          }
+        },
+        "questions": {
+          "badge": "Domande",
+          "title": "Una banca dati senza compromessi",
+          "intro": "Dalle domande a scelta multipla ricche di media alle spiegazioni didattiche, ogni domanda parla tutte le tue lingue.",
+          "features": {
+            "multipleChoice": {
+              "title": "Scelta multipla flessibile",
+              "description": "Una sola risposta corretta o più: decidi tu, per ogni domanda."
+            },
+            "multilingual": {
+              "title": "Contenuto multilingue",
+              "description": "Titolo, descrizione, spiegazione e opzioni di risposta tradotti in cinque lingue."
+            },
+            "images": {
+              "title": "Immagini integrate",
+              "description": "Upload con deduplicazione automatica: illustra senza gonfiare lo storage."
+            },
+            "videos": {
+              "title": "Video ospitati",
+              "description": "Upload di file video direttamente collegati alla domanda."
+            },
+            "youtube": {
+              "title": "YouTube pronto all'uso",
+              "description": "Incolla qualsiasi URL — watch, shorts, embed, youtu.be — viene normalizzato."
+            },
+            "modes": {
+              "title": "Practice o esame",
+              "description": "Attiva ogni domanda per practice, esame, o entrambi i pool."
+            },
+            "explanations": {
+              "title": "Spiegazioni dettagliate",
+              "description": "Testo ricco mostrato dopo la risposta in modalità practice."
+            },
+            "aiTranslate": {
+              "title": "Traduzioni in batch",
+              "description": "DeepL traduce titolo, descrizione, spiegazione e opzioni in un'unica chiamata."
+            },
+            "importExport": {
+              "title": "Import / Export strutturati",
+              "description": "JSON versionato e CSV per migrare o archiviare la banca dati."
+            },
+            "duplicate": {
+              "title": "Duplicazione",
+              "description": "Clona una domanda esistente per risparmiare tempo sulle varianti."
+            }
+          }
+        },
+        "quizzes": {
+          "badge": "Quiz",
+          "title": "Distribuisci, cronometra, monitora",
+          "intro": "Practice, esame o valutazione pubblica: ogni template combina le tue regole di modalità, durata e visibilità.",
+          "features": {
+            "modes": {
+              "title": "Practice ed Exam",
+              "description": "Feedback immediato o tentativo unico con rivelazione controllata."
+            },
+            "timer": {
+              "title": "Timer configurabile",
+              "description": "Durata per template con scadenza automatica lato server."
+            },
+            "window": {
+              "title": "Finestra di disponibilità",
+              "description": "Intervallo di date o template permanente — a tua scelta."
+            },
+            "visibility": {
+              "title": "Visibilità granulare",
+              "description": "Punteggio e dettaglio risposte: immediato, programmato, o mai — ciascuna impostabile in modo indipendente."
+            },
+            "notifyUnlock": {
+              "title": "Notifica allo sblocco",
+              "description": "Email automatica ai partecipanti quando la finestra di visibilità del risultato o del dettaglio si apre, con link diretto."
+            },
+            "shuffle": {
+              "title": "Mescolamento per sessione",
+              "description": "Attiva lo shuffle per dare a ogni partecipante un ordine diverso, deterministico per sessione (stesso ordine ad ogni ricarica)."
+            },
+            "public": {
+              "title": "Quiz pubblici",
+              "description": "Permetti l'accesso senza appartenenza al dominio per valutazioni aperte."
+            },
+            "assignment": {
+              "title": "Assegnazione in massa",
+              "description": "Assegna un template a più utenti in una singola chiamata atomica."
+            },
+            "emails": {
+              "title": "Email di assegnazione",
+              "description": "Notifica automatica con scadenza e link diretto, nella lingua del destinatario."
+            },
+            "messages": {
+              "title": "Messaggistica contestuale",
+              "description": "Thread di alert per domanda: avvia una conversazione durante il quiz."
+            },
+            "scoring": {
+              "title": "Punteggio ponderato",
+              "description": "Peso per domanda nel template, valutazione tutto-o-niente sulle opzioni corrette."
+            },
+            "pdf": {
+              "title": "Export PDF",
+              "description": "Generazione A4 del risultato con punteggio, dettagli per domanda e spiegazioni."
+            },
+            "tracking": {
+              "title": "Monitoraggio sessioni",
+              "description": "Vista per template con stato di completamento per utente."
+            }
+          }
+        },
+        "learning": {
+          "badge": "LMS",
+          "title": "Corsi, lezioni e percorsi formativi",
+          "intro": "Progetta percorsi completi: sezioni, lezioni, blocchi polimorfici e pubblicazione controllata — ogni corso resta nelle lingue del tuo dominio.",
+          "features": {
+            "catalog": {
+              "title": "Catalogo ricercabile",
+              "description": "I tuoi apprendenti sfogliano i corsi per parola chiave, livello e dominio, con una scheda di anteprima per ogni corso."
+            },
+            "structure": {
+              "title": "Corso → Sezioni → Lezioni",
+              "description": "Una gerarchia chiara per organizzare i percorsi: le sezioni raggruppano le lezioni, le lezioni ospitano i blocchi."
+            },
+            "blocks": {
+              "title": "8 tipi di blocchi",
+              "description": "Testo ricco, immagine, video, file, quiz, callout, codice, iframe — ogni tipo ha il proprio editor dedicato."
+            },
+            "editor": {
+              "title": "Editor drag-and-drop",
+              "description": "Riordina i blocchi di una lezione tramite drag-and-drop. Ogni blocco si modifica con un pulsante Salva / Annulla esplicito — nessun salvataggio silenzioso. Stessa UX per sezioni e lezioni di un corso."
+            },
+            "calloutVariants": {
+              "title": "Varianti dei callout",
+              "description": "I blocchi callout portano una variante semantica (info / successo / avvertimento / errore) che colora il bordo sinistro."
+            },
+            "translations": {
+              "title": "Traduzioni per blocco",
+              "description": "Schede di lingua in ogni editor di blocco, con un pulsante \"traduci dalla scheda attiva\" che riempie i campi vuoti tramite DeepL."
+            },
+            "viewAsLearner": {
+              "title": "Anteprima come studente",
+              "description": "Pulsante occhio per visualizzare una lezione esattamente come la vede uno studente, senza i comandi di modifica."
+            },
+            "publish": {
+              "title": "Pubblica, depubblica, clona",
+              "description": "Workflow bozza → pubblicato, ritorno in bozza quando serve, clonazione in un clic per declinare una variante."
+            },
+            "safeHtml": {
+              "title": "HTML sanificato",
+              "description": "Il testo ricco passa per nh3 con una allowlist stretta (CSS di Quill consentito, script e URL esotici eliminati)."
+            },
+            "multilingual": {
+              "title": "Multilingue per dominio",
+              "description": "Corso e traduzioni sono vincolati a Domain.allowed_languages. Nessuna lingua accidentale."
+            }
+          }
+        },
+        "enrollment": {
+          "badge": "Iscrizioni",
+          "title": "Dall'iscrizione al certificato",
+          "intro": "Tre modalità di iscrizione, progressione tracciata lezione per lezione, quiz di validazione e certificati PDF generati automaticamente — il ciclo completo dell'apprendente.",
+          "features": {
+            "modes": {
+              "title": "3 modalità d'iscrizione",
+              "description": "Aperta (auto-iscrizione), su richiesta (moderata dall'istruttore), o solo su invito."
+            },
+            "invites": {
+              "title": "Inviti via email",
+              "description": "Invita apprendenti in massa con una scadenza e promemoria automatico prima della scadenza."
+            },
+            "progress": {
+              "title": "Tracciamento progressione",
+              "description": "Ogni lezione completata aggiorna la percentuale di completamento del corso, persistita per utente."
+            },
+            "validationQuiz": {
+              "title": "Quiz di validazione",
+              "description": "Allega un quiz a una lezione: finché il punteggio minimo non è raggiunto, la lezione resta non convalidata."
+            },
+            "finalQuiz": {
+              "title": "Quiz finale + certificato",
+              "description": "Il superamento del quiz finale attiva l'emissione del certificato — soglia di superamento configurabile dall'istruttore."
+            },
+            "certificates": {
+              "title": "Certificati PDF",
+              "description": "Generazione PDF asincrona tramite Celery + reportlab, con numerazione sequenziale per corso."
+            },
+            "certificateConfig": {
+              "title": "Certificati configurabili",
+              "description": "Attiva o disattiva l'emissione per ogni corso e imposta una validità in mesi. La data di scadenza viene fissata al momento dell'emissione."
+            },
+            "verification": {
+              "title": "Verifica pubblica",
+              "description": "Ogni certificato ha un URL pubblico di verifica — firmato, anti-manomissione, anon-throttled."
+            },
+            "emails": {
+              "title": "5 email localizzate",
+              "description": "Iscrizione creata, approvata, rifiutata, corso completato, certificato emesso — ognuna tradotta in FR/EN/NL/IT/ES tramite gettext."
+            },
+            "analytics": {
+              "title": "Analytics per corso",
+              "description": "Conteggio iscrizioni, tasso di completamento, progressione mediana e grafico di tendenza delle iscrizioni a 30 giorni."
+            },
+            "dashboard": {
+              "title": "Dashboard apprendente",
+              "description": "La pagina /dashboard riunisce corsi in corso, certificati, quiz da svolgere e catalogo da scoprire."
+            }
+          }
+        },
+        "platform": {
+          "badge": "Piattaforma",
+          "title": "Un'infrastruttura pronta per la produzione",
+          "intro": "Tutto ciò che rende la piattaforma affidabile, multilingue e osservabile ogni giorno.",
+          "features": {
+            "auth": {
+              "title": "Auth JWT e conferma email",
+              "description": "Registrazione, conferma email e reset password sicuri."
+            },
+            "magicLink": {
+              "title": "Login con magic link",
+              "description": "Autenticazione senza password: basta un link firmato ricevuto via e-mail per accedere."
+            },
+            "notificationPrefs": {
+              "title": "Preferenze di notifica",
+              "description": "Ogni utente sceglie quali e-mail riceve, per categoria (richieste, inviti, trasferimenti)."
+            },
+            "multilingual": {
+              "title": "UI multilingue",
+              "description": "Cinque lingue sull'interfaccia: FR, EN, NL, IT, ES."
+            },
+            "outbox": {
+              "title": "Outbox + Celery",
+              "description": "Consegna asincrona affidabile con retry e backoff. SMTP o Microsoft Graph."
+            },
+            "dashboard": {
+              "title": "Dashboard admin",
+              "description": "KPI Chart.js: utenti attivi, domini, domande e sessioni."
+            },
+            "diagnostics": {
+              "title": "Diagnostica di sistema",
+              "description": "Snapshot live di DB, email, upload e DeepL con check on-demand."
+            },
+            "rateLimit": {
+              "title": "Rate limiting",
+              "description": "Endpoint pubblici e sensibili protetti tramite ScopedRateThrottle."
+            },
+            "api": {
+              "title": "Client OpenAPI",
+              "description": "Schema drf-spectacular con client TypeScript generato automaticamente."
+            }
+          }
+        }
+      }
+    },
+    "donate": {
+      "whyTitle": "Perche sostenere QuizOnline?",
+      "reasons": [
+        {
+          "icon": "pi pi-code",
+          "title": "Open-source e gratuito",
+          "description": "Nessun abbonamento, nessuna pubblicita. Il codice e libero e lo restera."
+        },
+        {
+          "icon": "pi pi-server",
+          "title": "Hosting e infrastruttura",
+          "description": "Server, certificati SSL e consegna email hanno un costo reale."
+        },
+        {
+          "icon": "pi pi-wrench",
+          "title": "Manutenzione continua",
+          "description": "Aggiornamenti di sicurezza, correzioni di bug e compatibilita con le nuove versioni."
+        },
+        {
+          "icon": "pi pi-sparkles",
+          "title": "Nuove funzionalita",
+          "description": "Ogni contributo accelera lo sviluppo delle funzionalita richieste dalla community."
+        }
+      ],
+      "ctaTitle": "Fai una donazione",
+      "ctaDescription": "Le donazioni sono gestite tramite GitHub Sponsors. Puoi fare una donazione una tantum o impostare un supporto ricorrente.",
+      "ctaButton": "Sostieni su GitHub Sponsors",
+      "ctaNote": "Verrai reindirizzato a GitHub Sponsors in una nuova scheda.",
+      "thanksTitle": "Grazie!",
+      "thanksDescription": "Ogni contributo, anche piccolo, fa la differenza. Grazie per credere in questo progetto."
+    },
+    "domainList": {
+      "title": "Domini",
+      "searchPlaceholder": "Cerca…",
+      "colName": "Nome",
+      "colSubjects": "Argomenti",
+      "colQuestions": "Domande",
+      "colStatus": "Stato",
+      "colPendingRequests": "Richieste",
+      "colActions": "Azioni",
+      "bulkPlaceholder": "Azioni in blocco…",
+      "bulkApply": "Applica",
+      "bulkActivate": "Attiva",
+      "bulkDeactivate": "Disattiva",
+      "bulkDelete": "Elimina",
+      "bulkSelectedCount": {
+        "one": "{n} selezionato",
+        "other": "{n} selezionati"
+      },
+      "bulkDeleteHeader": "Elimina",
+      "bulkDeleteConfirm": {
+        "one": "Eliminare {n} dominio? Questa azione è irreversibile.",
+        "other": "Eliminare {n} domini? Questa azione è irreversibile."
+      },
+      "bulkConfirmCancel": "Annulla",
+      "bulkErrorToast": "L'azione in blocco non è riuscita.",
+      "errorTitle": "Caricamento non riuscito",
+      "errorMessage": "Impossibile caricare i domini. Riprova.",
+      "retryButton": "Riprova",
+      "subscriptionAction": "Abbonamento"
+    },
+    "domainEdit": {
+      "reviews": {
+        "title": "Recensioni",
+        "allowRating": "Consenti voti",
+        "allowComment": "Consenti commenti"
+      },
+      "tabs": {
+        "config": "Configurazione",
+        "notifications": "Notifiche",
+        "invitations": "Inviti e richieste",
+        "members": "Membri",
+        "audit": "Attività",
+        "analytics": "Statistiche"
+      },
+      "audit": {
+        "title": "Registro attività",
+        "empty": "Nessuna azione registrata.",
+        "colWhen": "Quando",
+        "colActor": "Attore",
+        "colAction": "Azione",
+        "colTarget": "Bersaglio",
+        "actionLabels": {
+          "member.promote": "Promosso a gestore",
+          "member.demote": "Retrocesso a membro",
+          "member.remove": "Rimosso dal dominio",
+          "member.self_leave": "Ha lasciato il dominio",
+          "join_request.approve": "Richiesta approvata",
+          "join_request.reject": "Richiesta rifiutata",
+          "join_request.approve_via_email": "Richiesta approvata (e-mail)",
+          "join_request.reject_via_email": "Richiesta rifiutata (e-mail)",
+          "join_request.bulk_approve": "Richieste approvate in blocco",
+          "join_request.bulk_reject": "Richieste rifiutate in blocco",
+          "invite.bulk_send": "Inviti inviati",
+          "invite.resend": "Invito reinviato",
+          "invite.revoke": "Invito revocato",
+          "invite.accept_via_link": "Invito accettato",
+          "invite.auto_accept_on_signup": "Invito accettato all'iscrizione",
+          "transfer.initiate": "Trasferimento di proprietà avviato",
+          "transfer.accept": "Trasferimento di proprietà accettato"
+        },
+        "systemActor": "sistema",
+        "filterActionLabel": "Azione",
+        "filterActionPlaceholder": "Tutte le azioni",
+        "filterActorLabel": "Attore",
+        "filterActorPlaceholder": "Nome utente o e-mail",
+        "filterSinceLabel": "Da",
+        "filterUntilLabel": "A",
+        "filterClear": "Cancella filtri",
+        "pageReport": "Righe da {first} a {last} di {totalRecords}"
+      },
+      "errors": {
+        "invalidId": "Identificatore non valido.",
+        "loadDomainFailed": "Impossibile caricare il dominio.",
+        "formInvalid": "Il modulo contiene errori.",
+        "needOneLanguage": "Seleziona almeno una lingua valida.",
+        "saveFailed": "Errore durante il salvataggio.",
+        "translationFailed": "Errore durante la traduzione."
+      },
+      "notificationSettings": {
+        "title": "Notifiche del dominio",
+        "subtitle": "Scegli per quali eventi questo dominio comunica con i suoi membri. Ogni utente sceglie poi il canale preferito (e-mail / campanella) nelle proprie preferenze."
+      },
+      "members": {
+        "pendingTitle": "Richieste in attesa",
+        "pendingNone": "Nessuna richiesta in attesa.",
+        "pendingOpenModeration": "Modera le richieste",
+        "colUser": "Utente",
+        "colEmail": "E-mail",
+        "colRequestedAt": "Richiesto il",
+        "colRole": "Ruolo",
+        "colActions": "Azioni",
+        "membersTitle": "Membri",
+        "membersNone": "Nessun membro.",
+        "roleOwner": "Proprietario",
+        "roleManager": "Gestore",
+        "roleMember": "Membro",
+        "promote": "Promuovi a gestore",
+        "demote": "Retrocedi a membro",
+        "remove": "Rimuovi dal dominio",
+        "confirmRemoveHeader": "Rimuovere questo membro?",
+        "confirmRemoveMessage": "Rimuovere {username} dal dominio? L'operazione è immediata.",
+        "confirmRemoveAccept": "Rimuovi",
+        "confirmRemoveCancel": "Annulla",
+        "actionFailed": "L'azione non è riuscita.",
+        "inviteButton": "Invita per e-mail",
+        "inviteDialogTitle": "Invita nuovi membri",
+        "inviteDialogHint": "Inserisci uno o più indirizzi e-mail (separati da virgole o a capo).",
+        "inviteEmailsLabel": "Indirizzi e-mail",
+        "inviteEmailsPlaceholder": "alice@example.com, bob@example.com",
+        "inviteSubmit": "Invia gli inviti",
+        "inviteCancel": "Annulla",
+        "inviteResultSent": "{email}: invito inviato.",
+        "inviteResultAlreadyMember": "{email}: già membro.",
+        "inviteResultInvalid": "{email}: indirizzo non valido.",
+        "inviteResultForbidden": "{email}: non puoi invitare su questo dominio.",
+        "inviteResultSummary": {
+          "one": "{n} invito inviato su {total}.",
+          "other": "{n} inviti inviati su {total}."
+        },
+        "inviteAdditionalDomainsLabel": "Invita anche su altri domini",
+        "inviteAdditionalDomainsHint": "Facoltativo. Gli stessi indirizzi riceveranno un invito per ciascun dominio scelto.",
+        "inviteAdditionalDomainsPlaceholder": "Scegli uno o più domini…",
+        "inviteResultDomainPrefix": "[{domainName}]",
+        "invitationsTitle": "Inviti in attesa",
+        "invitationsEmpty": "Nessun invito in attesa.",
+        "invitationsColEmail": "E-mail",
+        "invitationsColSentAt": "Inviato il",
+        "invitationsColExpiresAt": "Scade il",
+        "invitationResend": "Reinvia",
+        "invitationRevoke": "Revoca",
+        "invitationConfirmRevokeHeader": "Revocare questo invito?",
+        "invitationConfirmRevokeMessage": "Revocare l'invito per {email}? Il link già inviato smetterà di funzionare.",
+        "invitationConfirmRevokeAccept": "Revoca",
+        "invitationConfirmRevokeCancel": "Annulla"
+      },
+      "analytics": {
+        "title": "Statistiche delle richieste di adesione",
+        "loading": "Caricamento…",
+        "empty": "Ancora nessun dato.",
+        "pendingCount": "In attesa",
+        "approvedCount": "Approvate",
+        "rejectedCount": "Rifiutate",
+        "cancelledCount": "Annullate",
+        "totalDecisions": "Decisioni totali",
+        "acceptRate": "Tasso di accettazione",
+        "acceptRateUnknown": "—",
+        "medianDecision": "Tempo mediano fino alla decisione",
+        "medianDecisionUnknown": "—",
+        "topDecidersTitle": "Migliori moderatori",
+        "topDecidersEmpty": "Nessuna decisione registrata.",
+        "colDecider": "Moderatore",
+        "colDecisionCount": "Decisioni",
+        "decisionsLabel": {
+          "one": "{n} decisione",
+          "other": "{n} decisioni"
+        },
+        "durationFormat": {
+          "seconds": "{n} s",
+          "minutes": "{n} min",
+          "hoursOnly": "{h} h",
+          "hoursMinutes": "{h} h {m} min",
+          "daysOnly": "{d} g",
+          "daysHours": "{d} g {h} h"
+        },
+        "rangeLabel": "Periodo",
+        "range7d": "7 giorni",
+        "range30d": "30 giorni",
+        "range90d": "90 giorni",
+        "rangeAll": "Tutto",
+        "exportCsv": "Esporta in CSV",
+        "exportError": "Esportazione CSV non riuscita."
+      },
+      "transfer": {
+        "button": "Cambia proprietario",
+        "dialogTitle": "Cambia il proprietario del dominio",
+        "dialogHint": "Scegli il nuovo proprietario. La modifica è immediata.",
+        "pickPlaceholder": "Seleziona un utente",
+        "submit": "Salva",
+        "sending": "Salvataggio…",
+        "cancel": "Annulla",
+        "successMessage": "Proprietà trasferita.",
+        "errorAlreadyOwner": "Questo utente è già il proprietario.",
+        "errorTargetUnreachable": "Questo utente non è raggiungibile.",
+        "errorGeneric": "Impossibile cambiare il proprietario.",
+        "pendingTo": "Trasferimento di proprietà in corso verso {username} — il futuro proprietario deve confermare tramite il link ricevuto via e-mail."
+      },
+      "notifications": {
+        "readOnlyForManagers": "Sola lettura — solo il proprietario del dominio può modificare queste preferenze."
+      }
+    },
+    "domainCreate": {
+      "toastErrorSummary": "Errore",
+      "errors": {
+        "loadFailed": "Errore durante il caricamento iniziale.",
+        "translationFailed": "Errore durante la traduzione.",
+        "formInvalid": "Il modulo contiene errori.",
+        "missingLanguageIds": "Impossibile determinare gli ID delle lingue (elenco non caricato?).",
+        "saveFailed": "Errore del backend durante la creazione."
+      }
+    },
+    "dashboard": {
+      "pageTitle": "Cruscotto",
+      "pageSubtitle": "I tuoi corsi, quiz e certificati in un unico posto.",
+      "tiles": {
+        "courses": {
+          "title": "Corsi in corso",
+          "empty": "Non sei iscritto a nessun corso al momento.",
+          "cta": "Vedi i miei progressi",
+          "progressLabel": "{pct} %"
+        },
+        "certificates": {
+          "title": "I miei certificati",
+          "empty": "Nessun certificato emesso al momento.",
+          "count": {
+            "one": "{n} certificato",
+            "other": "{n} certificati"
+          },
+          "cta": "Vedi i miei certificati"
+        },
+        "quizzes": {
+          "title": "I miei quiz",
+          "empty": "Nessun quiz in corso o recente.",
+          "cta": "Vedi i miei quiz"
+        },
+        "catalog": {
+          "title": "Catalogo",
+          "subtitle": "Esplora i corsi disponibili nei tuoi domini.",
+          "cta": "Sfoglia il catalogo"
+        },
+        "invitations": {
+          "title": "Inviti in attesa",
+          "empty": "Nessun invito a un corso in attesa.",
+          "cta": "Vedi i miei inviti",
+          "inviterLine": "Invitato da {inviter}"
+        }
+      }
+    },
+    "courseList": {
+      "title": "Corsi",
+      "searchPlaceholder": "Cerca un corso…",
+      "bulk": {
+        "placeholder": "Azioni in blocco…",
+        "apply": "Applica",
+        "selectedCount": {
+          "one": "{n} selezionato",
+          "other": "{n} selezionati"
+        },
+        "publish": "Pubblica",
+        "unpublish": "Spubblica",
+        "delete": "Elimina",
+        "confirmDeleteHeader": "Eliminare questi corsi?",
+        "confirmDeleteMessage": {
+          "one": "Eliminare definitivamente {n} corso, comprese tutte le lezioni, iscrizioni e progressi? Operazione irreversibile.",
+          "other": "Eliminare definitivamente {n} corsi, comprese tutte le lezioni, iscrizioni e progressi? Operazione irreversibile."
+        },
+        "confirmDeleteAccept": "Elimina",
+        "confirmDeleteCancel": "Annulla"
+      },
+      "columns": {
+        "title": "Titolo",
+        "domain": "Dominio",
+        "level": "Livello",
+        "enrollment": "Iscrizione",
+        "status": "Stato",
+        "lessons": "Lezioni",
+        "actions": "Azioni"
+      },
+      "enrollmentBadge": {
+        "open": "Aperto",
+        "approval": "Approvazione",
+        "invite": "Solo invito"
+      },
+      "emptyMessage": "Nessun corso da gestire al momento.",
+      "catalogButton": "Catalogo",
+      "publishSuccessToast": {
+        "one": "{n} corso pubblicato.",
+        "other": "{n} corsi pubblicati."
+      },
+      "unpublishSuccessToast": {
+        "one": "{n} corso spubblicato.",
+        "other": "{n} corsi spubblicati."
+      },
+      "deleteSuccessToast": {
+        "one": "{n} corso eliminato.",
+        "other": "{n} corsi eliminati."
+      },
+      "bulkErrorToast": "Operazione in blocco non riuscita."
+    },
+    "courseInviteAccept": {
+      "pageTitle": "Invito a un corso",
+      "loadingMessage": "Caricamento dell’invito…",
+      "invitationFrom": "{inviter} ti invita a partecipare al corso \"{course}\".",
+      "expiresAt": "Questo invito scade il {when}.",
+      "durationLabel": "{minutes} min",
+      "levelLabel": "Livello",
+      "learningObjectivesHeading": "Obiettivi di apprendimento",
+      "levelChoices": {
+        "beginner": "Principiante",
+        "intermediate": "Intermedio",
+        "advanced": "Avanzato"
+      },
+      "acceptButton": "Accetta l’invito",
+      "declineButton": "Rifiuta",
+      "declineConfirmHeader": "Rifiutare l’invito",
+      "declineConfirmMessage": "Rifiutare definitivamente l’invito a \"{courseTitle}\"? L’istruttore dovrà inviare un nuovo invito se cambi idea.",
+      "declineConfirmAccept": "Rifiuta",
+      "declineConfirmReject": "Annulla",
+      "backToCatalogButton": "Torna al catalogo",
+      "goToCourseButton": "Vai al corso",
+      "acceptedTitle": "Invito accettato",
+      "acceptedMessage": "Ora sei iscritto al corso.",
+      "acceptedRedirectHint": "Reindirizzamento al corso tra 2 secondi…",
+      "declinedTitle": "Invito rifiutato",
+      "declinedMessage": "L’invito è stato contrassegnato come rifiutato.",
+      "revokedTitle": "Invito revocato",
+      "revokedMessage": "Questo invito è stato revocato dall’istruttore.",
+      "expiredTitle": "Invito scaduto",
+      "expiredMessage": "Il termine per accettare questo invito è scaduto. Contatta l’istruttore per riceverne uno nuovo.",
+      "notFoundTitle": "Invito non trovato",
+      "notFoundMessage": "Il link dell’invito non è valido o è già stato utilizzato.",
+      "forbiddenTitle": "Accesso negato",
+      "forbiddenMessage": "Questo invito non è destinato a te. Accedi con l’account corrispondente all’indirizzo invitato.",
+      "acceptSuccessToast": "Invito accettato.",
+      "acceptErrorToast": "Impossibile accettare l’invito.",
+      "declineSuccessToast": "Invito rifiutato.",
+      "declineErrorToast": "Impossibile rifiutare l’invito."
+    },
+    "courseEdit": {
+      "pageTitle": "Modifica corso",
+      "tabInfo": "Informazioni",
+      "tabStructure": "Struttura",
+      "tabEnrollment": "Iscrizioni",
+      "tabAnalytics": "Analisi",
+      "publishButton": "Pubblica",
+      "unpublishButton": "Spubblica",
+      "publishedBadge": "Pubblicato",
+      "unpublishedBadge": "Bozza",
+      "publishSuccessToast": "Corso pubblicato.",
+      "publishErrorToast": "Pubblicazione non riuscita.",
+      "unpublishSuccessToast": "Corso spubblicato.",
+      "unpublishErrorToast": "Spubblicazione non riuscita.",
+      "loadErrorToast": "Impossibile caricare il corso.",
+      "loadingMessage": "Caricamento…",
+      "cloneButton": "Duplica",
+      "exportButton": "Esporta (JSON)",
+      "exportSuccessToast": "Corso esportato.",
+      "exportErrorToast": "Esportazione non riuscita.",
+      "deleteButton": "Elimina",
+      "confirmCloneTitle": "Duplicare questo corso?",
+      "confirmCloneMessage": "Creare una copia completa di questo corso (sezioni, lezioni e blocchi di contenuto)? La copia verrà creata in bozza.",
+      "confirmCloneAccept": "Duplica",
+      "confirmCloneReject": "Annulla",
+      "confirmDeleteTitle": "Eliminare questo corso?",
+      "confirmDeleteMessage": "Questa azione elimina definitivamente il corso, tutte le sezioni, le lezioni, i blocchi di contenuto e tutte le iscrizioni e i progressi dei partecipanti. Operazione irreversibile.",
+      "confirmDeleteAccept": "Elimina",
+      "confirmDeleteReject": "Annulla",
+      "cloneSuccessToast": "Corso duplicato.",
+      "cloneErrorToast": "Duplicazione del corso non riuscita.",
+      "deleteSuccessToast": "Corso eliminato.",
+      "deleteErrorToast": "Eliminazione del corso non riuscita.",
+      "deleteProtectedToast": "Impossibile eliminare un corso che ha già emesso certificati."
+    },
+    "structureTab": {
+      "heading": "Struttura del corso",
+      "subtitle": "Organizza il corso in sezioni e lezioni. Trascina per riordinare.",
+      "addSectionButton": "Aggiungi sezione",
+      "addLessonButton": "Aggiungi lezione",
+      "editButton": "Modifica",
+      "deleteButton": "Elimina",
+      "editContentButton": "Modifica contenuto",
+      "isPublishedLabel": "Pubblicata",
+      "isPreviewLabel": "Anteprima",
+      "confirmDeleteSection": "Eliminare la sezione \"{title}\"? Tutte le lezioni e i loro blocchi di contenuto saranno eliminati definitivamente.",
+      "confirmDeleteLesson": "Eliminare la lezione \"{title}\"? Tutti i blocchi di contenuto saranno eliminati definitivamente.",
+      "confirmDeleteHeader": "Conferma eliminazione",
+      "confirmAccept": "Elimina",
+      "confirmReject": "Annulla",
+      "sectionDialog": {
+        "titleCreate": "Nuova sezione",
+        "titleEdit": "Modifica sezione",
+        "titleField": "Titolo",
+        "descriptionField": "Descrizione",
+        "isPublishedField": "Pubblicata",
+        "submitButton": "Salva",
+        "cancelButton": "Annulla",
+        "translateButton": "Traduci da questa scheda",
+        "translationFailed": "Traduzione automatica non riuscita."
+      },
+      "lessonDialog": {
+        "titleCreate": "Nuova lezione",
+        "titleEdit": "Modifica lezione",
+        "titleField": "Titolo",
+        "isPreviewField": "Anteprima gratuita",
+        "isPublishedField": "Pubblicata",
+        "submitButton": "Salva",
+        "cancelButton": "Annulla",
+        "translateButton": "Traduci da questa scheda",
+        "translationFailed": "Traduzione automatica non riuscita."
+      },
+      "sectionCreatedToast": "Sezione aggiunta.",
+      "sectionUpdatedToast": "Sezione aggiornata.",
+      "sectionDeletedToast": "Sezione eliminata.",
+      "lessonCreatedToast": "Lezione aggiunta.",
+      "lessonUpdatedToast": "Lezione aggiornata.",
+      "lessonDeletedToast": "Lezione eliminata.",
+      "reorderSuccessToast": "Ordine aggiornato.",
+      "actionFailedToast": "Azione non riuscita.",
+      "titleRequiredToast": "Il titolo è obbligatorio nella lingua principale.",
+      "untitledSection": "Sezione senza titolo",
+      "untitledLesson": "Lezione senza titolo",
+      "emptyTitle": "Ancora nessuna sezione",
+      "emptyMessage": "Inizia aggiungendo una sezione per strutturare il tuo corso.",
+      "dragHandleAria": "Trascina per riordinare",
+      "sectionAria": "Sezione",
+      "lessonAria": "Lezione"
+    },
+    "infoTab": {
+      "heading": "Dettagli del corso",
+      "fields": {
+        "level": "Livello",
+        "enrollmentMode": "Modalità di iscrizione",
+        "estimatedDuration": "Durata stimata (minuti)",
+        "estimatedDurationHint": "Tempo totale approssimativo per completare il corso.",
+        "issuesCertificate": "Rilascia un certificato",
+        "issuesCertificateHint": "Emetti un certificato PDF al completamento del corso (e al superamento del quiz finale, se previsto).",
+        "certificateValidity": "Validità del certificato (mesi)",
+        "certificateValidityHint": "La data è fissata al momento dell’emissione; modificare il valore non altera i certificati già emessi.",
+        "coverImage": "Immagine di copertina",
+        "title": "Titolo",
+        "titlePlaceholder": "Titolo del corso",
+        "description": "Descrizione",
+        "learningObjectives": "Obiettivi di apprendimento",
+        "learningObjectivesHint": "Competenze o risultati attesi al termine del corso."
+      },
+      "enrollmentLabels": {
+        "open": "Aperto",
+        "approval": "Approvazione",
+        "invite": "Solo invito"
+      },
+      "inviteOnlyHint": "Gli studenti devono essere invitati esplicitamente. Il corso resta nascosto dal catalogo finché l’invito non viene inviato.",
+      "translateButton": "Traduci da questa scheda",
+      "uploadButton": "Scegli un’immagine…",
+      "removeCoverButton": "Rimuovi immagine",
+      "clearSelectionButton": "Annulla selezione",
+      "currentCoverLabel": "Immagine attuale",
+      "selectedFileLabel": "File selezionato",
+      "noFileSelected": "Nessun file selezionato",
+      "saveButton": "Salva",
+      "cancelButton": "Annulla",
+      "errors": {
+        "formInvalid": "Correggi gli errori prima di salvare.",
+        "titleRequired": "Un titolo è obbligatorio nella lingua principale.",
+        "saveFailed": "Salvataggio non riuscito.",
+        "translationFailed": "Traduzione automatica non riuscita.",
+        "uploadFailed": "Caricamento dell’immagine non riuscito."
+      },
+      "toasts": {
+        "saveSuccess": "Corso aggiornato.",
+        "errorSummary": "Errore"
+      },
+      "certificateValidityLabels": {
+        "never": "Mai (a vita)",
+        "y1": "1 anno",
+        "y2": "2 anni",
+        "y5": "5 anni",
+        "y10": "10 anni"
+      }
+    },
+    "enrollmentTab": {
+      "heading": "Iscrizioni",
+      "subtitle": "Approva, rifiuta o annulla le iscrizioni degli studenti a questo corso.",
+      "filters": {
+        "status": {
+          "label": "Stato",
+          "all": "Tutti"
+        }
+      },
+      "columns": {
+        "user": "Utente",
+        "email": "E-mail",
+        "status": "Stato",
+        "enrolledAt": "Iscritto il",
+        "completedAt": "Completato il",
+        "actions": "Azioni"
+      },
+      "actions": {
+        "approve": "Approva",
+        "reject": "Rifiuta",
+        "cancel": "Annulla iscrizione",
+        "confirmHeader": "Conferma",
+        "confirmAccept": "Conferma",
+        "confirmReject": "Annulla",
+        "confirmApprove": "Approvare l’iscrizione di {name}?",
+        "confirmRejectMessage": "Rifiutare l’iscrizione di {name}?",
+        "confirmCancel": "Annullare l’iscrizione di {name}?"
+      },
+      "emptyTitle": "Nessuna iscrizione",
+      "emptyMessage": "Nessuna iscrizione corrisponde al filtro corrente.",
+      "noCompletedAt": "—",
+      "toasts": {
+        "approveSuccess": "Iscrizione approvata.",
+        "approveFailed": "Approvazione dell’iscrizione non riuscita.",
+        "rejectSuccess": "Iscrizione rifiutata.",
+        "rejectFailed": "Rifiuto dell’iscrizione non riuscito.",
+        "cancelSuccess": "Iscrizione annullata.",
+        "cancelFailed": "Annullamento dell’iscrizione non riuscito.",
+        "loadFailed": "Impossibile caricare le iscrizioni.",
+        "errorSummary": "Errore"
+      },
+      "invite": {
+        "heading": "Invita uno studente",
+        "subtitle": "Gli studenti invitati riceveranno un’email con un link per accettare l’invito.",
+        "pickerLabel": "Studente/i",
+        "pickerPlaceholder": "Cerca uno o più membri del dominio…",
+        "sendButton": "Invia invito",
+        "sendBulkButton": "Invia {n} inviti",
+        "pendingListHeading": "Inviti in corso",
+        "columns": {
+          "user": "Studente",
+          "sentAt": "Inviato",
+          "expiresAt": "Scade",
+          "status": "Stato",
+          "actions": "Azioni"
+        },
+        "statusLabels": {
+          "pending": "In attesa",
+          "accepted": "Accettato",
+          "declined": "Rifiutato",
+          "revoked": "Revocato",
+          "expired": "Scaduto"
+        },
+        "actions": {
+          "resend": "Rinvia",
+          "revoke": "Revoca",
+          "confirmResend": "Rinviare l’invito a {name}?",
+          "confirmRevoke": "Revocare l’invito inviato a {name}?",
+          "resendAll": "Rinvia tutto",
+          "confirmResendAll": "Rinviare i {n} inviti in corso?"
+        },
+        "emptyTitle": "Nessun invito in corso.",
+        "toasts": {
+          "sendSuccess": "Invito inviato.",
+          "sendFailed": "Invio dell’invito non riuscito.",
+          "sendPartialSummary": "{processed} invito/i inviato/i, {skipped} saltato/i (già iscritto o invitato).",
+          "resendSuccess": "Invito rinviato.",
+          "resendFailed": "Rinvio dell’invito non riuscito.",
+          "revokeSuccess": "Invito revocato.",
+          "revokeFailed": "Revoca dell’invito non riuscita.",
+          "loadFailed": "Impossibile caricare gli inviti.",
+          "resendAllSuccess": {
+            "one": "{n} invito rinviato.",
+            "other": "{n} inviti rinviati."
+          },
+          "resendAllPartial": "{processed} invito/i rinviato/i, {skipped} saltato/i.",
+          "resendAllFailed": "Rinvio in blocco non riuscito."
+        }
+      }
+    },
+    "analyticsTab": {
+      "heading": "Analisi",
+      "subtitle": "Indicatori di iscrizione aggregati dalle iscrizioni di questo corso.",
+      "kpi": {
+        "total": "Iscrizioni totali",
+        "active": "Attive",
+        "pending": "In attesa",
+        "completed": "Completate",
+        "cancelled": "Annullate",
+        "completionRate": "Tasso di completamento",
+        "lastEnrollment": "Ultima iscrizione",
+        "lastCompletion": "Ultimo completamento",
+        "medianProgress": "Progresso mediano",
+        "certificatesIssued": "Certificati emessi"
+      },
+      "trendHeading": "Iscrizioni a 30 giorni",
+      "trendSubtitle": "Numero di nuove iscrizioni al giorno, finestra mobile.",
+      "invite": {
+        "heading": "Inviti",
+        "subtitle": "Indicatori degli inviti inviati per questo corso.",
+        "kpi": {
+          "total": "Totale inviati",
+          "pending": "In attesa",
+          "accepted": "Accettati",
+          "declined": "Rifiutati",
+          "revoked": "Revocati",
+          "expired": "Scaduti",
+          "acceptanceRate": "Tasso di accettazione",
+          "medianDecisionHours": "Tempo mediano di decisione"
+        },
+        "decisionHoursValue": "{hours} h"
+      },
+      "auditHeading": "Attività recente",
+      "auditEmpty": "Nessuna azione registrata al momento.",
+      "auditAction": {
+        "course.publish": "Pubblicazione",
+        "course.unpublish": "Annullamento pubblicazione",
+        "course.clone": "Duplicazione"
+      },
+      "kpiHints": {
+        "pctOfTotal": "{pct} % del totale",
+        "neverYet": "—"
+      },
+      "errors": {
+        "loadFailed": "Impossibile caricare le analisi."
+      },
+      "retryButton": "Riprova",
+      "emptyTitle": "Nessuna iscrizione al momento",
+      "emptyMessage": "Le statistiche appariranno non appena alcuni studenti si iscriveranno a questo corso."
+    },
+    "courseDetail": {
+      "pageTitle": "Corso",
+      "loading": "Caricamento…",
+      "sectionsHeading": "Contenuto del corso",
+      "learningObjectivesHeading": "Obiettivi di apprendimento",
+      "durationLabel": "{n} min",
+      "enrollButton": "Iscriviti",
+      "acceptInviteButton": "Accetta l'invito",
+      "continueButton": "Riprendi",
+      "editButton": "Modifica",
+      "enrolledBadge": "Iscritto",
+      "pendingBadge": "In attesa",
+      "startLessonButton": "Inizia",
+      "completedLessonBadge": "Completato",
+      "previewBadge": "Anteprima",
+      "inviteOnlyMessage": "Questo corso è solo su invito.",
+      "approvalPendingMessage": "La tua iscrizione attende l'approvazione di un istruttore.",
+      "invitedByBanner": "{inviter} ti ha invitato a partecipare a questo corso.",
+      "enrollSuccessToast": "Iscrizione confermata.",
+      "enrollErrorToast": "Iscrizione non riuscita.",
+      "acceptInviteSuccessToast": "Invito accettato.",
+      "acceptInviteErrorToast": "Impossibile accettare l'invito.",
+      "emptyContentTitle": "Nessun contenuto ancora",
+      "emptyContentMessage": "Il contenuto del corso non è ancora stato pubblicato."
+    },
+    "courseCreate": {
+      "pageTitle": "Crea un corso",
+      "fields": {
+        "level": "Livello",
+        "enrollmentMode": "Modalità di iscrizione",
+        "title": "Titolo",
+        "titlePlaceholder": "Titolo del corso",
+        "description": "Descrizione",
+        "learningObjectives": "Obiettivi formativi",
+        "learningObjectivesHint": "Competenze o risultati attesi al termine del corso."
+      },
+      "translateButton": "Traduci da questa scheda",
+      "cancelButton": "Annulla",
+      "submitButton": "Crea corso",
+      "toastSuccessSummary": "Corso creato",
+      "toastSuccessDetail": "Ora puoi aggiungere sezioni e lezioni.",
+      "toastErrorSummary": "Errore",
+      "enrollmentLabels": {
+        "open": "Aperto",
+        "approval": "Approvazione",
+        "invite": "Solo invito"
+      },
+      "errors": {
+        "loadFailed": "Errore durante il caricamento iniziale.",
+        "formInvalid": "Il modulo contiene errori.",
+        "saveFailed": "Errore del backend durante la creazione del corso.",
+        "translationFailed": "Errore durante la traduzione.",
+        "titleRequired": "Un titolo è obbligatorio nella lingua principale.",
+        "noCurrentDomain": "Nessun dominio corrente selezionato — sceglierne uno dal menu in alto a destra prima di creare un corso.",
+        "notInstructorOfCurrentDomain": "Non sei istruttore del dominio corrente — seleziona un dominio che puoi gestire dal menu in alto a destra."
+      }
+    },
+    "certificateView": {
+      "pageTitle": "Certificato",
+      "certificateNumberLabel": "Numero certificato",
+      "courseLabel": "Corso",
+      "issuedOnLabel": "Emesso il",
+      "expiresOnLabel": "Scade il",
+      "revokedOnLabel": "Revocato il",
+      "downloadButton": "Scarica il PDF",
+      "backButton": "Torna ai miei certificati",
+      "verifyLinkLabel": "Link pubblico di verifica",
+      "loadingMessage": "Caricamento…",
+      "notFoundTitle": "Certificato non trovato",
+      "notFoundMessage": "Questo certificato non esiste o non è tuo.",
+      "revokedBadge": "REVOCATO"
+    },
+    "certificateVerify": {
+      "pageTitle": "Verifica certificato",
+      "validHeading": "Certificato valido",
+      "invalidHeading": "Certificato non valido",
+      "revokedHeading": "Certificato revocato",
+      "issuedToLabel": "Rilasciato a",
+      "courseLabel": "Corso",
+      "issuedOnLabel": "Emesso il",
+      "certificateNumberLabel": "Numero certificato",
+      "validBadge": "VALIDO",
+      "invalidBadge": "NON VALIDO",
+      "revokedBadge": "REVOCATO",
+      "genericInvalidMessage": "Questo token non corrisponde a nessun certificato valido.",
+      "revokedMessage": "Questo certificato è stato revocato dall'emittente.",
+      "loadingMessage": "Caricamento…"
+    },
+    "certificateList": {
+      "pageTitle": "I miei certificati",
+      "colNumber": "Numero",
+      "colCourse": "Corso",
+      "colIssuedAt": "Emesso il",
+      "colExpiresAt": "Scade il",
+      "expiresAtNever": "Senza scadenza",
+      "colActions": "Azioni",
+      "downloadButton": "Scarica",
+      "viewButton": "Visualizza",
+      "emptyTitle": "Nessun certificato",
+      "emptyMessage": "Completa un corso per ricevere il tuo primo certificato.",
+      "exploreButton": "Sfoglia il catalogo",
+      "errorTitle": "Caricamento non riuscito",
+      "errorMessage": "Impossibile caricare i tuoi certificati. Riprova.",
+      "retryButton": "Riprova"
+    },
+    "catalog": {
+      "pageTitle": "Catalogo dei corsi",
+      "filterByLevelLabel": "Livello",
+      "filterByLanguageLabel": "Lingua",
+      "filterByDomainLabel": "Dominio",
+      "searchPlaceholder": "Cerca un corso…",
+      "emptyTitle": "Nessun corso disponibile",
+      "emptyMessage": "Nessun corso pubblicato corrisponde alla selezione.",
+      "enrollmentBadge": {
+        "open": "Aperto",
+        "approval": "Approvazione",
+        "invite": "Solo invito"
+      },
+      "viewButton": "Visualizza",
+      "createCourseButton": "Crea un corso",
+      "listButton": "Elenco",
+      "lessonCount": {
+        "one": "{n} lezione",
+        "other": "{n} lezioni"
+      },
+      "duration": {
+        "minutesOnly": "{m} min",
+        "hoursOnly": "{h} h",
+        "hoursMinutes": "{h} h {m} min"
+      },
+      "enrolledBadge": "Iscritto",
+      "continueButton": "Riprendi",
+      "statusLabels": {
+        "published": "Pubblicato",
+        "draft": "Bozza"
+      }
+    },
+    "connections": {
+      "pageTitle": "Registro delle connessioni",
+      "rangeLabel": "Periodo",
+      "rangePlaceholder": "Seleziona un periodo",
+      "clearRange": "Reimposta",
+      "columns": {
+        "date": "Data",
+        "account": "Account",
+        "ip": "Indirizzo IP",
+        "location": "Posizione",
+        "device": "Dispositivo",
+        "actions": "Azioni"
+      },
+      "detailsButton": "Dettagli",
+      "emptyTitle": "Nessuna connessione",
+      "emptyHint": "Nessuna connessione corrisponde al periodo selezionato.",
+      "dialogTitle": "Dettagli della connessione",
+      "fields": {
+        "id": "Identificativo",
+        "accountEmail": "Account",
+        "createdAt": "Data",
+        "loginMethod": "Metodo di accesso",
+        "ip": "Indirizzo IP",
+        "userAgent": "User-Agent",
+        "browser": "Browser",
+        "os": "Sistema operativo",
+        "localTime": "Ora locale",
+        "browserLanguage": "Lingua del browser",
+        "timezone": "Fuso orario",
+        "screen": "Schermo",
+        "online": "Online",
+        "country": "Paese",
+        "countryCode": "Codice paese",
+        "city": "Città",
+        "region": "Regione",
+        "latitude": "Latitudine",
+        "longitude": "Longitudine"
+      },
+      "yes": "Sì",
+      "no": "No",
+      "emptyValue": "—",
+      "map": {
+        "heading": "Mappa delle connessioni",
+        "popupCity": "Città",
+        "popupDate": "Data"
+      }
+    },
+    "about": {
+      "tabs": {
+        "company": "Società",
+        "legal": "Note legali",
+        "technical": "Tecnico"
+      },
+      "companyTitle": "Società",
+      "companyIntro": "Informazioni legali e contatti della società che gestisce QuizOnline.",
+      "company": {
+        "contactLabel": "Contatto",
+        "companyLabel": "Società",
+        "vatLabel": "P.IVA / BCE",
+        "addressLabel": "Indirizzo",
+        "emailLabel": "Email",
+        "emailButton": "Inviami una email",
+        "phoneLabel": "Telefono",
+        "websiteLabel": "Sito web"
+      },
+      "legalTitle": "Note legali e protezione dei dati",
+      "legalIntro": "QuizOnline rispetta la normativa europea sulla protezione dei dati personali.",
+      "legalSections": [
+        {
+          "title": "Titolare del trattamento",
+          "content": [
+            "Il titolare del trattamento e l'amministratore dell'istanza QuizOnline installata.",
+            "Per qualsiasi domanda sui dati personali, contattare l'amministratore della propria istanza."
+          ]
+        },
+        {
+          "title": "Dati raccolti",
+          "content": [
+            "Dati identificativi: nome utente, indirizzo email, nome, cognome.",
+            "Dati di attivita: risposte ai quiz, punteggi, sessioni, preferenze linguistiche.",
+            "Dati tecnici: registri di connessione strettamente necessari per la sicurezza."
+          ]
+        },
+        {
+          "title": "Base giuridica e finalita (GDPR Art. 6)",
+          "content": [
+            "Esecuzione di un contratto: gestione dell'account, svolgimento dei quiz e monitoraggio dei risultati.",
+            "Interesse legittimo: sicurezza della piattaforma, prevenzione degli abusi, miglioramento del servizio.",
+            "Consenso: invio di notifiche opzionali (revocabile in qualsiasi momento)."
+          ]
+        },
+        {
+          "title": "I tuoi diritti (GDPR Art. 15-22)",
+          "content": [
+            "Diritto di accesso: ottenere una copia dei tuoi dati personali.",
+            "Diritto di rettifica: correggere dati inesatti o incompleti.",
+            "Diritto alla cancellazione: richiedere la cancellazione dei tuoi dati.",
+            "Diritto alla portabilita: ricevere i tuoi dati in un formato strutturato e leggibile.",
+            "Diritto di opposizione: opporsi al trattamento in determinati casi.",
+            "Diritto di reclamo: presentare un reclamo presso l'autorita di controllo nazionale."
+          ]
+        },
+        {
+          "title": "Conservazione dei dati",
+          "content": [
+            "I dati dell'account sono conservati per la durata della registrazione.",
+            "I dati di sessione e risultati sono conservati finche il dominio e attivo.",
+            "Alla cancellazione dell'account, i dati personali vengono eliminati o anonimizzati entro 30 giorni."
+          ]
+        },
+        {
+          "title": "Sicurezza",
+          "content": [
+            "Le comunicazioni sono crittografate tramite HTTPS/TLS.",
+            "Le password sono sottoposte a hash con un algoritmo irreversibile (PBKDF2).",
+            "L'autenticazione si basa su token JWT a durata limitata."
+          ]
+        },
+        {
+          "title": "Cookie",
+          "content": [
+            "QuizOnline non utilizza cookie di tracciamento ne cookie pubblicitari.",
+            "Vengono utilizzati solo cookie tecnici strettamente necessari (sessione, preferenza linguistica)."
+          ]
+        }
+      ],
+      "technicalTitle": "Informazioni tecniche",
+      "technicalIntro": "Il progetto e organizzato come monorepo con frontend Angular, backend Django REST e contratto OpenAPI condiviso.",
+      "repositoryUrlLabel": "URL del repository",
+      "cards": {
+        "repository": {
+          "title": "Repository",
+          "description": "Codice sorgente, CI e artefatti del contratto nello stesso repository.",
+          "items": [
+            "Monorepo GitHub per frontend, backend e script di sincronizzazione.",
+            "Generazione e verifica degli artefatti OpenAPI in CI.",
+            "Workflow GitHub Actions per i controlli automatici."
+          ]
+        },
+        "backend": {
+          "title": "Backend",
+          "description": "API REST, logica di business e sicurezza applicativa.",
+          "items": [
+            "Django 6 e Django REST Framework",
+            "PostgreSQL 16, in produzione e in CI",
+            "drf-spectacular per il contratto OpenAPI",
+            "Simple JWT, django-filter e django-parler",
+            "Celery, import-export e test Python 3.12"
+          ]
+        },
+        "frontend": {
+          "title": "Frontend",
+          "description": "SPA per amministrazione e fruizione dei quiz.",
+          "items": [
+            "Angular 21, TypeScript e RxJS",
+            "PrimeNG 21 e PrimeIcons",
+            "Client API generato da OpenAPI",
+            "Vitest e Playwright"
+          ]
+        }
+      }
+    },
+    "questionPreviewDialog": {
+      "header": "Anteprima della domanda",
+      "loading": "Caricamento dell’anteprima…",
+      "notFound": "Domanda non trovata.",
+      "loadFailed": "Impossibile caricare l’anteprima della domanda."
+    },
+    "questionEditorForm": {
+      "tabQuestion": "Domanda",
+      "tabAnswers": "Risposte",
+      "tabExplanation": "Spiegazione",
+      "translateButton": "Traduci da questa scheda",
+      "translateSuccessToast": "Traduzione applicata.",
+      "translateErrorToast": "Traduzione automatica non riuscita.",
+      "addAnswer": "Aggiungi una risposta",
+      "correctAnswer": "Risposta corretta",
+      "removeAnswer": "Rimuovi risposta",
+      "confirmRemoveAnswer": "Rimuovere questa risposta?",
+      "promptHeading": "Testo della domanda",
+      "explanationHeading": "Spiegazione",
+      "answersHeading": "Risposte possibili",
+      "answersHint": "Seleziona almeno una risposta corretta. Ogni risposta ha la propria lista di blocchi.",
+      "promptHint": "Componi la domanda con tutti i blocchi che servono (testo, immagine, video, codice, ...).",
+      "explanationHint": "Mostrata dopo la risposta dello studente.",
+      "noAnswersYet": "Ancora nessuna risposta. Aggiungine una con il pulsante qui sotto.",
+      "noActiveLanguages": "Questo dominio non ha lingue attive configurate.",
+      "answerHeading": "Risposta {index}"
+    },
+    "learningCommon": {
+      "blockTypeLabels": {
+        "rich_text": "Testo formattato",
+        "image": "Immagine",
+        "video": "Video",
+        "file": "File",
+        "quiz": "Quiz",
+        "callout": "Riquadro",
+        "code": "Codice",
+        "embed": "iframe"
+      },
+      "enrollmentStatusLabels": {
+        "pending": "In attesa",
+        "active": "Attivo",
+        "completed": "Completato",
+        "cancelled": "Annullato"
+      },
+      "levelLabels": {
+        "beginner": "Principiante",
+        "intermediate": "Intermedio",
+        "advanced": "Avanzato"
+      },
+      "videoProviderLabels": {
+        "youtube": "YouTube",
+        "vimeo": "Vimeo",
+        "upload": "Self-hosted"
+      }
+    },
+    "lessonReader": {
+      "outlineHeading": "Indice della lezione"
+    },
+    "blockRenderers": {
+      "downloadFileFallback": "Scarica il file",
+      "videoNotAvailable": "Video non disponibile",
+      "embedNotAvailable": "Contenuto incorporato non disponibile",
+      "embedOpenInNewTab": "Apri in una nuova scheda",
+      "quizBlockModePractice": "Allenamento",
+      "quizBlockModeExam": "Esame",
+      "quizBlockStartButton": "Avvia il quiz",
+      "quizBlockResumeButton": "Riprendi",
+      "quizBlockViewResultButton": "Vedi il risultato",
+      "quizBlockRetakeButton": "Ricomincia",
+      "quizBlockNoAttemptsRemaining": "Nessun tentativo rimanente",
+      "quizBlockLoadFailed": "Impossibile caricare il quiz.",
+      "quizBlockRetry": "Riprova",
+      "quizBlockNotConfigured": "Quiz non configurato"
+    },
+    "blockListEditor": {
+      "emptyHint": "Ancora nessun blocco. Aggiungine uno con la barra qui sotto.",
+      "addBlockBarLabel": "Aggiungere un blocco",
+      "addBlockHint": "Aggiungere un blocco:",
+      "deleteBlockAria": "Elimina il blocco",
+      "editBlockAria": "Modifica il blocco",
+      "saveBlockLabel": "Salva",
+      "cancelBlockLabel": "Annulla",
+      "blockAddedToast": "Blocco aggiunto.",
+      "blockSavedToast": "Blocco salvato.",
+      "blockDeletedToast": "Blocco eliminato.",
+      "blockErrorToast": "Impossibile modificare il blocco.",
+      "reorderSuccessToast": "Ordine aggiornato.",
+      "reorderErrorToast": "Impossibile riordinare i blocchi."
+    },
+    "blockEditors": {
+      "fieldTitle": "Titolo",
+      "fieldCalloutBody": "Testo",
+      "fieldCalloutVariant": "Tipo",
+      "calloutVariantInfo": "Informazione",
+      "calloutVariantSuccess": "Successo",
+      "calloutVariantWarning": "Avviso",
+      "calloutVariantError": "Errore",
+      "fieldExternalUrl": "URL esterno",
+      "fieldVideoUrl": "URL del video",
+      "fieldVideoProvider": "Provider",
+      "fieldQuizTemplate": "ID del modello di quiz",
+      "fieldCodeLanguage": "Linguaggio",
+      "fieldCodeContent": "Codice sorgente",
+      "chooseFile": "Scegli un file",
+      "currentFileLabel": "File attuale",
+      "uploading": "Caricamento in corso…",
+      "uploadSuccessToast": "File caricato.",
+      "uploadErrorToast": "Impossibile caricare il file.",
+      "todoPlaceholder": "Editor in arrivo a breve.",
+      "quizTemplatePlaceholder": "Cerca un quiz…",
+      "translateButton": "Traduci da questa scheda",
+      "translateSuccessToast": "Traduzione applicata.",
+      "translateErrorToast": "Traduzione automatica non riuscita."
+    },
+    "savedAt": {
+      "locale": "it-IT"
+    },
+    "fullscreenButton": {
+      "enter": "Schermo intero",
+      "exit": "Esci da schermo intero"
+    },
+    "domainSubscription": {
+      "pageTitle": "Abbonamento",
+      "errorTitle": "Caricamento non riuscito",
+      "errorMessage": "Impossibile caricare i dati dell'abbonamento. Riprova.",
+      "retryButton": "Riprova",
+      "planLabel": "Piano",
+      "planFree": "Gratuito",
+      "planPaid": "A pagamento",
+      "membersLabel": "Membri",
+      "monthlyPriceLabel": "Prezzo mensile",
+      "vatNote": "IVA escl.",
+      "deadlineLabel": "Scadenza del periodo gratuito",
+      "noDeadline": "Nessuna (gratuito illimitato)",
+      "statusPaid": "Piano a pagamento attivo.",
+      "statusFreeNoDeadline": "Periodo gratuito senza scadenza. Per ora nulla da pagare.",
+      "statusFreeActive": "Gratuito fino al {date}. Dopo si applicherà l’abbonamento mensile.",
+      "statusFreeExpired": "Il periodo gratuito è terminato il {date}. Si prega di regolarizzare il pagamento.",
+      "back": "Indietro"
+    },
+    "courseReviews": {
+      "heading": "Recensioni",
+      "noReviews": "Ancora nessuna recensione.",
+      "reviewsCount": "{count} recensioni",
+      "ratingCount": "{count} voti",
+      "yourReview": "La tua recensione",
+      "writeReview": "Lascia una recensione",
+      "editReview": "Modifica la recensione",
+      "ratingLabel": "Voto",
+      "commentLabel": "Commento",
+      "commentPlaceholder": "Condividi la tua esperienza…",
+      "submit": "Pubblica",
+      "delete": "Elimina",
+      "hide": "Nascondi",
+      "unhide": "Mostra",
+      "hiddenBadge": "Nascosta",
+      "savedToast": "Recensione salvata.",
+      "errorToast": "Impossibile salvare la recensione.",
+      "onlyCompleted": "Completa il corso per lasciare una recensione."
+    },
+    "billingBanner": {
+      "approaching": "Il periodo gratuito di questo dominio termina il {date}.",
+      "expired": "Il periodo gratuito di questo dominio è terminato il {date}. Si prega di regolarizzare il pagamento.",
+      "cta": "Vedi abbonamento"
+    }
+  }
+}

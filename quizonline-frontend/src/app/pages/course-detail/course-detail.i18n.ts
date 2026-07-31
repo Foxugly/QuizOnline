@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './course-detail.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export interface CourseDetailUiText {
   pageTitle: string;
@@ -28,10 +28,8 @@ export interface CourseDetailUiText {
   emptyContentMessage: string;
 }
 
-const CATALOG = data as Record<string, CourseDetailUiText>;
-
 export function getCourseDetailUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseDetailUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseDetailUiText>('courseDetail', lang);
 }

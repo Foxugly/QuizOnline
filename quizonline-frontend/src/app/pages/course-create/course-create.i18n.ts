@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './course-create.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Page-scoped dictionary for ``/course/new``. Mirrors the shape of
@@ -36,10 +36,8 @@ export interface CourseCreateUiText {
   };
 }
 
-const CATALOG = data as Record<string, CourseCreateUiText>;
-
 export function getCourseCreateUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseCreateUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseCreateUiText>('courseCreate', lang);
 }

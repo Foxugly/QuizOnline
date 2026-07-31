@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import data from './subject-form.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type SubjectFormUiText = {
   title: string;
@@ -17,10 +17,8 @@ export type SubjectFormUiText = {
   questionCountWithMax: string;
 };
 
-const CATALOG = data as Record<string, SubjectFormUiText>;
-
 export function getSubjectFormUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): SubjectFormUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.Fr];
+  return pageUiText<SubjectFormUiText>('subjectForm', lang);
 }

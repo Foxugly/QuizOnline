@@ -1,5 +1,5 @@
 import { LanguageEnumDto } from '../../../api/generated/model/language-enum';
-import data from './question-import.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type QuestionImportUiText = {
   title: string;
@@ -67,8 +67,8 @@ export type QuestionImportUiText = {
   importFailure: string;
 };
 
-const UI_TEXT = data as Record<string, QuestionImportUiText>;
-
-export function getQuestionImportUiText(lang: LanguageEnumDto | string | null | undefined): QuestionImportUiText {
-  return UI_TEXT[lang as string] ?? UI_TEXT[LanguageEnumDto.En];
+export function getQuestionImportUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): QuestionImportUiText {
+  return pageUiText<QuestionImportUiText>('questionImport', lang);
 }

@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './transfer-accept.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type TransferAcceptUiText = {
   title: string;
@@ -26,10 +26,8 @@ export type TransferAcceptUiText = {
   };
 };
 
-const CATALOG = data as Record<string, TransferAcceptUiText>;
-
 export function getTransferAcceptUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): TransferAcceptUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<TransferAcceptUiText>('transferAccept', lang);
 }

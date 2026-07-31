@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './course-invite-accept.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-page dictionary for the invitee-side acceptance page at
@@ -49,10 +49,8 @@ export interface CourseInviteAcceptUiText {
   declineErrorToast: string;
 }
 
-const CATALOG = data as Record<string, CourseInviteAcceptUiText>;
-
 export function getCourseInviteAcceptUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseInviteAcceptUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseInviteAcceptUiText>('courseInviteAccept', lang);
 }

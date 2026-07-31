@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import data from './quiz-create.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type QuizCreateUiText = {
   textsTab: string;
@@ -69,10 +69,8 @@ export type QuizCreateUiText = {
   monthNamesShort: string[];
 };
 
-const CATALOG = data as Record<string, QuizCreateUiText>;
-
 export function getQuizCreateUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): QuizCreateUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.Fr];
+  return pageUiText<QuizCreateUiText>('quizCreate', lang);
 }

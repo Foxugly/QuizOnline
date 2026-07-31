@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './lesson-edit.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Page-scoped dictionary for ``/lesson/{id}/edit``. The shell-level
@@ -22,10 +22,8 @@ export interface LessonEditUiText {
   editModeButton: string;
 }
 
-const CATALOG = data as Record<string, LessonEditUiText>;
-
 export function getLessonEditUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): LessonEditUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<LessonEditUiText>('lessonEdit', lang);
 }

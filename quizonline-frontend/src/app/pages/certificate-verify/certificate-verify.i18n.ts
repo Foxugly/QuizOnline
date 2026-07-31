@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './certificate-verify.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-language UI text for the PUBLIC certificate verification page.
@@ -29,10 +29,8 @@ export interface CertificateVerifyUiText {
   loadingMessage: string;
 }
 
-const CATALOG = data as Record<string, CertificateVerifyUiText>;
-
 export function getCertificateVerifyUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CertificateVerifyUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CertificateVerifyUiText>('certificateVerify', lang);
 }

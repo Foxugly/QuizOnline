@@ -2,7 +2,7 @@ import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../shared/i18n/format';
 import {ActionLabelsCopy} from './domain-edit-action-label.util';
 import {DomainEditDurationCopy} from './domain-edit-duration.util';
-import data from './domain-edit.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type DomainEditUiText = {
   reviews: {
@@ -156,10 +156,8 @@ export type DomainEditUiText = {
   };
 };
 
-const DICT = data as Record<string, DomainEditUiText>;
-
 export function getDomainEditUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): DomainEditUiText {
-  return DICT[lang as string] ?? DICT[LanguageEnumDto.En];
+  return pageUiText<DomainEditUiText>('domainEdit', lang);
 }

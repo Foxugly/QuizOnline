@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './course-edit.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Shell-level labels for the course-edit page. Includes the page title,
@@ -44,10 +44,8 @@ export interface CourseEditUiText {
   deleteProtectedToast: string;
 }
 
-const CATALOG = data as Record<string, CourseEditUiText>;
-
 export function getCourseEditUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseEditUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseEditUiText>('courseEdit', lang);
 }

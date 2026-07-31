@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './join-request-decide.i18n.json';
 import {RequesterLineCopy} from './join-request-decide-recap.util';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type JoinRequestDecideUiText = {
   title: string;
@@ -53,10 +53,8 @@ export type JoinRequestDecideUiText = {
   };
 };
 
-const CATALOG = data as Record<string, JoinRequestDecideUiText>;
-
 export function getJoinRequestDecideUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): JoinRequestDecideUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<JoinRequestDecideUiText>('joinRequestDecide', lang);
 }

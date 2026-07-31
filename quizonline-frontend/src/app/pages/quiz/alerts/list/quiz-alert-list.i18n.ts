@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
-import data from './quiz-alert-list.i18n.json';
+import {pageUiText} from '../../../../shared/i18n/catalog-registry';
 
 export type QuizAlertListUiText = {
   title: string;
@@ -21,8 +21,8 @@ export type QuizAlertListUiText = {
   assignmentPreviewWithIntro: string;
 };
 
-const DICT = data as Record<string, QuizAlertListUiText>;
-
-export function getQuizAlertListUiText(lang: LanguageEnumDto | string | null | undefined): QuizAlertListUiText {
-  return DICT[lang as string] ?? DICT[LanguageEnumDto.En];
+export function getQuizAlertListUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): QuizAlertListUiText {
+  return pageUiText<QuizAlertListUiText>('quizAlertList', lang);
 }

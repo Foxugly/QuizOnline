@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './donate.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type DonateUiText = {
   whyTitle: string;
@@ -12,8 +12,8 @@ export type DonateUiText = {
   thanksDescription: string;
 };
 
-const CATALOG = data as Record<string, DonateUiText>;
-
-export function getDonateUiText(lang: LanguageEnumDto | string | null | undefined): DonateUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+export function getDonateUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): DonateUiText {
+  return pageUiText<DonateUiText>('donate', lang);
 }

@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
-import data from './structure-tab.i18n.json';
+import {pageUiText} from '../../../../shared/i18n/catalog-registry';
 
 /**
  * Per-tab dictionary for the "Structure" tab where sections and lessons
@@ -75,10 +75,8 @@ export interface CourseEditStructureTabUiText {
   lessonAria: string;
 }
 
-const CATALOG = data as Record<string, CourseEditStructureTabUiText>;
-
 export function getCourseEditStructureTabUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseEditStructureTabUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseEditStructureTabUiText>('structureTab', lang);
 }

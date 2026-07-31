@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import data from './connections.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export interface ConnectionsUiText {
   pageTitle: string;
@@ -57,10 +57,8 @@ export interface ConnectionsUiText {
   };
 }
 
-const CATALOG = data as Record<string, ConnectionsUiText>;
-
 export function getConnectionsUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): ConnectionsUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<ConnectionsUiText>('connections', lang);
 }

@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../shared/i18n/format';
-import data from './subject-list.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type SubjectListUiText = {
   title: string;
@@ -20,10 +20,8 @@ export type SubjectListUiText = {
   };
 };
 
-const UI_TEXT = data as Record<string, SubjectListUiText>;
-
 export function getSubjectListUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): SubjectListUiText {
-  return UI_TEXT[lang as string] ?? UI_TEXT[LanguageEnumDto.Fr];
+  return pageUiText<SubjectListUiText>('subjectList', lang);
 }

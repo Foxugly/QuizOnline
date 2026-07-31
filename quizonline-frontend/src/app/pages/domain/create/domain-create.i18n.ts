@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import data from './domain-create.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type DomainCreateUiText = {
   toastErrorSummary: string;
@@ -12,10 +12,8 @@ export type DomainCreateUiText = {
   };
 };
 
-const CATALOG = data as Record<string, DomainCreateUiText>;
-
 export function getDomainCreateUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): DomainCreateUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<DomainCreateUiText>('domainCreate', lang);
 }

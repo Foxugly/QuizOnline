@@ -1,6 +1,6 @@
 import { LanguageEnumDto } from '../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../shared/i18n/format';
-import data from './quiz-list.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type QuizListUiText = {
   page: {
@@ -94,8 +94,8 @@ export type QuizListUiText = {
   };
 };
 
-const UI_TEXT = data as Record<string, QuizListUiText>;
-
-export function getQuizListUiText(lang: LanguageEnumDto | string | null | undefined): QuizListUiText {
-  return UI_TEXT[lang as string] ?? UI_TEXT[LanguageEnumDto.En];
+export function getQuizListUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): QuizListUiText {
+  return pageUiText<QuizListUiText>('quizList', lang);
 }

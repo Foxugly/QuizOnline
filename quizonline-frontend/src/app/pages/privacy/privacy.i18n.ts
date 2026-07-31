@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './privacy.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type PrivacyUiText = {
   title: string;
@@ -16,10 +16,8 @@ export type PrivacyUiText = {
   contactBody: string;
 };
 
-const CATALOG = data as Record<string, PrivacyUiText>;
-
 export function getPrivacyUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): PrivacyUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.Fr];
+  return pageUiText<PrivacyUiText>('privacy', lang);
 }

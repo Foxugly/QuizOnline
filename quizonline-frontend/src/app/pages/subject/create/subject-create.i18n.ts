@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
-import data from './subject-create.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type SubjectCreateUiText = {
   title: string;
@@ -15,10 +15,8 @@ export type SubjectCreateUiText = {
   };
 };
 
-const CATALOG = data as Record<string, SubjectCreateUiText>;
-
 export function getSubjectCreateUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): SubjectCreateUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.Fr];
+  return pageUiText<SubjectCreateUiText>('subjectCreate', lang);
 }

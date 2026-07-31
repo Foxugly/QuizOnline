@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './invite-accept.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type InviteAcceptUiText = {
   title: string;
@@ -30,10 +30,8 @@ export type InviteAcceptUiText = {
   };
 };
 
-const CATALOG = data as Record<string, InviteAcceptUiText>;
-
 export function getInviteAcceptUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): InviteAcceptUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<InviteAcceptUiText>('inviteAccept', lang);
 }

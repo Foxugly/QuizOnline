@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
 import {AuditActionLabels} from './analytics-audit-action.util';
-import data from './analytics-tab.i18n.json';
+import {pageUiText} from '../../../../shared/i18n/catalog-registry';
 
 /**
  * Per-tab dictionary for the course-edit "Analytics" tab. KPIs are
@@ -66,10 +66,8 @@ export interface CourseEditAnalyticsTabUiText {
   emptyMessage: string;
 }
 
-const CATALOG = data as Record<string, CourseEditAnalyticsTabUiText>;
-
 export function getCourseEditAnalyticsTabUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseEditAnalyticsTabUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseEditAnalyticsTabUiText>('analyticsTab', lang);
 }

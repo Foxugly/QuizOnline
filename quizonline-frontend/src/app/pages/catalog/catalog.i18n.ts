@@ -1,7 +1,7 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {PluralForms} from '../../shared/i18n/format';
 import {CatalogDurationCopy} from './catalog-duration.util';
-import data from './catalog.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export interface CatalogUiText {
   pageTitle: string;
@@ -37,10 +37,8 @@ export interface CatalogUiText {
   };
 }
 
-const CATALOG = data as Record<string, CatalogUiText>;
-
 export function getCatalogUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CatalogUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CatalogUiText>('catalog', lang);
 }

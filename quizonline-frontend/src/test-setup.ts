@@ -3,7 +3,19 @@ import {TestBed} from '@angular/core/testing';
 import {TranslocoTestingModule} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
 
-import {CATALOGS} from './app/core/i18n/catalogs';
+// Suffixe `Catalog` obligatoire : un `import it from ...` masquerait la
+// fonction de test it() du runner.
+import enCatalog from '../public/i18n/en.json';
+import esCatalog from '../public/i18n/es.json';
+import frCatalog from '../public/i18n/fr.json';
+import itCatalog from '../public/i18n/it.json';
+import nlCatalog from '../public/i18n/nl.json';
+import {RootCatalog, registerCatalogs} from './app/shared/i18n/catalog-registry';
+
+// En production les catalogues arrivent par HTTP et sont enregistres dans un
+// APP_INITIALIZER. Un TestBed n'a pas de bootstrap : sans cet appel, le premier
+// getter i18n leverait dans chaque spec. On importe les MEMES fichiers que ceux
+// servis en production, pas des fixtures qui deriveraient.
 
 type VitestSpy = ReturnType<typeof vi.fn> & {
   and: {
@@ -79,11 +91,21 @@ window.__APP__ ??= {
 // through the ``UiTextService`` façade; this is the fleet-standard conformance
 // wiring so any ``| transloco`` usage and Transloco injectables resolve in specs.
 beforeEach(() => {
+  // Dans le beforeEach et non au niveau module : sous le runner navigateur,
+  // l'ordre d'evaluation des modules ne garantit pas que le registre soit
+  // rempli avant que les specs ne l'interrogent.
+  registerCatalogs({
+    fr: frCatalog as unknown as RootCatalog,
+    en: enCatalog as unknown as RootCatalog,
+    nl: nlCatalog as unknown as RootCatalog,
+    it: itCatalog as unknown as RootCatalog,
+    es: esCatalog as unknown as RootCatalog,
+  });
   localStorage.setItem('lang', 'en');
   TestBed.configureTestingModule({
     imports: [
       TranslocoTestingModule.forRoot({
-        langs: {en: CATALOGS.en},
+        langs: {en: enCatalog as never},
         translocoConfig: {availableLangs: ['en'], defaultLang: 'en'},
         preloadLangs: true,
       }),

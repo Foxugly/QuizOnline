@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './features.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 import {
   buildFeaturesUiText,
   type FeaturesContent,
@@ -8,10 +8,12 @@ import {
 
 export type {FeatureItem, FeatureSection, FeaturesUiText} from './features.util';
 
-const CATALOG = data as Record<string, FeaturesContent>;
-
 export function getFeaturesUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): FeaturesUiText {
-  return buildFeaturesUiText(CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En]);
+  // Le catalogue stocke le contenu BRUT (sections indexees par slug) ; c'est
+  // buildFeaturesUiText qui le transforme en tableau ordonne selon
+  // SECTION_DEFS. Ne pas court-circuiter cette etape : le template fait
+  // @for sur ui().sections et ne peut pas iterer un Record.
+  return buildFeaturesUiText(pageUiText<FeaturesContent>('features', lang));
 }

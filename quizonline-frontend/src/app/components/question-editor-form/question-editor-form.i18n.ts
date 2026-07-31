@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './question-editor-form.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Page-scoped labels for the rewritten question editor form
@@ -51,10 +51,8 @@ export interface QuestionEditorFormUiText {
   answerHeading: string;
 }
 
-const DICT = data as Record<string, QuestionEditorFormUiText>;
-
 export function getQuestionEditorFormUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): QuestionEditorFormUiText {
-  return DICT[lang as string] ?? DICT[LanguageEnumDto.En];
+  return pageUiText<QuestionEditorFormUiText>('questionEditorForm', lang);
 }

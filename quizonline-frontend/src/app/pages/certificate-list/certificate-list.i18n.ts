@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './certificate-list.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-language UI text for the "My certificates" page.
@@ -26,10 +26,8 @@ export interface CertificateListUiText {
   retryButton: string;
 }
 
-const CATALOG = data as Record<string, CertificateListUiText>;
-
 export function getCertificateListUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CertificateListUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CertificateListUiText>('certificateList', lang);
 }

@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../shared/i18n/format';
-import data from './domain-list.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type DomainListUiText = {
   title: string;
@@ -29,10 +29,8 @@ export type DomainListUiText = {
   subscriptionAction: string;
 };
 
-const DICT = data as Record<string, DomainListUiText>;
-
 export function getDomainListUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): DomainListUiText {
-  return DICT[lang as string] ?? DICT[LanguageEnumDto.En];
+  return pageUiText<DomainListUiText>('domainList', lang);
 }

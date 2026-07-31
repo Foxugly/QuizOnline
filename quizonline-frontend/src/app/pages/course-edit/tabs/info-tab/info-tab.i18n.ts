@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
-import data from './info-tab.i18n.json';
+import {pageUiText} from '../../../../shared/i18n/catalog-registry';
 
 /**
  * Page-scoped dictionary for the course-edit "Information" tab.
@@ -60,10 +60,8 @@ export interface CourseEditInfoTabUiText {
   };
 }
 
-const CATALOG = data as Record<string, CourseEditInfoTabUiText>;
-
 export function getCourseEditInfoTabUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseEditInfoTabUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseEditInfoTabUiText>('infoTab', lang);
 }
