@@ -3,7 +3,6 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
-import sentry_sdk
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -97,15 +96,17 @@ JWT_SIGNING_KEY = _jwt_signing_key if _jwt_signing_key else SECRET_KEY
 
 SENTRY_DSN = env("SENTRY_DSN")
 
-if SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        environment=env("SENTRY_ENVIRONMENT"),
-        release=env("SENTRY_RELEASE") or None,
-        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE"),
-        profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE"),
-        send_default_pii=env.bool("SENTRY_SEND_DEFAULT_PII"),
-    )
+# Sentry n'est PAS initialise ici, volontairement.
+#
+# Ce module est importe par settings_dev, settings_test ET settings_prod. Un
+# init a ce niveau se declenche donc des qu'un DSN est present, y compris sur un
+# poste de developpement : chaque `manage.py` local part alors dans le projet
+# Sentry DE PRODUCTION. C'est la cause du bruit constate le 2026-07-31.
+#
+# En production c'est settings_prod qui initialise, avec les integrations
+# (Django / Celery / logging) et le filtre before_send. L'init qui se trouvait
+# ici en etait un doublon nu : Sentry etait initialise deux fois en prod, et une
+# fois de trop partout ailleurs.
 
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
