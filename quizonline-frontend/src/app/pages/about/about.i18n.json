@@ -95,10 +95,11 @@
         "title": "Backend",
         "description": "REST API, business rules and application security.",
         "items": [
-          "Django and Django REST Framework",
+          "Django 6 and Django REST Framework",
+          "PostgreSQL 16, in production and in CI",
           "drf-spectacular for the OpenAPI contract",
           "Simple JWT, django-filter and django-parler",
-          "Celery, import-export and Python tests"
+          "Celery, import-export and Python 3.12 tests"
         ]
       },
       "frontend": {
@@ -106,9 +107,9 @@
         "description": "Single-page app for administration and quiz delivery.",
         "items": [
           "Angular 21, TypeScript and RxJS",
-          "PrimeNG 21, PrimeFlex and PrimeIcons",
+          "PrimeNG 21 and PrimeIcons",
           "API client generated from OpenAPI",
-          "Karma, Jasmine and Playwright"
+          "Vitest and Playwright"
         ]
       }
     }
@@ -209,10 +210,11 @@
         "title": "Backend",
         "description": "API REST, logique métier et sécurité applicative.",
         "items": [
-          "Django et Django REST Framework",
+          "Django 6 et Django REST Framework",
+          "PostgreSQL 16, en production comme en integration continue",
           "drf-spectacular pour le contrat OpenAPI",
           "Simple JWT, django-filter et django-parler",
-          "Celery, import-export et tests Python"
+          "Celery, import-export et tests Python 3.12"
         ]
       },
       "frontend": {
@@ -220,9 +222,9 @@
         "description": "SPA d'administration et de passage de quiz.",
         "items": [
           "Angular 21, TypeScript et RxJS",
-          "PrimeNG 21, PrimeFlex et PrimeIcons",
+          "PrimeNG 21 et PrimeIcons",
           "Client API généré depuis OpenAPI",
-          "Karma, Jasmine et Playwright"
+          "Vitest et Playwright"
         ]
       }
     }
@@ -323,10 +325,11 @@
         "title": "Backend",
         "description": "REST API, bedrijfslogica en applicatieve beveiliging.",
         "items": [
-          "Django en Django REST Framework",
+          "Django 6 en Django REST Framework",
+          "PostgreSQL 16, in productie en in CI",
           "drf-spectacular voor het OpenAPI-contract",
           "Simple JWT, django-filter en django-parler",
-          "Celery, import-export en Python-tests"
+          "Celery, import-export en Python 3.12-tests"
         ]
       },
       "frontend": {
@@ -334,9 +337,9 @@
         "description": "Single-page app voor beheer en quizafname.",
         "items": [
           "Angular 21, TypeScript en RxJS",
-          "PrimeNG 21, PrimeFlex en PrimeIcons",
+          "PrimeNG 21 en PrimeIcons",
           "API-client gegenereerd uit OpenAPI",
-          "Karma, Jasmine en Playwright"
+          "Vitest en Playwright"
         ]
       }
     }
@@ -437,10 +440,11 @@
         "title": "Backend",
         "description": "API REST, logica di business e sicurezza applicativa.",
         "items": [
-          "Django e Django REST Framework",
+          "Django 6 e Django REST Framework",
+          "PostgreSQL 16, in produzione e in CI",
           "drf-spectacular per il contratto OpenAPI",
           "Simple JWT, django-filter e django-parler",
-          "Celery, import-export e test Python"
+          "Celery, import-export e test Python 3.12"
         ]
       },
       "frontend": {
@@ -448,9 +452,9 @@
         "description": "SPA per amministrazione e fruizione dei quiz.",
         "items": [
           "Angular 21, TypeScript e RxJS",
-          "PrimeNG 21, PrimeFlex e PrimeIcons",
+          "PrimeNG 21 e PrimeIcons",
           "Client API generato da OpenAPI",
-          "Karma, Jasmine e Playwright"
+          "Vitest e Playwright"
         ]
       }
     }
@@ -551,10 +555,11 @@
         "title": "Backend",
         "description": "API REST, reglas de negocio y seguridad de la aplicacion.",
         "items": [
-          "Django y Django REST Framework",
+          "Django 6 y Django REST Framework",
+          "PostgreSQL 16, en produccion y en CI",
           "drf-spectacular para el contrato OpenAPI",
           "Simple JWT, django-filter y django-parler",
-          "Celery, import-export y pruebas Python"
+          "Celery, import-export y pruebas Python 3.12"
         ]
       },
       "frontend": {
@@ -562,9 +567,9 @@
         "description": "SPA de administracion y ejecucion de cuestionarios.",
         "items": [
           "Angular 21, TypeScript y RxJS",
-          "PrimeNG 21, PrimeFlex y PrimeIcons",
+          "PrimeNG 21 y PrimeIcons",
           "Cliente API generado desde OpenAPI",
-          "Karma, Jasmine y Playwright"
+          "Vitest y Playwright"
         ]
       }
     }
