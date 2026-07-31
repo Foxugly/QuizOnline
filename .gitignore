@@ -78,3 +78,10 @@ docs/manual/**/.manual-build.html
 
 # ── Claude Code ───────────────────────────────────────────────────────────────
 .claude/scheduled_tasks.lock
+
+# Secrets — filet large : les regles ci-dessus ne couvrent que
+# quizonline-server/ et la racine. Une variante .env.<...> ailleurs dans le
+# monorepo (frontend, scripts) passait au travers. L'ordre compte : la
+# negation du gabarit doit rester APRES, sinon elle est annulee.
+.env.*
+!quizonline-server/.env.example
