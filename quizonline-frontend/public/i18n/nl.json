@@ -1,0 +1,2953 @@
+{
+  "ui": {
+    "topmenu": {
+      "quiz": "Quizzen",
+      "domains": "Domeinen",
+      "subjects": "Onderwerpen",
+      "questions": "Vragen",
+      "users": "Gebruikers",
+      "features": "Functies",
+      "donate": "Doneren",
+      "about": "Over",
+      "alertsAria": "Berichten",
+      "themeToggle": "Thema wisselen",
+      "currentDomain": "Huidig domein",
+      "ownedDomains": "Mijn domeinen",
+      "managedDomains": "Domeinen die ik beheer",
+      "linkedDomains": "Gekoppelde domeinen",
+      "noDomains": "Geen domein",
+      "preferences": "Voorkeuren",
+      "notificationsAria": "Meldingen",
+      "lmsMyProgress": "Mijn voortgang",
+      "lmsMyCertificates": "Mijn certificaten",
+      "coursesMenu": "Cursussen",
+      "coursesMenuFormations": "Opleidingen",
+      "quizMenu": "Quiz",
+      "quizMenuLabel": "Quiz",
+      "dashboard": "Dashboard"
+    },
+    "userMenu": {
+      "preferences": "Voorkeuren",
+      "changePassword": "Wachtwoord wijzigen",
+      "logout": "Afmelden",
+      "login": "Aanmelden",
+      "myInvitations": "Mijn uitnodigingen",
+      "userFallback": "Gebruiker"
+    },
+    "footer": {
+      "baseline": "Platform voor quizzen en domeingebaseerd contentbeheer.",
+      "version": "Versie",
+      "rights": ". Alle rechten voorbehouden.",
+      "privacyLink": "Privacy"
+    },
+    "home": {
+      "eyebrow": "Quizzen, templates en correctie",
+      "lead": "Een plek om quizzen te bouwen, toe te wijzen, af te leggen en op te volgen.",
+      "primaryLoggedIn": "Mijn quizzen bekijken",
+      "primaryLoggedOut": "Aanmelden",
+      "secondaryAdmin": "Template maken",
+      "secondaryLoggedOut": "Account maken",
+      "mode": "Modus",
+      "modeManager": "Beheerder",
+      "modeUser": "Aangemelde gebruiker",
+      "modeVisitor": "Bezoeker",
+      "languages": "Talen",
+      "features": "Functies",
+      "featuresValue": "Quizzen, meldingen, toewijzingen, correctie",
+      "contactCta": "Contact opnemen",
+      "moderationTileTitle": "Aanvragen ter goedkeuring",
+      "moderationTileSubtitle": "{total} openstaand op uw domeinen.",
+      "moderationTileCount": {
+        "one": "{n} aanvraag",
+        "other": "{n} aanvragen"
+      }
+    },
+    "login": {
+      "eyebrow": "Aanmelden",
+      "title": "Toegang tot uw ruimte",
+      "subtitle": "Meld u aan om verder te gaan.",
+      "email": "E-mailadres",
+      "emailPlaceholder": "Uw e-mailadres",
+      "emailError": "Een geldig e-mailadres is vereist",
+      "password": "Wachtwoord",
+      "passwordPlaceholder": "Uw wachtwoord",
+      "passwordError": "Wachtwoord is verplicht (min. 4 tekens)",
+      "remember": "Onthoud mij",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "submit": "Aanmelden",
+      "noAccount": "Nog geen account?",
+      "createAccount": "Account maken",
+      "invalidCredentials": "Ongeldige gegevens. Probeer opnieuw.",
+      "confirmEmailRequired": "Bevestig uw e-mailadres voordat u zich aanmeldt.",
+      "orSeparator": "of",
+      "magicLinkSwitch": "Aanmelden via een magische link",
+      "magicLinkBackToPassword": "Een wachtwoord gebruiken",
+      "magicLinkEmail": "E-mailadres",
+      "magicLinkEmailPlaceholder": "uw@email.com",
+      "magicLinkSubmit": "Link verzenden",
+      "magicLinkSent": "Als er een account bestaat, is een aanmeldlink per e-mail verzonden.",
+      "magicLinkError": "Kan de link niet verzenden. Probeer opnieuw.",
+      "magicLinkExchanging": "Bezig met aanmelden…",
+      "magicLinkExchangeFailed": "Ongeldige of al gebruikte link.",
+      "magicLinkExpired": "Link verlopen. Vraag er een nieuwe aan."
+    },
+    "register": {
+      "title": "Account maken",
+      "subtitle": "Identiteit, taal en beveiliging",
+      "back": "Terug",
+      "create": "Maken",
+      "loading": "Laden...",
+      "identityTitle": "Identiteit",
+      "identityBadge": "profiel",
+      "securityTitle": "Beveiliging",
+      "securityBadge": "wachtwoord",
+      "email": "E-mailadres",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "language": "Taal",
+      "domains": "Domeinen",
+      "chooseDomains": "Kies een of meer domeinen",
+      "domainsHint": "Selecteer de domeinen waaraan u gekoppeld wilt worden.",
+      "chooseLanguage": "Kies een taal",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord",
+      "createAccount": "Mijn account maken",
+      "cancel": "Annuleren",
+      "emailRequired": "E-mailadres is verplicht.",
+      "emailInvalid": "E-mailadres is ongeldig.",
+      "firstNameRequired": "Voornaam is verplicht.",
+      "lastNameRequired": "Achternaam is verplicht.",
+      "languageRequired": "Taal is verplicht.",
+      "passwordRequired": "Wachtwoord is verplicht.",
+      "passwordMin": "Minimaal 8 tekens.",
+      "confirmRequired": "Bevestiging is verplicht.",
+      "passwordMismatch": "Wachtwoorden komen niet overeen.",
+      "success": "Uw account is aangemaakt. Controleer uw mailbox om uw registratie te bevestigen.",
+      "loadLanguagesError": "Kan talen niet laden.",
+      "loadDomainsError": "Kan domeinen niet laden.",
+      "submitError": "Registratie mislukt. Controleer de gegevens en probeer opnieuw."
+    },
+    "registerPending": {
+      "title": "Account aangemaakt",
+      "subtitle": "Bevestig uw e-mailadres",
+      "lead": "Uw account is succesvol aangemaakt.",
+      "body": "Controleer nu uw mailbox en klik op de bevestigingslink om uw registratie te activeren.",
+      "login": "Naar aanmelden"
+    },
+    "changePassword": {
+      "title": "QuizOnline",
+      "subtitle": "Mijn wachtwoord resetten",
+      "oldPassword": "Huidig wachtwoord",
+      "newPassword": "Nieuw wachtwoord",
+      "confirmNewPassword": "Nieuw wachtwoord bevestigen",
+      "oldPasswordRequired": "Huidig wachtwoord is verplicht.",
+      "newPasswordRequired": "Nieuw wachtwoord is verplicht.",
+      "newPasswordMin": "Het nieuwe wachtwoord moet minstens 8 tekens bevatten.",
+      "confirmRequired": "Bevestiging is verplicht.",
+      "mismatch": "Wachtwoorden komen niet overeen.",
+      "submit": "Wachtwoord wijzigen",
+      "forceMessage": "U moet eerst uw wachtwoord wijzigen.",
+      "success": "Uw wachtwoord is gewijzigd.",
+      "error": "Er is een fout opgetreden bij het wijzigen van het wachtwoord."
+    },
+    "resetPassword": {
+      "title": "Wachtwoord opnieuw instellen",
+      "loading": "Laden…",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "uw e-mailadres",
+      "emailRequired": "E-mail is verplicht.",
+      "emailInvalid": "Het e-mailadres is niet geldig.",
+      "emailHint": "Er wordt een resetlink verzonden als het e-mailadres bestaat.",
+      "successMessage": "Als er een account bestaat voor dit adres, is er een reset-e-mail verzonden.",
+      "errorGeneric": "Er is een fout opgetreden. Probeer het later opnieuw.",
+      "formInvalid": "Corrigeer de fouten in het formulier.",
+      "confirm": {
+        "title": "Nieuw wachtwoord",
+        "subtitle": "Kies een nieuw wachtwoord voor uw account.",
+        "confirmPassword": "Bevestig wachtwoord",
+        "backToLogin": "Terug naar aanmelden",
+        "linkInvalidOrIncomplete": "De resetlink is ongeldig of onvolledig.",
+        "linkInvalidOrExpired": "De resetlink is ongeldig of verlopen.",
+        "successReset": "Uw wachtwoord is opnieuw ingesteld. U kunt zich nu aanmelden.",
+        "errorGeneric": "Kan het wachtwoord niet opnieuw instellen."
+      }
+    },
+    "confirmEmail": {
+      "title": "E-mailbevestiging",
+      "subtitle": "Bevestiging van uw registratie",
+      "inProgress": "Bevestiging bezig…",
+      "successFallback": "E-mailadres met succes bevestigd.",
+      "errorFallback": "Kan dit e-mailadres niet bevestigen.",
+      "invalidLink": "De bevestigingslink is ongeldig of onvolledig."
+    },
+    "preferences": {
+      "eyebrow": "Mijn account",
+      "title": "Voorkeuren",
+      "subtitle": "Beheer uw profiel, interfacetaal en huidig domein.",
+      "profileTitle": "Profiel",
+      "profileSubtitle": "Persoonlijke gegevens en weergavevoorkeuren.",
+      "summaryTitle": "Overzicht",
+      "summarySubtitle": "Snelle weergave van uw huidige account.",
+      "loading": "Laden...",
+      "email": "E-mail",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "language": "Taal",
+      "domains": "Gekoppelde domeinen",
+      "chooseDomains": "Kies gekoppelde domeinen",
+      "currentDomain": "Huidig domein",
+      "chooseLanguage": "Kies een taal",
+      "noDomain": "Geen domein",
+      "save": "Opslaan",
+      "changePassword": "Wachtwoord wijzigen",
+      "role": "Rol",
+      "user": "Gebruiker",
+      "currentDomainLabel": "Huidig domein",
+      "managedDomains": "Beheerde domeinen",
+      "ownedDomains": "Eigen domeinen",
+      "activeAccount": "Actief account",
+      "yes": "Ja",
+      "no": "Nee",
+      "roleSuperuser": "Superuser",
+      "roleManager": "Beheerder",
+      "roleUser": "Gebruiker",
+      "roleOwner": "Eigenaar",
+      "roleMember": "Gekoppeld lid",
+      "domainsTitle": "Domeinen",
+      "domainsSubtitle": "Beheer uw gekoppelde domeinen en kies het huidige domein.",
+      "linkedDomainsList": "Zichtbare domeinen",
+      "currentBadge": "Huidig",
+      "setCurrent": "Instellen als huidig",
+      "unlinkDomain": "Verlaten",
+      "addDomain": "Domein koppelen",
+      "noMoreDomains": "Geen extra domein beschikbaar.",
+      "linkSelectedDomains": "Selectie koppelen",
+      "cancel": "Annuleren",
+      "ownerLabel": "Eigenaar:",
+      "deleteDomain": "Verwijderen",
+      "deleteDomainSuccess": "Domein verwijderd.",
+      "deleteDomainError": "Kan dit domein niet verwijderen.",
+      "loadError": "Kan uw voorkeuren niet laden.",
+      "saveError": "Kan voorkeuren niet opslaan.",
+      "saveSuccess": "Voorkeuren opgeslagen.",
+      "userMissing": "Gebruiker niet gevonden.",
+      "pendingRequestsTitle": "Mijn openstaande aanvragen",
+      "pendingRequestsEmpty": "Geen openstaande aanvraag.",
+      "pendingRequestsRequestedAt": "Aangevraagd op",
+      "pendingRequestsCancel": "Aanvraag annuleren",
+      "tabProfile": "Profiel",
+      "tabDomains": "Domeinen",
+      "tabNotifications": "Meldingen",
+      "notificationsTitle": "E-mailmeldingen",
+      "notificationsSubtitle": "Kies welke e-mails u wilt ontvangen. Kritieke e-mails (registratiebevestiging, wachtwoordherstel, aanmeldlink) worden altijd verzonden.",
+      "notificationKindJoinRequestCreated": "Nieuwe toegangsaanvraag op een domein dat ik beheer",
+      "notificationKindJoinRequestDecided": "Beslissing (goedgekeurd / afgewezen) op een van mijn aanvragen",
+      "notificationKindJoinRequestExpiry": "Waarschuwing voor de automatische annulering van een openstaande aanvraag",
+      "notificationKindInviteReceived": "Uitnodiging om een domein te vervoegen",
+      "notificationKindTransferReceived": "Voorstel voor eigendomsoverdracht",
+      "notificationKindQuizAssignment": "Een quiz is mij toegewezen",
+      "notificationKindQuizCompleted": "Een gebruiker heeft een van mijn quizzen voltooid",
+      "notificationKindQuizResultAvailable": "Mijn score op een quiz is beschikbaar",
+      "notificationKindQuizDetailAvailable": "De gedetailleerde correctie van een quiz is beschikbaar",
+      "notificationKindCourseInviteSent": "Een van mijn cursusuitnodigingen is verzonden",
+      "notificationKindCourseInviteReceived": "Ik ben uitgenodigd voor een cursus",
+      "notificationKindCourseInviteAccepted": "Een van mijn cursusuitnodigingen is geaccepteerd",
+      "notificationKindCourseEnrollmentRequest": "Nieuwe inschrijvingsaanvraag op een cursus die ik beheer",
+      "notificationCategoryDomain": "Domeinmeldingen",
+      "notificationCategoryQuiz": "Quizmeldingen",
+      "notificationCategoryLms": "LMS-meldingen",
+      "notificationChannelEmail": "E-mail",
+      "notificationChannelWeb": "Bel",
+      "notificationGroupUser": "Mijn meldingen",
+      "notificationGroupManager": "Als beheerder",
+      "notificationGroupOwner": "Als eigenaar",
+      "notificationsSaved": "Meldingsvoorkeuren opgeslagen.",
+      "dangerZoneTitle": "Gevarenzone",
+      "deleteAccountTitle": "Mijn account verwijderen",
+      "deleteAccountDescription": "Verwijder uw account en al uw persoonsgegevens definitief. Onomkeerbaar. Als u nog domeinen bezit, draag ze eerst over of verwijder ze.",
+      "deleteAccountCta": "Mijn account verwijderen…",
+      "deleteConfirmHeader": "Verwijdering bevestigen",
+      "deleteConfirmMessage": "Onomkeerbaar. Typ uw e-mailadres (\"{username}\") hieronder om te bevestigen.",
+      "deleteConfirmPlaceholder": "E-mailadres",
+      "deleteConfirmAccept": "Definitief verwijderen",
+      "deleteConfirmCancel": "Annuleren",
+      "deleteOwnedDomainsBlock": {
+        "one": "U bezit nog een domein. Draag het over of verwijder het voordat u uw account verwijdert.",
+        "other": "U bezit nog {count} domeinen. Draag ze over of verwijder ze voordat u uw account verwijdert."
+      },
+      "deleteSuccess": "Uw account is verwijderd.",
+      "deleteError": "Kan het account niet verwijderen."
+    },
+    "notifications": {
+      "bellTitle": "Meldingen",
+      "bellEmpty": "Geen meldingen.",
+      "bellMarkAllRead": "Alles als gelezen markeren",
+      "bellSeeAll": "Alle meldingen bekijken",
+      "pageTitle": "Meldingen",
+      "pageSubtitle": "Alles wat er op uw domeinen en uitnodigingen gebeurt.",
+      "filterUnread": "Ongelezen",
+      "filterAll": "Alle",
+      "filterDeleted": "Prullenbak",
+      "empty": "Niets om weer te geven.",
+      "emptyHint": "U wordt hier op de hoogte gebracht zodra er iets gebeurt op een van uw domeinen of uitnodigingen.",
+      "actionMarkRead": "Markeer als gelezen",
+      "actionDelete": "Verwijderen",
+      "relative": {
+        "justNow": "zojuist",
+        "minutesAgo": "{n} min geleden",
+        "hoursAgo": "{n} u geleden",
+        "daysAgo": "{n} d geleden"
+      },
+      "kindLine": {
+        "joinRequestCreated": "{ru} wil graag deelnemen aan \"{dn}\".",
+        "joinRequestApproved": "Uw aanvraag voor \"{dn}\" is goedgekeurd.",
+        "joinRequestRejected": "Uw aanvraag voor \"{dn}\" is afgewezen.",
+        "joinRequestExpiry": "Uw aanvraag voor \"{dn}\" verloopt binnenkort.",
+        "inviteReceived": "{iu} heeft u uitgenodigd voor \"{dn}\".",
+        "transferReceived": "{ii} stelt u het eigendom van \"{dn}\" voor.",
+        "quizAssignment": "Een nieuwe quiz \"{title}\" is aan u toegewezen.",
+        "quizCompleted": "{user} heeft zojuist \"{title}\" voltooid.",
+        "quizResult": "Uw score op \"{title}\" is beschikbaar.",
+        "quizDetail": "De gedetailleerde correctie van \"{title}\" is beschikbaar.",
+        "defaultUser": "Een gebruiker",
+        "defaultSomeone": "Iemand",
+        "defaultOwner": "De eigenaar"
+      }
+    },
+    "admin": {
+      "menuLabel": "Administratie",
+      "connections": {
+        "menuLabel": "Verbindingen"
+      },
+      "stats": {
+        "title": "Statistieken",
+        "activeUsers": "Actieve gebruikers",
+        "activeDomains": "Actieve domeinen",
+        "activeQuestions": "Actieve vragen",
+        "completedSessions": "Voltooide sessies",
+        "domain": "Domein",
+        "members": "Leden",
+        "managers": "Beheerders",
+        "questions": "Vragen",
+        "templates": "Sjablonen",
+        "sessions": "Sessies",
+        "completion": "Voltooiing"
+      },
+      "languages": {
+        "title": "Taalbeheer",
+        "addLanguage": "Taal toevoegen",
+        "code": "Code",
+        "name": "Naam",
+        "active": "Actief",
+        "editLanguage": "Taal bewerken",
+        "deleteConfirm": "Weet u zeker dat u deze taal wilt verwijderen?",
+        "actions": "Acties"
+      },
+      "mailTest": {
+        "title": "E-mailtest",
+        "eyebrow": "SMTP / Outbox",
+        "subtitle": "Start een testmail via de echte backend-mailstroom.",
+        "formTitle": "Een testmail verzenden",
+        "formSubtitle": "De backend plaatst het bericht eerst in de outbox en start daarna de standaardlevering.",
+        "to": "Ontvanger",
+        "toPlaceholder": "ontvanger@example.com",
+        "toRequired": "E-mailadres is verplicht.",
+        "toInvalid": "E-mailadres is ongeldig.",
+        "subject": "Onderwerp",
+        "subjectPlaceholder": "Leeg laten om het standaardonderwerp te gebruiken",
+        "subjectHint": "Optioneel. Indien leeg maakt de backend zelf een testonderwerp.",
+        "body": "Bericht",
+        "bodyPlaceholder": "Leeg laten om de standaardtekst te gebruiken",
+        "bodyHint": "Optioneel. Indien leeg maakt de backend zelf een bericht met tijdstempel.",
+        "send": "Testmail verzenden",
+        "sending": "Verzenden...",
+        "successTitle": "E-mail in wachtrij",
+        "errorTitle": "Verzenden mislukt",
+        "errorFallback": "Kan de testmail niet verzenden.",
+        "resultTitle": "Laatste verzending",
+        "resultSubtitle": "Onmiddellijke API-respons na het in de wachtrij plaatsen.",
+        "resultEmpty": "In deze sessie is nog geen testmail verzonden.",
+        "emailId": "Outbox-ID",
+        "recipients": "Ontvangers",
+        "deliveryNote": "Als broker of SMTP niet beschikbaar is, kan het bericht in de wachtrij blijven of in gedegradeerde modus worden geleverd, afhankelijk van de backendconfiguratie."
+      },
+      "systemConfig": {
+        "title": "Systeemconfiguratie",
+        "eyebrow": "Diagnostiek",
+        "subtitle": "Alleen-lezen overzicht van de effectieve runtimeconfiguratie met controles op aanvraag.",
+        "loading": "Configuratie laden...",
+        "checking": "Controleren...",
+        "checkedAt": "Gecontroleerd op",
+        "checkResultTitle": "Resultaat van de controle",
+        "errorTitle": "Systeemfout",
+        "loadError": "Kan de systeemconfiguratie niet laden.",
+        "checkError": "Kan deze controle niet uitvoeren.",
+        "sections": {
+          "db": {
+            "title": "Database",
+            "description": "Engine, doel en verbindingsinstellingen met maskering.",
+            "check": "DB testen",
+            "fields": {
+              "engine": "Engine",
+              "name": "Naam",
+              "host": "Host",
+              "port": "Poort",
+              "conn_max_age": "Conn max age"
+            }
+          },
+          "email": {
+            "title": "E-mail",
+            "description": "E-mailbackend, afzender en leveringsafhankelijkheden.",
+            "check": "E-mail testen",
+            "fields": {
+              "backend": "Backend",
+              "host": "Host",
+              "port": "Poort",
+              "use_tls": "TLS",
+              "host_user": "Gebruiker",
+              "host_password_configured": "Wachtwoord geconfigureerd",
+              "default_from_email": "From",
+              "celery_broker_url": "Celery broker",
+              "celery_result_backend": "Result backend"
+            }
+          },
+          "upload": {
+            "title": "Upload",
+            "description": "Mediadirectory en actieve uploadlimieten.",
+            "check": "Schrijven testen",
+            "fields": {
+              "media_root": "Media root",
+              "media_root_exists": "Map bestaat",
+              "data_upload_max_memory_size": "Data upload max",
+              "file_upload_max_memory_size": "File upload max",
+              "max_upload_file_size": "Max bestandsgrootte"
+            }
+          },
+          "deepl": {
+            "title": "DeepL",
+            "description": "Activeringsstatus en aanwezigheid van de sleutel zonder het geheim te tonen.",
+            "check": "DeepL testen",
+            "fields": {
+              "enabled": "Actief",
+              "auth_key_configured": "Sleutel geconfigureerd",
+              "is_free": "Free-plan"
+            }
+          }
+        }
+      },
+      "joinRequests": {
+        "title": "Toegangsaanvragen",
+        "user": "Gebruiker",
+        "email": "E-mail",
+        "requestedAt": "Aangevraagd op",
+        "status": "Status",
+        "actions": "Acties",
+        "approve": "Goedkeuren",
+        "reject": "Afwijzen",
+        "rejectReason": "Reden van afwijzing",
+        "rejectReasonPlaceholder": "Geef de reden van afwijzing op…",
+        "pending": "In afwachting",
+        "approved": "Goedgekeurd",
+        "rejected": "Afgewezen",
+        "cancelled": "Geannuleerd",
+        "all": "Alle",
+        "noRequests": "Geen aanvragen.",
+        "moderate": "Toegangsaanvragen modereren",
+        "decidedBy": "Beslist door",
+        "decidedAt": "Beslist op",
+        "reason": "Reden",
+        "noReason": "—",
+        "bulkPlaceholder": "Bulkacties…",
+        "bulkApply": "Toepassen",
+        "bulkApprove": "Selectie goedkeuren",
+        "bulkReject": "Selectie afwijzen",
+        "bulkCancel": "Annuleren",
+        "bulkSelectedCount": {
+          "one": "{n} geselecteerd",
+          "other": "{n} geselecteerd"
+        },
+        "bulkRejectHeader": "Meerdere aanvragen afwijzen",
+        "bulkRejectMessage": "De onderstaande reden wordt voor de {n} afgewezen aanvragen opgeslagen.",
+        "bulkActionFailed": "Een of meer acties zijn mislukt.",
+        "bulkResultTitle": "Bulkactie voltooid",
+        "bulkResultDetail": {
+          "withSkipped": "{processed} aanvra(a)g(en) verwerkt, {skipped} overgeslagen (al beslist of buiten bereik).",
+          "noSkipped": "{processed} aanvra(a)g(en) verwerkt."
+        }
+      }
+    },
+    "status": {
+      "active": "Actief",
+      "inactive": "Inactief",
+      "published": "Gepubliceerd",
+      "draft": "Concept"
+    },
+    "access": {
+      "open": "Vrije inschrijving",
+      "approval": "Na goedkeuring",
+      "invite": "Alleen op uitnodiging"
+    },
+    "a11y": {
+      "skipToContent": "Naar hoofdinhoud"
+    },
+    "appUpdate": {
+      "title": "Nieuwe versie beschikbaar",
+      "detail": "De app is bijgewerkt terwijl u bezig was. Herlaad de pagina om verder te gaan."
+    }
+  },
+  "editor": {
+    "common": {
+      "back": "Terug",
+      "cancel": "Annuleren",
+      "save": "Opslaan",
+      "add": "Toevoegen",
+      "create": "Maken",
+      "delete": "Verwijderen",
+      "confirm": "Bevestigen",
+      "duplicate": "Dupliceren",
+      "edit": "Bewerken",
+      "send": "Verzenden",
+      "sending": "Verzenden...",
+      "refresh": "Vernieuwen",
+      "close": "Afsluiten",
+      "reopen": "Heropenen",
+      "login": "Aanmelden",
+      "loading": "Laden...",
+      "translateOthers": "Vertalen vanuit dit tabblad",
+      "translating": "Translating...",
+      "view": "Bekijken",
+      "previous": "Vorige",
+      "next": "Volgende",
+      "finish": "Voltooien",
+      "quick": "Snel",
+      "downloadPdf": "PDF downloaden",
+      "errorTitle": "Fout",
+      "deleteFailed": "Verwijderen is mislukt."
+    },
+    "quiz": {
+      "newTemplate": "Nieuw template",
+      "markAnswered": "Markeer als beantwoord",
+      "toggleFlag": "Markering omschakelen",
+      "alert": "Melden",
+      "backToQuiz": "Terug naar quiz",
+      "finishReview": "Nakijken voltooien",
+      "startQuiz": "Quiz starten",
+      "continueQuiz": "Quiz voortzetten",
+      "viewCorrection": "Correctie bekijken",
+      "quizFinished": "Quiz voltooid",
+      "backToList": "Terug naar lijst",
+      "questionLabel": "Vraag",
+      "scoreAvailableOn": "Score beschikbaar op",
+      "detailAvailableOn": "Details beschikbaar op",
+      "statusReady": "Klaar",
+      "statusInProgress": "Bezig",
+      "statusFinished": "Voltooid",
+      "modePractice": "Oefening",
+      "modeExam": "Examen",
+      "correctionLabel": "Correctie",
+      "scoreLabel": "Score",
+      "timerLabel": "Duur",
+      "questionsLabel": "Vragen",
+      "noTimeLimit": "Geen tijdslimiet",
+      "createdOn": "Aangemaakt op",
+      "startedOn": "Gestart op",
+      "closedOn": "Afgesloten op",
+      "correctAnswersOf": "{correct} juiste antwoorden van {total}",
+      "invalidQuizId": "Ongeldige quiz-identifier.",
+      "loadFailed": "Kan deze quiz niet laden.",
+      "startFailed": "Kan deze quiz niet starten.",
+      "finishQuizButton": "Quiz beëindigen",
+      "finishQuizConfirmHeader": "Quiz beëindigen",
+      "finishQuizConfirmMessage": "Deze actie is definitief. Doorgaan?",
+      "timeUp": "De tijd is om.",
+      "timeUpAutoClose": "De tijd is om. Automatisch afsluiten.",
+      "timeRemaining": "Resterende tijd",
+      "autoClosingInProgress": "Automatisch afsluiten…",
+      "reviewModeLabel": "Modus",
+      "reviewModeValue": "Nakijken",
+      "quizUnavailable": "Deze quiz is niet meer beschikbaar.",
+      "saveAnswerFailed": "Kan dit antwoord niet opslaan.",
+      "noQuestions": "Deze quiz bevat geen vragen.",
+      "closeFailed": "Kan deze quiz niet afsluiten.",
+      "alertSendFailed": "Kan deze melding niet verzenden.",
+      "reportDialogHeader": "Vraag melden",
+      "reportDialogBody": "Je bericht wordt naar de quizmaker gestuurd met de huidige vraag en actieve taal.",
+      "reportDialogPlaceholder": "Beschrijf het ondervonden probleem…",
+      "noCopyToastSummary": "Actie geblokkeerd",
+      "noCopyToastDetail": "Kopiëren is uitgeschakeld tijdens de quiz."
+    },
+    "userAdminForm": {
+      "badgeSuperuser": "Superuser",
+      "isActiveLabel": "Actief",
+      "languageLabel": "Taal",
+      "nbDomainMaxLabel": "Max domeinen",
+      "emailLabel": "E-mail",
+      "emailConfirmedLabel": "E-mail bevestigd",
+      "firstNameLabel": "Voornaam",
+      "lastNameLabel": "Achternaam",
+      "passwordLabel": "Wachtwoord",
+      "passwordChangeRequiredLabel": "Wachtwoordwijziging vereist"
+    },
+    "quizPlay": {
+      "quizTitleLabel": "Quiz-titel",
+      "userLabel": "Gebruiker",
+      "modeLabel": "Modus",
+      "durationLabel": "Duur",
+      "currentQuestion": "Huidige vraag: {index}"
+    },
+    "mediaSelector": {
+      "tagImageLocal": "Lokale afbeelding",
+      "tagVideoLocal": "Lokale video",
+      "tagImageExisting": "Bestaande afbeelding",
+      "tagVideoExisting": "Bestaande video",
+      "tagYoutube": "YouTube-video",
+      "tagUnknown": "Onbekend",
+      "invalidYoutubeUrl": "De link moet een geldige YouTube-URL zijn.",
+      "imagePreviewAlt": "Voorbeeldafbeelding"
+    },
+    "bulkList": {
+      "activate": "Activeren",
+      "deactivate": "Deactiveren",
+      "delete": "Verwijderen",
+      "confirmDeleteHeader": "Verwijderen",
+      "confirmDeleteAccept": "Verwijderen",
+      "confirmDeleteCancel": "Annuleren",
+      "confirmDeleteUsers": {
+        "one": "{n} gebruiker verwijderen? Deze actie is onomkeerbaar.",
+        "other": "{n} gebruikers verwijderen? Deze actie is onomkeerbaar."
+      },
+      "confirmDeleteSubjects": {
+        "one": "{n} onderwerp verwijderen? Deze actie is onomkeerbaar.",
+        "other": "{n} onderwerpen verwijderen? Deze actie is onomkeerbaar."
+      },
+      "confirmDeleteTemplates": {
+        "one": "{n} template verwijderen? Deze actie is onomkeerbaar.",
+        "other": "{n} templates verwijderen? Deze actie is onomkeerbaar."
+      }
+    },
+    "quizSessionTable": {
+      "colTitle": "Titel",
+      "colStatus": "Status",
+      "colMode": "Modus",
+      "colQuestions": "Vragen",
+      "colCreatedAt": "Aangemaakt op",
+      "colStartedAt": "Gestart op",
+      "colEndedAt": "Voltooid op",
+      "colScore": "Score",
+      "colActions": "Acties",
+      "statusAnswered": "Beantwoord",
+      "statusInProgress": "Bezig",
+      "statusNotStarted": "Niet gestart",
+      "actionView": "Bekijken",
+      "actionContinue": "Doorgaan",
+      "actionStart": "Starten",
+      "empty": "Geen quiz."
+    },
+    "pages": {
+      "domainCreate": {
+        "title": "Domein maken",
+        "subtitle": "Vertalingen, status en toegang"
+      },
+      "domainEdit": {
+        "title": "Domein bewerken",
+        "subtitle": "Vertalingen, status en toegang"
+      },
+      "subjectEdit": {
+        "title": "Onderwerp bewerken",
+        "subtitle": "Vertalingen en inhoud",
+        "questionsTitle": "Vragen",
+        "addQuestion": "Toevoegen",
+        "noQuestions": "Geen vraag.",
+        "titleCol": "Titel",
+        "actionsCol": "Acties",
+        "emptyLanguagesMessage": "Dit domein heeft geen taal geconfigureerd.",
+        "errors": {
+          "saveFailed": "Fout bij het opslaan.",
+          "translationFailed": "Fout bij het vertalen.",
+          "loadFailed": "Kan het onderwerp niet laden.",
+          "deleteFailed": "Fout bij het verwijderen van het onderwerp."
+        }
+      },
+      "questionCreate": {
+        "title": "Vraag maken",
+        "subtitle": "Domein, onderwerpen, vertalingen en antwoorden",
+        "emptyLanguagesMessage": "Dit domein heeft geen actieve talen geconfigureerd.",
+        "practiceTooltipFallback": "De vraag wordt openbaar en selecteerbaar voor gegenereerde quizzen.",
+        "errors": {
+          "loadInitialFailed": "Kan de initiële gegevens niet laden.",
+          "loadDomainFailed": "Kan het geselecteerde domein niet laden.",
+          "translationFailed": "Fout bij het vertalen.",
+          "toastSummary": "Fout",
+          "missingFields": "Kies een domein en vul minstens de titel in elke taal en alle antwoorden in.",
+          "missingCorrectAnswer": "Duid minstens één correct antwoord aan.",
+          "saveFailed": "Er is een fout opgetreden bij het opslaan van de vraag."
+        }
+      },
+      "questionEdit": {
+        "title": "Vraag bewerken",
+        "subtitle": "Context, vertalingen en antwoorden",
+        "emptyLanguagesMessage": "Geen actieve taal voor dit domein.",
+        "errors": {
+          "invalidId": "Ongeldige vraag-id.",
+          "translationFailed": "Fout bij het vertalen.",
+          "deleteFailed": "Fout bij het verwijderen van de vraag.",
+          "needOneCorrect": "Duid minstens één correct antwoord aan.",
+          "formInvalid": "Vul de titel en alle antwoorden in voor elke taal van het domein.",
+          "saveSuccess": "Vraag succesvol bijgewerkt.",
+          "saveFailed": "Fout bij het opslaan van de vraag.",
+          "loadFailed": "Kan de vraag niet laden.",
+          "duplicateFailed": "Fout bij het dupliceren van de vraag.",
+          "confirmDelete": "Deze vraag verwijderen?"
+        }
+      },
+      "questionView": {
+        "title": "Vraagdetails",
+        "revealOn": "Correcte antwoorden verbergen",
+        "revealOff": "Correcte antwoorden tonen",
+        "errors": {
+          "invalidId": "Ongeldige vraag-id.",
+          "loadFailed": "Kan deze vraag niet laden."
+        }
+      },
+      "quizQuick": {
+        "title": "Snelle quiz",
+        "subtitle": "Genereer een quizsessie vanuit een domein en doelonderwerpen.",
+        "submit": "Quiz genereren",
+        "errors": {
+          "generateFailed": "Kan deze quiz niet genereren.",
+          "titleRequired": "Quiztitel is verplicht.",
+          "domainRequired": "Domein is verplicht.",
+          "subjectsRequired": "Selecteer minstens één onderwerp.",
+          "questionCountInvalid": "Het aantal vragen moet groter zijn dan nul.",
+          "loadDomainsFailed": "Fout bij het laden van de domeinen.",
+          "loadSubjectsFailed": "Fout bij het laden van de onderwerpen."
+        }
+      },
+      "quizCreate": {
+        "back": "Terug",
+        "cancel": "Annuleren",
+        "loading": "Laden...",
+        "createQuestionForTemplate": "Een vraag maken voor dit template",
+        "createQuestionForQuiz": "Een vraag maken voor deze quiz",
+        "createQuestion": "Vraag maken",
+        "emptyLanguagesMessage": "Dit domein heeft geen actieve talen geconfigureerd.",
+        "practiceTooltipFallback": "De vraag is beschikbaar in het gekozen domein voor deze quiz.",
+        "errors": {
+          "invalidTemplateId": "Ongeldige template-id.",
+          "loadTemplateFailed": "Kan de templategegevens niet laden.",
+          "domainRequiredFirst": "Kies eerst een domein om de quiz samen te stellen.",
+          "translateQuestionFailed": "Fout bij het vertalen van de vraag.",
+          "translateTemplateFailed": "Fout bij het vertalen van het template.",
+          "needOneCorrect": "Duid minstens één correct antwoord aan.",
+          "createQuestionFailed": "Fout bij het maken van de vraag.",
+          "notAuthorized": "Quiz samenstellen is beperkt tot de eigenaar of beheerders van het domein.",
+          "completeQuizRequired": "Maak de quiz compleet en voeg minstens één vraag toe.",
+          "domainChangeReset": "De domeinwijziging heeft de quizsamenstelling gereset.",
+          "loadQuestionsFailed": "Kan de vragen van het geselecteerde domein niet laden.",
+          "templateNotFound": "Template niet gevonden.",
+          "updateTemplateFailed": "Kan het template niet bijwerken.",
+          "createTemplateFailed": "Kan het template niet aanmaken.",
+          "createQuizFailed": "Kan de quiz niet aanmaken."
+        }
+      },
+      "quizAlertList": {
+        "errors": {
+          "loadFailed": "Kan de berichten niet laden."
+        }
+      },
+      "userEdit": {
+        "title": "Gebruiker bewerken",
+        "subtitle": "Accountinstellingen",
+        "errors": {
+          "invalidId": "Ongeldige gebruikers-id.",
+          "formInvalid": "Het formulier bevat fouten.",
+          "loadFailed": "Kan deze gebruiker niet laden.",
+          "updateFailed": "Kan deze gebruiker niet bijwerken."
+        }
+      },
+      "userCreate": {
+        "title": "Gebruiker aanmaken",
+        "errors": {
+          "formInvalid": "Het formulier bevat fouten.",
+          "createFailed": "Kan deze gebruiker niet aanmaken."
+        }
+      },
+      "userDelete": {
+        "pageTitle": "Gebruiker verwijderen",
+        "irreversibleBadge": "Onomkeerbaar",
+        "confirmPrefix": "Verwijderen",
+        "confirmSuffix": "?",
+        "userFallbackPrefix": "Gebruiker #",
+        "errors": {
+          "invalidId": "Ongeldige gebruikers-id.",
+          "loadFailed": "Kan deze gebruiker niet laden.",
+          "deleteFailed": "Kan deze gebruiker niet verwijderen."
+        }
+      },
+      "quizTemplateDelete": {
+        "errors": {
+          "invalidId": "Ongeldige template-id.",
+          "loadFailed": "Kan het template niet laden.",
+          "deleteFailed": "Verwijderen niet mogelijk."
+        }
+      },
+      "quizSessionDelete": {
+        "pageTitle": "Quiz verwijderen",
+        "introPrefix": "U gaat de quiz verwijderen",
+        "introSeparator": "voor",
+        "loading": "Quiz wordt geladen…",
+        "userFallbackPrefix": "Gebruiker #",
+        "errors": {
+          "invalidId": "Ongeldige quiz-id.",
+          "loadFailed": "Kan de quiz niet laden.",
+          "deleteFailed": "Verwijderen niet mogelijk."
+        }
+      },
+      "questionDelete": {
+        "errors": {
+          "invalidId": "Ongeldige vraag-id.",
+          "loadFailed": "Kan de vraag niet laden.",
+          "deleteFailed": "Fout bij het verwijderen."
+        }
+      },
+      "userList": {
+        "title": "Gebruikers",
+        "subtitle": "Gebruikersbeheer",
+        "id": "ID",
+        "name": "Naam",
+        "email": "E-mail",
+        "nbDomainMax": "Max domeinen",
+        "active": "Actief",
+        "emailConfirmed": "E-mail bevestigd",
+        "actions": "Acties",
+        "bulkActionsPlaceholder": "Bulkacties…",
+        "bulkActionsApply": "Toepassen",
+        "selectedSingular": "geselecteerd",
+        "selectedPlural": "geselecteerd",
+        "searchPlaceholder": "Zoeken…"
+      },
+      "quizTemplateResults": {
+        "title": "Quizresultaten",
+        "titleWithTemplate": "Quizresultaten: {title}",
+        "searchPlaceholder": "Zoeken in verzonden quizzen…",
+        "exportCsv": "Exporteren als CSV",
+        "loadFailed": "Kan de resultaten van de verzonden quizzen niet laden.",
+        "emptyMessage": "Geen verzonden quiz komt overeen met het filter.",
+        "statusAnswered": "Beantwoord",
+        "statusNotStarted": "Niet gestart",
+        "colUser": "Gebruiker",
+        "colStatus": "Status",
+        "colAnswers": "Antwoorden",
+        "colScore": "Score",
+        "colActions": "Acties",
+        "csvLastName": "Achternaam",
+        "csvFirstName": "Voornaam",
+        "csvEmail": "E-mail"
+      }
+    },
+    "domainForm": {
+      "translations": "Vertalingen",
+      "languagesCount": "taal/talen",
+      "allowedLanguages": "Toegestane talen",
+      "selectOneLanguage": "Selecteer minstens één taal.",
+      "titleLabel": "Name",
+      "titleRequired": "Naam is verplicht.",
+      "description": "Description",
+      "titlePlaceholder": "Domeinnaam",
+      "parameters": "Instellingen",
+      "statusAccess": "Status en toegang",
+      "active": "Actief",
+      "owner": "Owner",
+      "managers": "Managers",
+      "available": "Beschikbaar",
+      "selected": "Geselecteerd",
+      "readonly": "readonly",
+      "joinPolicy": "Domeintoetreding",
+      "joinPolicyAuto": "Automatisch",
+      "joinPolicyOwner": "Goedkeuring door de eigenaar",
+      "joinPolicyOwnerManagers": "Goedkeuring door de eigenaar of een beheerder",
+      "joinPolicyHint": "Hoe een gebruiker lid wordt van dit domein: automatisch of na goedkeuring.",
+      "publicLabel": "Publiek",
+      "publicHint": "Een privédomein staat niet in de catalogus: er wordt alleen via uitnodiging toegang verleend.",
+      "certificateBrandingLegend": "Branding van het certificaat",
+      "certificateSignatoryName": "Ondertekenaar — naam",
+      "certificateSignatoryNamePlaceholder": "bv. Jan Janssen",
+      "certificateSignatoryNameHint": "Naam afgedrukt onder de handtekeninglijn op het PDF-certificaat.",
+      "certificateSignatoryTitle": "Ondertekenaar — titel",
+      "certificateSignatoryTitlePlaceholder": "bv. Voorzitter, Directeur",
+      "certificateSignatoryTitleHint": "Vertaalde functie weergegeven onder de naam van de ondertekenaar (één per taal).",
+      "certificateLogo": "Logo",
+      "certificateLogoUpload": "Een logo kiezen…",
+      "certificateLogoRemove": "Logo verwijderen",
+      "certificateLogoClearSelection": "Selectie wissen",
+      "certificateLogoHint": "Bovenaan elk PDF-certificaat van dit domein. De verhoudingen blijven behouden."
+    },
+    "subjectForm": {
+      "domain": "Domein",
+      "availableCount": "beschikbaar",
+      "chooseDomain": "Kies een domein",
+      "translations": "Vertalingen",
+      "languagesCount": "taal/talen",
+      "name": "Naam",
+      "description": "Beschrijving",
+      "namePlaceholder": "Naam van het onderwerp",
+      "required": "Verplicht veld.",
+      "emptyLanguages": "Dit domein heeft geen geconfigureerde talen."
+    },
+    "questionForm": {
+      "context": "Context",
+      "domain": "Domein",
+      "domainUnavailable": "Domein niet beschikbaar",
+      "chooseDomain": "Kies een domein",
+      "subjects": "Onderwerpen",
+      "chooseSubjects": "Kies één of meer onderwerpen",
+      "active": "Active",
+      "mode": "Mode",
+      "practice": "Oefening",
+      "practiceHint": "Vraag beschikbaar in snelle test-quizzen.",
+      "exam": "Examen",
+      "examHint": "Vraag voorbehouden voor examen-quizzen.",
+      "content": "Inhoud",
+      "title": "Titel",
+      "titlePlaceholder": "Titel...",
+      "description": "Description",
+      "titleRequired": "Titel is verplicht.",
+      "answers": "Answer options",
+      "correctAnswer": "Correct answer",
+      "answerContent": "Content",
+      "deleteAnswer": "Delete this answer",
+      "addAnswer": "Add answer",
+      "explanation": "Explanation",
+      "media": "Media",
+      "noActiveLanguages": "No active language on this domain.",
+      "deleteQuestion": "Delete question"
+    }
+  },
+  "pages": {
+    "transferAccept": {
+      "title": "Eigendomsoverdracht van een domein",
+      "loading": "Laden…",
+      "errors": {
+        "tokenInvalid": "Ongeldige link.",
+        "tokenExpired": "Verlopen link.",
+        "generic": "Er is iets misgegaan.",
+        "notFound": "Dit domein bestaat niet meer of is niet meer actief."
+      },
+      "states": {
+        "readyHeading": "Klaar om te aanvaarden",
+        "readyExplain": "{initiatorUsername} biedt u het eigenaarschap aan van \"{domainName}\". Door te aanvaarden wordt u eigenaar en wordt de vorige eigenaar gewoon lid.",
+        "accept": "Overdracht aanvaarden",
+        "accepting": "Aanvaarden…",
+        "transferred": "U bent nu de eigenaar van dit domein.",
+        "wrongAccount": "Deze link is bestemd voor {futureOwnerUsername}. Log in met dat account.",
+        "noLongerEligible": "Deze overdracht is niet langer mogelijk: het eigenaarschap is intussen veranderd."
+      },
+      "buttons": {
+        "backHome": "Terug naar home"
+      }
+    },
+    "subjectList": {
+      "title": "Onderwerpen",
+      "searchPlaceholder": "Zoeken…",
+      "bulk": {
+        "placeholder": "Bulkacties…",
+        "apply": "Toepassen",
+        "selectedCount": {
+          "one": "{n} geselecteerd",
+          "other": "{n} geselecteerd"
+        }
+      },
+      "columns": {
+        "name": "Naam",
+        "active": "Actief",
+        "domain": "Domein",
+        "questions": "Vragen",
+        "actions": "Acties"
+      }
+    },
+    "subjectCreate": {
+      "title": "Onderwerp maken",
+      "subtitle": "Domeinkeuze en vertalingen",
+      "emptyLanguagesMessage": "Dit domein heeft geen geconfigureerde talen.",
+      "toast": {
+        "loadDomainsFailed": "Kan de domeinen niet laden.",
+        "loadDomainFailed": "Kan het geselecteerde domein niet laden.",
+        "nameRequired": "Vul minstens het veld \"naam\" voor elke taal in.",
+        "createFailed": "Fout bij het maken van het onderwerp.",
+        "translationFailed": "Fout bij het vertalen."
+      }
+    },
+    "subjectForm": {
+      "title": "Titel",
+      "domain": "Domein",
+      "domainPlaceholder": "Kies een domein",
+      "timer": "Timer",
+      "timerActive": "Aan",
+      "timerInactive": "Uit",
+      "duration": "Duur",
+      "durationSuffix": " min",
+      "subjects": "Onderwerpen",
+      "subjectsPlaceholder": "Kies een of meer onderwerpen",
+      "questionCount": "Aantal vragen",
+      "questionCountWithMax": "Aantal vragen (max: {max})"
+    },
+    "quizList": {
+      "page": {
+        "title": "Quizzen",
+        "subtitle": "Zoeken, templates en sessies",
+        "searchPlaceholder": "Zoeken...",
+        "compose": "Nieuw template",
+        "quickCreate": "Snel"
+      },
+      "tabs": {
+        "templates": "Templates",
+        "sessions": "Mijn quizzen"
+      },
+      "templates": {
+        "empty": "Geen zichtbaar template.",
+        "headers": {
+          "title": "Titel",
+          "mode": "Modus",
+          "questions": "Vragen",
+          "createdAt": "Aangemaakt op",
+          "owner": "Owner",
+          "public": "Publiek",
+          "active": "Actief",
+          "available": "Beschikbaar",
+          "availabilityWindow": "Beschikbaarheid",
+          "actions": "Acties"
+        },
+        "modePractice": "Praktijk",
+        "modeExam": "Examen",
+        "permanent": "Permanent",
+        "yes": "Ja",
+        "no": "Nee",
+        "actions": {
+          "start": "Deze quiz starten",
+          "startDisabledNotYet": "Nog niet beschikbaar (opent op {when})",
+          "startDisabledExpired": "Niet meer beschikbaar (gesloten op {when})",
+          "startDisabledGeneric": "Momenteel niet beschikbaar",
+          "assign": "Deze quiz naar een gebruiker sturen die aan het domein gekoppeld is",
+          "results": "Resultaten van verzonden quizzen bekijken",
+          "edit": "Dit template bewerken",
+          "delete": "Dit template verwijderen"
+        }
+      },
+      "assignDialog": {
+        "header": "Quiz verzenden",
+        "intro": "Selecteer een of meer personen die aan dit domein gekoppeld zijn om",
+        "noRecipients": "Geen andere gebruiker gekoppeld aan dit domein.",
+        "searchPlaceholder": "Filter op naam",
+        "selectAll": "Alles selecteren",
+        "clearSelection": "Selectie wissen",
+        "roleAll": "Alle rollen",
+        "submit": "Verzenden",
+        "cancel": "Annuleren",
+        "roleOwner": "Eigenaar",
+        "roleManager": "Beheerder",
+        "roleMember": "Gekoppeld lid"
+      },
+      "bulk": {
+        "placeholder": "Bulkacties…",
+        "apply": "Toepassen",
+        "activate": "Activeren",
+        "deactivate": "Deactiveren",
+        "delete": "Verwijderen",
+        "selectedCount": {
+          "one": "{n} geselecteerd",
+          "other": "{n} geselecteerd"
+        }
+      },
+      "messages": {
+        "assignSuccess": "{count} quiz(zen) verzonden.",
+        "assignError": "Kan deze quiz niet verzenden.",
+        "loadError": "Kan quizzen niet laden.",
+        "resultsError": "Kan resultaten niet laden.",
+        "createError": "Kan deze quiz niet maken.",
+        "pendingApprovalBanner": "In afwachting van goedkeuring voor: {domains}. Quizzen uit deze domeinen verschijnen zodra je toegang is goedgekeurd."
+      },
+      "welcome": {
+        "title": "Welkom — laten we je eerste quiz bouwen",
+        "hint": "Drie stappen om te starten. Doorloop ze in een keer of kom later terug.",
+        "stepSubjectTitle": "1. Maak een onderwerp aan",
+        "stepSubjectHint": "Groepeer je vragen per thema — een onderwerp per hoofdstuk, per vaardigheid, …",
+        "stepQuestionTitle": "2. Voeg een vraag toe",
+        "stepQuestionHint": "Tekst, afbeelding of video. Meerdere antwoorden mogelijk, optionele toelichting.",
+        "stepQuizTitle": "3. Stel een quiz samen",
+        "stepQuizHint": "Kies je vragen, pas volgorde en gewicht aan, activeer dan de quiz.",
+        "ctaSubject": "Onderwerp maken",
+        "ctaQuestion": "Vraag toevoegen",
+        "ctaQuiz": "Quiz samenstellen"
+      }
+    },
+    "quizCreate": {
+      "textsTab": "Teksten & vertalingen",
+      "configurationTab": "Configuratie",
+      "questionsTab": "Vragen",
+      "sectionStatus": "Status",
+      "sectionMode": "Modus en timing",
+      "sectionAvailability": "Beschikbaarheidsvenster",
+      "sectionOrdering": "Volgorde van vragen",
+      "sectionResult": "Zichtbaarheid van het resultaat",
+      "sectionDetail": "Zichtbaarheid van antwoorddetails",
+      "questionPoolTitle": "Beschikbare vragen",
+      "questionSearchPlaceholder": "Zoek een vraag",
+      "questionSubjectFilter": "Onderwerpen",
+      "questionSubjectFilterPlaceholder": "Filter op onderwerpen",
+      "createQuestion": "Vraag maken",
+      "selectDomainToLoadQuestions": "Kies een domein om beschikbare vragen te laden.",
+      "loadingQuestions": "Vragen laden...",
+      "noAvailableQuestions": "Geen actieve vragen beschikbaar voor dit domein.",
+      "compositionTitle": "Quizopbouw",
+      "compositionHelp": "Pas volgorde en gewicht van vragen aan voor het opslaan.",
+      "compositionEmpty": "Voeg minstens een vraag toe om de quiz samen te stellen.",
+      "weight": "Gewicht",
+      "weightHelp": "Het gewicht bepaalt hoe zwaar deze vraag meetelt in de score.",
+      "createTitle": "Een quiztemplate maken",
+      "editTitle": "Quiztemplate bewerken",
+      "createSubtitle": "Een domein, een vragenpool en duidelijke publicatie-instellingen",
+      "editSubtitle": "Pas template-instellingen, zichtbaarheid en volgorde van vragen aan",
+      "createTemplate": "Template maken",
+      "saveTemplate": "Template opslaan",
+      "mode": "Modus",
+      "timer": "Timer",
+      "duration": "Duur",
+      "active": "Actief",
+      "public": "Publiek",
+      "permanent": "Permanent",
+      "shuffleQuestions": "Vragen mengen",
+      "startedAt": "Startdatum",
+      "endedAt": "Einddatum",
+      "resultVisibility": "Resultaatzichtbaarheid",
+      "resultAvailableAt": "Resultaat beschikbaar vanaf",
+      "detailVisibility": "Detailzichtbaarheid",
+      "detailAvailableAt": "Details beschikbaar vanaf",
+      "quizTitle": "Titel",
+      "quizTitlePlaceholder": "bv. Proefexamen scheikunde",
+      "quizDescription": "Beschrijving",
+      "composeReservedForOwner": "Het samenstellen van quizzen is voorbehouden aan de eigenaar of beheerders van een domein.",
+      "translationsTitle": "Vertalingen",
+      "languagesCount": "talen",
+      "translateOthers": "Vertalen vanuit dit tabblad",
+      "translating": "Vertalen...",
+      "translationHint": "Bewerk de gelokaliseerde titel en beschrijving voor elke actieve taal.",
+      "translationRequired": "Minstens een vertaalde titel is verplicht.",
+      "practiceMode": "Oefenen",
+      "examMode": "Examen",
+      "visibilityImmediate": "Onmiddellijk",
+      "visibilityScheduled": "Gepland",
+      "visibilityNever": "Nooit",
+      "dateFormat": "dd/mm/yy",
+      "today": "Vandaag",
+      "clear": "Wissen",
+      "weekHeader": "Wk",
+      "dayNames": [
+        "zondag",
+        "maandag",
+        "dinsdag",
+        "woensdag",
+        "donderdag",
+        "vrijdag",
+        "zaterdag"
+      ],
+      "dayNamesShort": [
+        "zon",
+        "maa",
+        "din",
+        "woe",
+        "don",
+        "vri",
+        "zat"
+      ],
+      "dayNamesMin": [
+        "zo",
+        "ma",
+        "di",
+        "wo",
+        "do",
+        "vr",
+        "za"
+      ],
+      "monthNames": [
+        "januari",
+        "februari",
+        "maart",
+        "april",
+        "mei",
+        "juni",
+        "juli",
+        "augustus",
+        "september",
+        "oktober",
+        "november",
+        "december"
+      ],
+      "monthNamesShort": [
+        "jan",
+        "feb",
+        "mrt",
+        "apr",
+        "mei",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "okt",
+        "nov",
+        "dec"
+      ]
+    },
+    "quizAlertList": {
+      "title": "Quizberichten",
+      "searchPlaceholder": "Berichten doorzoeken…",
+      "loading": "Berichten worden geladen…",
+      "statusOptions": {
+        "all": "Alle",
+        "open": "Open",
+        "closed": "Gesloten"
+      },
+      "readOptions": {
+        "all": "Alle",
+        "unread": "Ongelezen",
+        "read": "Gelezen"
+      },
+      "topicQuiz": "Quiz",
+      "questionPrefix": "Vraag #{id}",
+      "questionOrder": "#{order}",
+      "status": {
+        "open": "Open",
+        "closed": "Gesloten",
+        "unread": "Ongelezen"
+      },
+      "empty": {
+        "title": "Geen berichten",
+        "hint": "Geen bericht komt overeen met het actieve filter."
+      },
+      "noMessage": "Geen bericht.",
+      "assignmentPreview": "Een nieuwe quiz is aan u toegewezen: {title}",
+      "assignmentPreviewWithIntro": "{intro}: {title}"
+    },
+    "quizAlertDetail": {
+      "back": "← Terug naar berichten",
+      "loadingConversation": "Conversatie laden…",
+      "quizBadge": "Quiz",
+      "statusOpen": "Open",
+      "statusClosed": "Gesloten",
+      "questionLabel": "Vraag",
+      "userFallback": "Gebruiker",
+      "unreadBadge": "Ongelezen",
+      "replyPlaceholder": "Schrijf uw antwoord…",
+      "conversationClosedNote": "Conversatie gesloten. Heropen om te antwoorden of om antwoorden weer toe te staan.",
+      "reporterReplyToggle": "Gebruikersantwoorden",
+      "assignmentIntroFallback": "Een nieuwe quiz is aan u toegewezen:",
+      "errors": {
+        "invalidMessageId": "Ongeldige bericht-id.",
+        "loadFailed": "Kan dit bericht niet laden.",
+        "sendFailed": "Kan dit bericht niet verzenden.",
+        "updateFailed": "Kan deze conversatie niet bijwerken.",
+        "closeFailed": "Kan deze conversatie niet sluiten.",
+        "reopenFailed": "Kan deze conversatie niet heropenen."
+      }
+    },
+    "questionList": {
+      "title": "Vragen",
+      "subtitle": "Zoeken, lijst en acties",
+      "searchPlaceholder": "Zoeken...",
+      "subjectsPlaceholder": "Filter op onderwerpen",
+      "newQuestion": "Nieuw",
+      "importQuestions": "Importeren",
+      "exportQuestions": "Exporteren",
+      "exportSelected": "Exporteren ({n})",
+      "selectAll": "Alles selecteren",
+      "unselectAll": "Alles deselecteren",
+      "titleCol": "Titel",
+      "activeCol": "Actief",
+      "modesCol": "Modi",
+      "domainsCol": "Domeinen",
+      "subjectsCol": "Onderwerpen",
+      "actionsCol": "Acties",
+      "practice": "Oefening",
+      "exam": "Examen",
+      "bulkPlaceholder": "Bulkacties…",
+      "bulkApply": "Toepassen",
+      "bulkExport": "Exporteren",
+      "bulkActivate": "Activeren",
+      "bulkDeactivate": "Deactiveren",
+      "bulkAddPractice": "Oefenmodus toevoegen",
+      "bulkRemovePractice": "Oefenmodus verwijderen",
+      "bulkAddExam": "Examenmodus toevoegen",
+      "bulkRemoveExam": "Examenmodus verwijderen",
+      "bulkDelete": "Verwijderen",
+      "bulkSelectedCount": {
+        "one": "{n} geselecteerd",
+        "other": "{n} geselecteerd"
+      },
+      "bulkDeleteConfirm": {
+        "one": "{n} vragen verwijderen? Dit kan niet ongedaan worden gemaakt.",
+        "other": "{n} vragen verwijderen? Dit kan niet ongedaan worden gemaakt."
+      },
+      "bulkConfirmCancel": "Annuleren"
+    },
+    "questionImport": {
+      "title": "Vragen importeren",
+      "subtitle": "Importeer een gestructureerd JSON-bestand met een domein, onderwerpen en meertalige vragen.",
+      "back": "Terug",
+      "explanationTitle": "Verwacht formaat",
+      "explanation": "Het bestand moet een JSON-object zijn met de sleutels \"version\", \"domain\", \"subjects\" en \"questions\".",
+      "exampleTitle": "Voorbeeldformaat",
+      "exampleDescription": "Download een voorbeeld-JSON-bestand (een domein, een onderwerp en een meertalige vraag). Pas het aan voordat je het importeert.",
+      "exampleButton": "Voorbeeld downloaden",
+      "uploadTitle": "JSON- of ZIP-bestand",
+      "zipFileReady": "ZIP-bestand klaar om te importeren (servervalidatie).",
+      "chooseFile": "Bestand kiezen",
+      "clearFile": "Wissen",
+      "noFile": "Geen bestand geselecteerd.",
+      "selectedFile": "Geselecteerd bestand",
+      "validationTitle": "Formaatcontrole",
+      "formatValid": "Geldig formaat",
+      "formatInvalid": "Ongeldig formaat",
+      "invalidJson": "Het bestand is geen geldige JSON.",
+      "rootObjectError": "Het bestand moet een JSON-object bevatten.",
+      "versionError": "Het bestand moet \"version\": \"1.0\" bevatten.",
+      "domainObjectError": "Het bestand moet een sleutel \"domain\" met een object bevatten.",
+      "subjectsArrayError": "Het bestand moet een sleutel \"subjects\" met een lijst bevatten.",
+      "questionsArrayError": "Het bestand moet een sleutel \"questions\" met een lijst bevatten.",
+      "domainIdError": "Het domein moet een positief geheel getal als id bevatten.",
+      "domainTranslationsError": "Het domein moet een object \"translations\" bevatten.",
+      "subjectObjectError": "Onderwerp {item}: ongeldig formaat.",
+      "questionObjectError": "Vraag {item}: ongeldig formaat.",
+      "questionSubjectsReferenceError": "Vraag {item}: een verwezen onderwerp ontbreekt in \"subjects\".",
+      "questionDomainError": "Vraag {item}: \"domain\" moet een positief geheel getal zijn.",
+      "questionTranslationsError": "Vraag {item}: \"translations\" moet minstens een taal bevatten.",
+      "questionTranslationShapeError": "Vraag {item}: vertaling \"{lang}\" is ongeldig.",
+      "questionSubjectsError": "Vraag {item}: \"subject_ids\" moet een lijst met positieve gehele getallen zijn.",
+      "questionMediaError": "Vraag {item}: \"media_asset_ids\" moet een lijst met positieve gehele getallen zijn.",
+      "questionAnswersError": "Vraag {item}: er moeten minstens 2 antwoorden in \"answer_options\" staan.",
+      "questionCorrectAnswerError": "Vraag {item}: er moet minstens een correct antwoord zijn.",
+      "answerShapeError": "Vraag {item}, antwoord {answer}: ongeldig formaat.",
+      "answerTranslationsError": "Vraag {item}, antwoord {answer}: \"translations\" moet minstens een taal bevatten.",
+      "answerTranslationShapeError": "Vraag {item}, antwoord {answer}, taal \"{lang}\": ongeldige inhoud.",
+      "fileValidated": "{count} vraag(en) klaar om te importeren.",
+      "importLabel": "Importeren",
+      "cancelLabel": "Annuleren",
+      "importDone": "Import voltooid",
+      "importSuccess": "{count} vraag(en) succesvol geimporteerd.",
+      "importPartialTitle": "Import onvolledig",
+      "importPartialMessage": "{success} vraag(en) geimporteerd, {failed} met fouten.",
+      "importFailure": "Vraag {item} kon niet worden geimporteerd."
+    },
+    "progress": {
+      "pageTitle": "Mijn voortgang",
+      "colCourse": "Cursus",
+      "colProgress": "Voortgang",
+      "colLastActivity": "Laatste activiteit",
+      "colStatus": "Status",
+      "emptyTitle": "Geen cursus in uitvoering",
+      "emptyMessage": "Schrijf je in voor een cursus vanuit de catalogus om te beginnen.",
+      "exploreButton": "Door catalogus bladeren"
+    },
+    "privacy": {
+      "title": "Privacybeleid",
+      "lastUpdated": "Laatst bijgewerkt: {date}",
+      "intro": "Deze pagina beschrijft welke persoonsgegevens QuizOnline verzamelt, hoe ze worden gebruikt en welke rechten u hebt. Aarzel niet om contact op te nemen bij vragen.",
+      "sections": [
+        {
+          "heading": "Verzamelde gegevens",
+          "body": "Gebruikersprofiel (naam, e-mail, voorkeurstaal), domeinen en quizzen waaraan u deelneemt, notificatievoorkeuren en een moderatie-auditlog. Authenticatietokens worden lokaal in uw browser opgeslagen — strikt noodzakelijk voor de werking van de site."
+        },
+        {
+          "heading": "Gebruik van gegevens",
+          "body": "Uitsluitend om de dienst te leveren: authenticatie, uitnodigingen, resultaten en moderatie. Gegevens worden niet verkocht of gedeeld voor reclamedoeleinden."
+        },
+        {
+          "heading": "Bewaartermijn",
+          "body": "Gegevens worden bewaard zolang uw account actief is. Database-back-ups worden 14 dagen bewaard."
+        },
+        {
+          "heading": "Hosting en verwerkers",
+          "body": "De toepassing wordt gehost bij AWS (EU-regio). E-mails gaan via de door de operator geconfigureerde SMTP-provider."
+        }
+      ],
+      "rightsHeading": "Uw rechten (AVG)",
+      "rightsBody": "U hebt het recht op toegang, rectificatie, gegevensoverdraagbaarheid en wissing. Klik op de knop hieronder om al uw gegevens als JSON te downloaden. Voor wissing kunt u ons via onderstaand adres contacteren.",
+      "exportCta": "Mijn gegevens downloaden (JSON)",
+      "exportHint": "Genereert een bestand ``quizonline-export-<uw gebruikersnaam>.json`` met profiel, domeinen, aanvragen en quizzen.",
+      "contactHeading": "Contact",
+      "contactBody": "Schrijf ons voor privacy-vragen of accountverwijdering naar {email}."
+    },
+    "myInvitations": {
+      "pageTitle": "Mijn uitnodigingen",
+      "loading": "Laden…",
+      "invitationFrom": "Uitgenodigd door {inviter}",
+      "expiresAt": "Vervalt op {when}",
+      "viewInvitationButton": "Uitnodiging bekijken",
+      "viewCourseButton": "Ga naar de cursus",
+      "emptyTitle": "Geen lopende uitnodigingen",
+      "emptyMessage": "Je hebt geen lopende cursusuitnodigingen om te accepteren.",
+      "loadErrorToast": "Uitnodigingen konden niet worden geladen.",
+      "tabPending": "Lopend",
+      "tabHistory": "Geschiedenis",
+      "emptyHistoryTitle": "Geen eerdere uitnodigingen",
+      "emptyHistoryMessage": "Geaccepteerde, geweigerde, verlopen of ingetrokken uitnodigingen verschijnen hier.",
+      "statusLabels": {
+        "pending": "In behandeling",
+        "accepted": "Geaccepteerd",
+        "declined": "Geweigerd",
+        "revoked": "Ingetrokken",
+        "expired": "Verlopen"
+      },
+      "historyDateLabel": "Op {when}"
+    },
+    "lessonView": {
+      "pageTitle": "Les",
+      "pageLoading": "Les laden…",
+      "markCompletedButton": "Markeer als voltooid",
+      "alreadyCompletedBadge": "Voltooid",
+      "lessonCompletedToast": "Les gemarkeerd als voltooid.",
+      "lessonCompletedErrorToast": "Kon les niet als voltooid markeren.",
+      "editButton": "Bewerken",
+      "prevLessonButton": "Vorige les",
+      "nextLessonButton": "Volgende les",
+      "positionInSection": "Les {current}/{total}",
+      "notesHeading": "Mijn notities",
+      "notesPlaceholder": "Je persoonlijke notities over deze les…",
+      "notesSavedAt": "Opgeslagen om {time}",
+      "errorTitle": "Laden mislukt",
+      "errorMessage": "Deze les kon niet worden geladen. Probeer het opnieuw.",
+      "retryButton": "Opnieuw proberen"
+    },
+    "lessonEdit": {
+      "pageTitle": "Les bewerken",
+      "blockErrorToast": "De blok-bewerking is mislukt.",
+      "emptyTitle": "Lege les",
+      "emptyHint": "Voeg een eerste blok toe via de balk hieronder.",
+      "previewButton": "Voorbeeld",
+      "editModeButton": "Bewerken"
+    },
+    "joinRequestDecide": {
+      "title": "Een toegangsaanvraag modereren",
+      "loading": "Link laden…",
+      "errors": {
+        "tokenInvalid": "Ongeldige link. Hij kan zijn aangepast of onvolledig gekopieerd.",
+        "tokenExpired": "Verlopen link. Log in op de app om deze aanvraag te modereren.",
+        "recipientMismatch": "Deze link is niet voor uw account bedoeld. Log in met het account dat de mail heeft ontvangen.",
+        "cannotApproveAnymore": "U hebt geen moderatierechten meer op dit domein.",
+        "requestNotFound": "Deze aanvraag bestaat niet meer.",
+        "generic": "Er is iets misgegaan. Probeer het later opnieuw."
+      },
+      "recap": {
+        "requesterLine": {
+          "withEmail": "Aanvrager: {username} ({email})",
+          "withoutEmail": "Aanvrager: {username}"
+        },
+        "domainLine": "Domein: {domain}",
+        "actionLineApprove": "Actie: toegang goedkeuren.",
+        "actionLineReject": "Actie: toegang afwijzen.",
+        "statusLine": "Huidige status: {status}",
+        "decidedBy": "Beslist door {username} op {when}.",
+        "requestedAt": "Aanvraag ontvangen op {when}.",
+        "rejectReason": "Vorige reden: {reason}"
+      },
+      "override": {
+        "bannerTitle": "Over deze aanvraag is al beslist.",
+        "bannerExplain": "Als u bevestigt, vervangt uw beslissing de vorige (last-decision-wins)."
+      },
+      "status": {
+        "pending": "in afwachting",
+        "approved": "goedgekeurd",
+        "rejected": "afgewezen",
+        "cancelled": "geannuleerd"
+      },
+      "buttons": {
+        "confirmApprove": "Goedkeuring bevestigen",
+        "confirmReject": "Afwijzing bevestigen",
+        "overrideApprove": "Toch goedkeuren",
+        "overrideReject": "Toch afwijzen",
+        "backHome": "Terug naar home",
+        "submitting": "Versturen…"
+      },
+      "done": {
+        "approved": "Aanvraag goedgekeurd. De aanvrager is op de hoogte gebracht.",
+        "rejected": "Aanvraag afgewezen. De aanvrager is op de hoogte gebracht."
+      }
+    },
+    "inviteAccept": {
+      "title": "Uitnodiging om een domein te vervoegen",
+      "loading": "Uitnodiging wordt geladen…",
+      "errors": {
+        "tokenInvalid": "Ongeldige link.",
+        "tokenExpired": "Verlopen link.",
+        "generic": "Er is iets misgegaan.",
+        "notFound": "Dit domein bestaat niet meer of is niet meer actief."
+      },
+      "states": {
+        "readyHeading": "Klaar om aan te sluiten",
+        "readyExplain": "U bent uitgenodigd om \"{domainName}\" te vervoegen door {inviterUsername}.",
+        "accept": "Uitnodiging aanvaarden",
+        "accepting": "Aanvaarden…",
+        "accepted": "U maakt nu deel uit van het domein.",
+        "alreadyMember": "U bent al lid van dit domein.",
+        "wrongAccount": "Deze link is bestemd voor {expectedEmail}. Log in met dat account.",
+        "loginRequired": "Er bestaat al een account voor dit adres. Log in om de uitnodiging te aanvaarden.",
+        "loginCta": "Inloggen",
+        "signupRequired": "Geen account voor dit adres. Maak er een aan om de uitnodiging te aanvaarden.",
+        "signupCta": "Account aanmaken"
+      },
+      "buttons": {
+        "backHome": "Terug naar home"
+      }
+    },
+    "features": {
+      "eyebrow": "Platform",
+      "title": "Alles om quizzen te bouwen die ertoe doen",
+      "intro": "Van organisatorische structuur tot gedetailleerde resultaten: QuizOnline brengt contentcreatie, distributie en opvolging samen in één meertalig platform.",
+      "ctaPrimary": "Account maken",
+      "ctaSecondary": "Aanmelden",
+      "ctaLoggedIn": "Mijn quizzen bekijken",
+      "sections": {
+        "domains": {
+          "badge": "Domeinen",
+          "title": "Organiseer uw content per domein",
+          "intro": "Geef elke entiteit haar eigen ruimte, rollen en regels. Domeinen structureren het hele platform.",
+          "features": {
+            "roles": {
+              "title": "Rolhiërarchie",
+              "description": "Eigenaar, beheerders en leden met rechten afgestemd op elk niveau."
+            },
+            "policies": {
+              "title": "Toetredingsbeleid",
+              "description": "Drie modi: automatisch, alleen eigenaar, of eigenaar en beheerders."
+            },
+            "requests": {
+              "title": "Zelfbedieningsverzoeken",
+              "description": "Volledig toetredingsproces met goedkeuring, gemotiveerde afwijzing en statusopvolging."
+            },
+            "bulkModeration": {
+              "title": "Bulkmoderatie",
+              "description": "Keur meerdere aanvragen tegelijk goed of af in één atomaire oproep, met gerichte audit-logging."
+            },
+            "multiInvite": {
+              "title": "Uitnodigingen voor meerdere domeinen",
+              "description": "Nodig hetzelfde e-mailadres uit voor verschillende domeinen in één actie, met rechtencontrole per domein."
+            },
+            "analytics": {
+              "title": "Moderatiestatistieken",
+              "description": "Tellers, acceptatiepercentage, mediane beslissingstijd en topmoderators — in realtime berekend."
+            },
+            "transferOwnership": {
+              "title": "Eigenaarschap overdragen",
+              "description": "Draag een domein over aan een andere gebruiker via een ondertekende link, zonder voortijdige wissel."
+            },
+            "auditLog": {
+              "title": "Auditlogboek",
+              "description": "Onveranderlijk spoor van elke moderatiebeslissing en -actie, per domein doorbladerbaar."
+            },
+            "notifications": {
+              "title": "E-mailmeldingen",
+              "description": "Eigenaars en aanvragers worden geïnformeerd bij elke stap, in hun eigen taal."
+            },
+            "multilingual": {
+              "title": "Meertalig vanaf de start",
+              "description": "Naam en beschrijving vertaalbaar in vijf talen: FR, EN, NL, IT, ES."
+            },
+            "aiTranslate": {
+              "title": "AI-vertalingen",
+              "description": "Vul vertalingen vooraf in met één klik dankzij de DeepL-integratie."
+            },
+            "languageGate": {
+              "title": "Toegestane talen",
+              "description": "Beperk de toegestane bewerkingstalen per domein."
+            }
+          }
+        },
+        "subjects": {
+          "badge": "Onderwerpen",
+          "title": "Categoriseer met flexibiliteit",
+          "intro": "Onderwerpen om de thema's van elk domein vrij te organiseren.",
+          "features": {
+            "crud": {
+              "title": "Volledig beheer",
+              "description": "Onderwerpen aanmaken, bewerken en activeren binnen elk domein."
+            },
+            "multilingual": {
+              "title": "Meertalige content",
+              "description": "Naam en beschrijving vertaalbaar in vijf talen."
+            },
+            "aiTranslate": {
+              "title": "DeepL-vertalingen",
+              "description": "Automatisch gegenereerde vertalingen, klaar voor revisie."
+            },
+            "tagging": {
+              "title": "Koppeling met vragen",
+              "description": "Multi-onderwerp tagging met aangepaste sortering per onderwerp."
+            },
+            "autoCreate": {
+              "title": "Auto-aanmaak bij import",
+              "description": "Ontbrekende onderwerpen verschijnen automatisch tijdens vraag-import."
+            }
+          }
+        },
+        "questions": {
+          "badge": "Vragen",
+          "title": "Een vragenbank zonder compromissen",
+          "intro": "Van mediarijke meerkeuzevragen tot pedagogische uitleg: elke vraag spreekt al uw talen.",
+          "features": {
+            "multipleChoice": {
+              "title": "Flexibele meerkeuze",
+              "description": "Één correct antwoord of meerdere — u beslist per vraag."
+            },
+            "multilingual": {
+              "title": "Meertalige inhoud",
+              "description": "Titel, beschrijving, uitleg en antwoordopties vertaald in vijf talen."
+            },
+            "images": {
+              "title": "Ingebouwde afbeeldingen",
+              "description": "Upload met automatische deduplicatie; illustreer zonder opslag op te blazen."
+            },
+            "videos": {
+              "title": "Gehoste video",
+              "description": "Upload videobestanden direct gekoppeld aan de vraag."
+            },
+            "youtube": {
+              "title": "YouTube-klaar",
+              "description": "Plak elke URL — watch, shorts, embed, youtu.be — wij normaliseren ze voor u."
+            },
+            "modes": {
+              "title": "Practice of examen",
+              "description": "Schakel elke vraag in voor practice, examen of beide pools."
+            },
+            "explanations": {
+              "title": "Gedetailleerde uitleg",
+              "description": "Rich-text inhoud die na het antwoorden in practice-modus wordt getoond."
+            },
+            "aiTranslate": {
+              "title": "Batch-vertalingen",
+              "description": "DeepL vertaalt titel, beschrijving, uitleg en opties in één oproep."
+            },
+            "importExport": {
+              "title": "Gestructureerde import/export",
+              "description": "Versioned JSON en CSV om uw vragenbank te migreren of archiveren."
+            },
+            "duplicate": {
+              "title": "Duplicatie",
+              "description": "Kloon een bestaande vraag om tijd te besparen op varianten."
+            }
+          }
+        },
+        "quizzes": {
+          "badge": "Quizzen",
+          "title": "Verdeel, klok, volg op",
+          "intro": "Practice, examen of openbare evaluatie: elke template combineert uw modus-, duur- en zichtbaarheidsregels.",
+          "features": {
+            "modes": {
+              "title": "Practice en Exam",
+              "description": "Onmiddellijke feedback of één poging met gecontroleerde onthulling."
+            },
+            "timer": {
+              "title": "Configureerbare timer",
+              "description": "Duur per template met automatische server-side vervaldatum."
+            },
+            "window": {
+              "title": "Beschikbaarheidsvenster",
+              "description": "Datumbereik of permanent template — uw keuze."
+            },
+            "visibility": {
+              "title": "Fijnmazige zichtbaarheid",
+              "description": "Score en antwoorddetails: onmiddellijk, gepland, of nooit — elk afzonderlijk in te stellen."
+            },
+            "notifyUnlock": {
+              "title": "Melding bij ontgrendeling",
+              "description": "Automatische e-mail aan deelnemers wanneer het zichtbaarheidsvenster van resultaat of details opent, met een directe link."
+            },
+            "shuffle": {
+              "title": "Schudden per sessie",
+              "description": "Activeer shuffle om elke deelnemer een andere volgorde te geven, deterministisch per sessie (dezelfde volgorde bij elke herlading)."
+            },
+            "public": {
+              "title": "Openbare quizzen",
+              "description": "Sta toegang toe zonder domeinlidmaatschap voor open evaluaties."
+            },
+            "assignment": {
+              "title": "Bulk-toewijzing",
+              "description": "Wijs een template toe aan meerdere gebruikers in één atomaire oproep."
+            },
+            "emails": {
+              "title": "Toewijzingsmails",
+              "description": "Automatische melding met deadline en directe link, in de taal van de ontvanger."
+            },
+            "messages": {
+              "title": "Contextuele berichten",
+              "description": "Alert-threads per vraag — start een gesprek tijdens de quiz."
+            },
+            "scoring": {
+              "title": "Gewogen scoring",
+              "description": "Gewicht per vraag in een template, alles-of-niets op correcte opties."
+            },
+            "pdf": {
+              "title": "PDF-export",
+              "description": "A4-resultaat met score, vraagdetails en uitleg."
+            },
+            "tracking": {
+              "title": "Sessie-opvolging",
+              "description": "Per template overzicht met voltooiingsstatus per gebruiker."
+            }
+          }
+        },
+        "learning": {
+          "badge": "LMS",
+          "title": "Cursussen, lessen en leertrajecten",
+          "intro": "Ontwerp volledige leertrajecten: secties, lessen, polymorfe blokken en gecontroleerde publicatie — elke cursus blijft binnen de talen van uw domein.",
+          "features": {
+            "catalog": {
+              "title": "Doorzoekbare catalogus",
+              "description": "Uw lerenden bladeren door cursussen op trefwoord, niveau en domein, met een voorbeeldkaart per cursus."
+            },
+            "structure": {
+              "title": "Cursus → Secties → Lessen",
+              "description": "Een duidelijke hiërarchie om leertrajecten te organiseren: secties bundelen lessen, lessen dragen de blokken."
+            },
+            "blocks": {
+              "title": "8 bloktypes",
+              "description": "Rich text, afbeelding, video, bestand, quiz, callout, code, iframe — elk type heeft zijn eigen editor."
+            },
+            "editor": {
+              "title": "Drag-and-drop editor",
+              "description": "Herorden blokken in een les via drag-and-drop. Elk blok bewerk je met een expliciete Opslaan / Annuleren knop — geen stille autosave. Zelfde UX voor secties en lessen binnen een cursus."
+            },
+            "calloutVariants": {
+              "title": "Callout-varianten",
+              "description": "Callout-blokken dragen een semantische variant (info / succes / waarschuwing / fout) die de linker randkleur bepaalt."
+            },
+            "translations": {
+              "title": "Vertalingen per blok",
+              "description": "Taaltabbladen in elke blokeditor, met een \"vertaal vanuit het actieve tabblad\"-knop die lege velden via DeepL invult."
+            },
+            "viewAsLearner": {
+              "title": "Voorbeeld als lerende",
+              "description": "Oog-knop om een les te previewen zoals een student hem ziet, zonder bewerkingsknoppen."
+            },
+            "publish": {
+              "title": "Publiceren, depubliceren, klonen",
+              "description": "Concept → gepubliceerd workflow, terug naar concept wanneer nodig, één-klik klonen voor een variant."
+            },
+            "safeHtml": {
+              "title": "Geschoonde HTML",
+              "description": "Rich text loopt door nh3 met een strikte whitelist (Quill-CSS toegestaan, scripts en exotische URL's verwijderd)."
+            },
+            "multilingual": {
+              "title": "Meertalig per domein",
+              "description": "Cursus en vertalingen zijn beperkt tot Domain.allowed_languages. Geen onbedoelde talen."
+            }
+          }
+        },
+        "enrollment": {
+          "badge": "Inschrijvingen",
+          "title": "Van aanmelding tot certificaat",
+          "intro": "Drie inschrijvingsmodi, voortgang per les bijgehouden, validatie-quizzen en automatisch gegenereerde PDF-certificaten — de volledige cyclus van de lerende.",
+          "features": {
+            "modes": {
+              "title": "3 inschrijvingsmodi",
+              "description": "Open (auto-inschrijving), op aanvraag (door instructeur gemodereerd), of alleen op uitnodiging."
+            },
+            "invites": {
+              "title": "E-mailuitnodigingen",
+              "description": "Nodig lerenden uit in bulk met een deadline en automatische herinnering vóór verloop."
+            },
+            "progress": {
+              "title": "Voortgangsregistratie",
+              "description": "Elke voltooide les werkt het voltooiingspercentage van de cursus bij, bewaard per gebruiker."
+            },
+            "validationQuiz": {
+              "title": "Validatie-quiz",
+              "description": "Koppel een quiz aan een les: tot de minimumscore is behaald, blijft de les niet gevalideerd."
+            },
+            "finalQuiz": {
+              "title": "Eindquiz + certificaat",
+              "description": "Slagen voor de eindquiz activeert de uitgifte van het certificaat — slagingsdrempel instelbaar door de instructeur."
+            },
+            "certificates": {
+              "title": "PDF-certificaten",
+              "description": "Asynchrone PDF-rendering via Celery + reportlab, met sequentiële nummering per cursus."
+            },
+            "certificateConfig": {
+              "title": "Configureerbare certificaten",
+              "description": "Schakel de uitgifte per cursus aan of uit en stel een geldigheid in maanden in. De vervaldatum wordt bij uitgifte vastgezet."
+            },
+            "verification": {
+              "title": "Publieke verificatie",
+              "description": "Elk certificaat heeft een publieke verificatie-URL — ondertekend, anti-manipulatie, anon-throttled."
+            },
+            "emails": {
+              "title": "5 gelokaliseerde e-mails",
+              "description": "Inschrijving aangemaakt, goedgekeurd, geweigerd, cursus voltooid, certificaat uitgegeven — elk vertaald naar FR/EN/NL/IT/ES via gettext."
+            },
+            "analytics": {
+              "title": "Analytics per cursus",
+              "description": "Aantal inschrijvingen, voltooiingspercentage, mediane voortgang en een trendgrafiek van 30 dagen inschrijvingen."
+            },
+            "dashboard": {
+              "title": "Dashboard voor lerenden",
+              "description": "De /dashboard-pagina bundelt lopende cursussen, certificaten, openstaande quizzen en de catalogus."
+            }
+          }
+        },
+        "platform": {
+          "badge": "Platform",
+          "title": "Productieklare infrastructuur",
+          "intro": "Alles wat het platform betrouwbaar, meertalig en observeerbaar maakt, elke dag opnieuw.",
+          "features": {
+            "auth": {
+              "title": "JWT-auth en e-mailbevestiging",
+              "description": "Veilige registratie, e-mailbevestiging en wachtwoordreset."
+            },
+            "magicLink": {
+              "title": "Magic-link login",
+              "description": "Wachtwoordloze authenticatie: een ondertekende link per e-mail volstaat om in te loggen."
+            },
+            "notificationPrefs": {
+              "title": "Meldingsvoorkeuren",
+              "description": "Elke gebruiker kiest welke e-mails hij ontvangt, per categorie (aanvragen, uitnodigingen, overdrachten)."
+            },
+            "multilingual": {
+              "title": "Meertalige UI",
+              "description": "Vijf talen aan de interface: FR, EN, NL, IT, ES."
+            },
+            "outbox": {
+              "title": "Outbox + Celery",
+              "description": "Betrouwbare async-levering met retry en backoff. SMTP of Microsoft Graph."
+            },
+            "dashboard": {
+              "title": "Admin-dashboard",
+              "description": "Chart.js KPIs: actieve gebruikers, domeinen, vragen en sessies."
+            },
+            "diagnostics": {
+              "title": "Systeemdiagnose",
+              "description": "Live snapshot van DB, e-mail, upload en DeepL-config met on-demand checks."
+            },
+            "rateLimit": {
+              "title": "Rate limiting",
+              "description": "Openbare en gevoelige endpoints beschermd via ScopedRateThrottle."
+            },
+            "api": {
+              "title": "OpenAPI-client",
+              "description": "drf-spectacular schema met automatisch gegenereerde TypeScript-client."
+            }
+          }
+        }
+      }
+    },
+    "donate": {
+      "whyTitle": "Waarom QuizOnline steunen?",
+      "reasons": [
+        {
+          "icon": "pi pi-code",
+          "title": "Open-source en gratis",
+          "description": "Geen abonnement, geen advertenties. De code is vrij en blijft dat."
+        },
+        {
+          "icon": "pi pi-server",
+          "title": "Hosting en infrastructuur",
+          "description": "Servers, SSL-certificaten en e-mailbezorging brengen reele kosten mee."
+        },
+        {
+          "icon": "pi pi-wrench",
+          "title": "Doorlopend onderhoud",
+          "description": "Beveiligingsupdates, bugfixes en compatibiliteit met nieuwe versies."
+        },
+        {
+          "icon": "pi pi-sparkles",
+          "title": "Nieuwe functies",
+          "description": "Elke bijdrage versnelt de ontwikkeling van door de community gevraagde functies."
+        }
+      ],
+      "ctaTitle": "Een donatie doen",
+      "ctaDescription": "Donaties worden beheerd via GitHub Sponsors. U kunt eenmalig doneren of terugkerende steun instellen.",
+      "ctaButton": "Steunen via GitHub Sponsors",
+      "ctaNote": "U wordt doorgestuurd naar GitHub Sponsors in een nieuw tabblad.",
+      "thanksTitle": "Bedankt!",
+      "thanksDescription": "Elke bijdrage, hoe klein ook, maakt een verschil. Bedankt voor uw vertrouwen in dit project."
+    },
+    "domainList": {
+      "title": "Domeinen",
+      "searchPlaceholder": "Zoeken…",
+      "colName": "Naam",
+      "colSubjects": "Onderwerpen",
+      "colQuestions": "Vragen",
+      "colStatus": "Status",
+      "colPendingRequests": "Aanvragen",
+      "colActions": "Acties",
+      "bulkPlaceholder": "Bulkacties…",
+      "bulkApply": "Toepassen",
+      "bulkActivate": "Activeren",
+      "bulkDeactivate": "Deactiveren",
+      "bulkDelete": "Verwijderen",
+      "bulkSelectedCount": {
+        "one": "{n} geselecteerd",
+        "other": "{n} geselecteerd"
+      },
+      "bulkDeleteHeader": "Verwijderen",
+      "bulkDeleteConfirm": {
+        "one": "{n} domein verwijderen? Deze actie is onomkeerbaar.",
+        "other": "{n} domeinen verwijderen? Deze actie is onomkeerbaar."
+      },
+      "bulkConfirmCancel": "Annuleren",
+      "bulkErrorToast": "De bulkactie is mislukt.",
+      "errorTitle": "Laden mislukt",
+      "errorMessage": "De domeinen konden niet worden geladen. Probeer het opnieuw.",
+      "retryButton": "Opnieuw proberen",
+      "subscriptionAction": "Abonnement"
+    },
+    "domainEdit": {
+      "reviews": {
+        "title": "Beoordelingen",
+        "allowRating": "Scores toestaan",
+        "allowComment": "Opmerkingen toestaan"
+      },
+      "tabs": {
+        "config": "Configuratie",
+        "notifications": "Meldingen",
+        "invitations": "Uitnodigingen & aanvragen",
+        "members": "Leden",
+        "audit": "Activiteit",
+        "analytics": "Statistieken"
+      },
+      "audit": {
+        "title": "Activiteitenlogboek",
+        "empty": "Nog geen actie geregistreerd.",
+        "colWhen": "Wanneer",
+        "colActor": "Actor",
+        "colAction": "Actie",
+        "colTarget": "Doel",
+        "actionLabels": {
+          "member.promote": "Bevorderd tot beheerder",
+          "member.demote": "Gedegradeerd tot lid",
+          "member.remove": "Verwijderd uit domein",
+          "member.self_leave": "Heeft het domein verlaten",
+          "join_request.approve": "Aanvraag goedgekeurd",
+          "join_request.reject": "Aanvraag afgewezen",
+          "join_request.approve_via_email": "Aanvraag goedgekeurd (e-mail)",
+          "join_request.reject_via_email": "Aanvraag afgewezen (e-mail)",
+          "join_request.bulk_approve": "Aanvragen massaal goedgekeurd",
+          "join_request.bulk_reject": "Aanvragen massaal afgewezen",
+          "invite.bulk_send": "Uitnodigingen verzonden",
+          "invite.resend": "Uitnodiging opnieuw verzonden",
+          "invite.revoke": "Uitnodiging ingetrokken",
+          "invite.accept_via_link": "Uitnodiging aanvaard",
+          "invite.auto_accept_on_signup": "Uitnodiging aanvaard bij aanmelding",
+          "transfer.initiate": "Eigendomsoverdracht gestart",
+          "transfer.accept": "Eigendomsoverdracht aanvaard"
+        },
+        "systemActor": "systeem",
+        "filterActionLabel": "Actie",
+        "filterActionPlaceholder": "Alle acties",
+        "filterActorLabel": "Actor",
+        "filterActorPlaceholder": "Gebruikersnaam of e-mail",
+        "filterSinceLabel": "Vanaf",
+        "filterUntilLabel": "Tot",
+        "filterClear": "Filters wissen",
+        "pageReport": "Regels {first} tot {last} van {totalRecords}"
+      },
+      "errors": {
+        "invalidId": "Ongeldige identificatie.",
+        "loadDomainFailed": "Kan het domein niet laden.",
+        "formInvalid": "Het formulier bevat fouten.",
+        "needOneLanguage": "Selecteer minstens één geldige taal.",
+        "saveFailed": "Fout bij het opslaan.",
+        "translationFailed": "Fout bij het vertalen."
+      },
+      "notificationSettings": {
+        "title": "Domeinmeldingen",
+        "subtitle": "Kies voor welke gebeurtenissen dit domein communiceert met zijn leden. Elke gebruiker kiest vervolgens zelf het kanaal (e-mail / bel) in zijn voorkeuren."
+      },
+      "members": {
+        "pendingTitle": "Openstaande aanvragen",
+        "pendingNone": "Geen openstaande aanvraag.",
+        "pendingOpenModeration": "Aanvragen modereren",
+        "colUser": "Gebruiker",
+        "colEmail": "E-mail",
+        "colRequestedAt": "Aangevraagd op",
+        "colRole": "Rol",
+        "colActions": "Acties",
+        "membersTitle": "Leden",
+        "membersNone": "Geen lid.",
+        "roleOwner": "Eigenaar",
+        "roleManager": "Beheerder",
+        "roleMember": "Lid",
+        "promote": "Promoveren tot beheerder",
+        "demote": "Degraderen tot lid",
+        "remove": "Verwijderen uit domein",
+        "confirmRemoveHeader": "Dit lid verwijderen?",
+        "confirmRemoveMessage": "{username} uit het domein verwijderen? Dit gebeurt direct.",
+        "confirmRemoveAccept": "Verwijderen",
+        "confirmRemoveCancel": "Annuleren",
+        "actionFailed": "De actie is mislukt.",
+        "inviteButton": "Per e-mail uitnodigen",
+        "inviteDialogTitle": "Nieuwe leden uitnodigen",
+        "inviteDialogHint": "Voer een of meer e-mailadressen in (gescheiden door komma's of regeleinden).",
+        "inviteEmailsLabel": "E-mailadressen",
+        "inviteEmailsPlaceholder": "alice@example.com, bob@example.com",
+        "inviteSubmit": "Uitnodigingen versturen",
+        "inviteCancel": "Annuleren",
+        "inviteResultSent": "{email}: uitnodiging verzonden.",
+        "inviteResultAlreadyMember": "{email}: is al lid.",
+        "inviteResultInvalid": "{email}: ongeldig adres.",
+        "inviteResultForbidden": "{email}: u mag niet uitnodigen voor dit domein.",
+        "inviteResultSummary": {
+          "one": "{n} van {total} uitnodigingen verzonden.",
+          "other": "{n} van {total} uitnodigingen verzonden."
+        },
+        "inviteAdditionalDomainsLabel": "Ook uitnodigen voor andere domeinen",
+        "inviteAdditionalDomainsHint": "Optioneel. Dezelfde adressen ontvangen een uitnodiging voor elk gekozen domein.",
+        "inviteAdditionalDomainsPlaceholder": "Kies een of meer domeinen…",
+        "inviteResultDomainPrefix": "[{domainName}]",
+        "invitationsTitle": "Openstaande uitnodigingen",
+        "invitationsEmpty": "Geen openstaande uitnodiging.",
+        "invitationsColEmail": "E-mail",
+        "invitationsColSentAt": "Verzonden op",
+        "invitationsColExpiresAt": "Verloopt op",
+        "invitationResend": "Opnieuw verzenden",
+        "invitationRevoke": "Intrekken",
+        "invitationConfirmRevokeHeader": "Deze uitnodiging intrekken?",
+        "invitationConfirmRevokeMessage": "De uitnodiging voor {email} intrekken? De reeds verzonden link werkt niet meer.",
+        "invitationConfirmRevokeAccept": "Intrekken",
+        "invitationConfirmRevokeCancel": "Annuleren"
+      },
+      "analytics": {
+        "title": "Statistieken aanvragen",
+        "loading": "Laden…",
+        "empty": "Nog geen gegevens.",
+        "pendingCount": "In afwachting",
+        "approvedCount": "Goedgekeurd",
+        "rejectedCount": "Afgewezen",
+        "cancelledCount": "Geannuleerd",
+        "totalDecisions": "Totaal beslissingen",
+        "acceptRate": "Acceptatiepercentage",
+        "acceptRateUnknown": "—",
+        "medianDecision": "Mediaan tot beslissing",
+        "medianDecisionUnknown": "—",
+        "topDecidersTitle": "Top moderators",
+        "topDecidersEmpty": "Nog geen beslissingen geregistreerd.",
+        "colDecider": "Moderator",
+        "colDecisionCount": "Beslissingen",
+        "decisionsLabel": {
+          "one": "{n} beslissing",
+          "other": "{n} beslissingen"
+        },
+        "durationFormat": {
+          "seconds": "{n} s",
+          "minutes": "{n} min",
+          "hoursOnly": "{h} u",
+          "hoursMinutes": "{h} u {m} min",
+          "daysOnly": "{d} d",
+          "daysHours": "{d} d {h} u"
+        },
+        "rangeLabel": "Periode",
+        "range7d": "7 dagen",
+        "range30d": "30 dagen",
+        "range90d": "90 dagen",
+        "rangeAll": "Alles",
+        "exportCsv": "Exporteren naar CSV",
+        "exportError": "CSV-export mislukt."
+      },
+      "transfer": {
+        "button": "Eigenaar wijzigen",
+        "dialogTitle": "Eigenaar van het domein wijzigen",
+        "dialogHint": "Kies de nieuwe eigenaar. De wijziging is direct.",
+        "pickPlaceholder": "Een gebruiker selecteren",
+        "submit": "Opslaan",
+        "sending": "Opslaan…",
+        "cancel": "Annuleren",
+        "successMessage": "Eigenaarschap overgedragen.",
+        "errorAlreadyOwner": "Deze gebruiker is al eigenaar.",
+        "errorTargetUnreachable": "Deze gebruiker is niet bereikbaar.",
+        "errorGeneric": "Kan de eigenaar niet wijzigen.",
+        "pendingTo": "Eigendomsoverdracht loopt naar {username} — de toekomstige eigenaar moet bevestigen via de e-maillink."
+      },
+      "notifications": {
+        "readOnlyForManagers": "Alleen-lezen — alleen de eigenaar van het domein kan deze voorkeuren wijzigen."
+      }
+    },
+    "domainCreate": {
+      "toastErrorSummary": "Fout",
+      "errors": {
+        "loadFailed": "Fout bij het laden van de gegevens.",
+        "translationFailed": "Fout bij het vertalen.",
+        "formInvalid": "Het formulier bevat fouten.",
+        "missingLanguageIds": "Kan de taal-IDs niet bepalen (lijst niet geladen?).",
+        "saveFailed": "Backend-fout bij het aanmaken."
+      }
+    },
+    "dashboard": {
+      "pageTitle": "Dashboard",
+      "pageSubtitle": "Je cursussen, quizzen en certificaten op één plek.",
+      "tiles": {
+        "courses": {
+          "title": "Cursussen in uitvoering",
+          "empty": "Je bent op dit moment niet ingeschreven voor een cursus.",
+          "cta": "Mijn voortgang bekijken",
+          "progressLabel": "{pct} %"
+        },
+        "certificates": {
+          "title": "Mijn certificaten",
+          "empty": "Nog geen certificaten uitgegeven.",
+          "count": {
+            "one": "{n} certificaat",
+            "other": "{n} certificaten"
+          },
+          "cta": "Mijn certificaten bekijken"
+        },
+        "quizzes": {
+          "title": "Mijn quizzen",
+          "empty": "Geen quiz in uitvoering of recent.",
+          "cta": "Mijn quizzen bekijken"
+        },
+        "catalog": {
+          "title": "Catalogus",
+          "subtitle": "Blader door de cursussen in jouw domeinen.",
+          "cta": "Door catalogus bladeren"
+        },
+        "invitations": {
+          "title": "Lopende uitnodigingen",
+          "empty": "Geen lopende cursusuitnodigingen.",
+          "cta": "Mijn uitnodigingen bekijken",
+          "inviterLine": "Uitgenodigd door {inviter}"
+        }
+      }
+    },
+    "courseList": {
+      "title": "Cursussen",
+      "searchPlaceholder": "Zoek een cursus…",
+      "bulk": {
+        "placeholder": "Bulkacties…",
+        "apply": "Toepassen",
+        "selectedCount": {
+          "one": "{n} geselecteerd",
+          "other": "{n} geselecteerd"
+        },
+        "publish": "Publiceren",
+        "unpublish": "Depubliceren",
+        "delete": "Verwijderen",
+        "confirmDeleteHeader": "Deze cursussen verwijderen?",
+        "confirmDeleteMessage": {
+          "one": "{n} cursus definitief verwijderen, inclusief alle lessen, inschrijvingen en voortgang? Dit kan niet ongedaan worden gemaakt.",
+          "other": "{n} cursussen definitief verwijderen, inclusief alle lessen, inschrijvingen en voortgang? Dit kan niet ongedaan worden gemaakt."
+        },
+        "confirmDeleteAccept": "Verwijderen",
+        "confirmDeleteCancel": "Annuleren"
+      },
+      "columns": {
+        "title": "Titel",
+        "domain": "Domein",
+        "level": "Niveau",
+        "enrollment": "Inschrijving",
+        "status": "Status",
+        "lessons": "Lessen",
+        "actions": "Acties"
+      },
+      "enrollmentBadge": {
+        "open": "Open",
+        "approval": "Goedkeuring",
+        "invite": "Op uitnodiging"
+      },
+      "emptyMessage": "Nog geen cursus om te beheren.",
+      "catalogButton": "Catalogus",
+      "publishSuccessToast": {
+        "one": "{n} cursus gepubliceerd.",
+        "other": "{n} cursussen gepubliceerd."
+      },
+      "unpublishSuccessToast": {
+        "one": "{n} cursus gedepubliceerd.",
+        "other": "{n} cursussen gedepubliceerd."
+      },
+      "deleteSuccessToast": {
+        "one": "{n} cursus verwijderd.",
+        "other": "{n} cursussen verwijderd."
+      },
+      "bulkErrorToast": "Bulkbewerking mislukt."
+    },
+    "courseInviteAccept": {
+      "pageTitle": "Uitnodiging voor een cursus",
+      "loadingMessage": "Uitnodiging laden…",
+      "invitationFrom": "{inviter} nodigt je uit voor de cursus \"{course}\".",
+      "expiresAt": "Deze uitnodiging vervalt op {when}.",
+      "durationLabel": "{minutes} min",
+      "levelLabel": "Niveau",
+      "learningObjectivesHeading": "Leerdoelen",
+      "levelChoices": {
+        "beginner": "Beginner",
+        "intermediate": "Gemiddeld",
+        "advanced": "Gevorderd"
+      },
+      "acceptButton": "Uitnodiging accepteren",
+      "declineButton": "Weigeren",
+      "declineConfirmHeader": "Uitnodiging weigeren",
+      "declineConfirmMessage": "De uitnodiging voor \"{courseTitle}\" definitief weigeren? De instructeur moet een nieuwe uitnodiging sturen als je van gedachten verandert.",
+      "declineConfirmAccept": "Weigeren",
+      "declineConfirmReject": "Annuleren",
+      "backToCatalogButton": "Terug naar catalogus",
+      "goToCourseButton": "Ga naar de cursus",
+      "acceptedTitle": "Uitnodiging geaccepteerd",
+      "acceptedMessage": "Je bent nu ingeschreven voor de cursus.",
+      "acceptedRedirectHint": "Doorsturen naar de cursus over 2 seconden…",
+      "declinedTitle": "Uitnodiging geweigerd",
+      "declinedMessage": "De uitnodiging is gemarkeerd als geweigerd.",
+      "revokedTitle": "Uitnodiging ingetrokken",
+      "revokedMessage": "Deze uitnodiging is ingetrokken door de instructeur.",
+      "expiredTitle": "Uitnodiging verlopen",
+      "expiredMessage": "De termijn om deze uitnodiging te accepteren is verstreken. Neem contact op met de instructeur voor een nieuwe.",
+      "notFoundTitle": "Uitnodiging niet gevonden",
+      "notFoundMessage": "De uitnodigingslink is niet geldig of is al gebruikt.",
+      "forbiddenTitle": "Toegang geweigerd",
+      "forbiddenMessage": "Deze uitnodiging is niet voor jou bestemd. Log in met het account dat overeenkomt met het uitgenodigde adres.",
+      "acceptSuccessToast": "Uitnodiging geaccepteerd.",
+      "acceptErrorToast": "Uitnodiging accepteren is mislukt.",
+      "declineSuccessToast": "Uitnodiging geweigerd.",
+      "declineErrorToast": "Uitnodiging weigeren is mislukt."
+    },
+    "courseEdit": {
+      "pageTitle": "Cursus bewerken",
+      "tabInfo": "Informatie",
+      "tabStructure": "Structuur",
+      "tabEnrollment": "Inschrijvingen",
+      "tabAnalytics": "Analyses",
+      "publishButton": "Publiceren",
+      "unpublishButton": "Depubliceren",
+      "publishedBadge": "Gepubliceerd",
+      "unpublishedBadge": "Concept",
+      "publishSuccessToast": "Cursus gepubliceerd.",
+      "publishErrorToast": "Publiceren is mislukt.",
+      "unpublishSuccessToast": "Cursus gedepubliceerd.",
+      "unpublishErrorToast": "Depubliceren is mislukt.",
+      "loadErrorToast": "Cursus kon niet worden geladen.",
+      "loadingMessage": "Laden…",
+      "cloneButton": "Dupliceren",
+      "exportButton": "Exporteren (JSON)",
+      "exportSuccessToast": "Cursus geëxporteerd.",
+      "exportErrorToast": "Export mislukt.",
+      "deleteButton": "Verwijderen",
+      "confirmCloneTitle": "Deze cursus dupliceren?",
+      "confirmCloneMessage": "Een volledige kopie van deze cursus maken (secties, lessen en inhoudsblokken)? De kopie wordt als concept aangemaakt.",
+      "confirmCloneAccept": "Dupliceren",
+      "confirmCloneReject": "Annuleren",
+      "confirmDeleteTitle": "Deze cursus verwijderen?",
+      "confirmDeleteMessage": "Deze actie verwijdert de cursus, alle secties, lessen, inhoudsblokken en alle inschrijvingen en voortgang van cursisten definitief. Dit kan niet ongedaan worden gemaakt.",
+      "confirmDeleteAccept": "Verwijderen",
+      "confirmDeleteReject": "Annuleren",
+      "cloneSuccessToast": "Cursus gedupliceerd.",
+      "cloneErrorToast": "Cursus dupliceren is mislukt.",
+      "deleteSuccessToast": "Cursus verwijderd.",
+      "deleteErrorToast": "Cursus verwijderen is mislukt.",
+      "deleteProtectedToast": "Een cursus die al certificaten heeft uitgegeven kan niet worden verwijderd."
+    },
+    "structureTab": {
+      "heading": "Cursusstructuur",
+      "subtitle": "Organiseer de cursus in secties en lessen. Sleep om opnieuw te ordenen.",
+      "addSectionButton": "Sectie toevoegen",
+      "addLessonButton": "Les toevoegen",
+      "editButton": "Bewerken",
+      "deleteButton": "Verwijderen",
+      "editContentButton": "Inhoud bewerken",
+      "isPublishedLabel": "Gepubliceerd",
+      "isPreviewLabel": "Voorbeeld",
+      "confirmDeleteSection": "Sectie \"{title}\" verwijderen? Alle lessen en hun inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteLesson": "Les \"{title}\" verwijderen? Alle inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteHeader": "Verwijderen bevestigen",
+      "confirmAccept": "Verwijderen",
+      "confirmReject": "Annuleren",
+      "sectionDialog": {
+        "titleCreate": "Nieuwe sectie",
+        "titleEdit": "Sectie bewerken",
+        "titleField": "Titel",
+        "descriptionField": "Beschrijving",
+        "isPublishedField": "Gepubliceerd",
+        "submitButton": "Opslaan",
+        "cancelButton": "Annuleren",
+        "translateButton": "Vertalen vanuit dit tabblad",
+        "translationFailed": "Automatische vertaling mislukt."
+      },
+      "lessonDialog": {
+        "titleCreate": "Nieuwe les",
+        "titleEdit": "Les bewerken",
+        "titleField": "Titel",
+        "isPreviewField": "Gratis voorbeeld",
+        "isPublishedField": "Gepubliceerd",
+        "submitButton": "Opslaan",
+        "cancelButton": "Annuleren",
+        "translateButton": "Vertalen vanuit dit tabblad",
+        "translationFailed": "Automatische vertaling mislukt."
+      },
+      "sectionCreatedToast": "Sectie toegevoegd.",
+      "sectionUpdatedToast": "Sectie bijgewerkt.",
+      "sectionDeletedToast": "Sectie verwijderd.",
+      "lessonCreatedToast": "Les toegevoegd.",
+      "lessonUpdatedToast": "Les bijgewerkt.",
+      "lessonDeletedToast": "Les verwijderd.",
+      "reorderSuccessToast": "Volgorde bijgewerkt.",
+      "actionFailedToast": "Actie mislukt.",
+      "titleRequiredToast": "Titel is verplicht in de hoofdtaal.",
+      "untitledSection": "Sectie zonder titel",
+      "untitledLesson": "Les zonder titel",
+      "emptyTitle": "Nog geen secties",
+      "emptyMessage": "Voeg een eerste sectie toe om je cursus te structureren.",
+      "dragHandleAria": "Sleep om opnieuw te ordenen",
+      "sectionAria": "Sectie",
+      "lessonAria": "Les"
+    },
+    "infoTab": {
+      "heading": "Cursusgegevens",
+      "fields": {
+        "level": "Niveau",
+        "enrollmentMode": "Inschrijvingsmodus",
+        "estimatedDuration": "Geschatte duur (minuten)",
+        "estimatedDurationHint": "Geschatte totale tijd om de cursus te doorlopen.",
+        "issuesCertificate": "Certificaat uitreiken",
+        "issuesCertificateHint": "Een PDF-certificaat uitreiken wanneer de cursus is voltooid (en de eindquiz geslaagd, indien aanwezig).",
+        "certificateValidity": "Geldigheid certificaat (maanden)",
+        "certificateValidityHint": "De datum wordt vastgelegd bij uitgifte; de waarde wijzigen verandert reeds uitgegeven certificaten niet.",
+        "coverImage": "Omslagafbeelding",
+        "title": "Titel",
+        "titlePlaceholder": "Cursustitel",
+        "description": "Beschrijving",
+        "learningObjectives": "Leerdoelen",
+        "learningObjectivesHint": "Vaardigheden of resultaten die studenten aan het einde behalen."
+      },
+      "enrollmentLabels": {
+        "open": "Open",
+        "approval": "Goedkeuring",
+        "invite": "Op uitnodiging"
+      },
+      "inviteOnlyHint": "Cursisten moeten expliciet worden uitgenodigd. De cursus blijft verborgen in de catalogus zolang de uitnodiging niet is verzonden.",
+      "translateButton": "Vertalen vanuit dit tabblad",
+      "uploadButton": "Afbeelding kiezen…",
+      "removeCoverButton": "Afbeelding verwijderen",
+      "clearSelectionButton": "Selectie wissen",
+      "currentCoverLabel": "Huidige afbeelding",
+      "selectedFileLabel": "Geselecteerd bestand",
+      "noFileSelected": "Geen bestand geselecteerd",
+      "saveButton": "Opslaan",
+      "cancelButton": "Annuleren",
+      "errors": {
+        "formInvalid": "Corrigeer de fouten voordat u opslaat.",
+        "titleRequired": "Een titel is vereist in de hoofdtaal.",
+        "saveFailed": "Opslaan is mislukt.",
+        "translationFailed": "Automatische vertaling is mislukt.",
+        "uploadFailed": "Upload van de afbeelding is mislukt."
+      },
+      "toasts": {
+        "saveSuccess": "Cursus bijgewerkt.",
+        "errorSummary": "Fout"
+      },
+      "certificateValidityLabels": {
+        "never": "Nooit (levenslang)",
+        "y1": "1 jaar",
+        "y2": "2 jaar",
+        "y5": "5 jaar",
+        "y10": "10 jaar"
+      }
+    },
+    "enrollmentTab": {
+      "heading": "Inschrijvingen",
+      "subtitle": "Keur inschrijvingen voor deze cursus goed, weiger ze of annuleer ze.",
+      "filters": {
+        "status": {
+          "label": "Status",
+          "all": "Alle"
+        }
+      },
+      "columns": {
+        "user": "Gebruiker",
+        "email": "E-mail",
+        "status": "Status",
+        "enrolledAt": "Ingeschreven op",
+        "completedAt": "Voltooid op",
+        "actions": "Acties"
+      },
+      "actions": {
+        "approve": "Goedkeuren",
+        "reject": "Weigeren",
+        "cancel": "Inschrijving annuleren",
+        "confirmHeader": "Bevestigen",
+        "confirmAccept": "Bevestigen",
+        "confirmReject": "Annuleren",
+        "confirmApprove": "Inschrijving van {name} goedkeuren?",
+        "confirmRejectMessage": "Inschrijving van {name} weigeren?",
+        "confirmCancel": "Inschrijving van {name} annuleren?"
+      },
+      "emptyTitle": "Geen inschrijvingen",
+      "emptyMessage": "Geen inschrijvingen voldoen aan het huidige filter.",
+      "noCompletedAt": "—",
+      "toasts": {
+        "approveSuccess": "Inschrijving goedgekeurd.",
+        "approveFailed": "Goedkeuren van inschrijving mislukt.",
+        "rejectSuccess": "Inschrijving geweigerd.",
+        "rejectFailed": "Weigeren van inschrijving mislukt.",
+        "cancelSuccess": "Inschrijving geannuleerd.",
+        "cancelFailed": "Annuleren van inschrijving mislukt.",
+        "loadFailed": "Inschrijvingen konden niet worden geladen.",
+        "errorSummary": "Fout"
+      },
+      "invite": {
+        "heading": "Een cursist uitnodigen",
+        "subtitle": "Uitgenodigde cursisten ontvangen een e-mail met een link om de uitnodiging te accepteren.",
+        "pickerLabel": "Cursist(en)",
+        "pickerPlaceholder": "Zoek een of meer leden van het domein…",
+        "sendButton": "Uitnodiging verzenden",
+        "sendBulkButton": "{n} uitnodigingen verzenden",
+        "pendingListHeading": "Lopende uitnodigingen",
+        "columns": {
+          "user": "Cursist",
+          "sentAt": "Verzonden",
+          "expiresAt": "Vervalt",
+          "status": "Status",
+          "actions": "Acties"
+        },
+        "statusLabels": {
+          "pending": "In behandeling",
+          "accepted": "Geaccepteerd",
+          "declined": "Geweigerd",
+          "revoked": "Ingetrokken",
+          "expired": "Verlopen"
+        },
+        "actions": {
+          "resend": "Opnieuw verzenden",
+          "revoke": "Intrekken",
+          "confirmResend": "Uitnodiging opnieuw verzenden naar {name}?",
+          "confirmRevoke": "Uitnodiging aan {name} intrekken?",
+          "resendAll": "Alles opnieuw verzenden",
+          "confirmResendAll": "De {n} lopende uitnodigingen opnieuw verzenden?"
+        },
+        "emptyTitle": "Geen lopende uitnodigingen.",
+        "toasts": {
+          "sendSuccess": "Uitnodiging verzonden.",
+          "sendFailed": "Uitnodiging verzenden is mislukt.",
+          "sendPartialSummary": "{processed} uitnodiging(en) verzonden, {skipped} overgeslagen (al ingeschreven of uitgenodigd).",
+          "resendSuccess": "Uitnodiging opnieuw verzonden.",
+          "resendFailed": "Uitnodiging opnieuw verzenden is mislukt.",
+          "revokeSuccess": "Uitnodiging ingetrokken.",
+          "revokeFailed": "Uitnodiging intrekken is mislukt.",
+          "loadFailed": "Uitnodigingen konden niet worden geladen.",
+          "resendAllSuccess": {
+            "one": "{n} uitnodiging opnieuw verzonden.",
+            "other": "{n} uitnodigingen opnieuw verzonden."
+          },
+          "resendAllPartial": "{processed} uitnodiging(en) opnieuw verzonden, {skipped} overgeslagen.",
+          "resendAllFailed": "Bulk opnieuw verzenden is mislukt."
+        }
+      }
+    },
+    "analyticsTab": {
+      "heading": "Analyses",
+      "subtitle": "Inschrijvingsindicatoren samengevat op basis van de inschrijvingen van deze cursus.",
+      "kpi": {
+        "total": "Totaal inschrijvingen",
+        "active": "Actief",
+        "pending": "In afwachting",
+        "completed": "Voltooid",
+        "cancelled": "Geannuleerd",
+        "completionRate": "Voltooiingspercentage",
+        "lastEnrollment": "Laatste inschrijving",
+        "lastCompletion": "Laatste voltooiing",
+        "medianProgress": "Mediane voortgang",
+        "certificatesIssued": "Uitgegeven certificaten"
+      },
+      "trendHeading": "Inschrijvingen over 30 dagen",
+      "trendSubtitle": "Aantal nieuwe inschrijvingen per dag, voortschrijdend venster.",
+      "invite": {
+        "heading": "Uitnodigingen",
+        "subtitle": "Indicatoren van uitnodigingen die voor deze cursus zijn verzonden.",
+        "kpi": {
+          "total": "Totaal verzonden",
+          "pending": "In behandeling",
+          "accepted": "Geaccepteerd",
+          "declined": "Geweigerd",
+          "revoked": "Ingetrokken",
+          "expired": "Verlopen",
+          "acceptanceRate": "Acceptatiepercentage",
+          "medianDecisionHours": "Mediaan beslistijd"
+        },
+        "decisionHoursValue": "{hours} u"
+      },
+      "auditHeading": "Recente activiteit",
+      "auditEmpty": "Nog geen geregistreerde actie.",
+      "auditAction": {
+        "course.publish": "Publicatie",
+        "course.unpublish": "Depublicatie",
+        "course.clone": "Duplicatie"
+      },
+      "kpiHints": {
+        "pctOfTotal": "{pct} % van het totaal",
+        "neverYet": "—"
+      },
+      "errors": {
+        "loadFailed": "Analyses konden niet worden geladen."
+      },
+      "retryButton": "Opnieuw proberen",
+      "emptyTitle": "Nog geen inschrijvingen",
+      "emptyMessage": "Statistieken verschijnen zodra cursisten zich voor deze cursus inschrijven."
+    },
+    "courseDetail": {
+      "pageTitle": "Cursus",
+      "loading": "Laden…",
+      "sectionsHeading": "Cursusinhoud",
+      "learningObjectivesHeading": "Leerdoelen",
+      "durationLabel": "{n} min",
+      "enrollButton": "Inschrijven",
+      "acceptInviteButton": "Uitnodiging accepteren",
+      "continueButton": "Hervatten",
+      "editButton": "Bewerken",
+      "enrolledBadge": "Ingeschreven",
+      "pendingBadge": "In afwachting",
+      "startLessonButton": "Beginnen",
+      "completedLessonBadge": "Voltooid",
+      "previewBadge": "Voorbeeld",
+      "inviteOnlyMessage": "Deze cursus is alleen op uitnodiging.",
+      "approvalPendingMessage": "Je inschrijving wacht op goedkeuring van een instructeur.",
+      "invitedByBanner": "{inviter} heeft je uitgenodigd voor deze cursus.",
+      "enrollSuccessToast": "Inschrijving bevestigd.",
+      "enrollErrorToast": "Inschrijven mislukt.",
+      "acceptInviteSuccessToast": "Uitnodiging geaccepteerd.",
+      "acceptInviteErrorToast": "Uitnodiging accepteren is mislukt.",
+      "emptyContentTitle": "Nog geen inhoud",
+      "emptyContentMessage": "De cursusinhoud is nog niet gepubliceerd."
+    },
+    "courseCreate": {
+      "pageTitle": "Cursus aanmaken",
+      "fields": {
+        "level": "Niveau",
+        "enrollmentMode": "Inschrijvingsmodus",
+        "title": "Titel",
+        "titlePlaceholder": "Cursustitel",
+        "description": "Beschrijving",
+        "learningObjectives": "Leerdoelen",
+        "learningObjectivesHint": "Vaardigheden of resultaten die studenten aan het einde behalen."
+      },
+      "translateButton": "Vertalen vanuit dit tabblad",
+      "cancelButton": "Annuleren",
+      "submitButton": "Cursus aanmaken",
+      "toastSuccessSummary": "Cursus aangemaakt",
+      "toastSuccessDetail": "U kunt nu secties en lessen toevoegen.",
+      "toastErrorSummary": "Fout",
+      "enrollmentLabels": {
+        "open": "Open",
+        "approval": "Goedkeuring",
+        "invite": "Op uitnodiging"
+      },
+      "errors": {
+        "loadFailed": "Fout bij het laden van de gegevens.",
+        "formInvalid": "Het formulier bevat fouten.",
+        "saveFailed": "Backend-fout bij het aanmaken van de cursus.",
+        "translationFailed": "Fout bij het vertalen.",
+        "titleRequired": "Een titel is vereist in de hoofdtaal.",
+        "noCurrentDomain": "Geen huidig domein geselecteerd — kies er een in het menu rechtsboven voordat u een cursus aanmaakt.",
+        "notInstructorOfCurrentDomain": "U bent geen instructeur van het huidige domein — kies een domein dat u kunt beheren in het menu rechtsboven."
+      }
+    },
+    "certificateView": {
+      "pageTitle": "Certificaat",
+      "certificateNumberLabel": "Certificaatnummer",
+      "courseLabel": "Cursus",
+      "issuedOnLabel": "Uitgegeven op",
+      "expiresOnLabel": "Verloopt op",
+      "revokedOnLabel": "Ingetrokken op",
+      "downloadButton": "PDF downloaden",
+      "backButton": "Terug naar mijn certificaten",
+      "verifyLinkLabel": "Openbare verificatielink",
+      "loadingMessage": "Laden…",
+      "notFoundTitle": "Certificaat niet gevonden",
+      "notFoundMessage": "Dit certificaat bestaat niet of is niet van jou.",
+      "revokedBadge": "INGETROKKEN"
+    },
+    "certificateVerify": {
+      "pageTitle": "Certificaatverificatie",
+      "validHeading": "Geldig certificaat",
+      "invalidHeading": "Ongeldig certificaat",
+      "revokedHeading": "Ingetrokken certificaat",
+      "issuedToLabel": "Uitgegeven aan",
+      "courseLabel": "Cursus",
+      "issuedOnLabel": "Uitgegeven op",
+      "certificateNumberLabel": "Certificaatnummer",
+      "validBadge": "GELDIG",
+      "invalidBadge": "ONGELDIG",
+      "revokedBadge": "INGETROKKEN",
+      "genericInvalidMessage": "Dit token komt niet overeen met een geldig certificaat.",
+      "revokedMessage": "Dit certificaat is ingetrokken door de uitgever.",
+      "loadingMessage": "Laden…"
+    },
+    "certificateList": {
+      "pageTitle": "Mijn certificaten",
+      "colNumber": "Nummer",
+      "colCourse": "Cursus",
+      "colIssuedAt": "Uitgegeven op",
+      "colExpiresAt": "Verloopt op",
+      "expiresAtNever": "Geen vervaldatum",
+      "colActions": "Acties",
+      "downloadButton": "Downloaden",
+      "viewButton": "Bekijken",
+      "emptyTitle": "Geen certificaten",
+      "emptyMessage": "Voltooi een cursus om je eerste certificaat te ontvangen.",
+      "exploreButton": "Door catalogus bladeren",
+      "errorTitle": "Laden mislukt",
+      "errorMessage": "Je certificaten konden niet worden geladen. Probeer het opnieuw.",
+      "retryButton": "Opnieuw proberen"
+    },
+    "catalog": {
+      "pageTitle": "Cursuscatalogus",
+      "filterByLevelLabel": "Niveau",
+      "filterByLanguageLabel": "Taal",
+      "filterByDomainLabel": "Domein",
+      "searchPlaceholder": "Zoek een cursus…",
+      "emptyTitle": "Geen cursus beschikbaar",
+      "emptyMessage": "Geen gepubliceerde cursus komt overeen met uw selectie.",
+      "enrollmentBadge": {
+        "open": "Open",
+        "approval": "Goedkeuring",
+        "invite": "Op uitnodiging"
+      },
+      "viewButton": "Bekijken",
+      "createCourseButton": "Cursus aanmaken",
+      "listButton": "Lijst",
+      "lessonCount": {
+        "one": "{n} les",
+        "other": "{n} lessen"
+      },
+      "duration": {
+        "minutesOnly": "{m} min",
+        "hoursOnly": "{h} u",
+        "hoursMinutes": "{h} u {m} min"
+      },
+      "enrolledBadge": "Ingeschreven",
+      "continueButton": "Hervatten",
+      "statusLabels": {
+        "published": "Gepubliceerd",
+        "draft": "Concept"
+      }
+    },
+    "connections": {
+      "pageTitle": "Verbindingslogboek",
+      "rangeLabel": "Periode",
+      "rangePlaceholder": "Selecteer een periode",
+      "clearRange": "Wissen",
+      "columns": {
+        "date": "Datum",
+        "account": "Account",
+        "ip": "IP-adres",
+        "location": "Locatie",
+        "device": "Apparaat",
+        "actions": "Acties"
+      },
+      "detailsButton": "Details",
+      "emptyTitle": "Geen verbindingen",
+      "emptyHint": "Geen verbinding komt overeen met de geselecteerde periode.",
+      "dialogTitle": "Verbindingsdetails",
+      "fields": {
+        "id": "Identificatie",
+        "accountEmail": "Account",
+        "createdAt": "Datum",
+        "loginMethod": "Aanmeldmethode",
+        "ip": "IP-adres",
+        "userAgent": "User-Agent",
+        "browser": "Browser",
+        "os": "Besturingssysteem",
+        "localTime": "Lokale tijd",
+        "browserLanguage": "Browsertaal",
+        "timezone": "Tijdzone",
+        "screen": "Scherm",
+        "online": "Online",
+        "country": "Land",
+        "countryCode": "Landcode",
+        "city": "Stad",
+        "region": "Regio",
+        "latitude": "Breedtegraad",
+        "longitude": "Lengtegraad"
+      },
+      "yes": "Ja",
+      "no": "Nee",
+      "emptyValue": "—",
+      "map": {
+        "heading": "Verbindingskaart",
+        "popupCity": "Stad",
+        "popupDate": "Datum"
+      }
+    },
+    "about": {
+      "tabs": {
+        "company": "Bedrijf",
+        "legal": "Juridisch",
+        "technical": "Technisch"
+      },
+      "companyTitle": "Bedrijf",
+      "companyIntro": "Juridische informatie en contactgegevens van het bedrijf dat QuizOnline uitbaat.",
+      "company": {
+        "contactLabel": "Contact",
+        "companyLabel": "Bedrijf",
+        "vatLabel": "BTW / KBO",
+        "addressLabel": "Adres",
+        "emailLabel": "E-mail",
+        "emailButton": "Stuur mij een e-mail",
+        "phoneLabel": "Telefoon",
+        "websiteLabel": "Website"
+      },
+      "legalTitle": "Juridische informatie & gegevensbescherming",
+      "legalIntro": "QuizOnline voldoet aan de Europese regelgeving inzake de bescherming van persoonsgegevens.",
+      "legalSections": [
+        {
+          "title": "Verwerkingsverantwoordelijke",
+          "content": [
+            "De verwerkingsverantwoordelijke is de beheerder van de geinstalleerde QuizOnline-instantie.",
+            "Neem voor vragen over uw persoonsgegevens contact op met de beheerder van uw instantie."
+          ]
+        },
+        {
+          "title": "Verzamelde gegevens",
+          "content": [
+            "Identificatiegegevens: gebruikersnaam, e-mailadres, voornaam, achternaam.",
+            "Activiteitsgegevens: quizantwoorden, scores, sessies, taalvoorkeuren.",
+            "Technische gegevens: verbindingslogboeken, strikt noodzakelijk voor beveiliging."
+          ]
+        },
+        {
+          "title": "Rechtsgrond en doeleinden (AVG Art. 6)",
+          "content": [
+            "Uitvoering van een overeenkomst: beheer van uw account, afleggen van quizzen en opvolging van resultaten.",
+            "Gerechtvaardigd belang: beveiliging van het platform, misbruikpreventie, verbetering van de dienst.",
+            "Toestemming: verzending van optionele meldingen (op elk moment intrekbaar)."
+          ]
+        },
+        {
+          "title": "Uw rechten (AVG Art. 15-22)",
+          "content": [
+            "Recht van inzage: een kopie van uw persoonsgegevens verkrijgen.",
+            "Recht op rectificatie: onjuiste of onvolledige gegevens corrigeren.",
+            "Recht op verwijdering: verzoek tot verwijdering van uw gegevens.",
+            "Recht op overdraagbaarheid: uw gegevens ontvangen in een gestructureerd, leesbaar formaat.",
+            "Recht van bezwaar: u verzetten tegen verwerking in bepaalde gevallen.",
+            "Recht om klacht in te dienen: een klacht indienen bij uw nationale toezichthoudende autoriteit."
+          ]
+        },
+        {
+          "title": "Bewaring van gegevens",
+          "content": [
+            "Accountgegevens worden bewaard gedurende de looptijd van uw registratie.",
+            "Sessie- en resultaatgegevens worden bewaard zolang het domein actief is.",
+            "Bij verwijdering van uw account worden uw persoonsgegevens binnen 30 dagen verwijderd of geanonimiseerd."
+          ]
+        },
+        {
+          "title": "Beveiliging",
+          "content": [
+            "Communicatie wordt versleuteld via HTTPS/TLS.",
+            "Wachtwoorden worden gehasht met een onomkeerbaar algoritme (PBKDF2).",
+            "Authenticatie is gebaseerd op JWT-tokens met beperkte levensduur."
+          ]
+        },
+        {
+          "title": "Cookies",
+          "content": [
+            "QuizOnline maakt geen gebruik van tracking- of advertentiecookies.",
+            "Alleen strikt noodzakelijke technische cookies (sessie, taalvoorkeur) worden gebruikt."
+          ]
+        }
+      ],
+      "technicalTitle": "Technische informatie",
+      "technicalIntro": "Het project is opgezet als monorepo met een Angular-frontend, een Django REST-backend en een gedeeld OpenAPI-contract.",
+      "repositoryUrlLabel": "Repository-URL",
+      "cards": {
+        "repository": {
+          "title": "Repository",
+          "description": "Broncode, CI en contractartefacten zitten in hetzelfde depot.",
+          "items": [
+            "GitHub-monorepo voor frontend, backend en synchronisatiescripts.",
+            "Generatie en controle van OpenAPI-artefacten in CI.",
+            "GitHub Actions-workflows voor automatische controles."
+          ]
+        },
+        "backend": {
+          "title": "Backend",
+          "description": "REST API, bedrijfslogica en applicatieve beveiliging.",
+          "items": [
+            "Django 6 en Django REST Framework",
+            "PostgreSQL 16, in productie en in CI",
+            "drf-spectacular voor het OpenAPI-contract",
+            "Simple JWT, django-filter en django-parler",
+            "Celery, import-export en Python 3.12-tests"
+          ]
+        },
+        "frontend": {
+          "title": "Frontend",
+          "description": "Single-page app voor beheer en quizafname.",
+          "items": [
+            "Angular 21, TypeScript en RxJS",
+            "PrimeNG 21 en PrimeIcons",
+            "API-client gegenereerd uit OpenAPI",
+            "Vitest en Playwright"
+          ]
+        }
+      }
+    },
+    "questionPreviewDialog": {
+      "header": "Voorbeeld van de vraag",
+      "loading": "Voorbeeld laden…",
+      "notFound": "Vraag niet gevonden.",
+      "loadFailed": "Kan het voorbeeld van de vraag niet laden."
+    },
+    "questionEditorForm": {
+      "tabQuestion": "Vraag",
+      "tabAnswers": "Antwoorden",
+      "tabExplanation": "Uitleg",
+      "translateButton": "Vertalen vanuit dit tabblad",
+      "translateSuccessToast": "Vertaling toegepast.",
+      "translateErrorToast": "Automatische vertaling mislukt.",
+      "addAnswer": "Antwoord toevoegen",
+      "correctAnswer": "Correct antwoord",
+      "removeAnswer": "Antwoord verwijderen",
+      "confirmRemoveAnswer": "Dit antwoord verwijderen?",
+      "promptHeading": "Vraagstelling",
+      "explanationHeading": "Uitleg",
+      "answersHeading": "Mogelijke antwoorden",
+      "answersHint": "Vink minstens één correct antwoord aan. Elk antwoord heeft zijn eigen blokken-lijst.",
+      "promptHint": "Stel de vraag samen met evenveel blokken als nodig (rijke tekst, beeld, video, code, ...).",
+      "explanationHint": "Wordt na het antwoord van de leerling getoond.",
+      "noAnswersYet": "Nog geen antwoorden. Voeg er een toe met de knop hieronder.",
+      "noActiveLanguages": "Dit domein heeft geen actieve talen geconfigureerd.",
+      "answerHeading": "Antwoord {index}"
+    },
+    "learningCommon": {
+      "blockTypeLabels": {
+        "rich_text": "Opgemaakte tekst",
+        "image": "Afbeelding",
+        "video": "Video",
+        "file": "Bestand",
+        "quiz": "Quiz",
+        "callout": "Aandachtsblok",
+        "code": "Code",
+        "embed": "iframe"
+      },
+      "enrollmentStatusLabels": {
+        "pending": "In afwachting",
+        "active": "Actief",
+        "completed": "Voltooid",
+        "cancelled": "Geannuleerd"
+      },
+      "levelLabels": {
+        "beginner": "Beginner",
+        "intermediate": "Gevorderd",
+        "advanced": "Geavanceerd"
+      },
+      "videoProviderLabels": {
+        "youtube": "YouTube",
+        "vimeo": "Vimeo",
+        "upload": "Lokaal gehost"
+      }
+    },
+    "lessonReader": {
+      "outlineHeading": "Lesoverzicht"
+    },
+    "blockRenderers": {
+      "downloadFileFallback": "Bestand downloaden",
+      "videoNotAvailable": "Video niet beschikbaar",
+      "embedNotAvailable": "Ingesloten inhoud niet beschikbaar",
+      "embedOpenInNewTab": "In nieuw tabblad openen",
+      "quizBlockModePractice": "Oefening",
+      "quizBlockModeExam": "Examen",
+      "quizBlockStartButton": "Quiz starten",
+      "quizBlockResumeButton": "Hervatten",
+      "quizBlockViewResultButton": "Resultaat bekijken",
+      "quizBlockRetakeButton": "Opnieuw proberen",
+      "quizBlockNoAttemptsRemaining": "Geen pogingen meer beschikbaar",
+      "quizBlockLoadFailed": "Kan de quiz niet laden.",
+      "quizBlockRetry": "Opnieuw proberen",
+      "quizBlockNotConfigured": "Quiz niet geconfigureerd"
+    },
+    "blockListEditor": {
+      "emptyHint": "Nog geen blokken. Voeg er een toe met de balk hieronder.",
+      "addBlockBarLabel": "Een blok toevoegen",
+      "addBlockHint": "Een blok toevoegen:",
+      "deleteBlockAria": "Blok verwijderen",
+      "editBlockAria": "Blok bewerken",
+      "saveBlockLabel": "Opslaan",
+      "cancelBlockLabel": "Annuleren",
+      "blockAddedToast": "Blok toegevoegd.",
+      "blockSavedToast": "Blok opgeslagen.",
+      "blockDeletedToast": "Blok verwijderd.",
+      "blockErrorToast": "Kan het blok niet wijzigen.",
+      "reorderSuccessToast": "Volgorde bijgewerkt.",
+      "reorderErrorToast": "Kan de blokken niet opnieuw ordenen."
+    },
+    "blockEditors": {
+      "fieldTitle": "Titel",
+      "fieldCalloutBody": "Tekst",
+      "fieldCalloutVariant": "Type",
+      "calloutVariantInfo": "Informatie",
+      "calloutVariantSuccess": "Succes",
+      "calloutVariantWarning": "Waarschuwing",
+      "calloutVariantError": "Fout",
+      "fieldExternalUrl": "Externe URL",
+      "fieldVideoUrl": "Video-URL",
+      "fieldVideoProvider": "Provider",
+      "fieldQuizTemplate": "ID van het quizsjabloon",
+      "fieldCodeLanguage": "Taal",
+      "fieldCodeContent": "Broncode",
+      "chooseFile": "Bestand kiezen",
+      "currentFileLabel": "Huidig bestand",
+      "uploading": "Bezig met uploaden…",
+      "uploadSuccessToast": "Bestand verzonden.",
+      "uploadErrorToast": "Kan het bestand niet uploaden.",
+      "todoPlaceholder": "Editor volgt binnenkort.",
+      "quizTemplatePlaceholder": "Een quiz zoeken…",
+      "translateButton": "Vertalen vanuit dit tabblad",
+      "translateSuccessToast": "Vertaling toegepast.",
+      "translateErrorToast": "Automatische vertaling mislukt."
+    },
+    "savedAt": {
+      "locale": "nl-NL"
+    },
+    "fullscreenButton": {
+      "enter": "Volledig scherm",
+      "exit": "Volledig scherm verlaten"
+    },
+    "domainSubscription": {
+      "pageTitle": "Abonnement",
+      "errorTitle": "Laden mislukt",
+      "errorMessage": "De abonnementsgegevens konden niet worden geladen. Probeer het opnieuw.",
+      "retryButton": "Opnieuw proberen",
+      "planLabel": "Plan",
+      "planFree": "Gratis",
+      "planPaid": "Betaald",
+      "membersLabel": "Leden",
+      "monthlyPriceLabel": "Maandprijs",
+      "vatNote": "excl. btw",
+      "deadlineLabel": "Einde van de gratis periode",
+      "noDeadline": "Geen (onbeperkt gratis)",
+      "statusPaid": "Betaald plan actief.",
+      "statusFreeNoDeadline": "Gratis periode zonder einddatum. Voorlopig niets te betalen.",
+      "statusFreeActive": "Gratis tot {date}. Daarna geldt het maandabonnement.",
+      "statusFreeExpired": "De gratis periode eindigde op {date}. Gelieve de betaling te regelen.",
+      "back": "Terug"
+    },
+    "courseReviews": {
+      "heading": "Beoordelingen",
+      "noReviews": "Nog geen beoordelingen.",
+      "reviewsCount": "{count} beoordelingen",
+      "ratingCount": "{count} scores",
+      "yourReview": "Jouw beoordeling",
+      "writeReview": "Beoordeling geven",
+      "editReview": "Beoordeling bewerken",
+      "ratingLabel": "Score",
+      "commentLabel": "Opmerking",
+      "commentPlaceholder": "Deel je ervaring…",
+      "submit": "Publiceren",
+      "delete": "Verwijderen",
+      "hide": "Verbergen",
+      "unhide": "Weer tonen",
+      "hiddenBadge": "Verborgen",
+      "savedToast": "Beoordeling opgeslagen.",
+      "errorToast": "Opslaan mislukt.",
+      "onlyCompleted": "Rond de cursus af om een beoordeling te geven."
+    },
+    "billingBanner": {
+      "approaching": "De gratis periode van dit domein eindigt op {date}.",
+      "expired": "De gratis periode van dit domein is geëindigd op {date}. Gelieve de betaling te regelen.",
+      "cta": "Abonnement bekijken"
+    }
+  }
+}

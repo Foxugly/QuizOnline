@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './about.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 export type AboutTechCard = {
   title: string;
@@ -46,8 +46,8 @@ export type AboutUiText = {
   };
 };
 
-const CATALOG = data as Record<string, AboutUiText>;
-
-export function getAboutUiText(lang: LanguageEnumDto | string | null | undefined): AboutUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+export function getAboutUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): AboutUiText {
+  return pageUiText<AboutUiText>('about', lang);
 }

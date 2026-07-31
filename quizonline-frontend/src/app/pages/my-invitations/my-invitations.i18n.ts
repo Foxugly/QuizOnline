@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './my-invitations.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-page dictionary for ``/me/invitations`` — the learner-side
@@ -28,10 +28,8 @@ export interface MyInvitationsUiText {
   historyDateLabel: string;
 }
 
-const CATALOG = data as Record<string, MyInvitationsUiText>;
-
 export function getMyInvitationsUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): MyInvitationsUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<MyInvitationsUiText>('myInvitations', lang);
 }

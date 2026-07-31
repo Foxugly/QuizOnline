@@ -1,6 +1,6 @@
 import { LanguageEnumDto } from '../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../shared/i18n/format';
-import data from './question-list.i18n.json';
+import {pageUiText} from '../../../shared/i18n/catalog-registry';
 
 export type QuestionListUiText = {
   title: string;
@@ -39,8 +39,8 @@ export type QuestionListUiText = {
   bulkConfirmCancel: string;
 };
 
-const UI_TEXT = data as Record<string, QuestionListUiText>;
-
-export function getQuestionListUiText(lang: LanguageEnumDto | string | null | undefined): QuestionListUiText {
-  return UI_TEXT[lang as string] ?? UI_TEXT[LanguageEnumDto.En];
+export function getQuestionListUiText(
+  lang: LanguageEnumDto | string | null | undefined,
+): QuestionListUiText {
+  return pageUiText<QuestionListUiText>('questionList', lang);
 }

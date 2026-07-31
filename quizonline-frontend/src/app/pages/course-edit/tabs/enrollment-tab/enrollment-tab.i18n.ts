@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../../../api/generated/model/language-enum';
 import {PluralForms} from '../../../../shared/i18n/format';
-import data from './enrollment-tab.i18n.json';
+import {pageUiText} from '../../../../shared/i18n/catalog-registry';
 
 /**
  * Per-tab dictionary for the "Enrollment" tab. Surfaces the localized
@@ -116,10 +116,8 @@ export interface CourseEditEnrollmentTabUiText {
   };
 }
 
-const CATALOG = data as Record<string, CourseEditEnrollmentTabUiText>;
-
 export function getCourseEditEnrollmentTabUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseEditEnrollmentTabUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CourseEditEnrollmentTabUiText>('enrollmentTab', lang);
 }

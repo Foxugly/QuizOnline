@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './certificate-view.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-language UI text for the single-certificate detail page.
@@ -26,10 +26,8 @@ export interface CertificateViewUiText {
   revokedBadge: string;
 }
 
-const CATALOG = data as Record<string, CertificateViewUiText>;
-
 export function getCertificateViewUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CertificateViewUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<CertificateViewUiText>('certificateView', lang);
 }

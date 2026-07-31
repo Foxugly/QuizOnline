@@ -1,4 +1,5 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
+import {pageUiText} from '../../i18n/catalog-registry';
 
 export type SavedAtUiText = {
   /** Label rendered next to the formatted time, e.g. "Enregistré à 14:32". */
@@ -33,5 +34,5 @@ const SAVED_AT_UI_TEXT: Record<LanguageEnumDto, SavedAtUiText> = {
 export function getSavedAtUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): SavedAtUiText {
-  return SAVED_AT_UI_TEXT[lang as LanguageEnumDto] ?? SAVED_AT_UI_TEXT[LanguageEnumDto.Fr];
+  return pageUiText<SavedAtUiText>('savedAt', lang);
 }

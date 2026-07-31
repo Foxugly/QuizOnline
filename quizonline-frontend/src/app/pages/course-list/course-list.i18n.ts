@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {PluralForms} from '../../shared/i18n/format';
-import data from './course-list.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Page-scoped labels for the instructor course-list view at
@@ -47,10 +47,8 @@ export interface CourseListUiText {
   bulkErrorToast: string;
 }
 
-const CATALOG = data as Record<string, CourseListUiText>;
-
 export function getCourseListUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): CourseListUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.Fr];
+  return pageUiText<CourseListUiText>('courseList', lang);
 }

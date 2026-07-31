@@ -1,6 +1,6 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {PluralForms} from '../../shared/i18n/format';
-import data from './dashboard.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * UI strings for the unified post-login dashboard. The page surfaces
@@ -48,10 +48,8 @@ export interface DashboardUiText {
   };
 }
 
-const CATALOG = data as Record<string, DashboardUiText>;
-
 export function getDashboardUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): DashboardUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<DashboardUiText>('dashboard', lang);
 }

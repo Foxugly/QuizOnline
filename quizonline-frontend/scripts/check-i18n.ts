@@ -24,7 +24,23 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {readFileSync} from 'node:fs';
+
 import {LanguageEnumDto} from '../src/app/api/generated/model/language-enum';
+import {RootCatalog, registerCatalogs} from '../src/app/shared/i18n/catalog-registry';
+
+// Les catalogues vivent dans public/i18n/ (STANDARD-frontend-layout.md §5bis)
+// et sont charges par HTTP au bootstrap de l'app. Ce script s'execute hors
+// navigateur : il remplit le registre depuis le disque avant d'appeler le
+// moindre getter, sinon le premier leve.
+registerCatalogs(
+  Object.fromEntries(
+    ['fr', 'en', 'nl', 'it', 'es'].map((lang) => [
+      lang,
+      JSON.parse(readFileSync(`public/i18n/${lang}.json`, 'utf8')) as RootCatalog,
+    ]),
+  ),
+);
 import {getUiText} from '../src/app/shared/i18n/ui-text';
 import {getEditorUiText} from '../src/app/shared/i18n/editor-ui-text';
 

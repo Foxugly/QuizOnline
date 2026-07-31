@@ -6,6 +6,7 @@ import {routes} from './app.routes';
 import {providePrimeNG} from 'primeng/config';
 import {MessageService} from 'primeng/api';
 import {StaleChunkService} from './shared/app-update/stale-chunk.service';
+import {CatalogLoader} from './shared/i18n/catalog-loader';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
@@ -14,7 +15,7 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {Configuration} from './api/generated/configuration';
 import {resolveApiBaseUrl} from './shared/api/runtime-api-base-url';
 import {PrimeNGTranslationService} from './shared/i18n/primeng-translation.service';
-import {BundledTranslocoLoader} from './core/i18n/transloco-loader';
+import {TranslocoHttpLoader} from './core/i18n/transloco-loader';
 import {TranslocoLangSync} from './core/i18n/transloco-lang-sync.service';
 
 // Emerald is the single fleet accent (STANDARD-frontend-layout.md §9). Remap BOTH
@@ -66,9 +67,9 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-    // Transloco engine (fleet convention). Text is rendered through the typed
-    // ``UiTextService`` façade; Transloco is wired for conformance + tests. The
-    // bundled loader serves in-memory catalogs (no HTTP).
+    // Transloco (convention flotte). Le texte passe par la facade typee
+    // ``UiTextService`` ; Transloco est cable pour la conformite et les tests.
+    // Les deux lisent les memes fichiers public/i18n/<lang>.json.
     provideTransloco({
       config: {
         availableLangs: ['en', 'fr', 'nl', 'it', 'es'],
@@ -77,7 +78,7 @@ export const appConfig: ApplicationConfig = {
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       },
-      loader: BundledTranslocoLoader,
+      loader: TranslocoHttpLoader,
     }),
     // Instantiate the PrimeNG translation bridge eagerly so paginator,
     // calendar, multiselect, etc. render in the user's chosen language
@@ -93,6 +94,14 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (sync: TranslocoLangSync) => () => sync,
       deps: [TranslocoLangSync],
+      multi: true,
+    },
+    // Charge les catalogues i18n depuis public/i18n/ AVANT le premier rendu :
+    // tous les getters (shell, editeur, 50 pages) sont synchrones.
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (loader: CatalogLoader) => () => loader.preload(),
+      deps: [CatalogLoader],
       multi: true,
     },
     // Rattrape les onglets ouverts avant un deploiement, dont les chunks

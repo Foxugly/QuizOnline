@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './progress.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-language UI text for the "My progress" page.
@@ -21,10 +21,8 @@ export interface ProgressUiText {
   exploreButton: string;
 }
 
-const CATALOG = data as Record<string, ProgressUiText>;
-
 export function getProgressUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): ProgressUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<ProgressUiText>('progress', lang);
 }

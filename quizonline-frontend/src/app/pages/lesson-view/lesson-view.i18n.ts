@@ -1,5 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
-import data from './lesson-view.i18n.json';
+import {pageUiText} from '../../shared/i18n/catalog-registry';
 
 /**
  * Per-page i18n strings for the learner lesson-view page and its eight
@@ -39,10 +39,8 @@ export interface LessonViewUiText {
   notesSavedAt: string;
 }
 
-const CATALOG = data as Record<string, LessonViewUiText>;
-
 export function getLessonViewUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): LessonViewUiText {
-  return CATALOG[lang as string] ?? CATALOG[LanguageEnumDto.En];
+  return pageUiText<LessonViewUiText>('lessonView', lang);
 }

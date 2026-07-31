@@ -5,17 +5,18 @@
  * are treated as path endpoints. Modelled on PushIT_frontend's
  * ``copy-locale-parity.spec.ts``.
  */
-import uiTextEn from './ui-text/en.json';
-import uiTextEs from './ui-text/es.json';
-import uiTextFr from './ui-text/fr.json';
-import uiTextIt from './ui-text/it.json';
-import uiTextNl from './ui-text/nl.json';
-
-import editorEn from './editor-ui-text/en.json';
-import editorEs from './editor-ui-text/es.json';
-import editorFr from './editor-ui-text/fr.json';
-import editorIt from './editor-ui-text/it.json';
-import editorNl from './editor-ui-text/nl.json';
+// Les catalogues vivent desormais dans public/i18n/<lang>.json
+// (STANDARD-frontend-layout.md §5bis). Un seul fichier par langue porte
+// desormais le shell (`ui`), l'editeur (`editor`) et les 50 dictionnaires de
+// page (`pages.*`) : le controle de parite couvre donc tout d'un coup, la ou il
+// ne voyait que deux catalogues sur cinquante-deux.
+//
+// Suffixe `Catalog` obligatoire : `import it from ...` masquerait it().
+import enCatalog from '../../../../public/i18n/en.json';
+import esCatalog from '../../../../public/i18n/es.json';
+import frCatalog from '../../../../public/i18n/fr.json';
+import itCatalog from '../../../../public/i18n/it.json';
+import nlCatalog from '../../../../public/i18n/nl.json';
 
 function collectPaths(value: unknown, prefix = ''): string[] {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
@@ -31,8 +32,11 @@ function collectPaths(value: unknown, prefix = ''): string[] {
 }
 
 const catalogs: Array<{name: string; en: unknown; others: Record<string, unknown>}> = [
-  {name: 'ui-text', en: uiTextEn, others: {fr: uiTextFr, nl: uiTextNl, it: uiTextIt, es: uiTextEs}},
-  {name: 'editor-ui-text', en: editorEn, others: {fr: editorFr, nl: editorNl, it: editorIt, es: editorEs}},
+  {
+    name: 'public/i18n',
+    en: enCatalog,
+    others: {fr: frCatalog, nl: nlCatalog, it: itCatalog, es: esCatalog},
+  },
 ];
 
 describe('core i18n locale parity', () => {

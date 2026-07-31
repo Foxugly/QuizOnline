@@ -1,4 +1,5 @@
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
+import {pageUiText} from '../i18n/catalog-registry';
 
 /** Content-block type discriminator shared by every LMS lesson block. */
 export type BlockType =
@@ -35,70 +36,5 @@ export interface LearningCommonUiText {
 export function getLearningCommonUiText(
   lang: LanguageEnumDto | string | null | undefined,
 ): LearningCommonUiText {
-  switch (lang) {
-    case LanguageEnumDto.Fr:
-    case 'fr':
-      return {
-        blockTypeLabels: {
-          rich_text: 'Texte enrichi', image: 'Image', video: 'Vidéo', file: 'Fichier',
-          quiz: 'Quiz', callout: 'Encadré', code: 'Code', embed: 'iframe',
-        },
-        enrollmentStatusLabels: {
-          pending: 'En attente', active: 'Actif', completed: 'Terminé', cancelled: 'Annulé',
-        },
-        levelLabels: {beginner: 'Débutant', intermediate: 'Intermédiaire', advanced: 'Avancé'},
-        videoProviderLabels: {youtube: 'YouTube', vimeo: 'Vimeo', upload: 'Hébergé localement'},
-      };
-    case LanguageEnumDto.Nl:
-    case 'nl':
-      return {
-        blockTypeLabels: {
-          rich_text: 'Opgemaakte tekst', image: 'Afbeelding', video: 'Video', file: 'Bestand',
-          quiz: 'Quiz', callout: 'Aandachtsblok', code: 'Code', embed: 'iframe',
-        },
-        enrollmentStatusLabels: {
-          pending: 'In afwachting', active: 'Actief', completed: 'Voltooid', cancelled: 'Geannuleerd',
-        },
-        levelLabels: {beginner: 'Beginner', intermediate: 'Gevorderd', advanced: 'Geavanceerd'},
-        videoProviderLabels: {youtube: 'YouTube', vimeo: 'Vimeo', upload: 'Lokaal gehost'},
-      };
-    case LanguageEnumDto.It:
-    case 'it':
-      return {
-        blockTypeLabels: {
-          rich_text: 'Testo formattato', image: 'Immagine', video: 'Video', file: 'File',
-          quiz: 'Quiz', callout: 'Riquadro', code: 'Codice', embed: 'iframe',
-        },
-        enrollmentStatusLabels: {
-          pending: 'In attesa', active: 'Attivo', completed: 'Completato', cancelled: 'Annullato',
-        },
-        levelLabels: {beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzato'},
-        videoProviderLabels: {youtube: 'YouTube', vimeo: 'Vimeo', upload: 'Self-hosted'},
-      };
-    case LanguageEnumDto.Es:
-    case 'es':
-      return {
-        blockTypeLabels: {
-          rich_text: 'Texto enriquecido', image: 'Imagen', video: 'Vídeo', file: 'Archivo',
-          quiz: 'Cuestionario', callout: 'Recuadro', code: 'Código', embed: 'iframe',
-        },
-        enrollmentStatusLabels: {
-          pending: 'Pendiente', active: 'Activo', completed: 'Completado', cancelled: 'Cancelado',
-        },
-        levelLabels: {beginner: 'Principiante', intermediate: 'Intermedio', advanced: 'Avanzado'},
-        videoProviderLabels: {youtube: 'YouTube', vimeo: 'Vimeo', upload: 'Alojado localmente'},
-      };
-    default:
-      return {
-        blockTypeLabels: {
-          rich_text: 'Rich text', image: 'Image', video: 'Video', file: 'File',
-          quiz: 'Quiz', callout: 'Callout', code: 'Code', embed: 'iframe',
-        },
-        enrollmentStatusLabels: {
-          pending: 'Pending', active: 'Active', completed: 'Completed', cancelled: 'Cancelled',
-        },
-        levelLabels: {beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced'},
-        videoProviderLabels: {youtube: 'YouTube', vimeo: 'Vimeo', upload: 'Self-hosted'},
-      };
-  }
+  return pageUiText<LearningCommonUiText>('learningCommon', lang);
 }
