@@ -197,3 +197,12 @@ export type PreferencesUiText = {
   deleteSuccess: string;
   deleteError: string;
 };
+
+/**
+ * Message affiche quand un chunk differe a disparu du serveur — typiquement
+ * un onglet reste ouvert pendant un deploiement. Voir StaleChunkService.
+ */
+export type AppUpdateUiText = {
+  title: string;
+  detail: string;
+};

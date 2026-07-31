@@ -9,6 +9,7 @@ import type {
   ResetPasswordUiText,
 } from './types/auth';
 import type {
+  AppUpdateUiText,
   FooterUiText,
   HomeUiText,
   NotificationsUiText,
@@ -34,6 +35,7 @@ export type UiText = {
   status: StatusUiText;
   access: AccessUiText;
   a11y: A11yUiText;
+  appUpdate: AppUpdateUiText;
 };
 
 /** Shared state vocabulary surfaced by ``<app-status-badge>`` across every

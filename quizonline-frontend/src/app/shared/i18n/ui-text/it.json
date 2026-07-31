@@ -461,7 +461,10 @@
       "bulkApprove": "Approva la selezione",
       "bulkReject": "Rifiuta la selezione",
       "bulkCancel": "Annulla",
-      "bulkSelectedCount": { "one": "{n} selezionata", "other": "{n} selezionate" },
+      "bulkSelectedCount": {
+        "one": "{n} selezionata",
+        "other": "{n} selezionate"
+      },
       "bulkRejectHeader": "Rifiuta più richieste",
       "bulkRejectMessage": "Il motivo qui sotto sarà salvato per le {n} richieste rifiutate.",
       "bulkActionFailed": "Una o più azioni non sono riuscite.",
@@ -485,5 +488,9 @@
   },
   "a11y": {
     "skipToContent": "Vai al contenuto principale"
+  },
+  "appUpdate": {
+    "title": "Nuova versione disponibile",
+    "detail": "L'app è stata aggiornata mentre eri qui. Ricarica la pagina per continuare."
   }
 }

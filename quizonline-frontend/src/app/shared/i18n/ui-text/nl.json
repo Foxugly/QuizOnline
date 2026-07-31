@@ -461,7 +461,10 @@
       "bulkApprove": "Selectie goedkeuren",
       "bulkReject": "Selectie afwijzen",
       "bulkCancel": "Annuleren",
-      "bulkSelectedCount": { "one": "{n} geselecteerd", "other": "{n} geselecteerd" },
+      "bulkSelectedCount": {
+        "one": "{n} geselecteerd",
+        "other": "{n} geselecteerd"
+      },
       "bulkRejectHeader": "Meerdere aanvragen afwijzen",
       "bulkRejectMessage": "De onderstaande reden wordt voor de {n} afgewezen aanvragen opgeslagen.",
       "bulkActionFailed": "Een of meer acties zijn mislukt.",
@@ -485,5 +488,9 @@
   },
   "a11y": {
     "skipToContent": "Naar hoofdinhoud"
+  },
+  "appUpdate": {
+    "title": "Nieuwe versie beschikbaar",
+    "detail": "De app is bijgewerkt terwijl u bezig was. Herlaad de pagina om verder te gaan."
   }
 }
