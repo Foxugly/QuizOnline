@@ -16,13 +16,25 @@ WorkingDirectory=/var/www/django_websites/QuizOnline/quizonline-server
 EnvironmentFile=/run/quizonline/.env
 Environment="PYTHONUNBUFFERED=1"
 
+# --pool=solo: the worker runs tasks itself, no child process. Tasks are rare (beat: 5 min to
+# daily) plus on-demand certificate PDFs and email batches, run one after the other: two prefork
+# children cost ~200 MB on a RAM-bound box (OPERATIONS.md §3.22).
 ExecStart=/var/www/django_websites/QuizOnline/quizonline-server/.venv/bin/celery \
     -A config worker \
     -n quizonline@%H \
     -Q quizonline \
     --loglevel=info \
-    --concurrency=2
+    --pool=solo
 
+# Hardening (OPERATIONS.md §3.22): no privilege escalation, private /tmp, read-only
+# system (/usr, /boot, /etc). Never ProtectSystem=strict: /var/www (media, beat schedule)
+# must stay writable.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
 Restart=always
 RestartSec=5
 LimitNOFILE=65536
