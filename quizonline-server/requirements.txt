@@ -1,6 +1,6 @@
-Django==6.1.1
+Django==6.1.2
 celery[redis]==5.6.3
-coverage==7.15.4
+coverage==7.16.2
 django-cors-headers==4.9.0
 django-environ==0.14.0
 django-extensions==4.1
@@ -8,7 +8,7 @@ django-filter==25.2
 django-import-export==4.4.1
 django-parler==2.4
 django-schema-viewer==0.5.3
-djangorestframework==3.18.0
+djangorestframework==3.18.3
 djangorestframework-simplejwt==5.5.1
 drf-nested-routers==0.95.3
 drf-spectacular==0.30.0
@@ -16,9 +16,9 @@ PyYAML==6.0.3
 pytest==9.1.1
 pytest-django==4.14.0
 requests==2.34.2
-ruff==0.16.5
+ruff==0.16.10
 reportlab
-sentry-sdk[django,celery]==2.68.1
+sentry-sdk[django,celery]==2.71.0
 nh3==0.3.7
 user-agents==2.2.0
 geoip2==4.8.1
