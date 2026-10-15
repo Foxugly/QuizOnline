@@ -70,6 +70,7 @@ import {getCourseEditUiText} from '../src/app/pages/course-edit/course-edit.i18n
 import {getCourseListUiText} from '../src/app/pages/course-list/course-list.i18n';
 import {getCourseEditInfoTabUiText} from '../src/app/pages/course-edit/tabs/info-tab/info-tab.i18n';
 import {getCourseEditStructureTabUiText} from '../src/app/pages/course-edit/tabs/structure-tab/structure-tab.i18n';
+import {getCourseOutlineUiText} from '../src/app/pages/course-edit/tabs/content-tab/course-outline/course-outline.i18n';
 import {getCourseEditAnalyticsTabUiText} from '../src/app/pages/course-edit/tabs/analytics-tab/analytics-tab.i18n';
 import {getCourseInviteAcceptUiText} from '../src/app/pages/course-invite-accept/course-invite-accept.i18n';
 import {getMyInvitationsUiText} from '../src/app/pages/my-invitations/my-invitations.i18n';
@@ -126,6 +127,7 @@ const ENTRIES: Array<{name: string; get: Getter}> = [
   {name: 'pages/course-list', get: getCourseListUiText as Getter},
   {name: 'pages/course-edit/info-tab', get: getCourseEditInfoTabUiText as Getter},
   {name: 'pages/course-edit/structure-tab', get: getCourseEditStructureTabUiText as Getter},
+  {name: 'pages/course-edit/course-outline', get: getCourseOutlineUiText as Getter},
   {name: 'pages/course-edit/analytics-tab', get: getCourseEditAnalyticsTabUiText as Getter},
   {name: 'pages/course-invite-accept', get: getCourseInviteAcceptUiText as Getter},
   {name: 'pages/my-invitations', get: getMyInvitationsUiText as Getter},

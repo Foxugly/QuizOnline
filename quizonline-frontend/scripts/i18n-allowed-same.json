@@ -218,5 +218,7 @@
   "pages/admin/connections:fields.latitude",
   "pages/admin/connections:fields.longitude",
   "pages/admin/connections:no",
-  "pages/admin/connections:emptyValue"
+  "pages/admin/connections:emptyValue",
+  "pages/course-edit/course-outline:addSection",
+  "pages/course-edit/course-outline:menuAria"
 ]

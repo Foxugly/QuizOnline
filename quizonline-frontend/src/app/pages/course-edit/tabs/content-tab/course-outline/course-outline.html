@@ -1,0 +1,143 @@
+<nav class="outline" [attr.aria-busy]="busy()">
+  @for (section of sections(); track section.id) {
+    <div class="outline-section">
+      <div class="outline-row outline-row--section">
+        @if (isRenaming('section', section.id)) {
+          <input
+            pInputText
+            class="outline-input"
+            [attr.data-testid]="'rename-section-' + section.id + '-input'"
+            [value]="draft()"
+            (input)="draft.set($any($event.target).value)"
+            (keydown.enter)="$event.preventDefault(); submitRename()"
+            (keydown.escape)="cancelInline()" />
+        } @else {
+          <span
+            class="outline-row__title"
+            [attr.data-testid]="'rename-section-' + section.id"
+            (dblclick)="startRename('section', section.id, section.translations)">
+            {{ titleOf(section, 'section') }}
+          </span>
+        }
+        <app-status-badge
+          [kind]="section.is_published ? 'published' : 'draft'"
+          [label]="section.is_published ? shellUi().status.published : shellUi().status.draft" />
+        <p-button
+          icon="pi pi-ellipsis-h"
+          severity="secondary"
+          [text]="true"
+          size="small"
+          [pTooltip]="ui().menuAria"
+          tooltipPosition="top"
+          [ariaLabel]="ui().menuAria"
+          [attr.data-testid]="'menu-section-' + section.id"
+          (onClick)="openMenu($event, 'section', section)" />
+      </div>
+      @if (missing(section.translations); as langs) {
+        <small class="outline-row__missing">{{ ui().missingLanguages }} {{ langs }}</small>
+      }
+
+      <ul class="outline-lessons">
+        @for (lesson of lessonsOf(section); track lesson.id) {
+          <li
+            class="outline-row outline-row--lesson"
+            [class.is-selected]="lesson.id === selectedLessonId()"
+            [attr.aria-current]="lesson.id === selectedLessonId() ? 'true' : null"
+            [attr.data-testid]="'lesson-' + lesson.id"
+            (click)="select.emit(lesson.id)">
+            <div class="outline-row__main">
+              @if (isRenaming('lesson', lesson.id)) {
+                <input
+                  pInputText
+                  class="outline-input"
+                  [attr.data-testid]="'rename-lesson-' + lesson.id + '-input'"
+                  [value]="draft()"
+                  (click)="$event.stopPropagation()"
+                  (input)="draft.set($any($event.target).value)"
+                  (keydown.enter)="$event.preventDefault(); submitRename()"
+            (keydown.escape)="cancelInline()" />
+              } @else {
+                <button
+                  type="button"
+                  class="outline-row__title outline-row__select"
+                  [attr.data-testid]="'rename-lesson-' + lesson.id"
+                  (dblclick)="startRename('lesson', lesson.id, lesson.translations)">
+                  {{ titleOf(lesson, 'lesson') }}
+                </button>
+              }
+              @if (missing(lesson.translations); as langs) {
+                <small class="outline-row__missing">{{ ui().missingLanguages }} {{ langs }}</small>
+              }
+            </div>
+            <app-status-badge
+              [kind]="lesson.is_published ? 'published' : 'draft'"
+              [label]="lesson.is_published ? shellUi().status.published : shellUi().status.draft" />
+            <p-button
+              icon="pi pi-ellipsis-h"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              [pTooltip]="ui().menuAria"
+              tooltipPosition="top"
+              [ariaLabel]="ui().menuAria"
+              [attr.data-testid]="'menu-lesson-' + lesson.id"
+              (onClick)="openMenu($event, 'lesson', lesson)" />
+          </li>
+        }
+      </ul>
+
+      @if (addingLessonIn() === section.id) {
+        <input
+          pInputText
+          class="outline-input outline-add"
+          [attr.data-testid]="'add-lesson-' + section.id + '-input'"
+          [disabled]="busy()"
+          [value]="draft()"
+          [placeholder]="ui().newLessonPlaceholder"
+          (input)="draft.set($any($event.target).value)"
+          (keydown.enter)="$event.preventDefault(); submitLesson(section.id)"
+          (keydown.escape)="cancelInline()" />
+      } @else {
+        <button
+          pButton
+          type="button"
+          class="outline-add"
+          icon="pi pi-plus"
+          severity="secondary"
+          [text]="true"
+          size="small"
+          [label]="ui().addLesson"
+          [attr.data-testid]="'add-lesson-' + section.id + '-open'"
+          (click)="openAddLesson(section.id)"></button>
+      }
+    </div>
+  }
+
+  @if (addingSection()) {
+    <input
+      pInputText
+      class="outline-input outline-add"
+      data-testid="add-section-input"
+      [disabled]="busy()"
+      [value]="draft()"
+      [placeholder]="ui().newSectionPlaceholder"
+      (input)="draft.set($any($event.target).value)"
+      (keydown.enter)="$event.preventDefault(); submitSection()"
+      (keydown.escape)="cancelInline()" />
+  } @else {
+    <button
+      pButton
+      type="button"
+      class="outline-add"
+      icon="pi pi-plus"
+      severity="secondary"
+      [text]="true"
+      size="small"
+      [label]="ui().addSection"
+      data-testid="add-section-open"
+      (click)="openAddSection()"></button>
+  }
+</nav>
+
+<p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
+<p-confirmdialog />

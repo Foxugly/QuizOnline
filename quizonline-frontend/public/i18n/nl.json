@@ -2299,6 +2299,28 @@
       "sectionAria": "Sectie",
       "lessonAria": "Les"
     },
+    "courseOutline": {
+      "addLesson": "Les",
+      "addSection": "Sectie",
+      "newLessonPlaceholder": "Titel van de les, Enter om te maken",
+      "newSectionPlaceholder": "Titel van de sectie, Enter om te maken",
+      "missingLanguages": "Ontbreekt:",
+      "menuAria": "Acties",
+      "menuPublish": "Publiceren",
+      "menuUnpublish": "Depubliceren",
+      "menuPreviewOn": "Gratis voorbeeld inschakelen",
+      "menuPreviewOff": "Gratis voorbeeld uitschakelen",
+      "menuTranslations": "Vertalingen…",
+      "menuDelete": "Verwijderen",
+      "confirmDeleteSection": "Sectie \"{title}\" verwijderen? Alle lessen en hun inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteLesson": "Les \"{title}\" verwijderen? Alle inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteHeader": "Verwijderen bevestigen",
+      "confirmAccept": "Verwijderen",
+      "confirmReject": "Annuleren",
+      "actionFailedToast": "Actie mislukt.",
+      "untitledSection": "Sectie zonder titel",
+      "untitledLesson": "Les zonder titel"
+    },
     "infoTab": {
       "heading": "Cursusgegevens",
       "fields": {

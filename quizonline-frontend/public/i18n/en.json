@@ -2299,6 +2299,28 @@
       "sectionAria": "Section",
       "lessonAria": "Lesson"
     },
+    "courseOutline": {
+      "addLesson": "Lesson",
+      "addSection": "Section",
+      "newLessonPlaceholder": "Lesson title, Enter to create",
+      "newSectionPlaceholder": "Section title, Enter to create",
+      "missingLanguages": "Missing:",
+      "menuAria": "Actions",
+      "menuPublish": "Publish",
+      "menuUnpublish": "Unpublish",
+      "menuPreviewOn": "Enable free preview",
+      "menuPreviewOff": "Disable free preview",
+      "menuTranslations": "Translations…",
+      "menuDelete": "Delete",
+      "confirmDeleteSection": "Delete section \"{title}\"? All lessons and their content blocks will be permanently deleted.",
+      "confirmDeleteLesson": "Delete lesson \"{title}\"? All content blocks will be permanently deleted.",
+      "confirmDeleteHeader": "Confirm deletion",
+      "confirmAccept": "Delete",
+      "confirmReject": "Cancel",
+      "actionFailedToast": "Action failed.",
+      "untitledSection": "Untitled section",
+      "untitledLesson": "Untitled lesson"
+    },
     "infoTab": {
       "heading": "Course details",
       "fields": {

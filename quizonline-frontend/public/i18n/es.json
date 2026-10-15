@@ -2299,6 +2299,28 @@
       "sectionAria": "Sección",
       "lessonAria": "Lección"
     },
+    "courseOutline": {
+      "addLesson": "Lección",
+      "addSection": "Sección",
+      "newLessonPlaceholder": "Título de la lección, Intro para crear",
+      "newSectionPlaceholder": "Título de la sección, Intro para crear",
+      "missingLanguages": "Falta:",
+      "menuAria": "Acciones",
+      "menuPublish": "Publicar",
+      "menuUnpublish": "Despublicar",
+      "menuPreviewOn": "Activar vista previa gratuita",
+      "menuPreviewOff": "Desactivar vista previa gratuita",
+      "menuTranslations": "Traducciones…",
+      "menuDelete": "Eliminar",
+      "confirmDeleteSection": "¿Eliminar la sección «{title}»? Todas las lecciones y sus bloques de contenido se eliminarán de forma permanente.",
+      "confirmDeleteLesson": "¿Eliminar la lección «{title}»? Todos los bloques de contenido se eliminarán de forma permanente.",
+      "confirmDeleteHeader": "Confirmar eliminación",
+      "confirmAccept": "Eliminar",
+      "confirmReject": "Cancelar",
+      "actionFailedToast": "La acción ha fallado.",
+      "untitledSection": "Sección sin título",
+      "untitledLesson": "Lección sin título"
+    },
     "infoTab": {
       "heading": "Detalles del curso",
       "fields": {
