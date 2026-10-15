@@ -118,7 +118,7 @@ Spec + plan:
 - App user `django`, group `www-data`; gunicorn binds 127.0.0.1:8000
 - Reverse proxy: **nginx** (the `deploy/apache.conf` template is kept for parity but unused)
 - **CI → Deploy pipeline** (GitHub Actions on push to `main`): assumes the `quizonline-deploy` IAM role via OIDC (no long-lived SSH key in GH Secrets), builds the Angular bundle on the runner, uploads it to S3 (`foxugly-deploy/builds/quizonline/<sha>.tar.gz`), then fires `aws ssm send-command` against the EC2 instance. On the box, `deploy/ssm-deploy.sh` runs `redeploy.sh --skip-frontend` (backend update + service restart), atomically swaps the bundle, reloads nginx, and keeps the previous bundle at `browser.prev/` for a one-step rollback
-- systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`, `quizonline-backup.service`+`.timer`
+- systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`. Scheduled DB backup is fleet-wide (`OPERATIONS.md §3.23`, weekly to S3); `deploy/backup-db.sh` stays for manual pre-migration dumps
 - Frontend bundle served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
 - **Full operator runbook** (day-to-day deploy, manual deploy, 3-level rollback, AWS resources inventory, bootstrap a fresh EC2): **`deploy/README.md`**
 - **Per-credential rotation procedures + EBS encryption check**: **`deploy/SECRETS-ROTATION.md`**
