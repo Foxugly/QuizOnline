@@ -274,3 +274,8 @@ class LessonDetailSerializer(serializers.ModelSerializer):
                 setattr(instance, k, v)
             instance.save()
         return instance
+
+
+class LessonMoveSerializer(serializers.Serializer):
+    section = serializers.IntegerField(min_value=1)
+    position = serializers.IntegerField(min_value=0)

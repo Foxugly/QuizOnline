@@ -3103,6 +3103,39 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/lesson/{id}/move/:
+    post:
+      operationId: lesson_move_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lesson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonMoveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonMoveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonMoveRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonMoveResult'
+          description: ''
   /api/v1/lesson/{id}/publish/:
     post:
       operationId: lesson_publish_create
@@ -8640,6 +8673,31 @@ components:
       required:
       - section
       - translations
+    LessonMoveRequest:
+      type: object
+      properties:
+        section:
+          type: integer
+          minimum: 1
+        position:
+          type: integer
+          minimum: 0
+      required:
+      - position
+      - section
+    LessonMoveResult:
+      type: object
+      properties:
+        lesson:
+          $ref: '#/components/schemas/LessonSummary'
+        source_section:
+          $ref: '#/components/schemas/Section'
+        target_section:
+          $ref: '#/components/schemas/Section'
+      required:
+      - lesson
+      - source_section
+      - target_section
     LessonQuiz:
       type: object
       properties:

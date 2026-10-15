@@ -21,6 +21,10 @@ import { LessonDetailDto } from '../model/lesson-detail';
 // @ts-ignore
 import { LessonDetailRequestDto } from '../model/lesson-detail-request';
 // @ts-ignore
+import { LessonMoveRequestDto } from '../model/lesson-move-request';
+// @ts-ignore
+import { LessonMoveResultDto } from '../model/lesson-move-result';
+// @ts-ignore
 import { PaginatedLessonDetailListDto } from '../model/paginated-lesson-detail-list';
 // @ts-ignore
 import { PatchedLessonDetailRequestDto } from '../model/patched-lesson-detail-request';
@@ -47,6 +51,12 @@ export interface LessonDestroyRequestParams {
 export interface LessonListRequestParams {
     /** A page number within the paginated result set. */
     page?: number;
+}
+
+export interface LessonMoveCreateRequestParams {
+    /** A unique integer value identifying this lesson. */
+    id: number;
+    lessonMoveRequestDto: LessonMoveRequestDto;
 }
 
 export interface LessonNoteRetrieveRequestParams {
@@ -349,6 +359,81 @@ export class LessonApi extends BaseService {
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint post /api/v1/lesson/{id}/move/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public lessonMoveCreate(requestParameters: LessonMoveCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LessonMoveResultDto>;
+    public lessonMoveCreate(requestParameters: LessonMoveCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LessonMoveResultDto>>;
+    public lessonMoveCreate(requestParameters: LessonMoveCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LessonMoveResultDto>>;
+    public lessonMoveCreate(requestParameters: LessonMoveCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const id = requestParameters?.id;
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling lessonMoveCreate.');
+        }
+        const lessonMoveRequestDto = requestParameters?.lessonMoveRequestDto;
+        if (lessonMoveRequestDto === null || lessonMoveRequestDto === undefined) {
+            throw new Error('Required parameter lessonMoveRequestDto was null or undefined when calling lessonMoveCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/lesson/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/move/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<LessonMoveResultDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: lessonMoveRequestDto,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

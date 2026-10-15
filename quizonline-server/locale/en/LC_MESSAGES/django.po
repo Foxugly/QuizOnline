@@ -557,3 +557,11 @@ msgstr ""
 #: core/services.py
 msgid "This position or identifier is already used in this course. Reorder instead."
 msgstr ""
+
+#: lesson/services.py
+msgid "A lesson can only move within its course."
+msgstr ""
+
+#: lesson/views.py
+msgid "Unknown section."
+msgstr ""
