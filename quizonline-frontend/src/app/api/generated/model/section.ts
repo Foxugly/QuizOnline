@@ -7,7 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { LessonDetailDto } from './lesson-detail';
+import { LessonSummaryDto } from './lesson-summary';
 
 
 export interface SectionDto { 
@@ -17,6 +17,6 @@ export interface SectionDto {
     is_published?: boolean;
     translations: { [key: string]: { [key: string]: string; }; };
     readonly available_lang_codes: Array<string>;
-    readonly lessons: Array<LessonDetailDto>;
+    readonly lessons: Array<LessonSummaryDto>;
 }
 

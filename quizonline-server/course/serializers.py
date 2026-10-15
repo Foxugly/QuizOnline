@@ -1,9 +1,13 @@
+from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.serializers import TranslationsField, filter_allowed_lang_codes
+from core.services import UNIQUE_POSITION_ERROR, next_order
 from language.models import Language
+from lesson.serializers import LessonSummarySerializer
 
 from .models import Course, CourseAuditLog, Section
 
@@ -23,32 +27,56 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = ["id", "course", "order", "is_published", "translations", "available_lang_codes", "lessons"]
         read_only_fields = ["id", "lessons"]
+        # Ignored on create: the server appends (``create``). Moves go
+        # through the ``reorder`` action.
+        extra_kwargs = {"order": {"required": False}}
+        # No auto-generated UniqueTogetherValidator for (course, order):
+        # it rejected a taken position with a raw "course, order must make
+        # a unique set" before ``create`` could append. The DB constraint
+        # still holds.
+        validators = []
 
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_available_lang_codes(self, obj) -> list[str]:
         return sorted(obj.course.domain.allowed_languages.values_list("code", flat=True))
 
-    @extend_schema_field({"type": "array", "items": {"$ref": "#/components/schemas/LessonDetail"}})
+    @extend_schema_field(LessonSummarySerializer(many=True))
     def get_lessons(self, obj):
-        from lesson.serializers import LessonDetailSerializer
+        # Structure only — no blocks, neighbours or position: the course
+        # tree is reloaded after every structure edit, and nesting the
+        # full ``LessonDetailSerializer`` made each reload ship every
+        # block of every lesson. ``/lesson/{id}/`` keeps the full shape.
         lessons = obj.lessons.all()
         if self.context.get("_learner_view"):
             # Same rule as ``Lesson.objects.visible_to`` for a learner:
             # published or preview. Filtered in Python so the retrieve
             # prefetch chain is reused.
             lessons = [lesson for lesson in lessons if lesson.is_published or lesson.is_preview]
-        return LessonDetailSerializer(lessons, many=True, context=self.context).data
+        return LessonSummarySerializer(lessons, many=True, context=self.context).data
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
-        instance = Section.objects.create(**validated_data)
-        return self._apply(instance, tr)
+        course = validated_data["course"]
+        with transaction.atomic():
+            # Lock the parent so two concurrent creates cannot both take
+            # the same ``order`` (UNIQUE(course, order)).
+            Course.objects.select_for_update().filter(pk=course.pk).first()
+            validated_data["order"] = next_order(Section, Q(course=course))
+            instance = Section.objects.create(**validated_data)
+            return self._apply(instance, tr)
 
     def update(self, instance, validated_data):
         tr = validated_data.pop("translations", None)
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        instance.save()
+        try:
+            # Savepoint: an explicit ``order`` / ``slug`` that is already
+            # taken hits the DB constraint (the auto UniqueTogetherValidator
+            # is off, see Meta) — answer 400, not 500.
+            with transaction.atomic():
+                instance.save()
+        except IntegrityError as exc:
+            raise serializers.ValidationError(UNIQUE_POSITION_ERROR) from exc
         if tr is not None:
             self._apply(instance, tr)
         return instance

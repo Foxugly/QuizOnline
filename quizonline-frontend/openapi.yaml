@@ -8517,7 +8517,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_preview:
           type: boolean
         is_published:
@@ -8602,7 +8601,6 @@ components:
       - prev_lesson
       - section
       - section_title
-      - slug
       - translations
     LessonDetailRequest:
       type: object
@@ -8619,7 +8617,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_preview:
           type: boolean
         is_published:
@@ -8642,7 +8639,6 @@ components:
               title: Hello
       required:
       - section
-      - slug
       - translations
     LessonQuiz:
       type: object
@@ -8705,6 +8701,56 @@ components:
           type: boolean
       required:
       - quiz_template
+    LessonSummary:
+      type: object
+      description: |-
+        Read-only structure row nested in the course / section payloads:
+        what the outline and the structure editor render, nothing more.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        section:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        order:
+          type: integer
+          readOnly: true
+          default: 0
+        is_preview:
+          type: boolean
+          readOnly: true
+        is_published:
+          type: boolean
+          readOnly: true
+        estimated_duration:
+          type: integer
+          readOnly: true
+        translations:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            fr:
+              title: Bonjour
+            en:
+              title: Hello
+          readOnly: true
+      required:
+      - estimated_duration
+      - id
+      - is_preview
+      - is_published
+      - order
+      - section
+      - slug
+      - translations
     LevelEnum:
       enum:
       - beginner
@@ -9823,7 +9869,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_preview:
           type: boolean
         is_published:
@@ -10016,7 +10061,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_published:
           type: boolean
         translations:
@@ -11464,7 +11508,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_published:
           type: boolean
         translations:
@@ -11486,7 +11529,7 @@ components:
         lessons:
           type: array
           items:
-            $ref: '#/components/schemas/LessonDetail'
+            $ref: '#/components/schemas/LessonSummary'
           readOnly: true
       required:
       - available_lang_codes
@@ -11504,7 +11547,6 @@ components:
           maximum: 9223372036854775807
           minimum: 0
           format: int64
-          default: 0
         is_published:
           type: boolean
         translations:

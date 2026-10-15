@@ -2261,6 +2261,7 @@
         "descriptionField": "Descripción",
         "isPublishedField": "Publicada",
         "submitButton": "Guardar",
+        "submitAndAddLessonButton": "Crear y añadir una lección",
         "cancelButton": "Cancelar",
         "translateButton": "Traducir desde esta pestaña",
         "translationFailed": "La traducción automática ha fallado."
@@ -2272,6 +2273,7 @@
         "isPreviewField": "Vista previa gratuita",
         "isPublishedField": "Publicada",
         "submitButton": "Guardar",
+        "submitAndEditButton": "Crear y editar el contenido",
         "cancelButton": "Cancelar",
         "translateButton": "Traducir desde esta pestaña",
         "translationFailed": "La traducción automática ha fallado."

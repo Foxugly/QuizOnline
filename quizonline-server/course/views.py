@@ -12,7 +12,6 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.response import Response
 
-from block.models import Block
 from config.cache_mixins import ShortReadCacheMixin
 from lesson.models import Lesson
 
@@ -101,12 +100,11 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
                 ).distinct()
             else:
                 qs = qs.none()
-        # Retrieve renders the full section -> lesson -> block tree
-        # through ``CourseDetailSerializer`` (which nests
-        # ``LessonDetailSerializer`` for every lesson). Without the
-        # nested Prefetch chain a single retrieve fanned out to
-        # ~300-500 queries on a 5-section / 25-lesson course.
-        if self.action == "retrieve":
+        # Retrieve / by-slug render the section -> lesson structure through
+        # ``CourseDetailSerializer`` (one ``LessonSummarySerializer`` row
+        # per lesson, no blocks). Prefetch it so the query count does not
+        # grow with the number of sections and lessons.
+        if self.action in ("retrieve", "by_slug"):
             qs = qs.prefetch_related(
                 "domain__allowed_languages",
                 Prefetch(
@@ -116,15 +114,7 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
                         Prefetch(
                             "lessons",
                             queryset=Lesson.objects.order_by("order")
-                                .prefetch_related(
-                                    "translations",
-                                    Prefetch(
-                                        "blocks",
-                                        queryset=Block.objects
-                                            .select_related("quiz_template")
-                                            .prefetch_related("translations"),
-                                    ),
-                                ),
+                                .prefetch_related("translations"),
                         ),
                     ),
                 ),
@@ -375,10 +365,10 @@ class SectionViewSet(viewsets.ModelViewSet):
     serializer_class = SectionSerializer
 
     def get_queryset(self):
-        # The section serializer renders the whole lessons -> blocks tree
-        # (``SectionSerializer.get_lessons`` -> ``LessonDetailSerializer`` ->
-        # ``BlockSerializer``). Without this prefetch chain a section LIST
-        # fanned out to an N+1 storm. Output is unchanged — query count only.
+        # The section serializer nests a structure-only row per lesson
+        # (``SectionSerializer.get_lessons`` -> ``LessonSummarySerializer``,
+        # no blocks). Prefetch lessons + their translations so a section
+        # LIST stays a constant number of queries.
         return (
             Section.objects.visible_to(self.request.user)
             .select_related("course__domain")
@@ -387,15 +377,7 @@ class SectionViewSet(viewsets.ModelViewSet):
                 "course__domain__allowed_languages",
                 Prefetch(
                     "lessons",
-                    queryset=Lesson.objects.order_by("order").prefetch_related(
-                        "translations",
-                        Prefetch(
-                            "blocks",
-                            queryset=Block.objects
-                                .select_related("quiz_template")
-                                .prefetch_related("translations"),
-                        ),
-                    ),
+                    queryset=Lesson.objects.order_by("order").prefetch_related("translations"),
                 ),
             )
         )

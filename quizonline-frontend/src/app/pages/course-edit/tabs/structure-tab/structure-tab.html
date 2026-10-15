@@ -269,6 +269,17 @@
       [disabled]="sectionDialog().submitting"
       (onClick)="closeSectionDialog()">
     </p-button>
+    @if (sectionDialog().id === null) {
+      <p-button
+        type="button"
+        icon="pi pi-plus"
+        [label]="ui().sectionDialog.submitAndAddLessonButton"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="sectionDialog().submitting"
+        (onClick)="submitSectionDialog('addLesson')">
+      </p-button>
+    }
     <p-button
       type="button"
       icon="pi pi-check"
@@ -370,6 +381,17 @@
       [disabled]="lessonDialog().submitting"
       (onClick)="closeLessonDialog()">
     </p-button>
+    @if (lessonDialog().id === null) {
+      <p-button
+        type="button"
+        icon="pi pi-pencil"
+        [label]="ui().lessonDialog.submitAndEditButton"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="lessonDialog().submitting"
+        (onClick)="submitLessonDialog('edit')">
+      </p-button>
+    }
     <p-button
       type="button"
       icon="pi pi-check"

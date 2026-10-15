@@ -553,3 +553,7 @@ msgstr ""
 #: enrollment/views.py
 msgid "You must be enrolled in this course to record progress on its lessons."
 msgstr ""
+
+#: core/services.py
+msgid "This position or identifier is already used in this course. Reorder instead."
+msgstr ""
