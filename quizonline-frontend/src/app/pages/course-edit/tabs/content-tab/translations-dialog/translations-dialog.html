@@ -6,64 +6,71 @@
   [style]="{ width: isSection() ? 'min(48rem, 92vw)' : 'min(40rem, 92vw)' }"
   [breakpoints]="{ '768px': '94vw' }"
   (onHide)="close()">
-  <div class="dialog-body">
-    @if (languages().length > 1) {
-      <p-tabs
-        [value]="form().activeLang"
-        (valueChange)="onTabChange($event)"
-        class="tabs tabs--tight">
-        <p-tablist>
-          @for (code of languages(); track code) {
-            <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
-          }
-          <div class="tablist-actions">
-            <p-button
-              data-testid="translations-translate"
-              (onClick)="translateFromActiveTab()"
-              [disabled]="translating() || form().submitting"
-              [loading]="translating()"
-              icon="pi pi-language"
-              [label]="labels().translateButton"
-              severity="info"
-              size="small"
-              type="button">
-            </p-button>
-          </div>
-        </p-tablist>
-        <p-tabpanels class="tabpanels-tight">
-          @for (code of languages(); track code) {
-            <p-tabpanel [value]="code">
-              <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: code, suffix: ' (' + code.toUpperCase() + ')'}" />
-            </p-tabpanel>
-          }
-        </p-tabpanels>
-      </p-tabs>
-    } @else if (languages().length === 1) {
-      <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: languages()[0], suffix: ''}" />
-    }
+  @if (loading()) {
+    <div class="dialog-loading" data-testid="translations-loading" role="status" aria-live="polite">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      <span>{{ ui().loading }}</span>
+    </div>
+  } @else {
+    <div class="dialog-body">
+      @if (languages().length > 1) {
+        <p-tabs
+          [value]="form().activeLang"
+          (valueChange)="onTabChange($event)"
+          class="tabs tabs--tight">
+          <p-tablist>
+            @for (code of languages(); track code) {
+              <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+            }
+            <div class="tablist-actions">
+              <p-button
+                data-testid="translations-translate"
+                (onClick)="translateFromActiveTab()"
+                [disabled]="translating() || form().submitting"
+                [loading]="translating()"
+                icon="pi pi-language"
+                [label]="labels().translateButton"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+            </div>
+          </p-tablist>
+          <p-tabpanels class="tabpanels-tight">
+            @for (code of languages(); track code) {
+              <p-tabpanel [value]="code">
+                <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: code, suffix: ' (' + code.toUpperCase() + ')'}" />
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      } @else if (languages().length === 1) {
+        <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: languages()[0], suffix: ''}" />
+      }
 
-    @if (!isSection()) {
+      @if (!isSection()) {
+        <div class="dialog-field toggle-inline">
+          <span class="toggle-inline__label">{{ ui().lessonDialog.isPreviewField }}</span>
+          <p-toggleswitch
+            data-testid="translations-preview"
+            [ngModel]="form().isPreview"
+            (ngModelChange)="setPreview($event)"
+            [attr.aria-label]="ui().lessonDialog.isPreviewField">
+          </p-toggleswitch>
+        </div>
+      }
+
       <div class="dialog-field toggle-inline">
-        <span class="toggle-inline__label">{{ ui().lessonDialog.isPreviewField }}</span>
+        <span class="toggle-inline__label">{{ labels().isPublishedField }}</span>
         <p-toggleswitch
-          data-testid="translations-preview"
-          [ngModel]="form().isPreview"
-          (ngModelChange)="setPreview($event)"
-          [attr.aria-label]="ui().lessonDialog.isPreviewField">
+          data-testid="translations-published"
+          [ngModel]="form().isPublished"
+          (ngModelChange)="setPublished($event)"
+          [attr.aria-label]="labels().isPublishedField">
         </p-toggleswitch>
       </div>
-    }
-
-    <div class="dialog-field toggle-inline">
-      <span class="toggle-inline__label">{{ labels().isPublishedField }}</span>
-      <p-toggleswitch
-        data-testid="translations-published"
-        [ngModel]="form().isPublished"
-        (ngModelChange)="setPublished($event)"
-        [attr.aria-label]="labels().isPublishedField">
-      </p-toggleswitch>
     </div>
-  </div>
+  }
 
   <ng-template #footer>
     <p-button
@@ -82,7 +89,7 @@
       icon="pi pi-check"
       [label]="labels().submitButton"
       [loading]="form().submitting"
-      [disabled]="form().submitting"
+      [disabled]="form().submitting || loading()"
       (onClick)="submit()">
     </p-button>
   </ng-template>

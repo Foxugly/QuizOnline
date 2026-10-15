@@ -37,4 +37,27 @@ describe('BlockListEditor unsaved changes', () => {
     http.expectOne((r) => r.method === 'POST').flush({id: 9, block_type: 'rich_text'});
     expect(c.hasUnsavedChanges()).toBe(true);
   });
+
+  it('resets edit state when the host changes and deletes abandoned fresh drafts', () => {
+    const f = TestBed.createComponent(BlockListEditor);
+    f.componentRef.setInput('blocks', [{id: 7, block_type: 'rich_text', block_role: 'body', order: 0, translations: {}}] as unknown as ContentBlock[]);
+    f.componentRef.setInput('hostType', 'lesson');
+    f.componentRef.setInput('hostId', 1);
+    f.detectChanges();
+    const c = f.componentInstance;
+    const http = TestBed.inject(HttpTestingController);
+    c['editBlock'](7);
+    c['addBlock']('rich_text');
+    http.expectOne((r) => r.method === 'POST').flush({id: 9, block_type: 'rich_text'});
+    expect(c.hasUnsavedChanges()).toBe(true);
+
+    f.componentRef.setInput('blocks', []);
+    f.componentRef.setInput('hostId', 2);
+    f.detectChanges();
+
+    expect(c.hasUnsavedChanges()).toBe(false);
+    http.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/block/9/')).flush(null);
+    http.expectNone((r) => r.method === 'DELETE' && r.url.endsWith('/block/7/'));
+    http.verify();
+  });
 });

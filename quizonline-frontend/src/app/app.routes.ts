@@ -270,6 +270,9 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/course-edit/course-edit').then((m) => m.CourseEdit),
         canActivate: [authGuard, domainAccessGuard],
         canDeactivate: [unsavedChangesGuard],
+        // Re-run the guard on ``?tab=`` / ``?lesson=`` changes too, so browser
+        // back / forward over unsaved block edits prompts like an in-app click.
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
       {
         path: 'lesson/:id',

@@ -2275,7 +2275,9 @@
       "sectionUpdatedToast": "Sectie bijgewerkt.",
       "lessonUpdatedToast": "Les bijgewerkt.",
       "actionFailedToast": "Actie mislukt.",
-      "titleRequiredToast": "Titel is verplicht in de hoofdtaal."
+      "titleRequiredToast": "Titel is verplicht in de hoofdtaal.",
+      "loading": "Laden…",
+      "loadFailedToast": "Kan de actuele vertalingen niet laden."
     },
     "courseOutline": {
       "addLesson": "Les",

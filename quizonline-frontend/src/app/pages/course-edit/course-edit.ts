@@ -19,7 +19,7 @@ import {StatusBadgeComponent} from '../../shared/components/status-badge/status-
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
-import {confirmDiscardUnsaved, HasUnsavedChanges} from './unsaved-changes.guard';
+import {HasUnsavedChanges} from './unsaved-changes.guard';
 import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
@@ -58,6 +58,7 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     CourseEditAnalyticsTab,
   ],
   providers: [ConfirmationService],
+  host: {'(window:beforeunload)': 'onBeforeUnload($event)'},
   templateUrl: './course-edit.html',
   styleUrl: './course-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,24 +86,37 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
     return this.contentTab()?.hasUnsavedChanges() ?? false;
   }
 
+  /** Reload / tab close with blocks still in edit mode: ask the browser's native prompt. */
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * The unsaved-work prompt lives in ``unsavedChangesGuard``, which the route
+   * re-runs on query-param changes; this handler only navigates.
+   */
   protected onTabChange(tab: string | number | undefined): void {
     if (tab === this.activeTab()) {
       // Echo of our own revert (or of p-tabs' init): nothing to do, and navigating
       // would clear ?lesson=.
       return;
     }
-    if (this.hasUnsavedChanges()
-      && !confirmDiscardUnsaved(this.editorUi().common.unsavedChangesConfirm)) {
-      // p-tabs already switched its own model value on click; the one-way
-      // binding never re-pushes an unchanged activeTab(), so write it back.
-      this.tabs()?.value.set(this.activeTab());
-      return;
-    }
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},
-      queryParamsHandling: 'merge',
-    });
+    void this.router
+      .navigate([], {
+        relativeTo: this.route,
+        queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},
+        queryParamsHandling: 'merge',
+      })
+      .then((ok) => {
+        if (!ok) {
+          // Refused by the guard. p-tabs already switched its own model value on
+          // click; the one-way binding never re-pushes an unchanged activeTab(),
+          // so write it back.
+          this.tabs()?.value.set(this.activeTab());
+        }
+      });
   }
 
   private readonly uiSvc = inject(UiTextService);

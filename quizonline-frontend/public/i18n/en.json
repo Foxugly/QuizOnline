@@ -2275,7 +2275,9 @@
       "sectionUpdatedToast": "Section updated.",
       "lessonUpdatedToast": "Lesson updated.",
       "actionFailedToast": "Action failed.",
-      "titleRequiredToast": "Title is required in the primary language."
+      "titleRequiredToast": "Title is required in the primary language.",
+      "loading": "Loading…",
+      "loadFailedToast": "Could not load the latest translations."
     },
     "courseOutline": {
       "addLesson": "Lesson",

@@ -3,7 +3,7 @@ import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {afterEach, describe, expect, it, beforeEach, vi} from 'vitest';
 import {CourseEditContentTab} from './content-tab';
-import {UserService} from '../../../../services/user/user';
+import {SKIP_UNSAVED_GUARD} from '../../unsaved-changes.guard';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
 
@@ -97,39 +97,26 @@ describe('CourseEditContentTab', () => {
   describe('unsaved work', () => {
     afterEach(() => vi.restoreAllMocks());
 
-    it('does not navigate when the author refuses to leave a lesson with unsaved blocks', () => {
+    it('never prompts itself when switching lessons: the route guard is the only prompt', () => {
       const f = render();
       vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
       const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
       f.componentInstance['onSelect'](6);
-      expect(confirm).toHaveBeenCalled();
-      expect(router.navigate).not.toHaveBeenCalled();
-    });
-
-    it('navigates when the author confirms', () => {
-      const f = render();
-      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
-      f.componentInstance['onSelect'](6);
+      expect(confirm).not.toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledTimes(1);
+      const extras = router.navigate.mock.calls[0][1];
+      expect(extras.queryParams).toEqual({lesson: 6});
+      expect(extras.state).toBeUndefined();
     });
 
-    it('prompts with the localized message, not the English fallback', () => {
-      TestBed.inject(UserService)['_lang'].set('fr' as never);
-      const f = render();
-      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
-      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-      f.componentInstance['onSelect'](6);
-      expect(confirm).toHaveBeenCalledWith('Les modifications non enregistrées seront perdues. Continuer ?');
-    });
-
-    it('never asks when clearing the selection after a confirmed lesson deletion', () => {
+    it('clearing the selection after a confirmed lesson deletion skips the guard', () => {
       const f = render();
       vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
       const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
       f.componentInstance['onSelect'](0);
       expect(confirm).not.toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
+        queryParams: {lesson: null}, state: {[SKIP_UNSAVED_GUARD]: true}}));
     });
   });
 });

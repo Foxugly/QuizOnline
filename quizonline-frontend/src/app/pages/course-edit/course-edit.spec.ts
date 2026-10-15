@@ -17,6 +17,7 @@ describe('CourseEdit unsaved tab guard', () => {
 
   beforeEach(() => {
     router.navigate.mockReset();
+    router.navigate.mockResolvedValue(true);
     TestBed.configureTestingModule({
       imports: [CourseEdit],
       providers: [
@@ -42,34 +43,43 @@ describe('CourseEdit unsaved tab guard', () => {
     const f = TestBed.createComponent(CourseEdit);
     f.detectChanges();
     tabs = f.debugElement.query(By.directive(Tabs)).componentInstance as Tabs;
-    router.navigate.mockReset(); // p-tabs echoes its initial value on init
+    router.navigate.mockClear(); // p-tabs echoes its initial value on init
     return f.componentInstance;
   }
 
-  it('refusing the confirm keeps the URL and restores the tab strip value', () => {
+  it('a tab switch refused by the guard restores the tab strip value', async () => {
     const c = render();
     vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(true);
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    router.navigate.mockResolvedValue(false); // unsavedChangesGuard refused
     tabs.updateValue('analytics'); // what a click does: model write, then valueChange -> onTabChange
-    expect(confirm).toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(router.navigate).toHaveBeenCalledTimes(1);
     expect(tabs.value()).toBe('content');
   });
 
-  it('confirming navigates to the requested tab', () => {
+  it('does not prompt itself on a tab click: the route guard is the only prompt', async () => {
     const c = render();
     vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(true);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    router.navigate.mockResolvedValue(true);
     c['onTabChange']('analytics');
+    await Promise.resolve();
+    expect(confirm).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
       queryParams: {tab: 'analytics', lesson: null}}));
   });
 
-  it('does not ask when nothing is unsaved', () => {
+  it('asks the browser to confirm a reload / close only with unsaved work', () => {
     const c = render();
-    const confirm = vi.spyOn(window, 'confirm');
-    c['onTabChange']('analytics');
-    expect(confirm).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledTimes(1);
+    const dirty = vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(false);
+    const clean = new Event('beforeunload', {cancelable: true});
+    window.dispatchEvent(clean);
+    expect(clean.defaultPrevented).toBe(false);
+
+    dirty.mockReturnValue(true);
+    const unsaved = new Event('beforeunload', {cancelable: true});
+    window.dispatchEvent(unsaved);
+    expect(unsaved.defaultPrevented).toBe(true);
   });
 });

@@ -30,8 +30,9 @@ test('instructor builds a section and a lesson with content, no dialog', async (
   await expect(page).toHaveURL(/\/dashboard$/);
 
   // Create the course (title in the first language tab) -> lands on the content tab.
-  await page.goto('/course/create');
-  await page.locator('input[formControlName="title"]').first().fill('E2E authoring');
+  await page.goto('/course/new');
+  // Unique title: a rerun against the same DB would otherwise collide on the course slug.
+  await page.locator('input[formControlName="title"]').first().fill(`E2E authoring ${Date.now()}`);
   await page.getByRole('button', {name: /créer le cours|create course/i}).click();
   await expect(page).toHaveURL(/\/course\/\d+\/edit\?tab=content/);
 
@@ -51,7 +52,12 @@ test('instructor builds a section and a lesson with content, no dialog', async (
   const lessonPane = page.locator('app-lesson-content-editor');
   await lessonPane.getByRole('button', {name: /texte enrichi|rich text/i}).click();
   await lessonPane.locator('.ql-editor').first().fill('Contenu E2E');
-  await lessonPane.getByRole('button', {name: /^(enregistrer|save)$/i}).first().click();
+  const saved = page.waitForResponse(
+    (r) => /\/api\/v1\/block\/\d+\/$/.test(r.url()) && r.request().method() === 'PATCH',
+  );
+  // The accessible name starts with the PrimeIcons glyph, hence no ``^`` anchor.
+  await lessonPane.getByRole('button', {name: /(enregistrer|save)$/i}).first().click();
+  expect((await saved).ok()).toBe(true);
 
   expect(await page.evaluate(() => (window as DialogWindow).__dialogSeen === true)).toBe(false);
 

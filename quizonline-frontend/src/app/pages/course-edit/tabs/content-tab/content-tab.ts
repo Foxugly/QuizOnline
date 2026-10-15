@@ -20,7 +20,7 @@ import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {LessonContentEditor} from '../../../../shared/learning/lesson-content-editor/lesson-content-editor';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 
-import {confirmDiscardUnsaved} from '../../unsaved-changes.guard';
+import {SKIP_UNSAVED_GUARD} from '../../unsaved-changes.guard';
 import {getCourseEditContentTabUiText} from './content-tab.i18n';
 import {CourseOutline, OutlineRef} from './course-outline/course-outline';
 import {TranslationsDialog} from './translations-dialog/translations-dialog';
@@ -46,7 +46,6 @@ export class CourseEditContentTab {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
-  private readonly editorUiText = inject(UiTextService).editor;
   private readonly lessonEditor = viewChild(LessonContentEditor);
 
   protected readonly ui = inject(UiTextService).localized(getCourseEditContentTabUiText);
@@ -98,14 +97,12 @@ export class CourseEditContentTab {
 
   /**
    * ``0`` clears the selection. It is only emitted after the author confirmed
-   * deleting the selected lesson, so it is never gated by the unsaved-work prompt.
+   * deleting the selected lesson, so it skips the unsaved-work prompt. Any
+   * other switch goes through ``unsavedChangesGuard`` (the route re-runs its
+   * guards on query-param changes), which is the single place that prompts.
    */
   protected onSelect(id: number): void {
-    if (id !== 0 && id !== this.selectedLessonId() && this.hasUnsavedChanges()
-      && !confirmDiscardUnsaved(this.editorUiText().common.unsavedChangesConfirm)) {
-      return;
-    }
-    this.writeLesson(id || null);
+    this.writeLesson(id || null, false, id === 0);
   }
 
   /** The lesson editor renamed its lesson: mirror the course-language title in the outline. */
@@ -132,12 +129,13 @@ export class CourseEditContentTab {
     });
   }
 
-  private writeLesson(id: number | null, replaceUrl = false): void {
+  private writeLesson(id: number | null, replaceUrl = false, skipUnsavedGuard = false): void {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {lesson: id},
       queryParamsHandling: 'merge',
       ...(replaceUrl ? {replaceUrl: true} : {}),
+      ...(skipUnsavedGuard ? {state: {[SKIP_UNSAVED_GUARD]: true}} : {}),
     });
   }
 }

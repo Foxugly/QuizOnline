@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 import {describe, expect, it, beforeEach, vi} from 'vitest';
 import {TranslationsDialog} from './translations-dialog';
 import {CatalogService} from '../../../../../services/catalog/catalog.service';
@@ -16,12 +16,18 @@ const course = {
 } as never as CourseDetailDto;
 
 describe('TranslationsDialog', () => {
-  const catalog = {updateSection: vi.fn(), updateLesson: vi.fn()};
+  const catalog = {updateSection: vi.fn(), updateLesson: vi.fn(), getSection: vi.fn(), getLesson: vi.fn()};
   const translator = {translateBatch: vi.fn()};
   const toast = {add: vi.fn(), addApiError: vi.fn()};
   beforeEach(() => {
-    [catalog.updateSection, catalog.updateLesson, translator.translateBatch, toast.add, toast.addApiError]
+    [catalog.updateSection, catalog.updateLesson, catalog.getSection, catalog.getLesson,
+      translator.translateBatch, toast.add, toast.addApiError]
       .forEach((f) => f.mockReset());
+    // Fresh server state mirrors the outline row unless a test says otherwise.
+    catalog.getSection.mockReturnValue(of({id: 10, is_published: false,
+      translations: {fr: {title: 'S1', description: 'D'}}}));
+    catalog.getLesson.mockReturnValue(of({id: 5, is_published: false, is_preview: false,
+      translations: {fr: {title: 'L'}}}));
     TestBed.configureTestingModule({
       imports: [TranslationsDialog],
       providers: [
@@ -41,11 +47,59 @@ describe('TranslationsDialog', () => {
     return f;
   }
 
-  it('prefills every course language from the row', () => {
+  it('prefills every course language from the freshly loaded section', () => {
     const f = render('section', 10);
+    expect(catalog.getSection).toHaveBeenCalledWith(10);
     const form = f.componentInstance['form']();
     expect(form.translations).toEqual({fr: {title: 'S1', description: 'D'}, en: {title: '', description: ''}});
     expect(form.activeLang).toBe('fr');
+  });
+
+  it('shows a loading state, then builds the form from the fresh lesson, not the stale row', () => {
+    const fresh = new Subject<unknown>();
+    catalog.getLesson.mockReturnValue(fresh);
+    const f = render('lesson', 5);
+    expect(f.componentInstance['loading']()).toBe(true);
+    f.componentInstance['submit']();
+    expect(catalog.updateLesson).not.toHaveBeenCalled();
+
+    // The background machine translation filled EN after the outline row was built.
+    fresh.next({id: 5, is_published: false, is_preview: false,
+      translations: {fr: {title: 'L'}, en: {title: 'L-en'}}});
+    expect(f.componentInstance['loading']()).toBe(false);
+    expect(f.componentInstance['form']().translations).toEqual({fr: {title: 'L'}, en: {title: 'L-en'}});
+  });
+
+  it('sends only the languages the author changed, never an untouched blank', () => {
+    catalog.getSection.mockReturnValue(of({id: 10, is_published: false,
+      translations: {fr: {title: 'S1', description: 'D'}}}));
+    catalog.updateSection.mockReturnValue(of({}));
+    const f = render('section', 10);
+    // EN stays blank in the form (e.g. still being machine-translated): it must not be sent.
+    f.componentInstance['setField']('fr', 'description', 'D2');
+    f.componentInstance['submit']();
+    expect(catalog.updateSection).toHaveBeenCalledWith(10, {
+      is_published: false, translations: {fr: {description: 'D2'}},
+    });
+  });
+
+  it('omits translations entirely when nothing changed, and patches the row from the response', () => {
+    catalog.updateLesson.mockReturnValue(of({translations: {fr: {title: 'L'}, en: {title: 'L-en'}}}));
+    const f = render('lesson', 5);
+    let saved: CourseDetailDto | null = null;
+    f.componentInstance.saved.subscribe((c) => (saved = c));
+    f.componentInstance['setPublished'](true);
+    f.componentInstance['submit']();
+    expect(catalog.updateLesson).toHaveBeenCalledWith(5, {is_published: true, is_preview: false});
+    expect(saved!.sections![0].lessons![0].translations).toEqual({fr: {title: 'L'}, en: {title: 'L-en'}});
+  });
+
+  it('falls back to the outline row when the fresh load fails', () => {
+    catalog.getSection.mockReturnValue(throwError(() => ({status: 500})));
+    const f = render('section', 10);
+    expect(toast.addApiError).toHaveBeenCalled();
+    expect(f.componentInstance['loading']()).toBe(false);
+    expect(f.componentInstance['form']().translations['fr']).toEqual({title: 'S1', description: 'D'});
   });
 
   it('saving a lesson PATCHes it and emits the patched course, then closes', () => {
@@ -60,7 +114,7 @@ describe('TranslationsDialog', () => {
     f.componentInstance['submit']();
     expect(catalog.updateLesson).toHaveBeenCalledWith(5, {
       is_published: false, is_preview: true,
-      translations: {fr: {title: 'L'}, en: {title: 'Lesson'}},
+      translations: {en: {title: 'Lesson'}},
     });
     const lesson = saved!.sections![0].lessons![0];
     expect(lesson.translations['en']['title']).toBe('Lesson');

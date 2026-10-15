@@ -29,3 +29,12 @@
 .w-full {
   width: 100%;
 }
+
+.dialog-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 8rem;
+  color: var(--text-color-secondary, #6b7280);
+}

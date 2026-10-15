@@ -32,6 +32,9 @@ export interface TranslationsDialogUiText {
   lessonUpdatedToast: string;
   actionFailedToast: string;
   titleRequiredToast: string;
+  /** Shown while the fresh section / lesson is fetched on open. */
+  loading: string;
+  loadFailedToast: string;
 }
 
 export function getTranslationsDialogUiText(

@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {finalize} from 'rxjs';
@@ -182,6 +184,41 @@ export class BlockListEditor {
   });
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
+
+  /** Host the per-block sets currently describe. The parent may reuse
+   *  this instance for another host (the course editor swaps
+   *  ``hostId`` when the selected lesson changes), so the sets must be
+   *  reset on every change — otherwise ``hasUnsavedChanges`` stays true
+   *  forever for ids that are no longer on screen. */
+  private currentHostId: number | null = null;
+
+  constructor() {
+    effect(() => {
+      const hostId = this.hostId();
+      untracked(() => this.onHostChanged(hostId));
+    });
+  }
+
+  /** Reset per-block state when the host changes. Fresh drafts of the
+   *  previous host were abandoned by a confirmed "discard" switch: delete
+   *  them best-effort (same DELETE as Cancel on a never-saved block) so
+   *  no empty ghost block lingers on the previous lesson. */
+  private onHostChanged(hostId: number): void {
+    const previous = this.currentHostId;
+    this.currentHostId = hostId;
+    if (previous === null || previous === hostId) {
+      return;
+    }
+    for (const id of this.freshDraftIds()) {
+      this.http.delete(`${this.apiBaseUrl}/block/${id}/`).subscribe({
+        error: (err: unknown) => logApiError('lms.block-list.discard-draft', err),
+      });
+    }
+    this.editingIds.set(new Set());
+    this.freshDraftIds.set(new Set());
+    this.savingIds.set(new Set());
+    this.deletingIds.set(new Set());
+  }
 
   /** True while at least one block is open in edit mode (unsaved local edits). */
   hasUnsavedChanges(): boolean {

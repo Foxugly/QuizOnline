@@ -81,8 +81,12 @@ export class CatalogService {
     return this.http.get<unknown>(`${this.baseUrl}/course/by-slug/${encodeURIComponent(slug)}/`);
   }
 
+  /** Course tree for the course editor. ``no-cache``: course ``retrieve``
+   *  carries ``Cache-Control: private, max-age=30`` (``ShortReadCacheMixin``),
+   *  so without revalidation a reload right after an edit would show the
+   *  outline as it was before the edit. */
   detailById(id: number): Observable<unknown> {
-    return this.http.get<unknown>(`${this.baseUrl}/course/${id}/`);
+    return this.http.get<unknown>(`${this.baseUrl}/course/${id}/`, {cache: 'no-cache'});
   }
 
   /** Read-only audit log for a course — instructor-gated server-side.
@@ -173,6 +177,13 @@ export class CatalogService {
 
   // -- Section CRUD --------------------------------------------------------
 
+  /** Fresh read of one section. ``no-cache`` revalidates instead of
+   *  trusting a browser-cached copy, so translations filled in the
+   *  background (``fill_missing_translations``) are visible. */
+  getSection(id: number): Observable<unknown> {
+    return this.http.get<unknown>(`${this.baseUrl}/section/${id}/`, {cache: 'no-cache'});
+  }
+
   createSection(payload: unknown): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/section/`, payload);
   }
@@ -197,6 +208,14 @@ export class CatalogService {
   }
 
   // -- Lesson CRUD ---------------------------------------------------------
+
+  /** Fresh read of one lesson. ``no-cache`` matters here: lesson
+   *  ``retrieve`` is sent with ``Cache-Control: private, max-age=30``
+   *  (``ShortReadCacheMixin``), which would otherwise hide translations
+   *  filled in the background right after the lesson was created. */
+  getLesson(id: number): Observable<unknown> {
+    return this.http.get<unknown>(`${this.baseUrl}/lesson/${id}/`, {cache: 'no-cache'});
+  }
 
   createLesson(payload: unknown): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/lesson/`, payload);

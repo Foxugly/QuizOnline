@@ -2275,7 +2275,9 @@
       "sectionUpdatedToast": "Section mise à jour.",
       "lessonUpdatedToast": "Leçon mise à jour.",
       "actionFailedToast": "L'action a échoué.",
-      "titleRequiredToast": "Le titre est obligatoire dans la langue principale."
+      "titleRequiredToast": "Le titre est obligatoire dans la langue principale.",
+      "loading": "Chargement…",
+      "loadFailedToast": "Impossible de charger les traductions à jour."
     },
     "courseOutline": {
       "addLesson": "Leçon",

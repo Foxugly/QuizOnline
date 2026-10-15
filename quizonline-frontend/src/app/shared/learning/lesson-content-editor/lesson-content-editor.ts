@@ -97,11 +97,12 @@ export class LessonContentEditor {
       const id = this.lessonId();
       untracked(() => {
         this.renaming.set(false);
+        // Drop the previous lesson's blocks at once: the block list resets
+        // its edit state on the new ``hostId`` and must not show stale rows.
+        this.lesson.set(null);
+        this.blocks.set([]);
         if (id > 0) {
           this.reload(id);
-        } else {
-          this.lesson.set(null);
-          this.blocks.set([]);
         }
       });
     });
@@ -140,7 +141,11 @@ export class LessonContentEditor {
     if (id <= 0) {
       return;
     }
-    this.http.get<LessonDetailDto>(`${this.apiBaseUrl}/lesson/${id}/`).subscribe({
+    // ``no-cache``: lesson retrieve carries ``Cache-Control: private, max-age=30``
+    // (``ShortReadCacheMixin``). Without revalidation the refetch that follows a
+    // block add / delete / reorder is served from the browser cache and the
+    // new block never shows up.
+    this.http.get<LessonDetailDto>(`${this.apiBaseUrl}/lesson/${id}/`, {cache: 'no-cache'}).subscribe({
       next: (lesson) => {
         if (id !== this.lessonId()) {
           return; // stale response: the author already moved to another lesson

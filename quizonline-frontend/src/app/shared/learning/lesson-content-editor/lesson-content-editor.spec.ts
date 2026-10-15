@@ -40,6 +40,14 @@ describe('LessonContentEditor', () => {
     http.verify();
   });
 
+  it('revalidates lesson reads so a block refetch never hits the 30 s browser cache', () => {
+    fixture.componentRef.setInput('lessonId', 5);
+    fixture.detectChanges();
+    const req = http.expectOne((r) => r.url.endsWith('/lesson/5/'));
+    expect(req.request.cache).toBe('no-cache');
+    req.flush({id: 5, blocks: []});
+  });
+
   it('emits navigate with the next lesson id', () => {
     load(5, {id: 5, blocks: [], next_lesson: {id: 7, title: 'N'}});
     let navigated = 0;
