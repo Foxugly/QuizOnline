@@ -61,6 +61,8 @@ def test_target_section_in_other_course_is_400(owner, domain, fr_lang, setup):
     foreign = Section.objects.create(course=other, order=0)
     resp = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": foreign.id, "position": 0}, format="json")
     assert resp.status_code == 400
+    unknown = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": 999999, "position": 0}, format="json")
+    assert resp.json() == unknown.json() == {"section": "Unknown section."}
     lesson.refresh_from_db()
     assert (lesson.section_id, lesson.order) == (s1.id, 0)
 

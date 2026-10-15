@@ -80,7 +80,9 @@ class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         lesson = self.get_object()  # object permission: instructor only for writes
         payload = LessonMoveSerializer(data=request.data)
         payload.is_valid(raise_exception=True)
-        target = Section.objects.filter(pk=payload.validated_data["section"]).first()
+        target = Section.objects.filter(
+            pk=payload.validated_data["section"], course_id=lesson.section.course_id
+        ).first()
         if target is None:
             raise serializers.ValidationError({"section": _("Unknown section.")})
         source_id = lesson.section_id
