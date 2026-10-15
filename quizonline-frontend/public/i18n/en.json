@@ -2284,6 +2284,7 @@
       "missingLanguages": "Missing:",
       "menuAria": "Actions",
       "renameAction": "Rename",
+      "dragHandle": "Drag to reorder",
       "menuPublish": "Publish",
       "menuUnpublish": "Unpublish",
       "menuPreviewOn": "Enable free preview",

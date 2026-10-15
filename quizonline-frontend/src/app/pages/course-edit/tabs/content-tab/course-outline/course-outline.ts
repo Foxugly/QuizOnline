@@ -12,6 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, CdkDropListGroup, moveItemInArray} from '@angular/cdk/drag-drop';
 import {finalize, Observable} from 'rxjs';
 import {ConfirmationService, MenuItem} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -21,6 +22,7 @@ import {Menu, MenuModule} from 'primeng/menu';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
+import {LessonMoveResultDto} from '../../../../../api/generated/model/lesson-move-result';
 import {LessonSummaryDto} from '../../../../../api/generated/model/lesson-summary';
 import {SectionDto} from '../../../../../api/generated/model/section';
 import {CatalogService} from '../../../../../services/catalog/catalog.service';
@@ -31,7 +33,7 @@ import {UiTextService} from '../../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../../shared/toast/app-toast.service';
 
 import {getCourseOutlineUiText} from './course-outline.i18n';
-import {insertSorted, missingLanguages, titleIn} from './outline.util';
+import {applyLessonDrop, insertSorted, missingLanguages, titleIn} from './outline.util';
 
 export type OutlineKind = 'section' | 'lesson';
 export interface OutlineRef {
@@ -39,6 +41,10 @@ export interface OutlineRef {
   id: number;
 }
 type Translations = Record<string, Record<string, string>> | undefined;
+/** ``cdkDropListData`` of a section's lesson list. */
+export interface LessonListData {
+  sectionId: number;
+}
 
 const byOrder = (a: {order?: number}, b: {order?: number}) => (a.order ?? 0) - (b.order ?? 0);
 const withOrder = <T extends {order?: number}>(x: T): T & {order: number} => ({...x, order: x.order ?? 0});
@@ -49,14 +55,17 @@ const withOrder = <T extends {order?: number}>(x: T): T & {order: number} => ({.
  * rename on double-click, a "⋯" menu per row (publish, free preview,
  * translations, delete) and a "missing languages" hint for rows whose
  * title is still empty in some course language (machine translation runs
- * asynchronously after create).
+ * asynchronously after create). Sections and lessons are reordered by drag
+ * and drop (handle only); lessons can also be dropped into another section.
  *
  * Owns a local copy of the course so the outline reflects every mutation
  * at once, and emits each updated copy through ``courseChange``.
  */
 @Component({
   selector: 'app-course-outline',
-  imports: [ButtonModule, ConfirmDialogModule, InputTextModule, MenuModule, TooltipModule, StatusBadgeComponent],
+  imports: [
+    CdkDrag, CdkDragHandle, CdkDropList, CdkDropListGroup,
+    ButtonModule, ConfirmDialogModule, InputTextModule, MenuModule, TooltipModule, StatusBadgeComponent],
   providers: [ConfirmationService],
   templateUrl: './course-outline.html',
   styleUrl: './course-outline.scss',
@@ -282,13 +291,75 @@ export class CourseOutline {
     });
   }
 
+  // -- Drag and drop -------------------------------------------------------
+
+  /** Section rows (vertical list, handle only): optimistic reorder, rolled back on error. */
+  protected onSectionDrop(e: CdkDragDrop<unknown>): void {
+    if (e.previousIndex === e.currentIndex || this.busy()) return;
+    const before = this.outline();
+    const list = [...this.sections()];
+    moveItemInArray(list, e.previousIndex, e.currentIndex);
+    this.patchCourse((c) => ({...c, sections: list.map((s, i) => ({...s, order: i}))}));
+    this.mutate(
+      this.catalog.reorderSections(before.id, list.map((s) => s.id)),
+      'reorder-sections',
+      () => undefined,
+      () => this.restore(before),
+    );
+  }
+
+  /**
+   * Lesson rows: within a section → ``reorderLessons``; into another section
+   * → ``moveLesson`` and both sections are patched from the response. The
+   * outline is updated at once and restored if the request fails.
+   */
+  protected onLessonDrop(e: CdkDragDrop<LessonListData, LessonListData, number>): void {
+    const from = e.previousContainer.data.sectionId;
+    const to = e.container.data.sectionId;
+    if ((from === to && e.previousIndex === e.currentIndex) || this.busy()) return;
+    const before = this.outline();
+    const lessonId = e.item.data;
+    // Indexes are display indexes: apply them to lessons sorted by order.
+    const sorted = this.sections().map((s) => ({...s, lessons: this.lessonsOf(s)}));
+    const sections = applyLessonDrop(sorted, lessonId, to, e.currentIndex);
+    this.patchCourse((c) => ({...c, sections}));
+    if (from === to) {
+      const ids = (sections.find((s) => s.id === to)?.lessons ?? []).map((l) => l.id);
+      this.mutate(this.catalog.reorderLessons(to, ids), 'reorder-lessons', () => undefined, () => this.restore(before));
+      return;
+    }
+    this.mutate(
+      this.catalog.moveLesson(lessonId, to, e.currentIndex),
+      'move-lesson',
+      (res) => {
+        const {source_section: src, target_section: dst} = res as LessonMoveResultDto;
+        for (const patch of [src, dst]) {
+          // Keep the optimistic lessons if the response omits them.
+          this.patchSection(patch.id, (s) => ({...s, ...patch, lessons: patch.lessons ?? s.lessons}));
+        }
+      },
+      () => this.restore(before),
+    );
+  }
+
+  private restore(course: CourseDetailDto): void {
+    this.outline.set(course);
+    this.courseChange.emit(course);
+  }
+
   // -- State plumbing ------------------------------------------------------
 
-  private mutate(request: Observable<unknown>, logKey: string, onOk: (res: unknown) => void): void {
+  private mutate(
+    request: Observable<unknown>,
+    logKey: string,
+    onOk: (res: unknown) => void,
+    onError?: () => void,
+  ): void {
     this.busy.set(true);
     request.pipe(finalize(() => this.busy.set(false))).subscribe({
       next: onOk,
       error: (err: unknown) => {
+        onError?.();
         logApiError(`lms.outline.${logKey}`, err);
         this.toast.addApiError(err, this.ui().actionFailedToast);
         if (this.addingLessonIn() !== null || this.addingSection() || this.renaming() !== null) {

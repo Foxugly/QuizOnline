@@ -2,6 +2,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 
+import {LessonMoveResultDto} from '../../api/generated/model/lesson-move-result';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 
 /** Read-only row exposed by ``GET /api/v1/course/{id}/audit-log/``.
@@ -159,6 +160,12 @@ export class CatalogService {
 
   reorderLessons(sectionId: number, ids: number[]): Observable<unknown> {
     return this.http.post<unknown>(`${this.baseUrl}/section/${sectionId}/lesson/reorder/`, {ids});
+  }
+
+  /** Moves a lesson to ``position`` (0-based) in ``section`` — same course
+   *  only; returns the lesson plus both renumbered sections. */
+  moveLesson(id: number, section: number, position: number): Observable<LessonMoveResultDto> {
+    return this.http.post<LessonMoveResultDto>(`${this.baseUrl}/lesson/${id}/move/`, {section, position});
   }
 
   // Block reorder now goes through the generic ``POST /api/v1/block/reorder/``

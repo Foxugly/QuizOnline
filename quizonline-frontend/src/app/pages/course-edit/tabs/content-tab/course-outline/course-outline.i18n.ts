@@ -15,6 +15,8 @@ export interface CourseOutlineUiText {
   missingLanguages: string;
   menuAria: string;
   renameAction: string;
+  /** aria-label / tooltip of the drag handle on section and lesson rows. */
+  dragHandle: string;
   menuPublish: string;
   menuUnpublish: string;
   menuPreviewOn: string;
