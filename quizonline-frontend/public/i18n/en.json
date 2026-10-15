@@ -1430,7 +1430,8 @@
       "previewButton": "Preview",
       "editModeButton": "Edit",
       "previousLesson": "Previous lesson",
-      "nextLesson": "Next lesson"
+      "nextLesson": "Next lesson",
+      "renameAction": "Rename"
     },
     "joinRequestDecide": {
       "title": "Moderate a join request",

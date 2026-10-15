@@ -101,6 +101,41 @@ describe('LessonContentEditor', () => {
     expect((fixture.nativeElement.querySelector('h2') as HTMLElement).textContent).toContain('A');
   });
 
+  it('the header pencil opens the rename input (icon-only, labelled, tooltip below)', () => {
+    load(5, {id: 5, blocks: [], translations: {fr: {title: 'A'}}});
+    const host = fixture.nativeElement.querySelector('[data-testid="rename-lesson-open"]') as HTMLElement;
+    const btn = host.querySelector('button') as HTMLButtonElement;
+    expect(btn.getAttribute('aria-label')).toBe('Rename');
+    expect(btn.textContent?.trim()).toBe('');
+    btn.click();
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('input.lesson-pane__title-input') as HTMLInputElement;
+    expect(input.value).toBe('A');
+  });
+
+  it('keeps the rename pending on blur, like the outline', () => {
+    load(5, {id: 5, blocks: [], translations: {fr: {title: 'A'}}});
+    const input = startRename();
+    input.value = 'Brouillon';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    fixture.detectChanges();
+    http.expectNone((r) => r.method === 'PATCH');
+    const still = fixture.nativeElement.querySelector('input.lesson-pane__title-input') as HTMLInputElement;
+    expect(still).not.toBeNull();
+    expect(still.value).toBe('Brouillon');
+  });
+
+  it('shows the free-preview badge only on a preview lesson', () => {
+    load(5, {id: 5, blocks: [], is_preview: false, translations: {fr: {title: 'A'}}});
+    expect(fixture.nativeElement.querySelector('[data-testid="lesson-preview-badge"]')).toBeNull();
+    fixture.componentRef.setInput('lessonId', 6);
+    fixture.detectChanges();
+    http.expectOne((r) => r.url.endsWith('/lesson/6/')).flush({id: 6, blocks: [], is_preview: true});
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="lesson-preview-badge"]')).not.toBeNull();
+  });
+
   it('reports no unsaved changes', () => {
     expect(fixture.componentInstance.hasUnsavedChanges()).toBe(false);
   });

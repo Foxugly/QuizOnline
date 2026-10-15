@@ -99,14 +99,15 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
    */
   protected onTabChange(tab: string | number | undefined): void {
     if (tab === this.activeTab()) {
-      // Echo of our own revert (or of p-tabs' init): nothing to do, and navigating
-      // would clear ?lesson=.
+      // Echo of our own revert (or of p-tabs' init): nothing to do.
       return;
     }
+    // ``?lesson=`` is kept (merge) so Content -> Info -> Content reopens the
+    // same lesson; the content tab ignores an id that is not in the course.
     void this.router
       .navigate([], {
         relativeTo: this.route,
-        queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},
+        queryParams: {tab: parseCourseEditTab(String(tab ?? 'info'))},
         queryParamsHandling: 'merge',
       })
       .then((ok) => {

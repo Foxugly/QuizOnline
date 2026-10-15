@@ -91,6 +91,35 @@ describe('CourseOutline', () => {
     expect(catalog.createLesson).toHaveBeenCalledTimes(1);
   });
 
+  it('shows a spinner next to the add-lesson input while the create is in flight', () => {
+    const pending = new Subject<unknown>();
+    catalog.createLesson.mockReturnValue(pending);
+    const f = render();
+    const spinner = () => f.nativeElement.querySelector('[data-testid="add-lesson-10-spinner"]') as HTMLElement | null;
+    typeAndPress(f, 'add-lesson-10', 'L1', 'Shift'); // input open, nothing sent yet
+    expect(spinner()).toBeNull();
+    const input = f.nativeElement.querySelector('[data-testid="add-lesson-10-input"]') as HTMLInputElement;
+    input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
+    f.detectChanges();
+    expect(spinner()?.classList).toContain('pi-spinner');
+    pending.error({error: {detail: 'nope'}});
+    f.detectChanges();
+    expect(spinner()).toBeNull();
+  });
+
+  it('shows a spinner next to the add-section input while the create is in flight', () => {
+    const pending = new Subject<unknown>();
+    catalog.createSection.mockReturnValue(pending);
+    const f = render();
+    const spinner = () => f.nativeElement.querySelector('[data-testid="add-section-spinner"]');
+    typeAndPress(f, 'add-section', 'S2', 'Shift'); // input open, nothing sent yet
+    expect(spinner()).toBeNull();
+    const input = f.nativeElement.querySelector('[data-testid="add-section-input"]') as HTMLInputElement;
+    input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
+    f.detectChanges();
+    expect(spinner()).not.toBeNull();
+  });
+
   it('keeps the typed text when the create fails', () => {
     catalog.createLesson.mockReturnValue(throwError(() => ({error: {detail: 'nope'}})));
     const f = render();

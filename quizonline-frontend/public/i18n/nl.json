@@ -1430,7 +1430,8 @@
       "previewButton": "Voorbeeld",
       "editModeButton": "Bewerken",
       "previousLesson": "Vorige les",
-      "nextLesson": "Volgende les"
+      "nextLesson": "Volgende les",
+      "renameAction": "Hernoemen"
     },
     "joinRequestDecide": {
       "title": "Een toegangsaanvraag modereren",

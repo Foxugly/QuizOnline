@@ -1430,7 +1430,8 @@
       "previewButton": "Aperçu",
       "editModeButton": "Édition",
       "previousLesson": "Leçon précédente",
-      "nextLesson": "Leçon suivante"
+      "nextLesson": "Leçon suivante",
+      "renameAction": "Renommer"
     },
     "joinRequestDecide": {
       "title": "Modération d'une demande d'accès",

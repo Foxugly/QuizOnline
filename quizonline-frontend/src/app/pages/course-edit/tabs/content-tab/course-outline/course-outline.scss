@@ -123,3 +123,15 @@
 .outline-add {
   align-self: flex-start;
 }
+
+// Add-section / add-lesson input + the spinner shown while the create is in flight.
+.outline-add-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.outline-add-spinner {
+  flex: 0 0 auto;
+  color: var(--p-text-muted-color);
+}
