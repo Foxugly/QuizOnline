@@ -296,6 +296,41 @@ jobs:
           cd quizonline-frontend
           npm ci
 
+      # Le CLI télécharge le JAR du générateur (version figée dans
+      # openapitools.json) depuis Maven Central à chaque exécution ; une erreur
+      # réseau faisait échouer le job. Le JAR vit dans le cache d'Actions (clé =
+      # openapitools.json, donc une nouvelle version = un nouveau cache) et, sans
+      # cache, le téléchargement est tenté trois fois.
+      - name: JAR du générateur OpenAPI depuis le cache
+        id: cache-openapi-jar
+        uses: actions/cache/restore@v6
+        with:
+          path: quizonline-frontend/node_modules/@openapitools/openapi-generator-cli/versions
+          key: openapi-generator-jar-${{ hashFiles('quizonline-frontend/openapitools.json') }}
+
+      - name: JAR du générateur OpenAPI depuis Maven Central (si absent du cache)
+        id: telechargement-openapi-jar
+        if: steps.cache-openapi-jar.outputs.cache-hit != 'true'
+        working-directory: quizonline-frontend
+        run: |
+          for essai in 1 2 3; do
+            # `version` télécharge la version figée (7.21.0) si le JAR manque, puis l'affiche.
+            if npx openapi-generator-cli version; then
+              echo "neuf=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep $((essai * 10))
+          done
+          echo "::error::Maven Central indisponible et aucun JAR en cache."
+          exit 1
+
+      - name: Mettre le JAR du générateur OpenAPI en cache
+        if: steps.telechargement-openapi-jar.outputs.neuf == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: quizonline-frontend/node_modules/@openapitools/openapi-generator-cli/versions
+          key: openapi-generator-jar-${{ hashFiles('quizonline-frontend/openapitools.json') }}
+
       - name: Regenerate OpenAPI and frontend client
         shell: pwsh
         run: ./scripts/sync-openapi.ps1

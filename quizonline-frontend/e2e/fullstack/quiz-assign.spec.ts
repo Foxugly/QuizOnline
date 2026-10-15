@@ -78,7 +78,12 @@ test('admin assigne un QuizTemplate a testuser, testuser voit le quiz dans sa li
   await expect(assignDialog).toBeVisible();
   await expect(assignDialog.getByText('testuser', {exact: false})).toBeVisible();
   await assignDialog.getByText('testuser', {exact: false}).click();
+  // Wait for the assignment POST to complete before reading the quiz back through the API.
+  const assigned = page.waitForResponse(
+    (r) => /\/api\/v1\/quiz\/bulk-create-from-template\/$/.test(r.url()) && r.request().method() === 'POST',
+  );
   await assignDialog.getByRole('button', {name: 'Envoyer'}).click();
+  expect((await assigned).ok()).toBe(true);
 
   const quizzesResp = await page.request.get(`${API}/api/v1/quiz/?user=${testuserId}`, {
     headers: {Authorization: `Bearer ${adminToken}`},
