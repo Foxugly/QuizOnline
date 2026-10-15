@@ -183,6 +183,34 @@ def _ensure_course_progress(user, course: Course) -> CourseProgress:
     return cp
 
 
+PROGRESS_ENROLLMENT_STATUSES = (
+    CourseEnrollment.STATUS_ACTIVE,
+    CourseEnrollment.STATUS_COMPLETED,
+)
+
+
+def can_track_lesson_progress(user, lesson: Lesson) -> bool:
+    """Whether ``user`` may record progress on ``lesson``.
+
+    The lesson must be live for learners (lesson, section and course all
+    published) and the user must hold an active or completed enrollment on
+    its course. Pending / cancelled / non-enrolled users — and instructors
+    previewing drafts — record nothing, so they can neither complete the
+    course nor earn its certificate. Every entry point that records
+    progress (the start / progress / complete endpoints, the lesson-quiz
+    hook) checks this; ``mark_lesson_*`` stay unchecked primitives."""
+    if user is None or not getattr(user, "is_authenticated", False):
+        return False
+    section = lesson.section
+    if not (lesson.is_published and section.is_published and section.course.is_published):
+        return False
+    return CourseEnrollment.objects.filter(
+        user=user,
+        course_id=section.course_id,
+        status__in=PROGRESS_ENROLLMENT_STATUSES,
+    ).exists()
+
+
 @transaction.atomic
 def mark_lesson_started(*, user, lesson: Lesson) -> LessonProgress:
     progress, _ = LessonProgress.objects.select_for_update().get_or_create(

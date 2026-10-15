@@ -549,3 +549,7 @@ msgstr ""
 
 msgid "Open enrollment requests:"
 msgstr ""
+
+#: enrollment/views.py
+msgid "You must be enrolled in this course to record progress on its lessons."
+msgstr ""

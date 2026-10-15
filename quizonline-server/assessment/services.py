@@ -40,8 +40,14 @@ def evaluate_lesson_quiz_attempt(*, quiz_session) -> None:
         if score < binding.required_score_percent:
             continue
         if binding.lesson_id:
-            from enrollment.services import mark_lesson_completed
-            mark_lesson_completed(user=quiz_session.user, lesson=binding.lesson)
+            from enrollment.services import (
+                can_track_lesson_progress,
+                mark_lesson_completed,
+            )
+            # A quiz template can back lessons of several courses: only
+            # complete the ones this user is actually enrolled in.
+            if can_track_lesson_progress(quiz_session.user, binding.lesson):
+                mark_lesson_completed(user=quiz_session.user, lesson=binding.lesson)
         elif binding.course_id:
             from certificate.services import issue_certificate_if_eligible
             issue_certificate_if_eligible(user=quiz_session.user, course=binding.course)

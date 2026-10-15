@@ -23,7 +23,15 @@ def _generate_certificate_number() -> str:
 
 
 def _course_completed(user, course: Course) -> bool:
-    from enrollment.models import CourseProgress
+    """Completed = an active or completed enrollment AND 100 % progress.
+    The enrollment check keeps a stray ``CourseProgress`` row (pending,
+    cancelled or never-enrolled user) from ever minting a certificate."""
+    from enrollment.models import CourseEnrollment, CourseProgress
+    from enrollment.services import PROGRESS_ENROLLMENT_STATUSES
+    if not CourseEnrollment.objects.filter(
+        user=user, course=course, status__in=PROGRESS_ENROLLMENT_STATUSES,
+    ).exists():
+        return False
     cp = CourseProgress.objects.filter(user=user, course=course).first()
     return bool(cp and cp.progress_percent == 100)
 

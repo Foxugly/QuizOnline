@@ -208,7 +208,11 @@ class CourseViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         }
         lessons_by_course: dict[int, list[int]] = {}
         for lid, cid in (
-            Lesson.objects.filter(section__course_id__in=course_ids)
+            Lesson.objects.filter(
+                section__course_id__in=course_ids,
+                section__is_published=True,
+                is_published=True,
+            )
             .order_by("section__order", "order", "id")
             .values_list("id", "section__course_id")
         ):

@@ -13,6 +13,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import (
@@ -50,6 +51,7 @@ from .serializers import (
 from .services import (
     accept_course_invite,
     approve_enrollment,
+    can_track_lesson_progress,
     decline_course_invite,
     enroll_user_to_course,
     invite_user_to_course,
@@ -196,11 +198,31 @@ def enroll_to_course(request, course_id: int):
     )
 
 
+def _lesson_for_progress(request, lesson_id: int) -> Lesson | None:
+    """Resolve a lesson for the start / progress / complete endpoints.
+
+    ``None`` (→ 404) when the caller cannot see the lesson at all — no
+    existence oracle across domains. ``PermissionDenied`` (→ 403) when they
+    can see it but may not record progress on it: not enrolled, enrollment
+    pending or cancelled, or the lesson is still a draft."""
+    lesson = (
+        Lesson.objects.visible_to(request.user)
+        .select_related("section__course")
+        .filter(pk=lesson_id)
+        .first()
+    )
+    if lesson is not None and not can_track_lesson_progress(request.user, lesson):
+        raise PermissionDenied(
+            _("You must be enrolled in this course to record progress on its lessons.")
+        )
+    return lesson
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def start_lesson(request, lesson_id: int):
-    lesson = Lesson.objects.filter(pk=lesson_id).first()
-    if not lesson:
+    lesson = _lesson_for_progress(request, lesson_id)
+    if lesson is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
     p = mark_lesson_started(user=request.user, lesson=lesson)
     return Response(LessonProgressSerializer(p).data)
@@ -210,8 +232,8 @@ def start_lesson(request, lesson_id: int):
 @permission_classes([IsAuthenticated])
 def record_lesson_progress_view(request, lesson_id: int):
     """Persist scroll-derived reading progress without completing the lesson."""
-    lesson = Lesson.objects.filter(pk=lesson_id).first()
-    if not lesson:
+    lesson = _lesson_for_progress(request, lesson_id)
+    if lesson is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
     try:
         percent = int(request.data.get("progress_percent", 0))
@@ -227,10 +249,16 @@ def record_lesson_progress_view(request, lesson_id: int):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def complete_lesson(request, lesson_id: int):
-    lesson = Lesson.objects.filter(pk=lesson_id).first()
-    if not lesson:
+    lesson = _lesson_for_progress(request, lesson_id)
+    if lesson is None:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    percent = int(request.data.get("progress_percent", 100))
+    try:
+        percent = int(request.data.get("progress_percent", 100))
+    except (TypeError, ValueError):
+        return Response(
+            {"detail": "progress_percent must be an integer."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     p = mark_lesson_completed(user=request.user, lesson=lesson, progress_percent=percent)
     return Response(LessonProgressSerializer(p).data)
 

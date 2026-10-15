@@ -56,3 +56,25 @@ def learner(db, domain):
     u = CustomUser.objects.create_user(email="learner@x.com", password="x")
     domain.members.add(u)
     return u
+
+
+@pytest.fixture
+def enrolled_live_lesson(lesson, learner):
+    """``lesson`` made live (course, section, lesson published) with
+    ``learner`` actively enrolled — the only case where a passed lesson
+    quiz may record progress (``can_track_lesson_progress``)."""
+    from django.utils import timezone
+
+    from enrollment.models import CourseEnrollment
+
+    section = lesson.section
+    course = section.course
+    course.is_published = True
+    course.published_at = timezone.now()
+    course.save()
+    section.is_published = True
+    section.save()
+    lesson.is_published = True
+    lesson.save()
+    CourseEnrollment.objects.create(user=learner, course=course)
+    return lesson
