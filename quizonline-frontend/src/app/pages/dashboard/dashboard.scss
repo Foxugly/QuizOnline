@@ -81,6 +81,31 @@
   margin-top: auto;
 }
 
+/* Instructor drafts tile — two footer actions, rows are links. */
+.tile__foot--actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+
+  .course-list__title {
+    min-width: 0;
+  }
+
+  &:hover .course-list__title,
+  &:focus-visible .course-list__title {
+    text-decoration: underline;
+  }
+}
+
 /* Courses tile — compact list with inline progress bar. */
 .course-list {
   list-style: none;

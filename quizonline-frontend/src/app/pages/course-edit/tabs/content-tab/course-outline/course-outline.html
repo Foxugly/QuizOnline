@@ -148,16 +148,24 @@
         </ul>
 
         @if (addingLessonIn() === section.id) {
-          <input
-            pInputText
-            class="outline-input outline-add"
-            [attr.data-testid]="'add-lesson-' + section.id + '-input'"
-            [disabled]="busy()"
-            [value]="draft()"
-            [placeholder]="ui().newLessonPlaceholder"
-            (input)="draft.set($any($event.target).value)"
-            (keydown.enter)="$event.preventDefault(); submitLesson(section.id)"
-            (keydown.escape)="cancelInline()" />
+          <div class="outline-add-row">
+            <input
+              pInputText
+              class="outline-input outline-add"
+              [attr.data-testid]="'add-lesson-' + section.id + '-input'"
+              [disabled]="busy()"
+              [value]="draft()"
+              [placeholder]="ui().newLessonPlaceholder"
+              (input)="draft.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); submitLesson(section.id)"
+              (keydown.escape)="cancelInline()" />
+            @if (busy()) {
+              <i
+                class="pi pi-spin pi-spinner outline-add-spinner"
+                aria-hidden="true"
+                [attr.data-testid]="'add-lesson-' + section.id + '-spinner'"></i>
+            }
+          </div>
         } @else {
           <button
             pButton
@@ -176,16 +184,21 @@
   </div>
 
   @if (addingSection()) {
-    <input
-      pInputText
-      class="outline-input outline-add"
-      data-testid="add-section-input"
-      [disabled]="busy()"
-      [value]="draft()"
-      [placeholder]="ui().newSectionPlaceholder"
-      (input)="draft.set($any($event.target).value)"
-      (keydown.enter)="$event.preventDefault(); submitSection()"
-      (keydown.escape)="cancelInline()" />
+    <div class="outline-add-row">
+      <input
+        pInputText
+        class="outline-input outline-add"
+        data-testid="add-section-input"
+        [disabled]="busy()"
+        [value]="draft()"
+        [placeholder]="ui().newSectionPlaceholder"
+        (input)="draft.set($any($event.target).value)"
+        (keydown.enter)="$event.preventDefault(); submitSection()"
+        (keydown.escape)="cancelInline()" />
+      @if (busy()) {
+        <i class="pi pi-spin pi-spinner outline-add-spinner" aria-hidden="true" data-testid="add-section-spinner"></i>
+      }
+    </div>
   } @else {
     <button
       pButton

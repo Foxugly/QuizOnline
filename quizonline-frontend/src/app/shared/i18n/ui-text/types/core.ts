@@ -29,6 +29,10 @@ export type TopMenuUiText = {
   // wraps Formations / Ma progression / Mes certificats.
   coursesMenu: string;
   coursesMenuFormations: string;
+  // Instructor entries of the Courses dropdown — only shown to users who
+  // own or manage at least one domain.
+  lmsMyCourses: string;
+  lmsCreateCourse: string;
   // Quiz dropdown — replaces the flat Quiz/Subjects/Questions links for
   // owners/managers/superusers. Members still see ``quiz`` as a flat link.
   quizMenu: string;

@@ -11,7 +11,7 @@ import {UserService} from '../../../services/user/user';
 import {LanguageSwitcherComponent} from '../../i18n/language-switcher/language-switcher';
 import {UserMenuComponent} from '../../../components/user-menu/user-menu';
 import {SupportedLanguage} from '../../../../environments/language';
-import {CATALOG, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../../app.routes-paths';
+import {CATALOG, COURSE_LIST, COURSE_NEW, ME_CERTIFICATES, ME_PROGRESS, ROUTES} from '../../../app.routes-paths';
 import {QuizAlertService} from '../../../services/quiz-alert/quiz-alert';
 import {UnreadBadgesService} from '../../../services/unread-badges/unread-badges.service';
 import {NotificationsBellComponent} from '../../../components/notifications-bell/notifications-bell';
@@ -282,8 +282,25 @@ export class TopMenuComponent implements OnInit {
     return !!this.currentUser && (this.canManageCurrentDomain || this.currentUser.is_superuser);
   }
 
+  /** True when the caller owns or manages at least one visible domain
+   *  (superusers always pass) — the same predicate the catalog uses to
+   *  show its "create course" button. Gates the instructor entries of
+   *  the Courses dropdown. */
+  get canManageAnyDomain(): boolean {
+    const me = this.currentUser;
+    if (!me) {
+      return false;
+    }
+    if (me.is_superuser) {
+      return true;
+    }
+    return this.visibleDomains().some(
+      (domain) => domain.owner?.id === me.id || (domain.managers ?? []).some((user) => user.id === me.id),
+    );
+  }
+
   get coursesMenuItems(): AdminNavItem[] {
-    return [
+    const items: AdminNavItem[] = [
       {
         label: this.ui().topmenu.coursesMenuFormations,
         link: [CATALOG] as const,
@@ -300,6 +317,21 @@ export class TopMenuComponent implements OnInit {
         icon: 'pi pi-verified',
       },
     ];
+    if (this.canManageAnyDomain) {
+      items.push(
+        {
+          label: this.ui().topmenu.lmsMyCourses,
+          link: [COURSE_LIST] as const,
+          icon: 'pi pi-pencil',
+        },
+        {
+          label: this.ui().topmenu.lmsCreateCourse,
+          link: [COURSE_NEW] as const,
+          icon: 'pi pi-plus',
+        },
+      );
+    }
+    return items;
   }
 
   get quizMenuItems(): AdminNavItem[] {

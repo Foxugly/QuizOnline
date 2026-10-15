@@ -22,6 +22,8 @@
       "lmsMyCertificates": "Mijn certificaten",
       "coursesMenu": "Cursussen",
       "coursesMenuFormations": "Opleidingen",
+      "lmsMyCourses": "Mijn cursussen",
+      "lmsCreateCourse": "Cursus aanmaken",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
       "dashboard": "Dashboard"
@@ -1428,7 +1430,8 @@
       "previewButton": "Voorbeeld",
       "editModeButton": "Bewerken",
       "previousLesson": "Vorige les",
-      "nextLesson": "Volgende les"
+      "nextLesson": "Volgende les",
+      "renameAction": "Hernoemen"
     },
     "joinRequestDecide": {
       "title": "Een toegangsaanvraag modereren",
@@ -2117,6 +2120,12 @@
           "empty": "Geen lopende cursusuitnodigingen.",
           "cta": "Mijn uitnodigingen bekijken",
           "inviterLine": "Uitgenodigd door {inviter}"
+        },
+        "drafts": {
+          "title": "Mijn cursussen in voorbereiding",
+          "empty": "Geen cursussen in voorbereiding.",
+          "myCoursesCta": "Mijn cursussen",
+          "createCta": "Cursus aanmaken"
         }
       }
     },

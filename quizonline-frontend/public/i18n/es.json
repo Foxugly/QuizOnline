@@ -22,6 +22,8 @@
       "lmsMyCertificates": "Mis certificados",
       "coursesMenu": "Cursos",
       "coursesMenuFormations": "Formaciones",
+      "lmsMyCourses": "Mis cursos",
+      "lmsCreateCourse": "Crear un curso",
       "quizMenu": "Cuestionarios",
       "quizMenuLabel": "Cuestionarios",
       "dashboard": "Panel"
@@ -1428,7 +1430,8 @@
       "previewButton": "Vista previa",
       "editModeButton": "Editar",
       "previousLesson": "Lección anterior",
-      "nextLesson": "Lección siguiente"
+      "nextLesson": "Lección siguiente",
+      "renameAction": "Renombrar"
     },
     "joinRequestDecide": {
       "title": "Moderar una solicitud de acceso",
@@ -2117,6 +2120,12 @@
           "empty": "No tienes invitaciones a cursos pendientes.",
           "cta": "Ver mis invitaciones",
           "inviterLine": "Invitado por {inviter}"
+        },
+        "drafts": {
+          "title": "Mis cursos en redacción",
+          "empty": "Ningún curso en redacción.",
+          "myCoursesCta": "Mis cursos",
+          "createCta": "Crear un curso"
         }
       }
     },

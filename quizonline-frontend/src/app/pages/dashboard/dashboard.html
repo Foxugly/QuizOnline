@@ -131,6 +131,54 @@
       </article>
     }
 
+    <!-- Instructor tile: courses still being written. Only for users who
+         own or manage at least one domain (superusers too). -->
+    @if (isInstructorAnywhere()) {
+      <article class="tile tile--drafts" data-testid="instructor-drafts-tile">
+        <header class="tile__head">
+          <i class="pi pi-pencil tile__icon" aria-hidden="true"></i>
+          <h2 class="tile__title">{{ ui().tiles.drafts.title }}</h2>
+        </header>
+        <div class="tile__body">
+          @if (draftsLoading()) {
+            <p-skeleton width="80%" height="0.85rem" styleClass="mb-2" />
+            <p-skeleton width="60%" height="0.85rem" />
+          } @else if (draftCourses().length === 0) {
+            <app-empty-state icon="pi pi-file-edit" density="compact" [title]="ui().tiles.drafts.empty" />
+          } @else {
+            <ul class="course-list">
+              @for (row of draftCourses(); track row.id) {
+                <li>
+                  <a
+                    class="draft-row"
+                    data-testid="draft-course"
+                    [routerLink]="row.editPath"
+                    [queryParams]="contentTabParams">
+                    <span class="course-list__title">{{ row.title }}</span>
+                    <app-status-badge kind="draft" [label]="shellUi().status.draft" />
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <footer class="tile__foot tile__foot--actions">
+          <a
+            pButton
+            severity="secondary"
+            [outlined]="true"
+            [routerLink]="courseListHref"
+            [label]="ui().tiles.drafts.myCoursesCta"></a>
+          <a
+            pButton
+            data-testid="create-course"
+            icon="pi pi-plus"
+            [routerLink]="courseNewHref"
+            [label]="ui().tiles.drafts.createCta"></a>
+        </footer>
+      </article>
+    }
+
     <!-- Tile 5: catalog -->
     <article class="tile tile--catalog" [routerLink]="catalogHref" tabindex="0">
       <header class="tile__head">

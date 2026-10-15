@@ -67,7 +67,16 @@ describe('CourseEdit unsaved tab guard', () => {
     await Promise.resolve();
     expect(confirm).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
-      queryParams: {tab: 'analytics', lesson: null}}));
+      queryParams: {tab: 'analytics'}}));
+  });
+
+  it('a tab switch keeps ?lesson= so Content -> Info -> Content returns to the same lesson', async () => {
+    const c = render();
+    c['onTabChange']('analytics');
+    await Promise.resolve();
+    const extras = router.navigate.mock.calls[0][1] as {queryParams: Record<string, unknown>; queryParamsHandling: string};
+    expect(extras.queryParamsHandling).toBe('merge');
+    expect('lesson' in extras.queryParams).toBe(false);
   });
 
   it('asks the browser to confirm a reload / close only with unsaved work', () => {

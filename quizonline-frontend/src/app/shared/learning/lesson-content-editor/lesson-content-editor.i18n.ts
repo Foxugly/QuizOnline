@@ -3,7 +3,7 @@ import {pageUiText} from '../../i18n/catalog-registry';
 
 /**
  * Dictionary of ``<app-lesson-content-editor>``: the lesson pane header
- * (prev / next / preview toggle) and the empty state. Block-list strings
+ * (rename / prev / next / preview toggle) and the empty state. Block-list strings
  * live in ``block-list-editor.i18n.ts``.
  */
 export interface LessonContentEditorUiText {
@@ -15,6 +15,8 @@ export interface LessonContentEditorUiText {
   editModeButton: string;
   previousLesson: string;
   nextLesson: string;
+  /** Header pencil (icon-only): aria-label + tooltip, same wording as the outline. */
+  renameAction: string;
 }
 
 export function getLessonContentEditorUiText(

@@ -7,10 +7,17 @@
       [value]="draftTitle()"
       (input)="draftTitle.set($any($event.target).value)"
       (keydown.enter)="commitRename()"
-      (keydown.escape)="cancelRename()"
-      (blur)="cancelRename()" />
+      (keydown.escape)="cancelRename()" />
   } @else {
     <h2 class="lesson-pane__title" (dblclick)="startRename()">{{ title() }}</h2>
+    <p-button type="button" icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
+      data-testid="rename-lesson-open"
+      [ariaLabel]="ui().renameAction"
+      [pTooltip]="ui().renameAction" tooltipPosition="bottom"
+      (onClick)="startRename()" />
+  }
+  @if (lesson()?.is_preview) {
+    <app-status-badge kind="preview" [label]="shellUi().status.preview" data-testid="lesson-preview-badge" />
   }
   <app-status-badge
     [kind]="lesson()?.is_published ? 'published' : 'draft'"
