@@ -68,7 +68,8 @@ def test_invalid_model_value_on_create_returns_400(owner, domain, en_lang):
     client = _auth(owner)
     resp = _create(client, domain, lang_code="en", title="Course")
     assert resp.status_code == 400, resp.content
-    assert "language" in resp.json()
+    assert "language_code" in resp.json()
+    assert "language" not in resp.json()
 
 
 @pytest.mark.django_db
@@ -76,4 +77,54 @@ def test_invalid_model_value_on_update_returns_400(owner, course, en_lang):
     client = _auth(owner)
     resp = client.patch(f"/api/v1/course/{course.id}/", {"language_code": "en"}, format="json")
     assert resp.status_code == 400, resp.content
-    assert "language" in resp.json()
+    assert "language_code" in resp.json()
+    assert "language" not in resp.json()
+
+
+@pytest.mark.django_db
+def test_model_level_error_keeps_non_field_errors_key(owner, domain):
+    from django.core.exceptions import ValidationError as DjangoValidationError
+
+    from course.serializers import CourseWriteSerializer, _full_clean_as_drf
+
+    class _Inst:
+        def full_clean(self):
+            raise DjangoValidationError("boom")
+
+    from rest_framework import serializers
+
+    with pytest.raises(serializers.ValidationError) as ei:
+        _full_clean_as_drf(_Inst(), CourseWriteSerializer())
+    assert "non_field_errors" in ei.value.detail
+
+
+@pytest.mark.django_db
+def test_slug_race_on_insert_retries_with_suffixed_slug(owner, domain, course, monkeypatch):
+    import course.serializers as ser
+
+    real = ser._derive_unique_course_slug
+    calls = []
+
+    def fake(language, translations, slug=None):
+        calls.append(1)
+        return course.slug if len(calls) == 1 else real(language, translations, slug)
+
+    monkeypatch.setattr(ser, "_derive_unique_course_slug", fake)
+    # full_clean's own uniqueness check would catch the stale slug up front;
+    # skip it to reproduce the check-then-insert window.
+    monkeypatch.setattr(ser, "_full_clean_as_drf", lambda *a, **k: None)
+    resp = _create(_auth(owner), domain, slug=course.slug)
+    assert resp.status_code == 201, resp.content
+    assert resp.json()["slug"] == f"{course.slug}-2"
+    assert len(calls) == 2
+
+
+@pytest.mark.django_db
+def test_slug_race_every_attempt_collides_returns_400(owner, domain, course, monkeypatch):
+    import course.serializers as ser
+
+    monkeypatch.setattr(ser, "_derive_unique_course_slug", lambda *a, **k: course.slug)
+    monkeypatch.setattr(ser, "_full_clean_as_drf", lambda *a, **k: None)
+    resp = _create(_auth(owner), domain, slug=course.slug)
+    assert resp.status_code == 400, resp.content
+    assert "slug" in resp.json()

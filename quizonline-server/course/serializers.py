@@ -98,13 +98,30 @@ class SectionSerializer(serializers.ModelSerializer):
         return instance
 
 
-def _full_clean_as_drf(instance) -> None:
+SLUG_CREATE_ATTEMPTS = 3
+
+
+def _full_clean_as_drf(instance, serializer=None) -> None:
     """Run ``full_clean()`` and re-raise a Django ``ValidationError`` as a
-    DRF one, so a model-level rule surfaces as a 400 instead of a 500."""
+    DRF one, so a model-level rule surfaces as a 400 instead of a 500.
+
+    Error keys are model field names; when ``serializer`` is given they are
+    renamed to the API field names (derived from each field's ``source``,
+    e.g. ``language`` -> ``language_code``). Model-level errors stay under
+    ``non_field_errors``.
+    """
     try:
         instance.full_clean()
     except DjangoValidationError as exc:
-        raise serializers.ValidationError(serializers.as_serializer_error(exc)) from exc
+        errors = serializers.as_serializer_error(exc)
+        if serializer is not None:
+            api_names = {}
+            for name, field in serializer.fields.items():
+                source = getattr(field, "source", None)
+                if source and source != "*" and "." not in source and source != name:
+                    api_names.setdefault(source, name)
+            errors = {api_names.get(key, key): value for key, value in errors.items()}
+        raise serializers.ValidationError(errors) from exc
 
 
 def _derive_unique_course_slug(language, translations: dict | None, slug: str | None = None) -> str:
@@ -399,16 +416,33 @@ class CourseWriteSerializer(serializers.ModelSerializer):
         validated_data["slug"] = _derive_unique_course_slug(
             validated_data.get("language"), tr, (validated_data.get("slug") or "").strip(),
         )
+        language = validated_data.get("language")
+        requested_slug = (validated_data.get("slug") or "").strip()
         instance = Course(**validated_data)
-        _full_clean_as_drf(instance)
-        instance.save()
+        _full_clean_as_drf(instance, self)
+        # The uniqueness check above is check-then-insert: a concurrent create
+        # can still win the slug. Savepoint + bounded retry with a re-derived
+        # slug; still colliding -> 400, never 500.
+        for attempt in range(SLUG_CREATE_ATTEMPTS):
+            try:
+                with transaction.atomic():
+                    instance.save()
+                break
+            except IntegrityError as exc:
+                if not Course.objects.filter(slug=instance.slug).exists():
+                    raise
+                if attempt == SLUG_CREATE_ATTEMPTS - 1:
+                    raise serializers.ValidationError(
+                        {"slug": ["Could not allocate a unique slug, please retry."]}
+                    ) from exc
+                instance.slug = _derive_unique_course_slug(language, tr, requested_slug)
         return self._apply(instance, tr)
 
     def update(self, instance, validated_data):
         tr = validated_data.pop("translations", None)
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        _full_clean_as_drf(instance)
+        _full_clean_as_drf(instance, self)
         instance.save()
         if tr is not None:
             self._apply(instance, tr)
