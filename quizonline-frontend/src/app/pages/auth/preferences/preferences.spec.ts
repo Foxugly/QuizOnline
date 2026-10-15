@@ -6,6 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {Preferences} from './preferences';
 import {AuthService} from '../../../services/auth/auth';
+import {MessageService} from 'primeng/api';
 import {AppToastService} from '../../../shared/toast/app-toast.service';
 
 describe('Preferences', () => {
@@ -20,6 +21,7 @@ describe('Preferences', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        MessageService,
       ],
     })
       .compileComponents();

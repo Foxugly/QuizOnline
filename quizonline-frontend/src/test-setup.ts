@@ -1,4 +1,4 @@
-import {expect, vi, beforeEach} from 'vitest';
+import {expect, vi, beforeEach, afterEach} from 'vitest';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoTestingModule} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
@@ -114,6 +114,13 @@ beforeEach(() => {
     // vers <p-toast>) ; fourni globalement pour que tout spec l'injectant résolve.
     providers: [MessageService],
   });
+});
+
+// Garantit un TestBed vierge apres chaque test, meme si le test a echoue en
+// plein beforeEach : sans cela un module deja instancie fait echouer en cascade
+// le configureTestingModule global du test suivant ("already been instantiated").
+afterEach(() => {
+  TestBed.resetTestingModule();
 });
 
 expect.extend({
