@@ -22,6 +22,8 @@
       "lmsMyCertificates": "Mes certificats",
       "coursesMenu": "Cours",
       "coursesMenuFormations": "Formations",
+      "lmsMyCourses": "Mes cours",
+      "lmsCreateCourse": "Créer un cours",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
       "dashboard": "Tableau de bord"
@@ -2117,6 +2119,12 @@
           "empty": "Aucune invitation à un cours en attente.",
           "cta": "Voir mes invitations",
           "inviterLine": "Invité·e par {inviter}"
+        },
+        "drafts": {
+          "title": "Mes cours en rédaction",
+          "empty": "Aucun cours en rédaction.",
+          "myCoursesCta": "Mes cours",
+          "createCta": "Créer un cours"
         }
       }
     },

@@ -22,6 +22,8 @@
       "lmsMyCertificates": "Mijn certificaten",
       "coursesMenu": "Cursussen",
       "coursesMenuFormations": "Opleidingen",
+      "lmsMyCourses": "Mijn cursussen",
+      "lmsCreateCourse": "Cursus aanmaken",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
       "dashboard": "Dashboard"
@@ -2117,6 +2119,12 @@
           "empty": "Geen lopende cursusuitnodigingen.",
           "cta": "Mijn uitnodigingen bekijken",
           "inviterLine": "Uitgenodigd door {inviter}"
+        },
+        "drafts": {
+          "title": "Mijn cursussen in voorbereiding",
+          "empty": "Geen cursussen in voorbereiding.",
+          "myCoursesCta": "Mijn cursussen",
+          "createCta": "Cursus aanmaken"
         }
       }
     },

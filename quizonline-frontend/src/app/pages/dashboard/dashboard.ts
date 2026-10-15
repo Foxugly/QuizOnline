@@ -5,15 +5,21 @@ import {ButtonModule} from 'primeng/button';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {SkeletonModule} from 'primeng/skeleton';
 
-import {CATALOG, COURSE_INVITE_ACCEPT, ME_CERTIFICATES, ME_INVITATIONS, ME_PROGRESS, ROUTES} from '../../app.routes-paths';
+import {
+  CATALOG, COURSE_EDIT, COURSE_INVITE_ACCEPT, COURSE_LIST, COURSE_NEW, ME_CERTIFICATES, ME_INVITATIONS, ME_PROGRESS, ROUTES,
+} from '../../app.routes-paths';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
+import {CatalogService} from '../../services/catalog/catalog.service';
 import {DomainService} from '../../services/domain/domain';
 import {CourseInviteDto, EnrollmentService} from '../../services/enrollment/enrollment.service';
 import {UserService} from '../../services/user/user';
 import {logApiError} from '../../shared/api/api-errors';
+import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {PageHeader} from '../../shared/components/page-header/page-header';
+import {StatusBadgeComponent} from '../../shared/components/status-badge/status-badge';
 import {interp, plural} from '../../shared/i18n/format';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
+import {pickTranslation, type TranslationsMap} from '../../shared/learning/learning-translations';
 
 import {getDashboardUiText} from './dashboard.i18n';
 
@@ -34,6 +40,17 @@ interface CertificateRow {
   id: number;
 }
 
+/** Subset of ``GET /api/v1/course/?manageable_only=1`` rows the
+ *  instructor "drafts" tile consumes. */
+interface ManageableCourseRow {
+  id: number;
+  is_published: boolean;
+  translations?: TranslationsMap;
+}
+
+/** Max number of draft courses listed in the instructor tile. */
+const MAX_DRAFTS = 5;
+
 /**
  * Unified post-login dashboard. Four tiles aggregate the learner's
  * LMS + quiz state in one place so the user can jump back into work
@@ -43,6 +60,8 @@ interface CertificateRow {
  * - **My certificates**: count + CTA to the list.
  * - **My quizzes**: shortcut to the quiz session table.
  * - **Catalog**: CTA to browse courses.
+ * - **My draft courses** (instructors only): up to 5 unpublished
+ *   manageable courses linking to the course editor Content tab.
  *
  * Each tile is best-effort: a 401/empty list collapses to its
  * "no items yet" hint and the skeleton placeholder during fetch keeps
@@ -50,7 +69,9 @@ interface CertificateRow {
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, ButtonModule, ProgressBarModule, SkeletonModule, PageHeader],
+  imports: [
+    RouterLink, ButtonModule, ProgressBarModule, SkeletonModule, PageHeader, StatusBadgeComponent, EmptyStateComponent,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,15 +79,23 @@ interface CertificateRow {
 export class DashboardPage implements OnInit {
   private readonly enrollment = inject(EnrollmentService);
   private readonly domainService = inject(DomainService);
+  private readonly catalog = inject(CatalogService);
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly ui = inject(UiTextService).localized(getDashboardUiText);
+  private readonly uiSvc = inject(UiTextService);
+  protected readonly ui = this.uiSvc.localized(getDashboardUiText);
+  /** Shell vocabulary for ``<app-status-badge>`` labels. */
+  protected readonly shellUi = this.uiSvc.ui;
 
   protected readonly catalogHref = CATALOG;
   protected readonly progressHref = ME_PROGRESS;
   protected readonly certificatesHref = ME_CERTIFICATES;
   protected readonly invitationsHref = ME_INVITATIONS;
   protected readonly quizListHref = ROUTES.quiz.list();
+  protected readonly courseListHref = COURSE_LIST;
+  protected readonly courseNewHref = COURSE_NEW;
+  /** ``COURSE_EDIT_TAB(id, 'content')`` split for ``routerLink`` + ``queryParams``. */
+  protected readonly contentTabParams = {tab: 'content'} as const;
 
   protected readonly coursesLoading = signal(true);
   protected readonly courses = signal<ProgressRow[]>([]);
@@ -74,6 +103,8 @@ export class DashboardPage implements OnInit {
   protected readonly certificates = signal<CertificateRow[]>([]);
   protected readonly invitationsLoading = signal(true);
   protected readonly invitations = signal<CourseInviteDto[]>([]);
+  protected readonly draftsLoading = signal(true);
+  private readonly manageableCourses = signal<ManageableCourseRow[]>([]);
   /** Domains the user belongs to in any capacity. Used to decide
    *  whether the caller is an instructor anywhere — which keeps the
    *  invitations tile visible even when empty so the affordance stays
@@ -92,7 +123,7 @@ export class DashboardPage implements OnInit {
    *  (superusers count too). Pulled from the domains list rather
    *  than ``currentUser()`` because the user model does not carry
    *  the owned/managed domain set inline. */
-  private readonly isInstructorAnywhere = computed(() => {
+  protected readonly isInstructorAnywhere = computed(() => {
     const me = this.userService.currentUser();
     if (!me) {
       return false;
@@ -127,6 +158,20 @@ export class DashboardPage implements OnInit {
 
   protected readonly certificatesCount = computed(() => this.certificates().length);
 
+  /** Up to 5 unpublished manageable courses, in the API order (on
+   *  PostgreSQL ``published_at`` desc puts the never-published ones first). */
+  protected readonly draftCourses = computed(() => {
+    const lang = this.userService.lang();
+    return this.manageableCourses()
+      .filter((c) => !c.is_published)
+      .slice(0, MAX_DRAFTS)
+      .map((c) => ({
+        id: c.id,
+        title: pickTranslation(c.translations, lang, 'title') || `#${c.id}`,
+        editPath: COURSE_EDIT(c.id),
+      }));
+  });
+
   /** Per-course progress label, e.g. "80%". */
   protected progressLabel(pct: number): string {
     return interp(this.ui().tiles.courses.progressLabel, {pct});
@@ -153,10 +198,32 @@ export class DashboardPage implements OnInit {
     this.domainService.list()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (domains) => this.domains.set(domains ?? []),
+        next: (domains) => {
+          this.domains.set(domains ?? []);
+          if (this.isInstructorAnywhere()) {
+            this.loadDraftCourses();
+          }
+        },
         error: (err: unknown) => {
           logApiError('dashboard.domains', err);
           this.domains.set([]);
+        },
+      });
+  }
+
+  private loadDraftCourses(): void {
+    this.draftsLoading.set(true);
+    this.catalog.list({manageableOnly: true})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.manageableCourses.set((response?.results ?? []) as ManageableCourseRow[]);
+          this.draftsLoading.set(false);
+        },
+        error: (err: unknown) => {
+          logApiError('dashboard.drafts', err);
+          this.manageableCourses.set([]);
+          this.draftsLoading.set(false);
         },
       });
   }

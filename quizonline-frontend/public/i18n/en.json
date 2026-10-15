@@ -22,6 +22,8 @@
       "lmsMyCertificates": "My certificates",
       "coursesMenu": "Courses",
       "coursesMenuFormations": "Courses",
+      "lmsMyCourses": "My courses",
+      "lmsCreateCourse": "Create a course",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
       "dashboard": "Dashboard"
@@ -2117,6 +2119,12 @@
           "empty": "No pending course invitations.",
           "cta": "View my invitations",
           "inviterLine": "Invited by {inviter}"
+        },
+        "drafts": {
+          "title": "My draft courses",
+          "empty": "No draft courses.",
+          "myCoursesCta": "My courses",
+          "createCta": "Create a course"
         }
       }
     },

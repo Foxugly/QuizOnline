@@ -45,6 +45,13 @@ export interface DashboardUiText {
       /** INTERP: ``{inviter}`` — render through ``interp``. */
       inviterLine: string;
     };
+    /** Instructor-only tile: unpublished manageable courses. */
+    drafts: {
+      title: string;
+      empty: string;
+      myCoursesCta: string;
+      createCta: string;
+    };
   };
 }
 
