@@ -47,3 +47,49 @@ def test_negative_position_is_400(owner, setup):
     _s1, s2, lesson = setup
     resp = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": s2.id, "position": -1}, format="json")
     assert resp.status_code == 400
+
+
+@pytest.mark.django_db
+def test_target_section_in_other_course_is_400(owner, domain, fr_lang, setup):
+    from course.models import Course
+
+    s1, _s2, lesson = setup
+    other = Course(domain=domain, slug="c2", language=fr_lang, level=Course.LEVEL_BEGINNER)
+    other.set_current_language("fr")
+    other.title = "C2"
+    other.save()
+    foreign = Section.objects.create(course=other, order=0)
+    resp = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": foreign.id, "position": 0}, format="json")
+    assert resp.status_code == 400
+    lesson.refresh_from_db()
+    assert (lesson.section_id, lesson.order) == (s1.id, 0)
+
+
+@pytest.mark.django_db
+def test_unknown_section_is_400(owner, setup):
+    s1, _s2, lesson = setup
+    resp = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": 999999, "position": 0}, format="json")
+    assert resp.status_code == 400
+    lesson.refresh_from_db()
+    assert lesson.section_id == s1.id
+
+
+@pytest.mark.django_db
+def test_user_of_other_domain_gets_404(setup):
+    _s1, s2, lesson = setup
+    stranger = CustomUser.objects.create_user(email="stranger@example.test", password="x")
+    resp = _auth(stranger).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": s2.id, "position": 0}, format="json")
+    assert resp.status_code == 404
+    lesson.refresh_from_db()
+    assert lesson.section_id != s2.id
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("position,expected", [(1, ["x", "l", "y"]), (99, ["x", "y", "l"])])
+def test_position_ordering_in_target(owner, setup, position, expected):
+    _s1, s2, lesson = setup
+    Lesson.objects.create(section=s2, slug="x", order=0)
+    Lesson.objects.create(section=s2, slug="y", order=1)
+    resp = _auth(owner).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": s2.id, "position": position}, format="json")
+    assert resp.status_code == 200, resp.content
+    assert [x["slug"] for x in resp.json()["target_section"]["lessons"]] == expected
