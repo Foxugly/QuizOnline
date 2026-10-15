@@ -1,6 +1,22 @@
 import {expect, test} from '@playwright/test';
 
+type DialogWindow = Window & {__dialogSeen?: boolean};
+
 test.beforeEach(async ({page}) => {
+  // Flag any dialog ever inserted in the DOM (resets on reload).
+  await page.addInitScript(() => {
+    const sel = '.p-dialog, .p-confirmdialog, [role="dialog"]';
+    const observer = new MutationObserver(mutations => {
+      for (const m of mutations) {
+        m.addedNodes.forEach(n => {
+          if (n instanceof Element && (n.matches(sel) || n.querySelector(sel))) {
+            (window as DialogWindow).__dialogSeen = true;
+          }
+        });
+      }
+    });
+    observer.observe(document, {childList: true, subtree: true});
+  });
   await page.addInitScript(() => {
     (window as Window & {__QUIZONLINE_API_BASE_URL?: string}).__QUIZONLINE_API_BASE_URL = 'http://127.0.0.1:8001';
   });
@@ -24,8 +40,9 @@ test('instructor builds a section and a lesson with content, no dialog', async (
   await page.getByTestId('add-section-input').fill('Chapitre 1');
   await page.getByTestId('add-section-input').press('Enter');
 
-  await page.locator('[data-testid^="add-lesson-"][data-testid$="-open"]').click();
+  // submitSection() opens the lesson input of the new section automatically.
   const lessonInput = page.locator('[data-testid^="add-lesson-"][data-testid$="-input"]');
+  await expect(lessonInput).toBeVisible();
   await lessonInput.fill('Leçon 1');
   await lessonInput.press('Enter');
   await expect(page).toHaveURL(/lesson=\d+/);
@@ -35,6 +52,8 @@ test('instructor builds a section and a lesson with content, no dialog', async (
   await lessonPane.getByRole('button', {name: /texte enrichi|rich text/i}).click();
   await lessonPane.locator('.ql-editor').first().fill('Contenu E2E');
   await lessonPane.getByRole('button', {name: /^(enregistrer|save)$/i}).first().click();
+
+  expect(await page.evaluate(() => (window as DialogWindow).__dialogSeen === true)).toBe(false);
 
   // Content survives a reload, and no dialog was ever involved.
   await page.reload();
