@@ -87,6 +87,7 @@ export class LessonContentEditor {
 
   protected readonly renaming = signal(false);
   protected readonly draftTitle = signal('');
+  private readonly blockList = viewChild(BlockListEditor);
   private readonly titleInput = viewChild<ElementRef<HTMLInputElement>>('titleInput');
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
@@ -113,9 +114,9 @@ export class LessonContentEditor {
     });
   }
 
-  /** Placeholder until the dirty-state tracking lands (Task 10). */
+  /** True while a block of this lesson is open in edit mode. */
   hasUnsavedChanges(): boolean {
-    return false;
+    return this.blockList()?.hasUnsavedChanges() ?? false;
   }
 
   /** Title in the course language, else the first non-empty translation. */

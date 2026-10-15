@@ -30,6 +30,8 @@ export type EditorUiText = {
     errorTitle: string;
     /** Generic "delete failed" toast summary for delete actions. */
     deleteFailed: string;
+    /** window.confirm text shown before leaving a block / lesson / tab with unsaved edits. */
+    unsavedChangesConfirm: string;
   };
   quiz: {
     newTemplate: string;

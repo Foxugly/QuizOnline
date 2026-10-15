@@ -8,6 +8,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -44,6 +45,8 @@ export class CourseEditContentTab {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
+  private readonly editorUiText = inject(UiTextService).editor;
+  private readonly lessonEditor = viewChild(LessonContentEditor);
 
   protected readonly ui = inject(UiTextService).localized(getCourseEditContentTabUiText);
 
@@ -87,8 +90,20 @@ export class CourseEditContentTab {
     });
   }
 
-  /** ``0`` clears the selection. */
+  /** True while the open lesson has a block in edit mode. */
+  hasUnsavedChanges(): boolean {
+    return this.lessonEditor()?.hasUnsavedChanges() ?? false;
+  }
+
+  /**
+   * ``0`` clears the selection. It is only emitted after the author confirmed
+   * deleting the selected lesson, so it is never gated by the unsaved-work prompt.
+   */
   protected onSelect(id: number): void {
+    if (id !== 0 && id !== this.selectedLessonId() && this.hasUnsavedChanges()
+      && !window.confirm(this.editorUiText().common.unsavedChangesConfirm)) {
+      return;
+    }
     this.writeLesson(id || null);
   }
 

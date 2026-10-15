@@ -183,6 +183,11 @@ export class BlockListEditor {
 
   private readonly apiBaseUrl = `${resolveApiBaseUrl().replace(/\/+$/, '')}/api/v1`;
 
+  /** True while at least one block is open in edit mode (unsaved local edits). */
+  hasUnsavedChanges(): boolean {
+    return this.editingIds().size > 0;
+  }
+
   /** Stable composite anchor id so several block lists in the same
    *  page (prompt / answer 1 / answer 2 / explanation) never collide
    *  on a bare ``block-X`` id. */

@@ -523,7 +523,8 @@
       "quick": "Rápido",
       "downloadPdf": "Descargar PDF",
       "errorTitle": "Error",
-      "deleteFailed": "La eliminación falló."
+      "deleteFailed": "La eliminación falló.",
+      "unsavedChangesConfirm": "Los cambios no guardados se perderán. ¿Continuar?"
     },
     "quiz": {
       "newTemplate": "Nueva plantilla",

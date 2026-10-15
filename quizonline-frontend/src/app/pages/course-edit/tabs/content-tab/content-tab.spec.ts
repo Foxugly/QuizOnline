@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
-import {describe, expect, it, beforeEach, vi} from 'vitest';
+import {afterEach, describe, expect, it, beforeEach, vi} from 'vitest';
 import {CourseEditContentTab} from './content-tab';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
@@ -91,5 +91,35 @@ describe('CourseEditContentTab', () => {
     const lesson = emitted!.sections![0].lessons![0];
     expect(lesson.translations['fr']['title']).toBe('Nouveau');
     expect((course as CourseDetailDto).sections![0].lessons![0].translations['fr']['title']).toBe('L');
+  });
+
+  describe('unsaved work', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('does not navigate when the author refuses to leave a lesson with unsaved blocks', () => {
+      const f = render();
+      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+      f.componentInstance['onSelect'](6);
+      expect(confirm).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('navigates when the author confirms', () => {
+      const f = render();
+      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+      f.componentInstance['onSelect'](6);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('never asks when clearing the selection after a confirmed lesson deletion', () => {
+      const f = render();
+      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+      f.componentInstance['onSelect'](0);
+      expect(confirm).not.toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
   });
 });

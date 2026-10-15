@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
@@ -19,6 +19,7 @@ import {StatusBadgeComponent} from '../../shared/components/status-badge/status-
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
+import {HasUnsavedChanges} from './unsaved-changes.guard';
 import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
@@ -61,7 +62,7 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
   styleUrl: './course-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CourseEdit implements OnInit {
+export class CourseEdit implements OnInit, HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -75,7 +76,18 @@ export class CourseEdit implements OnInit {
     {initialValue: 'info' as CourseEditTab},
   );
 
+  private readonly contentTab = viewChild(CourseEditContentTab);
+
+  /** Used by ``unsavedChangesGuard`` when leaving the page. */
+  hasUnsavedChanges(): boolean {
+    return this.contentTab()?.hasUnsavedChanges() ?? false;
+  }
+
   protected onTabChange(tab: string | number | undefined): void {
+    if (tab !== this.activeTab() && this.hasUnsavedChanges()
+      && !window.confirm(this.editorUi().common.unsavedChangesConfirm)) {
+      return;
+    }
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},

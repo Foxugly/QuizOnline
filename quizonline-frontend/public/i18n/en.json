@@ -523,7 +523,8 @@
       "quick": "Quick",
       "downloadPdf": "Download PDF",
       "errorTitle": "Error",
-      "deleteFailed": "Deletion failed."
+      "deleteFailed": "Deletion failed.",
+      "unsavedChangesConfirm": "Unsaved changes will be lost. Continue?"
     },
     "quiz": {
       "newTemplate": "New template",

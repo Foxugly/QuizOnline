@@ -523,7 +523,8 @@
       "quick": "Rapido",
       "downloadPdf": "Scarica PDF",
       "errorTitle": "Errore",
-      "deleteFailed": "L'eliminazione non è riuscita."
+      "deleteFailed": "L'eliminazione non è riuscita.",
+      "unsavedChangesConfirm": "Le modifiche non salvate andranno perse. Continuare?"
     },
     "quiz": {
       "newTemplate": "Nuovo template",

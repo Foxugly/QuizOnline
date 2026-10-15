@@ -523,7 +523,8 @@
       "quick": "Snel",
       "downloadPdf": "PDF downloaden",
       "errorTitle": "Fout",
-      "deleteFailed": "Verwijderen is mislukt."
+      "deleteFailed": "Verwijderen is mislukt.",
+      "unsavedChangesConfirm": "Niet-opgeslagen wijzigingen gaan verloren. Doorgaan?"
     },
     "quiz": {
       "newTemplate": "Nieuw template",
