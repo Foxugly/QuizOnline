@@ -247,7 +247,13 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             base = lesson_slug_base(validated_data.get("slug"), tr or {}, section.course)
             validated_data["slug"] = unique_lesson_slug(section, base)
             instance = Lesson.objects.create(**validated_data)
-            return self._apply(instance, tr)
+            instance = self._apply(instance, tr)
+            from course.tasks import fill_missing_translations
+
+            transaction.on_commit(
+                lambda pk=instance.pk: fill_missing_translations.delay("lesson.lesson", pk)
+            )
+            return instance
 
     def update(self, instance, validated_data):
         tr = validated_data.pop("translations", None)
