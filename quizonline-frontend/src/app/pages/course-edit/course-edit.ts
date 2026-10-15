@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, linkedSignal, OnInit, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
@@ -6,7 +6,7 @@ import {FormsModule} from '@angular/forms';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {TabsModule} from 'primeng/tabs';
+import {Tabs, TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
@@ -76,8 +76,8 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
     {initialValue: 'info' as CourseEditTab},
   );
 
-  /** Value bound two-way to ``<p-tabs>`` so a refused switch can be reverted. */
-  protected readonly tabValue = linkedSignal<string | number | undefined>(() => this.activeTab());
+  /** Needed to write the strip's own value back when a tab switch is refused. */
+  private readonly tabs = viewChild(Tabs);
   private readonly contentTab = viewChild(CourseEditContentTab);
 
   /** Used by ``unsavedChangesGuard`` when leaving the page. */
@@ -86,10 +86,16 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
   }
 
   protected onTabChange(tab: string | number | undefined): void {
-    if (tab !== this.activeTab() && this.hasUnsavedChanges()
-      && !confirmDiscardUnsaved()) {
-      // p-tabs already switched its own value: push the current tab back.
-      this.tabValue.set(this.activeTab());
+    if (tab === this.activeTab()) {
+      // Echo of our own revert (or of p-tabs' init): nothing to do, and navigating
+      // would clear ?lesson=.
+      return;
+    }
+    if (this.hasUnsavedChanges()
+      && !confirmDiscardUnsaved(this.editorUi().common.unsavedChangesConfirm)) {
+      // p-tabs already switched its own model value on click; the one-way
+      // binding never re-pushes an unchanged activeTab(), so write it back.
+      this.tabs()?.value.set(this.activeTab());
       return;
     }
     this.router.navigate([], {

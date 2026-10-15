@@ -3,6 +3,7 @@ import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {afterEach, describe, expect, it, beforeEach, vi} from 'vitest';
 import {CourseEditContentTab} from './content-tab';
+import {UserService} from '../../../../services/user/user';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
 
@@ -111,6 +112,15 @@ describe('CourseEditContentTab', () => {
       vi.spyOn(window, 'confirm').mockReturnValue(true);
       f.componentInstance['onSelect'](6);
       expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('prompts with the localized message, not the English fallback', () => {
+      TestBed.inject(UserService)['_lang'].set('fr' as never);
+      const f = render();
+      vi.spyOn(f.componentInstance, 'hasUnsavedChanges').mockReturnValue(true);
+      const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+      f.componentInstance['onSelect'](6);
+      expect(confirm).toHaveBeenCalledWith('Les modifications non enregistrées seront perdues. Continuer ?');
     });
 
     it('never asks when clearing the selection after a confirmed lesson deletion', () => {

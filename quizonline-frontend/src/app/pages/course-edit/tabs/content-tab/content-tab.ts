@@ -46,6 +46,7 @@ export class CourseEditContentTab {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
+  private readonly editorUiText = inject(UiTextService).editor;
   private readonly lessonEditor = viewChild(LessonContentEditor);
 
   protected readonly ui = inject(UiTextService).localized(getCourseEditContentTabUiText);
@@ -101,7 +102,7 @@ export class CourseEditContentTab {
    */
   protected onSelect(id: number): void {
     if (id !== 0 && id !== this.selectedLessonId() && this.hasUnsavedChanges()
-      && !confirmDiscardUnsaved()) {
+      && !confirmDiscardUnsaved(this.editorUiText().common.unsavedChangesConfirm)) {
       return;
     }
     this.writeLesson(id || null);

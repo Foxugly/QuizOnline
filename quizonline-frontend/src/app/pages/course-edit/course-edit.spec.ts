@@ -1,4 +1,5 @@
 import {TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {BehaviorSubject, of} from 'rxjs';
 import {ConfirmationService} from 'primeng/api';
@@ -6,9 +7,12 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
+import {TabsModule} from 'primeng/tabs';
+import {Tabs} from 'primeng/tabs';
 import {CourseEdit} from './course-edit';
 
 describe('CourseEdit unsaved tab guard', () => {
+  let tabs: Tabs;
   const router = {navigate: vi.fn()};
 
   beforeEach(() => {
@@ -26,7 +30,10 @@ describe('CourseEdit unsaved tab guard', () => {
         {provide: ConfirmationService, useValue: {}},
       ],
     });
-    TestBed.overrideComponent(CourseEdit, {set: {imports: [], template: '<div></div>'}});
+    TestBed.overrideComponent(CourseEdit, {set: {imports: [TabsModule], template: `
+      <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+        <p-tablist><p-tab value="content">c</p-tab><p-tab value="analytics">a</p-tab></p-tablist>
+      </p-tabs>`}});
   });
 
   afterEach(() => vi.restoreAllMocks());
@@ -34,6 +41,8 @@ describe('CourseEdit unsaved tab guard', () => {
   function render() {
     const f = TestBed.createComponent(CourseEdit);
     f.detectChanges();
+    tabs = f.debugElement.query(By.directive(Tabs)).componentInstance as Tabs;
+    router.navigate.mockReset(); // p-tabs echoes its initial value on init
     return f.componentInstance;
   }
 
@@ -41,11 +50,10 @@ describe('CourseEdit unsaved tab guard', () => {
     const c = render();
     vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(true);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    c['tabValue'].set('analytics'); // what <p-tabs> does before emitting
-    c['onTabChange']('analytics');
+    tabs.updateValue('analytics'); // what a click does: model write, then valueChange -> onTabChange
     expect(confirm).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
-    expect(c['tabValue']()).toBe('content');
+    expect(tabs.value()).toBe('content');
   });
 
   it('confirming navigates to the requested tab', () => {
