@@ -80,6 +80,7 @@ export * from './lesson-detail-prev-lesson';
 export * from './lesson-detail-request';
 export * from './lesson-quiz';
 export * from './lesson-quiz-request';
+export * from './lesson-summary';
 export * from './level-enum';
 export * from './localized-answer-option-translation-request';
 export * from './localized-domain-translation';

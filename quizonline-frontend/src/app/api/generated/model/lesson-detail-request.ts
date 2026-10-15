@@ -11,7 +11,7 @@
 
 export interface LessonDetailRequestDto { 
     section: number;
-    slug: string;
+    slug?: string;
     order?: number;
     is_preview?: boolean;
     is_published?: boolean;

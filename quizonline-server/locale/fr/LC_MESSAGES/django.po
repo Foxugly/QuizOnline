@@ -566,3 +566,7 @@ msgstr "Ouvrir les demandes d'inscription :"
 #: enrollment/views.py
 msgid "You must be enrolled in this course to record progress on its lessons."
 msgstr "Vous devez être inscrit à ce cours pour enregistrer votre progression sur ses leçons."
+
+#: core/services.py
+msgid "This position or identifier is already used in this course. Reorder instead."
+msgstr "Cette position ou cet identifiant est déjà utilisé dans ce cours. Utilisez plutôt le réordonnancement."

@@ -24,7 +24,7 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
-import {LessonDetailDto} from '../../../../api/generated/model/lesson-detail';
+import {LessonSummaryDto} from '../../../../api/generated/model/lesson-summary';
 import {SectionDto} from '../../../../api/generated/model/section';
 
 import {LESSON_EDIT} from '../../../../app.routes-paths';
@@ -41,23 +41,6 @@ import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 
 import {getCourseEditStructureTabUiText} from './structure-tab.i18n';
-
-/**
- * Inline slugify helper used to derive lesson slugs from the
- * effective-language title. Mirrors the backend ``slug`` validator
- * pattern ``^[a-z0-9]+(?:-[a-z0-9]+)*$`` and the lesson model's
- * ``max_length=220`` constraint. Lifted from ``course-create`` so the
- * two pages stay consistent without leaking a half-shared helper.
- */
-function slugify(input: string): string {
-  return input
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 220);
-}
 
 /** Per-lang form state used by both the section and lesson dialogs. */
 type TranslationsMap = Record<string, Record<string, string>>;
@@ -236,11 +219,11 @@ export class CourseEditStructureTab {
     return this.pickTranslated(section.translations, 'title') || this.ui().untitledSection;
   }
 
-  protected lessonTitle(lesson: LessonDetailDto): string {
+  protected lessonTitle(lesson: LessonSummaryDto): string {
     return this.pickTranslated(lesson.translations, 'title') || this.ui().untitledLesson;
   }
 
-  protected sortedLessons(section: SectionDto): LessonDetailDto[] {
+  protected sortedLessons(section: SectionDto): LessonSummaryDto[] {
     return [...(section.lessons ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
@@ -329,7 +312,10 @@ export class CourseEditStructureTab {
     this.sectionDialog.update((s) => ({...s, isPublished: value}));
   }
 
-  protected submitSectionDialog(): void {
+  /** ``then = 'addLesson'`` (create only): once the section exists, open
+   *  the lesson dialog on it — the usual next step, without hunting for
+   *  the new section's "+" button. */
+  protected submitSectionDialog(then: 'close' | 'addLesson' = 'close'): void {
     const state = this.sectionDialog();
     const primary = this.primaryLang();
     const primaryTitle = (state.translations[primary]?.['title'] ?? '').trim();
@@ -348,17 +334,21 @@ export class CourseEditStructureTab {
     this.sectionDialog.update((s) => ({...s, submitting: true}));
     if (state.id === null) {
       this.catalog
+        // No ``order``: the server appends the section after the last one.
         .createSection({
           course: this.courseId(),
           is_published: state.isPublished,
-          order: this.sections().length,
           translations,
         })
         .subscribe({
-          next: () => {
+          next: (created) => {
             this.sectionDialog.update((s) => ({...s, visible: false, submitting: false}));
             this.toast.add({severity: 'success', summary: this.ui().sectionCreatedToast});
             this.changed.emit();
+            const createdId = (created as {id?: number} | null)?.id;
+            if (then === 'addLesson' && createdId) {
+              this.openLessonDialogForSection(createdId);
+            }
           },
           error: (err: unknown) => {
             logApiError('lms.structure.create-section', err);
@@ -462,6 +452,10 @@ export class CourseEditStructureTab {
   // -- Lesson dialog -------------------------------------------------------
 
   protected openLessonDialogCreate(section: SectionDto): void {
+    this.openLessonDialogForSection(section.id);
+  }
+
+  private openLessonDialogForSection(sectionId: number): void {
     const langs = this.languages();
     const blank: TranslationsMap = {};
     for (const code of langs) {
@@ -470,7 +464,7 @@ export class CourseEditStructureTab {
     this.lessonDialog.set({
       visible: true,
       id: null,
-      sectionId: section.id,
+      sectionId,
       isPublished: false,
       isPreview: false,
       translations: blank,
@@ -479,7 +473,7 @@ export class CourseEditStructureTab {
     });
   }
 
-  protected openLessonDialogEdit(section: SectionDto, lesson: LessonDetailDto): void {
+  protected openLessonDialogEdit(section: SectionDto, lesson: LessonSummaryDto): void {
     const langs = this.languages();
     const tr: TranslationsMap = {};
     for (const code of langs) {
@@ -527,7 +521,9 @@ export class CourseEditStructureTab {
     this.lessonDialog.update((s) => ({...s, isPreview: value}));
   }
 
-  protected submitLessonDialog(): void {
+  /** ``then = 'edit'`` (create only): open the new lesson's content
+   *  editor straight away instead of returning to the structure. */
+  protected submitLessonDialog(then: 'close' | 'edit' = 'close'): void {
     const state = this.lessonDialog();
     const primary = this.primaryLang();
     const primaryTitle = (state.translations[primary]?.['title'] ?? '').trim();
@@ -546,30 +542,24 @@ export class CourseEditStructureTab {
     this.lessonDialog.update((s) => ({...s, submitting: true}));
 
     if (state.id === null) {
-      // Derive slug from the effective-language title; fall back to a
-      // unique timestamped value when slugify swallows everything
-      // (pure-punctuation / non-Latin titles).
-      let slug = slugify(primaryTitle);
-      if (!slug) {
-        slug = `lesson-${Date.now().toString(36)}`;
-      }
-      // Determine order from the existing lessons on the target section.
-      const targetSection = this.sections().find((s) => s.id === state.sectionId);
-      const order = targetSection ? this.sortedLessons(targetSection).length : 0;
-
+      // No ``slug`` / ``order``: the server appends the lesson and derives
+      // a slug unique within the section from the course-language title.
       this.catalog
         .createLesson({
           section: state.sectionId,
-          slug,
-          order,
           is_published: state.isPublished,
           is_preview: state.isPreview,
           translations,
         })
         .subscribe({
-          next: () => {
+          next: (created) => {
             this.lessonDialog.update((s) => ({...s, visible: false, submitting: false}));
             this.toast.add({severity: 'success', summary: this.ui().lessonCreatedToast});
+            const createdId = (created as {id?: number} | null)?.id;
+            if (then === 'edit' && createdId) {
+              this.router.navigateByUrl(LESSON_EDIT(createdId));
+              return;
+            }
             this.changed.emit();
           },
           error: (err: unknown) => {
@@ -692,7 +682,7 @@ export class CourseEditStructureTab {
       });
   }
 
-  protected toggleLessonPublished(lesson: LessonDetailDto): void {
+  protected toggleLessonPublished(lesson: LessonSummaryDto): void {
     if (this.isTogglingLessonPublished(lesson.id)) {
       return;
     }
@@ -712,7 +702,7 @@ export class CourseEditStructureTab {
       });
   }
 
-  protected toggleLessonPreview(lesson: LessonDetailDto): void {
+  protected toggleLessonPreview(lesson: LessonSummaryDto): void {
     if (this.isTogglingLessonPreview(lesson.id)) {
       return;
     }
@@ -745,7 +735,7 @@ export class CourseEditStructureTab {
     });
   }
 
-  protected confirmDeleteLesson(lesson: LessonDetailDto): void {
+  protected confirmDeleteLesson(lesson: LessonSummaryDto): void {
     const title = this.lessonTitle(lesson);
     const labels = this.ui();
     this.confirmer.confirm({
@@ -808,7 +798,7 @@ export class CourseEditStructureTab {
     });
   }
 
-  protected onLessonDrop(section: SectionDto, event: CdkDragDrop<LessonDetailDto[]>): void {
+  protected onLessonDrop(section: SectionDto, event: CdkDragDrop<LessonSummaryDto[]>): void {
     if (event.previousIndex === event.currentIndex) {
       return;
     }
@@ -830,7 +820,7 @@ export class CourseEditStructureTab {
 
   // -- Navigation ----------------------------------------------------------
 
-  protected editLessonContent(lesson: LessonDetailDto): void {
+  protected editLessonContent(lesson: LessonSummaryDto): void {
     this.router.navigateByUrl(LESSON_EDIT(lesson.id));
   }
 }

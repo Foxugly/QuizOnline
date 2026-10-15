@@ -36,6 +36,24 @@ def two_phase_reorder(model, parent_filter, ids_in_order):
     return list(model.objects.filter(parent_filter).order_by("order"))
 
 
+UNIQUE_POSITION_ERROR = _(
+    "This position or identifier is already used in this course. Reorder instead."
+)
+
+
+def next_order(model, parent_filter) -> int:
+    """Next free ``order`` under one parent: ``max + 1`` (0 when empty).
+
+    Creates call this instead of trusting a client-computed position. A
+    client counting rows (``order = len(list)``) collides with the
+    ``UNIQUE(parent, order)`` constraint as soon as the existing orders
+    are not exactly 0..N-1 — which a JSON import leaves behind. The
+    caller must hold a lock on the parent row so two concurrent creates
+    cannot pick the same value."""
+    last = model.objects.filter(parent_filter).aggregate(m=models.Max("order"))["m"]
+    return 0 if last is None else last + 1
+
+
 def compact(model, parent_filter):
     """Renumber surviving rows to 0..N-1 in their current ``order``.
 

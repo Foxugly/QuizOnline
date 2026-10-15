@@ -37,6 +37,8 @@ export interface CourseEditStructureTabUiText {
     descriptionField: string;
     isPublishedField: string;
     submitButton: string;
+    /** Create-only: create the section, then open the lesson dialog on it. */
+    submitAndAddLessonButton: string;
     cancelButton: string;
     translateButton: string;
     translationFailed: string;
@@ -49,6 +51,8 @@ export interface CourseEditStructureTabUiText {
     isPreviewField: string;
     isPublishedField: string;
     submitButton: string;
+    /** Create-only: create the lesson, then open its content editor. */
+    submitAndEditButton: string;
     cancelButton: string;
     translateButton: string;
     translationFailed: string;
