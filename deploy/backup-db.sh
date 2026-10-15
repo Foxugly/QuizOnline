@@ -13,8 +13,9 @@
 # Optional S3 mirror: set $S3_BUCKET (and the AWS CLI credentials in
 # the environment) to also push the gzip to ``s3://$S3_BUCKET/$(basename)``.
 #
-# Wire as a systemd timer via deploy/backup-db.timer + .service for
-# cron-style daily runs. Manually: ``sudo -u django bash deploy/backup-db.sh``.
+# Manual use only (e.g. before a risky migration):
+# ``sudo -u django bash deploy/backup-db.sh``. The scheduled backup is
+# fleet-wide since 2026-10-15 (foxugly-ops OPERATIONS.md §3.23).
 
 set -euo pipefail
 

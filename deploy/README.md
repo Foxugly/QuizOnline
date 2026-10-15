@@ -447,7 +447,6 @@ Unit files in [`deploy/`](.), synced into `/etc/systemd/system/` by
 | `quizonline-gunicorn.service` | Django HTTP via gunicorn, binds 127.0.0.1:8000 | `/run/quizonline/.env` |
 | `quizonline-celery.service` | Celery worker (email outbox, async tasks) | `/run/quizonline/.env` |
 | `quizonline-celery-beat.service` | Celery beat scheduler | `/run/quizonline/.env` |
-| `quizonline-backup.service` + `.timer` | Daily DB backup | inline `Environment=` |
 
 The three app units declare `Requires=quizonline-env-fetch.service`
 for boot ordering. Secret rotation is `aws ssm put-parameter
@@ -623,12 +622,8 @@ ever rebuild:
    # Verify the tmpfs .env was created:
    sudo stat -c '%a %U:%G %n' /run/quizonline/.env   # expect 640 django:www-data
    sudo systemctl enable --now quizonline-gunicorn quizonline-celery quizonline-celery-beat
-   sudo systemctl enable --now quizonline-backup.timer
-   # Verify the backup ACTUALLY runs (don't wait for the daily timer — a
-   # silent failure here is invisible until you need the dump). It must exit 0
-   # and drop a fresh *.sql.gz; check `systemctl --failed` stays clean too.
-   sudo systemctl start quizonline-backup.service
-   sudo ls -lh /var/backups/quizonline/ | tail -1
+   # Scheduled DB backup is fleet-wide (foxugly-ops OPERATIONS.md §3.23): weekly
+   # pg_dump of every database to S3 + weekly EBS snapshot. Nothing to enable here.
    sudo systemctl enable --now quizonline-frontend-runtime-fetch.service
    # Verify the snippet was generated:
    sudo cat /etc/nginx/snippets/quizonline-frontend-runtime.conf
