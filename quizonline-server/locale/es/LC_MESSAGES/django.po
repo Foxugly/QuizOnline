@@ -562,3 +562,7 @@ msgstr "%(learner)s ha solicitado inscribirse en el curso %(course)s."
 
 msgid "Open enrollment requests:"
 msgstr "Abrir solicitudes de inscripción:"
+
+#: enrollment/views.py
+msgid "You must be enrolled in this course to record progress on its lessons."
+msgstr "Debes estar inscrito en este curso para registrar tu progreso en sus lecciones."

@@ -15,7 +15,8 @@ def test_compute_score_percent_zero_when_no_questions(quiz_template, learner):
 
 
 @pytest.mark.django_db
-def test_evaluate_lesson_quiz_marks_lesson_completed(lesson, quiz_template, learner, monkeypatch):
+def test_evaluate_lesson_quiz_marks_lesson_completed(enrolled_live_lesson, quiz_template, learner, monkeypatch):
+    lesson = enrolled_live_lesson
     LessonQuiz.objects.create(lesson=lesson, quiz_template=quiz_template, required_score_percent=50)
     monkeypatch.setattr("assessment.services.compute_score_percent", lambda s: 100)
     session = Quiz.objects.create(

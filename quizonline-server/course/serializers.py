@@ -31,7 +31,13 @@ class SectionSerializer(serializers.ModelSerializer):
     @extend_schema_field({"type": "array", "items": {"$ref": "#/components/schemas/LessonDetail"}})
     def get_lessons(self, obj):
         from lesson.serializers import LessonDetailSerializer
-        return LessonDetailSerializer(obj.lessons.all(), many=True, context=self.context).data
+        lessons = obj.lessons.all()
+        if self.context.get("_learner_view"):
+            # Same rule as ``Lesson.objects.visible_to`` for a learner:
+            # published or preview. Filtered in Python so the retrieve
+            # prefetch chain is reused.
+            lessons = [lesson for lesson in lessons if lesson.is_published or lesson.is_preview]
+        return LessonDetailSerializer(lessons, many=True, context=self.context).data
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
@@ -202,8 +208,14 @@ class CourseListSerializer(serializers.ModelSerializer):
             return None
         progress = CourseProgress.objects.filter(course=obj, user=user).first()
         progress_pct = int(progress.progress_percent) if progress else 0
+        # Only lessons that count toward progress (lesson AND section
+        # published): "Resume" must never point at a draft (→ 404).
         lessons = list(
-            Lesson.objects.filter(section__course=obj)
+            Lesson.objects.filter(
+                section__course=obj,
+                section__is_published=True,
+                is_published=True,
+            )
             .order_by("section__order", "order", "id")
             .values_list("id", flat=True)
         )
@@ -272,7 +284,7 @@ class CourseListSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailSerializer(CourseListSerializer):
-    sections = SectionSerializer(many=True, read_only=True)
+    sections = serializers.SerializerMethodField()
     available_lang_codes = serializers.SerializerMethodField()
     can_manage = serializers.SerializerMethodField()
     review_summary = serializers.SerializerMethodField()
@@ -298,6 +310,18 @@ class CourseDetailSerializer(CourseListSerializer):
     @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_available_lang_codes(self, obj) -> list[str]:
         return sorted(obj.domain.allowed_languages.values_list("code", flat=True))
+
+    @extend_schema_field(SectionSerializer(many=True))
+    def get_sections(self, obj):
+        """Instructors get the full draft tree; learners only published
+        sections and visible lessons — they never receive a draft's title
+        or blocks."""
+        sections = obj.sections.all()
+        context = self.context
+        if not self.get_can_manage(obj):
+            sections = [section for section in sections if section.is_published]
+            context = {**self.context, "_learner_view": True}
+        return SectionSerializer(sections, many=True, context=context).data
 
     @extend_schema_field(serializers.BooleanField())
     def get_can_manage(self, obj) -> bool:
