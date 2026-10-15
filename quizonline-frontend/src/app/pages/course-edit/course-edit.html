@@ -80,7 +80,7 @@
     </div>
   } @else {
     <div class="card form-card builder-stack">
-      <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" class="builder-tabs">
+      <p-tabs [(value)]="tabValue" (valueChange)="onTabChange($event)" class="builder-tabs">
         <p-tablist>
           <p-tab value="info">
             <i class="pi pi-info-circle tab-icon"></i>

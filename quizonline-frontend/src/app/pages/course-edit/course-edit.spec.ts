@@ -1,0 +1,67 @@
+import {TestBed} from '@angular/core/testing';
+import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
+import {BehaviorSubject, of} from 'rxjs';
+import {ConfirmationService} from 'primeng/api';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
+import {CatalogService} from '../../services/catalog/catalog.service';
+import {AppToastService} from '../../shared/toast/app-toast.service';
+import {CourseEdit} from './course-edit';
+
+describe('CourseEdit unsaved tab guard', () => {
+  const router = {navigate: vi.fn()};
+
+  beforeEach(() => {
+    router.navigate.mockReset();
+    TestBed.configureTestingModule({
+      imports: [CourseEdit],
+      providers: [
+        {provide: ActivatedRoute, useValue: {
+          paramMap: of(convertToParamMap({id: '0'})),
+          queryParamMap: new BehaviorSubject(convertToParamMap({tab: 'content'})),
+        }},
+        {provide: Router, useValue: router},
+        {provide: CatalogService, useValue: {detailById: vi.fn()}},
+        {provide: AppToastService, useValue: {add: vi.fn(), addApiError: vi.fn()}},
+        {provide: ConfirmationService, useValue: {}},
+      ],
+    });
+    TestBed.overrideComponent(CourseEdit, {set: {imports: [], template: '<div></div>'}});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  function render() {
+    const f = TestBed.createComponent(CourseEdit);
+    f.detectChanges();
+    return f.componentInstance;
+  }
+
+  it('refusing the confirm keeps the URL and restores the tab strip value', () => {
+    const c = render();
+    vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(true);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    c['tabValue'].set('analytics'); // what <p-tabs> does before emitting
+    c['onTabChange']('analytics');
+    expect(confirm).toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(c['tabValue']()).toBe('content');
+  });
+
+  it('confirming navigates to the requested tab', () => {
+    const c = render();
+    vi.spyOn(c, 'hasUnsavedChanges').mockReturnValue(true);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    c['onTabChange']('analytics');
+    expect(router.navigate).toHaveBeenCalledWith([], expect.objectContaining({
+      queryParams: {tab: 'analytics', lesson: null}}));
+  });
+
+  it('does not ask when nothing is unsaved', () => {
+    const c = render();
+    const confirm = vi.spyOn(window, 'confirm');
+    c['onTabChange']('analytics');
+    expect(confirm).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+  });
+});

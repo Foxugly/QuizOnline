@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, linkedSignal, OnInit, signal, viewChild} from '@angular/core';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
@@ -19,7 +19,7 @@ import {StatusBadgeComponent} from '../../shared/components/status-badge/status-
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
-import {HasUnsavedChanges} from './unsaved-changes.guard';
+import {confirmDiscardUnsaved, HasUnsavedChanges} from './unsaved-changes.guard';
 import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
@@ -76,6 +76,8 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
     {initialValue: 'info' as CourseEditTab},
   );
 
+  /** Value bound two-way to ``<p-tabs>`` so a refused switch can be reverted. */
+  protected readonly tabValue = linkedSignal<string | number | undefined>(() => this.activeTab());
   private readonly contentTab = viewChild(CourseEditContentTab);
 
   /** Used by ``unsavedChangesGuard`` when leaving the page. */
@@ -85,7 +87,9 @@ export class CourseEdit implements OnInit, HasUnsavedChanges {
 
   protected onTabChange(tab: string | number | undefined): void {
     if (tab !== this.activeTab() && this.hasUnsavedChanges()
-      && !window.confirm(this.editorUi().common.unsavedChangesConfirm)) {
+      && !confirmDiscardUnsaved()) {
+      // p-tabs already switched its own value: push the current tab back.
+      this.tabValue.set(this.activeTab());
       return;
     }
     this.router.navigate([], {

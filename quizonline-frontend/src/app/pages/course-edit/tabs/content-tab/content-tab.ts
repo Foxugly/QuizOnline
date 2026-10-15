@@ -20,6 +20,7 @@ import {UiTextService} from '../../../../shared/i18n/ui-text.service';
 import {LessonContentEditor} from '../../../../shared/learning/lesson-content-editor/lesson-content-editor';
 import {AppToastService} from '../../../../shared/toast/app-toast.service';
 
+import {confirmDiscardUnsaved} from '../../unsaved-changes.guard';
 import {getCourseEditContentTabUiText} from './content-tab.i18n';
 import {CourseOutline, OutlineRef} from './course-outline/course-outline';
 import {TranslationsDialog} from './translations-dialog/translations-dialog';
@@ -45,7 +46,6 @@ export class CourseEditContentTab {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(AppToastService);
-  private readonly editorUiText = inject(UiTextService).editor;
   private readonly lessonEditor = viewChild(LessonContentEditor);
 
   protected readonly ui = inject(UiTextService).localized(getCourseEditContentTabUiText);
@@ -101,7 +101,7 @@ export class CourseEditContentTab {
    */
   protected onSelect(id: number): void {
     if (id !== 0 && id !== this.selectedLessonId() && this.hasUnsavedChanges()
-      && !window.confirm(this.editorUiText().common.unsavedChangesConfirm)) {
+      && !confirmDiscardUnsaved()) {
       return;
     }
     this.writeLesson(id || null);

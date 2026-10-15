@@ -1,9 +1,11 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
+import {BlockListEditor} from '../block-list-editor/block-list-editor';
 import {LessonContentEditor} from './lesson-content-editor';
 
 describe('LessonContentEditor', () => {
@@ -92,5 +94,14 @@ describe('LessonContentEditor', () => {
 
   it('reports no unsaved changes', () => {
     expect(fixture.componentInstance.hasUnsavedChanges()).toBe(false);
+  });
+
+  it('forwards the block list unsaved state', () => {
+    load(5, {id: 5, blocks: [{id: 3, block_type: 'rich_text', block_role: 'body', order: 0, translations: {}}]});
+    const c = fixture.componentInstance;
+    expect(c.hasUnsavedChanges()).toBe(false);
+    const list = fixture.debugElement.query(By.directive(BlockListEditor)).componentInstance as BlockListEditor;
+    list['editBlock'](3);
+    expect(c.hasUnsavedChanges()).toBe(true);
   });
 });

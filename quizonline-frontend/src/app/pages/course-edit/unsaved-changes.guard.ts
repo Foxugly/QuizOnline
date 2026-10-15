@@ -12,8 +12,16 @@ export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (componen
   if (!component.hasUnsavedChanges()) {
     return true;
   }
-  return window.confirm(unsavedMessage());
+  return confirmDiscardUnsaved();
 };
+
+/**
+ * Asks whether unsaved block edits may be discarded. Call from an injection
+ * context (the localized message comes from ``UiTextService``).
+ */
+export function confirmDiscardUnsaved(): boolean {
+  return window.confirm(unsavedMessage());
+}
 
 function unsavedMessage(): string {
   try {
