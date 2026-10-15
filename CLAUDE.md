@@ -49,6 +49,8 @@ Monorepo with two main modules:
 - Rate limiting: `ScopedRateThrottle` on public endpoints; every scope is overridable via `THROTTLE_*` env vars (see `.env.example`)
 - Email: outbox pattern with Celery delivery
 - Tests: `pytest` and Django test runner
+- Course create: the slug is always made unique server-side (`-2`, `-3`…, explicit slugs too) with a bounded retry on a concurrent-insert collision; a model `full_clean()` error is returned as a DRF 400 keyed by API field names (`language_code`, not `language`), model-level errors under `non_field_errors`. Section / lesson creates pick `order` (and the lesson slug) server-side too.
+- Lint: ruff is pinned to the same version in `requirements.txt`, `.pre-commit-config.yaml` (`rev:`) and CI — bump all three together.
 
 ## Domain features (Phase B / C / D)
 
@@ -99,7 +101,7 @@ Key endpoints under `/api/` (`config/api_urls.py`):
 Frontend pages live directly under `pages/` (no `lms/` prefix):
 - Learner: `catalog` (search + level + domain filters), `course-detail`, `lesson-view` (left block outline + prev/next footer + position subtitle), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
 - Instructor: `course-edit` (tabs: info / content / enrollment / analytics, active tab in `?tab=` — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline). The **Content** tab is a two-pane editor: `CourseOutline` (sections + lessons, inline add / rename, drag-and-drop incl. cross-section moves via `POST /api/v1/lesson/{id}/move/`, per-row "Translations…" dialog) on the left, `<app-lesson-content-editor>` (`shared/learning/lesson-content-editor/`) for the lesson in `?lesson=` on the right: block list via `@angular/cdk/drag-drop` + 8 block editors with explicit Save / Cancel / Édit per block + per-language translation tabs + inline translate button per editor + learner preview toggle. Unsaved block edits are guarded by `unsavedChangesGuard` (route re-runs it on `?tab=` / `?lesson=` changes, incl. browser back / forward) + a `beforeunload` prompt. `/lesson/{id}/edit` (`lesson-edit`) is only a redirect to `/course/{courseId}/edit?tab=content&lesson={id}`. Callout blocks carry a semantic variant (info / success / warning / error) stored in `metadata.variant` that drives the left-border colour.
-- Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated)
+- Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated). Users who manage at least one domain (owner / manager / superuser — same rule as course creation server-side) also get a "Mes cours en rédaction" tile (≤ 5 unpublished manageable courses → `?tab=content`, plus "Créer un cours"), and the top menu "Cours" adds "Mes cours" + "Créer un cours" for them.
 
 Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `UploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.
 
@@ -125,6 +127,12 @@ Spec + plan:
 - Frontend bundle served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
 - **Full operator runbook** (day-to-day deploy, manual deploy, 3-level rollback, AWS resources inventory, bootstrap a fresh EC2): **`deploy/README.md`**
 - **Per-credential rotation procedures + EBS encryption check**: **`deploy/SECRETS-ROTATION.md`**
+
+## CI notes
+
+- The `contract` job keeps the OpenAPI generator JAR (version pinned in `quizonline-frontend/openapitools.json`) in the Actions cache, with three download tries on a miss — bumping the generator version means a new cache key.
+- Unit specs run with a global `TestBed.resetTestingModule()` after each test (`src/test-setup.ts`); provide `MessageService` explicitly when a component injects `AppToastService`.
+- To check whether a red job is flaky, re-run the same commit on a throwaway draft PR, never on `main` (its CI success triggers a deploy).
 
 ## OpenAPI sync
 
