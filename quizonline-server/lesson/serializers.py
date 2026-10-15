@@ -248,10 +248,10 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             validated_data["slug"] = unique_lesson_slug(section, base)
             instance = Lesson.objects.create(**validated_data)
             instance = self._apply(instance, tr)
-            from course.tasks import fill_missing_translations
+            from course.tasks import enqueue_fill_missing_translations
 
             transaction.on_commit(
-                lambda pk=instance.pk: fill_missing_translations.delay("lesson.lesson", pk)
+                lambda pk=instance.pk: enqueue_fill_missing_translations("lesson.lesson", pk)
             )
             return instance
 

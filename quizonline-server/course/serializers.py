@@ -64,10 +64,10 @@ class SectionSerializer(serializers.ModelSerializer):
             validated_data["order"] = next_order(Section, Q(course=course))
             instance = Section.objects.create(**validated_data)
             instance = self._apply(instance, tr)
-            from course.tasks import fill_missing_translations
+            from course.tasks import enqueue_fill_missing_translations
 
             transaction.on_commit(
-                lambda pk=instance.pk: fill_missing_translations.delay("course.section", pk)
+                lambda pk=instance.pk: enqueue_fill_missing_translations("course.section", pk)
             )
             return instance
 

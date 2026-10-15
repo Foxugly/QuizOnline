@@ -109,3 +109,32 @@ def test_enqueued_on_create_not_on_update(owner, course, django_capture_on_commi
         with django_capture_on_commit_callbacks(execute=True):
             client.patch(f"/api/v1/section/{resp.json()['id']}/", {"translations": {"fr": {"title": "S2"}}}, format="json")
         assert delay.call_count == 1
+
+
+@pytest.mark.django_db
+def test_create_survives_broker_failure(owner, course, django_capture_on_commit_callbacks):
+    from rest_framework.test import APIClient
+    client = APIClient()
+    client.force_authenticate(user=owner)
+    with mock.patch("course.tasks.fill_missing_translations.delay", side_effect=Exception("broker down")):
+        with django_capture_on_commit_callbacks(execute=True):
+            resp = client.post("/api/v1/section/", {"course": course.id, "translations": {"fr": {"title": "S"}}}, format="json")
+    assert resp.status_code == 201
+    assert Section.objects.filter(pk=resp.json()["id"]).exists()
+
+
+@pytest.mark.django_db
+@override_settings(USE_DEEPL=True, DEEPL_AUTH_KEY="k")
+def test_whitespace_target_is_filled(bilingual):
+    s = _section(bilingual, fr="Intro", en="   ")
+    with mock.patch(DEEPL, side_effect=lambda texts, source, target, fmt="text": [f"{target}:{t}" for t in texts]):
+        assert sorted(fill_missing_translations("course.section", s.pk)) == ["en", "nl"]
+
+
+@pytest.mark.django_db
+@override_settings(USE_DEEPL=True, DEEPL_AUTH_KEY="k")
+def test_unknown_label_and_length_mismatch(bilingual):
+    assert fill_missing_translations("nope.model", 1) == []
+    s = _section(bilingual, fr="Intro")
+    with mock.patch(DEEPL, return_value=[]):
+        assert fill_missing_translations("course.section", s.pk) == []

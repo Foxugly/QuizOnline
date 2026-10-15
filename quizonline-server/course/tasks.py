@@ -31,8 +31,10 @@ def fill_missing_translations(model_label: str, pk: int) -> list[str]:
     if not (getattr(settings, "USE_DEEPL", False) and getattr(settings, "DEEPL_AUTH_KEY", "")):
         return []
     fields = _FIELDS.get(model_label)
+    if fields is None:
+        return []
     obj = apps.get_model(model_label).objects.filter(pk=pk).first()
-    if fields is None or obj is None:
+    if obj is None:
         return []
     course = _course_of(obj)
     source = course.language.code
@@ -43,7 +45,7 @@ def fill_missing_translations(model_label: str, pk: int) -> list[str]:
     own = {t.language_code: t for t in obj.translations.all()}
 
     def stored(field: str, lang: str) -> str:
-        return (getattr(own[lang], field, "") or "") if lang in own else ""
+        return (getattr(own[lang], field, "") or "").strip() if lang in own else ""
 
     sources = {f: stored(f, source) for f in fields}
     if not any(sources.values()):
@@ -62,7 +64,7 @@ def fill_missing_translations(model_label: str, pk: int) -> list[str]:
                 batch = [f for f in missing if fields[f] == fmt]
                 out = deepl_translate_many([sources[f] for f in batch], source, target, fmt=fmt)
                 values.update(dict(zip(batch, out, strict=True)))
-        except DeepLError:
+        except (DeepLError, ValueError):
             logger.exception("Machine translation failed", extra={"model": model_label, "pk": pk, "target": target})
             continue
         obj.set_current_language(target)
@@ -77,3 +79,11 @@ def fill_missing_translations(model_label: str, pk: int) -> list[str]:
         obj.save()
         filled.append(target)
     return filled
+
+
+def enqueue_fill_missing_translations(model_label: str, pk: int) -> None:
+    """Enqueue the task; a broker failure must never fail the create."""
+    try:
+        fill_missing_translations.delay(model_label, pk)
+    except Exception:
+        logger.exception("Could not enqueue machine translation", extra={"model": model_label, "pk": pk})
