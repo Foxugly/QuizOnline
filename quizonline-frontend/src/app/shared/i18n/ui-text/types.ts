@@ -40,12 +40,14 @@ export type UiText = {
 
 /** Shared state vocabulary surfaced by ``<app-status-badge>`` across every
  *  list and header. ``active``/``inactive`` = operational; ``published``/
- *  ``draft`` = publication lifecycle. */
+ *  ``draft`` = publication lifecycle; ``preview`` = lesson free preview. */
 export type StatusUiText = {
   active: string;
   inactive: string;
   published: string;
   draft: string;
+  /** Lesson open to non-enrolled visitors (free preview). */
+  preview: string;
 };
 
 /** Shared access-mode vocabulary — how members join a domain (``public`` +

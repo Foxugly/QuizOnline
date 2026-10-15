@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.lesson-pane__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.lesson-pane__title {
+  margin: 0;
+  font-size: 1.25rem;
+  cursor: text;
+}
+
+.lesson-pane__title-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 1.1rem;
+}
+
+.lesson-pane__spacer {
+  flex: 1 1 auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-color-secondary, #6b7280);
+}

@@ -1,0 +1,123 @@
+<p-dialog
+  [header]="labels().titleEdit"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="!form().submitting"
+  [style]="{ width: isSection() ? 'min(48rem, 92vw)' : 'min(40rem, 92vw)' }"
+  [breakpoints]="{ '768px': '94vw' }"
+  (onHide)="close()">
+  @if (loading()) {
+    <div class="dialog-loading" data-testid="translations-loading" role="status" aria-live="polite">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      <span>{{ ui().loading }}</span>
+    </div>
+  } @else {
+    <div class="dialog-body">
+      @if (languages().length > 1) {
+        <p-tabs
+          [value]="form().activeLang"
+          (valueChange)="onTabChange($event)"
+          class="tabs tabs--tight">
+          <p-tablist>
+            @for (code of languages(); track code) {
+              <p-tab [value]="code">{{ code.toUpperCase() }}</p-tab>
+            }
+            <div class="tablist-actions">
+              <p-button
+                data-testid="translations-translate"
+                (onClick)="translateFromActiveTab()"
+                [disabled]="translating() || form().submitting"
+                [loading]="translating()"
+                icon="pi pi-language"
+                [label]="labels().translateButton"
+                severity="info"
+                size="small"
+                type="button">
+              </p-button>
+            </div>
+          </p-tablist>
+          <p-tabpanels class="tabpanels-tight">
+            @for (code of languages(); track code) {
+              <p-tabpanel [value]="code">
+                <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: code, suffix: ' (' + code.toUpperCase() + ')'}" />
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      } @else if (languages().length === 1) {
+        <ng-container *ngTemplateOutlet="fieldsTpl; context: {$implicit: languages()[0], suffix: ''}" />
+      }
+
+      @if (!isSection()) {
+        <div class="dialog-field toggle-inline">
+          <span class="toggle-inline__label">{{ ui().lessonDialog.isPreviewField }}</span>
+          <p-toggleswitch
+            data-testid="translations-preview"
+            [ngModel]="form().isPreview"
+            (ngModelChange)="setPreview($event)"
+            [attr.aria-label]="ui().lessonDialog.isPreviewField">
+          </p-toggleswitch>
+        </div>
+      }
+
+      <div class="dialog-field toggle-inline">
+        <span class="toggle-inline__label">{{ labels().isPublishedField }}</span>
+        <p-toggleswitch
+          data-testid="translations-published"
+          [ngModel]="form().isPublished"
+          (ngModelChange)="setPublished($event)"
+          [attr.aria-label]="labels().isPublishedField">
+        </p-toggleswitch>
+      </div>
+    </div>
+  }
+
+  <ng-template #footer>
+    <p-button
+      data-testid="translations-cancel"
+      type="button"
+      icon="pi pi-times"
+      [label]="labels().cancelButton"
+      severity="secondary"
+      [text]="true"
+      [disabled]="form().submitting"
+      (onClick)="visible.set(false)">
+    </p-button>
+    <p-button
+      data-testid="translations-submit"
+      type="button"
+      icon="pi pi-check"
+      [label]="labels().submitButton"
+      [loading]="form().submitting"
+      [disabled]="form().submitting || loading()"
+      (onClick)="submit()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<ng-template #fieldsTpl let-code let-suffix="suffix">
+  <div class="dialog-field">
+    <label [attr.for]="'translations-title-' + code">{{ labels().titleField }}{{ suffix }}</label>
+    <input
+      pInputText
+      [id]="'translations-title-' + code"
+      [attr.data-testid]="'translations-title-' + code"
+      [ngModel]="form().translations[code]?.['title'] ?? ''"
+      (ngModelChange)="setField(code, 'title', $event)"
+      class="w-full" />
+  </div>
+  @if (isSection()) {
+    <div class="dialog-field">
+      <label [attr.for]="'translations-description-' + code">{{ ui().sectionDialog.descriptionField }}{{ suffix }}</label>
+      <textarea
+        pTextarea
+        [id]="'translations-description-' + code"
+        [attr.data-testid]="'translations-description-' + code"
+        rows="4"
+        [ngModel]="form().translations[code]?.['description'] ?? ''"
+        (ngModelChange)="setField(code, 'description', $event)"
+        class="w-full">
+      </textarea>
+    </div>
+  }
+</ng-template>

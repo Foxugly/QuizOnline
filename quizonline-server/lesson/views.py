@@ -1,17 +1,26 @@
 from __future__ import annotations
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Prefetch
-from rest_framework import viewsets
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from block.models import Block
 from config.cache_mixins import ShortReadCacheMixin
+from course.models import Section
 from course.permissions import IsLmsInstructorOrReadOnly
+from course.serializers import SectionSerializer
 
 from .models import Lesson
-from .serializers import LessonDetailSerializer
-from .services import compact_lessons, publish_lesson, unpublish_lesson
+from .serializers import (
+    LessonDetailSerializer,
+    LessonMoveSerializer,
+    LessonSummarySerializer,
+)
+from .services import compact_lessons, move_lesson, publish_lesson, unpublish_lesson
 
 
 class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
@@ -58,6 +67,39 @@ class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         lesson = self.get_object()
         unpublish_lesson(lesson=lesson, by_user=request.user)
         return Response(LessonDetailSerializer(lesson, context={"request": request}).data)
+
+    @extend_schema(
+        request=LessonMoveSerializer,
+        responses=inline_serializer(
+            name="LessonMoveResult",
+            fields={
+                "lesson": LessonSummarySerializer(),
+                "source_section": SectionSerializer(),
+                "target_section": SectionSerializer(),
+            },
+        ),
+    )
+    @action(detail=True, methods=["post"])
+    def move(self, request, pk=None):
+        lesson = self.get_object()  # object permission: instructor only for writes
+        payload = LessonMoveSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        target = Section.objects.filter(
+            pk=payload.validated_data["section"], course_id=lesson.section.course_id
+        ).first()
+        if target is None:
+            raise serializers.ValidationError({"section": _("Unknown section.")})
+        source_id = lesson.section_id
+        try:
+            lesson = move_lesson(lesson=lesson, section=target, position=payload.validated_data["position"])
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({"section": exc.messages}) from exc
+        ctx = {"request": request}
+        return Response({
+            "lesson": LessonSummarySerializer(lesson, context=ctx).data,
+            "source_section": SectionSerializer(Section.objects.get(pk=source_id), context=ctx).data,
+            "target_section": SectionSerializer(target, context=ctx).data,
+        })
 
     def perform_destroy(self, instance):
         section = instance.section

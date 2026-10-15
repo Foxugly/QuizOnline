@@ -480,7 +480,8 @@
       "active": "Actief",
       "inactive": "Inactief",
       "published": "Gepubliceerd",
-      "draft": "Concept"
+      "draft": "Concept",
+      "preview": "Gratis voorproefje"
     },
     "access": {
       "open": "Vrije inschrijving",
@@ -522,7 +523,8 @@
       "quick": "Snel",
       "downloadPdf": "PDF downloaden",
       "errorTitle": "Fout",
-      "deleteFailed": "Verwijderen is mislukt."
+      "deleteFailed": "Verwijderen is mislukt.",
+      "unsavedChangesConfirm": "Niet-opgeslagen wijzigingen gaan verloren. Doorgaan?"
     },
     "quiz": {
       "newTemplate": "Nieuw template",
@@ -1417,12 +1419,16 @@
       "retryButton": "Opnieuw proberen"
     },
     "lessonEdit": {
-      "pageTitle": "Les bewerken",
+      "loading": "Editor openen…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "De blok-bewerking is mislukt.",
       "emptyTitle": "Lege les",
       "emptyHint": "Voeg een eerste blok toe via de balk hieronder.",
       "previewButton": "Voorbeeld",
-      "editModeButton": "Bewerken"
+      "editModeButton": "Bewerken",
+      "previousLesson": "Vorige les",
+      "nextLesson": "Volgende les"
     },
     "joinRequestDecide": {
       "title": "Een toegangsaanvraag modereren",
@@ -2207,7 +2213,7 @@
     "courseEdit": {
       "pageTitle": "Cursus bewerken",
       "tabInfo": "Informatie",
-      "tabStructure": "Structuur",
+      "tabContent": "Inhoud",
       "tabEnrollment": "Inschrijvingen",
       "tabAnalytics": "Analyses",
       "publishButton": "Publiceren",
@@ -2239,61 +2245,63 @@
       "deleteErrorToast": "Cursus verwijderen is mislukt.",
       "deleteProtectedToast": "Een cursus die al certificaten heeft uitgegeven kan niet worden verwijderd."
     },
-    "structureTab": {
-      "heading": "Cursusstructuur",
-      "subtitle": "Organiseer de cursus in secties en lessen. Sleep om opnieuw te ordenen.",
-      "addSectionButton": "Sectie toevoegen",
-      "addLessonButton": "Les toevoegen",
-      "editButton": "Bewerken",
-      "deleteButton": "Verwijderen",
-      "editContentButton": "Inhoud bewerken",
-      "isPublishedLabel": "Gepubliceerd",
-      "isPreviewLabel": "Voorbeeld",
-      "confirmDeleteSection": "Sectie \"{title}\" verwijderen? Alle lessen en hun inhoudsblokken worden definitief verwijderd.",
-      "confirmDeleteLesson": "Les \"{title}\" verwijderen? Alle inhoudsblokken worden definitief verwijderd.",
-      "confirmDeleteHeader": "Verwijderen bevestigen",
-      "confirmAccept": "Verwijderen",
-      "confirmReject": "Annuleren",
+    "contentTab": {
+      "emptyTitle": "Selecteer of maak een les",
+      "emptyHint": "Kies een les in het cursusoverzicht of voeg een nieuwe toe.",
+      "outlineToggle": "Cursusoverzicht",
+      "unknownLessonToast": "Deze les hoort niet bij deze cursus."
+    },
+    "translationsDialog": {
       "sectionDialog": {
-        "titleCreate": "Nieuwe sectie",
         "titleEdit": "Sectie bewerken",
         "titleField": "Titel",
         "descriptionField": "Beschrijving",
         "isPublishedField": "Gepubliceerd",
         "submitButton": "Opslaan",
-        "submitAndAddLessonButton": "Aanmaken en een les toevoegen",
         "cancelButton": "Annuleren",
         "translateButton": "Vertalen vanuit dit tabblad",
         "translationFailed": "Automatische vertaling mislukt."
       },
       "lessonDialog": {
-        "titleCreate": "Nieuwe les",
         "titleEdit": "Les bewerken",
         "titleField": "Titel",
         "isPreviewField": "Gratis voorbeeld",
         "isPublishedField": "Gepubliceerd",
         "submitButton": "Opslaan",
-        "submitAndEditButton": "Aanmaken en inhoud bewerken",
         "cancelButton": "Annuleren",
         "translateButton": "Vertalen vanuit dit tabblad",
         "translationFailed": "Automatische vertaling mislukt."
       },
-      "sectionCreatedToast": "Sectie toegevoegd.",
       "sectionUpdatedToast": "Sectie bijgewerkt.",
-      "sectionDeletedToast": "Sectie verwijderd.",
-      "lessonCreatedToast": "Les toegevoegd.",
       "lessonUpdatedToast": "Les bijgewerkt.",
-      "lessonDeletedToast": "Les verwijderd.",
-      "reorderSuccessToast": "Volgorde bijgewerkt.",
       "actionFailedToast": "Actie mislukt.",
       "titleRequiredToast": "Titel is verplicht in de hoofdtaal.",
+      "loading": "Laden…",
+      "loadFailedToast": "Kan de actuele vertalingen niet laden."
+    },
+    "courseOutline": {
+      "addLesson": "Les",
+      "addSection": "Sectie",
+      "newLessonPlaceholder": "Titel van de les, Enter om te maken",
+      "newSectionPlaceholder": "Titel van de sectie, Enter om te maken",
+      "missingLanguages": "Ontbreekt:",
+      "menuAria": "Acties",
+      "renameAction": "Hernoemen",
+      "dragHandle": "Slepen om te verplaatsen",
+      "menuPublish": "Publiceren",
+      "menuUnpublish": "Depubliceren",
+      "menuPreviewOn": "Gratis voorbeeld inschakelen",
+      "menuPreviewOff": "Gratis voorbeeld uitschakelen",
+      "menuTranslations": "Vertalingen…",
+      "menuDelete": "Verwijderen",
+      "confirmDeleteSection": "Sectie \"{title}\" verwijderen? Alle lessen en hun inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteLesson": "Les \"{title}\" verwijderen? Alle inhoudsblokken worden definitief verwijderd.",
+      "confirmDeleteHeader": "Verwijderen bevestigen",
+      "confirmAccept": "Verwijderen",
+      "confirmReject": "Annuleren",
+      "actionFailedToast": "Actie mislukt.",
       "untitledSection": "Sectie zonder titel",
-      "untitledLesson": "Les zonder titel",
-      "emptyTitle": "Nog geen secties",
-      "emptyMessage": "Voeg een eerste sectie toe om je cursus te structureren.",
-      "dragHandleAria": "Sleep om opnieuw te ordenen",
-      "sectionAria": "Sectie",
-      "lessonAria": "Les"
+      "untitledLesson": "Les zonder titel"
     },
     "infoTab": {
       "heading": "Cursusgegevens",

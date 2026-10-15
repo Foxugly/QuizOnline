@@ -117,6 +117,8 @@ model/lesson-detail-position-in-section.ts
 model/lesson-detail-prev-lesson.ts
 model/lesson-detail-request.ts
 model/lesson-detail.ts
+model/lesson-move-request.ts
+model/lesson-move-result.ts
 model/lesson-quiz-request.ts
 model/lesson-quiz.ts
 model/lesson-summary.ts

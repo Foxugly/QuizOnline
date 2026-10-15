@@ -1,0 +1,40 @@
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary, #6b7280);
+  }
+
+  &.toggle-inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .toggle-inline__label {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 8rem;
+  color: var(--text-color-secondary, #6b7280);
+}

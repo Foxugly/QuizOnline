@@ -1,6 +1,5 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Q
-from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -8,41 +7,7 @@ from core.serializers import TranslationsField, filter_allowed_lang_codes
 from core.services import UNIQUE_POSITION_ERROR, next_order
 
 from .models import Lesson
-
-# ``Lesson.slug`` is a SlugField(max_length=220); keep room for a "-NN" suffix.
-_SLUG_BASE_MAX = 200
-
-
-def _lesson_slug_base(slug: str | None, translations: dict, course) -> str:
-    """Slug from the explicit value, else from the course-language title,
-    else from any title. ``"lesson"`` when slugify swallows everything
-    (punctuation-only or non-Latin titles)."""
-    candidates = [slug or ""]
-    primary = getattr(getattr(course, "language", None), "code", None)
-    if primary:
-        candidates.append((translations.get(primary) or {}).get("title") or "")
-    candidates += [(fields or {}).get("title") or "" for fields in translations.values()]
-    for raw in candidates:
-        base = slugify(raw)[:_SLUG_BASE_MAX].strip("-")
-        if base:
-            return base
-    return "lesson"
-
-
-def _unique_lesson_slug(section, base: str) -> str:
-    """``base``, or ``base-2``, ``base-3``… — the first one free in
-    ``section`` (UNIQUE(section, slug)). Two lessons titled
-    "Introduction" no longer 400 the second create."""
-    taken = set(
-        Lesson.objects.filter(section=section, slug__startswith=base)
-        .values_list("slug", flat=True)
-    )
-    if base not in taken:
-        return base
-    n = 2
-    while f"{base}-{n}" in taken:
-        n += 1
-    return f"{base}-{n}"
+from .services import lesson_slug_base, unique_lesson_slug
 
 
 class LessonSummarySerializer(serializers.ModelSerializer):
@@ -280,10 +245,16 @@ class LessonDetailSerializer(serializers.ModelSerializer):
             # the same ``order`` or slug.
             type(section).objects.select_for_update().filter(pk=section.pk).first()
             validated_data["order"] = next_order(Lesson, Q(section=section))
-            base = _lesson_slug_base(validated_data.get("slug"), tr or {}, section.course)
-            validated_data["slug"] = _unique_lesson_slug(section, base)
+            base = lesson_slug_base(validated_data.get("slug"), tr or {}, section.course)
+            validated_data["slug"] = unique_lesson_slug(section, base)
             instance = Lesson.objects.create(**validated_data)
-            return self._apply(instance, tr)
+            instance = self._apply(instance, tr)
+            from course.tasks import enqueue_fill_missing_translations
+
+            transaction.on_commit(
+                lambda pk=instance.pk: enqueue_fill_missing_translations("lesson.lesson", pk)
+            )
+            return instance
 
     def update(self, instance, validated_data):
         tr = validated_data.pop("translations", None)
@@ -310,3 +281,8 @@ class LessonDetailSerializer(serializers.ModelSerializer):
                 setattr(instance, k, v)
             instance.save()
         return instance
+
+
+class LessonMoveSerializer(serializers.Serializer):
+    section = serializers.IntegerField(min_value=1)
+    position = serializers.IntegerField(min_value=0)

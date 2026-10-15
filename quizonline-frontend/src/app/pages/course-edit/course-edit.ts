@@ -1,16 +1,16 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {TabsModule} from 'primeng/tabs';
+import {Tabs, TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
-import {CATALOG, COURSE_DETAIL, COURSE_EDIT} from '../../app.routes-paths';
+import {CATALOG, COURSE_DETAIL, COURSE_EDIT, CourseEditTab} from '../../app.routes-paths';
 import {CourseDetailDto} from '../../api/generated/model/course-detail';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {logApiError} from '../../shared/api/api-errors';
@@ -19,14 +19,16 @@ import {StatusBadgeComponent} from '../../shared/components/status-badge/status-
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
+import {HasUnsavedChanges} from './unsaved-changes.guard';
+import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
-import {CourseEditStructureTab} from './tabs/structure-tab/structure-tab';
+import {CourseEditContentTab} from './tabs/content-tab/content-tab';
 import {CourseEditEnrollmentTab} from './tabs/enrollment-tab/enrollment-tab';
 import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
 
 /**
- * Course-author shell: four-tab page (info / structure / enrollment /
+ * Course-author shell: four-tab page (info / content / enrollment /
  * analytics) keyed off the ``:id`` route param. Each tab is its own
  * OnPush component receiving ``courseId`` as a signal-input, so the
  * shell stays trivially light and tab components can fan out into
@@ -34,9 +36,9 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
  *
  * The shell also owns the course-level publish/unpublish toggle in
  * the page header and fetches the course detail (used both to drive
- * that toggle's label and to expose a ``courseChanged`` callback to
- * child tabs that mutate sections / lessons — they emit and the shell
- * re-fetches so the publish button stays in sync with the live state).
+ * that toggle's label). The content tab mutates sections / lessons locally
+ * and hands back the updated course through ``courseChange`` (no refetch);
+ * the info tab still emits ``changed`` and the shell re-fetches.
  */
 @Component({
   selector: 'app-course-edit',
@@ -51,22 +53,71 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     PageHeader,
     StatusBadgeComponent,
     CourseEditInfoTab,
-    CourseEditStructureTab,
+    CourseEditContentTab,
     CourseEditEnrollmentTab,
     CourseEditAnalyticsTab,
   ],
   providers: [ConfirmationService],
+  host: {'(window:beforeunload)': 'onBeforeUnload($event)'},
   templateUrl: './course-edit.html',
   styleUrl: './course-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CourseEdit implements OnInit {
+export class CourseEdit implements OnInit, HasUnsavedChanges {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly catalog = inject(CatalogService);
   private readonly toast = inject(AppToastService);
   private readonly confirmer = inject(ConfirmationService);
+
+  /** Active tab, driven by ``?tab=`` so it is deep-linkable and survives reloads. */
+  protected readonly activeTab = toSignal(
+    this.route.queryParamMap.pipe(map((q) => parseCourseEditTab(q.get('tab')))),
+    {initialValue: 'info' as CourseEditTab},
+  );
+
+  /** Needed to write the strip's own value back when a tab switch is refused. */
+  private readonly tabs = viewChild(Tabs);
+  private readonly contentTab = viewChild(CourseEditContentTab);
+
+  /** Used by ``unsavedChangesGuard`` when leaving the page. */
+  hasUnsavedChanges(): boolean {
+    return this.contentTab()?.hasUnsavedChanges() ?? false;
+  }
+
+  /** Reload / tab close with blocks still in edit mode: ask the browser's native prompt. */
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * The unsaved-work prompt lives in ``unsavedChangesGuard``, which the route
+   * re-runs on query-param changes; this handler only navigates.
+   */
+  protected onTabChange(tab: string | number | undefined): void {
+    if (tab === this.activeTab()) {
+      // Echo of our own revert (or of p-tabs' init): nothing to do, and navigating
+      // would clear ?lesson=.
+      return;
+    }
+    void this.router
+      .navigate([], {
+        relativeTo: this.route,
+        queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},
+        queryParamsHandling: 'merge',
+      })
+      .then((ok) => {
+        if (!ok) {
+          // Refused by the guard. p-tabs already switched its own model value on
+          // click; the one-way binding never re-pushes an unchanged activeTab(),
+          // so write it back.
+          this.tabs()?.value.set(this.activeTab());
+        }
+      });
+  }
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getCourseEditUiText);
@@ -131,6 +182,12 @@ export class CourseEdit implements OnInit {
           this.loading.set(false);
         }
       });
+  }
+
+  /** Content tab mutated the course tree: adopt its copy (no refetch). */
+  protected onCourseChange(c: CourseDetailDto): void {
+    this.course.set(c);
+    this.publishToggle.set(c.is_published === true);
   }
 
   /**

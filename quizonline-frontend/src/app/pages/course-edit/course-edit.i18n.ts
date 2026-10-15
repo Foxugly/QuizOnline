@@ -11,7 +11,7 @@ import {pageUiText} from '../../shared/i18n/catalog-registry';
 export interface CourseEditUiText {
   pageTitle: string;
   tabInfo: string;
-  tabStructure: string;
+  tabContent: string;
   tabEnrollment: string;
   tabAnalytics: string;
   publishButton: string;

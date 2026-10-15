@@ -480,7 +480,8 @@
       "active": "Attivo",
       "inactive": "Inattivo",
       "published": "Pubblicato",
-      "draft": "Bozza"
+      "draft": "Bozza",
+      "preview": "Anteprima gratuita"
     },
     "access": {
       "open": "Iscrizione libera",
@@ -522,7 +523,8 @@
       "quick": "Rapido",
       "downloadPdf": "Scarica PDF",
       "errorTitle": "Errore",
-      "deleteFailed": "L'eliminazione non è riuscita."
+      "deleteFailed": "L'eliminazione non è riuscita.",
+      "unsavedChangesConfirm": "Le modifiche non salvate andranno perse. Continuare?"
     },
     "quiz": {
       "newTemplate": "Nuovo template",
@@ -1417,12 +1419,16 @@
       "retryButton": "Riprova"
     },
     "lessonEdit": {
-      "pageTitle": "Modifica lezione",
+      "loading": "Apertura dell'editor…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "Operazione sul blocco non riuscita.",
       "emptyTitle": "Lezione vuota",
       "emptyHint": "Aggiungi un primo blocco usando la barra qui sotto.",
       "previewButton": "Anteprima",
-      "editModeButton": "Modifica"
+      "editModeButton": "Modifica",
+      "previousLesson": "Lezione precedente",
+      "nextLesson": "Lezione successiva"
     },
     "joinRequestDecide": {
       "title": "Moderazione di una richiesta di accesso",
@@ -2207,7 +2213,7 @@
     "courseEdit": {
       "pageTitle": "Modifica corso",
       "tabInfo": "Informazioni",
-      "tabStructure": "Struttura",
+      "tabContent": "Contenuto",
       "tabEnrollment": "Iscrizioni",
       "tabAnalytics": "Analisi",
       "publishButton": "Pubblica",
@@ -2239,61 +2245,63 @@
       "deleteErrorToast": "Eliminazione del corso non riuscita.",
       "deleteProtectedToast": "Impossibile eliminare un corso che ha già emesso certificati."
     },
-    "structureTab": {
-      "heading": "Struttura del corso",
-      "subtitle": "Organizza il corso in sezioni e lezioni. Trascina per riordinare.",
-      "addSectionButton": "Aggiungi sezione",
-      "addLessonButton": "Aggiungi lezione",
-      "editButton": "Modifica",
-      "deleteButton": "Elimina",
-      "editContentButton": "Modifica contenuto",
-      "isPublishedLabel": "Pubblicata",
-      "isPreviewLabel": "Anteprima",
-      "confirmDeleteSection": "Eliminare la sezione \"{title}\"? Tutte le lezioni e i loro blocchi di contenuto saranno eliminati definitivamente.",
-      "confirmDeleteLesson": "Eliminare la lezione \"{title}\"? Tutti i blocchi di contenuto saranno eliminati definitivamente.",
-      "confirmDeleteHeader": "Conferma eliminazione",
-      "confirmAccept": "Elimina",
-      "confirmReject": "Annulla",
+    "contentTab": {
+      "emptyTitle": "Seleziona o crea una lezione",
+      "emptyHint": "Scegli una lezione nella struttura del corso o aggiungine una nuova.",
+      "outlineToggle": "Struttura del corso",
+      "unknownLessonToast": "Questa lezione non fa parte di questo corso."
+    },
+    "translationsDialog": {
       "sectionDialog": {
-        "titleCreate": "Nuova sezione",
         "titleEdit": "Modifica sezione",
         "titleField": "Titolo",
         "descriptionField": "Descrizione",
         "isPublishedField": "Pubblicata",
         "submitButton": "Salva",
-        "submitAndAddLessonButton": "Crea e aggiungi una lezione",
         "cancelButton": "Annulla",
         "translateButton": "Traduci da questa scheda",
         "translationFailed": "Traduzione automatica non riuscita."
       },
       "lessonDialog": {
-        "titleCreate": "Nuova lezione",
         "titleEdit": "Modifica lezione",
         "titleField": "Titolo",
         "isPreviewField": "Anteprima gratuita",
         "isPublishedField": "Pubblicata",
         "submitButton": "Salva",
-        "submitAndEditButton": "Crea e modifica il contenuto",
         "cancelButton": "Annulla",
         "translateButton": "Traduci da questa scheda",
         "translationFailed": "Traduzione automatica non riuscita."
       },
-      "sectionCreatedToast": "Sezione aggiunta.",
       "sectionUpdatedToast": "Sezione aggiornata.",
-      "sectionDeletedToast": "Sezione eliminata.",
-      "lessonCreatedToast": "Lezione aggiunta.",
       "lessonUpdatedToast": "Lezione aggiornata.",
-      "lessonDeletedToast": "Lezione eliminata.",
-      "reorderSuccessToast": "Ordine aggiornato.",
       "actionFailedToast": "Azione non riuscita.",
       "titleRequiredToast": "Il titolo è obbligatorio nella lingua principale.",
+      "loading": "Caricamento…",
+      "loadFailedToast": "Impossibile caricare le traduzioni aggiornate."
+    },
+    "courseOutline": {
+      "addLesson": "Lezione",
+      "addSection": "Sezione",
+      "newLessonPlaceholder": "Titolo della lezione, Invio per creare",
+      "newSectionPlaceholder": "Titolo della sezione, Invio per creare",
+      "missingLanguages": "Mancante:",
+      "menuAria": "Azioni",
+      "renameAction": "Rinomina",
+      "dragHandle": "Trascina per spostare",
+      "menuPublish": "Pubblica",
+      "menuUnpublish": "Spubblica",
+      "menuPreviewOn": "Attiva anteprima gratuita",
+      "menuPreviewOff": "Disattiva anteprima gratuita",
+      "menuTranslations": "Traduzioni…",
+      "menuDelete": "Elimina",
+      "confirmDeleteSection": "Eliminare la sezione \"{title}\"? Tutte le lezioni e i loro blocchi di contenuto saranno eliminati definitivamente.",
+      "confirmDeleteLesson": "Eliminare la lezione \"{title}\"? Tutti i blocchi di contenuto saranno eliminati definitivamente.",
+      "confirmDeleteHeader": "Conferma eliminazione",
+      "confirmAccept": "Elimina",
+      "confirmReject": "Annulla",
+      "actionFailedToast": "Azione non riuscita.",
       "untitledSection": "Sezione senza titolo",
-      "untitledLesson": "Lezione senza titolo",
-      "emptyTitle": "Ancora nessuna sezione",
-      "emptyMessage": "Inizia aggiungendo una sezione per strutturare il tuo corso.",
-      "dragHandleAria": "Trascina per riordinare",
-      "sectionAria": "Sezione",
-      "lessonAria": "Lezione"
+      "untitledLesson": "Lezione senza titolo"
     },
     "infoTab": {
       "heading": "Dettagli del corso",

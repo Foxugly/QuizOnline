@@ -1,0 +1,45 @@
+<div class="content-tab">
+  <aside class="content-tab__outline" [class.is-collapsed]="outlineCollapsed()">
+    <button
+      type="button"
+      class="content-tab__outline-toggle"
+      data-testid="outline-toggle"
+      [attr.aria-expanded]="!outlineCollapsed()"
+      (click)="outlineCollapsed.update(v => !v)">
+      <i class="pi" [class.pi-chevron-down]="!outlineCollapsed()" [class.pi-chevron-right]="outlineCollapsed()"></i>
+      {{ ui().outlineToggle }}
+    </button>
+    @if (course(); as c) {
+      <app-course-outline
+        [course]="c"
+        [selectedLessonId]="selectedLessonId()"
+        (lessonSelect)="onSelect($event)"
+        (courseChange)="courseChange.emit($event)"
+        (openTranslations)="translations.set($event)" />
+    }
+  </aside>
+  <section class="content-tab__lesson">
+    @if (selectedLessonId(); as lessonId) {
+      <app-lesson-content-editor
+        [lessonId]="lessonId"
+        [courseLanguage]="course()?.language_code ?? 'fr'"
+        (navigate)="onSelect($event)"
+        (titleChanged)="onTitleChanged($event)" />
+    } @else {
+      <app-empty-state
+        data-testid="content-empty"
+        icon="pi pi-file-edit"
+        [title]="ui().emptyTitle"
+        [hint]="ui().emptyHint" />
+    }
+  </section>
+</div>
+@if (translations(); as t) {
+  @if (course(); as c) {
+    <app-translations-dialog
+      [course]="c"
+      [target]="t"
+      (closed)="translations.set(null)"
+      (saved)="courseChange.emit($event)" />
+  }
+}

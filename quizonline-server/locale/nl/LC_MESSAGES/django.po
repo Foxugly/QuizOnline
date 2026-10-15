@@ -570,3 +570,11 @@ msgstr "U moet ingeschreven zijn voor deze cursus om uw voortgang in de lessen t
 #: core/services.py
 msgid "This position or identifier is already used in this course. Reorder instead."
 msgstr "Deze positie of identificatie wordt al gebruikt in deze cursus. Gebruik in plaats daarvan het herschikken."
+
+#: lesson/services.py
+msgid "A lesson can only move within its course."
+msgstr "Een les kan alleen binnen zijn cursus worden verplaatst."
+
+#: lesson/views.py
+msgid "Unknown section."
+msgstr "Onbekende sectie."

@@ -570,3 +570,11 @@ msgstr "Devi essere iscritto a questo corso per registrare i tuoi progressi nell
 #: core/services.py
 msgid "This position or identifier is already used in this course. Reorder instead."
 msgstr "Questa posizione o questo identificatore è già utilizzato in questo corso. Usa invece il riordino."
+
+#: lesson/services.py
+msgid "A lesson can only move within its course."
+msgstr "Una lezione può essere spostata solo all'interno del suo corso."
+
+#: lesson/views.py
+msgid "Unknown section."
+msgstr "Sezione sconosciuta."

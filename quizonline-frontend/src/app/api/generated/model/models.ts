@@ -78,6 +78,8 @@ export * from './lesson-detail';
 export * from './lesson-detail-position-in-section';
 export * from './lesson-detail-prev-lesson';
 export * from './lesson-detail-request';
+export * from './lesson-move-request';
+export * from './lesson-move-result';
 export * from './lesson-quiz';
 export * from './lesson-quiz-request';
 export * from './lesson-summary';

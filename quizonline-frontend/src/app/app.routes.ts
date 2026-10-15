@@ -4,6 +4,7 @@ import {Routes} from '@angular/router';
 import {authGuard} from './guards/auth.guard';
 import {domainAccessGuard} from './guards/domain-access.guard';
 import {superuserGuard} from './guards/superuser.guard';
+import {unsavedChangesGuard} from './pages/course-edit/unsaved-changes.guard';
 import {MainLayoutComponent} from './core/layout/main-layout/main-layout';
 import {PublicLayoutComponent} from './core/layout/public-layout/public-layout';
 import {AuthService} from './services/auth/auth';
@@ -268,6 +269,10 @@ export const routes: Routes = [
         path: 'course/:id/edit',
         loadComponent: () => import('./pages/course-edit/course-edit').then((m) => m.CourseEdit),
         canActivate: [authGuard, domainAccessGuard],
+        canDeactivate: [unsavedChangesGuard],
+        // Re-run the guard on ``?tab=`` / ``?lesson=`` changes too, so browser
+        // back / forward over unsaved block edits prompts like an in-app click.
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
       },
       {
         path: 'lesson/:id',

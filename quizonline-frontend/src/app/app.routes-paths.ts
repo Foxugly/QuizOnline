@@ -72,6 +72,9 @@ export const COURSE_LIST = '/course/list';
 export const COURSE_NEW = '/course/new';
 export const COURSE_DETAIL = (slug: string) => `/course/${slug}`;
 export const COURSE_EDIT = (id: number) => `/course/${id}/edit`;
+export type CourseEditTab = 'info' | 'content' | 'enrollment' | 'analytics';
+export const COURSE_EDIT_TAB = (id: number, tab: CourseEditTab, lesson?: number) =>
+  `/course/${id}/edit?tab=${tab}${lesson ? `&lesson=${lesson}` : ''}`;
 export const LESSON_VIEW = (id: number) => `/lesson/${id}`;
 export const LESSON_EDIT = (id: number) => `/lesson/${id}/edit`;
 export const ME_PROGRESS = '/me/progress';

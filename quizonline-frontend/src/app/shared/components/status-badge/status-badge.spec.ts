@@ -28,6 +28,7 @@ describe('StatusBadgeComponent', () => {
   it('maps access modes to informative severities', () => {
     expect(make('access-approval').severity()).toBe('warn');
     expect(make('access-invite').severity()).toBe('info');
+    expect(make('preview').severity()).toBe('info');
   });
 
   it('exposes an icon per kind', () => {

@@ -63,7 +63,13 @@ class SectionSerializer(serializers.ModelSerializer):
             Course.objects.select_for_update().filter(pk=course.pk).first()
             validated_data["order"] = next_order(Section, Q(course=course))
             instance = Section.objects.create(**validated_data)
-            return self._apply(instance, tr)
+            instance = self._apply(instance, tr)
+            from course.tasks import enqueue_fill_missing_translations
+
+            transaction.on_commit(
+                lambda pk=instance.pk: enqueue_fill_missing_translations("course.section", pk)
+            )
+            return instance
 
     def update(self, instance, validated_data):
         tr = validated_data.pop("translations", None)

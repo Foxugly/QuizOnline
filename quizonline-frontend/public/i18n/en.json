@@ -480,7 +480,8 @@
       "active": "Active",
       "inactive": "Inactive",
       "published": "Published",
-      "draft": "Draft"
+      "draft": "Draft",
+      "preview": "Free preview"
     },
     "access": {
       "open": "Open enrolment",
@@ -522,7 +523,8 @@
       "quick": "Quick",
       "downloadPdf": "Download PDF",
       "errorTitle": "Error",
-      "deleteFailed": "Deletion failed."
+      "deleteFailed": "Deletion failed.",
+      "unsavedChangesConfirm": "Unsaved changes will be lost. Continue?"
     },
     "quiz": {
       "newTemplate": "New template",
@@ -1417,12 +1419,16 @@
       "retryButton": "Retry"
     },
     "lessonEdit": {
-      "pageTitle": "Edit lesson",
+      "loading": "Opening the editor…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "Block operation failed.",
       "emptyTitle": "Empty lesson",
       "emptyHint": "Add a first block from the bar below.",
       "previewButton": "Preview",
-      "editModeButton": "Edit"
+      "editModeButton": "Edit",
+      "previousLesson": "Previous lesson",
+      "nextLesson": "Next lesson"
     },
     "joinRequestDecide": {
       "title": "Moderate a join request",
@@ -2207,7 +2213,7 @@
     "courseEdit": {
       "pageTitle": "Edit course",
       "tabInfo": "Information",
-      "tabStructure": "Structure",
+      "tabContent": "Content",
       "tabEnrollment": "Enrollment",
       "tabAnalytics": "Analytics",
       "publishButton": "Publish",
@@ -2239,61 +2245,63 @@
       "deleteErrorToast": "Could not delete course.",
       "deleteProtectedToast": "Cannot delete a course that has issued certificates."
     },
-    "structureTab": {
-      "heading": "Course structure",
-      "subtitle": "Organize the course into sections and lessons. Drag to reorder.",
-      "addSectionButton": "Add section",
-      "addLessonButton": "Add lesson",
-      "editButton": "Edit",
-      "deleteButton": "Delete",
-      "editContentButton": "Edit content",
-      "isPublishedLabel": "Published",
-      "isPreviewLabel": "Preview",
-      "confirmDeleteSection": "Delete section \"{title}\"? All lessons and their content blocks will be permanently deleted.",
-      "confirmDeleteLesson": "Delete lesson \"{title}\"? All content blocks will be permanently deleted.",
-      "confirmDeleteHeader": "Confirm deletion",
-      "confirmAccept": "Delete",
-      "confirmReject": "Cancel",
+    "contentTab": {
+      "emptyTitle": "Select or create a lesson",
+      "emptyHint": "Pick a lesson in the course outline or add a new one.",
+      "outlineToggle": "Course outline",
+      "unknownLessonToast": "This lesson is not part of this course."
+    },
+    "translationsDialog": {
       "sectionDialog": {
-        "titleCreate": "New section",
         "titleEdit": "Edit section",
         "titleField": "Title",
         "descriptionField": "Description",
         "isPublishedField": "Published",
         "submitButton": "Save",
-        "submitAndAddLessonButton": "Create and add a lesson",
         "cancelButton": "Cancel",
         "translateButton": "Translate from this tab",
         "translationFailed": "Auto-translation failed."
       },
       "lessonDialog": {
-        "titleCreate": "New lesson",
         "titleEdit": "Edit lesson",
         "titleField": "Title",
         "isPreviewField": "Free preview",
         "isPublishedField": "Published",
         "submitButton": "Save",
-        "submitAndEditButton": "Create and edit content",
         "cancelButton": "Cancel",
         "translateButton": "Translate from this tab",
         "translationFailed": "Auto-translation failed."
       },
-      "sectionCreatedToast": "Section added.",
       "sectionUpdatedToast": "Section updated.",
-      "sectionDeletedToast": "Section deleted.",
-      "lessonCreatedToast": "Lesson added.",
       "lessonUpdatedToast": "Lesson updated.",
-      "lessonDeletedToast": "Lesson deleted.",
-      "reorderSuccessToast": "Order updated.",
       "actionFailedToast": "Action failed.",
       "titleRequiredToast": "Title is required in the primary language.",
+      "loading": "Loading…",
+      "loadFailedToast": "Could not load the latest translations."
+    },
+    "courseOutline": {
+      "addLesson": "Lesson",
+      "addSection": "Section",
+      "newLessonPlaceholder": "Lesson title, Enter to create",
+      "newSectionPlaceholder": "Section title, Enter to create",
+      "missingLanguages": "Missing:",
+      "menuAria": "Actions",
+      "renameAction": "Rename",
+      "dragHandle": "Drag to reorder",
+      "menuPublish": "Publish",
+      "menuUnpublish": "Unpublish",
+      "menuPreviewOn": "Enable free preview",
+      "menuPreviewOff": "Disable free preview",
+      "menuTranslations": "Translations…",
+      "menuDelete": "Delete",
+      "confirmDeleteSection": "Delete section \"{title}\"? All lessons and their content blocks will be permanently deleted.",
+      "confirmDeleteLesson": "Delete lesson \"{title}\"? All content blocks will be permanently deleted.",
+      "confirmDeleteHeader": "Confirm deletion",
+      "confirmAccept": "Delete",
+      "confirmReject": "Cancel",
+      "actionFailedToast": "Action failed.",
       "untitledSection": "Untitled section",
-      "untitledLesson": "Untitled lesson",
-      "emptyTitle": "No sections yet",
-      "emptyMessage": "Start by adding a section to structure your course.",
-      "dragHandleAria": "Drag to reorder",
-      "sectionAria": "Section",
-      "lessonAria": "Lesson"
+      "untitledLesson": "Untitled lesson"
     },
     "infoTab": {
       "heading": "Course details",

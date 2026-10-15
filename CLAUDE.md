@@ -40,7 +40,7 @@ Monorepo with two main modules:
 
 - `<app-page-header [title]>` (under `shared/components/page-header/`) is the canonical page header used by every LMS shell. Three slots: `[slot=left]` / centered title / `[slot=right]`. Project content **directly** onto the slot (no inner wrapping `<div slot="left">`) so the slot's `gap: 0.5rem` applies between siblings. `@if` / `@for` work transparently — the projected elements still match the slot selector after the conditional resolves.
 - `<app-block-translate-button>` (under `shared/learning/block-editors/block-translate-button.ts`) is the inline "translate from current tab" affordance every translatable block editor renders next to its language tabs. Reads the active tab as source, fills blanks only.
-- `<app-lesson-reader>` (under `shared/learning/lesson-reader/`) is the shared outline + body + scroll-spy host used by both `/lesson/{id}` (with `scrollSpy=true`) and the preview mode of `/lesson/{id}/edit`. Owns the single `block-{id}` anchor scheme.
+- `<app-lesson-reader>` (under `shared/learning/lesson-reader/`) is the shared outline + body + scroll-spy host used by both `/lesson/{id}` (with `scrollSpy=true`) and the preview mode of the course editor's lesson pane (`<app-lesson-content-editor>`). Owns the single `block-{id}` anchor scheme.
 - `shared/learning/default-lang.ts` exposes `pickDefaultLang(availableLangs, userLang)` — every multilingual editor uses this to pick the initial active tab (user's UI language when allowed, else first allowed language).
 
 ## Backend conventions
@@ -72,12 +72,15 @@ LMS lives in flat Django apps mounted at `/api/` (no `/api/lms/` prefix):
 - `enrollment/` + `certificate/` : `CourseEnrollment / LessonProgress / CourseProgress / Certificate / CertificateSequence`. Services handle the lifecycle: `enroll_user_to_course` (3 modes), `mark_lesson_completed`, `calculate_course_progress`, `issue_certificate_if_eligible`. Celery + `reportlab` render the certificate PDF on-commit. On-commit notifications send 5 email templates (enrollment created/approved/rejected, course completed, certificate issued) localised via `gettext` + `.po`. Per-course certificate config: `Course.issues_certificate` gates emission (default true) and `Course.certificate_validity_months` drives a frozen `Certificate.expires_at` at issue time (0 = no expiration). Per-domain PDF branding (logo + signatory name + translatable signatory title) lives on `Domain.certificate_logo` / `certificate_signatory_name` / `certificate_signatory_title` and is embedded by `pdf_export.build_certificate_pdf`.
 - `assessment/` : `LessonQuiz` bridge to `quiz.QuizTemplate`. `post_save` signal on `quiz.Quiz` propagates passing scores (`>= required_score_percent`) to `enrollment.mark_lesson_completed` and to `issue_certificate_if_eligible` for course-level final quizzes.
 
+Machine translation on create: creating a section or lesson enqueues `course.tasks.fill_missing_translations` on commit, which DeepL-translates the course-language values into the domain's other allowed languages, filling ONLY empty values (no-op when DeepL is not configured, never raises).
+
 Roles map directly onto existing Domain roles: superuser = admin; Domain owner/manager = instructor; Domain member = learner. No new permission tables.
 
 A Course's primary `language` and parler translations are constrained to `Domain.allowed_languages` — enforced at the model `.clean()` level AND in `TranslationsField.to_internal_value()`.
 
 Key endpoints under `/api/` (`config/api_urls.py`):
 - `course/`, `section/`, `lesson/`, `block/` — CRUD + `reorder` actions + `publish` / `unpublish` / `clone` on courses
+- `lesson/{id}/move/` (POST `{section, position}`) — moves a lesson within / across sections of its course in one transaction
 - `course/?domain=<id>&level=<lvl>` — list filters consumed by the catalog dropdowns
 - `course/{id}/analytics/` — instructor-gated aggregated KPIs (enrollment counts, completion rate, median progress, certificates issued, 30-day enrollment trend) used by the course-edit "Analytics" tab
 - `enrollment/`, `course/{id}/enroll/`, `lesson/{id}/start/`, `lesson/{id}/complete/`
@@ -85,7 +88,7 @@ Key endpoints under `/api/` (`config/api_urls.py`):
 - `certificate/`, `certificate/{id}/pdf/`, `verify/{token}/` (public, anon throttle scope `lms_cert_verify`)
 - `validation-quiz/`
 
-`LessonDetailSerializer` is the read-heavy shape consumed by both `lesson-view` (learner) and `lesson-edit` (instructor). On top of the model fields it surfaces:
+`LessonDetailSerializer` is the read-heavy shape consumed by both `lesson-view` (learner) and `<app-lesson-content-editor>` (instructor). On top of the model fields it surfaces:
 - `course_id` / `course_slug` / `domain_id` — used by back buttons, the quiz-template picker scope, and routing
 - `can_manage` — gates the instructor "Edit" affordance + every write action on the lesson
 - `prev_lesson` / `next_lesson` (`{id, title}` or null) — power the lesson-view footer's previous / next chevron buttons. Ordered by `(section.order, lesson.order)` so the traversal bridges section boundaries.
@@ -95,7 +98,7 @@ Key endpoints under `/api/` (`config/api_urls.py`):
 
 Frontend pages live directly under `pages/` (no `lms/` prefix):
 - Learner: `catalog` (search + level + domain filters), `course-detail`, `lesson-view` (left block outline + prev/next footer + position subtitle), `progress`, `certificate-list`, `certificate-view`, `certificate-verify` (public, no auth)
-- Instructor: `course-edit` (tabs: info / structure / enrollment / analytics — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline), `lesson-edit` (drag-and-drop block builder via `@angular/cdk/drag-drop` + 8 block editors with explicit Save / Cancel / Édit per block + per-language translation tabs + inline translate button per editor + view-as-learner eye button). Callout blocks carry a semantic variant (info / success / warning / error) stored in `metadata.variant` that drives the left-border colour.
+- Instructor: `course-edit` (tabs: info / content / enrollment / analytics, active tab in `?tab=` — analytics tab pulls from `/api/course/{id}/analytics/` and renders KPIs + a 30-day sparkline). The **Content** tab is a two-pane editor: `CourseOutline` (sections + lessons, inline add / rename, drag-and-drop incl. cross-section moves via `POST /api/v1/lesson/{id}/move/`, per-row "Translations…" dialog) on the left, `<app-lesson-content-editor>` (`shared/learning/lesson-content-editor/`) for the lesson in `?lesson=` on the right: block list via `@angular/cdk/drag-drop` + 8 block editors with explicit Save / Cancel / Édit per block + per-language translation tabs + inline translate button per editor + learner preview toggle. Unsaved block edits are guarded by `unsavedChangesGuard` (route re-runs it on `?tab=` / `?lesson=` changes, incl. browser back / forward) + a `beforeunload` prompt. `/lesson/{id}/edit` (`lesson-edit`) is only a redirect to `/course/{courseId}/edit?tab=content&lesson={id}`. Callout blocks carry a semantic variant (info / success / warning / error) stored in `metadata.variant` that drives the left-border colour.
 - Unified post-login hub: `/dashboard` aggregates LMS courses + certificates + quizzes + catalog (auth-gated)
 
 Quiz block editor uses a `<p-autoComplete>` template picker scoped to the parent course's `domain_id` (from `LessonDetailSerializer.domain_id`); search by title, dropdown shows mode + question count. Image / file blocks use `<p-fileupload customUpload>` so the existing `UploadService` keeps owning the multipart PATCH. Video block auto-detects the provider from the URL (YouTube / Vimeo) and renders a live preview iframe.

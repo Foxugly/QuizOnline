@@ -1,18 +1,9 @@
 :host {
   display: block;
   padding: 1rem;
-  /* Match lesson-view so the preview's main column has the same width
-   * as the learner page — cards reflow identically. Aligned with the
-   * shared page max-width (--content-max) used across the app. */
-  max-width: var(--content-max);
-  margin: 0 auto;
 }
 
-/* Outline + body live in <app-lesson-reader> — see
- * shared/learning/lesson-reader/lesson-reader.scss. */
-
-.empty-state {
+.loading {
   text-align: center;
-  padding: 2rem 1rem;
   color: var(--text-color-secondary, #6b7280);
 }

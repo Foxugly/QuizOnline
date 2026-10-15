@@ -1,0 +1,50 @@
+.content-tab {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.content-tab__outline {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+}
+
+.content-tab__outline-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.content-tab__lesson {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .content-tab {
+    grid-template-columns: 1fr;
+  }
+
+  .content-tab__outline {
+    position: static;
+    max-height: none;
+  }
+
+  .content-tab__outline-toggle {
+    display: flex;
+  }
+
+  .content-tab__outline.is-collapsed app-course-outline {
+    display: none;
+  }
+}

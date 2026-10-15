@@ -480,7 +480,8 @@
       "active": "Actif",
       "inactive": "Inactif",
       "published": "Publié",
-      "draft": "Brouillon"
+      "draft": "Brouillon",
+      "preview": "Aperçu gratuit"
     },
     "access": {
       "open": "Inscription libre",
@@ -522,7 +523,8 @@
       "quick": "Rapide",
       "downloadPdf": "Télécharger PDF",
       "errorTitle": "Erreur",
-      "deleteFailed": "La suppression a échoué."
+      "deleteFailed": "La suppression a échoué.",
+      "unsavedChangesConfirm": "Les modifications non enregistrées seront perdues. Continuer ?"
     },
     "quiz": {
       "newTemplate": "Nouveau template",
@@ -1417,12 +1419,16 @@
       "retryButton": "Réessayer"
     },
     "lessonEdit": {
-      "pageTitle": "Édition de la leçon",
+      "loading": "Ouverture de l'éditeur…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "L'opération sur le bloc a échoué.",
       "emptyTitle": "Leçon vide",
       "emptyHint": "Ajoutez un premier bloc à l'aide de la barre ci-dessous.",
       "previewButton": "Aperçu",
-      "editModeButton": "Édition"
+      "editModeButton": "Édition",
+      "previousLesson": "Leçon précédente",
+      "nextLesson": "Leçon suivante"
     },
     "joinRequestDecide": {
       "title": "Modération d'une demande d'accès",
@@ -2207,7 +2213,7 @@
     "courseEdit": {
       "pageTitle": "Édition du cours",
       "tabInfo": "Informations",
-      "tabStructure": "Structure",
+      "tabContent": "Contenu",
       "tabEnrollment": "Inscriptions",
       "tabAnalytics": "Analyses",
       "publishButton": "Publier",
@@ -2239,61 +2245,63 @@
       "deleteErrorToast": "La suppression du cours a échoué.",
       "deleteProtectedToast": "Impossible de supprimer un cours ayant déjà émis des certificats."
     },
-    "structureTab": {
-      "heading": "Structure du cours",
-      "subtitle": "Organisez le cours en sections et leçons. Glissez-déposez pour réordonner.",
-      "addSectionButton": "Ajouter une section",
-      "addLessonButton": "Ajouter une leçon",
-      "editButton": "Modifier",
-      "deleteButton": "Supprimer",
-      "editContentButton": "Éditer le contenu",
-      "isPublishedLabel": "Publiée",
-      "isPreviewLabel": "Aperçu",
-      "confirmDeleteSection": "Supprimer la section « {title} » ? Toutes les leçons et leurs blocs de contenu seront définitivement supprimés.",
-      "confirmDeleteLesson": "Supprimer la leçon « {title} » ? Tous les blocs de contenu seront définitivement supprimés.",
-      "confirmDeleteHeader": "Confirmer la suppression",
-      "confirmAccept": "Supprimer",
-      "confirmReject": "Annuler",
+    "contentTab": {
+      "emptyTitle": "Sélectionnez ou créez une leçon",
+      "emptyHint": "Choisissez une leçon dans le plan du cours ou ajoutez-en une nouvelle.",
+      "outlineToggle": "Plan du cours",
+      "unknownLessonToast": "Cette leçon n'existe pas dans ce cours."
+    },
+    "translationsDialog": {
       "sectionDialog": {
-        "titleCreate": "Nouvelle section",
         "titleEdit": "Modifier la section",
         "titleField": "Titre",
         "descriptionField": "Description",
         "isPublishedField": "Publiée",
         "submitButton": "Enregistrer",
-        "submitAndAddLessonButton": "Créer et ajouter une leçon",
         "cancelButton": "Annuler",
         "translateButton": "Traduire depuis cet onglet",
         "translationFailed": "La traduction automatique a échoué."
       },
       "lessonDialog": {
-        "titleCreate": "Nouvelle leçon",
         "titleEdit": "Modifier la leçon",
         "titleField": "Titre",
         "isPreviewField": "Aperçu gratuit",
         "isPublishedField": "Publiée",
         "submitButton": "Enregistrer",
-        "submitAndEditButton": "Créer et éditer le contenu",
         "cancelButton": "Annuler",
         "translateButton": "Traduire depuis cet onglet",
         "translationFailed": "La traduction automatique a échoué."
       },
-      "sectionCreatedToast": "Section ajoutée.",
       "sectionUpdatedToast": "Section mise à jour.",
-      "sectionDeletedToast": "Section supprimée.",
-      "lessonCreatedToast": "Leçon ajoutée.",
       "lessonUpdatedToast": "Leçon mise à jour.",
-      "lessonDeletedToast": "Leçon supprimée.",
-      "reorderSuccessToast": "Ordre mis à jour.",
       "actionFailedToast": "L'action a échoué.",
       "titleRequiredToast": "Le titre est obligatoire dans la langue principale.",
+      "loading": "Chargement…",
+      "loadFailedToast": "Impossible de charger les traductions à jour."
+    },
+    "courseOutline": {
+      "addLesson": "Leçon",
+      "addSection": "Section",
+      "newLessonPlaceholder": "Titre de la leçon, Entrée pour créer",
+      "newSectionPlaceholder": "Titre de la section, Entrée pour créer",
+      "missingLanguages": "Manquant :",
+      "menuAria": "Actions",
+      "renameAction": "Renommer",
+      "dragHandle": "Glisser pour déplacer",
+      "menuPublish": "Publier",
+      "menuUnpublish": "Dépublier",
+      "menuPreviewOn": "Activer l’aperçu gratuit",
+      "menuPreviewOff": "Désactiver l’aperçu gratuit",
+      "menuTranslations": "Traductions…",
+      "menuDelete": "Supprimer",
+      "confirmDeleteSection": "Supprimer la section « {title} » ? Toutes les leçons et leurs blocs de contenu seront définitivement supprimés.",
+      "confirmDeleteLesson": "Supprimer la leçon « {title} » ? Tous les blocs de contenu seront définitivement supprimés.",
+      "confirmDeleteHeader": "Confirmer la suppression",
+      "confirmAccept": "Supprimer",
+      "confirmReject": "Annuler",
+      "actionFailedToast": "L'action a échoué.",
       "untitledSection": "Section sans titre",
-      "untitledLesson": "Leçon sans titre",
-      "emptyTitle": "Aucune section pour le moment",
-      "emptyMessage": "Commencez par ajouter une section pour structurer votre cours.",
-      "dragHandleAria": "Glisser pour réordonner",
-      "sectionAria": "Section",
-      "lessonAria": "Leçon"
+      "untitledLesson": "Leçon sans titre"
     },
     "infoTab": {
       "heading": "Informations du cours",
