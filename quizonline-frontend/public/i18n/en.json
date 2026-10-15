@@ -1417,12 +1417,16 @@
       "retryButton": "Retry"
     },
     "lessonEdit": {
-      "pageTitle": "Edit lesson",
+      "loading": "Opening the editor…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "Block operation failed.",
       "emptyTitle": "Empty lesson",
       "emptyHint": "Add a first block from the bar below.",
       "previewButton": "Preview",
-      "editModeButton": "Edit"
+      "editModeButton": "Edit",
+      "previousLesson": "Previous lesson",
+      "nextLesson": "Next lesson"
     },
     "joinRequestDecide": {
       "title": "Moderate a join request",

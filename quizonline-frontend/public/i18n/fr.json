@@ -1417,12 +1417,16 @@
       "retryButton": "Réessayer"
     },
     "lessonEdit": {
-      "pageTitle": "Édition de la leçon",
+      "loading": "Ouverture de l'éditeur…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "L'opération sur le bloc a échoué.",
       "emptyTitle": "Leçon vide",
       "emptyHint": "Ajoutez un premier bloc à l'aide de la barre ci-dessous.",
       "previewButton": "Aperçu",
-      "editModeButton": "Édition"
+      "editModeButton": "Édition",
+      "previousLesson": "Leçon précédente",
+      "nextLesson": "Leçon suivante"
     },
     "joinRequestDecide": {
       "title": "Modération d'une demande d'accès",

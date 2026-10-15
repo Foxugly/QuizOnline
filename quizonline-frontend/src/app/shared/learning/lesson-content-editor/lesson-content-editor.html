@@ -1,0 +1,55 @@
+<div class="lesson-pane__header">
+  @if (renaming()) {
+    <input pInputText
+      #titleInput
+      class="lesson-pane__title-input"
+      type="text"
+      [value]="draftTitle()"
+      (input)="draftTitle.set($any($event.target).value)"
+      (keydown.enter)="commitRename()"
+      (keydown.escape)="cancelRename()"
+      (blur)="cancelRename()" />
+  } @else {
+    <h2 class="lesson-pane__title" (dblclick)="startRename()">{{ title() }}</h2>
+  }
+  <app-status-badge
+    [kind]="lesson()?.is_published ? 'published' : 'draft'"
+    [label]="lesson()?.is_published ? shellUi().status.published : shellUi().status.draft" />
+  <span class="lesson-pane__spacer"></span>
+  <p-button type="button" icon="pi pi-chevron-left" [text]="true" size="small"
+    data-testid="prev-lesson" [disabled]="!lesson()?.prev_lesson"
+    [pTooltip]="ui().previousLesson" tooltipPosition="bottom"
+    (onClick)="navigate.emit(lesson()!.prev_lesson!.id)" />
+  <p-button type="button" icon="pi pi-chevron-right" [text]="true" size="small"
+    data-testid="next-lesson" [disabled]="!lesson()?.next_lesson"
+    [pTooltip]="ui().nextLesson" tooltipPosition="bottom"
+    (onClick)="navigate.emit(lesson()!.next_lesson!.id)" />
+  <p-button type="button" [outlined]="true"
+    [severity]="previewMode() ? 'info' : 'success'"
+    [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
+    [label]="previewMode() ? ui().editModeButton : ui().previewButton"
+    (onClick)="togglePreview()" />
+</div>
+
+@if (blocks().length === 0) {
+  <div class="empty-state">
+    <h3>{{ ui().emptyTitle }}</h3>
+    <p>{{ ui().emptyHint }}</p>
+  </div>
+}
+
+@if (previewMode()) {
+  <app-lesson-reader [blocks]="blocks()" />
+} @else {
+  @if (lessonId() > 0) {
+    <app-block-list-editor
+      hostType="lesson"
+      [hostId]="lessonId()"
+      blockRole="body"
+      [blocks]="blocks()"
+      [availableLangs]="availableLangs()"
+      [domainId]="domainId() || null"
+      (blocksChanged)="onBlocksChanged()"
+      (blockUpdated)="onBlockUpdated($event)" />
+  }
+}

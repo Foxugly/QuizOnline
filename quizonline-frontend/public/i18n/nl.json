@@ -1417,12 +1417,16 @@
       "retryButton": "Opnieuw proberen"
     },
     "lessonEdit": {
-      "pageTitle": "Les bewerken",
+      "loading": "Editor openen…"
+    },
+    "lessonContentEditor": {
       "blockErrorToast": "De blok-bewerking is mislukt.",
       "emptyTitle": "Lege les",
       "emptyHint": "Voeg een eerste blok toe via de balk hieronder.",
       "previewButton": "Voorbeeld",
-      "editModeButton": "Bewerken"
+      "editModeButton": "Bewerken",
+      "previousLesson": "Vorige les",
+      "nextLesson": "Volgende les"
     },
     "joinRequestDecide": {
       "title": "Een toegangsaanvraag modereren",
