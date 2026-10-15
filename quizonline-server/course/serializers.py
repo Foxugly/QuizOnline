@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.utils.text import slugify
@@ -97,14 +98,24 @@ class SectionSerializer(serializers.ModelSerializer):
         return instance
 
 
-def _derive_unique_course_slug(language, translations: dict | None) -> str:
-    """Derive a unique slug for a new Course from its primary-language title.
+def _full_clean_as_drf(instance) -> None:
+    """Run ``full_clean()`` and re-raise a Django ``ValidationError`` as a
+    DRF one, so a model-level rule surfaces as a 400 instead of a 500."""
+    try:
+        instance.full_clean()
+    except DjangoValidationError as exc:
+        raise serializers.ValidationError(serializers.as_serializer_error(exc)) from exc
 
-    Looks up the title in the Course's primary language first, then falls
-    back to any provided translation. If no title slugifies to a non-empty
-    value (e.g. CJK-only titles), uses a timestamped ``"course-<n>"`` shape
-    so the create call still succeeds. Appends ``-2``, ``-3``, ... on
-    collisions until uniqueness is reached.
+
+def _derive_unique_course_slug(language, translations: dict | None, slug: str | None = None) -> str:
+    """Return a unique slug for a new Course.
+
+    When ``slug`` is provided it is slugified and used as the base;
+    otherwise the base is derived from the primary-language title, falling
+    back to any provided translation. If nothing slugifies to a non-empty
+    value (e.g. CJK-only titles), uses a ``"course-<n>"`` shape so the
+    create call still succeeds. Appends ``-2``, ``-3``, ... on collisions
+    until uniqueness is reached.
     """
     primary_code = getattr(language, "code", None)
     candidates = []
@@ -116,11 +127,11 @@ def _derive_unique_course_slug(language, translations: dict | None) -> str:
                 continue
             if isinstance(fields, dict):
                 candidates.append(fields.get("title", ""))
-    base = ""
+    base = slugify(slug or "")[:200]
     for title in candidates:
-        base = slugify(title or "")
         if base:
             break
+        base = slugify(title or "")[:200]
     if not base:
         base = f"course-{Course.objects.count() + 1}"
     candidate = base
@@ -383,10 +394,13 @@ class CourseWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tr = validated_data.pop("translations", {})
-        if not (validated_data.get("slug") or "").strip():
-            validated_data["slug"] = _derive_unique_course_slug(validated_data.get("language"), tr)
+        # Always deduplicate on create: the SPA sends its own slugified slug,
+        # so a duplicate title must get ``-2`` rather than a unique-key 500.
+        validated_data["slug"] = _derive_unique_course_slug(
+            validated_data.get("language"), tr, (validated_data.get("slug") or "").strip(),
+        )
         instance = Course(**validated_data)
-        instance.full_clean()
+        _full_clean_as_drf(instance)
         instance.save()
         return self._apply(instance, tr)
 
@@ -394,7 +408,7 @@ class CourseWriteSerializer(serializers.ModelSerializer):
         tr = validated_data.pop("translations", None)
         for k, v in validated_data.items():
             setattr(instance, k, v)
-        instance.full_clean()
+        _full_clean_as_drf(instance)
         instance.save()
         if tr is not None:
             self._apply(instance, tr)
