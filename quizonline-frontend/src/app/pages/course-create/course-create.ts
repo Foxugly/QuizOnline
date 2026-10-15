@@ -32,7 +32,7 @@ import {DomainDetailDto} from '../../api/generated/model/domain-detail';
 import {EnrollmentModeEnumDto} from '../../api/generated/model/enrollment-mode-enum';
 import {LevelEnumDto} from '../../api/generated/model/level-enum';
 
-import {CATALOG, COURSE_DETAIL} from '../../app.routes-paths';
+import {CATALOG, COURSE_DETAIL, COURSE_EDIT_TAB} from '../../app.routes-paths';
 import {DomainService} from '../../services/domain/domain';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {
@@ -396,7 +396,9 @@ export class CourseCreate implements OnInit {
             summary: this.pageText().toastSuccessSummary,
             detail: this.pageText().toastSuccessDetail,
           });
-          if (created?.slug) {
+          if (created?.id) {
+            this.router.navigateByUrl(COURSE_EDIT_TAB(created.id, 'content'));
+          } else if (created?.slug) {
             this.router.navigateByUrl(COURSE_DETAIL(created.slug));
           } else {
             this.router.navigateByUrl(CATALOG);

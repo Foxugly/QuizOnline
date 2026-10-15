@@ -80,15 +80,15 @@
     </div>
   } @else {
     <div class="card form-card builder-stack">
-      <p-tabs value="info" class="builder-tabs">
+      <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" class="builder-tabs">
         <p-tablist>
           <p-tab value="info">
             <i class="pi pi-info-circle tab-icon"></i>
             {{ ui().tabInfo }}
           </p-tab>
-          <p-tab value="structure">
+          <p-tab value="content">
             <i class="pi pi-sitemap tab-icon"></i>
-            {{ ui().tabStructure }}
+            {{ ui().tabContent }}
           </p-tab>
           <p-tab value="enrollment">
             <i class="pi pi-users tab-icon"></i>
@@ -108,7 +108,7 @@
                 (changed)="refresh()" />
             </div>
           </p-tabpanel>
-          <p-tabpanel value="structure">
+          <p-tabpanel value="content">
             <div class="builder-pane">
               <app-course-edit-structure-tab
                 [courseId]="courseId()"

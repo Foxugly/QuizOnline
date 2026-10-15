@@ -2207,7 +2207,7 @@
     "courseEdit": {
       "pageTitle": "Modifica corso",
       "tabInfo": "Informazioni",
-      "tabStructure": "Struttura",
+      "tabContent": "Contenuto",
       "tabEnrollment": "Iscrizioni",
       "tabAnalytics": "Analisi",
       "publishButton": "Pubblica",

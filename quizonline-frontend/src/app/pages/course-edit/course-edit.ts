@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
 import {FormsModule} from '@angular/forms';
@@ -10,7 +10,7 @@ import {TabsModule} from 'primeng/tabs';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {TooltipModule} from 'primeng/tooltip';
 
-import {CATALOG, COURSE_DETAIL, COURSE_EDIT} from '../../app.routes-paths';
+import {CATALOG, COURSE_DETAIL, COURSE_EDIT, CourseEditTab} from '../../app.routes-paths';
 import {CourseDetailDto} from '../../api/generated/model/course-detail';
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {logApiError} from '../../shared/api/api-errors';
@@ -19,6 +19,7 @@ import {StatusBadgeComponent} from '../../shared/components/status-badge/status-
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
 
+import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
 import {CourseEditStructureTab} from './tabs/structure-tab/structure-tab';
@@ -67,6 +68,20 @@ export class CourseEdit implements OnInit {
   private readonly catalog = inject(CatalogService);
   private readonly toast = inject(AppToastService);
   private readonly confirmer = inject(ConfirmationService);
+
+  /** Active tab, driven by ``?tab=`` so it is deep-linkable and survives reloads. */
+  protected readonly activeTab = toSignal(
+    this.route.queryParamMap.pipe(map((q) => parseCourseEditTab(q.get('tab')))),
+    {initialValue: 'info' as CourseEditTab},
+  );
+
+  protected onTabChange(tab: string | number | undefined): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {tab: parseCourseEditTab(String(tab ?? 'info')), lesson: null},
+      queryParamsHandling: 'merge',
+    });
+  }
 
   private readonly uiSvc = inject(UiTextService);
   protected readonly ui = this.uiSvc.localized(getCourseEditUiText);
