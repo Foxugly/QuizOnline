@@ -22,12 +22,12 @@ import {AppToastService} from '../../shared/toast/app-toast.service';
 import {parseCourseEditTab} from './course-edit-tab.util';
 import {getCourseEditUiText} from './course-edit.i18n';
 import {CourseEditInfoTab} from './tabs/info-tab/info-tab';
-import {CourseEditStructureTab} from './tabs/structure-tab/structure-tab';
+import {CourseEditContentTab} from './tabs/content-tab/content-tab';
 import {CourseEditEnrollmentTab} from './tabs/enrollment-tab/enrollment-tab';
 import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
 
 /**
- * Course-author shell: four-tab page (info / structure / enrollment /
+ * Course-author shell: four-tab page (info / content / enrollment /
  * analytics) keyed off the ``:id`` route param. Each tab is its own
  * OnPush component receiving ``courseId`` as a signal-input, so the
  * shell stays trivially light and tab components can fan out into
@@ -35,9 +35,9 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
  *
  * The shell also owns the course-level publish/unpublish toggle in
  * the page header and fetches the course detail (used both to drive
- * that toggle's label and to expose a ``courseChanged`` callback to
- * child tabs that mutate sections / lessons — they emit and the shell
- * re-fetches so the publish button stays in sync with the live state).
+ * that toggle's label). The content tab mutates sections / lessons locally
+ * and hands back the updated course through ``courseChange`` (no refetch);
+ * the info tab still emits ``changed`` and the shell re-fetches.
  */
 @Component({
   selector: 'app-course-edit',
@@ -52,7 +52,7 @@ import {CourseEditAnalyticsTab} from './tabs/analytics-tab/analytics-tab';
     PageHeader,
     StatusBadgeComponent,
     CourseEditInfoTab,
-    CourseEditStructureTab,
+    CourseEditContentTab,
     CourseEditEnrollmentTab,
     CourseEditAnalyticsTab,
   ],
@@ -146,6 +146,12 @@ export class CourseEdit implements OnInit {
           this.loading.set(false);
         }
       });
+  }
+
+  /** Content tab mutated the course tree: adopt its copy (no refetch). */
+  protected onCourseChange(c: CourseDetailDto): void {
+    this.course.set(c);
+    this.publishToggle.set(c.is_published === true);
   }
 
   /**

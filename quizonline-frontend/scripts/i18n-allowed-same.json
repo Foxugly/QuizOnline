@@ -166,8 +166,7 @@
   "pages/course-create:toastErrorSummary",
 
   "pages/course-edit:tabContent",
-  "pages/course-edit/structure-tab:sectionDialog.descriptionField",
-  "pages/course-edit/structure-tab:sectionAria",
+  "pages/course-edit/translations-dialog:sectionDialog.descriptionField",
   "pages/course-edit/info-tab:fields.description",
   "pages/course-edit/info-tab:enrollmentLabels.open",
   "pages/course-edit/info-tab:toasts.errorSummary",

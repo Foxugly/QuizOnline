@@ -7,7 +7,7 @@
 }
 
 /*
- * The info-tab renders its form inside a <p-card>, and the structure/
+ * The info-tab renders its form inside a <p-card>, and the content/
  * enrollment/analytics tabs each carry their own surface chrome. Now
  * that they're nested inside the outer ``.card form-card builder-stack``
  * shell, that inner card paints a redundant border on top of the outer

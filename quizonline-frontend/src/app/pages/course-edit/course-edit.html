@@ -110,10 +110,9 @@
           </p-tabpanel>
           <p-tabpanel value="content">
             <div class="builder-pane">
-              <app-course-edit-structure-tab
-                [courseId]="courseId()"
+              <app-course-edit-content-tab
                 [course]="course()"
-                (changed)="refresh()" />
+                (courseChange)="onCourseChange($event)" />
             </div>
           </p-tabpanel>
           <p-tabpanel value="enrollment">
