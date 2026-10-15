@@ -14,6 +14,7 @@ export interface CourseOutlineUiText {
   /** Prefix of the "missing languages" hint, followed by ``EN, NL``. */
   missingLanguages: string;
   menuAria: string;
+  renameAction: string;
   menuPublish: string;
   menuUnpublish: string;
   menuPreviewOn: string;

@@ -9,6 +9,7 @@ export type StatusBadgeKind =
   | 'inactive'
   | 'published'
   | 'draft'
+  | 'preview'
   | 'access-open'
   | 'access-approval'
   | 'access-invite';
@@ -20,6 +21,7 @@ const SEVERITY: Record<StatusBadgeKind, Severity> = {
   inactive: 'secondary',
   published: 'success',
   draft: 'secondary',
+  preview: 'info',
   'access-open': 'success',
   'access-approval': 'warn',
   'access-invite': 'info',
@@ -30,6 +32,7 @@ const ICON: Record<StatusBadgeKind, string> = {
   inactive: 'pi pi-ban',
   published: 'pi pi-check-circle',
   draft: 'pi pi-file-edit',
+  preview: 'pi pi-lock-open',
   'access-open': 'pi pi-globe',
   'access-approval': 'pi pi-verified',
   'access-invite': 'pi pi-envelope',

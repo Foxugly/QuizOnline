@@ -77,7 +77,7 @@ export class CourseOutline {
   readonly selectedLessonId = input<number | null>(null);
 
   /** Lesson to show in the right pane; ``0`` = none (the selected one was deleted). */
-  readonly select = output<number>();
+  readonly lessonSelect = output<number>();
   readonly courseChange = output<CourseDetailDto>();
   readonly openTranslations = output<OutlineRef>();
 
@@ -145,7 +145,7 @@ export class CourseOutline {
         this.patchSection(sectionId, (s) => ({...s, lessons: insertSorted([...(s.lessons ?? [])], lesson)}));
         this.addingLessonIn.set(null);
         this.draft.set('');
-        this.select.emit(lesson.id);
+        this.lessonSelect.emit(lesson.id);
       },
     );
   }
@@ -277,7 +277,7 @@ export class CourseOutline {
         }));
       }
       if (losesSelection) {
-        this.select.emit(0);
+        this.lessonSelect.emit(0);
       }
     });
   }
@@ -291,6 +291,9 @@ export class CourseOutline {
       error: (err: unknown) => {
         logApiError(`lms.outline.${logKey}`, err);
         this.toast.addApiError(err, this.ui().actionFailedToast);
+        if (this.addingLessonIn() !== null || this.addingSection() || this.renaming() !== null) {
+          this.focusInput(); // keep the typed text editable without a click
+        }
       },
     });
   }

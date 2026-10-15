@@ -23,6 +23,16 @@
           [kind]="section.is_published ? 'published' : 'draft'"
           [label]="section.is_published ? shellUi().status.published : shellUi().status.draft" />
         <p-button
+          icon="pi pi-pencil"
+          severity="secondary"
+          [text]="true"
+          size="small"
+          [pTooltip]="ui().renameAction"
+          tooltipPosition="top"
+          [ariaLabel]="ui().renameAction"
+          [attr.data-testid]="'rename-section-' + section.id + '-open'"
+          (onClick)="$event.stopPropagation(); startRename('section', section.id, section.translations)" />
+        <p-button
           icon="pi pi-ellipsis-h"
           severity="secondary"
           [text]="true"
@@ -44,7 +54,7 @@
             [class.is-selected]="lesson.id === selectedLessonId()"
             [attr.aria-current]="lesson.id === selectedLessonId() ? 'true' : null"
             [attr.data-testid]="'lesson-' + lesson.id"
-            (click)="select.emit(lesson.id)">
+            (click)="lessonSelect.emit(lesson.id)">
             <div class="outline-row__main">
               @if (isRenaming('lesson', lesson.id)) {
                 <input
@@ -55,7 +65,7 @@
                   (click)="$event.stopPropagation()"
                   (input)="draft.set($any($event.target).value)"
                   (keydown.enter)="$event.preventDefault(); submitRename()"
-            (keydown.escape)="cancelInline()" />
+                  (keydown.escape)="cancelInline()" />
               } @else {
                 <button
                   type="button"
@@ -69,9 +79,25 @@
                 <small class="outline-row__missing">{{ ui().missingLanguages }} {{ langs }}</small>
               }
             </div>
+            @if (lesson.is_preview) {
+              <app-status-badge
+                kind="preview"
+                [label]="shellUi().status.preview"
+                [attr.data-testid]="'preview-lesson-' + lesson.id" />
+            }
             <app-status-badge
               [kind]="lesson.is_published ? 'published' : 'draft'"
               [label]="lesson.is_published ? shellUi().status.published : shellUi().status.draft" />
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              [pTooltip]="ui().renameAction"
+              tooltipPosition="top"
+              [ariaLabel]="ui().renameAction"
+              [attr.data-testid]="'rename-lesson-' + lesson.id + '-open'"
+              (onClick)="$event.stopPropagation(); startRename('lesson', lesson.id, lesson.translations)" />
             <p-button
               icon="pi pi-ellipsis-h"
               severity="secondary"

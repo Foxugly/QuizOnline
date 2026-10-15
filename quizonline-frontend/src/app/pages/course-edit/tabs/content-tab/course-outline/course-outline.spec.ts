@@ -10,6 +10,13 @@ const course = {
   sections: [{id: 10, order: 0, is_published: false, translations: {fr: {title: 'S1'}}, lessons: []}],
 } as never;
 
+const withLesson = {
+  id: 1, language_code: 'fr', available_lang_codes: ['fr'],
+  sections: [{id: 10, order: 0, is_published: false, translations: {fr: {title: 'S1'}}, lessons: [
+    {id: 5, section: 10, order: 0, is_published: true, is_preview: true, translations: {fr: {title: 'L'}}},
+  ]}],
+} as never;
+
 describe('CourseOutline', () => {
   const catalog = {createLesson: vi.fn(), createSection: vi.fn(), updateLesson: vi.fn(), updateSection: vi.fn()};
   beforeEach(() => {
@@ -39,7 +46,7 @@ describe('CourseOutline', () => {
     catalog.createLesson.mockReturnValue(of({id: 99, section: 10, order: 0, is_published: false, is_preview: false, translations: {fr: {title: 'L1'}}}));
     const f = render();
     let selected = 0;
-    f.componentInstance.select.subscribe((id: number) => (selected = id));
+    f.componentInstance.lessonSelect.subscribe((id: number) => (selected = id));
     typeAndPress(f, 'add-lesson-10', '  L1 ', 'Enter');
     expect(catalog.createLesson).toHaveBeenCalledWith({section: 10, translations: {fr: {title: 'L1'}}});
     expect(selected).toBe(99);
@@ -110,5 +117,27 @@ describe('CourseOutline', () => {
   it('shows the languages whose title is still empty', () => {
     const f = render();
     expect((f.nativeElement.querySelector('.outline-row__missing') as HTMLElement).textContent).toContain('EN');
+  });
+
+  it('the pencil opens the rename input without selecting the lesson', () => {
+    const f = TestBed.createComponent(CourseOutline);
+    f.componentRef.setInput('course', withLesson);
+    f.detectChanges();
+    let selected = 0;
+    f.componentInstance.lessonSelect.subscribe((id: number) => (selected = id));
+    (f.nativeElement.querySelector('[data-testid="rename-lesson-5-open"] button') as HTMLButtonElement).click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-testid="rename-lesson-5-input"]')).not.toBeNull();
+    expect(selected).toBe(0);
+    (f.nativeElement.querySelector('[data-testid="rename-section-10-open"] button') as HTMLButtonElement).click();
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('[data-testid="rename-section-10-input"]')).not.toBeNull();
+  });
+
+  it('shows the free-preview badge on preview lessons', () => {
+    const f = TestBed.createComponent(CourseOutline);
+    f.componentRef.setInput('course', withLesson);
+    f.detectChanges();
+    expect((f.nativeElement.querySelector('[data-testid="preview-lesson-5"]') as HTMLElement).textContent).toContain('Free preview');
   });
 });
