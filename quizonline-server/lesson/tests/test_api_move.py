@@ -75,7 +75,7 @@ def test_unknown_section_is_400(owner, setup):
 
 
 @pytest.mark.django_db
-def test_user_of_other_domain_gets_404(setup):
+def test_user_without_membership_gets_404(setup):
     _s1, s2, lesson = setup
     stranger = CustomUser.objects.create_user(email="stranger@example.test", password="x")
     resp = _auth(stranger).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": s2.id, "position": 0}, format="json")
@@ -83,6 +83,24 @@ def test_user_of_other_domain_gets_404(setup):
     lesson.refresh_from_db()
     assert lesson.section_id != s2.id
 
+
+@pytest.mark.django_db
+def test_member_of_other_domain_gets_404(setup, fr_lang):
+    from domain.models import Domain
+
+    _s1, s2, lesson = setup
+    other_owner = CustomUser.objects.create_user(email="other-owner@example.test", password="x")
+    other_domain = Domain.objects.create(owner=other_owner)
+    other_domain.set_current_language("fr")
+    other_domain.name = "Other Domain"
+    other_domain.save()
+    other_domain.allowed_languages.add(fr_lang)
+    stranger = CustomUser.objects.create_user(email="stranger2@example.test", password="x")
+    other_domain.members.add(stranger)
+    resp = _auth(stranger).post(f"/api/v1/lesson/{lesson.id}/move/", {"section": s2.id, "position": 0}, format="json")
+    assert resp.status_code == 404
+    lesson.refresh_from_db()
+    assert lesson.section_id != s2.id
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("position,expected", [(1, ["x", "l", "y"]), (99, ["x", "y", "l"])])
