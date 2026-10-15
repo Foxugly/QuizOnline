@@ -1,6 +1,7 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
+import {MessageService} from 'primeng/api';
 import {beforeEach, describe, expect, it} from 'vitest';
 
 import {BlockListEditor} from './block-list-editor';
@@ -8,7 +9,7 @@ import {ContentBlock} from '../content-block.types';
 
 describe('BlockListEditor unsaved changes', () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({imports: [BlockListEditor], providers: [provideHttpClient(), provideHttpClientTesting()]});
+    TestBed.configureTestingModule({imports: [BlockListEditor], providers: [MessageService, provideHttpClient(), provideHttpClientTesting()]});
     TestBed.overrideComponent(BlockListEditor, {set: {imports: [], template: '<div></div>'}});
   });
 

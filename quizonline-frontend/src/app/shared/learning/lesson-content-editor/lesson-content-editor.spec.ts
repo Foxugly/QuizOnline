@@ -1,6 +1,7 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {MessageService} from 'primeng/api';
 import {By} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
@@ -15,7 +16,7 @@ describe('LessonContentEditor', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [LessonContentEditor],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [MessageService, provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(LessonContentEditor);
