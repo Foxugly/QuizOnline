@@ -207,6 +207,13 @@ export class DashboardPage implements OnInit {
         error: (err: unknown) => {
           logApiError('dashboard.domains', err);
           this.domains.set([]);
+          // A superuser is an instructor everywhere regardless of domains:
+          // still load the drafts, else the tile's skeleton never clears.
+          if (this.isInstructorAnywhere()) {
+            this.loadDraftCourses();
+          } else {
+            this.draftsLoading.set(false);
+          }
         },
       });
   }

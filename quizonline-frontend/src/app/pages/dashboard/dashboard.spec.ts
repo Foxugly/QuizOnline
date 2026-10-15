@@ -1,7 +1,7 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {provideRouter} from '@angular/router';
-import {of} from 'rxjs';
+import {of, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {CatalogService} from '../../services/catalog/catalog.service';
@@ -81,5 +81,24 @@ describe('DashboardPage', () => {
   it('is shown to a superuser', () => {
     const f = render({id: 1, is_superuser: true}, [], [draft(1, 'One')]);
     expect(tile(f)).not.toBeNull();
+  });
+
+  it('still loads the drafts for a superuser when the domains request fails', () => {
+    me.set({id: 1, is_superuser: true});
+    domains.mockReturnValue(throwError(() => new Error('boom')));
+    catalog.list.mockReturnValue(of({count: 1, next: null, previous: null, results: [draft(1, 'One')]}));
+    const f = TestBed.createComponent(DashboardPage);
+    f.detectChanges();
+    expect(catalog.list).toHaveBeenCalledWith({manageableOnly: true});
+    expect(tile(f)?.textContent).toContain('One');
+  });
+
+  it('stops the drafts skeleton for a non-instructor when the domains request fails', () => {
+    me.set({id: 1, is_superuser: false});
+    domains.mockReturnValue(throwError(() => new Error('boom')));
+    const f = TestBed.createComponent(DashboardPage);
+    f.detectChanges();
+    expect(catalog.list).not.toHaveBeenCalled();
+    expect((f.componentInstance as unknown as {draftsLoading: () => boolean}).draftsLoading()).toBe(false);
   });
 });
