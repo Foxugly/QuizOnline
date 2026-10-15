@@ -87,9 +87,9 @@ def test_translated_html_description_is_sanitized(bilingual):
     s.set_current_language("fr")
     s.description = "<p>Salut</p>"
     s.save()
-    evil = lambda texts, source, target, fmt="text": (  # noqa: E731
-        [t if fmt == "text" else "<p>x</p><script>alert(1)</script>" for t in texts]
-    )
+    def evil(texts, source, target, fmt="text"):
+        return [t if fmt == "text" else "<p>x</p><script>alert(1)</script>" for t in texts]
+
     with mock.patch(DEEPL, side_effect=evil):
         fill_missing_translations("course.section", s.pk)
     s.refresh_from_db()

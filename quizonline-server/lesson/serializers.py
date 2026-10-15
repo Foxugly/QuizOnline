@@ -9,6 +9,7 @@ from core.services import UNIQUE_POSITION_ERROR, next_order
 from .models import Lesson
 from .services import lesson_slug_base, unique_lesson_slug
 
+
 class LessonSummarySerializer(serializers.ModelSerializer):
     """Read-only structure row nested in the course / section payloads:
     what the outline and the structure editor render, nothing more."""

@@ -15,7 +15,11 @@ from course.permissions import IsLmsInstructorOrReadOnly
 from course.serializers import SectionSerializer
 
 from .models import Lesson
-from .serializers import LessonDetailSerializer, LessonMoveSerializer, LessonSummarySerializer
+from .serializers import (
+    LessonDetailSerializer,
+    LessonMoveSerializer,
+    LessonSummarySerializer,
+)
 from .services import compact_lessons, move_lesson, publish_lesson, unpublish_lesson
 
 
