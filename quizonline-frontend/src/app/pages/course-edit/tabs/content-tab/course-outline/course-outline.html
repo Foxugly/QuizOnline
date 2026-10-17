@@ -32,24 +32,24 @@
             <span
               class="outline-row__title"
               [attr.data-testid]="'rename-section-' + section.id"
+              [attr.title]="titleOf(section, 'section')"
               (dblclick)="startRename('section', section.id, section.translations)">
               {{ titleOf(section, 'section') }}
             </span>
           }
-          <app-status-badge
-            [kind]="section.is_published ? 'published' : 'draft'"
-            [label]="section.is_published ? shellUi().status.published : shellUi().status.draft" />
+          @if (missing(section.translations); as langs) {
+            <i
+              class="pi pi-language outline-row__flag outline-row__missing"
+              [pTooltip]="ui().missingLanguages + ' ' + langs"
+              tooltipPosition="top"
+              [attr.aria-label]="ui().missingLanguages + ' ' + langs"
+              [attr.data-testid]="'missing-section-' + section.id"></i>
+          }
+          @if (!section.is_published) {
+            <app-status-badge kind="draft" [label]="shellUi().status.draft" />
+          }
           <p-button
-            icon="pi pi-pencil"
-            severity="secondary"
-            [text]="true"
-            size="small"
-            [pTooltip]="ui().renameAction"
-            tooltipPosition="top"
-            [ariaLabel]="ui().renameAction"
-            [attr.data-testid]="'rename-section-' + section.id + '-open'"
-            (onClick)="$event.stopPropagation(); startRename('section', section.id, section.translations)" />
-          <p-button
+            class="outline-menu"
             icon="pi pi-ellipsis-h"
             severity="secondary"
             [text]="true"
@@ -60,9 +60,6 @@
             [attr.data-testid]="'menu-section-' + section.id"
             (onClick)="openMenu($event, 'section', section)" />
         </div>
-        @if (missing(section.translations); as langs) {
-          <small class="outline-row__missing">{{ ui().missingLanguages }} {{ langs }}</small>
-        }
 
         <ul
           class="outline-lessons"
@@ -90,50 +87,47 @@
                 (click)="$event.stopPropagation()">
                 <i class="pi pi-bars" aria-hidden="true"></i>
               </button>
-              <div class="outline-row__main">
-                @if (isRenaming('lesson', lesson.id)) {
-                  <input
-                    pInputText
-                    class="outline-input"
-                    [attr.data-testid]="'rename-lesson-' + lesson.id + '-input'"
-                    [value]="draft()"
-                    (click)="$event.stopPropagation()"
-                    (input)="draft.set($any($event.target).value)"
-                    (keydown.enter)="$event.preventDefault(); submitRename()"
-                    (keydown.escape)="cancelInline()" />
-                } @else {
-                  <button
-                    type="button"
-                    class="outline-row__title outline-row__select"
-                    [attr.data-testid]="'rename-lesson-' + lesson.id"
-                    (dblclick)="startRename('lesson', lesson.id, lesson.translations)">
-                    {{ titleOf(lesson, 'lesson') }}
-                  </button>
-                }
-                @if (missing(lesson.translations); as langs) {
-                  <small class="outline-row__missing">{{ ui().missingLanguages }} {{ langs }}</small>
-                }
-              </div>
-              @if (lesson.is_preview) {
-                <app-status-badge
-                  kind="preview"
-                  [label]="shellUi().status.preview"
-                  [attr.data-testid]="'preview-lesson-' + lesson.id" />
+              @if (isRenaming('lesson', lesson.id)) {
+                <input
+                  pInputText
+                  class="outline-input"
+                  [attr.data-testid]="'rename-lesson-' + lesson.id + '-input'"
+                  [value]="draft()"
+                  (click)="$event.stopPropagation()"
+                  (input)="draft.set($any($event.target).value)"
+                  (keydown.enter)="$event.preventDefault(); submitRename()"
+                  (keydown.escape)="cancelInline()" />
+              } @else {
+                <button
+                  type="button"
+                  class="outline-row__title outline-row__select"
+                  [attr.data-testid]="'rename-lesson-' + lesson.id"
+                  [attr.title]="titleOf(lesson, 'lesson')"
+                  (dblclick)="startRename('lesson', lesson.id, lesson.translations)">
+                  {{ titleOf(lesson, 'lesson') }}
+                </button>
               }
-              <app-status-badge
-                [kind]="lesson.is_published ? 'published' : 'draft'"
-                [label]="lesson.is_published ? shellUi().status.published : shellUi().status.draft" />
+              @if (missing(lesson.translations); as langs) {
+                <i
+                  class="pi pi-language outline-row__flag outline-row__missing"
+                  [pTooltip]="ui().missingLanguages + ' ' + langs"
+                  tooltipPosition="top"
+                  [attr.aria-label]="ui().missingLanguages + ' ' + langs"
+                  [attr.data-testid]="'missing-lesson-' + lesson.id"></i>
+              }
+              @if (lesson.is_preview) {
+                <i
+                  class="pi pi-eye outline-row__flag"
+                  [pTooltip]="shellUi().status.preview"
+                  tooltipPosition="top"
+                  [attr.aria-label]="shellUi().status.preview"
+                  [attr.data-testid]="'preview-lesson-' + lesson.id"></i>
+              }
+              @if (!lesson.is_published) {
+                <app-status-badge kind="draft" [label]="shellUi().status.draft" />
+              }
               <p-button
-                icon="pi pi-pencil"
-                severity="secondary"
-                [text]="true"
-                size="small"
-                [pTooltip]="ui().renameAction"
-                tooltipPosition="top"
-                [ariaLabel]="ui().renameAction"
-                [attr.data-testid]="'rename-lesson-' + lesson.id + '-open'"
-                (onClick)="$event.stopPropagation(); startRename('lesson', lesson.id, lesson.translations)" />
-              <p-button
+                class="outline-menu"
                 icon="pi pi-ellipsis-h"
                 severity="secondary"
                 [text]="true"
