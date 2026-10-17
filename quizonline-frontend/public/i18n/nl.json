@@ -93,7 +93,6 @@
     },
     "register": {
       "title": "Account maken",
-      "subtitle": "Identiteit, taal en beveiliging",
       "back": "Terug",
       "create": "Maken",
       "loading": "Laden...",
@@ -129,14 +128,12 @@
     },
     "registerPending": {
       "title": "Account aangemaakt",
-      "subtitle": "Bevestig uw e-mailadres",
       "lead": "Uw account is succesvol aangemaakt.",
       "body": "Controleer nu uw mailbox en klik op de bevestigingslink om uw registratie te activeren.",
       "login": "Naar aanmelden"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Mijn wachtwoord resetten",
+      "title": "Mijn wachtwoord wijzigen",
       "oldPassword": "Huidig wachtwoord",
       "newPassword": "Nieuw wachtwoord",
       "confirmNewPassword": "Nieuw wachtwoord bevestigen",
@@ -163,7 +160,6 @@
       "formInvalid": "Corrigeer de fouten in het formulier.",
       "confirm": {
         "title": "Nieuw wachtwoord",
-        "subtitle": "Kies een nieuw wachtwoord voor uw account.",
         "confirmPassword": "Bevestig wachtwoord",
         "backToLogin": "Terug naar aanmelden",
         "linkInvalidOrIncomplete": "De resetlink is ongeldig of onvolledig.",
@@ -174,7 +170,6 @@
     },
     "confirmEmail": {
       "title": "E-mailbevestiging",
-      "subtitle": "Bevestiging van uw registratie",
       "inProgress": "Bevestiging bezig…",
       "successFallback": "E-mailadres met succes bevestigd.",
       "errorFallback": "Kan dit e-mailadres niet bevestigen.",

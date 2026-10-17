@@ -93,7 +93,6 @@
     },
     "register": {
       "title": "Crea un account",
-      "subtitle": "Identita, lingua e sicurezza",
       "back": "Indietro",
       "create": "Crea",
       "loading": "Caricamento...",
@@ -129,14 +128,12 @@
     },
     "registerPending": {
       "title": "Account creato",
-      "subtitle": "Conferma il tuo indirizzo email",
       "lead": "Il tuo account e stato creato correttamente.",
       "body": "Controlla ora la tua casella email e fai clic sul link di conferma per attivare la registrazione.",
       "login": "Vai al login"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Reimposta la mia password",
+      "title": "Cambia la mia password",
       "oldPassword": "Password attuale",
       "newPassword": "Nuova password",
       "confirmNewPassword": "Conferma nuova password",
@@ -163,7 +160,6 @@
       "formInvalid": "Correggi gli errori nel modulo.",
       "confirm": {
         "title": "Nuova password",
-        "subtitle": "Scegli una nuova password per il tuo account.",
         "confirmPassword": "Conferma password",
         "backToLogin": "Torna ad accedere",
         "linkInvalidOrIncomplete": "Link di reimpostazione non valido o incompleto.",
@@ -174,7 +170,6 @@
     },
     "confirmEmail": {
       "title": "Conferma e-mail",
-      "subtitle": "Convalida della tua registrazione",
       "inProgress": "Conferma in corso…",
       "successFallback": "Indirizzo e-mail confermato con successo.",
       "errorFallback": "Impossibile confermare questo indirizzo e-mail.",
