@@ -322,6 +322,9 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 class MagicLinkRequestSerializer(serializers.Serializer):
     """Payload for ``POST /api/v1/auth/magic-link/request/``."""
     email = serializers.EmailField()
+    # Same contract as password reset: optional at the serializer layer, the
+    # view enforces it (fail-closed) only once a Turnstile secret is configured.
+    turnstile_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
 
 class MagicLinkExchangeRequestSerializer(serializers.Serializer):

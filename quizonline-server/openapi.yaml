@@ -9005,6 +9005,9 @@ components:
           type: string
           format: email
           minLength: 1
+        turnstile_token:
+          type: string
+          writeOnly: true
       required:
       - email
     ModeEnum:

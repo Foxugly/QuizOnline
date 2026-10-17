@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import translation
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -74,6 +74,34 @@ class MagicLinkRequestTests(TestCase):
     def test_malformed_email_returns_400(self):
         resp = self.client.post(self.URL, {"email": "not-an-email"}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=True)
+    def test_turnstile_valid_token_queues_mail(self, _verify):
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL, {"email": "alice@x.test", "turnstile_token": "tok"}, format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(OutboundEmail.objects.count(), 1)
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    @patch("customuser.views.verify_turnstile_token", return_value=False)
+    def test_turnstile_invalid_token_returns_400_without_mail(self, _verify):
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(
+            self.URL, {"email": "alice@x.test", "turnstile_token": "bad"}, format="json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data["code"], "captcha_failed")
+        self.assertEqual(OutboundEmail.objects.count(), 0)
+
+    @override_settings(TURNSTILE_SECRET_KEY="test-secret")
+    def test_turnstile_missing_token_returns_400_once_configured(self):
+        OutboundEmail.objects.all().delete()
+        resp = self.client.post(self.URL, {"email": "alice@x.test"}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(OutboundEmail.objects.count(), 0)
 
 
 class MagicLinkExchangeTests(TestCase):

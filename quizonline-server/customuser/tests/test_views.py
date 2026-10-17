@@ -450,6 +450,7 @@ class UserViewsTests(APITestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(res.data["detail"], "Confirmez votre adresse email avant de vous connecter.")
+        self.assertEqual(res.data["code"], "email_not_confirmed")
 
     def test_token_obtain_pair_accepts_confirmed_email(self):
         self.u1.email_confirmed = True

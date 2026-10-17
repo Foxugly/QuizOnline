@@ -14,5 +14,6 @@
  */
 export interface MagicLinkRequestRequestDto { 
     email: string;
+    turnstile_token?: string;
 }
 

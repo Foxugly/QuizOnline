@@ -656,6 +656,16 @@ class MagicLinkRequestView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        # Server-side Turnstile check before any DB query: the request mails an
+        # arbitrary address, same abuse surface as password reset. Gated on the
+        # secret, fail-closed once configured.
+        if turnstile_enabled():
+            token = serializer.validated_data.get("turnstile_token") or ""
+            if not verify_turnstile_token(token, remote_ip=get_remote_ip(request)):
+                return Response(
+                    {"code": "captcha_failed", "detail": "Captcha verification failed. Please try again."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         request_magic_link(serializer.validated_data["email"])
         # Constant-time response: same payload whether or not the user
         # exists. Frontend should simply tell the visitor to check their
