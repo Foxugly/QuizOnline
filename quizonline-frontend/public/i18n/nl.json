@@ -26,7 +26,11 @@
       "lmsCreateCourse": "Cursus aanmaken",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "openMenu": "Menu openen",
+      "closeMenu": "Menu sluiten",
+      "mainNavigation": "Hoofdnavigatie",
+      "languageSwitcher": "Taal wijzigen"
     },
     "userMenu": {
       "preferences": "Voorkeuren",
@@ -39,7 +43,7 @@
     "footer": {
       "baseline": "Platform voor quizzen en domeingebaseerd contentbeheer.",
       "version": "Versie",
-      "rights": ". Alle rechten voorbehouden.",
+      "rights": "Alle rechten voorbehouden.",
       "privacyLink": "Privacy"
     },
     "home": {
@@ -67,39 +71,30 @@
     "login": {
       "title": "Inloggen",
       "email": "E-mailadres",
-      "emailPlaceholder": "Uw e-mailadres",
       "emailError": "Een geldig e-mailadres is vereist",
       "password": "Wachtwoord",
-      "passwordPlaceholder": "Uw wachtwoord",
-      "passwordError": "Wachtwoord is verplicht (min. 4 tekens)",
+      "passwordError": "Wachtwoord is verplicht.",
       "remember": "Onthoud mij",
       "forgotPassword": "Wachtwoord vergeten?",
       "submit": "Aanmelden",
       "noAccount": "Nog geen account?",
-      "createAccount": "Account maken",
-      "invalidCredentials": "Ongeldige gegevens. Probeer opnieuw.",
+      "createAccount": "Account aanmaken",
+      "invalidCredentials": "Onjuiste gegevens. Probeer het opnieuw.",
       "confirmEmailRequired": "Bevestig uw e-mailadres voordat u zich aanmeldt.",
+      "backToLogin": "Terug naar aanmelden",
       "orSeparator": "of",
-      "magicLinkSwitch": "Aanmelden via een magische link",
+      "magicLinkSwitch": "Aanmeldlink ontvangen",
       "magicLinkBackToPassword": "Een wachtwoord gebruiken",
-      "magicLinkEmail": "E-mailadres",
-      "magicLinkEmailPlaceholder": "uw@email.com",
       "magicLinkSubmit": "Link verzenden",
       "magicLinkSent": "Als er een account bestaat, is een aanmeldlink per e-mail verzonden.",
-      "magicLinkError": "Kan de link niet verzenden. Probeer opnieuw.",
+      "magicLinkError": "Kan de link niet verzenden. Probeer het opnieuw.",
       "magicLinkExchanging": "Bezig met aanmelden…",
       "magicLinkExchangeFailed": "Ongeldige of al gebruikte link.",
       "magicLinkExpired": "Link verlopen. Vraag er een nieuwe aan."
     },
     "register": {
       "title": "Account maken",
-      "back": "Terug",
-      "create": "Maken",
       "loading": "Laden...",
-      "identityTitle": "Identiteit",
-      "identityBadge": "profiel",
-      "securityTitle": "Beveiliging",
-      "securityBadge": "wachtwoord",
       "email": "E-mailadres",
       "firstName": "Voornaam",
       "lastName": "Achternaam",
@@ -109,9 +104,9 @@
       "domainsHint": "Selecteer de domeinen waaraan u gekoppeld wilt worden.",
       "chooseLanguage": "Kies een taal",
       "password": "Wachtwoord",
-      "confirmPassword": "Bevestig wachtwoord",
+      "confirmPassword": "Wachtwoord bevestigen",
       "createAccount": "Mijn account maken",
-      "cancel": "Annuleren",
+      "haveAccount": "Al een account?",
       "emailRequired": "E-mailadres is verplicht.",
       "emailInvalid": "E-mailadres is ongeldig.",
       "firstNameRequired": "Voornaam is verplicht.",
@@ -121,16 +116,14 @@
       "passwordMin": "Minimaal 8 tekens.",
       "confirmRequired": "Bevestiging is verplicht.",
       "passwordMismatch": "Wachtwoorden komen niet overeen.",
-      "success": "Uw account is aangemaakt. Controleer uw mailbox om uw registratie te bevestigen.",
       "loadLanguagesError": "Kan talen niet laden.",
       "loadDomainsError": "Kan domeinen niet laden.",
-      "submitError": "Registratie mislukt. Controleer de gegevens en probeer opnieuw."
+      "submitError": "Registratie mislukt. Controleer de gegevens en probeer het opnieuw."
     },
     "registerPending": {
       "title": "Account aangemaakt",
-      "lead": "Uw account is succesvol aangemaakt.",
       "body": "Controleer nu uw mailbox en klik op de bevestigingslink om uw registratie te activeren.",
-      "login": "Naar aanmelden"
+      "login": "Aanmelden"
     },
     "changePassword": {
       "title": "Mijn wachtwoord wijzigen",
@@ -148,20 +141,18 @@
       "error": "Er is een fout opgetreden bij het wijzigen van het wachtwoord."
     },
     "resetPassword": {
-      "title": "Wachtwoord opnieuw instellen",
-      "loading": "Laden…",
-      "emailLabel": "E-mail",
-      "emailPlaceholder": "uw e-mailadres",
+      "title": "Wachtwoord vergeten",
+      "emailLabel": "E-mailadres",
       "emailRequired": "E-mail is verplicht.",
       "emailInvalid": "Het e-mailadres is niet geldig.",
       "emailHint": "Er wordt een resetlink verzonden als het e-mailadres bestaat.",
+      "submit": "Link verzenden",
       "successMessage": "Als er een account bestaat voor dit adres, is er een reset-e-mail verzonden.",
       "errorGeneric": "Er is een fout opgetreden. Probeer het later opnieuw.",
       "formInvalid": "Corrigeer de fouten in het formulier.",
       "confirm": {
-        "title": "Nieuw wachtwoord",
+        "title": "Kies een nieuw wachtwoord",
         "confirmPassword": "Bevestig wachtwoord",
-        "backToLogin": "Terug naar aanmelden",
         "linkInvalidOrIncomplete": "De resetlink is ongeldig of onvolledig.",
         "linkInvalidOrExpired": "De resetlink is ongeldig of verlopen.",
         "successReset": "Uw wachtwoord is opnieuw ingesteld. U kunt zich nu aanmelden.",
@@ -335,6 +326,7 @@
         "name": "Naam",
         "active": "Actief",
         "editLanguage": "Taal bewerken",
+        "deleteLanguage": "Taal verwijderen",
         "deleteConfirm": "Weet u zeker dat u deze taal wilt verwijderen?",
         "actions": "Acties"
       },
@@ -489,6 +481,11 @@
     "appUpdate": {
       "title": "Nieuwe versie beschikbaar",
       "detail": "De app is bijgewerkt terwijl u bezig was. Herlaad de pagina om verder te gaan."
+    },
+    "authErrors": {
+      "generic": "Er is een fout opgetreden. Probeer het later opnieuw.",
+      "tooManyAttempts": "Te veel pogingen. Wacht enkele minuten voordat u het opnieuw probeert.",
+      "captcha": "Voltooi de anti-botcontrole en probeer het opnieuw."
     }
   },
   "editor": {
@@ -840,6 +837,14 @@
         "csvLastName": "Achternaam",
         "csvFirstName": "Voornaam",
         "csvEmail": "E-mail"
+      },
+      "deletePage": {
+        "domainTitle": "Een domein verwijderen",
+        "subjectTitle": "Een onderwerp verwijderen",
+        "questionTitle": "Een vraag verwijderen",
+        "quizTemplateTitle": "Een quiztemplate verwijderen",
+        "confirmPrefix": "Weet u zeker dat u",
+        "confirmSuffix": " wilt verwijderen?"
       }
     },
     "domainForm": {
@@ -1098,6 +1103,10 @@
       "compositionTitle": "Quizopbouw",
       "compositionHelp": "Pas volgorde en gewicht van vragen aan voor het opslaan.",
       "compositionEmpty": "Voeg minstens een vraag toe om de quiz samen te stellen.",
+      "previewQuestion": "Voorbeeld van de vraag",
+      "moveUp": "Omhoog",
+      "moveDown": "Omlaag",
+      "removeQuestion": "Vraag verwijderen",
       "weight": "Gewicht",
       "weightHelp": "Het gewicht bepaalt hoe zwaar deze vraag meetelt in de score.",
       "createTitle": "Een quiztemplate maken",
@@ -2875,6 +2884,7 @@
       "addBlockBarLabel": "Een blok toevoegen",
       "addBlockHint": "Een blok toevoegen:",
       "deleteBlockAria": "Blok verwijderen",
+      "dragHandleAria": "Blok verplaatsen",
       "editBlockAria": "Blok bewerken",
       "saveBlockLabel": "Opslaan",
       "cancelBlockLabel": "Annuleren",

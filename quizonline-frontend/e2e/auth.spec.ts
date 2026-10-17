@@ -19,7 +19,7 @@ test.skip('permet de se connecter et charge /me', async ({page}) => {
   await page.goto('/login');
   await page.getByLabel('Utilisateur').fill('admin');
   await page.locator('input[type="password"]').fill('secret123');
-  await page.getByRole('button', {name: 'Se connecter'}).click();
+  await page.locator('button[type="submit"]').click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
   expect(api.requests.login).toEqual([
@@ -30,8 +30,8 @@ test.skip('permet de se connecter et charge /me', async ({page}) => {
 test.skip('soumet la demande de reset password', async ({page}) => {
   const api = await mockApi(page);
 
-  await page.goto('/reset-password');
-  await page.getByLabel('E-mail').fill('admin@example.test');
+  await page.goto('/forgot-password');
+  await page.getByLabel('Adresse e-mail').fill('admin@example.test');
   await page.getByRole('button', {name: /Envoyer le lien/}).click();
 
   await expect(page.locator('p-message')).toBeVisible();
@@ -44,9 +44,9 @@ test.skip('soumet la confirmation de reset password', async ({page}) => {
   const api = await mockApi(page);
 
   await page.goto('/user/reset-password/uid-1/token-1');
-  await page.locator('#new_password1 input').fill('newpassword');
-  await page.locator('#new_password2 input').fill('newpassword');
-  await page.getByRole('button', {name: /initialiser le mot de passe/i}).click();
+  await page.locator('#new_password1').fill('newpassword');
+  await page.locator('#new_password2').fill('newpassword');
+  await page.getByRole('button', {name: /confirmer/i}).click();
 
   await expect(page.locator('p-message')).toBeVisible();
   expect(api.requests.passwordResetConfirm).toEqual([

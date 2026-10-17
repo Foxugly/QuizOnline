@@ -4,13 +4,14 @@
     class="language-switcher__trigger"
     (click)="toggleMenu($event)"
     [attr.aria-expanded]="menuOpen"
+    [attr.aria-label]="ui().topmenu.languageSwitcher"
     aria-haspopup="menu"
   >
     <span>{{ internalLang.toUpperCase() }}</span>
   </button>
 
   @if (menuOpen) {
-    <div class="language-switcher__menu" role="menu">
+    <div class="language-switcher__menu" role="menu" [attr.aria-label]="ui().topmenu.languageSwitcher">
       @for (option of langOptions; track option.value; let i = $index) {
         <button
           #menuitem

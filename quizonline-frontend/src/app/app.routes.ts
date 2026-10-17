@@ -32,31 +32,37 @@ export const routes: Routes = [
       {
         // Unified post-login hub: LMS courses + certificates + quizzes + catalog.
         path: 'dashboard',
+        data: {titleKey: 'ui.topmenu.dashboard'},
         loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.DashboardPage),
         canActivate: [authGuard],
       },
       {
         path: 'preferences',
+        data: {titleKey: 'ui.topmenu.preferences'},
         loadComponent: () => import('./pages/auth/preferences/preferences').then((m) => m.Preferences),
         canActivate: [authGuard],
       },
       {
         path: 'notifications',
+        data: {titleKey: 'ui.notifications.pageTitle'},
         loadComponent: () => import('./pages/notifications/notifications').then((m) => m.NotificationsPage),
         canActivate: [authGuard],
       },
       {
         path: 'change-password',
+        data: {titleKey: 'ui.changePassword.title'},
         loadComponent: () => import('./pages/auth/change-password/change-password').then((m) => m.ChangePasswordPage),
         canActivate: [authGuard],
       },
       {
         path: 'domain/list',
+        data: {titleKey: 'pages.domainList.title'},
         loadComponent: () => import('./pages/domain/list/domain-list').then((m) => m.DomainList),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'domain/add',
+        data: {titleKey: 'editor.pages.domainCreate.title'},
         loadComponent: () => import('./pages/domain/create/domain-create').then((m) => m.DomainCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -67,26 +73,31 @@ export const routes: Routes = [
       },
       {
         path: 'domain/:id/edit',
+        data: {titleKey: 'editor.pages.domainEdit.title'},
         loadComponent: () => import('./pages/domain/edit/domain-edit').then((m) => m.DomainEdit),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'domain/:id/delete',
+        data: {titleKey: 'editor.pages.deletePage.domainTitle'},
         loadComponent: () => import('./pages/domain/delete/domain-delete').then((m) => m.DomainDelete),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'user/list',
+        data: {titleKey: 'ui.topmenu.users'},
         loadComponent: () => import('./pages/user/list/user-list').then((m) => m.UserListPage),
         canActivate: [authGuard, superuserGuard],
       },
       {
         path: 'user/add',
+        data: {titleKey: 'editor.pages.userCreate.title'},
         loadComponent: () => import('./pages/user/create/user-create').then((m) => m.UserCreatePage),
         canActivate: [authGuard, superuserGuard],
       },
       {
         path: 'user/:id/edit',
+        data: {titleKey: 'editor.pages.userEdit.title'},
         loadComponent: () => import('./pages/user/edit/user-edit').then((m) => m.UserEditPage),
         canActivate: [authGuard, superuserGuard],
       },
@@ -97,31 +108,37 @@ export const routes: Routes = [
       },
       {
         path: 'subject/list',
+        data: {titleKey: 'pages.subjectList.title'},
         loadComponent: () => import('./pages/subject/list/subject-list').then((m) => m.SubjectList),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'subject/add',
+        data: {titleKey: 'pages.subjectCreate.title'},
         loadComponent: () => import('./pages/subject/create/subject-create').then((m) => m.SubjectCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'subject/:id/edit',
+        data: {titleKey: 'editor.pages.subjectEdit.title'},
         loadComponent: () => import('./pages/subject/edit/subject-edit').then((m) => m.SubjectEdit),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'subject/:id/delete',
+        data: {titleKey: 'editor.pages.deletePage.subjectTitle'},
         loadComponent: () => import('./pages/subject/delete/subject-delete').then((m) => m.SubjectDelete),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'question/list',
+        data: {titleKey: 'pages.questionList.title'},
         loadComponent: () => import('./pages/question/list/question-list').then((m) => m.QuestionList),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'question/add',
+        data: {titleKey: 'editor.pages.questionCreate.title'},
         loadComponent: () => import('./pages/question/create/question-create').then((m) => m.QuestionCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -132,11 +149,13 @@ export const routes: Routes = [
       },
       {
         path: 'question/:questionId/edit',
+        data: {titleKey: 'editor.pages.questionEdit.title'},
         loadComponent: () => import('./pages/question/edit/question-edit').then((m) => m.QuestionEdit),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'question/:questionId/delete',
+        data: {titleKey: 'editor.pages.deletePage.questionTitle'},
         loadComponent: () => import('./pages/question/delete/question-delete').then((m) => m.QuestionDelete),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -147,16 +166,19 @@ export const routes: Routes = [
       },
       {
         path: 'quiz/add',
+        data: {titleKey: 'pages.quizCreate.createTitle'},
         loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'quiz/template/:templateId/edit',
+        data: {titleKey: 'pages.quizCreate.editTitle'},
         loadComponent: () => import('./pages/quiz/create/quiz-create').then((m) => m.QuizCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
       {
         path: 'quiz/template/:templateId/delete',
+        data: {titleKey: 'editor.pages.deletePage.quizTemplateTitle'},
         loadComponent: () => import('./pages/quiz/delete/quiz-template-delete').then((m) => m.QuizTemplateDelete),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -177,6 +199,7 @@ export const routes: Routes = [
       },
       {
         path: 'quiz/list',
+        data: {titleKey: 'ui.topmenu.quiz'},
         loadComponent: () => import('./pages/quiz/list/quiz-list').then((m) => m.QuizListPage),
         canActivate: [authGuard],
       },
@@ -243,6 +266,7 @@ export const routes: Routes = [
       },
       {
         path: 'catalog',
+        data: {titleKey: 'pages.catalog.pageTitle'},
         loadComponent: () => import('./pages/catalog/catalog').then((m) => m.Catalog),
         canActivate: [authGuard],
       },
@@ -250,6 +274,7 @@ export const routes: Routes = [
         // Must come BEFORE ``course/:slug`` — otherwise the router would
         // parse ``list`` / ``new`` as a slug and dispatch to course-detail.
         path: 'course/list',
+        data: {titleKey: 'pages.courseList.title'},
         loadComponent: () => import('./pages/course-list/course-list').then((m) => m.CourseList),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -257,6 +282,7 @@ export const routes: Routes = [
         // Must come BEFORE ``course/:slug`` — otherwise the router would
         // parse ``new`` as a slug and dispatch to the course-detail page.
         path: 'course/new',
+        data: {titleKey: 'pages.courseCreate.pageTitle'},
         loadComponent: () => import('./pages/course-create/course-create').then((m) => m.CourseCreate),
         canActivate: [authGuard, domainAccessGuard],
       },
@@ -267,6 +293,7 @@ export const routes: Routes = [
       },
       {
         path: 'course/:id/edit',
+        data: {titleKey: 'pages.courseEdit.pageTitle'},
         loadComponent: () => import('./pages/course-edit/course-edit').then((m) => m.CourseEdit),
         canActivate: [authGuard, domainAccessGuard],
         canDeactivate: [unsavedChangesGuard],
@@ -302,11 +329,13 @@ export const routes: Routes = [
       },
       {
         path: 'me/progress',
+        data: {titleKey: 'ui.topmenu.lmsMyProgress'},
         loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress),
         canActivate: [authGuard],
       },
       {
         path: 'me/certificates',
+        data: {titleKey: 'ui.topmenu.lmsMyCertificates'},
         loadComponent: () => import('./pages/certificate-list/certificate-list').then((m) => m.CertificateList),
         canActivate: [authGuard],
       },
@@ -329,7 +358,7 @@ export const routes: Routes = [
     path: '',
     component: PublicLayoutComponent,
     children: [
-      {path: 'login', loadComponent: () => import('./pages/auth/login/login').then((m) => m.LoginPage)},
+      {path: 'login', data: {titleKey: 'ui.login.title'}, loadComponent: () => import('./pages/auth/login/login').then((m) => m.LoginPage)},
       {
         // Public landing for the magic-link emails: must not be auth-gated
         // because the page itself is what authenticates the visitor.
@@ -337,24 +366,31 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/auth/magic-link-exchange/magic-link-exchange').then((m) => m.MagicLinkExchangePage),
       },
       {path: 'home', loadComponent: () => import('./pages/home/home').then((m) => m.Home)},
-      {path: 'donate', loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
-      {path: 'about', loadComponent: () => import('./pages/about/about').then((m) => m.About)},
-      {path: 'privacy', loadComponent: () => import('./pages/privacy/privacy').then((m) => m.Privacy)},
-      {path: 'features', loadComponent: () => import('./pages/features/features').then((m) => m.Features)},
+      {path: 'donate', data: {titleKey: 'ui.topmenu.donate'}, loadComponent: () => import('./pages/donate/donate').then((m) => m.Donate)},
+      {path: 'about', data: {titleKey: 'ui.topmenu.about'}, loadComponent: () => import('./pages/about/about').then((m) => m.About)},
+      {path: 'privacy', data: {titleKey: 'ui.footer.privacyLink'}, loadComponent: () => import('./pages/privacy/privacy').then((m) => m.Privacy)},
+      {path: 'features', data: {titleKey: 'ui.topmenu.features'}, loadComponent: () => import('./pages/features/features').then((m) => m.Features)},
       {
-        path: 'reset-password',
+        // Password-reset *request* page. ``/reset-password`` is its former URL,
+        // kept as a redirect for bookmarks; the e-mailed confirmation link
+        // (``user/reset-password/:uid/:token``) is unchanged.
+        path: 'forgot-password',
+        data: {titleKey: 'ui.resetPassword.title'},
         loadComponent: () => import('./pages/auth/reset-password/reset-password').then((m) => m.ResetPassword),
       },
+      {path: 'reset-password', pathMatch: 'full', redirectTo: 'forgot-password'},
       {
         path: 'user/reset-password/:uid/:token',
+        data: {titleKey: 'ui.resetPassword.confirm.title'},
         loadComponent: () => import('./pages/auth/reset-password-confirm/reset-password-confirm').then((m) => m.ResetPasswordConfirmPage),
       },
       {
         path: 'user/confirm-email/:uid/:token',
+        data: {titleKey: 'ui.confirmEmail.title'},
         loadComponent: () => import('./pages/auth/confirm-email/confirm-email').then((m) => m.ConfirmEmailPage),
       },
-      {path: 'register', loadComponent: () => import('./pages/auth/register/register').then((m) => m.Register)},
-      {path: 'register/confirmation', loadComponent: () => import('./pages/auth/register-pending/register-pending').then((m) => m.RegisterPendingPage)},
+      {path: 'register', data: {titleKey: 'ui.register.title'}, loadComponent: () => import('./pages/auth/register/register').then((m) => m.Register)},
+      {path: 'register/confirmation', data: {titleKey: 'ui.registerPending.title'}, loadComponent: () => import('./pages/auth/register-pending/register-pending').then((m) => m.RegisterPendingPage)},
       {
         // Public route: the invite-accept page itself routes the visitor to
         // login or signup when needed, so we must NOT gate it behind authGuard.

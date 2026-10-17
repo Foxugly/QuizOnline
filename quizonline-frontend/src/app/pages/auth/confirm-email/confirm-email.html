@@ -12,7 +12,10 @@
     <p-message severity="error">{{ errorMessage() }}</p-message>
   }
 
-  <div class="actions">
-    <p-button (onClick)="goLogin()" [label]="ui().common.login" icon="pi pi-sign-in"></p-button>
+  <div class="auth-footer">
+    <a routerLink="/login" class="link">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      {{ shellUi().login.backToLogin }}
+    </a>
   </div>
 </app-auth-card>

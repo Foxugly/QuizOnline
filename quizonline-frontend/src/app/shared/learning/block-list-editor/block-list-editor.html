@@ -8,7 +8,7 @@
   @for (block of blocks(); track block.id) {
     <div cdkDrag class="block-card" [id]="anchorFor(block.id)">
       <div class="block-header">
-        <p-button icon="pi pi-arrows-v" severity="secondary" cdkDragHandle />
+        <p-button icon="pi pi-arrows-v" severity="secondary" cdkDragHandle [ariaLabel]="ui().dragHandleAria" />
         <span class="block-label">
           <i [class]="blockIcons[block.block_type]"></i>
           {{ common().blockTypeLabels[block.block_type] }}

@@ -59,6 +59,9 @@
               <p-button
                 (click)="openEdit(lang)"
                 icon="pi pi-pencil"
+                [ariaLabel]="ui().admin.languages.editLanguage"
+                [pTooltip]="ui().admin.languages.editLanguage"
+                tooltipPosition="top"
                 severity="info"
                 size="small"
                 type="button">
@@ -67,6 +70,9 @@
               <p-button
                 (click)="confirmDelete(lang)"
                 icon="pi pi-trash"
+                [ariaLabel]="ui().admin.languages.deleteLanguage"
+                [pTooltip]="ui().admin.languages.deleteLanguage"
+                tooltipPosition="top"
                 severity="danger"
                 size="small"
                 type="button">

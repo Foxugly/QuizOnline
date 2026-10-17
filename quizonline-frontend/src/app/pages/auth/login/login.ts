@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
@@ -17,6 +17,8 @@ import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {logApiError} from '../../../shared/api/api-errors';
 import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
+import {authErrorMessage} from '../../../shared/api/auth-errors';
+import {TurnstileController} from '../../../shared/turnstile/turnstile';
 
 @Component({
   selector: 'app-login',
@@ -35,7 +37,7 @@ import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   app = window.__APP__!;
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
@@ -57,9 +59,25 @@ export class LoginPage implements OnInit {
   readonly magicLinkSubmitting = signal(false);
   readonly magicLinkEmail = signal('');
 
+  /** Turnstile on the magic-link request (it mails an arbitrary address, same
+   *  abuse surface as forgot-password). The widget only exists in magic mode,
+   *  so it is (re)rendered whenever its container enters the DOM. */
+  protected readonly turnstile = new TurnstileController();
+
+  @ViewChild('turnstile', {static: false})
+  protected set turnstileContainer(el: ElementRef<HTMLDivElement> | undefined) {
+    if (el) {
+      this.turnstile.render(el.nativeElement);
+    } else {
+      this.turnstile.destroy();
+    }
+  }
+
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(4)]],
+    // ``required`` only: the server owns the password policy (8+ chars on
+    // register), a client-side min length here only rejects nothing useful.
+    password: ['', [Validators.required]],
     remember: [false],
   });
   private readonly destroyRef = inject(DestroyRef);
@@ -75,6 +93,10 @@ export class LoginPage implements OnInit {
     if (this.route.snapshot.queryParamMap.get('email_confirmation_required') === '1') {
       this.infoMsg.set(this.ui().login.confirmEmailRequired);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.turnstile.destroy();
   }
 
   toggleHide() {
@@ -94,9 +116,20 @@ export class LoginPage implements OnInit {
     }
     this.errorMsg.set(null);
     this.infoMsg.set(null);
+    let turnstileToken = '';
+    if (this.turnstile.enabled) {
+      turnstileToken = this.turnstile.readToken();
+      if (!turnstileToken) {
+        this.errorMsg.set(this.ui().authErrors.captcha);
+        return;
+      }
+    }
     this.magicLinkSubmitting.set(true);
     this.authApi.authMagicLinkRequestCreate({
-      magicLinkRequestRequestDto: {email},
+      magicLinkRequestRequestDto: {
+        email,
+        ...(this.turnstile.enabled ? {turnstile_token: turnstileToken} : {}),
+      },
     } as never)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -110,7 +143,8 @@ export class LoginPage implements OnInit {
         },
         error: (err) => {
           logApiError('auth.magic-link.request', err);
-          this.errorMsg.set(this.ui().login.magicLinkError);
+          if (this.turnstile.enabled) this.turnstile.reset();
+          this.errorMsg.set(authErrorMessage(err, this.ui(), {fallback: this.ui().login.magicLinkError}));
         },
       });
   }
@@ -142,7 +176,9 @@ export class LoginPage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMsg.set(err?.error?.detail || this.ui().login.invalidCredentials);
+        this.errorMsg.set(
+          authErrorMessage(err, this.ui(), {credentials: true, fallback: this.ui().login.invalidCredentials}),
+        );
       },
     });
   }

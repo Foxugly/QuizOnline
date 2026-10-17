@@ -1,7 +1,22 @@
 /* Card chrome now provided by the shared ``app-auth-card`` component. */
 
-.actions {
+.auth-footer {
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: center;
   margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.link {
+  align-items: center;
+  color: var(--accent-strong);
+  display: inline-flex;
+  font-weight: 600;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
 }

@@ -26,12 +26,16 @@
       "lmsCreateCourse": "Crea un corso",
       "quizMenu": "Quiz",
       "quizMenuLabel": "Quiz",
-      "dashboard": "Cruscotto"
+      "dashboard": "Cruscotto",
+      "openMenu": "Apri il menu",
+      "closeMenu": "Chiudi il menu",
+      "mainNavigation": "Navigazione principale",
+      "languageSwitcher": "Cambia lingua"
     },
     "userMenu": {
       "preferences": "Preferenze",
       "changePassword": "Cambia password",
-      "logout": "Disconnetti",
+      "logout": "Esci",
       "login": "Accedi",
       "myInvitations": "I miei inviti",
       "userFallback": "Utente"
@@ -39,7 +43,7 @@
     "footer": {
       "baseline": "Piattaforma per quiz e gestione contenuti per dominio.",
       "version": "Versione",
-      "rights": ". Tutti i diritti riservati.",
+      "rights": "Tutti i diritti riservati.",
       "privacyLink": "Privacy"
     },
     "home": {
@@ -67,23 +71,20 @@
     "login": {
       "title": "Accedi",
       "email": "Indirizzo email",
-      "emailPlaceholder": "Il tuo indirizzo email",
       "emailError": "È richiesto un indirizzo email valido",
       "password": "Password",
-      "passwordPlaceholder": "La tua password",
-      "passwordError": "Password obbligatoria (min. 4 caratteri)",
+      "passwordError": "La password è obbligatoria.",
       "remember": "Ricordami",
       "forgotPassword": "Password dimenticata?",
       "submit": "Accedi",
-      "noAccount": "Nessun account?",
-      "createAccount": "Crea account",
-      "invalidCredentials": "Credenziali non valide. Riprova.",
+      "noAccount": "Non hai ancora un account?",
+      "createAccount": "Crea un account",
+      "invalidCredentials": "Credenziali non corrette. Riprova.",
       "confirmEmailRequired": "Conferma il tuo indirizzo email prima di accedere.",
+      "backToLogin": "Torna all'accesso",
       "orSeparator": "oppure",
-      "magicLinkSwitch": "Accedi con un link magico",
+      "magicLinkSwitch": "Ricevi un link di accesso",
       "magicLinkBackToPassword": "Usa una password",
-      "magicLinkEmail": "E-mail",
-      "magicLinkEmailPlaceholder": "tua@email.com",
       "magicLinkSubmit": "Invia il link",
       "magicLinkSent": "Se un account esiste, ti è stato inviato un link di accesso per e-mail.",
       "magicLinkError": "Impossibile inviare il link. Riprova.",
@@ -93,44 +94,36 @@
     },
     "register": {
       "title": "Crea un account",
-      "back": "Indietro",
-      "create": "Crea",
       "loading": "Caricamento...",
-      "identityTitle": "Identita",
-      "identityBadge": "profilo",
-      "securityTitle": "Sicurezza",
-      "securityBadge": "password",
       "email": "Indirizzo email",
       "firstName": "Nome",
       "lastName": "Cognome",
       "language": "Lingua",
       "domains": "Domini",
-      "chooseDomains": "Scegli uno o piu domini",
+      "chooseDomains": "Scegli uno o più domini",
       "domainsHint": "Seleziona i domini a cui vuoi essere collegato.",
       "chooseLanguage": "Scegli una lingua",
       "password": "Password",
       "confirmPassword": "Conferma password",
       "createAccount": "Crea il mio account",
-      "cancel": "Annulla",
+      "haveAccount": "Hai già un account?",
       "emailRequired": "L’indirizzo email e obbligatorio.",
       "emailInvalid": "L’indirizzo email non e valido.",
       "firstNameRequired": "Il nome e obbligatorio.",
       "lastNameRequired": "Il cognome e obbligatorio.",
       "languageRequired": "La lingua e obbligatoria.",
-      "passwordRequired": "La password e obbligatoria.",
+      "passwordRequired": "La password è obbligatoria.",
       "passwordMin": "Minimo 8 caratteri.",
-      "confirmRequired": "La conferma e obbligatoria.",
+      "confirmRequired": "La conferma è obbligatoria.",
       "passwordMismatch": "Le password non corrispondono.",
-      "success": "Il tuo account e stato creato. Controlla la casella email per confermare la registrazione.",
       "loadLanguagesError": "Impossibile caricare le lingue.",
       "loadDomainsError": "Impossibile caricare i domini.",
-      "submitError": "Registrazione fallita. Controlla i dati e riprova."
+      "submitError": "Registrazione non riuscita. Controlla i dati e riprova."
     },
     "registerPending": {
       "title": "Account creato",
-      "lead": "Il tuo account e stato creato correttamente.",
       "body": "Controlla ora la tua casella email e fai clic sul link di conferma per attivare la registrazione.",
-      "login": "Vai al login"
+      "login": "Accedi"
     },
     "changePassword": {
       "title": "Cambia la mia password",
@@ -148,20 +141,18 @@
       "error": "Si e verificato un errore durante la modifica della password."
     },
     "resetPassword": {
-      "title": "Reimposta la password",
-      "loading": "Caricamento…",
-      "emailLabel": "E-mail",
-      "emailPlaceholder": "il tuo indirizzo e-mail",
+      "title": "Password dimenticata",
+      "emailLabel": "Indirizzo email",
       "emailRequired": "L'e-mail è obbligatoria.",
       "emailInvalid": "L'indirizzo e-mail non è valido.",
-      "emailHint": "Verrà inviato un link di reimpostazione se l'indirizzo e-mail esiste.",
-      "successMessage": "Se esiste un account con questo indirizzo, è stata inviata un'e-mail di reimpostazione.",
+      "emailHint": "Verrà inviato un link di reimpostazione se l'indirizzo email esiste.",
+      "submit": "Invia il link",
+      "successMessage": "Se esiste un account con questo indirizzo, è stata inviata un'email di reimpostazione.",
       "errorGeneric": "Si è verificato un errore. Riprova più tardi.",
       "formInvalid": "Correggi gli errori nel modulo.",
       "confirm": {
-        "title": "Nuova password",
+        "title": "Scegli una nuova password",
         "confirmPassword": "Conferma password",
-        "backToLogin": "Torna ad accedere",
         "linkInvalidOrIncomplete": "Link di reimpostazione non valido o incompleto.",
         "linkInvalidOrExpired": "Link di reimpostazione non valido o scaduto.",
         "successReset": "La password è stata reimpostata. Ora puoi accedere.",
@@ -335,6 +326,7 @@
         "name": "Nome",
         "active": "Attiva",
         "editLanguage": "Modifica lingua",
+        "deleteLanguage": "Elimina la lingua",
         "deleteConfirm": "Sei sicuro di voler eliminare questa lingua?",
         "actions": "Azioni"
       },
@@ -489,6 +481,11 @@
     "appUpdate": {
       "title": "Nuova versione disponibile",
       "detail": "L'app è stata aggiornata mentre eri qui. Ricarica la pagina per continuare."
+    },
+    "authErrors": {
+      "generic": "Si è verificato un errore. Riprova più tardi.",
+      "tooManyAttempts": "Troppi tentativi. Attendi qualche minuto prima di riprovare.",
+      "captcha": "Completa la verifica anti-bot e riprova."
     }
   },
   "editor": {
@@ -840,6 +837,14 @@
         "csvLastName": "Cognome",
         "csvFirstName": "Nome",
         "csvEmail": "Email"
+      },
+      "deletePage": {
+        "domainTitle": "Elimina un dominio",
+        "subjectTitle": "Elimina un argomento",
+        "questionTitle": "Elimina una domanda",
+        "quizTemplateTitle": "Elimina un template quiz",
+        "confirmPrefix": "Sei sicuro di voler eliminare",
+        "confirmSuffix": "?"
       }
     },
     "domainForm": {
@@ -1098,6 +1103,10 @@
       "compositionTitle": "Composizione del quiz",
       "compositionHelp": "Regola ordine e peso delle domande prima del salvataggio.",
       "compositionEmpty": "Aggiungi almeno una domanda per comporre il quiz.",
+      "previewQuestion": "Anteprima della domanda",
+      "moveUp": "Sposta su",
+      "moveDown": "Sposta giù",
+      "removeQuestion": "Rimuovi la domanda",
       "weight": "Peso",
       "weightHelp": "Il peso cambia quanto questa domanda conta nel punteggio.",
       "createTitle": "Crea un template quiz",
@@ -2875,6 +2884,7 @@
       "addBlockBarLabel": "Aggiungere un blocco",
       "addBlockHint": "Aggiungere un blocco:",
       "deleteBlockAria": "Elimina il blocco",
+      "dragHandleAria": "Sposta il blocco",
       "editBlockAria": "Modifica il blocco",
       "saveBlockLabel": "Salva",
       "cancelBlockLabel": "Annulla",

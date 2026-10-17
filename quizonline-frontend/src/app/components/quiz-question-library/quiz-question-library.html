@@ -52,6 +52,9 @@
             <p-button
               (onClick)="previewQuestion.emit(entry.question)"
               icon="pi pi-eye"
+              [ariaLabel]="texts().previewQuestion"
+              [pTooltip]="texts().previewQuestion"
+              tooltipPosition="top"
               severity="success"
               size="small"
               type="button">

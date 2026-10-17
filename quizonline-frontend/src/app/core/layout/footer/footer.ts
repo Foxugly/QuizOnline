@@ -8,7 +8,6 @@ declare global {
       name: string;
       version: string;
       author: string;
-      year: string;
       logoSvg: string;
       logoIco: string;
       logoPng: string;
@@ -25,5 +24,7 @@ declare global {
 })
 export class FooterComponent {
   app = window.__APP__!;
+  /** Fleet standard: the copyright year is computed, never hard-coded. */
+  readonly year = new Date().getFullYear();
   readonly ui = inject(UiTextService).ui;
 }

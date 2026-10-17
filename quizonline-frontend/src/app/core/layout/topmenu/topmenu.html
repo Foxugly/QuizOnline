@@ -17,13 +17,13 @@
       class="topbar__toggle"
       type="button"
       [attr.aria-expanded]="mobileMenuOpen()"
-      [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
+      [attr.aria-label]="mobileMenuOpen() ? ui().topmenu.closeMenu : ui().topmenu.openMenu"
       (click)="toggleMobileMenu($event)"
     >
-      <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()"></i>
+      <i class="pi" [class.pi-bars]="!mobileMenuOpen()" [class.pi-times]="mobileMenuOpen()" aria-hidden="true"></i>
     </button>
 
-    <nav class="topbar__nav" [attr.aria-label]="ui().topmenu.quiz">
+    <nav class="topbar__nav" [attr.aria-label]="ui().topmenu.mainNavigation">
       @for (item of navItems; track item.label) {
         <a
           [routerLink]="item.link"

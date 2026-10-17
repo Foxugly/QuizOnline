@@ -2,10 +2,8 @@
 export type LoginUiText = {
   title: string;
   email: string;
-  emailPlaceholder: string;
   emailError: string;
   password: string;
-  passwordPlaceholder: string;
   passwordError: string;
   remember: string;
   forgotPassword: string;
@@ -14,11 +12,11 @@ export type LoginUiText = {
   createAccount: string;
   invalidCredentials: string;
   confirmEmailRequired: string;
+  /** Bottom link of forgot / reset / magic / confirm pages. */
+  backToLogin: string;
   orSeparator: string;
   magicLinkSwitch: string;
   magicLinkBackToPassword: string;
-  magicLinkEmail: string;
-  magicLinkEmailPlaceholder: string;
   magicLinkSubmit: string;
   magicLinkSent: string;
   magicLinkError: string;
@@ -29,13 +27,7 @@ export type LoginUiText = {
 
 export type RegisterUiText = {
   title: string;
-  back: string;
-  create: string;
   loading: string;
-  identityTitle: string;
-  identityBadge: string;
-  securityTitle: string;
-  securityBadge: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -47,7 +39,8 @@ export type RegisterUiText = {
   password: string;
   confirmPassword: string;
   createAccount: string;
-  cancel: string;
+  /** "Already have an account?" — followed by the sign-in link. */
+  haveAccount: string;
   emailRequired: string;
   emailInvalid: string;
   firstNameRequired: string;
@@ -57,7 +50,6 @@ export type RegisterUiText = {
   passwordMin: string;
   confirmRequired: string;
   passwordMismatch: string;
-  success: string;
   loadLanguagesError: string;
   loadDomainsError: string;
   submitError: string;
@@ -65,7 +57,6 @@ export type RegisterUiText = {
 
 export type RegisterPendingUiText = {
   title: string;
-  lead: string;
   body: string;
   login: string;
 };
@@ -80,19 +71,17 @@ export type ConfirmEmailUiText = {
 
 export type ResetPasswordUiText = {
   title: string;
-  loading: string;
   emailLabel: string;
-  emailPlaceholder: string;
   emailRequired: string;
   emailInvalid: string;
   emailHint: string;
+  submit: string;
   successMessage: string;
   errorGeneric: string;
   formInvalid: string;
   confirm: {
     title: string;
     confirmPassword: string;
-    backToLogin: string;
     linkInvalidOrIncomplete: string;
     linkInvalidOrExpired: string;
     successReset: string;
@@ -114,4 +103,15 @@ export type ChangePasswordUiText = {
   forceMessage: string;
   success: string;
   error: string;
+};
+
+/** Shared, status-based error copy for the auth pages (fleet rule: never
+ *  show a raw backend message unless it maps to a known application code). */
+export type AuthErrorsUiText = {
+  /** Network failure or 5xx. */
+  generic: string;
+  /** HTTP 429. */
+  tooManyAttempts: string;
+  /** Captcha not solved, or ``code: captcha_failed`` from the API. */
+  captcha: string;
 };

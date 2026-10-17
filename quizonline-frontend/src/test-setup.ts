@@ -80,7 +80,6 @@ window.__APP__ ??= {
   name: 'QuizOnline',
   version: 'test',
   author: 'test',
-  year: '2026',
   logoSvg: '',
   logoIco: '',
   logoPng: '',

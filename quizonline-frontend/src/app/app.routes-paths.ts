@@ -12,7 +12,7 @@ export let ROUTES = {
     registerPending: () => ['/register/confirmation'] as const,
     login:() => ['/login/'] as const,
     changePassword: () => ['/change-password'] as const,
-    resetPasswordRequest: () => ['/reset-password'] as const,
+    resetPasswordRequest: () => ['/forgot-password'] as const,
     resetPasswordConfirm: (uid: string, token: string) => ['/user/reset-password', uid, token] as const,
     confirmEmail: (uid: string, token: string) => ['/user/confirm-email', uid, token] as const,
   },

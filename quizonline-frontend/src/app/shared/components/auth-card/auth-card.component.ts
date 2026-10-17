@@ -11,7 +11,7 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
   selector: 'app-auth-card',
   standalone: true,
   template: `
-    <section class="auth-card"><div class="auth-card__box">
+    <section class="auth-card"><div class="auth-card__box" [class.auth-card__box--wide]="wide()">
       <div class="auth-card__header">
         @if (icon()) { <i [class]="icon()" class="auth-card__icon" aria-hidden="true"></i> }
         <h1 class="auth-card__title">{{ title() }}</h1>
@@ -24,4 +24,6 @@ import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 export class AuthCardComponent {
   readonly icon = input<string>();
   readonly title = input.required<string>();
+  /** Wider card for long forms (register: two-column grid inside the card). */
+  readonly wide = input(false);
 }

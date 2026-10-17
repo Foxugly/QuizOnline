@@ -18,22 +18,25 @@ import {
   Validators,
 } from '@angular/forms';
 import {finalize} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
 import {ButtonModule} from 'primeng/button';
 import {SelectModule} from 'primeng/select';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {MessageModule} from 'primeng/message';
 
 import {FieldError} from '../../../shared/components/field-error/field-error';
+import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
+import {authErrorMessage} from '../../../shared/api/auth-errors';
 
 import {AuthService} from '../../../services/auth/auth';
 import {LanguageService} from '../../../services/language/language';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {ROUTES} from '../../../app.routes-paths';
-import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';
+import {logApiError} from '../../../shared/api/api-errors';
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {DomainService} from '../../../services/domain/domain';
@@ -42,7 +45,18 @@ import {TurnstileController} from '../../../shared/turnstile/turnstile';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, InputTextModule, PasswordModule, ButtonModule, SelectModule, MultiSelectModule, FieldError],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    SelectModule,
+    MultiSelectModule,
+    MessageModule,
+    FieldError,
+    AuthCardComponent,
+  ],
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,7 +97,6 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
   );
   submitted = signal(false);
   isSubmitting = signal(false);
-  successMessage = signal('');
   errorMessage = signal('');
   languages = signal<LanguageReadDto[]>([]);
   domains = signal<DomainReadDto[]>([]);
@@ -166,7 +179,6 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
 
   onSubmit(): void {
     this.submitted.set(true);
-    this.successMessage.set('');
     this.errorMessage.set('');
     this.form.updateValueAndValidity();
 
@@ -179,7 +191,7 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
     if (this.turnstile.enabled) {
       turnstileToken = this.turnstile.readToken();
       if (!turnstileToken) {
-        this.errorMessage.set(this.ui().register.submitError);
+        this.errorMessage.set(this.ui().authErrors.captcha);
         return;
       }
     }
@@ -229,7 +241,7 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
         error: (err) => {
           logApiError('auth.register.load-languages', err);
           this.languages.set([]);
-          this.errorMessage.set(userFacingApiMessage(err, this.ui().register.loadLanguagesError));
+          this.errorMessage.set(this.ui().register.loadLanguagesError);
           if (!this.form.get('language')?.value) {
             this.form.get('language')?.setValue('en');
           }
@@ -251,21 +263,25 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
           logApiError('auth.register.load-domains', err);
           this.domains.set([]);
           if (!this.errorMessage()) {
-            this.errorMessage.set(userFacingApiMessage(err, this.ui().register.loadDomainsError));
+            this.errorMessage.set(this.ui().register.loadDomainsError);
           }
         },
       });
   }
 
+  /** Status / known-code copy first (429, network, captcha); on a 400, the
+   *  first field validation message (Django validators, localised server
+   *  side) is more helpful than a generic line. A raw ``detail`` is never
+   *  shown. */
   private formatRegisterError(err: any): string {
-    const data = err?.error;
-
-    if (typeof data?.detail === 'string' && data.detail.trim()) {
-      return data.detail;
+    const fallback = this.ui().register.submitError;
+    const mapped = authErrorMessage(err, this.ui(), {fallback});
+    if (mapped !== fallback) {
+      return mapped;
     }
-
-    if (data && typeof data === 'object') {
-      const keys = Object.keys(data);
+    const data = err?.error;
+    if (err?.status === 400 && data && typeof data === 'object') {
+      const keys = Object.keys(data).filter((key) => key !== 'detail' && key !== 'code');
       if (keys.length) {
         const value = data[keys[0]];
         if (Array.isArray(value) && typeof value[0] === 'string') {
@@ -277,15 +293,7 @@ export class Register implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    return this.ui().register.submitError;
-  }
-
-  goRegister(): void {
-    this.router.navigate(ROUTES.auth.register());
-  }
-
-  goLogin(): void {
-    this.router.navigate(ROUTES.auth.login());
+    return fallback;
   }
 
   private getDomainLabel(domain: DomainReadDto): string {

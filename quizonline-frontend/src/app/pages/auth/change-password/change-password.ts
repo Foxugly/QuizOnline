@@ -9,21 +9,11 @@ import {MessageModule} from 'primeng/message';
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth/auth';
 import {PasswordChangeRequestDto} from '../../../api/generated/model/password-change-request';
-import {environment} from '../../../../environments/environment';
 import {UserService} from '../../../services/user/user';
 import {ROUTES} from '../../../app.routes-paths';
 import {logApiError} from '../../../shared/api/api-errors';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
-
-(window as any).__APP__ = {
-  name: environment.appName,
-  author: environment.author,
-  year: environment.year,
-  logoSvg: environment.logoSvg,
-  logoIco: environment.logoIco,
-  logoPng: environment.logoPng,
-};
 
 @Component({
   selector: 'app-change-password',

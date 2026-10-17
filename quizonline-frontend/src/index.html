@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <!-- Placeholder title — overwritten synchronously in ``main.ts`` from
-       ``environment.appName`` as soon as the application bundle runs.
-       Kept non-empty so browsers still have something to display in
-       the tab during the ~10–50 ms between parse and bundle exec. -->
-  <title>Loading…</title>
+  <!-- App name until the router's TitleStrategy composes « {page} — QuizOnline ».
+       ``lang`` matches the app's default language (en); UserService keeps it
+       in sync with the active language at runtime. -->
+  <title>QuizOnline</title>
   <meta name="color-scheme" content="light dark">
   <script data-theme-init>
     // Anti-FOUC (fleet standard): set .dark-mode on <html> BEFORE the Angular

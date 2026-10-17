@@ -1,6 +1,7 @@
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import type {AdminUiText} from './types/admin';
 import type {
+  AuthErrorsUiText,
   ChangePasswordUiText,
   ConfirmEmailUiText,
   LoginUiText,
@@ -29,6 +30,7 @@ export type UiText = {
   changePassword: ChangePasswordUiText;
   resetPassword: ResetPasswordUiText;
   confirmEmail: ConfirmEmailUiText;
+  authErrors: AuthErrorsUiText;
   preferences: PreferencesUiText;
   notifications: NotificationsUiText;
   admin: AdminUiText;
