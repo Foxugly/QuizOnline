@@ -306,6 +306,16 @@ export type EditorUiText = {
         deleteFailed: string;
       };
     };
+    /** Shared copy of the domain / topic / question / quiz-template delete
+     *  pages: "{confirmPrefix} <b>{name}</b>{confirmSuffix}". */
+    deletePage: {
+      domainTitle: string;
+      subjectTitle: string;
+      questionTitle: string;
+      quizTemplateTitle: string;
+      confirmPrefix: string;
+      confirmSuffix: string;
+    };
     userList: {title: string; subtitle: string; id: string; name: string; email: string; nbDomainMax: string; active: string; emailConfirmed: string; actions: string; bulkActionsPlaceholder: string; bulkActionsApply: string; selectedSingular: string; selectedPlural: string; searchPlaceholder: string;};
     quizTemplateResults: {
       title: string;

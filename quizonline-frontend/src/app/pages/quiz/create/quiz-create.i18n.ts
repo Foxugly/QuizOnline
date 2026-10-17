@@ -22,6 +22,11 @@ export type QuizCreateUiText = {
   compositionTitle: string;
   compositionHelp: string;
   compositionEmpty: string;
+  /** Accessible names / tooltips of the icon-only row actions. */
+  previewQuestion: string;
+  moveUp: string;
+  moveDown: string;
+  removeQuestion: string;
   weight: string;
   weightHelp: string;
   createTitle: string;

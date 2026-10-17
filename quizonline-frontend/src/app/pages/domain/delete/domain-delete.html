@@ -1,14 +1,14 @@
 <div class="page">
-  <div class="title">Supprimer un domain</div>
+  <h1 class="title">{{ ui().pages.deletePage.domainTitle }}</h1>
   <div class="card">
     @if (domain()) {
-      <p>Es-tu sûr de vouloir supprimer <b>{{ getName(domain()) }}</b> ?</p>
+      <p>{{ ui().pages.deletePage.confirmPrefix }} <b>{{ getName(domain()) }}</b>{{ ui().pages.deletePage.confirmSuffix }}</p>
       <div class="actions">
         <p-button id="btn_delete" icon="pi pi-trash" [label]="ui().common.delete" severity="danger" styleClass="w-full" [loading]="deleting()" [disabled]="deleting()" (onClick)="confirm()"/>
         <p-button id="btn_back" icon="pi pi-times" [label]="ui().common.cancel" severity="secondary" [disabled]="deleting()" (onClick)="goList()"/>
       </div>
     } @else {
-      <p class="muted">Chargement…</p>
+      <p class="muted">{{ ui().common.loading }}</p>
     }
   </div>
 </div>

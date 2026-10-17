@@ -1,4 +1,4 @@
-<p-panel header="Questions">
+<p-panel [header]="ui().topmenu.questions">
   <div class="quiz-grid" [style.--cols]="columns()">
     <app-question-button
       *ngFor="let item of items(); trackBy: trackByIndex"

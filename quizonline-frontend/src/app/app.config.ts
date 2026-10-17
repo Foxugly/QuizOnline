@@ -1,5 +1,6 @@
 import {APP_INITIALIZER, ApplicationConfig, isDevMode} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, TitleStrategy} from '@angular/router';
+import {AppTitleStrategy} from './shared/i18n/app-title-strategy';
 import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/http';
 import {provideTransloco} from '@jsverse/transloco';
 import {routes} from './app.routes';
@@ -44,6 +45,8 @@ const QuizOnlineAura = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
+    // Tab title « {page} — QuizOnline » from ``data.titleKey`` (fleet standard).
+    {provide: TitleStrategy, useExisting: AppTitleStrategy},
     provideHttpClient(
       withFetch(),
       withInterceptors([AuthInterceptor, NetworkInterceptor,]),

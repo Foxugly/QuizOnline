@@ -33,6 +33,7 @@ export type AdminUiText = {
     name: string;
     active: string;
     editLanguage: string;
+    deleteLanguage: string;
     deleteConfirm: string;
     actions: string;
   };

@@ -4,6 +4,7 @@ import {
   effect,
   ElementRef,
   HostListener,
+  inject,
   input,
   output,
   QueryList,
@@ -12,6 +13,7 @@ import {
 } from '@angular/core';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../../environments/language';
+import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 @Component({
   selector: 'app-language-switcher',
@@ -23,6 +25,7 @@ import {SUPPORTED_LANGUAGES, SupportedLanguage} from '../../../../environments/l
 export class LanguageSwitcherComponent {
   readonly lang = input.required<SupportedLanguage>();
   readonly langChange = output<SupportedLanguage>();
+  readonly ui = inject(UiTextService).ui;
   @ViewChild('menuRoot') private readonly menuRoot?: ElementRef<HTMLElement>;
   @ViewChildren('menuitem') private readonly menuItems?: QueryList<ElementRef<HTMLButtonElement>>;
 

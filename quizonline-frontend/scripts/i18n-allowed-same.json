@@ -219,5 +219,6 @@
   "pages/admin/connections:no",
   "pages/admin/connections:emptyValue",
   "pages/course-edit/course-outline:addSection",
-  "pages/course-edit/course-outline:menuAria"
+  "pages/course-edit/course-outline:menuAria",
+  "editor-ui-text:pages.deletePage.confirmSuffix"
 ]

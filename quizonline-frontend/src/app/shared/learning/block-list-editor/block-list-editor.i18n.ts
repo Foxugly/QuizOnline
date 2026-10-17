@@ -15,6 +15,8 @@ export interface BlockListEditorUiText {
   addBlockBarLabel: string;
   addBlockHint: string;
   deleteBlockAria: string;
+  /** Accessible name of the drag handle that reorders a block. */
+  dragHandleAria: string;
   /** Header button: switch a readonly block back to edit mode. */
   editBlockAria: string;
   /** Bottom-right footer buttons of an editor in edit mode. */

@@ -21,8 +21,14 @@ class EmailConfirmedTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         user = getattr(self, "user", None)
         if user and getattr(user, "email_confirmed", False) is not True:
+            # ``code`` is echoed in the body (DRF only keeps ``detail`` for a
+            # plain string) so the frontend can map it to a translated message
+            # instead of showing the raw backend text. ``detail`` is unchanged.
             raise AuthenticationFailed(
-                self.error_messages["email_not_confirmed"],
+                {
+                    "detail": self.error_messages["email_not_confirmed"],
+                    "code": "email_not_confirmed",
+                },
                 code="email_not_confirmed",
             )
         return data

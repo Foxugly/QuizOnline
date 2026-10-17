@@ -1,11 +1,11 @@
 <div class="page">
-  <div class="title">Supprimer un template de quiz</div>
+  <h1 class="title">{{ ui().pages.deletePage.quizTemplateTitle }}</h1>
 
   <div class="card">
     @if (error()) {
       <p class="muted">{{ error() }}</p>
     } @else if (template()) {
-      <p>Es-tu sur de vouloir supprimer <b>{{ template()!.title }}</b> ?</p>
+      <p>{{ ui().pages.deletePage.confirmPrefix }} <b>{{ template()!.title }}</b>{{ ui().pages.deletePage.confirmSuffix }}</p>
 
       <div class="actions">
         <p-button
@@ -25,7 +25,7 @@
         </p-button>
       </div>
     } @else {
-      <p class="muted">Chargement...</p>
+      <p class="muted">{{ ui().common.loading }}</p>
     }
   </div>
 </div>

@@ -1,10 +1,9 @@
 import {Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 
 import {AuthService} from '../../../services/auth/auth';
@@ -14,7 +13,7 @@ import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.
 
 @Component({
   selector: 'app-confirm-email',
-  imports: [MessageModule, ButtonModule, AuthCardComponent],
+  imports: [MessageModule, RouterLink, AuthCardComponent],
   templateUrl: './confirm-email.html',
   styleUrl: './confirm-email.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

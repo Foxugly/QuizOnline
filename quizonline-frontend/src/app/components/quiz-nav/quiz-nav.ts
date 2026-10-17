@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PanelModule} from 'primeng/panel';
 import {QuestionButton} from '../question-button/question-button';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
+import {UiTextService} from '../../shared/i18n/ui-text.service';
 
 
 export interface QuizNavItem {
@@ -22,6 +23,8 @@ export interface QuizNavItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizNav {
+  protected readonly ui = inject(UiTextService).ui;
+
   /** Liste des questions */
   readonly items = input<QuizNavItem[]>([]);
 

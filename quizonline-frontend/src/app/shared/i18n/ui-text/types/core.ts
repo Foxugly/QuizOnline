@@ -39,6 +39,13 @@ export type TopMenuUiText = {
   quizMenuLabel: string;
   // Top-level Dashboard entry — unified post-login hub combining LMS + quiz state.
   dashboard: string;
+  /** Accessible names of the mobile burger toggle (open / close state). */
+  openMenu: string;
+  closeMenu: string;
+  /** Accessible name of the main ``<nav>`` landmark. */
+  mainNavigation: string;
+  /** Accessible name of the language switcher trigger. */
+  languageSwitcher: string;
 };
 
 export type NotificationsUiText = {
@@ -77,8 +84,8 @@ export type UserMenuUiText = {
 export type FooterUiText = {
   baseline: string;
   version: string;
-  /** Rights notice rendered right after the Foxugly link — includes its
-   *  own leading ". " separator so it composes as "… Foxugly. <rights>". */
+  /** Rights notice, a full sentence ("Tous droits réservés.") rendered as
+   *  the last footer segment. */
   rights: string;
   privacyLink: string;
 };

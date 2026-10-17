@@ -6,9 +6,10 @@
         class="info-button"
         type="button"
         [pTooltip]="texts().compositionHelp"
+        [attr.aria-label]="texts().compositionHelp"
         tooltipPosition="top"
       >
-        <i class="pi pi-info-circle"></i>
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -52,6 +53,9 @@
               <p-button
                 (onClick)="previewQuestion.emit(entry.questionId)"
                 icon="pi pi-eye"
+                [ariaLabel]="texts().previewQuestion"
+                [pTooltip]="texts().previewQuestion"
+                tooltipPosition="top"
                 severity="success"
                 size="small"
                 [outlined]="true"
@@ -61,6 +65,9 @@
                 (onClick)="moveQuestion.emit({index: i, direction: -1})"
                 [disabled]="i === 0"
                 icon="pi pi-arrow-up"
+                [ariaLabel]="texts().moveUp"
+                [pTooltip]="texts().moveUp"
+                tooltipPosition="top"
                 severity="secondary"
                 size="small"
                 [outlined]="true"
@@ -70,6 +77,9 @@
                 (onClick)="moveQuestion.emit({index: i, direction: 1})"
                 [disabled]="i === items().length - 1"
                 icon="pi pi-arrow-down"
+                [ariaLabel]="texts().moveDown"
+                [pTooltip]="texts().moveDown"
+                tooltipPosition="top"
                 severity="secondary"
                 size="small"
                 [outlined]="true"
@@ -78,6 +88,9 @@
               <p-button
                 (onClick)="removeQuestion.emit(i)"
                 icon="pi pi-trash"
+                [ariaLabel]="texts().removeQuestion"
+                [pTooltip]="texts().removeQuestion"
+                tooltipPosition="top"
                 severity="danger"
                 size="small"
                 [outlined]="true"

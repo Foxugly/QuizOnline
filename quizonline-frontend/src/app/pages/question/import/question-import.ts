@@ -321,7 +321,7 @@ export class QuestionImport implements OnInit {
           translations: {
             fr: {
               title: 'Capitale de la Belgique',
-              description: '<p>Choisis la bonne reponse.</p>',
+              description: '<p>Choisissez la bonne réponse.</p>',
               explanation: '<p>Bruxelles est la capitale de la Belgique.</p>',
             },
             en: {

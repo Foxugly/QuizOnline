@@ -1,14 +1,14 @@
 <div class="page">
-  <div class="title">Supprimer une question</div>
+  <h1 class="title">{{ ui().pages.deletePage.questionTitle }}</h1>
   <div class="card">
     @if (question()) {
-      <p>Es-tu sûr de vouloir supprimer <b>{{ getTitle(question()) }}</b> ?</p>
+      <p>{{ ui().pages.deletePage.confirmPrefix }} <b>{{ getTitle(question()) }}</b>{{ ui().pages.deletePage.confirmSuffix }}</p>
       <div class="actions">
         <p-button id="btn_delete" icon="pi pi-trash" [label]="ui().common.delete" severity="danger" styleClass="w-full" (onClick)="confirm()"/>
         <p-button id="btn_back" icon="pi pi-times" [label]="ui().common.cancel" (onClick)="goBack()" severity="secondary"/>
       </div>
     } @else {
-      <p class="muted">Chargement…</p>
+      <p class="muted">{{ ui().common.loading }}</p>
     }
   </div>
 </div>

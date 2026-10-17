@@ -23,7 +23,6 @@ installPrimeNgAutofocusStripper();
   name: environment.appName,
   version: environment.version,
   author: environment.author,
-  year: environment.year,
   logoSvg : environment.logoSvg,
   logoIco : environment.logoIco,
   logoPng : environment.logoPng,

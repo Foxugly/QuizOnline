@@ -27,7 +27,6 @@ declare global {
       name: string;
       version: string;
       author: string;
-      year: string;
       logoSvg: string;
       logoIco: string;
       logoPng: string;

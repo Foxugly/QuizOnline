@@ -10,6 +10,7 @@ import {DialogModule} from 'primeng/dialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {TableModule} from 'primeng/table';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {TooltipModule} from 'primeng/tooltip';
 import {ConfirmationService} from 'primeng/api';
 
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
@@ -31,6 +32,7 @@ import {logApiError} from '../../../shared/api/api-errors';
     InputTextModule,
     TableModule,
     ToggleSwitchModule,
+    TooltipModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './language-management.html',

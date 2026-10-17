@@ -25,11 +25,13 @@
   <span class="lesson-pane__spacer"></span>
   <p-button type="button" icon="pi pi-chevron-left" [text]="true" size="small"
     data-testid="prev-lesson" [disabled]="!lesson()?.prev_lesson"
-    [pTooltip]="ui().previousLesson" tooltipPosition="bottom"
+    [pTooltip]="ui().previousLesson" [ariaLabel]="ui().previousLesson"
+    tooltipPosition="bottom"
     (onClick)="navigate.emit(lesson()!.prev_lesson!.id)" />
   <p-button type="button" icon="pi pi-chevron-right" [text]="true" size="small"
     data-testid="next-lesson" [disabled]="!lesson()?.next_lesson"
-    [pTooltip]="ui().nextLesson" tooltipPosition="bottom"
+    [pTooltip]="ui().nextLesson" [ariaLabel]="ui().nextLesson"
+    tooltipPosition="bottom"
     (onClick)="navigate.emit(lesson()!.next_lesson!.id)" />
   <p-button type="button" [outlined]="true"
     [severity]="previewMode() ? 'info' : 'success'"

@@ -17,7 +17,6 @@ describe('LoginPage', () => {
       logoIco: '/favicon.ico',
       logoPng: '/qna.png',
       author: 'Foxugly',
-      year: '2026',
     };
 
     await TestBed.configureTestingModule({

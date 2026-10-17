@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 
 import {ButtonModule} from 'primeng/button';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {TooltipModule} from 'primeng/tooltip';
 
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';
@@ -18,6 +19,7 @@ import {UserService} from '../../services/user/user';
     FormsModule,
     ButtonModule,
     MultiSelectModule,
+    TooltipModule,
   ],
   templateUrl: './quiz-question-library.html',
   styleUrl: './quiz-question-library.scss',

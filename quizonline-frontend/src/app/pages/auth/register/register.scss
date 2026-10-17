@@ -1,0 +1,63 @@
+/* Card chrome comes from the shared ``app-auth-card`` (wide variant); this
+ * file only lays out the projected form: two columns, one on mobile. */
+
+.register-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.register-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.field__hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.auth-footer {
+  align-items: center;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.link {
+  color: var(--accent-strong);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .register-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -92,3 +92,22 @@ export function pageUiText<T>(
   // Une page traduite partiellement ne doit pas casser : on retombe sur EN.
   return (root(FALLBACK).pages[slug] ?? {}) as T;
 }
+
+/**
+ * Valeur d'une cle « pointee » du catalogue racine (``ui.login.title``,
+ * ``pages.catalog.pageTitle``…), ou ``null`` si elle n'existe pas ou n'est pas
+ * une chaine. Sert au ``TitleStrategy`` (``data.titleKey`` des routes).
+ */
+export function catalogString(
+  lang: LanguageEnumDto | string | null | undefined,
+  path: string,
+): string | null {
+  let node: unknown = root(lang);
+  for (const part of path.split('.')) {
+    if (node === null || typeof node !== 'object') {
+      return null;
+    }
+    node = (node as Record<string, unknown>)[part];
+  }
+  return typeof node === 'string' ? node : null;
+}
