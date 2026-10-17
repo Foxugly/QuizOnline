@@ -1,9 +1,4 @@
 <app-auth-card icon="pi pi-sign-in" [title]="ui().login.title">
-  <div class="login-intro">
-    <p class="login-card__eyebrow">{{ ui().login.eyebrow }}</p>
-    <p class="login-subtitle">{{ ui().login.subtitle }}</p>
-  </div>
-
   @if (errorMsg()) {
     <p-message severity="error" styleClass="alert alert--error">{{ errorMsg() }}</p-message>
   }

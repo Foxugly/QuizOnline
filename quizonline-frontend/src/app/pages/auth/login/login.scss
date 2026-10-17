@@ -2,27 +2,6 @@
  * shared ``app-auth-card`` component. This file only styles the content
  * projected inside the card. */
 
-.login-intro {
-  display: grid;
-  gap: 0.35rem;
-  justify-items: center;
-  text-align: center;
-}
-
-.login-card__eyebrow {
-  color: var(--accent-strong);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  margin: 0;
-  text-transform: uppercase;
-}
-
-.login-subtitle {
-  color: var(--muted);
-  margin: 0;
-}
-
 .alert {
   border-radius: 0.9rem;
   font-size: 0.94rem;

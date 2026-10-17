@@ -65,9 +65,7 @@
       }
     },
     "login": {
-      "eyebrow": "Accesso",
-      "title": "Accedi al tuo spazio",
-      "subtitle": "Autenticati per continuare.",
+      "title": "Accedi",
       "email": "Indirizzo email",
       "emailPlaceholder": "Il tuo indirizzo email",
       "emailError": "È richiesto un indirizzo email valido",

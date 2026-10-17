@@ -65,9 +65,7 @@
       }
     },
     "login": {
-      "eyebrow": "Aanmelden",
-      "title": "Toegang tot uw ruimte",
-      "subtitle": "Meld u aan om verder te gaan.",
+      "title": "Inloggen",
       "email": "E-mailadres",
       "emailPlaceholder": "Uw e-mailadres",
       "emailError": "Een geldig e-mailadres is vereist",

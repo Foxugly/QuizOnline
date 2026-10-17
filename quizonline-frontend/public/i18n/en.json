@@ -65,9 +65,7 @@
       }
     },
     "login": {
-      "eyebrow": "Login",
-      "title": "Access your workspace",
-      "subtitle": "Sign in to continue.",
+      "title": "Sign in",
       "email": "Email address",
       "emailPlaceholder": "Your email address",
       "emailError": "A valid email address is required",
