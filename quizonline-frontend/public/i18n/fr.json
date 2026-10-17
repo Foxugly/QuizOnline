@@ -135,8 +135,7 @@
       "login": "Aller à la connexion"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Réinitialiser mon mot de passe",
+      "title": "Changer mon mot de passe",
       "oldPassword": "Mot de passe actuel",
       "newPassword": "Nouveau mot de passe",
       "confirmNewPassword": "Confirmer le nouveau mot de passe",
@@ -163,7 +162,6 @@
       "formInvalid": "Corrige les erreurs dans le formulaire.",
       "confirm": {
         "title": "Nouveau mot de passe",
-        "subtitle": "Choisis un nouveau mot de passe pour ton compte.",
         "confirmPassword": "Confirmer le mot de passe",
         "backToLogin": "Retour à la connexion",
         "linkInvalidOrIncomplete": "Lien de réinitialisation invalide ou incomplet.",

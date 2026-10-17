@@ -94,7 +94,6 @@ export type ResetPasswordUiText = {
   formInvalid: string;
   confirm: {
     title: string;
-    subtitle: string;
     confirmPassword: string;
     backToLogin: string;
     linkInvalidOrIncomplete: string;
@@ -106,7 +105,6 @@ export type ResetPasswordUiText = {
 
 export type ChangePasswordUiText = {
   title: string;
-  subtitle: string;
   oldPassword: string;
   newPassword: string;
   confirmNewPassword: string;

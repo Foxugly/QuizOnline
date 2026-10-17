@@ -135,8 +135,7 @@
       "login": "Ir al inicio de sesion"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Restablecer mi contrasena",
+      "title": "Cambiar mi contraseña",
       "oldPassword": "Contrasena actual",
       "newPassword": "Nueva contrasena",
       "confirmNewPassword": "Confirmar nueva contrasena",
@@ -163,7 +162,6 @@
       "formInvalid": "Corrige los errores en el formulario.",
       "confirm": {
         "title": "Nueva contraseña",
-        "subtitle": "Elige una nueva contraseña para tu cuenta.",
         "confirmPassword": "Confirmar contraseña",
         "backToLogin": "Volver al inicio de sesión",
         "linkInvalidOrIncomplete": "Enlace de restablecimiento no válido o incompleto.",

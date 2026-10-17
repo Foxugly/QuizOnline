@@ -135,8 +135,7 @@
       "login": "Vai al login"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Reimposta la mia password",
+      "title": "Cambia la mia password",
       "oldPassword": "Password attuale",
       "newPassword": "Nuova password",
       "confirmNewPassword": "Conferma nuova password",
@@ -163,7 +162,6 @@
       "formInvalid": "Correggi gli errori nel modulo.",
       "confirm": {
         "title": "Nuova password",
-        "subtitle": "Scegli una nuova password per il tuo account.",
         "confirmPassword": "Conferma password",
         "backToLogin": "Torna ad accedere",
         "linkInvalidOrIncomplete": "Link di reimpostazione non valido o incompleto.",

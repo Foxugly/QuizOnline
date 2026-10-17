@@ -135,8 +135,7 @@
       "login": "Go to login"
     },
     "changePassword": {
-      "title": "QuizOnline",
-      "subtitle": "Reset my password",
+      "title": "Change my password",
       "oldPassword": "Current password",
       "newPassword": "New password",
       "confirmNewPassword": "Confirm new password",
@@ -163,7 +162,6 @@
       "formInvalid": "Please fix the errors in the form.",
       "confirm": {
         "title": "New password",
-        "subtitle": "Pick a new password for your account.",
         "confirmPassword": "Confirm password",
         "backToLogin": "Back to sign in",
         "linkInvalidOrIncomplete": "Reset link is invalid or incomplete.",
