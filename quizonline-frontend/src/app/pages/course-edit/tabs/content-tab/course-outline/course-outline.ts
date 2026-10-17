@@ -209,6 +209,7 @@ export class CourseOutline {
     const ui = this.ui();
     const ref: OutlineRef = {kind, id: row.id};
     const items: MenuItem[] = [
+      {label: ui.renameAction, icon: 'pi pi-pencil', command: () => this.startRename(kind, row.id, row.translations)},
       {
         label: row.is_published ? ui.menuUnpublish : ui.menuPublish,
         icon: row.is_published ? 'pi pi-eye-slash' : 'pi pi-check-circle',

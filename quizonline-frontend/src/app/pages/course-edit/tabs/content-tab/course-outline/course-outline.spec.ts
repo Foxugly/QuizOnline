@@ -167,21 +167,26 @@ describe('CourseOutline', () => {
 
   it('shows the languages whose title is still empty', () => {
     const f = render();
-    expect((f.nativeElement.querySelector('.outline-row__missing') as HTMLElement).textContent).toContain('EN');
+    expect((f.nativeElement.querySelector('.outline-row__missing') as HTMLElement).getAttribute('aria-label')).toContain('EN');
   });
 
-  it('the pencil opens the rename input without selecting the lesson', () => {
+  it('the row menu offers Rename, which opens the rename input without selecting the lesson', () => {
     const f = TestBed.createComponent(CourseOutline);
     f.componentRef.setInput('course', withLesson);
     f.detectChanges();
     let selected = 0;
     f.componentInstance.lessonSelect.subscribe((id: number) => (selected = id));
-    (f.nativeElement.querySelector('[data-testid="rename-lesson-5-open"] button') as HTMLButtonElement).click();
-    f.detectChanges();
+    const rename = (testid: string) => {
+      (f.nativeElement.querySelector(`[data-testid="${testid}"] button`) as HTMLButtonElement).click();
+      const items = (f.componentInstance as unknown as {menuItems: () => {label?: string; command?: () => void}[]}).menuItems();
+      expect(items[0].label).toBe('Rename');
+      items[0].command!();
+      f.detectChanges();
+    };
+    rename('menu-lesson-5');
     expect(f.nativeElement.querySelector('[data-testid="rename-lesson-5-input"]')).not.toBeNull();
     expect(selected).toBe(0);
-    (f.nativeElement.querySelector('[data-testid="rename-section-10-open"] button') as HTMLButtonElement).click();
-    f.detectChanges();
+    rename('menu-section-10');
     expect(f.nativeElement.querySelector('[data-testid="rename-section-10-input"]')).not.toBeNull();
   });
 
@@ -189,7 +194,7 @@ describe('CourseOutline', () => {
     const f = TestBed.createComponent(CourseOutline);
     f.componentRef.setInput('course', withLesson);
     f.detectChanges();
-    expect((f.nativeElement.querySelector('[data-testid="preview-lesson-5"]') as HTMLElement).textContent).toContain('Free preview');
+    expect((f.nativeElement.querySelector('[data-testid="preview-lesson-5"]') as HTMLElement).getAttribute('aria-label')).toContain('Free preview');
   });
 
   function renderTwo() {
