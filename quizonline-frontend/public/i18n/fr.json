@@ -93,7 +93,6 @@
     },
     "register": {
       "title": "Créer un compte",
-      "subtitle": "Identité, langue et sécurité",
       "back": "Retour",
       "create": "Créer",
       "loading": "Chargement...",
@@ -129,7 +128,6 @@
     },
     "registerPending": {
       "title": "Inscription créée",
-      "subtitle": "Confirmation de votre adresse email",
       "lead": "Votre compte a bien été créé.",
       "body": "Consultez maintenant votre boîte mail et cliquez sur le lien de confirmation pour activer votre inscription.",
       "login": "Aller à la connexion"
@@ -172,7 +170,6 @@
     },
     "confirmEmail": {
       "title": "Confirmation d'email",
-      "subtitle": "Validation de votre inscription",
       "inProgress": "Confirmation en cours…",
       "successFallback": "Adresse e-mail confirmée avec succès.",
       "errorFallback": "Impossible de confirmer cette adresse e-mail.",

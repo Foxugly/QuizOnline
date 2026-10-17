@@ -1,5 +1,4 @@
 <app-auth-card icon="pi pi-envelope" [title]="shellUi().confirmEmail.title">
-  <p class="auth-card-subtitle">{{ shellUi().confirmEmail.subtitle }}</p>
 
   @if (loading()) {
     <p-message severity="info">{{ shellUi().confirmEmail.inProgress }}</p-message>

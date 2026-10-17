@@ -93,7 +93,6 @@
     },
     "register": {
       "title": "Account maken",
-      "subtitle": "Identiteit, taal en beveiliging",
       "back": "Terug",
       "create": "Maken",
       "loading": "Laden...",
@@ -129,7 +128,6 @@
     },
     "registerPending": {
       "title": "Account aangemaakt",
-      "subtitle": "Bevestig uw e-mailadres",
       "lead": "Uw account is succesvol aangemaakt.",
       "body": "Controleer nu uw mailbox en klik op de bevestigingslink om uw registratie te activeren.",
       "login": "Naar aanmelden"
@@ -172,7 +170,6 @@
     },
     "confirmEmail": {
       "title": "E-mailbevestiging",
-      "subtitle": "Bevestiging van uw registratie",
       "inProgress": "Bevestiging bezig…",
       "successFallback": "E-mailadres met succes bevestigd.",
       "errorFallback": "Kan dit e-mailadres niet bevestigen.",

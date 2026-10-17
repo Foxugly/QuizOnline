@@ -29,7 +29,6 @@ export type LoginUiText = {
 
 export type RegisterUiText = {
   title: string;
-  subtitle: string;
   back: string;
   create: string;
   loading: string;
@@ -66,7 +65,6 @@ export type RegisterUiText = {
 
 export type RegisterPendingUiText = {
   title: string;
-  subtitle: string;
   lead: string;
   body: string;
   login: string;
@@ -74,7 +72,6 @@ export type RegisterPendingUiText = {
 
 export type ConfirmEmailUiText = {
   title: string;
-  subtitle: string;
   inProgress: string;
   successFallback: string;
   errorFallback: string;
