@@ -65,9 +65,7 @@
       }
     },
     "login": {
-      "eyebrow": "Connexion",
-      "title": "Accéder à votre espace",
-      "subtitle": "Identifiez-vous pour continuer.",
+      "title": "Connexion",
       "email": "Adresse e-mail",
       "emailPlaceholder": "Votre adresse e-mail",
       "emailError": "Une adresse e-mail valide est requise",

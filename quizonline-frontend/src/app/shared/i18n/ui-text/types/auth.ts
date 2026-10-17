@@ -1,8 +1,6 @@
 
 export type LoginUiText = {
-  eyebrow: string;
   title: string;
-  subtitle: string;
   email: string;
   emailPlaceholder: string;
   emailError: string;
