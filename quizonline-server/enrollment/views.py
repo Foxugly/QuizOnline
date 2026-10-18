@@ -188,7 +188,14 @@ class _LmsInviteSendThrottle(ScopedRateThrottle):
 @permission_classes([IsAuthenticated])
 @throttle_classes([_LmsEnrollThrottle])
 def enroll_to_course(request, course_id: int):
-    course = Course.objects.filter(pk=course_id).first()
+    # Same visibility rule as the course list, restricted to published
+    # courses: a draft, another domain's course or an invite-only course
+    # the caller cannot see all answer 404 (no existence oracle).
+    course = (
+        Course.objects.visible_to(request.user)
+        .filter(pk=course_id, is_published=True)
+        .first()
+    )
     if not course:
         return Response(status=status.HTTP_404_NOT_FOUND)
     enrollment = enroll_user_to_course(user=request.user, course=course)

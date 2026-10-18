@@ -147,51 +147,123 @@ def _has_question_block_permission(request, obj) -> bool:
     return bool(user and user.can_manage_domain(domain))
 
 
-def _can_create(user, data) -> bool:
-    """Resolve the target course/domain from POST data and return whether
-    ``user`` is an instructor (owner / manager / superuser) for it."""
-    if is_django_admin(user):
-        return True
-    # Lazy imports to avoid circulars at module load.
+# Payload keys that name the parent an LMS object is created under, with
+# the model each one references. ``domain`` is the Course parent; the
+# others ladder up to a Course (or, for question-editor blocks, a Domain).
+_CREATE_PARENT_KEYS = ("domain", "course", "section", "lesson", "question", "answer_option")
+
+
+def _parent_model(key):
     from domain.models import Domain
     from lesson.models import Lesson
+    from question.models import AnswerOption, Question
 
     from .models import Course, Section
+    return {
+        "domain": Domain, "course": Course, "section": Section,
+        "lesson": Lesson, "question": Question, "answer_option": AnswerOption,
+    }[key]
 
-    domain_id = data.get("domain")
-    if domain_id:
-        domain = Domain.objects.filter(pk=domain_id).first()
-        return bool(domain and user.can_manage_domain(domain))
 
-    course_id = data.get("course")
-    if course_id:
-        course = Course.objects.filter(pk=course_id).first()
-        return bool(course and is_lms_instructor(user, course))
+def can_write_under(user, parent) -> bool:
+    """Whether ``user`` may create content under — or attach content to —
+    ``parent`` (a Domain, Course, Section, Lesson, Question or
+    AnswerOption). Instructor rights = superuser, or owner / manager of
+    the domain the parent belongs to."""
+    from domain.models import Domain
+    from lesson.models import Lesson
+    from question.models import AnswerOption, Question
 
-    section_id = data.get("section")
-    if section_id:
-        section = Section.objects.filter(pk=section_id).select_related("course").first()
-        return bool(section and is_lms_instructor(user, section.course))
+    from .models import Course, Section
+    if not is_authenticated_user(user):
+        return False
+    if is_django_admin(user):
+        return True
+    if isinstance(parent, Domain):
+        domain = parent
+    elif isinstance(parent, Course):
+        domain = parent.domain
+    elif isinstance(parent, Section):
+        domain = parent.course.domain
+    elif isinstance(parent, Lesson):
+        domain = parent.section.course.domain
+    elif isinstance(parent, Question):
+        domain = parent.domain
+    elif isinstance(parent, AnswerOption):
+        domain = parent.question.domain
+    else:
+        raise TypeError(f"can_write_under: unsupported parent {type(parent).__name__}")
+    return bool(user.can_manage_domain(domain))
 
-    lesson_id = data.get("lesson")
-    if lesson_id:
-        lesson = Lesson.objects.filter(pk=lesson_id).select_related("section__course").first()
-        return bool(lesson and is_lms_instructor(user, lesson.section.course))
 
-    # Phase 3.5 question editor: blocks may now be hosted by a Question
-    # (prompt / explanation) or an AnswerOption. Both ladder up to a
-    # Domain — domain managers (owner, manager, superuser) may create.
-    question_id = data.get("question")
-    if question_id:
-        from question.models import Question
-        q = Question.objects.filter(pk=question_id).select_related("domain").first()
-        return bool(q and user.can_manage_domain(q.domain))
+def _can_create(user, data) -> bool:
+    """Resolve every parent reference in the POST data and return whether
+    ``user`` is an instructor (owner / manager / superuser) for ALL of them.
 
-    answer_option_id = data.get("answer_option")
-    if answer_option_id:
-        from question.models import AnswerOption
-        opt = AnswerOption.objects.filter(pk=answer_option_id).select_related("question__domain").first()
-        return bool(opt and user.can_manage_domain(opt.question.domain))
-
+    Every parent key present must pass — a payload naming one parent the
+    caller manages (e.g. ``domain``) and another they do not (the
+    ``course`` / ``section`` / ``lesson`` the serializer actually uses)
+    is denied. The serializers re-check the validated target through
+    :class:`ParentScopedWriteMixin`."""
+    if is_django_admin(user):
+        return True
+    found = False
+    for key in _CREATE_PARENT_KEYS:
+        value = data.get(key) if hasattr(data, "get") else None
+        if value in (None, ""):
+            continue
+        found = True
+        try:
+            parent = _parent_model(key).objects.filter(pk=value).first()
+        except (TypeError, ValueError):
+            return False
+        if parent is None or not can_write_under(user, parent):
+            return False
     # No resolvable parent reference => deny create (DRF will return 403).
-    return False
+    return found
+
+
+class ParentScopedWriteMixin:
+    # Serializer mixin guarding the parent foreign keys of LMS content.
+    #
+    # ``parent_fields`` lists the serializer fields that attach the object
+    # to its tenant (``course`` for a Section, ``section`` for a Lesson, ...).
+    # For each one present in the validated data:
+    #
+    # - on **create**, the caller must be an instructor of the target parent
+    #   (403 otherwise) — the permission class already checks the raw
+    #   payload, this re-checks the instance the serializer will really use;
+    # - on **update**, the value must equal the current parent (400
+    #   otherwise). Re-parenting is not a PATCH feature: lessons move
+    #   between sections of the same course through ``/lesson/{id}/move/``,
+    #   and order changes go through the ``reorder`` actions.
+    #
+    # Runs in ``to_internal_value`` so a subclass overriding ``validate``
+    # cannot skip it.
+    # (Comment, not a docstring: drf-spectacular would copy a docstring
+    # into the description of every serializer schema using the mixin.)
+
+    parent_fields: tuple[str, ...] = ()
+
+    def to_internal_value(self, data):
+        from django.utils.translation import gettext as _
+        from rest_framework import serializers
+        from rest_framework.exceptions import PermissionDenied
+
+        attrs = super().to_internal_value(data)
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        errors = {}
+        for name in self.parent_fields:
+            if name not in attrs:
+                continue
+            target = attrs[name]
+            if self.instance is not None:
+                current = self.fields[name].get_attribute(self.instance)
+                if getattr(current, "pk", current) != getattr(target, "pk", target):
+                    errors[name] = [_("This field cannot be changed after creation.")]
+            elif target is not None and request is not None and not can_write_under(user, target):
+                raise PermissionDenied(_("You do not have permission to add content here."))
+        if errors:
+            raise serializers.ValidationError(errors)
+        return attrs

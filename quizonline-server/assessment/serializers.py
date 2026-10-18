@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
+from course.permissions import ParentScopedWriteMixin
+
 from .models import LessonQuiz
 
 
-class LessonQuizSerializer(serializers.ModelSerializer):
+class LessonQuizSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
+    parent_fields = ("lesson", "course")
+
     class Meta:
         model = LessonQuiz
         fields = [

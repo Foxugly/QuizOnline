@@ -33,6 +33,7 @@ def test_write_serializer_sanitizes_description_and_objectives(domain, fr_lang):
         },
     }
     request = APIRequestFactory().post("/api/v1/course/", payload, format="json")
+    request.user = domain.owner  # the serializer re-checks instructor rights on the target domain
     ser = CourseWriteSerializer(data=payload, context={"request": request})
     assert ser.is_valid(), ser.errors
     course = ser.save()

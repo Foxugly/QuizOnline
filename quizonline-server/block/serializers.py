@@ -1,9 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Max
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from core.serializers import TranslationsField, filter_allowed_lang_codes
+from course.permissions import ParentScopedWriteMixin
 from lesson.models import Lesson
 
 from .models import Block
@@ -97,7 +99,17 @@ def _resolve_host_model(field_name: str):
     raise ValueError(f"Unknown host field {field_name!r}")
 
 
-class BlockSerializer(serializers.ModelSerializer):
+def _host_domain_id(host):
+    """Domain id owning a block host (Lesson, Question or AnswerOption)."""
+    if isinstance(host, Lesson):
+        return host.section.course.domain_id
+    from question.models import AnswerOption
+    if isinstance(host, AnswerOption):
+        return host.question.domain_id
+    return host.domain_id
+
+
+class BlockSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
     """Serializer for :class:`Block`.
 
     The wire shape keeps a per-host integer field even though the
@@ -113,6 +125,8 @@ class BlockSerializer(serializers.ModelSerializer):
     answer option body blocks). The other host fields render as
     ``null`` to keep the wire schema stable.
     """
+
+    parent_fields = _HOST_FIELDS
 
     lesson = LessonHostField(required=False, allow_null=True)
     question = QuestionHostField(required=False, allow_null=True)
@@ -174,6 +188,16 @@ class BlockSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Provide exactly one of: lesson, question, answer_option."
                 )
+            # ``full_clean`` is skipped for drafts, so enforce its
+            # same-domain quiz rule here: a quiz block may only point at
+            # a QuizTemplate of the host's own domain.
+            quiz_template = attrs.get("quiz_template")
+            if quiz_template is not None:
+                host_domain_id = _host_domain_id(attrs[provided[0]])
+                if quiz_template.domain_id != host_domain_id:
+                    raise serializers.ValidationError({
+                        "quiz_template": _("Quiz must belong to the same domain as the course."),
+                    })
             return attrs
 
         instance = self.instance
