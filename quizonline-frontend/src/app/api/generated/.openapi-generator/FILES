@@ -227,6 +227,7 @@ model/system-check-response.ts
 model/target-enum.ts
 model/test-email-request-request.ts
 model/test-email-response.ts
+model/token-blacklist-request.ts
 model/token-refresh-request.ts
 model/token-refresh.ts
 model/totals.ts

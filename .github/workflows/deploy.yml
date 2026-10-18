@@ -37,6 +37,10 @@ jobs:
         run: |
           cd quizonline-frontend
           npm ci
+          # Tag Sentry events with the exact commit (audit M17); the
+          # runtime SSM SENTRY_RELEASE still overrides when set.
+          sed -i "s/sentryRelease: '[^']*'/sentryRelease: '${GITHUB_SHA}'/" src/environments/environment.prod.ts
+          grep -q "sentryRelease: '${GITHUB_SHA}'" src/environments/environment.prod.ts
           npx ng build --configuration=production
 
       - name: Package frontend build

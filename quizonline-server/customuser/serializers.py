@@ -271,9 +271,32 @@ class CustomUserAdminUpdateSerializer(StrictFieldsModelSerializer):
             "nb_domain_max",
         ]
 
+    # Fields that amount to an account takeover when set on someone else.
+    SUPERUSER_ONLY_FIELDS = ("password", "email")
+
     def validate_password(self, value: str) -> str:
         validate_password(value, user=self.instance)
         return value
+
+    def validate(self, attrs):
+        """A non-superuser staff editing another account may neither touch a
+        staff / superuser account nor change its credentials."""
+        attrs = super().validate(attrs)
+        request = self.context.get("request")
+        actor = getattr(request, "user", None)
+        target = self.instance
+        if actor is None or target is None or actor.is_superuser or actor.pk == target.pk:
+            return attrs
+        if target.is_superuser or target.is_staff:
+            raise serializers.ValidationError(
+                "Only a superuser can edit a staff or superuser account."
+            )
+        forbidden = [name for name in self.SUPERUSER_ONLY_FIELDS if name in attrs]
+        if forbidden:
+            raise serializers.ValidationError(
+                {name: "Only a superuser can change this field." for name in forbidden}
+            )
+        return attrs
 
     def update(self, instance, validated_data):
         request = self.context.get("request")

@@ -50,7 +50,14 @@ class SectionSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
         # full ``LessonDetailSerializer`` made each reload ship every
         # block of every lesson. ``/lesson/{id}/`` keeps the full shape.
         lessons = obj.lessons.all()
-        if self.context.get("_learner_view"):
+        learner_view = self.context.get("_learner_view")
+        if learner_view is None:
+            # Section endpoints (list / retrieve) do not go through the
+            # course detail, so resolve the caller's role on this course.
+            from .permissions import is_lms_instructor
+            request = self.context.get("request")
+            learner_view = not (request and is_lms_instructor(request.user, obj.course))
+        if learner_view:
             # Same rule as ``Lesson.objects.visible_to`` for a learner:
             # published or preview. Filtered in Python so the retrieve
             # prefetch chain is reused.

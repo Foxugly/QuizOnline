@@ -9,6 +9,7 @@ from rest_framework import serializers
 
 from block.models import Block
 from block.sanitizer import sanitize_rich_text
+from block.url_policy import block_url_errors
 from config.serializers import (
     LocalizedQuestionTranslationSerializer,
     LocalizedTranslationsJSONField,
@@ -155,6 +156,13 @@ def _sync_host_blocks(
             if field in raw and field != "block_type"
         }
         scalar_kwargs.setdefault("order", index)
+        url_errors = block_url_errors(
+            video_provider=scalar_kwargs.get("video_provider", ""),
+            video_url=scalar_kwargs.get("video_url", ""),
+            external_url=scalar_kwargs.get("external_url", ""),
+        )
+        if url_errors:
+            raise serializers.ValidationError({"blocks": {index: url_errors}})
         block = Block.objects.create(
             target_content_type=host_ct,
             target_object_id=host.pk,

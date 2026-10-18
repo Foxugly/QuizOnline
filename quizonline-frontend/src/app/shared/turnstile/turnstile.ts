@@ -9,7 +9,25 @@
  *
  * ``TurnstileController`` encapsulates the explicit-render + retry + reset
  * lifecycle so both the register and reset-password pages stay small.
+ *
+ * The Cloudflare script is injected on first use (audit I8) instead of
+ * from ``index.html``: only the pages that render a widget load the
+ * third-party code, and never when the captcha is off.
  */
+
+export const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+const TURNSTILE_SCRIPT_ID = 'cf-turnstile-api';
+
+/** Append the Turnstile API ``<script>`` once per page. */
+export function loadTurnstileScript(doc: Document = document): void {
+  if (doc.getElementById(TURNSTILE_SCRIPT_ID)) return;
+  const script = doc.createElement('script');
+  script.id = TURNSTILE_SCRIPT_ID;
+  script.src = TURNSTILE_SCRIPT_URL;
+  script.async = true;
+  script.defer = true;
+  doc.head.appendChild(script);
+}
 
 interface TurnstileRenderOptions {
   sitekey: string;
@@ -45,13 +63,14 @@ export class TurnstileController {
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
-   * Render the widget into ``container``. Cloudflare's auto-render only scans
-   * the DOM once at script load, so on a lazy SPA route we render explicitly
-   * and retry a few times while the async <script> finishes downloading.
+   * Render the widget into ``container``, loading the API script on first
+   * use. Cloudflare's auto-render only scans the DOM once at script load, so
+   * we render explicitly and retry a few times while it downloads.
    */
   render(container: HTMLElement | undefined, attempts = 0): void {
     if (!this.enabled || typeof window === 'undefined') return;
     if (!window.turnstile?.render) {
+      if (attempts === 0) loadTurnstileScript();
       if (attempts >= 20) return;
       this.retryTimer = setTimeout(() => this.render(container, attempts + 1), 500);
       return;

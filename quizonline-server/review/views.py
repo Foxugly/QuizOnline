@@ -31,7 +31,11 @@ def _is_owner_or_manager(user, domain) -> bool:
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def course_reviews(request, course_id: int):
-    course = get_object_or_404(Course.objects.select_related("domain"), pk=course_id)
+    # Only a course the caller can see: no review (nor author names) of a
+    # draft or of another domain's course, and no existence oracle.
+    course = get_object_or_404(
+        Course.objects.visible_to(request.user).select_related("domain"), pk=course_id,
+    )
     domain = course.domain
     can_moderate = _is_owner_or_manager(request.user, domain)
 

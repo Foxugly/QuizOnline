@@ -1,6 +1,6 @@
 import {HttpErrorResponse, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
 import {inject} from '@angular/core';
-import {catchError, switchMap, throwError} from 'rxjs';
+import {catchError, Observable, switchMap, throwError} from 'rxjs';
 
 import {AuthService} from './services/auth/auth';
 import {UserService} from './services/user/user';
@@ -11,6 +11,14 @@ function isAuthEndpoint(url: string): boolean {
     url.includes('/api/v1/token') ||
     url.includes('/api/v1/user/password/reset')
   );
+}
+
+/** Only a refresh REJECTED by the server ends the session. A network
+ *  error or a 5xx while refreshing is transient: keep the tokens so the
+ *  next request can try again (audit I9). */
+export function refreshRejected(error: unknown): boolean {
+  const status = (error as HttpErrorResponse | null)?.status;
+  return status === 400 || status === 401;
 }
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
@@ -37,6 +45,20 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     return originalReq.clone({setHeaders});
   };
 
+  // Refresh, then replay ``req``. ``catchError`` sits BEFORE the replay
+  // so only a failed refresh can end the session — an error of the
+  // replayed request itself (403, 500, ...) is just passed through.
+  const replayAfterRefresh = (refresh$: Observable<unknown>) =>
+    refresh$.pipe(
+      catchError((refreshError: HttpErrorResponse) => {
+        if (refreshRejected(refreshError)) {
+          auth.logout();
+        }
+        return throwError(() => refreshError);
+      }),
+      switchMap(() => next(buildAuthedRequest(req))),
+    );
+
   // Proactive cold-start refresh. On a full page reload the access
   // token is intentionally lost (kept in memory only for XSS-safety)
   // while the refresh token lives in localStorage. Without this
@@ -52,13 +74,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   if (apiRequest && !isAuthEndpoint(req.url) && !auth.getAccessToken() && auth.getRefreshToken()) {
     const refresh$ = auth.refreshTokens();
     if (refresh$) {
-      return refresh$.pipe(
-        switchMap(() => next(buildAuthedRequest(req))),
-        catchError((refreshError: HttpErrorResponse) => {
-          auth.logout();
-          return throwError(() => refreshError);
-        }),
-      );
+      return replayAfterRefresh(refresh$);
     }
   }
 
@@ -83,13 +99,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      return refresh$.pipe(
-        switchMap(() => next(buildAuthedRequest(req))),
-        catchError((refreshError: HttpErrorResponse) => {
-          auth.logout();
-          return throwError(() => refreshError);
-        }),
-      );
+      return replayAfterRefresh(refresh$);
     }),
   );
 };

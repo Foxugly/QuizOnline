@@ -441,6 +441,7 @@ class MailerEmitsWebNotificationTests(TestCase):
         )
         send_domain_transfer_email(
             domain=self.domain, initiator=self.owner, future_owner=future_owner,
+            nonce="n-test",
         )
         self.assertTrue(
             Notification.objects.filter(

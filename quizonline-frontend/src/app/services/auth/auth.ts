@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable, inject} from '@angular/core';
-import {finalize, Observable, shareReplay, switchMap, tap} from 'rxjs';
+import {defer, finalize, from, Observable, shareReplay, switchMap, tap} from 'rxjs';
 
 import {CustomUserCreateRequestDto} from '../../api/generated/model/custom-user-create-request';
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
@@ -14,6 +14,13 @@ import {TokenRefreshRequestDto} from '../../api/generated/model/token-refresh-re
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
 import {AccountAccessService} from '../account-access/account-access';
 import {UserService} from '../user/user';
+
+/** Web Locks name serialising refresh-token rotation across tabs. */
+const REFRESH_LOCK = 'quizonline-token-refresh';
+
+type LockManagerLike = {
+  request<T>(name: string, callback: () => Promise<T>): Promise<T>;
+};
 
 export type RegisterPayload = Omit<CustomUserCreateRequestDto, 'managed_domain_ids'> & {
   requested_domain_ids?: number[];
@@ -38,9 +45,37 @@ export class AuthService {
   constructor() {
     // Access token is never persisted to storage (XSS risk).
     // Refresh token is kept in storage for session continuity across page reloads.
-    this.refreshToken =
-      localStorage.getItem(this.REFRESH_KEY) ??
-      sessionStorage.getItem(this.REFRESH_KEY);
+    this.refreshToken = this.readStoredRefresh();
+
+    // Multi-tab (audit I9): a "remember me" session shares its refresh
+    // token through localStorage. When another tab rotates it, adopt the
+    // new one (ours was just blacklisted); when another tab logs out,
+    // log out here too instead of failing on the next API call.
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (event) => this.onStorage(event));
+    }
+  }
+
+  private onStorage(event: StorageEvent): void {
+    if (event.storageArea !== localStorage || event.key !== this.REFRESH_KEY) {
+      return;
+    }
+    if (event.newValue) {
+      this.refreshToken = event.newValue;
+      return;
+    }
+    if (!sessionStorage.getItem(this.REFRESH_KEY)) {
+      // Removed elsewhere and this tab has no tab-scoped session of its
+      // own: the shared session is over in every tab.
+      this.accessToken = null;
+      this.refreshToken = null;
+      this.refresh$ = null;
+      this.userService.currentUser.set(null);
+    }
+  }
+
+  private readStoredRefresh(): string | null {
+    return localStorage.getItem(this.REFRESH_KEY) ?? sessionStorage.getItem(this.REFRESH_KEY);
   }
 
   get authenticated(): boolean {
@@ -106,30 +141,51 @@ export class AuthService {
       return this.refresh$;
     }
 
-    const refresh = this.getRefreshToken();
-    if (!refresh) {
+    if (!this.getRefreshToken()) {
       return null;
     }
 
-    const payload: TokenRefreshRequestDto = {refresh};
-    this.refresh$ = this.http
-      .post<TokenRefreshDto>(`${this.apiBaseUrl}/token/refresh/`, payload)
-      .pipe(
-        tap((dto) => {
-          // Persist the rotated refresh from the response — the original one
-          // has just been blacklisted server-side.
-          this.setTokens(dto.access, dto.refresh ?? refresh, this.rememberEnabled());
-        }),
-        finalize(() => {
-          this.refresh$ = null;
-        }),
-        shareReplay(1),
-      );
+    // The POST runs under a cross-tab Web Lock and re-reads the stored
+    // token inside it: when two tabs refresh at once, the second one
+    // uses the token the first just rotated instead of a blacklisted one.
+    this.refresh$ = this.withRefreshLock(() => {
+      const refresh = this.readStoredRefresh() ?? this.getRefreshToken() ?? '';
+      const payload: TokenRefreshRequestDto = {refresh};
+      return this.http
+        .post<TokenRefreshDto>(`${this.apiBaseUrl}/token/refresh/`, payload)
+        .pipe(
+          tap((dto) => {
+            // Persist the rotated refresh from the response — the original one
+            // has just been blacklisted server-side.
+            this.setTokens(dto.access, dto.refresh ?? refresh, this.rememberEnabled());
+          }),
+        );
+    }).pipe(
+      finalize(() => {
+        this.refresh$ = null;
+      }),
+      shareReplay(1),
+    );
     return this.refresh$;
   }
 
   register(payload: RegisterPayload): Observable<CustomUserReadDto> {
     return this.http.post<CustomUserReadDto>(`${this.apiBaseUrl}/user/`, payload);
+  }
+
+  /**
+   * User-initiated sign-out (audit M12): revoke the refresh token server
+   * side, then drop the local session. Best effort — the local logout
+   * never waits on, nor fails with, the network.
+   */
+  signOut(): void {
+    const refresh = this.getRefreshToken();
+    if (refresh) {
+      this.http
+        .post(`${this.apiBaseUrl}/token/blacklist/`, {refresh})
+        .subscribe({error: () => undefined});
+    }
+    this.logout();
   }
 
   logout(): void {
@@ -226,6 +282,27 @@ export class AuthService {
       return;
     }
     sessionStorage.setItem(this.USER_KEY, displayName);
+  }
+
+  private withRefreshLock<T>(work: () => Observable<T>): Observable<T> {
+    const locks = (globalThis.navigator as {locks?: LockManagerLike} | undefined)?.locks;
+    if (!locks?.request) {
+      return defer(work);
+    }
+    return from(
+      locks.request(REFRESH_LOCK, () =>
+        new Promise<T>((resolve, reject) => {
+          let last: T;
+          work().subscribe({
+            next: (value) => {
+              last = value;
+            },
+            error: reject,
+            complete: () => resolve(last),
+          });
+        }),
+      ),
+    );
   }
 
   private rememberEnabled(): boolean {

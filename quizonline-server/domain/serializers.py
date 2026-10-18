@@ -482,7 +482,8 @@ class DomainDetailSerializer(DomainReadSerializer):
         """
         Returns the future owner targeted by the most recent
         ``transfer.initiate`` audit row when that transfer is still
-        within the token TTL **and** has not been accepted yet.
+        within the token TTL **and** has not been accepted, revoked or
+        superseded yet.
         Used by the frontend to surface a "transfer in flight to X"
         banner on /domain/{id}/edit so the owner can tell whether
         their previous "transfer ownership" action is still
@@ -492,33 +493,21 @@ class DomainDetailSerializer(DomainReadSerializer):
 
         from django.utils import timezone
 
-        from domain.transfer_token import TRANSFER_TOKEN_TTL_SECONDS
-
-        cutoff = timezone.now() - timedelta(seconds=TRANSFER_TOKEN_TTL_SECONDS)
-        latest_initiate = (
-            DomainAuditLog.objects
-            .filter(
-                domain=obj,
-                action="transfer.initiate",
-                created_at__gte=cutoff,
-                target_user__isnull=False,
-            )
-            .order_by("-created_at")
-            .first()
+        from domain.transfer_token import (
+            TRANSFER_TOKEN_TTL_SECONDS,
+            latest_transfer_event,
         )
-        if latest_initiate is None:
-            return None
 
-        accepted_after = (
-            DomainAuditLog.objects
-            .filter(
-                domain=obj,
-                action="transfer.accept",
-                created_at__gte=latest_initiate.created_at,
-            )
-            .exists()
-        )
-        if accepted_after:
+        # The latest transfer event decides: an accept or a revoke closes
+        # the transfer, an initiate keeps it open until the link expires.
+        latest_initiate = latest_transfer_event(obj)
+        if (
+            latest_initiate is None
+            or latest_initiate.action != "transfer.initiate"
+            or latest_initiate.target_user is None
+            or latest_initiate.created_at
+            < timezone.now() - timedelta(seconds=TRANSFER_TOKEN_TTL_SECONDS)
+        ):
             return None
 
         return _user_summary(latest_initiate.target_user)

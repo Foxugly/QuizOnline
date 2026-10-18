@@ -9,6 +9,7 @@ from course.permissions import ParentScopedWriteMixin
 from lesson.models import Lesson
 
 from .models import Block
+from .url_policy import block_url_errors
 
 
 class _GenericHostField(serializers.PrimaryKeyRelatedField):
@@ -198,6 +199,14 @@ class BlockSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
                     raise serializers.ValidationError({
                         "quiz_template": _("Quiz must belong to the same domain as the course."),
                     })
+            # Same for the iframe URL allow-list (``Block.clean``).
+            url_errors = block_url_errors(
+                video_provider=attrs.get("video_provider", ""),
+                video_url=attrs.get("video_url", ""),
+                external_url=attrs.get("external_url", ""),
+            )
+            if url_errors:
+                raise serializers.ValidationError(url_errors)
             return attrs
 
         instance = self.instance

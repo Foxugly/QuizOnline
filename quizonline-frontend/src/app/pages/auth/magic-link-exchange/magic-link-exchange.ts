@@ -85,7 +85,8 @@ export class MagicLinkExchangePage implements OnInit {
           this.connectionLog.record('magic_link');
           const nextUrl = this.route.snapshot.queryParamMap.get('next');
           const safeNext = nextUrl && nextUrl.startsWith('/') && !nextUrl.includes('://') ? nextUrl : null;
-          void this.router.navigateByUrl(safeNext || '/home');
+          // replaceUrl: the token URL leaves the history (audit M13).
+          void this.router.navigateByUrl(safeNext || '/home', {replaceUrl: true});
         },
         error: (err) => {
           logApiError('auth.magic-link.exchange', err);

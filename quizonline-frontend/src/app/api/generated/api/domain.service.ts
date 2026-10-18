@@ -243,6 +243,11 @@ export interface DomainTransferCreateRequestParams {
     domainTransferRequestRequestDto: DomainTransferRequestRequestDto;
 }
 
+export interface DomainTransferDestroyRequestParams {
+    /** A unique integer value identifying this domain. */
+    domainId: number;
+}
+
 export interface DomainUpdateRequestParams {
     /** Identifiant du domaine (correspond à &#x60;&lt;int:domain_id&gt;&#x60; dans l\&#39;URL). */
     domainId: number;
@@ -2520,6 +2525,67 @@ export class DomainApi extends BaseService {
             {
                 context: localVarHttpContext,
                 body: domainTransferRequestRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Annuler le transfert de propriété en cours
+     * Révoque le lien de transfert envoyé : il n\&#39;est plus utilisable, même s\&#39;il n\&#39;a pas expiré. Propriétaire ou superuser uniquement.
+     * @endpoint delete /api/v1/domain/{domain_id}/transfer/
+     * @param requestParameters
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public domainTransferDestroy(requestParameters: DomainTransferDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public domainTransferDestroy(requestParameters: DomainTransferDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public domainTransferDestroy(requestParameters: DomainTransferDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public domainTransferDestroy(requestParameters: DomainTransferDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const domainId = requestParameters?.domainId;
+        if (domainId === null || domainId === undefined) {
+            throw new Error('Required parameter domainId was null or undefined when calling domainTransferDestroy.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (jwtAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/domain/${this.configuration.encodeParam({name: "domainId", value: domainId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/transfer/`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

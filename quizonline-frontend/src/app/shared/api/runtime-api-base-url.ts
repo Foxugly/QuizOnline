@@ -26,9 +26,39 @@ export function resolveApiBaseUrl(): string {
   );
 }
 
+/**
+ * Whether ``url`` targets our API (and so may carry the bearer token).
+ * Compares parsed origins (audit M15): with a same-origin deployment
+ * (``apiBaseUrl === ''``) the old prefix test matched EVERY absolute URL,
+ * so a request to a third-party origin would have carried the token.
+ */
 export function isApiUrl(url: string): boolean {
-  const base = resolveApiBaseUrl().replace(/\/+$/, '');
-  const cleaned = url.replace(/\/+$/, '');
+  const here = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+  let target: URL;
+  try {
+    target = new URL(url, here);
+  } catch {
+    return false;
+  }
 
-  return cleaned.startsWith(base) || cleaned.startsWith('/api/v1/');
+  // Relative ``/api/v1/...`` (or an absolute URL on the page's origin).
+  if (target.origin === here && target.pathname.startsWith('/api/v1/')) {
+    return true;
+  }
+
+  const base = resolveApiBaseUrl().replace(/\/+$/, '');
+  if (!base) {
+    return false;
+  }
+  let apiRoot: URL;
+  try {
+    apiRoot = new URL(base, here);
+  } catch {
+    return false;
+  }
+  const rootPath = apiRoot.pathname.replace(/\/+$/, '');
+  return (
+    target.origin === apiRoot.origin
+    && (target.pathname === rootPath || target.pathname.startsWith(`${rootPath}/`))
+  );
 }

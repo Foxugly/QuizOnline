@@ -20,10 +20,11 @@ class LessonQuerySet(TranslatableQuerySet):
         # their domain — published or not — so they can edit drafts and
         # toggle publication state (mirrors ``Course.visible_to`` which
         # surfaces unpublished managed courses). Plain learners only see
-        # published / preview lessons.
+        # published / preview lessons of a published section.
         managed = Q(section__course__domain__owner=user) | Q(
             section__course__domain__managers=user
         )
         return qs.filter(
-            managed | Q(is_published=True) | Q(is_preview=True)
+            managed
+            | (Q(section__is_published=True) & (Q(is_published=True) | Q(is_preview=True)))
         ).distinct()

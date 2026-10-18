@@ -287,6 +287,52 @@ class CustomUserViewSet(
         )
         return Response(DomainJoinRequestReadSerializer(qs, many=True).data)
 
+    @staticmethod
+    def _export_lms_data(user) -> dict:
+        """LMS + login-log rows of the GDPR export (audit I6)."""
+        from certificate.models import Certificate
+        from connectionlog.models import ConnectionEvent
+        from enrollment.models import (
+            CourseEnrollment,
+            CourseProgress,
+            LessonNote,
+            LessonProgress,
+        )
+        from review.models import CourseReview
+
+        def rows(qs, *fields):
+            return list(qs.filter(user=user).order_by("id").values(*fields))
+
+        return {
+            "enrollments": rows(
+                CourseEnrollment.objects, "id", "course_id", "status", "enrolled_at", "completed_at",
+            ),
+            "lesson_progress": rows(
+                LessonProgress.objects, "lesson_id", "is_started", "is_completed",
+                "started_at", "completed_at", "last_seen_at", "progress_percent",
+            ),
+            "course_progress": rows(
+                CourseProgress.objects, "course_id", "completed_lessons_count",
+                "total_lessons_count", "progress_percent", "updated_at",
+            ),
+            "certificates": rows(
+                Certificate.objects, "id", "course_id", "certificate_number", "holder_name",
+                "issued_at", "expires_at", "revoked_at", "verification_token",
+            ),
+            "reviews": rows(
+                CourseReview.objects, "id", "course_id", "rating", "comment", "created_at", "updated_at",
+            ),
+            "lesson_notes": rows(
+                LessonNote.objects, "lesson_id", "content", "created_at", "updated_at",
+            ),
+            "login_events": rows(
+                ConnectionEvent.objects, "created_at", "login_method", "ip", "user_agent",
+                "browser", "os", "local_time", "browser_language", "timezone",
+                "screen_width", "screen_height", "country", "country_code", "city",
+                "region", "latitude", "longitude",
+            ),
+        }
+
     @extend_schema(
         tags=["User"],
         summary="Export GDPR : toutes les données du compte courant",
@@ -294,7 +340,9 @@ class CustomUserViewSet(
             "Retourne un dump JSON de toutes les données personnelles "
             "associées au compte de l'utilisateur connecté. Couvre le "
             "profil, les domaines (owned / managed / membre), les demandes "
-            "d'adhésion et les sessions de quiz. Pensé pour le droit "
+            "d'adhésion, les sessions de quiz, les inscriptions et la "
+            "progression LMS, les certificats, les avis, les notes et les "
+            "journaux de connexion. Pensé pour le droit "
             "d'accès / portabilité du RGPD : le frontend télécharge la "
             "réponse en ``application/json`` sous le nom "
             "``quizonline-export-<email>.json``."
@@ -322,14 +370,14 @@ class CustomUserViewSet(
         join_requests = list(
             DomainJoinRequest.objects.filter(user=user)
             .order_by("-created_at")
-            .values("id", "domain_id", "status", "created_at", "decided_at", "reason")
+            .values("id", "domain_id", "status", "created_at", "decided_at", "reject_reason")
         )
         quizzes = list(
             Quiz.objects.filter(user=user)
             .order_by("-created_at")
             .values(
-                "id", "quiz_template_id", "started_at", "ended_at",
-                "earned_score", "max_score", "max_questions", "created_at",
+                "id", "quiz_template_id", "domain_id", "active",
+                "started_at", "ended_at", "created_at",
             )
         )
 
@@ -356,6 +404,7 @@ class CustomUserViewSet(
             },
             "join_requests": join_requests,
             "quizzes": quizzes,
+            **self._export_lms_data(user),
         }
         return Response(payload, status=status.HTTP_200_OK)
 
@@ -400,20 +449,11 @@ class CustomUserViewSet(
                 },
                 status=status.HTTP_409_CONFLICT,
             )
-        # Capture identifying info before delete so the audit row keeps a
-        # human-readable trace even though the FK becomes NULL.
-        display_name = user.get_display_name()
-        email = user.email
+        # Log the id only: an erased account must not survive in the logs
+        # under its e-mail or name (GDPR, audit M19).
         user_id = user.id
         user.delete()
-        logger.info(
-            "user.self_delete",
-            # `name` est un attribut reserve de LogRecord : le passer dans
-            # `extra` leve KeyError des que le logger est en INFO. Bug reel sur
-            # le chemin de suppression de compte, invisible en test (niveau de
-            # log plus haut), trouve par ruff 0.16 (G101).
-            extra={"user_id": user_id, "email": email, "display_name": display_name},
-        )
+        logger.info("user.self_delete", extra={"user_id": user_id})
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

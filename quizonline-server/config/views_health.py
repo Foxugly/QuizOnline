@@ -12,6 +12,11 @@ Three layered checks:
 The endpoint returns ``200`` when ``db`` and ``cache`` both pass,
 ``503`` otherwise. The outbox count is informational only.
 
+The endpoint is public (uptime monitors), so failure details are only
+logged, never returned, and the Celery broker ping is cached for
+``_CELERY_PROBE_TTL_SECONDS`` so anonymous traffic cannot make every hit
+wait on it.
+
 Keeping the payload backward-compatible: ``status`` at the top level is
 still ``"ok"`` or now ``"degraded"`` so existing uptime checks that
 only assert ``status == "ok"`` still flip when something breaks.
@@ -47,6 +52,8 @@ def _resolve_version() -> str:
 _CACHE_PROBE_KEY = "_healthcheck:probe"
 _CACHE_PROBE_VALUE = "1"
 _CACHE_PROBE_TTL_SECONDS = 5
+_CELERY_PROBE_KEY = "_healthcheck:celery"
+_CELERY_PROBE_TTL_SECONDS = 30
 
 
 def _check_db() -> tuple[bool, str | None]:
@@ -91,6 +98,24 @@ def _check_celery() -> tuple[bool, str | None]:
     return True, None
 
 
+def _cached_celery_check() -> bool:
+    """``_check_celery`` at most once per ``_CELERY_PROBE_TTL_SECONDS``."""
+    try:
+        cached = cache.get(_CELERY_PROBE_KEY)
+    except Exception:  # pragma: no cover - cache outage, reported by _check_cache
+        cached = None
+    if cached is not None:
+        return bool(cached)
+    ok, err = _check_celery()
+    if not ok:
+        logger.warning("healthcheck.celery.failed: %s", err)
+    try:
+        cache.set(_CELERY_PROBE_KEY, ok, _CELERY_PROBE_TTL_SECONDS)
+    except Exception:  # pragma: no cover - cache outage
+        pass
+    return ok
+
+
 def _outbox_pending_count() -> int:
     # Lazy import keeps a circular-import risk away from settings load.
     try:
@@ -106,8 +131,12 @@ def _outbox_pending_count() -> int:
 def health_check(request) -> JsonResponse:
     db_ok, db_err = _check_db()
     cache_ok, cache_err = _check_cache()
-    celery_ok, celery_err = _check_celery()
+    celery_ok = _cached_celery_check()
     outbox_pending = _outbox_pending_count()
+    # Details go to the logs only: the endpoint is public.
+    for name, err in (("db", db_err), ("cache", cache_err)):
+        if err:
+            logger.warning("healthcheck.%s.failed: %s", name, err)
 
     # ``db`` + ``cache`` flip the overall status because they back
     # every request. Celery is informational — a flaky worker should
@@ -118,9 +147,9 @@ def health_check(request) -> JsonResponse:
         "status": "ok" if overall_ok else "degraded",
         "version": _resolve_version(),
         "checks": {
-            "db": {"ok": db_ok, **({"error": db_err} if db_err else {})},
-            "cache": {"ok": cache_ok, **({"error": cache_err} if cache_err else {})},
-            "celery": {"ok": celery_ok, **({"error": celery_err} if celery_err else {})},
+            "db": {"ok": db_ok},
+            "cache": {"ok": cache_ok},
+            "celery": {"ok": celery_ok},
         },
         "outbox_pending": outbox_pending,
     }

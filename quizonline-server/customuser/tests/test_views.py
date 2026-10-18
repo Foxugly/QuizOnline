@@ -252,16 +252,44 @@ class UserViewsTests(APITestCase):
         self.assertTrue(self.u1.check_password("u1pass123!"))
         self.assertTrue(self.u1.is_active)
 
-    def test_user_update_patch_staff_can_change_password_and_is_active(self):
+    def test_user_update_patch_staff_can_change_is_active_not_credentials(self):
+        """Audit M7: a non-superuser staff may moderate a member (is_active)
+        but never take over the account (password / e-mail)."""
         url = self.USER_DETAIL_URL(self.u1.id)
         self.client.force_authenticate(user=self.staff)
 
-        res = self.client.patch(url, {"password": "BrandNewPass123!", "is_active": False}, format="json")
+        res = self.client.patch(url, {"is_active": False}, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        for payload in ({"password": "BrandNewPass123!"}, {"email": "taken@example.com"}):
+            res = self.client.patch(url, payload, format="json")
+            self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, payload)
 
         self.u1.refresh_from_db()
-        self.assertTrue(self.u1.check_password("BrandNewPass123!"))
+        self.assertTrue(self.u1.check_password("u1pass123!"))
+        self.assertEqual(self.u1.email, "u1@example.com")
         self.assertFalse(self.u1.is_active)
+
+    def test_superuser_can_change_password_and_email(self):
+        url = self.USER_DETAIL_URL(self.u1.id)
+        self.client.force_authenticate(user=self.superuser)
+        res = self.client.patch(
+            url, {"password": "BrandNewPass123!", "email": "u1b@example.com"}, format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.u1.refresh_from_db()
+        self.assertTrue(self.u1.check_password("BrandNewPass123!"))
+        self.assertEqual(self.u1.email, "u1b@example.com")
+
+    def test_staff_cannot_edit_a_superuser_or_staff_member(self):
+        """Audit M7: a superuser sharing the staff's domain is out of reach."""
+        self.domain.members.add(self.superuser)
+        self.client.force_authenticate(user=self.staff)
+        res = self.client.patch(
+            self.USER_DETAIL_URL(self.superuser.id), {"first_name": "Pwned"}, format="json",
+        )
+        self.assertIn(res.status_code, (status.HTTP_400_BAD_REQUEST, status.HTTP_403_FORBIDDEN))
+        self.superuser.refresh_from_db()
+        self.assertNotEqual(self.superuser.first_name, "Pwned")
 
     def test_only_superuser_can_change_nb_domain_max(self):
         url = self.USER_DETAIL_URL(self.u1.id)

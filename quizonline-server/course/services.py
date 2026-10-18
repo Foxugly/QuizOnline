@@ -143,6 +143,15 @@ def import_course_from_dict(*, payload: dict, target_domain, by_user) -> Course:
             )
             _apply_translations(lesson, l_payload.get("translations", {}), allowed)
             for b_payload in l_payload.get("blocks", []) or []:
+                from block.url_policy import block_url_errors
+
+                url_errors = block_url_errors(
+                    video_provider=b_payload.get("video_provider", ""),
+                    video_url=b_payload.get("video_url", ""),
+                    external_url=b_payload.get("external_url", ""),
+                )
+                if url_errors:
+                    raise ValidationError(url_errors)
                 block = Block.objects.create(
                     target=lesson,
                     block_type=b_payload.get("block_type", Block.TYPE_RICH_TEXT),

@@ -94,7 +94,7 @@ def test_block_embed_requires_external_url(lesson):
     b = _block(lesson, Block.TYPE_EMBED)
     with pytest.raises(ValidationError):
         b.full_clean()
-    b.external_url = "https://example.com/x"
+    b.external_url = "https://www.youtube.com/embed/dQw4w9WgXcQ"
     b.full_clean()
 
 

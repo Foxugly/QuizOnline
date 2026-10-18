@@ -5,6 +5,12 @@ class TokenObtainRateThrottle(AnonRateThrottle):
     scope = "token_obtain"
 
 
+class TokenRefreshRateThrottle(AnonRateThrottle):
+    """Per-IP cap on ``/token/refresh/`` (it had no throttle at all). Loose
+    enough for several tabs behind one NAT; ``THROTTLE_TOKEN_REFRESH``."""
+    scope = "token_refresh"
+
+
 class RegisterRateThrottle(AnonRateThrottle):
     """Cap how often a single IP can create accounts. Registration is
     otherwise only guarded by Turnstile, which is disabled when

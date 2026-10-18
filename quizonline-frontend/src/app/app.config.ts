@@ -1,4 +1,4 @@
-import {APP_INITIALIZER, ApplicationConfig, isDevMode} from '@angular/core';
+import {APP_INITIALIZER, ApplicationConfig, ErrorHandler, isDevMode} from '@angular/core';
 import {provideRouter, TitleStrategy} from '@angular/router';
 import {AppTitleStrategy} from './shared/i18n/app-title-strategy';
 import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/http';
@@ -18,6 +18,7 @@ import {resolveApiBaseUrl} from './shared/api/runtime-api-base-url';
 import {PrimeNGTranslationService} from './shared/i18n/primeng-translation.service';
 import {TranslocoHttpLoader} from './core/i18n/transloco-loader';
 import {TranslocoLangSync} from './core/i18n/transloco-lang-sync.service';
+import {SentryErrorHandler} from './shared/monitoring/sentry-init';
 
 // Emerald is the single fleet accent (STANDARD-frontend-layout.md §9). Remap BOTH
 // the `primary` semantic AND the `green` primitive onto Emerald so that
@@ -59,6 +60,8 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync('noop'),
     // MessageService alimente le <p-toast> unique (app.html) via AppToastService.
     MessageService,
+    // Errors caught by Angular reach Sentry too (no-op without a DSN).
+    {provide: ErrorHandler, useClass: SentryErrorHandler},
     // 🔹 PrimeNG theme — emerald fleet accent + dark mode via `.dark-mode`
     //    (toggled on <html> by ThemeService / the anti-FOUC script).
     providePrimeNG({

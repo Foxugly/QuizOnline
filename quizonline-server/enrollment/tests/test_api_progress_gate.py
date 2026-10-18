@@ -105,7 +105,8 @@ def test_lesson_in_draft_section_is_refused(live_lesson, learner):
     draft_section = Section.objects.create(course=live_lesson.section.course, order=1)
     lesson = Lesson.objects.create(section=draft_section, slug="in-draft", order=0, is_published=True)
     resp = _auth(learner).post(_url("complete-lesson", lesson), {}, format="json")
-    assert resp.status_code == 403
+    # Hidden from learners (Lesson.visible_to needs a published section).
+    assert resp.status_code == 404
 
 
 @pytest.mark.django_db

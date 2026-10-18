@@ -1,4 +1,12 @@
+import {ErrorHandler, Injectable} from '@angular/core';
+
 import {environment} from '../../../environments/environment';
+import {scrubBreadcrumb, scrubEvent} from './sentry-scrub';
+
+type SentryModule = typeof import('@sentry/angular');
+
+/** Set once the lazily-imported SDK is initialised. */
+let sentry: SentryModule | null = null;
 
 type RuntimeSentryWindow = typeof globalThis & {
   __QUIZONLINE_SENTRY_DSN?: string;
@@ -44,9 +52,29 @@ export async function initSentry(): Promise<void> {
 
   Sentry.init({
     dsn,
-    environment: w.__QUIZONLINE_SENTRY_ENV ?? (environment.production ? 'production' : 'development'),
-    release: w.__QUIZONLINE_SENTRY_RELEASE ?? environment.sentryRelease ?? '',
+    environment: w.__QUIZONLINE_SENTRY_ENV || (environment.production ? 'production' : 'development'),
+    // nginx injects an empty string when SSM has no SENTRY_RELEASE: fall
+    // back to the build's own release (the git SHA stamped by deploy.yml).
+    release: w.__QUIZONLINE_SENTRY_RELEASE || environment.sentryRelease || undefined,
     tracesSampleRate: 0.0,
     sendDefaultPii: false,
+    // One-time tokens live in some route paths: never ship them.
+    beforeSend: (event) => scrubEvent(event),
+    beforeBreadcrumb: (crumb) => scrubBreadcrumb(crumb),
   });
+  sentry = Sentry;
+}
+
+/**
+ * Angular routes errors it catches (templates, lifecycle hooks, zone
+ * tasks) to the ``ErrorHandler`` — not to ``window.onerror`` — so the
+ * SDK's global handlers never saw them (audit I9). This handler keeps
+ * the console output and forwards to Sentry once the SDK is loaded.
+ */
+@Injectable()
+export class SentryErrorHandler extends ErrorHandler {
+  override handleError(error: unknown): void {
+    super.handleError(error);
+    sentry?.captureException(error);
+  }
 }

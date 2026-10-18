@@ -74,7 +74,7 @@ def _domain_name_for(domain) -> str:
     return domain.safe_translation_getter("name", any_language=True) or f"Domain#{domain.pk}"
 
 
-def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
+def send_domain_transfer_email(*, domain, initiator, future_owner, nonce: str) -> None:
     """
     Email the proposed future owner with a signed transfer link.
     Bound to ``future_owner.email`` — the accept endpoint will refuse
@@ -85,6 +85,7 @@ def send_domain_transfer_email(*, domain, initiator, future_owner) -> None:
         domain_id=domain.id,
         future_owner_id=future_owner.id,
         initiator_id=initiator.id,
+        nonce=nonce,
     )
     accept_url = frontend_url(f"transfer/accept/{token}")
     domain_name = _domain_name_for(domain)

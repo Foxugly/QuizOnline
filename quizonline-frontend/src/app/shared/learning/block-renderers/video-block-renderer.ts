@@ -36,6 +36,7 @@ import {getBlockRenderersUiText} from './block-renderers.i18n';
       @case ('youtube') {
         <div class="video-frame">
           <iframe [src]="embedUrl()" [title]="title()" frameborder="0" loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   referrerpolicy="strict-origin-when-cross-origin"
                   allowfullscreen></iframe>
@@ -50,6 +51,7 @@ import {getBlockRenderersUiText} from './block-renderers.i18n';
       @case ('vimeo') {
         <div class="video-frame">
           <iframe [src]="embedUrl()" [title]="title()" frameborder="0" loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                   allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
         </div>
         @if (block().video_url; as url) {

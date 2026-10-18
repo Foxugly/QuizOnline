@@ -45,7 +45,7 @@ export class UserMenuComponent implements OnInit {
 
   logout() {
     this.open.set(false);
-    this.auth.logout();
+    this.auth.signOut();
     void this.router.navigate(['/login']);
   }
 
