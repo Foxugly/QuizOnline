@@ -28,6 +28,7 @@ quizonline-server/staticfiles/
 quizonline-server/media/question_media/*
 !quizonline-server/media/question_media/dummy.txt
 quizonline-server/media/lms/
+quizonline-server/private_media/
 
 # Compiled gettext message catalogs (build from .po via `manage.py compilemessages`)
 quizonline-server/locale/**/*.mo

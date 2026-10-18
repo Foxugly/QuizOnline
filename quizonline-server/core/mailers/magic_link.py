@@ -62,14 +62,13 @@ def _magic_link_copy(language_code: str) -> dict[str, str]:
 
 def send_magic_link_email(*, user) -> None:
     """
-    Mail the user a one-shot magic-link to sign in. Idempotent: each
-    call mints a fresh token (the TTL is the only one-shot guarantee
-    — see ``customuser.services.exchange_magic_link`` for the
-    server-side enforcement).
+    Mail the user a one-shot magic-link to sign in. Each call mints a
+    fresh token; ``customuser.services.exchange_magic_link`` enforces
+    single use (and invalidation on password change / later login).
     """
     if not getattr(user, "email", ""):
         return
-    token = make_magic_link_token(user_id=user.id)
+    token = make_magic_link_token(user)
     link = frontend_url(f"auth/magic/{token}")
     copy = _magic_link_copy(user_language(user))
 

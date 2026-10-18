@@ -16,9 +16,14 @@ from .pdf_export import build_certificate_pdf
 def render_certificate_pdf(cert_id: int) -> None:
     cert = Certificate.objects.get(pk=cert_id)
     payload = build_certificate_pdf(cert)
-    cert.pdf.save(f"{cert.certificate_number}.pdf", ContentFile(payload), save=False)
+    old_name = cert.pdf.name if cert.pdf else None
+    # The storage name is random (see ``certificate_pdf_upload_to``); the
+    # download filename is set by the view, not by the stored name.
+    cert.pdf.save("certificate.pdf", ContentFile(payload), save=False)
     cert.pdf_rendered_at = timezone.now()
     cert.save(update_fields=["pdf", "pdf_rendered_at"])
+    if old_name and old_name != cert.pdf.name:
+        cert.pdf.storage.delete(old_name)
 
 
 # Two reminder milestones before ``expires_at``, on DISJOINT day-bands so a
@@ -42,6 +47,7 @@ def send_certificate_expiry_reminders() -> int:
     for upper_days, lower_days, stamp_field in _REMINDER_MILESTONES:
         qs = Certificate.objects.filter(
             revoked_at__isnull=True,
+            user__isnull=False,
             expires_at__gt=now + timedelta(days=lower_days),
             expires_at__lte=now + timedelta(days=upper_days),
             **{f"{stamp_field}__isnull": True},

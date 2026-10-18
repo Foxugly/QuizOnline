@@ -96,6 +96,7 @@ def issue_certificate_if_eligible(*, user, course: Course) -> Certificate | None
         existing.save(update_fields=["revoked_at", "revoke_reason"])
     cert = Certificate.objects.create(
         user=user,
+        holder_name=Certificate.holder_name_for(user),
         course=course,
         certificate_number=_generate_certificate_number(),
         verification_token=secrets.token_urlsafe(32),

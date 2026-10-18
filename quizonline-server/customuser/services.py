@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils import timezone
 from rest_framework_simplejwt.token_blacklist.models import (
     BlacklistedToken,
     OutstandingToken,
@@ -13,7 +14,11 @@ from core.mailers.magic_link import send_magic_link_email
 from domain.models import Domain, DomainJoinRequest, JoinPolicy
 from domain.services import users_who_can_approve
 
-from .tokens import resolve_user_from_uid, token_is_valid
+from .tokens import (
+    email_confirmation_token_generator,
+    resolve_user_from_uid,
+    token_is_valid,
+)
 
 User = get_user_model()
 
@@ -56,18 +61,30 @@ def request_magic_link(email: str) -> None:
     send_magic_link_email(user=user)
 
 
-def exchange_magic_link(*, user_id: int):
+def exchange_magic_link(*, user_id: int, state: str):
     """
     Resolve the user id baked in a magic-link token and return the user
     iff it would normally be allowed to log in. Returns ``None`` for any
     refusal so the view layer can map a single "invalid or expired"
     response shape and never leak the cause.
+
+    Single use: under a row lock, the account-state fingerprint carried by
+    the token must still match (same password hash, same ``last_login``),
+    then ``last_login`` is bumped — which invalidates the token for any
+    concurrent or later replay. A password change invalidates it too.
     """
-    user = User.objects.filter(pk=user_id).first()
-    if user is None:
-        return None
-    if not user.is_active or not getattr(user, "email_confirmed", False):
-        return None
+    from .magic_link_token import fingerprint_matches
+
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(pk=user_id).first()
+        if user is None:
+            return None
+        if not user.is_active or not getattr(user, "email_confirmed", False):
+            return None
+        if not fingerprint_matches(user, state):
+            return None
+        user.last_login = timezone.now()
+        user.save(update_fields=["last_login"])
     return user
 
 
@@ -92,7 +109,7 @@ def confirm_password_reset(uid: str, token: str, new_password: str):
 
 def confirm_email(uid: str, token: str):
     user = resolve_user_from_uid(uid)
-    if not token_is_valid(user, token):
+    if not token_is_valid(user, token, email_confirmation_token_generator):
         return None
 
     if not user.email_confirmed:

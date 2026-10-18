@@ -12,8 +12,6 @@ def test_connection_event_minimal_create():
     )
     assert ev.pk is not None
     assert ev.created_at is not None
-    # deleting the user keeps the row (SET_NULL) + the email snapshot
+    # GDPR: deleting the user deletes their login logs (IP, geo, UA)
     user.delete()
-    ev.refresh_from_db()
-    assert ev.user is None
-    assert ev.account_email == "a@b.com"
+    assert not ConnectionEvent.objects.filter(pk=ev.pk).exists()

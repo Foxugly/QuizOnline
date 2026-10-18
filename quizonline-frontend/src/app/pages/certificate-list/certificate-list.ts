@@ -11,6 +11,7 @@ import {PageHeader} from '../../shared/components/page-header/page-header';
 import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
+import {saveBlob} from '../../shared/media/save-blob';
 
 import {getCertificateListUiText} from './certificate-list.i18n';
 
@@ -37,7 +38,7 @@ interface CertificateRowVm {
   courseTitle: string;
   issuedAt: string;
   expiresAt: string | null;
-  pdfUrl: string | null;
+  hasPdf: boolean;
   viewHref: string;
 }
 
@@ -67,13 +68,20 @@ export class CertificateList {
       courseTitle: row.course_title,
       issuedAt: row.issued_at,
       expiresAt: row.expires_at,
-      pdfUrl: row.pdf_url,
+      hasPdf: !!row.pdf_url,
       viewHref: CERTIFICATE_VIEW(row.id),
     })),
   );
 
   constructor() {
     this.load();
+  }
+
+  protected download(row: CertificateRowVm): void {
+    this.enrollment.certificatePdf(row.id).subscribe({
+      next: (blob) => saveBlob(blob, `${row.certificateNumber}.pdf`),
+      error: (err: unknown) => logApiError('lms.certificate.pdf', err),
+    });
   }
 
   protected load(): void {

@@ -15,7 +15,7 @@ def build_certificate_pdf(cert) -> bytes:
     course = cert.course
     user = cert.user
     domain = course.domain
-    lang = user.language or "fr"
+    lang = (user.language if user is not None else None) or "fr"
     with translation.override(lang):
         title = course.safe_translation_getter("title", language_code=lang, any_language=True) or course.slug
         title_label = _("Certificate of Completion")
@@ -64,7 +64,7 @@ def build_certificate_pdf(cert) -> bytes:
     story += [
         Paragraph(title_label, big),
         Spacer(1, 15 * mm),
-        Paragraph(user.get_display_name(), medium),
+        Paragraph(cert.display_holder_name, medium),
         Spacer(1, 5 * mm),
         Paragraph(verb, styles["Normal"]),
         Paragraph(f"<b>{title}</b>", medium),

@@ -50,6 +50,10 @@ Monorepo with two main modules:
 - Email: outbox pattern with Celery delivery
 - Tests: `pytest` and Django test runner
 - Course create: the slug is always made unique server-side (`-2`, `-3`…, explicit slugs too) with a bounded retry on a concurrent-insert collision; a model `full_clean()` error is returned as a DRF 400 keyed by API field names (`language_code`, not `language`), model-level errors under `non_field_errors`. Section / lesson creates pick `order` (and the lesson slug) server-side too.
+- Private files (certificate PDFs) use `core.storage.private_storage` (`private_media/`, outside `MEDIA_ROOT`, random names) and are served only by a permission-checked view via `core.private_files.private_file_response` (prod: `X-Accel-Redirect` to nginx's `internal` `/_protected/`). Never put personal documents under `/media/`.
+- Block uploads are allow-listed by extension AND magic bytes (`block/upload_validation.py`; mirror any change in the editors' `accept`). nginx adds a sandboxing CSP + `attachment` on `/media/`.
+- Auth tokens: e-mail confirmation uses `customuser.tokens.email_confirmation_token_generator` (never the password-reset generator); magic links are single-use (account-state fingerprint + `last_login` bump under a row lock).
+- GDPR: account deletion detaches certificates (`holder_name` snapshot, no e-mail) and cascades login logs; `core.tasks.purge_expired_personal_data` (daily beat) applies `RETENTION_CONNECTION_EVENT_DAYS` (365) / `RETENTION_OUTBOUND_EMAIL_DAYS` (30).
 - Lint: ruff is pinned to the same version in `requirements.txt`, `.pre-commit-config.yaml` (`rev:`) and CI — bump all three together.
 
 ## Domain features (Phase B / C / D)

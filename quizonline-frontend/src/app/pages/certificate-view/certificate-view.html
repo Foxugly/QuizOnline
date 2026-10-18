@@ -51,14 +51,11 @@
 
       <footer class="cert-actions">
         @if (cert.pdf_url) {
-          <a
-            class="p-button p-button-primary"
-            [href]="cert.pdf_url"
-            target="_blank"
-            rel="noopener noreferrer">
-            <i class="pi pi-download"></i>
-            <span>{{ ui().downloadButton }}</span>
-          </a>
+          <p-button
+            icon="pi pi-download"
+            [label]="ui().downloadButton"
+            type="button"
+            (onClick)="download(cert)" />
         }
         <p-button
           [routerLink]="listHref"

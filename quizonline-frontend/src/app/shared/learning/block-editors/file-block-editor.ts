@@ -66,8 +66,10 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
           <span class="current-file__hint">({{ ui().currentFileLabel }})</span>
         </a>
       }
+      <!-- Mirrors the server allow-list (block/upload_validation.py). -->
       <p-fileupload
         mode="basic"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.txt,.csv,.zip,.mp3,.mp4,.png,.jpg,.jpeg,.gif,.webp"
         [auto]="true"
         [customUpload]="true"
         [chooseLabel]="ui().chooseFile"

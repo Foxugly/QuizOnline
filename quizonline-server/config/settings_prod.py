@@ -57,6 +57,10 @@ DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=600)
 # than the 30-80 ms a brand-new TCP+TLS+auth handshake would burn.
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = env.bool("DB_CONN_HEALTH_CHECKS", default=True)
 
+# nginx serves private files from its ``internal`` /_protected/ location
+# (deploy/nginx/quizonline.foxugly.com.conf) after Django's permission check.
+PRIVATE_MEDIA_X_ACCEL_PREFIX = env("PRIVATE_MEDIA_X_ACCEL_PREFIX", default="") or "/_protected/"
+
 CACHES = {"default": env.cache("CACHE_URL", default="redis://127.0.0.1:6379/2")}
 PARLER_ENABLE_CACHING = True
 

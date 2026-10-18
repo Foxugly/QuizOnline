@@ -6,7 +6,19 @@ from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
+from core.storage import random_name
+
 from .querysets import BlockQuerySet
+from .upload_validation import validate_block_file, validate_block_image
+
+
+def block_image_upload_to(instance, filename: str) -> str:
+    return random_name("lms/blocks/img", filename)
+
+
+def block_file_upload_to(instance, filename: str) -> str:
+    # Keep the original name (shown to learners) under a random directory.
+    return random_name("lms/blocks/file", filename, keep_name=True)
 
 
 class Block(TranslatableModel):
@@ -78,10 +90,18 @@ class Block(TranslatableModel):
     order = models.PositiveIntegerField(default=0, db_index=True)
     is_required = models.BooleanField(default=False)
 
-    image = models.ImageField(upload_to="lms/blocks/img/", blank=True, null=True)
+    # Uploads: allow-listed types (extension + content) and a random path so
+    # stored files cannot be guessed. See ``block/upload_validation.py``.
+    image = models.ImageField(
+        upload_to=block_image_upload_to, blank=True, null=True,
+        validators=[validate_block_image],
+    )
     video_url = models.URLField(blank=True)
     video_provider = models.CharField(max_length=16, choices=VIDEO_PROVIDER_CHOICES, blank=True)
-    file = models.FileField(upload_to="lms/blocks/file/", blank=True, null=True)
+    file = models.FileField(
+        upload_to=block_file_upload_to, blank=True, null=True,
+        validators=[validate_block_file],
+    )
     external_url = models.URLField(blank=True)
     code_language = models.CharField(max_length=32, blank=True)
     code_content = models.TextField(blank=True)

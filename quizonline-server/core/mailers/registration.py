@@ -1,5 +1,7 @@
 from django.conf import settings
 
+from customuser.tokens import email_confirmation_token_generator
+
 from ._common import (
     build_user_token_link,
     frontend_url,
@@ -46,7 +48,9 @@ def _registration_copy(language_code: str) -> dict[str, str]:
 
 def _build_registration_body(user) -> str:
     copy = _registration_copy(getattr(user, "language", None))
-    confirmation_link = build_user_token_link("/user/confirm-email", user)
+    confirmation_link = build_user_token_link(
+        "/user/confirm-email", user, generator=email_confirmation_token_generator,
+    )
     return (
         f"{copy['greeting']} {user.get_display_name()},\n\n"
         f"{copy['registration_intro']}\n"
@@ -57,7 +61,9 @@ def _build_registration_body(user) -> str:
 
 def _build_registration_html(user) -> str:
     copy = _registration_copy(getattr(user, "language", None))
-    confirmation_link = build_user_token_link("/user/confirm-email", user)
+    confirmation_link = build_user_token_link(
+        "/user/confirm-email", user, generator=email_confirmation_token_generator,
+    )
     login_link = frontend_url("/login")
     return render_html_email(
         heading=f"{copy['greeting']} {user.get_display_name()},",
