@@ -3,7 +3,7 @@ import {HttpTestingController, TestRequest, provideHttpClientTesting} from '@ang
 import {TestBed} from '@angular/core/testing';
 
 import {AuthInterceptor, refreshRejected} from './auth-interceptor';
-import {AuthService} from './services/auth/auth';
+import {AuthService, SESSION_HINT_KEY} from './services/auth/auth';
 
 describe('AuthInterceptor', () => {
   let http: HttpClient;
@@ -13,8 +13,7 @@ describe('AuthInterceptor', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    localStorage.setItem('refresh_token', 'r-1');
-    localStorage.setItem('remember_me', '1');
+    localStorage.setItem(SESSION_HINT_KEY, '1');
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([AuthInterceptor])),
@@ -43,11 +42,29 @@ describe('AuthInterceptor', () => {
   }
   const expectRefresh = () => awaitRequest((url) => url.endsWith('/token/refresh/'));
 
-  it('only a 400/401 refresh ends the session', () => {
+  it('only a 400/401/403 refresh ends the session', () => {
     expect(refreshRejected({status: 401})).toBe(true);
+    expect(refreshRejected({status: 403})).toBe(true);
     expect(refreshRejected({status: 400})).toBe(true);
     expect(refreshRejected({status: 0})).toBe(false);
     expect(refreshRejected({status: 503})).toBe(false);
+  });
+
+  it('refreshes through the cookie before a cold-start API call', async () => {
+    const done = new Promise<void>((resolve) =>
+      http.get('/api/v1/user/me/').subscribe({next: () => resolve()}),
+    );
+    const refresh = await expectRefresh();
+    expect(refresh.request.headers.get('X-Auth-Mode')).toBe('cookie');
+    expect(refresh.request.withCredentials).toBe(true);
+    refresh.flush({access: 'a-1'});
+    const replay = await awaitRequest((url) => url === '/api/v1/user/me/');
+    expect(replay.request.headers.get('Authorization')).toBe('Bearer a-1');
+    // Only the auth calls carry credentials / the opt-in header.
+    expect(replay.request.withCredentials).toBe(false);
+    expect(replay.request.headers.has('X-Auth-Mode')).toBe(false);
+    replay.flush({});
+    await done;
   });
 
   it('keeps the session when the refresh fails with a 5xx (audit I9)', async () => {
@@ -56,27 +73,29 @@ describe('AuthInterceptor', () => {
     );
     (await expectRefresh()).flush({}, {status: 503, statusText: 'Unavailable'});
     await done;
-    expect(auth.getRefreshToken()).toBe('r-1');
+    expect(localStorage.getItem(SESSION_HINT_KEY)).toBe('1');
+    expect(auth.isLoggedIn()).toBe(true);
   });
 
-  it('logs out when the server rejects the refresh token', async () => {
+  it('logs out when the server rejects the refresh cookie', async () => {
     const done = new Promise<void>((resolve) =>
       http.get('/api/v1/user/me/').subscribe({error: () => resolve()}),
     );
     (await expectRefresh()).flush({}, {status: 401, statusText: 'Unauthorized'});
     await done;
-    expect(auth.getRefreshToken()).toBeNull();
+    expect(localStorage.getItem(SESSION_HINT_KEY)).toBeNull();
+    expect(auth.isLoggedIn()).toBe(false);
   });
 
   it('does not log out when the replayed request fails', async () => {
     const status = new Promise<number>((resolve) =>
       http.get('/api/v1/user/me/').subscribe({error: (e) => resolve(e.status)}),
     );
-    (await expectRefresh()).flush({access: 'a-2', refresh: 'r-2'});
+    (await expectRefresh()).flush({access: 'a-2'});
     const replay = await awaitRequest((url) => url === '/api/v1/user/me/');
     expect(replay.request.headers.get('Authorization')).toBe('Bearer a-2');
     replay.flush({}, {status: 500, statusText: 'Server Error'});
     expect(await status).toBe(500);
-    expect(auth.getRefreshToken()).toBe('r-2');
+    expect(auth.isLoggedIn()).toBe(true);
   });
 });

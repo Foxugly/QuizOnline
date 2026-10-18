@@ -23,6 +23,7 @@ from domain.models import Domain, DomainJoinRequest
 from domain.serializers import DomainJoinRequestReadSerializer
 from quiz.models import Quiz
 
+from . import refresh_cookie
 from .magic_link_token import (
     MagicLinkTokenExpired,
     MagicLinkTokenInvalid,
@@ -61,6 +62,11 @@ from .throttling import (
     PasswordResetConfirmRateThrottle,
     PasswordResetRateThrottle,
     RegisterRateThrottle,
+)
+from .token_serializers import (
+    AUTH_MODE_PARAMETER,
+    OriginRejectedSerializer,
+    PasswordChangeResponseSerializer,
 )
 from .turnstile import get_remote_ip, turnstile_enabled, verify_turnstile_token
 
@@ -428,8 +434,11 @@ class CustomUserViewSet(
             "PDF reste) pour rester vérifiables."
         ),
         request=None,
+        parameters=[AUTH_MODE_PARAMETER],
         responses={
-            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Account deleted."),
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(
+                description="Account deleted (cookie mode: the refresh cookie is cleared)."
+            ),
             status.HTTP_409_CONFLICT: ErrorDetailSerializer,
         },
     )
@@ -454,7 +463,10 @@ class CustomUserViewSet(
         user_id = user.id
         user.delete()
         logger.info("user.self_delete", extra={"user_id": user_id})
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        if refresh_cookie.wants_cookie(request):
+            refresh_cookie.clear_refresh_cookie(response)
+        return response
 
 
 @extend_schema_view(
@@ -613,10 +625,19 @@ class PasswordResetConfirmView(GenericAPIView):
     post=extend_schema(
         tags=["Auth"],
         summary="Changer son mot de passe",
-        description="Utilisateur authentifié uniquement.",
+        description=(
+            "Utilisateur authentifié uniquement. Révoque tous les refresh tokens "
+            "et renvoie une nouvelle paire pour la session appelante (en mode "
+            "cookie, le refresh token est posé dans le cookie HttpOnly)."
+        ),
         request=PasswordChangeSerializer,
+        parameters=[AUTH_MODE_PARAMETER],
         responses={
-            200: PasswordResetOKSerializer,
+            200: PasswordChangeResponseSerializer,
+            403: OpenApiResponse(
+                response=OriginRejectedSerializer,
+                description="Cookie mode from an origin that is not allowed (code=origin_not_allowed)",
+            ),
             400: OpenApiResponse(
                 response=ErrorDetailSerializer,
                 description="Ancien mot de passe incorrect / validation",
@@ -630,6 +651,8 @@ class PasswordChangeView(GenericAPIView):
     serializer_class = PasswordChangeSerializer
 
     def post(self, request):
+        if (rejected := refresh_cookie.cookie_origin_guard(request)) is not None:
+            return rejected
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -641,9 +664,20 @@ class PasswordChangeView(GenericAPIView):
         if not change_password(user, old_password, new_password):
             return Response({"detail": "Ancien mot de passe incorrect."}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(
-            {"detail": "Mot de passe modifié avec succès."},
-            status=status.HTTP_200_OK,
+        # ``change_password`` revoked every refresh token (OPERATIONS §3.25):
+        # hand the calling session a fresh pair, keeping its "remember me"
+        # choice (carried by the access token's ``persist`` claim).
+        refresh = RefreshToken.for_user(user)
+        if refresh_cookie.wants_cookie(request) and not refresh_cookie.request_session_persists(request):
+            pair = refresh_cookie.session_only_pair(refresh)
+        else:
+            pair = {"access": str(refresh.access_token), "refresh": str(refresh)}
+        return refresh_cookie.deliver_tokens(
+            request,
+            Response(
+                {"detail": "Mot de passe modifié avec succès.", **pair},
+                status=status.HTTP_200_OK,
+            ),
         )
 
 
@@ -726,8 +760,13 @@ class MagicLinkRequestView(GenericAPIView):
         "refresh comme l'endpoint password classique."
     ),
     request=MagicLinkExchangeRequestSerializer,
+    parameters=[AUTH_MODE_PARAMETER],
     responses={
         status.HTTP_200_OK: MagicLinkExchangeResponseSerializer,
+        status.HTTP_403_FORBIDDEN: OpenApiResponse(
+            response=OriginRejectedSerializer,
+            description="Cookie mode from an origin that is not allowed (code=origin_not_allowed)",
+        ),
         status.HTTP_400_BAD_REQUEST: ErrorDetailSerializer,
         status.HTTP_410_GONE: ErrorDetailSerializer,
     },
@@ -739,6 +778,8 @@ class MagicLinkExchangeView(GenericAPIView):
     serializer_class = MagicLinkExchangeRequestSerializer
 
     def post(self, request):
+        if (rejected := refresh_cookie.cookie_origin_guard(request)) is not None:
+            return rejected
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -757,7 +798,10 @@ class MagicLinkExchangeView(GenericAPIView):
             return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
 
         refresh = RefreshToken.for_user(user)
-        return Response(
-            {"access": str(refresh.access_token), "refresh": str(refresh)},
-            status=status.HTTP_200_OK,
+        return refresh_cookie.deliver_tokens(
+            request,
+            Response(
+                {"access": str(refresh.access_token), "refresh": str(refresh)},
+                status=status.HTTP_200_OK,
+            ),
         )

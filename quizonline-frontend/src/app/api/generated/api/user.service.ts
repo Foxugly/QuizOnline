@@ -58,6 +58,11 @@ export interface UserMeCurrentDomainCreateRequestParams {
     setCurrentDomainRequestDto?: SetCurrentDomainRequestDto;
 }
 
+export interface UserMeDestroyRequestParams {
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
+}
+
 export interface UserMePartialUpdateRequestParams {
     patchedCustomUserProfileUpdateRequestDto?: PatchedCustomUserProfileUpdateRequestDto;
 }
@@ -368,16 +373,21 @@ export class UserApi extends BaseService {
      * Supprimer son compte (droit à l\&#39;effacement RGPD)
      * Supprime définitivement le compte de l\&#39;utilisateur connecté.  **Garde-fou** : refuse avec &#x60;&#x60;409 Conflict&#x60;&#x60; si l\&#39;utilisateur possède encore au moins un domaine actif. Il doit d\&#39;abord transférer la propriété (&#x60;&#x60;POST /api/v1/domain/{id}/transfer/&#x60;&#x60;) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.  **Effets en cascade** : tout le contenu créé par l\&#39;utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.  **RGPD** : les journaux de connexion (IP, géolocalisation) sont supprimés avec le compte. Les certificats déjà émis sont conservés mais détachés du compte (seul le nom imprimé sur le PDF reste) pour rester vérifiables.
      * @endpoint delete /api/v1/user/me/
+     * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public userMeDestroy(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public userMeDestroy(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public userMeDestroy(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public userMeDestroy(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public userMeDestroy(requestParameters?: UserMeDestroyRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public userMeDestroy(requestParameters?: UserMeDestroyRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public userMeDestroy(requestParameters?: UserMeDestroyRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public userMeDestroy(requestParameters?: UserMeDestroyRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const xAuthMode = requestParameters?.xAuthMode;
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         // authentication (jwtAuth) required
         localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');

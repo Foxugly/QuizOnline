@@ -11,6 +11,7 @@ import {CatalogLoader} from './shared/i18n/catalog-loader';
 import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
+import {AuthService} from './services/auth/auth';
 import {NetworkInterceptor} from './network-interceptor';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import {Configuration} from './api/generated/configuration';
@@ -108,6 +109,16 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (loader: CatalogLoader) => () => loader.preload(),
       deps: [CatalogLoader],
+      multi: true,
+    },
+    // Silent restore: the access token lives in memory only, so a fresh load
+    // re-obtains it from the HttpOnly refresh cookie before the first route
+    // guard runs. Only when the session hint (or a legacy token) says a
+    // session exists; never rejects (bounded by a timeout).
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (auth: AuthService) => () => auth.restore(),
+      deps: [AuthService],
       multi: true,
     },
     // Rattrape les onglets ouverts avant un deploiement, dont les chunks

@@ -10,6 +10,9 @@
 
 
 export interface TokenRefreshRequestDto { 
-    refresh: string;
+    /**
+     * Request: the refresh token. Required in body mode; in cookie mode (`X-Auth-Mode: cookie`) the HttpOnly refresh cookie is used when omitted. Response: the rotated refresh token. Omitted when the request sent `X-Auth-Mode: cookie`: the token is then set in the HttpOnly refresh cookie instead.
+     */
+    refresh?: string;
 }
 

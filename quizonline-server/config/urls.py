@@ -5,11 +5,11 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework_simplejwt.views import TokenBlacklistView, TokenRefreshView
 
 from config.views_health import health_check
 from customuser.auth import EmailConfirmedTokenObtainPairView
 from customuser.throttling import TokenRefreshRateThrottle
+from customuser.token_views import CookieTokenBlacklistView, CookieTokenRefreshView
 from customuser.views import MagicLinkExchangeView, MagicLinkRequestView
 
 
@@ -43,13 +43,13 @@ urlpatterns = [
     path("api/v1/token/", EmailConfirmedTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path(
         "api/v1/token/refresh/",
-        TokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]),
+        CookieTokenRefreshView.as_view(throttle_classes=[TokenRefreshRateThrottle]),
         name="token_refresh",
     ),
     # Logout: revoke the refresh token (the access token dies in <= 15 min).
     path(
         "api/v1/token/blacklist/",
-        TokenBlacklistView.as_view(throttle_classes=[TokenRefreshRateThrottle]),
+        CookieTokenBlacklistView.as_view(throttle_classes=[TokenRefreshRateThrottle]),
         name="token_blacklist",
     ),
 

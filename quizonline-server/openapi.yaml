@@ -66,6 +66,17 @@ paths:
         est actif et a confirmé son e-mail, puis émet une paire access / refresh comme
         l'endpoint password classique.
       summary: Échanger un token magique contre une paire JWT
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - Auth
       requestBody:
@@ -90,6 +101,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/MagicLinkExchangeResponse'
           description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OriginRejected'
+          description: Cookie mode from an origin that is not allowed (code=origin_not_allowed)
         '400':
           content:
             application/json:
@@ -5494,6 +5511,17 @@ paths:
       description: |-
         Takes a set of user credentials and returns an access and refresh JSON web
         token pair to prove the authentication of those credentials.
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - token
       requestBody:
@@ -5510,13 +5538,37 @@ paths:
         required: true
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+        '401':
+          description: Invalid credentials or e-mail not confirmed
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OriginRejected'
+          description: Cookie mode from an origin that is not allowed (code=origin_not_allowed)
   /api/v1/token/blacklist/:
     post:
       operationId: token_blacklist_create
-      description: |-
-        Takes a token and blacklists it. Must be used with the
-        `rest_framework_simplejwt.token_blacklist` app installed.
+      description: 'Blacklists a refresh token. Body mode: `{refresh}` required, 200.
+        Cookie mode (`X-Auth-Mode: cookie`): blacklists the body token or else the
+        HttpOnly cookie, always clears the cookie and answers 204 (idempotent).'
+      summary: Logout
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - token
       requestBody:
@@ -5530,16 +5582,41 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/TokenBlacklistRequest'
-        required: true
       responses:
         '200':
-          description: No response body
+          description: 'Body mode: token blacklisted'
+        '204':
+          description: 'Cookie mode: signed out, cookie cleared'
+        '401':
+          description: 'Body mode: invalid or expired refresh token'
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OriginRejected'
+          description: Cookie mode from an origin that is not allowed (code=origin_not_allowed)
   /api/v1/token/refresh/:
     post:
       operationId: token_refresh_create
-      description: |-
-        Takes a refresh type JSON web token and returns an access type JSON web
-        token if the refresh token is valid.
+      description: 'Generates a new access token and rotates the refresh token (the
+        presented one is blacklisted). Body mode: `{refresh}` in, `{access, refresh}`
+        out. Cookie mode (`X-Auth-Mode: cookie`): the body `refresh` is optional;
+        when absent the HttpOnly cookie is used (401 `refresh_cookie_missing` if there
+        is none); the rotated token is set in the cookie and omitted from the body.
+        A body token sent in cookie mode is the one-time migration path for SPAs that
+        still hold one in storage.'
+      summary: Refresh a token
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - token
       requestBody:
@@ -5553,7 +5630,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/TokenRefreshRequest'
-        required: true
       responses:
         '200':
           content:
@@ -5561,6 +5637,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenRefresh'
           description: ''
+        '401':
+          description: Refresh token invalid, expired or blacklisted (code=token_not_valid),
+            or no refresh cookie in cookie mode (code=refresh_cookie_missing)
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OriginRejected'
+          description: Cookie mode from an origin that is not allowed (code=origin_not_allowed)
   /api/v1/translate/batch/:
     post:
       operationId: translate_batch_create
@@ -6009,13 +6094,24 @@ paths:
 
         **RGPD** : les journaux de connexion (IP, géolocalisation) sont supprimés avec le compte. Les certificats déjà émis sont conservés mais détachés du compte (seul le nom imprimé sur le PDF reste) pour rester vérifiables.
       summary: Supprimer son compte (droit à l'effacement RGPD)
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - User
       security:
       - jwtAuth: []
       responses:
         '204':
-          description: Account deleted.
+          description: 'Account deleted (cookie mode: the refresh cookie is cleared).'
         '409':
           content:
             application/json:
@@ -6103,8 +6199,21 @@ paths:
   /api/v1/user/password/change/:
     post:
       operationId: user_password_change_create
-      description: Utilisateur authentifié uniquement.
+      description: Utilisateur authentifié uniquement. Révoque tous les refresh tokens
+        et renvoie une nouvelle paire pour la session appelante (en mode cookie, le
+        refresh token est posé dans le cookie HttpOnly).
       summary: Changer son mot de passe
+      parameters:
+      - in: header
+        name: X-Auth-Mode
+        schema:
+          type: string
+          enum:
+          - cookie
+        description: 'Web SPA only. `cookie` moves the refresh token into an HttpOnly,
+          Secure, SameSite=Lax cookie scoped to `/api/v1/token/` (and omits `refresh`
+          from the body); the request''s `Origin` must then be in CORS_ALLOWED_ORIGINS
+          (403 `origin_not_allowed`). Absent: body tokens.'
       tags:
       - Auth
       requestBody:
@@ -6126,8 +6235,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PasswordResetOK'
+                $ref: '#/components/schemas/PasswordChangeResponse'
           description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OriginRejected'
+          description: Cookie mode from an origin that is not allowed (code=origin_not_allowed)
         '400':
           content:
             application/json:
@@ -8433,6 +8548,13 @@ components:
     EmailConfirmedTokenObtainPairRequest:
       type: object
       properties:
+        remember_me:
+          type: boolean
+          writeOnly: true
+          default: true
+          description: 'Cookie mode only (`X-Auth-Mode: cookie`): false makes the
+            refresh cookie a browser-session cookie (no Max-Age). Ignored in body
+            mode.'
         email:
           type: string
           writeOnly: true
@@ -9052,9 +9174,10 @@ components:
           type: string
         refresh:
           type: string
+          description: 'Refresh token. Omitted when the request sent `X-Auth-Mode:
+            cookie`: the token is then set in the HttpOnly refresh cookie instead.'
       required:
       - access
-      - refresh
     MagicLinkRequestRequest:
       type: object
       description: Payload for ``POST /api/v1/auth/magic-link/request/``.
@@ -9123,6 +9246,16 @@ components:
       - kind
       - payload
       - read_at
+    OriginRejected:
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+      required:
+      - code
+      - detail
     PaginatedBlockList:
       type: object
       required:
@@ -9689,6 +9822,23 @@ components:
       required:
       - new_password
       - old_password
+    PasswordChangeResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        access:
+          type: string
+          description: Fresh access token for the calling session.
+        refresh:
+          type: string
+          description: 'Fresh refresh token: every previously issued refresh token
+            is now revoked, so the client MUST keep this one. Omitted when the request
+            sent `X-Auth-Mode: cookie`: the token is then set in the HttpOnly refresh
+            cookie instead.'
+      required:
+      - access
+      - detail
     PasswordResetConfirmRequest:
       type: object
       properties:
@@ -11839,8 +11989,20 @@ components:
           type: string
           writeOnly: true
           minLength: 1
+          description: 'Refresh token to revoke. Required in body mode; in cookie
+            mode (`X-Auth-Mode: cookie`) the HttpOnly refresh cookie is used when
+            omitted.'
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+          description: 'Refresh token. Omitted when the request sent `X-Auth-Mode:
+            cookie`: the token is then set in the HttpOnly refresh cookie instead.'
       required:
-      - refresh
+      - access
     TokenRefresh:
       type: object
       properties:
@@ -11849,17 +12011,24 @@ components:
           readOnly: true
         refresh:
           type: string
+          description: 'Request: the refresh token. Required in body mode; in cookie
+            mode (`X-Auth-Mode: cookie`) the HttpOnly refresh cookie is used when
+            omitted. Response: the rotated refresh token. Omitted when the request
+            sent `X-Auth-Mode: cookie`: the token is then set in the HttpOnly refresh
+            cookie instead.'
       required:
       - access
-      - refresh
     TokenRefreshRequest:
       type: object
       properties:
         refresh:
           type: string
           minLength: 1
-      required:
-      - refresh
+          description: 'Request: the refresh token. Required in body mode; in cookie
+            mode (`X-Auth-Mode: cookie`) the HttpOnly refresh cookie is used when
+            omitted. Response: the rotated refresh token. Omitted when the request
+            sent `X-Auth-Mode: cookie`: the token is then set in the HttpOnly refresh
+            cookie instead.'
     TranslateBatchRequestRequest:
       type: object
       properties:

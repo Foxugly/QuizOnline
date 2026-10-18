@@ -10,6 +10,10 @@
 
 
 export interface EmailConfirmedTokenObtainPairRequestDto { 
+    /**
+     * Cookie mode only (`X-Auth-Mode: cookie`): false makes the refresh cookie a browser-session cookie (no Max-Age). Ignored in body mode.
+     */
+    remember_me?: boolean;
     email: string;
     password: string;
 }

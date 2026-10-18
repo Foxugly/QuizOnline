@@ -358,7 +358,13 @@ class MagicLinkExchangeRequestSerializer(serializers.Serializer):
 class MagicLinkExchangeResponseSerializer(serializers.Serializer):
     """JWT pair returned on successful exchange."""
     access = serializers.CharField()
-    refresh = serializers.CharField()
+    refresh = serializers.CharField(
+        required=False,
+        help_text=(
+            "Refresh token. Omitted when the request sent `X-Auth-Mode: cookie`: "
+            "the token is then set in the HttpOnly refresh cookie instead."
+        ),
+    )
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

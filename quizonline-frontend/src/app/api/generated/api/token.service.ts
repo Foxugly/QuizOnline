@@ -19,7 +19,11 @@ import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 // @ts-ignore
 import { EmailConfirmedTokenObtainPairRequestDto } from '../model/email-confirmed-token-obtain-pair-request';
 // @ts-ignore
+import { OriginRejectedDto } from '../model/origin-rejected';
+// @ts-ignore
 import { TokenBlacklistRequestDto } from '../model/token-blacklist-request';
+// @ts-ignore
+import { TokenObtainPairDto } from '../model/token-obtain-pair';
 // @ts-ignore
 import { TokenRefreshDto } from '../model/token-refresh';
 // @ts-ignore
@@ -32,15 +36,21 @@ import { BaseService } from '../api.base.service';
 
 
 export interface TokenBlacklistCreateRequestParams {
-    tokenBlacklistRequestDto: TokenBlacklistRequestDto;
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
+    tokenBlacklistRequestDto?: TokenBlacklistRequestDto;
 }
 
 export interface TokenCreateRequestParams {
     emailConfirmedTokenObtainPairRequestDto: EmailConfirmedTokenObtainPairRequestDto;
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
 }
 
 export interface TokenRefreshCreateRequestParams {
-    tokenRefreshRequestDto: TokenRefreshRequestDto;
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
+    tokenRefreshRequestDto?: TokenRefreshRequestDto;
 }
 
 
@@ -54,25 +64,28 @@ export class TokenApi extends BaseService {
     }
 
     /**
-     * Takes a token and blacklists it. Must be used with the &#x60;rest_framework_simplejwt.token_blacklist&#x60; app installed.
+     * Logout
+     * Blacklists a refresh token. Body mode: &#x60;{refresh}&#x60; required, 200. Cookie mode (&#x60;X-Auth-Mode: cookie&#x60;): blacklists the body token or else the HttpOnly cookie, always clears the cookie and answers 204 (idempotent).
      * @endpoint post /api/v1/token/blacklist/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public tokenBlacklistCreate(requestParameters: TokenBlacklistCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public tokenBlacklistCreate(requestParameters: TokenBlacklistCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public tokenBlacklistCreate(requestParameters: TokenBlacklistCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public tokenBlacklistCreate(requestParameters: TokenBlacklistCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public tokenBlacklistCreate(requestParameters?: TokenBlacklistCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public tokenBlacklistCreate(requestParameters?: TokenBlacklistCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public tokenBlacklistCreate(requestParameters?: TokenBlacklistCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public tokenBlacklistCreate(requestParameters?: TokenBlacklistCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const xAuthMode = requestParameters?.xAuthMode;
         const tokenBlacklistRequestDto = requestParameters?.tokenBlacklistRequestDto;
-        if (tokenBlacklistRequestDto === null || tokenBlacklistRequestDto === undefined) {
-            throw new Error('Required parameter tokenBlacklistRequestDto was null or undefined when calling tokenBlacklistCreate.');
-        }
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -129,18 +142,23 @@ export class TokenApi extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public tokenCreate(requestParameters: TokenCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TokenObtainPairDto>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TokenObtainPairDto>>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TokenObtainPairDto>>;
+    public tokenCreate(requestParameters: TokenCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const emailConfirmedTokenObtainPairRequestDto = requestParameters?.emailConfirmedTokenObtainPairRequestDto;
         if (emailConfirmedTokenObtainPairRequestDto === null || emailConfirmedTokenObtainPairRequestDto === undefined) {
             throw new Error('Required parameter emailConfirmedTokenObtainPairRequestDto was null or undefined when calling tokenCreate.');
         }
+        const xAuthMode = requestParameters?.xAuthMode;
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -175,7 +193,7 @@ export class TokenApi extends BaseService {
 
         let localVarPath = `/api/v1/token/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<TokenObtainPairDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: emailConfirmedTokenObtainPairRequestDto,
@@ -190,23 +208,25 @@ export class TokenApi extends BaseService {
     }
 
     /**
-     * Takes a refresh type JSON web token and returns an access type JSON web token if the refresh token is valid.
+     * Refresh a token
+     * Generates a new access token and rotates the refresh token (the presented one is blacklisted). Body mode: &#x60;{refresh}&#x60; in, &#x60;{access, refresh}&#x60; out. Cookie mode (&#x60;X-Auth-Mode: cookie&#x60;): the body &#x60;refresh&#x60; is optional; when absent the HttpOnly cookie is used (401 &#x60;refresh_cookie_missing&#x60; if there is none); the rotated token is set in the cookie and omitted from the body. A body token sent in cookie mode is the one-time migration path for SPAs that still hold one in storage.
      * @endpoint post /api/v1/token/refresh/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TokenRefreshDto>;
-    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TokenRefreshDto>>;
-    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TokenRefreshDto>>;
-    public tokenRefreshCreate(requestParameters: TokenRefreshCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public tokenRefreshCreate(requestParameters?: TokenRefreshCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<TokenRefreshDto>;
+    public tokenRefreshCreate(requestParameters?: TokenRefreshCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<TokenRefreshDto>>;
+    public tokenRefreshCreate(requestParameters?: TokenRefreshCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<TokenRefreshDto>>;
+    public tokenRefreshCreate(requestParameters?: TokenRefreshCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        const xAuthMode = requestParameters?.xAuthMode;
         const tokenRefreshRequestDto = requestParameters?.tokenRefreshRequestDto;
-        if (tokenRefreshRequestDto === null || tokenRefreshRequestDto === undefined) {
-            throw new Error('Required parameter tokenRefreshRequestDto was null or undefined when calling tokenRefreshCreate.');
-        }
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
             'application/json'

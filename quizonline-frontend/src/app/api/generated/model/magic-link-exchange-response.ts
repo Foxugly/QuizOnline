@@ -14,6 +14,9 @@
  */
 export interface MagicLinkExchangeResponseDto { 
     access: string;
-    refresh: string;
+    /**
+     * Refresh token. Omitted when the request sent `X-Auth-Mode: cookie`: the token is then set in the HttpOnly refresh cookie instead.
+     */
+    refresh?: string;
 }
 
