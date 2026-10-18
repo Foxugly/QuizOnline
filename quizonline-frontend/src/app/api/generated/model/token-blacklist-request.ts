@@ -10,6 +10,9 @@
 
 
 export interface TokenBlacklistRequestDto { 
-    refresh: string;
+    /**
+     * Refresh token to revoke. Required in body mode; in cookie mode (`X-Auth-Mode: cookie`) the HttpOnly refresh cookie is used when omitted.
+     */
+    refresh?: string;
 }
 

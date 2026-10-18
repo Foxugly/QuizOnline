@@ -142,6 +142,7 @@ model/mode-enum.ts
 model/models.ts
 model/moderation-summary-item.ts
 model/notification-read.ts
+model/origin-rejected.ts
 model/paginated-block-list.ts
 model/paginated-certificate-list.ts
 model/paginated-connection-event-read-list.ts
@@ -167,6 +168,7 @@ model/paginated-quiz-template-list-list.ts
 model/paginated-section-list.ts
 model/paginated-subject-read-list.ts
 model/password-change-request.ts
+model/password-change-response.ts
 model/password-reset-confirm-request.ts
 model/password-reset-ok.ts
 model/password-reset-request-request.ts
@@ -228,6 +230,7 @@ model/target-enum.ts
 model/test-email-request-request.ts
 model/test-email-response.ts
 model/token-blacklist-request.ts
+model/token-obtain-pair.ts
 model/token-refresh-request.ts
 model/token-refresh.ts
 model/totals.ts

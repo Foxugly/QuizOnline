@@ -27,7 +27,11 @@ import { MagicLinkExchangeResponseDto } from '../model/magic-link-exchange-respo
 // @ts-ignore
 import { MagicLinkRequestRequestDto } from '../model/magic-link-request-request';
 // @ts-ignore
+import { OriginRejectedDto } from '../model/origin-rejected';
+// @ts-ignore
 import { PasswordChangeRequestDto } from '../model/password-change-request';
+// @ts-ignore
+import { PasswordChangeResponseDto } from '../model/password-change-response';
 // @ts-ignore
 import { PasswordResetConfirmRequestDto } from '../model/password-reset-confirm-request';
 // @ts-ignore
@@ -43,6 +47,8 @@ import { BaseService } from '../api.base.service';
 
 export interface AuthMagicLinkExchangeCreateRequestParams {
     magicLinkExchangeRequestRequestDto: MagicLinkExchangeRequestRequestDto;
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
 }
 
 export interface AuthMagicLinkRequestCreateRequestParams {
@@ -55,6 +61,8 @@ export interface UserEmailConfirmCreateRequestParams {
 
 export interface UserPasswordChangeCreateRequestParams {
     passwordChangeRequestDto: PasswordChangeRequestDto;
+    /** Web SPA only. &#x60;cookie&#x60; moves the refresh token into an HttpOnly, Secure, SameSite&#x3D;Lax cookie scoped to &#x60;/api/v1/token/&#x60; (and omits &#x60;refresh&#x60; from the body); the request\&#39;s &#x60;Origin&#x60; must then be in CORS_ALLOWED_ORIGINS (403 &#x60;origin_not_allowed&#x60;). Absent: body tokens. */
+    xAuthMode?: 'cookie';
 }
 
 export interface UserPasswordResetConfirmCreateRequestParams {
@@ -92,8 +100,12 @@ export class AuthApi extends BaseService {
         if (magicLinkExchangeRequestRequestDto === null || magicLinkExchangeRequestRequestDto === undefined) {
             throw new Error('Required parameter magicLinkExchangeRequestRequestDto was null or undefined when calling authMagicLinkExchangeCreate.');
         }
+        const xAuthMode = requestParameters?.xAuthMode;
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         // authentication (jwtAuth) required
         localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
@@ -295,23 +307,27 @@ export class AuthApi extends BaseService {
 
     /**
      * Changer son mot de passe
-     * Utilisateur authentifié uniquement.
+     * Utilisateur authentifié uniquement. Révoque tous les refresh tokens et renvoie une nouvelle paire pour la session appelante (en mode cookie, le refresh token est posé dans le cookie HttpOnly).
      * @endpoint post /api/v1/user/password/change/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordResetOKDto>;
-    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordResetOKDto>>;
-    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordResetOKDto>>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PasswordChangeResponseDto>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PasswordChangeResponseDto>>;
+    public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PasswordChangeResponseDto>>;
     public userPasswordChangeCreate(requestParameters: UserPasswordChangeCreateRequestParams, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         const passwordChangeRequestDto = requestParameters?.passwordChangeRequestDto;
         if (passwordChangeRequestDto === null || passwordChangeRequestDto === undefined) {
             throw new Error('Required parameter passwordChangeRequestDto was null or undefined when calling userPasswordChangeCreate.');
         }
+        const xAuthMode = requestParameters?.xAuthMode;
 
         let localVarHeaders = this.defaultHeaders;
+        if (xAuthMode !== undefined && xAuthMode !== null) {
+            localVarHeaders = localVarHeaders.set('X-Auth-Mode', String(xAuthMode));
+        }
 
         // authentication (jwtAuth) required
         localVarHeaders = this.configuration.addCredentialToHeaders('jwtAuth', 'Authorization', localVarHeaders, 'Bearer ');
@@ -352,7 +368,7 @@ export class AuthApi extends BaseService {
 
         let localVarPath = `/api/v1/user/password/change/`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<PasswordResetOKDto>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PasswordChangeResponseDto>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: passwordChangeRequestDto,

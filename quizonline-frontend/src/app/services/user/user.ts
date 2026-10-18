@@ -8,6 +8,7 @@ import {PatchedCustomUserProfileUpdateRequestDto} from '../../api/generated/mode
 import {CustomUserReadDto} from '../../api/generated/model/custom-user-read';
 import {isSupportedLanguage, SupportedLanguage} from '../../../environments/language';
 import {resolveApiBaseUrl} from '../../shared/api/runtime-api-base-url';
+import {cookieAuthOptions} from '../auth/auth-cookie';
 
 export type AdminUserDto = CustomUserReadDto & {
   nb_domain_max?: number;
@@ -211,9 +212,10 @@ export class UserService {
   }
 
   /** Account self-deletion ("delete my account" affordance on the
-   *  preferences page). Routes through the generated client. */
-  deleteMe() {
-    return this.userApi.userMeDestroy();
+   *  preferences page). Cookie opt-in so the backend also clears the
+   *  HttpOnly refresh cookie. */
+  deleteMe(): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/me/`, cookieAuthOptions());
   }
 
   setCurrentDomain(domainId: number | null): Observable<CustomUserReadDto> {

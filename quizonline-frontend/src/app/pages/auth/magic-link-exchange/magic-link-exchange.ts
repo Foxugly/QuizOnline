@@ -9,13 +9,11 @@ import {
   signal,
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {switchMap} from 'rxjs';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {MessageModule} from 'primeng/message';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 
-import {AuthApi as AuthApiService} from '../../../api/generated/api/auth.service';
 import {AuthService} from '../../../services/auth/auth';
 import {ConnectionLogService} from '../../../services/connection-log/connection-log.service';
 import {logApiError} from '../../../shared/api/api-errors';
@@ -38,7 +36,6 @@ type ErrorKind = 'expired' | 'invalid';
 export class MagicLinkExchangePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly authApi = inject(AuthApiService);
   private readonly auth = inject(AuthService);
   private readonly connectionLog = inject(ConnectionLogService);
   private readonly destroyRef = inject(DestroyRef);
@@ -62,22 +59,11 @@ export class MagicLinkExchangePage implements OnInit {
       return;
     }
 
-    // switchMap composes the token-exchange and the loginWithTokens()/getMe()
-    // into a single stream guarded by one takeUntilDestroyed, so a destroy
-    // mid-exchange cancels the inner getMe() too — no stray navigation or
-    // leaked subscription after the component is gone.
-    this.authApi.authMagicLinkExchangeCreate({
-      magicLinkExchangeRequestRequestDto: {token},
-    } as never)
-      .pipe(
-        switchMap((pair: {access: string; refresh: string}) =>
-          // Persist tokens + populate /me through the shared helper that
-          // the password-login path uses; the auth state is now indis-
-          // tinguishable from a regular sign-in.
-          this.auth.loginWithTokens(pair.access, pair.refresh),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
+    // One stream (exchange -> /me) guarded by one takeUntilDestroyed, so a
+    // destroy mid-exchange cancels the inner getMe() too. The refresh token
+    // lands in the HttpOnly cookie; the access token stays in memory.
+    this.auth.exchangeMagicLink(token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.working.set(false);

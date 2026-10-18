@@ -2,24 +2,22 @@ import {HttpErrorResponse, HttpInterceptorFn, HttpRequest} from '@angular/common
 import {inject} from '@angular/core';
 import {catchError, Observable, switchMap, throwError} from 'rxjs';
 
-import {AuthService} from './services/auth/auth';
+import {AuthService, refreshRejected} from './services/auth/auth';
 import {UserService} from './services/user/user';
 import {isApiUrl} from './shared/api/runtime-api-base-url';
 
 function isAuthEndpoint(url: string): boolean {
   return (
     url.includes('/api/v1/token') ||
+    url.includes('/api/v1/auth/') ||
     url.includes('/api/v1/user/password/reset')
   );
 }
 
 /** Only a refresh REJECTED by the server ends the session. A network
- *  error or a 5xx while refreshing is transient: keep the tokens so the
- *  next request can try again (audit I9). */
-export function refreshRejected(error: unknown): boolean {
-  const status = (error as HttpErrorResponse | null)?.status;
-  return status === 400 || status === 401;
-}
+ *  error or a 5xx while refreshing is transient: keep the session so the
+ *  next request can try again (audit I9, OPERATIONS §3.25). */
+export {refreshRejected};
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
@@ -61,17 +59,17 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Proactive cold-start refresh. On a full page reload the access
   // token is intentionally lost (kept in memory only for XSS-safety)
-  // while the refresh token lives in localStorage. Without this
+  // while the refresh token lives in the HttpOnly cookie. Without this
   // shortcut every initial API call would go out un-authenticated,
   // get a 401 back, trigger the reactive refresh below, and only
   // then return real data — doubling the round-trips per cold load.
   //
-  // When we *know* we have a refresh token but no access token (and
+  // When we *know* a session exists but have no access token (and
   // the request is not the refresh endpoint itself), drive the
   // refresh first and queue the request behind it. The
   // ``auth.refreshTokens()`` observable is itself ``shareReplay``'d,
   // so several requests racing this branch share a single refresh.
-  if (apiRequest && !isAuthEndpoint(req.url) && !auth.getAccessToken() && auth.getRefreshToken()) {
+  if (apiRequest && !isAuthEndpoint(req.url) && !auth.getAccessToken() && auth.hasSession()) {
     const refresh$ = auth.refreshTokens();
     if (refresh$) {
       return replayAfterRefresh(refresh$);

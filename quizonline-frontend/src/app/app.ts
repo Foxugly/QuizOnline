@@ -2,7 +2,7 @@ import {Component, computed, DestroyRef, effect, inject, OnInit, ChangeDetection
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router, RouterOutlet} from '@angular/router';
 import {BackendStatusService} from './services/status/status';
-import {AuthService} from './services/auth/auth';
+import {AuthService, refreshRejected} from './services/auth/auth';
 import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
@@ -78,7 +78,11 @@ export class App implements OnInit {
     this.userService.getMe().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: (error) => {
         logApiError('app.session-rehydrate', error);
-        this.authService.logout();
+        // Only a rejected session ends it (OPERATIONS §3.25): a network
+        // error or a 5xx keeps the hint, so the next call / load retries.
+        if (refreshRejected(error)) {
+          this.authService.logout();
+        }
       },
     });
   }

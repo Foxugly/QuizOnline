@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -233,6 +234,23 @@ USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
+# `x-auth-mode`: the SPA's opt-in to the HttpOnly refresh cookie
+# (customuser/refresh_cookie.py). Prod is same-origin, so this only matters for
+# cross-origin dev / e2e setups — but the preflight must then accept it.
+CORS_ALLOW_HEADERS = (*default_headers, "x-auth-mode")
+# Credentials (the refresh cookie) are only ever allowed for the explicit list
+# above — never with CORS_ALLOW_ALL_ORIGINS / a wildcard (asserted here). The
+# same list is the Origin allow-list of every cookie-mode auth call.
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False
+if "*" in CORS_ALLOWED_ORIGINS:
+    raise ValueError("CORS_ALLOWED_ORIGINS must list explicit origins (credentials are allowed).")
+# HttpOnly refresh cookie (web SPA only, opt-in via `X-Auth-Mode: cookie`).
+# Host-only (no Domain), scoped to the token endpoints (refresh + blacklist),
+# SameSite=Lax. Browsers accept `Secure` cookies on http://localhost.
+AUTH_REFRESH_COOKIE_NAME = env.str("AUTH_REFRESH_COOKIE_NAME", default="quizonline_refresh")
+AUTH_REFRESH_COOKIE_PATH = "/api/v1/token/"
+AUTH_REFRESH_COOKIE_SECURE = env.bool("AUTH_REFRESH_COOKIE_SECURE", default=True)
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",

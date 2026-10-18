@@ -298,9 +298,9 @@ function paginated<T>(results: T[]): {count: number; next: null; previous: null;
 
 export async function seedAuthenticatedSession(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    localStorage.setItem('access_token', 'test-access');
-    localStorage.setItem('refresh_token', 'test-refresh');
-    localStorage.setItem('remember_me', '1');
+    // The refresh token lives in an HttpOnly cookie now; the non-secret hint
+    // makes the SPA restore the session through the mocked token/refresh/.
+    localStorage.setItem('quizonline.session', '1');
     localStorage.setItem('username', 'admin');
     localStorage.setItem('lang', 'fr');
   });
@@ -393,7 +393,12 @@ export async function mockApi(page: Page, options: MockApiOptions = {}): Promise
     if (path === '/api/v1/token/' && request.method() === 'POST') {
       const body = parseBody(request);
       state.requests.login.push(body);
-      await fulfillJson(route, {access: 'test-access', refresh: 'test-refresh'}, 200);
+      await fulfillJson(route, {access: 'test-access'}, 200);
+      return;
+    }
+
+    if (path === '/api/v1/token/refresh/' && request.method() === 'POST') {
+      await fulfillJson(route, {access: 'test-access'}, 200);
       return;
     }
 
