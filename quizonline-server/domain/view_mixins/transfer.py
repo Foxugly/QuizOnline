@@ -1,14 +1,17 @@
 """
 Transfer-ownership slice of ``DomainViewSet``.
 
-One endpoint: ``POST /api/v1/domain/{id}/transfer/`` initiates an
-ownership transfer to the user identified by ``user_id``. The flow is
+``POST /api/v1/domain/{id}/transfer/`` initiates an ownership transfer
+to the user identified by ``user_id``; ``DELETE`` on the same URL
+revokes the pending one. The flow is
 two-step — this endpoint queues a signed email; the actual ownership
 change happens once the future owner clicks the link and confirms via
 ``DomainTransferAcceptView``.
 
 Owner-only (not even managers can start a transfer). Audited.
 """
+import secrets
+
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -74,14 +77,52 @@ class DomainTransferActionsMixin:
                 status=status.HTTP_409_CONFLICT,
             )
 
-        send_domain_transfer_email(
-            domain=domain, initiator=request.user, future_owner=future_owner,
-        )
+        # The nonce ties the e-mailed link to this audit row: a newer
+        # transfer, an accept or a revoke kills it (transfer_is_current).
+        nonce = secrets.token_urlsafe(16)
         record_audit(
             domain=domain,
             action="transfer.initiate",
             actor=request.user,
             target_user=future_owner,
-            metadata={"remote_addr": client_ip(request)},
+            metadata={"remote_addr": client_ip(request), "nonce": nonce},
+        )
+        send_domain_transfer_email(
+            domain=domain, initiator=request.user, future_owner=future_owner,
+            nonce=nonce,
         )
         return Response(status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(
+        tags=["Domain"],
+        summary="Annuler le transfert de propriété en cours",
+        description=(
+            "Révoque le lien de transfert envoyé : il n'est plus "
+            "utilisable, même s'il n'a pas expiré. Propriétaire ou "
+            "superuser uniquement."
+        ),
+        request=None,
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Transfer revoked."),
+            status.HTTP_403_FORBIDDEN: ErrorDetailSerializer,
+            status.HTTP_404_NOT_FOUND: ErrorDetailSerializer,
+        },
+    )
+    @transfer.mapping.delete
+    def revoke_transfer(self, request, *args, **kwargs):
+        from domain.transfer_token import latest_transfer_event
+
+        domain = self.get_object()
+        is_superuser = bool(getattr(request.user, "is_superuser", False))
+        if not is_superuser and domain.owner_id != request.user.id:
+            return Response({"detail": "owner_only"}, status=status.HTTP_403_FORBIDDEN)
+        event = latest_transfer_event(domain)
+        if event is not None and event.action == "transfer.initiate":
+            record_audit(
+                domain=domain,
+                action="transfer.revoke",
+                actor=request.user,
+                target_user=event.target_user,
+                metadata={"remote_addr": client_ip(request)},
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)

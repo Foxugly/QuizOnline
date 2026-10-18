@@ -6,12 +6,14 @@ import {ContentBlock} from '../content-block.types';
 import {pickTranslation} from '../learning-translations';
 import {UserService} from '../../../services/user/user';
 import {getBlockRenderersUiText} from './block-renderers.i18n';
+import {isFrameableUrl} from './frame-policy';
 
 /**
- * Renders the ``embed`` ContentBlock — an arbitrary external URL hosted
- * in an iframe (CodePen, Figma, Loom, …). The backend already validates
- * the URL is HTTPS and not on a denylist; we just pipe it through
- * ``DomSanitizer.bypassSecurityTrustResourceUrl`` so Angular renders it.
+ * Renders the ``embed`` ContentBlock — an external URL hosted in an
+ * iframe. The backend only accepts HTTPS YouTube / Vimeo hosts
+ * (``block/url_policy.py``); we re-check against the CSP ``frame-src``
+ * hosts before trusting the URL (``isFrameableUrl``) and sandbox the
+ * frame. Anything else only gets the "open in a new tab" link.
  *
  * ``loading="lazy"`` defers the embed until the card scrolls near the
  * viewport — vital on lessons with several embeds, which would
@@ -22,12 +24,15 @@ import {getBlockRenderersUiText} from './block-renderers.i18n';
   selector: 'app-block-embed',
   template: `
     @if (block().external_url; as url) {
+      @if (frameable()) {
       <div class="embed-frame">
         <iframe [src]="safeUrl()" [title]="title()" frameborder="0" loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen></iframe>
       </div>
+      }
       <a class="embed-open" [href]="url" target="_blank" rel="noopener noreferrer">
         <i class="pi pi-external-link" aria-hidden="true"></i>
         {{ ui().embedOpenInNewTab }}
@@ -85,8 +90,12 @@ export class EmbedBlockRenderer {
     pickTranslation(this.block().translations, this.user.lang(), 'title') || 'Embed',
   );
 
+  protected readonly frameable = computed(() => isFrameableUrl(this.block().external_url));
+
   protected readonly safeUrl = computed<SafeResourceUrl>(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(rewriteYoutubeEmbedUrl(this.block().external_url)),
+    this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.frameable() ? rewriteYoutubeEmbedUrl(this.block().external_url) : 'about:blank',
+    ),
   );
 }
 

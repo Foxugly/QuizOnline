@@ -86,3 +86,32 @@ def test_resume_skips_draft_lessons_on_detail_and_list(mixed_course, member):
     listing = client.get("/api/v1/course/").json()
     row = next(c for c in listing["results"] if c["id"] == course.id)
     assert row["my_enrollment"]["next_lesson_id"] == live_lesson.id
+
+
+@pytest.mark.django_db
+def test_section_list_hides_draft_sections_from_learners(mixed_course, member):
+    """Audit M1: the section list used to return draft sections (and their
+    lessons) to learners even though the retrieve answered 403."""
+    course, live, _draft, live_lesson, _hidden = mixed_course
+    body = _auth(member).get(f"/api/v1/section/?course={course.id}").json()
+    rows = body["results"] if isinstance(body, dict) else body
+    assert [s["id"] for s in rows] == [live.id]
+    assert [lesson["id"] for lesson in rows[0]["lessons"]] == [live_lesson.id]
+
+
+@pytest.mark.django_db
+def test_lesson_list_hides_lessons_of_draft_sections(mixed_course, member):
+    _course, _live, _draft, live_lesson, _hidden = mixed_course
+    body = _auth(member).get("/api/v1/lesson/").json()
+    rows = body["results"] if isinstance(body, dict) else body
+    assert [row["id"] for row in rows] == [live_lesson.id]
+
+
+@pytest.mark.django_db
+def test_instructor_section_list_keeps_drafts(mixed_course, owner):
+    course, live, draft_lesson, live_lesson, hidden = mixed_course
+    body = _auth(owner).get(f"/api/v1/section/?course={course.id}").json()
+    rows = body["results"] if isinstance(body, dict) else body
+    assert sorted(s["id"] for s in rows) == sorted([live.id, hidden.id])
+    first = next(s for s in rows if s["id"] == live.id)
+    assert [lesson["id"] for lesson in first["lessons"]] == [draft_lesson.id, live_lesson.id]

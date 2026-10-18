@@ -46,7 +46,7 @@ from .services import (
     users_who_can_approve,
 )
 from .token_view_support import consume_signed_token, safe_domain_name
-from .transfer_token import parse_transfer_token
+from .transfer_token import parse_transfer_token, transfer_is_current
 from .view_mixins import (
     DomainAnalyticsActionsMixin,
     DomainAuditActionsMixin,
@@ -946,7 +946,12 @@ class DomainTransferAcceptView(APIView):
         # was either already consumed or revoked by an ownership change
         # elsewhere — surface this rather than silently moving the
         # domain again under a possibly malicious link.
-        if initiator is None or future_owner is None or domain.owner_id != initiator.id:
+        if (
+            initiator is None
+            or future_owner is None
+            or domain.owner_id != initiator.id
+            or not transfer_is_current(domain, payload["nonce"])
+        ):
             base = {
                 "domain_id": domain.id,
                 "domain_name": domain_name,
@@ -977,6 +982,11 @@ class DomainTransferAcceptView(APIView):
         # member, new owner promoted to ``Domain.owner`` and added to
         # members + managers so they retain full control.
         with transaction.atomic():
+            # Lock the domain and re-check under the lock so two concurrent
+            # accepts of the same link cannot both go through.
+            domain = Domain.objects.select_for_update().get(pk=domain.pk)
+            if domain.owner_id != initiator.id or not transfer_is_current(domain, payload["nonce"]):
+                return Response({**base_payload, "state": "no_longer_eligible"})
             previous_owner = initiator
             domain.owner = future_owner
             domain.save(update_fields=["owner", "updated_at"])

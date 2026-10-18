@@ -187,6 +187,7 @@ export * from './system-check-response-status-enum';
 export * from './target-enum';
 export * from './test-email-request-request';
 export * from './test-email-response';
+export * from './token-blacklist-request';
 export * from './token-refresh';
 export * from './token-refresh-request';
 export * from './totals';

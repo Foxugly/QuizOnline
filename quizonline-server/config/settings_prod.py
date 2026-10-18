@@ -20,6 +20,9 @@ SIMPLE_JWT["SIGNING_KEY"] = JWT_SIGNING_KEY
 if JWT_SIGNING_KEY == SECRET_KEY:
     raise RuntimeError("Production JWT_SIGNING_KEY must be different from SECRET_KEY.")
 
+# OpenAPI schema / Swagger UI: staff only in prod unless explicitly opened.
+API_SCHEMA_PUBLIC = env.bool("API_SCHEMA_PUBLIC", default=False)
+
 FRONTEND_BASE_URL = require_env_value("FRONTEND_BASE_URL")
 DEFAULT_FROM_EMAIL = require_env_value("DEFAULT_FROM_EMAIL")
 CELERY_BROKER_URL = require_env_value("CELERY_BROKER_URL")

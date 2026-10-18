@@ -519,7 +519,8 @@ def my_lesson_note(request, lesson_id: int):
     overwrites it on subsequent writes. We never list notes across
     users: notes are strictly private.
     """
-    lesson = Lesson.objects.filter(pk=lesson_id).first()
+    # Only on a lesson the caller can see (never another domain's or a draft).
+    lesson = Lesson.objects.visible_to(request.user).filter(pk=lesson_id).first()
     if not lesson:
         return Response(status=status.HTTP_404_NOT_FOUND)
     note, _ = LessonNote.objects.get_or_create(user=request.user, lesson=lesson)

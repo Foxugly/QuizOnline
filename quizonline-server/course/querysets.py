@@ -54,4 +54,10 @@ class SectionQuerySet(TranslatableQuerySet):
     def visible_to(self, user):
         from .models import Course
         visible_courses = Course.objects.visible_to(user).values("id")
-        return self.filter(course_id__in=visible_courses)
+        qs = self.filter(course_id__in=visible_courses)
+        if is_django_admin(user):
+            return qs
+        # Learners only see published sections (same rule as the course
+        # detail tree); instructors of the domain keep their drafts.
+        managed = Q(course__domain__owner=user) | Q(course__domain__managers=user)
+        return qs.filter(managed | Q(is_published=True)).distinct()

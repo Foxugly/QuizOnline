@@ -96,3 +96,22 @@ def test_superuser_bypasses_quota(quota_fr_lang):
     client.force_authenticate(superuser)
     response = client.post("/api/v1/domain/", _build_payload(quota_fr_lang), format="json")
     assert response.status_code == 201
+
+
+
+@pytest.mark.django_db
+def test_create_domain_ignores_payload_owner(quota_fr_lang):
+    """Audit M5: the creator always becomes the owner, whatever ``owner``
+    the payload carries."""
+    user = User.objects.create_user(email="creator@example.test", password="x")
+    user.nb_domain_max = 1
+    user.save(update_fields=["nb_domain_max"])
+    victim = User.objects.create_user(email="victim@example.test", password="x")
+
+    client = APIClient()
+    client.force_authenticate(user)
+    payload = _build_payload(quota_fr_lang)
+    payload["owner"] = victim.id
+    response = client.post("/api/v1/domain/", payload, format="json")
+    assert response.status_code == 201, response.content
+    assert Domain.objects.get().owner_id == user.id

@@ -2149,6 +2149,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorDetail'
           description: ''
+    delete:
+      operationId: domain_transfer_destroy
+      description: 'Révoque le lien de transfert envoyé : il n''est plus utilisable,
+        même s''il n''a pas expiré. Propriétaire ou superuser uniquement.'
+      summary: Annuler le transfert de propriété en cours
+      parameters:
+      - in: path
+        name: domain_id
+        schema:
+          type: integer
+        description: A unique integer value identifying this domain.
+        required: true
+      tags:
+      - Domain
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Transfer revoked.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+          description: ''
   /api/v1/domain/available-for-linking/:
     get:
       operationId: domain_available_for_linking_retrieve
@@ -5480,6 +5511,29 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/v1/token/blacklist/:
+    post:
+      operationId: token_blacklist_create
+      description: |-
+        Takes a token and blacklists it. Must be used with the
+        `rest_framework_simplejwt.token_blacklist` app installed.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenBlacklistRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenBlacklistRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenBlacklistRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
   /api/v1/token/refresh/:
     post:
       operationId: token_refresh_create
@@ -6015,9 +6069,10 @@ paths:
       operationId: user_me_export_retrieve
       description: 'Retourne un dump JSON de toutes les données personnelles associées
         au compte de l''utilisateur connecté. Couvre le profil, les domaines (owned
-        / managed / membre), les demandes d''adhésion et les sessions de quiz. Pensé
-        pour le droit d''accès / portabilité du RGPD : le frontend télécharge la réponse
-        en ``application/json`` sous le nom ``quizonline-export-<email>.json``.'
+        / managed / membre), les demandes d''adhésion, les sessions de quiz, les inscriptions
+        et la progression LMS, les certificats, les avis, les notes et les journaux
+        de connexion. Pensé pour le droit d''accès / portabilité du RGPD : le frontend
+        télécharge la réponse en ``application/json`` sous le nom ``quizonline-export-<email>.json``.'
       summary: 'Export GDPR : toutes les données du compte courant'
       tags:
       - User
@@ -11777,6 +11832,15 @@ components:
       - email_id
       - recipients
       - subject
+    TokenBlacklistRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - refresh
     TokenRefresh:
       type: object
       properties:

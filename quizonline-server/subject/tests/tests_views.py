@@ -290,6 +290,21 @@ class SubjectViewSetTestCase(TestCase):
         self.assertTrue(resp.data["active"])
         self.assertEqual(resp.data["translations"]["fr"]["name"], "Math v3")
 
+    def test_member_cannot_move_subject_out_of_its_domain(self):
+        """Audit I7: a plain member of the source domain who manages another
+        domain could move a subject there (only the target was checked)."""
+        other = Domain.objects.create(owner=self.domain_member, active=True)
+        other.set_current_language("fr")
+        other.name = "Autre"
+        other.save()
+        resp = self._call(
+            "patch", "partial_update", user=self.domain_member, subject_id=self.subj1.pk,
+            path=f"/api/v1/subject/{self.subj1.pk}/", data={"domain": other.pk},
+        )
+        self.assertIn(resp.status_code, (status.HTTP_400_BAD_REQUEST, status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND))
+        self.subj1.refresh_from_db()
+        self.assertEqual(self.subj1.domain_id, self.domain.pk)
+
     def test_destroy_as_domain_owner(self):
         s = Subject.objects.create(domain=self.domain, active=True)
         s.set_current_language("fr")

@@ -61,7 +61,15 @@ def test_put_rejects_non_string_content(owner, url):
 
 @pytest.mark.django_db
 def test_notes_are_private_per_user(owner, url, lesson):
+    course = lesson.section.course
+    course.publish()
+    course.save()
+    lesson.section.is_published = True
+    lesson.section.save(update_fields=["is_published"])
+    lesson.is_published = True
+    lesson.save(update_fields=["is_published"])
     other = CustomUser.objects.create_user(email="other-learner@example.test", password="x")
+    course.domain.members.add(other)
     _auth(owner).put(url, {"content": "Owner's note"}, format="json")
     _auth(other).put(url, {"content": "Other's note"}, format="json")
     # Each user sees only their own row.
@@ -81,3 +89,13 @@ def test_unauthenticated_is_401(url):
 def test_404_on_missing_lesson(owner):
     resp = _auth(owner).get(reverse("api:enrollment-api:lesson-note", args=[99999]))
     assert resp.status_code == 404
+
+
+@pytest.mark.django_db
+def test_note_on_invisible_lesson_is_404(url, lesson):
+    """Audit M4: a note could be written on any lesson id, including another
+    domain's draft lesson."""
+    stranger = CustomUser.objects.create_user(email="stranger-note@example.test", password="x")
+    assert _auth(stranger).put(url, {"content": "x"}, format="json").status_code == 404
+    assert _auth(stranger).get(url).status_code == 404
+    assert not LessonNote.objects.filter(user=stranger).exists()

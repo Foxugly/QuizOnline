@@ -114,7 +114,9 @@ def test_summary_counts_visible_ratings_only(course, learner, domain):
 
 
 @pytest.mark.django_db
-def test_endpoint_put_list_and_moderation(course, learner, owner):
+def test_endpoint_put_list_and_moderation(course, learner, owner, domain):
+    course.publish()
+    course.save()
     _complete(learner, course)
     url = f"/api/v1/course/{course.id}/reviews/"
 
@@ -136,8 +138,9 @@ def test_endpoint_put_list_and_moderation(course, learner, owner):
     hide = owner_client.post(f"/api/v1/review/{review_id}/moderate/", {"hidden": True}, format="json")
     assert hide.status_code == 200
 
-    # A stranger no longer sees the hidden review.
+    # Another member no longer sees the hidden review.
     stranger = CustomUser.objects.create_user(email="stranger-r@ex.com", password="x")
+    domain.members.add(stranger)
     sc = APIClient()
     sc.force_authenticate(stranger)
     assert len(sc.get(url).data["reviews"]) == 0
@@ -152,3 +155,23 @@ def test_stranger_cannot_moderate(course, learner):
     c.force_authenticate(stranger)
     resp = c.post(f"/api/v1/review/{review.id}/moderate/", {"hidden": True}, format="json")
     assert resp.status_code == 403
+
+
+@pytest.mark.django_db
+def test_reviews_of_invisible_course_are_404(course, learner):
+    """Audit M3: reviews (with author names) of an unpublished course, or of
+    another domain's course, must not be readable."""
+    _complete(learner, course)
+    upsert_review(user=learner, course=course, rating=5, comment="x")
+    url = f"/api/v1/course/{course.id}/reviews/"
+    stranger = CustomUser.objects.create_user(email="out-r@ex.com", password="x")
+    sc = APIClient()
+    sc.force_authenticate(stranger)
+    assert sc.get(url).status_code == 404
+    assert sc.put(url, {"rating": 1}, format="json").status_code == 404
+    # A member of the domain cannot read the reviews of a draft course.
+    member = CustomUser.objects.create_user(email="member-r@ex.com", password="x")
+    course.domain.members.add(member)
+    mc = APIClient()
+    mc.force_authenticate(member)
+    assert mc.get(url).status_code == 404

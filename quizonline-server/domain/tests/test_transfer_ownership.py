@@ -126,12 +126,70 @@ class TransferAcceptTests(TestCase):
         self.domain = Domain.objects.create(owner=self.owner, name="D", active=True)
         self.client = APIClient()
 
-    def _token(self, *, domain=None, future=None, initiator=None) -> str:
+    def _token(self, *, domain=None, future=None, initiator=None, nonce="n-1") -> str:
+        # A token is only live while its ``transfer.initiate`` audit row is
+        # the latest transfer event of the domain (audit M8).
+        DomainAuditLog.objects.create(
+            domain=domain or self.domain,
+            actor=initiator or self.owner,
+            target_user=future or self.future,
+            action="transfer.initiate",
+            metadata={"nonce": nonce},
+        )
         return make_transfer_token(
             domain_id=(domain or self.domain).id,
             future_owner_id=(future or self.future).id,
             initiator_id=(initiator or self.owner).id,
+            nonce=nonce,
         )
+
+    def test_token_is_single_use(self):
+        """Audit M8: once accepted, the link stays dead even if the
+        initiator becomes owner again."""
+        self.client.force_authenticate(self.future)
+        token = self._token()
+        self.assertEqual(self.client.post(self.URL.format(token)).data["state"], "transferred")
+        # Ownership goes back to the initiator by some other path.
+        self.domain.owner = self.owner
+        self.domain.save(update_fields=["owner"])
+        resp = self.client.post(self.URL.format(token))
+        self.assertEqual(resp.data["state"], "no_longer_eligible")
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.owner_id, self.owner.id)
+
+    def test_new_transfer_supersedes_previous_link(self):
+        first = self._token(nonce="n-1")
+        self._token(nonce="n-2")
+        self.client.force_authenticate(self.future)
+        self.assertEqual(self.client.get(self.URL.format(first)).data["state"], "no_longer_eligible")
+
+    def test_owner_can_revoke_pending_transfer(self):
+        token = self._token()
+        owner_client = APIClient()
+        owner_client.force_authenticate(self.future)  # not even a member
+        # Only the owner (or a superuser) may revoke.
+        self.assertIn(
+            owner_client.delete(f"/api/v1/domain/{self.domain.id}/transfer/").status_code,
+            (status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND),
+        )
+        manager = User.objects.create_user(password="p", email="mgr@x.test")
+        self.domain.managers.add(manager)
+        owner_client.force_authenticate(manager)
+        self.assertEqual(
+            owner_client.delete(f"/api/v1/domain/{self.domain.id}/transfer/").status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+        owner_client.force_authenticate(self.owner)
+        resp = owner_client.delete(f"/api/v1/domain/{self.domain.id}/transfer/")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertIsNone(
+            owner_client.get(f"/api/v1/domain/{self.domain.id}/details/").data["pending_transfer"]
+        )
+        self.client.force_authenticate(self.future)
+        resp = self.client.post(self.URL.format(token))
+        self.assertEqual(resp.data["state"], "no_longer_eligible")
+        self.domain.refresh_from_db()
+        self.assertEqual(self.domain.owner_id, self.owner.id)
 
     def test_get_anonymous_returns_wrong_account_for_inspection(self):
         token = self._token()

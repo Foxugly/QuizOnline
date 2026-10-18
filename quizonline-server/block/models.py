@@ -165,6 +165,15 @@ class Block(TranslatableModel):
             self.TYPE_CODE: lambda: bool(self.code_content),
             self.TYPE_EMBED: lambda: bool(self.external_url),
         }
+        from .url_policy import block_url_errors
+
+        url_errors = block_url_errors(
+            video_provider=self.video_provider,
+            video_url=self.video_url,
+            external_url=self.external_url,
+        )
+        if url_errors:
+            raise ValidationError(url_errors)
         check = validators.get(self.block_type)
         if check and not check():
             raise ValidationError({

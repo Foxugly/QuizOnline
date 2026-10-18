@@ -17,9 +17,9 @@ export const environment = {
   // events/month) or a self-hosted GlitchTip — the SDK protocol is the
   // same, so swapping ingest providers is a single env-var change.
   sentryDsn: '',
-  // Mirrors ``version`` above so every captured error in Sentry /
-  // GlitchTip is tagged with the precise build it came from. Update
-  // both in lockstep with ``package.json#version``. Runtime override
+  // Placeholder: ``.github/workflows/deploy.yml`` stamps the git SHA here
+  // before the production build, so every captured error in Sentry /
+  // GlitchTip is tagged with the precise commit it came from. Runtime override
   // via ``window.__QUIZONLINE_SENTRY_RELEASE`` if the operator wants
   // to disambiguate hot-fix builds without rebuilding.
   sentryRelease: '1.1.0',

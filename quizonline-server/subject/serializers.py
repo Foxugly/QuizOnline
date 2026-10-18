@@ -108,6 +108,11 @@ class SubjectWriteSerializer(serializers.ModelSerializer):
         domain = attrs.get("domain") or getattr(self.instance, "domain", None)
         if domain is not None and user is not None and not user.can_manage_domain(domain):
             raise serializers.ValidationError({"domain": "Vous ne pouvez pas gerer ce domaine."})
+        # On update, the CURRENT domain must be manageable too: otherwise a
+        # plain member of it could move the subject to a domain they manage.
+        current = getattr(self.instance, "domain", None)
+        if current is not None and user is not None and not user.can_manage_domain(current):
+            raise serializers.ValidationError({"domain": "Vous ne pouvez pas gerer ce domaine."})
 
         translations = attrs.get("translations")
         if not translations and self.instance is None:

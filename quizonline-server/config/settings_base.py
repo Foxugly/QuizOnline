@@ -55,6 +55,7 @@ env = environ.Env(
     # Format follows DRF: ``<int>/<period>`` where period is one of
     # ``second / minute / hour / day``.
     THROTTLE_TOKEN_OBTAIN=(str, "5/min"),
+    THROTTLE_TOKEN_REFRESH=(str, "60/min"),
     THROTTLE_REGISTER=(str, "10/hour"),
     THROTTLE_PASSWORD_RESET=(str, "3/hour"),
     THROTTLE_PASSWORD_RESET_CONFIRM=(str, "10/hour"),
@@ -263,6 +264,7 @@ REST_FRAMEWORK = {
     #     per-hour budget must be much tighter than ``domain_invite``.
     "DEFAULT_THROTTLE_RATES": {
         "token_obtain": env("THROTTLE_TOKEN_OBTAIN"),
+        "token_refresh": env("THROTTLE_TOKEN_REFRESH"),
         "register": env("THROTTLE_REGISTER"),
         "password_reset": env("THROTTLE_PASSWORD_RESET"),
         "password_reset_confirm": env("THROTTLE_PASSWORD_RESET_CONFIRM"),
@@ -302,6 +304,10 @@ SIMPLE_JWT = {
     "SIGNING_KEY": JWT_SIGNING_KEY,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# OpenAPI schema + Swagger UI served to anyone (dev / CI); prod turns it
+# off (staff only) — see settings_prod.py and config/urls.py.
+API_SCHEMA_PUBLIC = env.bool("API_SCHEMA_PUBLIC", default=True)
 
 SPECTACULAR_SETTINGS = {
     "TITLE": f"{NAME_APP} API",
@@ -408,6 +414,9 @@ RETENTION_OUTBOUND_EMAIL_DAYS = env("RETENTION_OUTBOUND_EMAIL_DAYS")
 # stops exposing invite-only courses through the invite branch. Lets
 # the operator pull the plug on the feature without a code redeploy.
 LMS_COURSE_INVITES_ENABLED = env("LMS_COURSE_INVITES_ENABLED")
+# Extra hosts an ``embed`` block may frame, on top of YouTube / Vimeo
+# (``block/url_policy.py``). Add them to nginx's CSP ``frame-src`` too.
+LMS_EMBED_ALLOWED_HOSTS = env.list("LMS_EMBED_ALLOWED_HOSTS", default=[])
 
 # Hard cap on the size of a single ``POST course/<id>/invite-bulk/``
 # request. Above this the endpoint 400s — guards against a runaway
