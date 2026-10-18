@@ -241,6 +241,11 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": env("API_PAGE_SIZE"),
+    # nginx is the only proxy and appends the peer it saw to X-Forwarded-For
+    # ($proxy_add_x_forwarded_for). Without NUM_PROXIES, DRF used the whole,
+    # client-controlled header as the anonymous throttle identity: a forged XFF
+    # per request reset every per-IP limit (token_obtain, register, magic link...).
+    "NUM_PROXIES": 1,
     # Throttle rates are read from the environment with the historical
     # values as fallback defaults — see the ``THROTTLE_*`` entries in
     # the ``env`` constructor above and ``.env.example`` for the
