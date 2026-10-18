@@ -11,6 +11,7 @@ from language.models import Language
 from lesson.serializers import LessonSummarySerializer
 
 from .models import Course, CourseAuditLog, Section
+from .permissions import ParentScopedWriteMixin
 
 # Backwards-compatible alias — the helper used to be private to
 # ``course/serializers.py`` (and is still imported by tests under that
@@ -19,7 +20,8 @@ from .models import Course, CourseAuditLog, Section
 _filter_allowed_lang_codes = filter_allowed_lang_codes
 
 
-class SectionSerializer(serializers.ModelSerializer):
+class SectionSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
+    parent_fields = ("course",)
     translations = TranslationsField()
     available_lang_codes = serializers.SerializerMethodField()
     lessons = serializers.SerializerMethodField()
@@ -392,7 +394,8 @@ class CourseDetailSerializer(CourseListSerializer):
         return bool(request and is_lms_instructor(request.user, obj))
 
 
-class CourseWriteSerializer(serializers.ModelSerializer):
+class CourseWriteSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
+    parent_fields = ("domain",)
     translations = TranslationsField()
     language_code = serializers.SlugRelatedField(queryset=Language.objects.all(), source="language", slug_field="code")
     # Allow omitted / blank slug on create — :meth:`create` derives one from

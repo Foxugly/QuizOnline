@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from core.serializers import TranslationsField, filter_allowed_lang_codes
 from core.services import UNIQUE_POSITION_ERROR, next_order
+from course.permissions import ParentScopedWriteMixin
 
 from .models import Lesson
 from .services import lesson_slug_base, unique_lesson_slug
@@ -25,7 +26,9 @@ class LessonSummarySerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class LessonDetailSerializer(serializers.ModelSerializer):
+class LessonDetailSerializer(ParentScopedWriteMixin, serializers.ModelSerializer):
+    # Re-parenting goes through ``/lesson/{id}/move/`` (same course only).
+    parent_fields = ("section",)
     translations = TranslationsField()
     blocks = serializers.SerializerMethodField()
     available_lang_codes = serializers.SerializerMethodField()

@@ -24,6 +24,7 @@ def _make(domain, fr_lang, translations, slug=None):
     if slug is not None:
         payload["slug"] = slug
     request = APIRequestFactory().post("/api/v1/course/", payload, format="json")
+    request.user = domain.owner  # the serializer re-checks instructor rights on the target domain
     ser = CourseWriteSerializer(data=payload, context={"request": request})
     assert ser.is_valid(), ser.errors
     return ser.save()
