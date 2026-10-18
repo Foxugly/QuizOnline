@@ -181,6 +181,12 @@ export class EnrollmentService {
     return this.http.get<unknown>(`${this.baseUrl}/certificate/${id}/`);
   }
 
+  /** Certificate PDF. Private file (no public URL): fetched with the
+   *  caller's token, then saved with ``saveBlob``. */
+  certificatePdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/certificate/${id}/pdf/`, {responseType: 'blob'});
+  }
+
   /** Read the caller's private note for a lesson. Returns a fresh
    *  empty row when the user hasn't taken a note yet. */
   getLessonNote(lessonId: number): Observable<{content: string}> {

@@ -1,4 +1,4 @@
-from django.http import FileResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status, viewsets
@@ -12,6 +12,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+
+from core.private_files import private_file_response
 
 from .models import Certificate
 from .serializers import CertificateSerializer, CertificateVerifySerializer
@@ -27,13 +29,21 @@ class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=True, methods=["get"])
     def pdf(self, request, pk=None):
-        cert = self.get_object()
+        # The PDF lives in private storage (never under /media/), so this
+        # action is the only way to read it. Allowed: the certificate holder,
+        # an instructor of its course (domain owner / manager) and superusers.
+        # Anyone else gets the same 404 as a missing id — no enumeration.
+        from course.permissions import is_lms_instructor
+
+        cert = get_object_or_404(
+            Certificate.objects.select_related("course", "course__domain"), pk=pk
+        )
+        if not (cert.user_id == request.user.pk or is_lms_instructor(request.user, cert.course)):
+            raise Http404
         if not cert.pdf:
             return Response({"detail": "PDF not ready yet."}, status=status.HTTP_202_ACCEPTED)
-        return FileResponse(
-            cert.pdf.open("rb"),
-            as_attachment=True,
-            filename=f"{cert.certificate_number}.pdf",
+        return private_file_response(
+            cert.pdf, filename=f"{cert.certificate_number}.pdf", content_type="application/pdf",
         )
 
     @action(detail=True, methods=["post"])
@@ -82,7 +92,7 @@ def verify_certificate(request, token: str):
         "valid": cert.revoked_at is None,
         "certificate_number": cert.certificate_number,
         "course_title": course_title,
-        "user_display_name": cert.user.get_display_name(),
+        "user_display_name": cert.display_holder_name,
         "issued_at": cert.issued_at,
         "revoked": cert.revoked_at is not None,
     }

@@ -5952,6 +5952,8 @@ paths:
         **Garde-fou** : refuse avec ``409 Conflict`` si l'utilisateur possède encore au moins un domaine actif. Il doit d'abord transférer la propriété (``POST /api/v1/domain/{id}/transfer/``) ou désactiver/supprimer le domaine. Cela évite de laisser un domaine orphelin sans propriétaire.
 
         **Effets en cascade** : tout le contenu créé par l'utilisateur et lié par FK reste (questions / quiz / sujets ne perdent pas leurs métadonnées de création). Les liens M2M (managers / members) sont nettoyés automatiquement par Django.
+
+        **RGPD** : les journaux de connexion (IP, géolocalisation) sont supprimés avec le compte. Les certificats déjà émis sont conservés mais détachés du compte (seul le nom imprimé sur le PDF reste) pour rester vérifiables.
       summary: Supprimer son compte (droit à l'effacement RGPD)
       tags:
       - User
@@ -6577,6 +6579,7 @@ components:
         user:
           type: integer
           readOnly: true
+          nullable: true
         course:
           type: integer
           readOnly: true

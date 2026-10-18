@@ -11,6 +11,7 @@ import {logApiError} from '../../shared/api/api-errors';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {EnrollmentService} from '../../services/enrollment/enrollment.service';
+import {saveBlob} from '../../shared/media/save-blob';
 
 import {getCertificateViewUiText} from './certificate-view.i18n';
 
@@ -18,12 +19,13 @@ import {getCertificateViewUiText} from './certificate-view.i18n';
  * Payload returned by ``GET /api/v1/certificate/{id}/``. The
  * ``CertificateSerializer`` exposes the FK ids, the certificate number,
  * the localized ``course_title`` (slug fallback applied server-side),
- * the issue date, the PDF url, the verification token, and the
+ * the issue date, the PDF url (authenticated API endpoint, fetched as a
+ * Blob — certificates are private files), the verification token, and the
  * revocation timestamp.
  */
 interface CertificateDetail {
   id: number;
-  user: number;
+  user: number | null;
   course: number;
   course_title: string;
   certificate_number: string;
@@ -80,6 +82,13 @@ export class CertificateView implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.routeSub = null;
+  }
+
+  protected download(cert: CertificateDetail): void {
+    this.enrollment.certificatePdf(cert.id).subscribe({
+      next: (blob) => saveBlob(blob, `${cert.certificate_number}.pdf`),
+      error: (err: unknown) => logApiError('lms.certificate.pdf', err),
+    });
   }
 
   private load(id: number): void {

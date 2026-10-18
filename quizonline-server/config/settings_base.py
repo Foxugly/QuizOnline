@@ -30,6 +30,10 @@ env = environ.Env(
     FRONTEND_BASE_URL=(str, "http://127.0.0.1:4200"),
     PASSWORD_RESET_FRONTEND_PATH_PREFIX=(str, "/user/reset-password"),
     MEDIA_ROOT_DIR=(str, "media"),
+    PRIVATE_MEDIA_ROOT_DIR=(str, "private_media"),
+    PRIVATE_MEDIA_X_ACCEL_PREFIX=(str, ""),
+    RETENTION_CONNECTION_EVENT_DAYS=(int, 365),
+    RETENTION_OUTBOUND_EMAIL_DAYS=(int, 30),
     USE_DEEPL=(bool, False),
     DEEPL_IS_FREE=(bool, False),
     DATABASE_URL=(str, ""),
@@ -322,6 +326,14 @@ MEDIA_ROOT = BASE_DIR / env("MEDIA_ROOT_DIR")
 # unreadable for the web server.
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+# Private files (certificate PDFs): stored OUTSIDE ``MEDIA_ROOT`` so nginx's
+# public ``/media/`` alias can never serve them. Django streams them through
+# an authenticated view (``core.storage.private_storage``).
+PRIVATE_MEDIA_ROOT = BASE_DIR / env("PRIVATE_MEDIA_ROOT_DIR")
+# When set (prod: "/_protected/"), the authenticated view answers with an
+# ``X-Accel-Redirect`` to this nginx ``internal`` location instead of
+# streaming the file through the worker. Empty = Django streams it (dev/test).
+PRIVATE_MEDIA_X_ACCEL_PREFIX = env("PRIVATE_MEDIA_X_ACCEL_PREFIX")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -373,12 +385,23 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 24 * 3600.0,  # once a day — idempotency comes from the
         # per-row 30d/7d stamps, not the cadence.
     },
+    "purge-expired-personal-data": {
+        "task": "core.tasks.purge_expired_personal_data",
+        "schedule": 24 * 3600.0,  # once a day — GDPR retention (login logs,
+        # stored outbound emails, expired JWT outstanding tokens).
+    },
     "recompute-and-remind-billing": {
         "task": "billing.tasks.recompute_and_remind_billing",
         "schedule": 24 * 3600.0,  # once a day — refresh member counts and send
         # free-deadline reminders (idempotent via per-row 14d/3d stamps).
     },
 }
+
+# GDPR retention windows (days) enforced by
+# ``core.tasks.purge_expired_personal_data``. Login logs carry IP + geo + UA;
+# stored outbound emails carry reset / magic-link URLs.
+RETENTION_CONNECTION_EVENT_DAYS = env("RETENTION_CONNECTION_EVENT_DAYS")
+RETENTION_OUTBOUND_EMAIL_DAYS = env("RETENTION_OUTBOUND_EMAIL_DAYS")
 
 # Course-invite feature kill switch. When False, every invite endpoint
 # (send, list, accept, …) returns 503 and the catalog visibility filter

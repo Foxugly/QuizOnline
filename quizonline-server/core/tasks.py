@@ -64,3 +64,29 @@ def notify_visibility_unlocks() -> dict[str, int]:
         detail_sent += 1
 
     return {"result_sent": result_sent, "detail_sent": detail_sent}
+
+
+@shared_task
+def purge_expired_personal_data() -> dict[str, int]:
+    """GDPR retention: delete login logs older than
+    ``RETENTION_CONNECTION_EVENT_DAYS`` and stored outbound emails (whose
+    bodies hold reset / magic-link URLs) older than
+    ``RETENTION_OUTBOUND_EMAIL_DAYS``, then flush expired JWT outstanding
+    tokens. Idempotent; safe at any cadence."""
+    from datetime import timedelta
+
+    from django.conf import settings
+    from django.core.management import call_command
+
+    from connectionlog.models import ConnectionEvent
+    from core.models import OutboundEmail
+
+    now = timezone.now()
+    events, _ = ConnectionEvent.objects.filter(
+        created_at__lt=now - timedelta(days=settings.RETENTION_CONNECTION_EVENT_DAYS),
+    ).delete()
+    emails, _ = OutboundEmail.objects.filter(
+        created_at__lt=now - timedelta(days=settings.RETENTION_OUTBOUND_EMAIL_DAYS),
+    ).delete()
+    call_command("flushexpiredtokens", verbosity=0)
+    return {"connection_events": events, "outbound_emails": emails}

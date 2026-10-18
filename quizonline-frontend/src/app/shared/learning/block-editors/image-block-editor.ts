@@ -75,7 +75,7 @@ import {getBlockEditorsUiText} from './block-editors.i18n';
       }
       <p-fileupload
         mode="basic"
-        accept="image/*"
+        accept=".png,.jpg,.jpeg,.gif,.webp"
         [auto]="true"
         [customUpload]="true"
         [chooseLabel]="ui().chooseFile"

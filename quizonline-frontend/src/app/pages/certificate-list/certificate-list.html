@@ -47,15 +47,14 @@
             size="small"
             text
             type="button" />
-          @if (row.pdfUrl) {
-            <a
-              class="p-button p-button-sm p-button-secondary"
-              [href]="row.pdfUrl"
-              target="_blank"
-              rel="noopener noreferrer">
-              <i class="pi pi-download"></i>
-              <span>{{ ui().downloadButton }}</span>
-            </a>
+          @if (row.hasPdf) {
+            <p-button
+              icon="pi pi-download"
+              [label]="ui().downloadButton"
+              severity="secondary"
+              size="small"
+              type="button"
+              (onClick)="download(row)" />
           }
         </td>
       </tr>

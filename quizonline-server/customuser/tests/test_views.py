@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator
 from django.core.cache import cache
 from django.test import override_settings
 from django.utils.encoding import force_bytes
@@ -18,6 +17,7 @@ from customuser.throttling import (
     RegisterRateThrottle,
     TokenObtainRateThrottle,
 )
+from customuser.tokens import email_confirmation_token_generator
 from domain.models import Domain
 from language.models import Language
 
@@ -415,7 +415,7 @@ class UserViewsTests(APITestCase):
 
     def test_email_confirm_success_marks_user_as_confirmed(self):
         uid = urlsafe_base64_encode(force_bytes(self.u1.pk))
-        token = default_token_generator.make_token(self.u1)
+        token = email_confirmation_token_generator.make_token(self.u1)
 
         res = self.client.post(
             self.EMAIL_CONFIRM_URL,

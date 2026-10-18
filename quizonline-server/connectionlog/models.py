@@ -7,9 +7,12 @@ class ConnectionEvent(models.Model):
     MAGIC_LINK = "magic_link"
     LOGIN_METHOD_CHOICES = [(PASSWORD, "Password"), (MAGIC_LINK, "Magic link")]
 
+    # GDPR: login logs (IP, geo, UA) are personal data — they go with the
+    # account (CASCADE) and are purged after RETENTION_CONNECTION_EVENT_DAYS
+    # by ``core.tasks.purge_expired_personal_data``.
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL, related_name="connection_events",
+        on_delete=models.CASCADE, related_name="connection_events",
     )
     account_email = models.CharField(max_length=254, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)

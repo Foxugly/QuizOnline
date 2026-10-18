@@ -18,9 +18,12 @@ def frontend_url(path: str) -> str:
     return f"{settings.FRONTEND_BASE_URL.rstrip('/')}/{path.lstrip('/')}"
 
 
-def build_user_token_link(path_prefix: str, user) -> str:
+def build_user_token_link(path_prefix: str, user, *, generator=default_token_generator) -> str:
+    """``generator`` must match the endpoint that will check the token:
+    the default (password reset) or
+    ``customuser.tokens.email_confirmation_token_generator``."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
+    token = generator.make_token(user)
     return frontend_url(f"{path_prefix.rstrip('/')}/{uid}/{token}")
 
 

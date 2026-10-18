@@ -6,9 +6,13 @@ Same plumbing as the domain signed-token family
 ``auth.magic_link`` namespace and with a much tighter TTL (15 minutes)
 because the token grants direct authentication on click.
 
-Payload: ``{uid}`` — just the user primary key. The user's identity is
-authoritative on the server side; we never trust client-side hints.
+Payload: ``{uid, s}`` — the user primary key and a fingerprint of the
+account state (password hash, ``last_login``, e-mail). The exchange
+recomputes the fingerprint and bumps ``last_login`` under a row lock, so a
+link is single-use and dies with any password change or later login.
 """
+
+from django.utils.crypto import constant_time_compare, salted_hmac
 
 from domain.signed_token import (
     TokenError as _TokenError,
@@ -40,17 +44,35 @@ class MagicLinkTokenInvalid(_TokenInvalid, MagicLinkTokenError):
     pass
 
 
-def make_magic_link_token(*, user_id: int) -> str:
-    return make_token(salt=SALT, payload={"uid": int(user_id)})
+def account_state_fingerprint(user) -> str:
+    # Microsecond precision: a login in the same second must still change it.
+    last_login = int(user.last_login.timestamp() * 1_000_000) if user.last_login else ""
+    return salted_hmac(
+        f"{SALT}.state",
+        f"{user.pk}|{user.password}|{last_login}|{user.email or ''}",
+        algorithm="sha256",
+    ).hexdigest()[:32]
+
+
+def fingerprint_matches(user, fingerprint: str) -> bool:
+    return constant_time_compare(account_state_fingerprint(user), fingerprint)
+
+
+def make_magic_link_token(user) -> str:
+    return make_token(
+        salt=SALT,
+        payload={"uid": int(user.pk), "s": account_state_fingerprint(user)},
+    )
 
 
 def _validate_magic_link_payload(data) -> dict:
     if not isinstance(data, dict):
         raise MagicLinkTokenInvalid()
     uid = data.get("uid")
-    if not isinstance(uid, int):
+    state = data.get("s")
+    if not isinstance(uid, int) or not isinstance(state, str):
         raise MagicLinkTokenInvalid()
-    return {"user_id": uid}
+    return {"user_id": uid, "state": state}
 
 
 def parse_magic_link_token(token: str) -> dict:

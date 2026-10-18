@@ -1,3 +1,4 @@
+from django.urls import reverse
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -33,9 +34,13 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.URLField(allow_null=True))
     def get_pdf_url(self, obj) -> str | None:
-        if obj.pdf:
-            return obj.pdf.url
-        return None
+        """Authenticated download endpoint — the PDF itself is private
+        (outside ``/media/``) and must be fetched with the caller's token."""
+        if not obj.pdf:
+            return None
+        path = reverse("api:certificate-api:certificate-pdf", kwargs={"pk": obj.pk})
+        request = self.context.get("request")
+        return request.build_absolute_uri(path) if request is not None else path
 
     def get_course_title(self, obj) -> str:
         return _localized_course_title(obj.course, _request_user_language(self))

@@ -11,7 +11,7 @@
 
 export interface CertificateDto { 
     readonly id: number;
-    readonly user: number;
+    readonly user: number | null;
     readonly course: number;
     readonly course_title: string;
     readonly certificate_number: string;

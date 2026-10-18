@@ -118,7 +118,7 @@ class MagicLinkExchangeTests(TestCase):
         self.client = APIClient()
 
     def test_valid_token_returns_jwt_pair(self):
-        token = make_magic_link_token(user_id=self.user.id)
+        token = make_magic_link_token(self.user)
         resp = self.client.post(self.URL, {"token": token}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("access", resp.data)
@@ -134,13 +134,13 @@ class MagicLinkExchangeTests(TestCase):
     def test_expired_token_410(self):
         with patch("django.core.signing.time") as mock_time:
             mock_time.time.return_value = 1_000_000
-            token = make_magic_link_token(user_id=self.user.id)
+            token = make_magic_link_token(self.user)
             mock_time.time.return_value = 1_000_000 + 16 * 60  # 16 minutes
             resp = self.client.post(self.URL, {"token": token}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_410_GONE)
 
     def test_deactivated_user_token_is_refused(self):
-        token = make_magic_link_token(user_id=self.user.id)
+        token = make_magic_link_token(self.user)
         self.user.is_active = False
         self.user.save(update_fields=["is_active"])
         resp = self.client.post(self.URL, {"token": token}, format="json")
@@ -150,7 +150,7 @@ class MagicLinkExchangeTests(TestCase):
         self.assertEqual(resp.data["detail"], "token_invalid")
 
     def test_unknown_user_id_token_is_refused(self):
-        token = make_magic_link_token(user_id=999_999)
+        token = make_magic_link_token(User(pk=999_999, email="ghost@x.test"))
         resp = self.client.post(self.URL, {"token": token}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(resp.data["detail"], "token_invalid")

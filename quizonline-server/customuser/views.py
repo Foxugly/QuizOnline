@@ -372,7 +372,11 @@ class CustomUserViewSet(
             "**Effets en cascade** : tout le contenu créé par l'utilisateur "
             "et lié par FK reste (questions / quiz / sujets ne perdent pas "
             "leurs métadonnées de création). Les liens M2M (managers / "
-            "members) sont nettoyés automatiquement par Django."
+            "members) sont nettoyés automatiquement par Django.\n\n"
+            "**RGPD** : les journaux de connexion (IP, géolocalisation) sont "
+            "supprimés avec le compte. Les certificats déjà émis sont "
+            "conservés mais détachés du compte (seul le nom imprimé sur le "
+            "PDF reste) pour rester vérifiables."
         ),
         request=None,
         responses={
@@ -704,7 +708,7 @@ class MagicLinkExchangeView(GenericAPIView):
         except MagicLinkTokenInvalid:
             return Response({"detail": "token_invalid"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = exchange_magic_link(user_id=payload["user_id"])
+        user = exchange_magic_link(user_id=payload["user_id"], state=payload["state"])
         if user is None:
             # Could not resolve the user (deleted), or user is no longer
             # eligible (deactivated, email no longer confirmed). Surface
