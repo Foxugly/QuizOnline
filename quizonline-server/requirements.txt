@@ -5,7 +5,7 @@ django-cors-headers==4.9.0
 django-environ==0.14.0
 django-extensions==4.1
 django-filter==25.2
-django-import-export==4.4.1
+django-import-export==4.4.2
 django-parler==2.4
 django-schema-viewer==0.5.3
 djangorestframework==3.18.3
@@ -16,9 +16,9 @@ PyYAML==6.0.3
 pytest==9.1.1
 pytest-django==4.14.0
 requests==2.34.2
-ruff==0.16.10
+ruff==0.17.1
 reportlab
-sentry-sdk[django,celery]==2.71.0
+sentry-sdk[django,celery]==2.72.0
 nh3==0.3.7
 user-agents==2.2.0
 geoip2==4.8.1
