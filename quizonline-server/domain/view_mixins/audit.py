@@ -40,7 +40,7 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
 
     parsed = None
     try:
-        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(raw)
     except ValueError:
         try:
             parsed = datetime.combine(
