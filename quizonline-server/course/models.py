@@ -1,10 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
 
+from block.sanitizer import sanitize_rich_text
 from config.models import AuditMixin, PublishableMixin
 
 from .querysets import CourseQuerySet, SectionQuerySet
@@ -112,6 +115,18 @@ class Course(AuditMixin, PublishableMixin, TranslatableModel):
         self.is_published = False
         self.published_at = None
 
+
+
+@receiver(pre_save, sender=Course._parler_meta.root_model)
+def _sanitize_course_translation(sender, instance, **kwargs):
+    """nh3-sanitize ``description`` / ``learning_objectives`` on every save.
+
+    Both are rendered with ``bypassSecurityTrustHtml`` (catalog, course
+    detail, invite acceptance), so the server is the only XSS barrier —
+    whatever the write path (API, import, clone, DeepL task, admin).
+    """
+    instance.description = sanitize_rich_text(instance.description or "")
+    instance.learning_objectives = sanitize_rich_text(instance.learning_objectives or "")
 
 class CourseAuditLog(models.Model):
     """Append-only audit trail of meaningful actions on a course.

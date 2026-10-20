@@ -2,6 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from parler.managers import TranslatableManager
 from parler.models import TranslatableModel, TranslatedFields
@@ -9,6 +11,7 @@ from parler.models import TranslatableModel, TranslatedFields
 from core.storage import random_name
 
 from .querysets import BlockQuerySet
+from .sanitizer import sanitize_rich_text
 from .upload_validation import validate_block_file, validate_block_image
 
 
@@ -191,12 +194,15 @@ class Block(TranslatableModel):
                     "quiz_template": _("Quiz must belong to the same domain as the course."),
                 })
 
-    def save(self, *args, **kwargs):
-        if self.block_type == self.TYPE_RICH_TEXT and self.pk is not None:
-            from .sanitizer import sanitize_rich_text
-            for tr in list(self.translations.all()):
-                cleaned = sanitize_rich_text(tr.rich_text or "")
-                if cleaned != tr.rich_text:
-                    tr.rich_text = cleaned
-                    tr.save(update_fields=["rich_text"])
-        super().save(*args, **kwargs)
+
+@receiver(pre_save, sender=Block._parler_meta.root_model)
+def _sanitize_block_translation(sender, instance, **kwargs):
+    """nh3-sanitize ``rich_text`` on EVERY save of a block translation.
+
+    The SPA renders it with ``bypassSecurityTrustHtml``, so this is the only
+    XSS barrier. Hooking the translation row (not ``Block.save``) covers every
+    write path — serializers, course import / clone, parler's own save of the
+    in-memory translation, ``update_or_create`` — not just the ones that
+    remember to call the sanitizer.
+    """
+    instance.rich_text = sanitize_rich_text(instance.rich_text or "")
