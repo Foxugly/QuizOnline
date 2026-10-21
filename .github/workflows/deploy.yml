@@ -43,6 +43,44 @@ jobs:
           grep -q "sentryRelease: '${GITHUB_SHA}'" src/environments/environment.prod.ts
           npx ng build --configuration=production
 
+      # Hidden source maps (angular.json production: no sourceMappingURL
+      # comment in the .js). Uploaded to Sentry ONLY when the
+      # SENTRY_AUTH_TOKEN secret exists; otherwise the step is a clean no-op
+      # (audit M17, same approach as PushIT_frontend). A Sentry failure never
+      # blocks the deploy (continue-on-error): the .map files are stripped by
+      # the next step anyway. Release = the bare commit SHA, the value baked
+      # into environment.prod.ts above (a runtime SSM SENTRY_RELEASE override
+      # would no longer match the uploaded maps).
+      - name: Upload source maps to Sentry (optional)
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://de.sentry.io/
+          SENTRY_ORG: foxugly-srl
+          SENTRY_PROJECT: quizonline-frontend
+          RELEASE: ${{ github.sha }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN" ]; then
+            echo "::notice::SENTRY_AUTH_TOKEN absent: source map upload skipped."
+            exit 0
+          fi
+          DIR=quizonline-frontend/dist/quizonline-frontend/browser
+          CLI="npx --yes @sentry/cli@3.8.0"
+          # Debug IDs in both .js and .map (matching without relying on URLs).
+          $CLI sourcemaps inject "$DIR"
+          $CLI releases new "$RELEASE"
+          $CLI sourcemaps upload --release "$RELEASE" --url-prefix '~/' "$DIR"
+          $CLI releases finalize "$RELEASE"
+
+      # The .map files NEVER leave the runner: not in the S3 tarball, not in
+      # the docroot (the vhost also 404s them, defence in depth).
+      - name: Strip source maps from the bundle
+        run: |
+          find quizonline-frontend/dist/quizonline-frontend/browser -name '*.map' -delete
+          if find quizonline-frontend/dist/quizonline-frontend/browser -name '*.map' | grep -q .; then
+            echo "::error::source maps still present in the bundle"; exit 1
+          fi
+
       - name: Package frontend build
         id: package
         run: |
