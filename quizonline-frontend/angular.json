@@ -63,7 +63,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": true,
+                "hidden": true
+              }
             },
             "development": {
               "optimization": false,
@@ -121,10 +127,10 @@
                 "src/environments/**"
               ],
               "coverageThresholds": {
-                "statements": 33,
-                "branches": 28,
-                "functions": 15,
-                "lines": 34
+                "statements": 37,
+                "branches": 37,
+                "functions": 21,
+                "lines": 39
               }
             }
           }
