@@ -194,7 +194,7 @@ export class TopMenuComponent implements OnInit {
     //                         (both rendered in the template AFTER the
     //                         Cours dropdown so Cours sits before Quiz)
     //
-    // Marketing entries (Features, About) only show for visitors.
+    // Marketing entries (Home, Features, About) only show for visitors.
     // ----------------------------------------------------------------------
 
     // Dashboard — unified post-login hub. Surfaces first so the user
@@ -230,6 +230,11 @@ export class TopMenuComponent implements OnInit {
     // the Quiz dropdown instead — also rendered after Cours.
 
     if (!isAuthenticated) {
+      items.push({
+        label: this.ui().topmenu.home,
+        link: ['/home'],
+        icon: 'pi pi-home',
+      });
       items.push({
         label: this.ui().topmenu.features,
         link: ['/features'],

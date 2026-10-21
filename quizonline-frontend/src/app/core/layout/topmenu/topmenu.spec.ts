@@ -52,6 +52,20 @@ describe('TopMenuComponent', () => {
 
     const links = (c: TopMenuComponent) => c.coursesMenuItems.map((i) => i.link[0]);
 
+    it('gives visitors a Home entry first, and hides it once signed in', () => {
+      me.set(null);
+      domains.mockReturnValue(of([]));
+      const f = TestBed.createComponent(TopMenuComponent);
+      f.componentRef.setInput('mode', 'public');
+      f.detectChanges();
+      const visitor = f.componentInstance.navItems;
+      expect(visitor[0].link).toEqual(['/home']);
+      expect(visitor[0].label).toBe('Home');
+
+      const member = render({id: 1, is_superuser: false}, []);
+      expect(member.navItems.map((i) => i.link[0])).not.toContain('/home');
+    });
+
     it('shows "My courses" and "Create a course" to a domain manager', () => {
       const c = render({id: 1, is_superuser: false, current_domain: 7}, [
         {id: 7, owner: {id: 2}, managers: [{id: 1}]},
