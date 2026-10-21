@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subject, Subscription, auditTime, debounceTime, fromEvent} from 'rxjs';
 import {ButtonModule} from 'primeng/button';
@@ -45,6 +45,19 @@ interface LessonDetailDto {
   next_lesson?: {id: number; title: string} | null;
   section_title?: string;
   position_in_section?: {current: number; total: number};
+}
+
+/** Reads the 403 ``enrollment_required`` body the lesson endpoint returns
+ *  when the course (approval / invite mode) needs an enrollment first. */
+export function enrollmentRequiredGate(err: unknown): {courseSlug: string | null} | null {
+  if (!(err instanceof HttpErrorResponse) || err.status !== 403) {
+    return null;
+  }
+  const body = err.error as {code?: unknown; course_slug?: unknown} | null;
+  if (body?.code !== 'enrollment_required') {
+    return null;
+  }
+  return {courseSlug: typeof body.course_slug === 'string' && body.course_slug ? body.course_slug : null};
 }
 
 @Component({
@@ -96,6 +109,10 @@ export class LessonView implements OnInit, OnDestroy {
   // while loading" so the template shows a retry instead of an endless
   // skeleton on a network error.
   protected readonly loadError = signal(false);
+  // Set when the API answers 403 ``enrollment_required``: the learner sees
+  // the course but must enroll (or wait for approval) to read its lessons.
+  // Holds the course page to send them to.
+  protected readonly enrollmentRequiredHref = signal<string | null>(null);
   protected readonly completing = signal(false);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -289,6 +306,7 @@ export class LessonView implements OnInit, OnDestroy {
 
   private loadLesson(id: number): void {
     this.loadError.set(false);
+    this.enrollmentRequiredHref.set(null);
     this.lesson.set(null);
     this.http.get<LessonDetailDto>(`${this.apiBaseUrl}/lesson/${id}/`).subscribe({
       next: (detail) => {
@@ -298,6 +316,12 @@ export class LessonView implements OnInit, OnDestroy {
         });
       },
       error: (err: unknown) => {
+        const gate = enrollmentRequiredGate(err);
+        if (gate) {
+          this.lesson.set(null);
+          this.enrollmentRequiredHref.set(gate.courseSlug ? COURSE_DETAIL(gate.courseSlug) : CATALOG);
+          return;
+        }
         logApiError('lms.lesson-view.load', err);
         // Flag the error so the template shows a retry rather than an endless
         // skeleton (the skeleton renders whenever ``lesson()`` is null).

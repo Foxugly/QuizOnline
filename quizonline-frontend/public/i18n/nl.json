@@ -1421,7 +1421,10 @@
       "notesSavedAt": "Opgeslagen om {time}",
       "errorTitle": "Laden mislukt",
       "errorMessage": "Deze les kon niet worden geladen. Probeer het opnieuw.",
-      "retryButton": "Opnieuw proberen"
+      "retryButton": "Opnieuw proberen",
+      "enrollmentRequiredTitle": "Inschrijving vereist",
+      "enrollmentRequiredMessage": "Schrijf je in voor deze cursus (of vraag inschrijving aan) om deze les te bekijken.",
+      "enrollmentRequiredButton": "Bekijk de cursus en schrijf je in"
     },
     "lessonEdit": {
       "loading": "Editor openen…"

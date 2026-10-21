@@ -151,7 +151,8 @@ def _parse_iso_datetime(value: str, *, end_of_day: bool = False):
         description=(
                 "Crée un nouveau domaine.\n\n"
                 "- `owner` est forcé au user courant (même si fourni dans le payload).\n"
-                "- Le user courant est ajouté à `staff` automatiquement.\n"
+                "- `managers` est ignoré : le créateur est le seul manager au départ "
+                "(il en ajoute ensuite via PUT / PATCH).\n"
                 "- `allowed_languages` doit être un sous-ensemble de `settings.LANGUAGES`."
         ),
         request=DomainWriteSerializer,

@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from config.permissions import is_authenticated_user, is_django_admin
@@ -20,6 +21,71 @@ def is_lms_learner(user, course) -> bool:
         or domain.managers.filter(pk=user.pk).exists()
         or domain.members.filter(pk=user.pk).exists()
     )
+
+
+def can_read_course_content(user, course) -> bool:
+    """Whether ``user`` may read the lesson content of ``course``.
+
+    ``open`` courses are free to read (for whoever can see them); on an
+    ``approval`` or ``invite`` course the learner needs an active or
+    completed enrollment. Domain instructors and Django staff always
+    read. Visibility itself (``Course.objects.visible_to``) is checked
+    separately — this only adds the enrollment gate on top of it."""
+    from .models import Course
+    if course.enrollment_mode == Course.ENROLL_OPEN:
+        return True
+    if not is_authenticated_user(user):
+        return False
+    if is_lms_instructor(user, course):
+        return True
+    from enrollment.models import CourseEnrollment
+    from enrollment.services import PROGRESS_ENROLLMENT_STATUSES
+    return CourseEnrollment.objects.filter(
+        user=user, course=course, status__in=PROGRESS_ENROLLMENT_STATUSES,
+    ).exists()
+
+
+def can_read_lesson_content(user, lesson) -> bool:
+    """``can_read_course_content`` for one lesson; preview lessons are the
+    explicit free teaser of a course and stay readable."""
+    return lesson.is_preview or can_read_course_content(user, lesson.section.course)
+
+
+class EnrollmentRequired(PermissionDenied):
+    """403 raised when a learner can see a lesson in the course outline but
+    must enroll (or wait for approval) before reading it. The body carries
+    ``code`` and ``course_slug`` so the SPA can send them to the course
+    page instead of an error screen."""
+
+    default_code = "enrollment_required"
+
+    def __init__(self, course):
+        from django.utils.translation import gettext as _
+        super().__init__({
+            "detail": _("You must be enrolled in this course to read its lessons."),
+            "code": self.default_code,
+            "course_slug": course.slug,
+        })
+
+
+def _lesson_content_gate(user, obj) -> None:
+    """Raise :class:`EnrollmentRequired` when ``obj`` (a Lesson, a
+    lesson-hosted Block or a LessonQuiz) is content the caller may not read
+    yet. Course / Section objects (the outline) are never gated."""
+    from assessment.models import LessonQuiz
+    from block.models import Block
+    from lesson.models import Lesson
+    if isinstance(obj, Block):
+        obj = obj.target
+    if isinstance(obj, LessonQuiz):
+        if obj.lesson_id:
+            obj = obj.lesson
+        elif not can_read_course_content(user, obj.course):
+            raise EnrollmentRequired(obj.course)
+        else:
+            return
+    if isinstance(obj, Lesson) and not can_read_lesson_content(user, obj):
+        raise EnrollmentRequired(obj.section.course)
 
 
 def _course_of(obj):
@@ -112,7 +178,10 @@ class IsLmsInstructorOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             if is_lms_instructor(request.user, course):
                 return True
-            return is_lms_learner(request.user, course) and _is_published_chain(obj)
+            if not (is_lms_learner(request.user, course) and _is_published_chain(obj)):
+                return False
+            _lesson_content_gate(request.user, obj)
+            return True
         return is_lms_instructor(request.user, course)
 
 

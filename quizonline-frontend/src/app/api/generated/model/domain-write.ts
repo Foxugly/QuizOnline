@@ -18,7 +18,7 @@ export interface DomainWriteDto {
     reviews_allow_rating?: boolean;
     reviews_allow_comment?: boolean;
     owner?: number;
-    managers: Array<number>;
+    managers?: Array<number>;
     notification_settings?: any | null;
     certificate_logo?: string | null;
     certificate_signatory_name?: string;

@@ -20,7 +20,7 @@ export interface DomainWriteRequestDto {
     reviews_allow_rating?: boolean;
     reviews_allow_comment?: boolean;
     owner?: number;
-    managers: Array<number>;
+    managers?: Array<number>;
     notification_settings?: any | null;
     certificate_logo?: Blob | null;
     certificate_signatory_name?: string;

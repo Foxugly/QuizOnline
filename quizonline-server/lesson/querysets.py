@@ -28,3 +28,17 @@ class LessonQuerySet(TranslatableQuerySet):
             managed
             | (Q(section__is_published=True) & (Q(is_published=True) | Q(is_preview=True)))
         ).distinct()
+
+    def content_readable_by(self, user):
+        """``visible_to`` narrowed to the lessons whose CONTENT (blocks,
+        lesson quizzes) the caller may read: the course's content is
+        readable (``Course.objects.content_readable_by``) or the lesson is
+        a preview — the explicit free teaser of a course. Mirrors
+        :func:`course.permissions.can_read_lesson_content`."""
+        from course.models import Course
+
+        qs = self.visible_to(user)
+        if is_django_admin(user):
+            return qs
+        readable_courses = Course.objects.content_readable_by(user).values("id")
+        return qs.filter(Q(is_preview=True) | Q(section__course_id__in=readable_courses))

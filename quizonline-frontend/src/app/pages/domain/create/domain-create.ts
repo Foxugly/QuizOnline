@@ -84,7 +84,6 @@ export class DomainCreate implements OnInit {
     active: new FormControl<boolean>(true, {nonNullable: true}),
     public: new FormControl<boolean>(true, {nonNullable: true}),
     owner: new FormControl<number | null>(null),
-    managers: new FormControl<number[]>([], {nonNullable: true}),
     join_policy: new FormControl<JoinPolicyEnumDto>(JoinPolicyEnumDto.Auto, {nonNullable: true}),
 
     allowed_language_codes: new FormControl<LangCode[]>([], {
@@ -300,7 +299,6 @@ export class DomainCreate implements OnInit {
     return {
       active: this.form.controls.active.value ?? true,
       public: this.form.controls.public.value ?? true,
-      managers: this.form.controls.managers.value ?? [],
       join_policy: this.form.controls.join_policy.value,
       allowed_languages,
       translations,
@@ -318,10 +316,8 @@ export class DomainCreate implements OnInit {
     if (typeof id === 'number') {
       this.form.controls.owner.setValue(id);
       this.form.controls.owner.disable({emitEvent: false}); // readonly
-      const current = this.form.controls.managers.value ?? [];
-      if (!current.includes(id)) {
-        this.form.controls.managers.setValue([...current, id], {emitEvent: false});
-      }
+      // No ``managers`` on create: the server makes the creator the sole
+      // manager; more managers are added afterwards from the edit page.
     }
 
   }

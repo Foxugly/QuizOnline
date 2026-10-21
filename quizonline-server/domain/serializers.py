@@ -182,7 +182,10 @@ class DomainWriteSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True,
     )
-    managers = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=True)
+    # Ignored on create: the creator is the sole owner + manager of a new
+    # domain and adds managers afterwards through PUT / PATCH (or the
+    # member-role endpoint), which keep their own permission checks.
+    managers = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False)
     owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     notification_settings = serializers.JSONField(required=False)
 
@@ -323,12 +326,14 @@ class DomainWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"owner": "Owner is required."})
         translations = validated_data.pop("translations")
         langs = validated_data.pop("allowed_languages", [])
+        # owner / managers from the payload are ignored: the creator is the
+        # sole owner and manager of a new domain (``perform_create`` adds
+        # them to ``managers``). Accepting arbitrary managers here let a
+        # creator grant instructor rights to any account.
         validated_data.pop("owner", None)
-        managers = validated_data.pop("managers", [])
+        validated_data.pop("managers", None)
         with transaction.atomic():
             domain = Domain.objects.create(owner=request.user, **validated_data)
-            if managers:
-                domain.managers.set(managers)
             if langs:
                 domain.allowed_languages.set(langs)
             self._apply_translations(domain, translations)
