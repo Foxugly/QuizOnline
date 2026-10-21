@@ -1288,7 +1288,7 @@ paths:
         Crée un nouveau domaine.
 
         - `owner` est forcé au user courant (même si fourni dans le payload).
-        - Le user courant est ajouté à `staff` automatiquement.
+        - `managers` est ignoré : le créateur est le seul manager au départ (il en ajoute ensuite via PUT / PATCH).
         - `allowed_languages` doit être un sous-ensemble de `settings.LANGUAGES`.
       summary: Créer un domaine
       tags:
@@ -8492,7 +8492,6 @@ components:
           maxLength: 200
       required:
       - allowed_languages
-      - managers
     DomainWriteRequest:
       type: object
       properties:
@@ -8531,7 +8530,6 @@ components:
           maxLength: 200
       required:
       - allowed_languages
-      - managers
       - translations
     EmailConfirmationRequest:
       type: object

@@ -19,6 +19,12 @@ export interface LessonViewUiText {
   errorTitle: string;
   errorMessage: string;
   retryButton: string;
+  /** Shown instead of the lesson when the course requires an enrollment
+   *  (approval / invite mode) the learner does not hold yet. */
+  enrollmentRequiredTitle: string;
+  enrollmentRequiredMessage: string;
+  /** CTA back to the course page, where the enroll / request button lives. */
+  enrollmentRequiredButton: string;
   markCompletedButton: string;
   alreadyCompletedBadge: string;
   lessonCompletedToast: string;

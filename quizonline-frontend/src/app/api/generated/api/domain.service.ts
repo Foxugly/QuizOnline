@@ -692,7 +692,7 @@ export class DomainApi extends BaseService {
 
     /**
      * Créer un domaine
-     * Crée un nouveau domaine.  - &#x60;owner&#x60; est forcé au user courant (même si fourni dans le payload). - Le user courant est ajouté à &#x60;staff&#x60; automatiquement. - &#x60;allowed_languages&#x60; doit être un sous-ensemble de &#x60;settings.LANGUAGES&#x60;.
+     * Crée un nouveau domaine.  - &#x60;owner&#x60; est forcé au user courant (même si fourni dans le payload). - &#x60;managers&#x60; est ignoré : le créateur est le seul manager au départ (il en ajoute ensuite via PUT / PATCH). - &#x60;allowed_languages&#x60; doit être un sous-ensemble de &#x60;settings.LANGUAGES&#x60;.
      * @endpoint post /api/v1/domain/
      * @param requestParameters
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

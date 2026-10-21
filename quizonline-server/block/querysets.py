@@ -8,9 +8,10 @@ class BlockQuerySet(TranslatableQuerySet):
 
         Three host kinds are supported:
 
-        - **Lesson**: visible when the host lesson is visible (see
-          ``LessonQuerySet.visible_to`` for the published / preview /
-          instructor rules).
+        - **Lesson**: visible when the host lesson's content is readable
+          (see ``LessonQuerySet.content_readable_by``: published / preview
+          / instructor rules plus the enrollment gate on approval and
+          invite courses).
         - **Question / AnswerOption** (Phase 3.5): visible when the
           calling user can manage the owning domain. Anonymous users
           never see Question-hosted blocks via this endpoint — the
@@ -28,7 +29,7 @@ class BlockQuerySet(TranslatableQuerySet):
         answer_option_ct = ContentType.objects.get_for_model(AnswerOption)
 
         visible_lesson_ids = list(
-            Lesson.objects.visible_to(user).values_list("id", flat=True)
+            Lesson.objects.content_readable_by(user).values_list("id", flat=True)
         )
         scope = Q(
             target_content_type=lesson_ct,

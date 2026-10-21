@@ -80,6 +80,12 @@
         [label]="ui().nextLessonButton + ' — ' + next.title" />
     }
   </footer>
+} @else if (enrollmentRequiredHref(); as href) {
+  <div class="empty-cell">
+    <h3>{{ ui().enrollmentRequiredTitle }}</h3>
+    <p>{{ ui().enrollmentRequiredMessage }}</p>
+    <p-button icon="pi pi-sign-in" [label]="ui().enrollmentRequiredButton" severity="primary" [routerLink]="href" />
+  </div>
 } @else if (loadError()) {
   <div class="empty-cell">
     <h3>{{ ui().errorTitle }}</h3>

@@ -35,8 +35,19 @@ class LessonViewSet(ShortReadCacheMixin, viewsets.ModelViewSet):
         # available_lang_codes). Without this prefetch chain a single
         # retrieve fired ~12 queries — see the n+1 audit in commit
         # message context.
+        # The list ships every lesson's blocks, so it only holds lessons
+        # whose content the caller may read. Detail routes resolve on
+        # plain visibility: a lesson the learner can see in the outline
+        # but may not read yet answers 403 ``enrollment_required`` from
+        # the permission class (not a 404), so the SPA can offer to enroll.
+        user = self.request.user
+        base = (
+            Lesson.objects.content_readable_by(user)
+            if self.action == "list"
+            else Lesson.objects.visible_to(user)
+        )
         return (
-            Lesson.objects.visible_to(self.request.user)
+            base
             .select_related("section", "section__course", "section__course__domain")
             .prefetch_related(
                 "translations",

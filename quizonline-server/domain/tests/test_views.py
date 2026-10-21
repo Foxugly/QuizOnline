@@ -290,12 +290,13 @@ class DomainViewSetTests(TestCase):
         domain = Domain.objects.get(pk=created_id)
         self.assertEqual(domain.owner_id, self.owner.id)
 
+        # ``managers`` from the payload is ignored on create (audit M5): the
+        # creator is the sole manager and adds others afterwards.
         manager_ids = set(domain.managers.values_list("id", flat=True))
-        self.assertIn(self.owner.id, manager_ids)  # ajouté par perform_create()
-        self.assertIn(self.other.id, manager_ids)
+        self.assertEqual(manager_ids, {self.owner.id})  # ajouté par perform_create()
         member_ids = set(domain.members.values_list("id", flat=True))
         self.assertIn(self.owner.id, member_ids)
-        self.assertIn(self.other.id, member_ids)
+        self.assertNotIn(self.other.id, member_ids)
 
         allowed_ids = set(domain.allowed_languages.values_list("id", flat=True))
         self.assertEqual(allowed_ids, {self.lang_fr.id})
@@ -304,6 +305,54 @@ class DomainViewSetTests(TestCase):
         domain.set_current_language("fr")
         self.assertEqual(domain.name, "Nouveau")
         self.assertEqual(domain.description, "X")
+
+    def test_create_without_managers_field_ok(self):
+        view = DomainViewSet.as_view({"post": "create"})
+        payload = {
+            "translations": {"fr": {"name": "Sans managers", "description": ""}},
+            "allowed_languages": [self.lang_fr.id],
+            "active": True,
+        }
+        request = self.factory.post("/api/v1/domain/", payload, format="json")
+        force_authenticate(request, user=self.owner)
+        response = view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        domain = Domain.objects.get(pk=response.data["id"])
+        self.assertEqual(set(domain.managers.values_list("id", flat=True)), {self.owner.id})
+
+    def test_create_ignores_owner_and_managers_then_owner_adds_manager(self):
+        view = DomainViewSet.as_view({"post": "create"})
+        payload = {
+            "translations": {"fr": {"name": "Forcé", "description": ""}},
+            "allowed_languages": [self.lang_fr.id],
+            "active": True,
+            "owner": self.other.id,
+            "managers": [self.other.id, self.member.id],
+        }
+        request = self.factory.post("/api/v1/domain/", payload, format="json")
+        force_authenticate(request, user=self.owner)
+        response = view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        domain = Domain.objects.get(pk=response.data["id"])
+        self.assertEqual(domain.owner_id, self.owner.id)
+        self.assertEqual(set(domain.managers.values_list("id", flat=True)), {self.owner.id})
+
+        # The owner adds managers afterwards through the update path.
+        patch = DomainViewSet.as_view({"patch": "partial_update"})
+        request = self.factory.patch(
+            f"/api/v1/domain/{domain.id}/",
+            {"managers": [self.owner.id, self.other.id]},
+            format="json",
+        )
+        force_authenticate(request, user=self.owner)
+        response = patch(request, domain_id=domain.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            set(domain.managers.values_list("id", flat=True)),
+            {self.owner.id, self.other.id},
+        )
 
     def test_create_authenticated_sets_created_by(self):
         view = DomainViewSet.as_view({"post": "create"})

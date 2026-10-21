@@ -1421,7 +1421,10 @@
       "notesSavedAt": "Enregistré à {time}",
       "errorTitle": "Chargement impossible",
       "errorMessage": "Cette leçon n’a pas pu être chargée. Veuillez réessayer.",
-      "retryButton": "Réessayer"
+      "retryButton": "Réessayer",
+      "enrollmentRequiredTitle": "Inscription requise",
+      "enrollmentRequiredMessage": "Inscrivez-vous à ce cours (ou demandez à y être inscrit) pour accéder à cette leçon.",
+      "enrollmentRequiredButton": "Voir le cours et s’inscrire"
     },
     "lessonEdit": {
       "loading": "Ouverture de l'éditeur…"

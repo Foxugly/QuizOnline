@@ -1421,7 +1421,10 @@
       "notesSavedAt": "Saved at {time}",
       "errorTitle": "Couldn’t load",
       "errorMessage": "This lesson couldn’t be loaded. Please try again.",
-      "retryButton": "Retry"
+      "retryButton": "Retry",
+      "enrollmentRequiredTitle": "Enrollment required",
+      "enrollmentRequiredMessage": "Enroll in this course (or request enrollment) to access this lesson.",
+      "enrollmentRequiredButton": "View the course and enroll"
     },
     "lessonEdit": {
       "loading": "Opening the editor…"

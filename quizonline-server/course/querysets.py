@@ -46,6 +46,30 @@ class CourseQuerySet(TranslatableQuerySet):
 
         return self.filter(managed | member_visibility).distinct()
 
+    def content_readable_by(self, user):
+        """``visible_to`` narrowed to the courses whose lesson content the
+        caller may read. Seeing a course (catalog, outline) is not reading
+        it: on an ``approval`` or ``invite`` course a learner needs an
+        active or completed enrollment. ``open`` courses stay free to read,
+        domain instructors and Django staff read everything. Mirrors
+        :func:`course.permissions.can_read_course_content`."""
+        from enrollment.models import CourseEnrollment
+        from enrollment.services import PROGRESS_ENROLLMENT_STATUSES
+
+        from .models import Course
+        qs = self.visible_to(user)
+        if not is_authenticated_user(user) or is_django_admin(user):
+            return qs
+        enrolled = CourseEnrollment.objects.filter(
+            user=user, status__in=PROGRESS_ENROLLMENT_STATUSES,
+        ).values("course_id")
+        return qs.filter(
+            Q(enrollment_mode=Course.ENROLL_OPEN)
+            | Q(domain__owner=user)
+            | Q(domain__managers=user)
+            | Q(id__in=enrolled)
+        ).distinct()
+
 
 class SectionQuerySet(TranslatableQuerySet):
     def published(self):

@@ -1421,7 +1421,10 @@
       "notesSavedAt": "Guardado a las {time}",
       "errorTitle": "No se pudo cargar",
       "errorMessage": "No se pudo cargar esta lección. Inténtalo de nuevo.",
-      "retryButton": "Reintentar"
+      "retryButton": "Reintentar",
+      "enrollmentRequiredTitle": "Inscripción necesaria",
+      "enrollmentRequiredMessage": "Inscríbete en este curso (o solicita la inscripción) para acceder a esta lección.",
+      "enrollmentRequiredButton": "Ver el curso e inscribirse"
     },
     "lessonEdit": {
       "loading": "Abriendo el editor…"

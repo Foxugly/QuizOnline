@@ -216,8 +216,10 @@ class DomainSerializersTestCase(TestCase):
 
         self.assertEqual(obj.owner_id, self.owner.id)
         self.assertTrue(obj.active)
-        self.assertEqual(obj.managers.count(), 2)
-        self.assertEqual(obj.members.count(), 2)
+        # ``managers`` is ignored on create (audit M5): the view's
+        # ``perform_create`` adds the creator, the serializer adds nobody.
+        self.assertEqual(obj.managers.count(), 0)
+        self.assertEqual(obj.members.count(), 0)
         self.assertEqual(obj.allowed_languages.count(), 2)
 
         obj.set_current_language("fr")
