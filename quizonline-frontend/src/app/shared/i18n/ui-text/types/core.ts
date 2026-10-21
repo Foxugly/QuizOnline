@@ -2,6 +2,7 @@ import type {PluralForms} from '../../format';
 import type {KindLineCopy, RelativeCopy} from '../../notifications.util';
 
 export type TopMenuUiText = {
+  home: string;
   quiz: string;
   domains: string;
   subjects: string;

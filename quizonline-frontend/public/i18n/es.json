@@ -1,6 +1,7 @@
 {
   "ui": {
     "topmenu": {
+      "home": "Inicio",
       "quiz": "Cuestionarios",
       "domains": "Dominios",
       "subjects": "Temas",
