@@ -148,7 +148,9 @@ jobs:
           #      whose .git (refs, config, hooks) django could rewrite to make
           #      root install or run attacker content.
           #   4. daemon-reload + (re)start the frontend-runtime fetch unit.
-          #   5. As ROOT: install the nginx site config from the COMMITTED git
+          #   5. As ROOT: install the nginx site config (and its rate-limit
+          #      zones, deploy/nginx/quizonline-limits.conf →
+          #      /etc/nginx/conf.d/, http context) from the COMMITTED git
           #      blob → /etc/nginx/sites-available/…, validate with ``nginx
           #      -t``, and ONLY reload if valid — otherwise restore the prior
           #      config and fail the deploy (the live config is never left
@@ -197,7 +199,7 @@ jobs:
               "systemctl daemon-reload",
               "systemctl enable --quiet quizonline-frontend-runtime-fetch.service",
               "systemctl restart quizonline-frontend-runtime-fetch.service",
-              "bash -c 'set -e; git --git-dir=$M show $SHA:deploy/nginx/quizonline.foxugly.com.conf > /etc/nginx/sites-available/quizonline.foxugly.com.new; cp -a /etc/nginx/sites-available/quizonline.foxugly.com /etc/nginx/sites-available/quizonline.foxugly.com.deploybak; mv /etc/nginx/sites-available/quizonline.foxugly.com.new /etc/nginx/sites-available/quizonline.foxugly.com; nginx -t || { mv /etc/nginx/sites-available/quizonline.foxugly.com.deploybak /etc/nginx/sites-available/quizonline.foxugly.com; exit 1; }; systemctl reload nginx'",
+              "bash -c 'set -e; git --git-dir=$M show $SHA:deploy/nginx/quizonline-limits.conf > /etc/nginx/conf.d/quizonline-limits.conf.new; git --git-dir=$M show $SHA:deploy/nginx/quizonline.foxugly.com.conf > /etc/nginx/sites-available/quizonline.foxugly.com.new; rm -f /etc/nginx/conf.d/quizonline-limits.conf.deploybak; [ ! -e /etc/nginx/conf.d/quizonline-limits.conf ] || cp -a /etc/nginx/conf.d/quizonline-limits.conf /etc/nginx/conf.d/quizonline-limits.conf.deploybak; cp -a /etc/nginx/sites-available/quizonline.foxugly.com /etc/nginx/sites-available/quizonline.foxugly.com.deploybak; mv /etc/nginx/conf.d/quizonline-limits.conf.new /etc/nginx/conf.d/quizonline-limits.conf; mv /etc/nginx/sites-available/quizonline.foxugly.com.new /etc/nginx/sites-available/quizonline.foxugly.com; nginx -t || { mv /etc/nginx/sites-available/quizonline.foxugly.com.deploybak /etc/nginx/sites-available/quizonline.foxugly.com; if [ -e /etc/nginx/conf.d/quizonline-limits.conf.deploybak ]; then mv /etc/nginx/conf.d/quizonline-limits.conf.deploybak /etc/nginx/conf.d/quizonline-limits.conf; else rm -f /etc/nginx/conf.d/quizonline-limits.conf; fi; exit 1; }; systemctl reload nginx'",
               "sudo -u django bash /var/www/django_websites/QuizOnline/deploy/ssm-deploy.sh $SHA $BUCKET",
               "chown -R -h django:www-data /var/www/django_websites/QuizOnline && sudo -u django chmod -R g-w,o-rwx /var/www/django_websites/QuizOnline"
             ],
