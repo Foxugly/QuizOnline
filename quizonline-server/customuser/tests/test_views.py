@@ -754,3 +754,116 @@ class UserViewsTests(APITestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(statuses, ["pending"])
         self.assertEqual(domain_ids, [domain1.id])
+
+
+class PrivateDomainSelfServiceTests(APITestCase):
+    """Security regression: a private (public=False) domain is joined only
+    through an emailed invitation, never by listing its id at registration
+    or in the profile PATCH."""
+
+    USER_LIST_CREATE_URL = "/api/v1/user/"
+    ME_URL = "/api/v1/user/me/"
+
+    def setUp(self):
+        from domain.models import DomainJoinRequest, JoinPolicy
+
+        self.DomainJoinRequest = DomainJoinRequest
+        cache.clear()
+        self.owner = User.objects.create_user(password="ownerpass123!", email="owner@example.com")
+        self.user = User.objects.create_user(password="userpass123!", email="user@example.com")
+        self.public_domain = Domain.objects.create(owner=self.owner, active=True, public=True)
+        self.private_auto = Domain.objects.create(
+            owner=self.owner, active=True, public=False, join_policy=JoinPolicy.AUTO,
+        )
+        self.private_validation = Domain.objects.create(
+            owner=self.owner, active=True, public=False, join_policy=JoinPolicy.OWNER,
+        )
+
+    def tearDown(self):
+        cache.clear()
+        super().tearDown()
+
+    def _register(self, email, **domains):
+        payload = {
+            "email": email,
+            "first_name": "New",
+            "last_name": "Bie",
+            "password": "SecretPass123!",
+            **domains,
+        }
+        return self.client.post(self.USER_LIST_CREATE_URL, payload, format="json")
+
+    def _linked_ids(self, user):
+        return set(user.linked_domains.values_list("id", flat=True))
+
+    def test_register_cannot_join_private_auto_domain(self):
+        for field in ("managed_domain_ids", "requested_domain_ids"):
+            email = f"{field}@example.com"
+            res = self._register(email, **{field: [self.private_auto.id]})
+            self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertFalse(User.objects.filter(email=email).exists())
+
+    def test_register_with_public_domain_still_joins(self):
+        res = self._register("pub@example.com", managed_domain_ids=[self.public_domain.id])
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        created = User.objects.get(email="pub@example.com")
+        self.assertEqual(self._linked_ids(created), {self.public_domain.id})
+
+    def test_me_patch_cannot_join_private_auto_domain(self):
+        self.client.force_authenticate(user=self.user)
+        res = self.client.patch(
+            self.ME_URL,
+            {"managed_domain_ids": [self.public_domain.id, self.private_auto.id]},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._linked_ids(self.user), set())
+
+    def test_me_patch_cannot_request_private_validation_domain(self):
+        self.client.force_authenticate(user=self.user)
+        res = self.client.patch(
+            self.ME_URL, {"managed_domain_ids": [self.private_validation.id]}, format="json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.DomainJoinRequest.objects.filter(user=self.user).exists())
+
+    def test_error_does_not_reveal_which_ids_exist(self):
+        self.client.force_authenticate(user=self.user)
+        unknown_id = Domain.objects.order_by("-id").first().id + 1000
+        res_private = self.client.patch(
+            self.ME_URL, {"managed_domain_ids": [self.private_auto.id]}, format="json"
+        )
+        res_unknown = self.client.patch(
+            self.ME_URL, {"managed_domain_ids": [unknown_id]}, format="json"
+        )
+        self.assertEqual(res_private.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res_private.data, res_unknown.data)
+        self.assertNotIn(str(self.private_auto.id), str(res_private.data))
+
+    def test_me_patch_public_domain_still_joins(self):
+        self.client.force_authenticate(user=self.user)
+        res = self.client.patch(
+            self.ME_URL, {"managed_domain_ids": [self.public_domain.id]}, format="json"
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(self._linked_ids(self.user), {self.public_domain.id})
+
+    def test_existing_private_member_keeps_membership(self):
+        self.private_auto.members.add(self.user)
+        self.client.force_authenticate(user=self.user)
+        res = self.client.patch(
+            self.ME_URL,
+            {"managed_domain_ids": [self.private_auto.id, self.public_domain.id]},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(self._linked_ids(self.user), {self.private_auto.id, self.public_domain.id})
+
+    def test_reconcile_ignores_private_domain(self):
+        from customuser.services import reconcile_user_domain_membership
+
+        reconcile_user_domain_membership(
+            self.user, [self.private_auto.id, self.private_validation.id, self.public_domain.id]
+        )
+        self.assertEqual(self._linked_ids(self.user), {self.public_domain.id})
+        self.assertFalse(self.DomainJoinRequest.objects.filter(user=self.user).exists())

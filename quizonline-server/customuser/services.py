@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework_simplejwt.token_blacklist.models import (
     BlacklistedToken,
@@ -150,6 +151,9 @@ def reconcile_user_domain_membership(user, target_domain_ids):
 
     - Domains that disappear from the list are removed unconditionally
       (self-leave is always allowed).
+    - Only public domains, or private ones the user owns or manages, can be
+      added: a private domain is joined through an emailed invitation
+      (defence in depth, the serializers already refuse other ids).
     - Domains that appear in the list and have `join_policy == auto` are
       added directly.
     - Domains that appear in the list and have a validation policy create
@@ -177,6 +181,8 @@ def reconcile_user_domain_membership(user, target_domain_ids):
 
         domains_to_add = list(
             Domain.objects.filter(id__in=to_add_ids, active=True)
+            .filter(Q(public=True) | Q(owner=user) | Q(managers=user))
+            .distinct()
         )
 
         auto_domains = [d for d in domains_to_add if d.join_policy == JoinPolicy.AUTO]

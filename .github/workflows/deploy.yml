@@ -21,7 +21,20 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # `branches: [main]` above filters on the head BRANCH NAME only: a PR from
+    # a fork whose branch is also called `main` would match it. Deploy only
+    # after a successful CI run of a PUSH to this repository's main (or a
+    # manual dispatch on main). The root side of the SSM command re-checks
+    # that the SHA is on main (merge-base --is-ancestor) whatever happens here.
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_run' &&
+         github.event.workflow_run.event == 'push' &&
+         github.event.workflow_run.head_repository.full_name == github.repository &&
+         github.event.workflow_run.head_branch == 'main' &&
+         github.event.workflow_run.conclusion == 'success')
+      }}
     runs-on: ubuntu-latest
     environment: production    # gates the OIDC sub claim AND enables approval rules
     steps:
@@ -107,6 +120,12 @@ jobs:
           SHA: ${{ steps.package.outputs.sha }}
         run: |
           # Ordered SSM commands (AWS-RunShellScript runs them as ROOT):
+          #   0. As ROOT, before anything else: fetch $SHA and main into
+          #      root's bare mirror and REFUSE the deploy unless $SHA is an
+          #      ancestor of (or equal to) main. Whatever triggered the
+          #      workflow, root only ever installs commits that are on main.
+          #      main is fetched with some depth so an older $SHA (queued
+          #      behind a newer merge) is still found in its history.
           #   1. chown the whole tree back to django:www-data. Runs BEFORE the
           #      django git reset and self-heals the recurring ".git/objects …
           #      Permission denied" failure caused by git objects left
@@ -160,11 +179,12 @@ jobs:
           cat > /tmp/ssm-params.json <<EOF
           {
             "commands": [
-              "chown -R -h django:www-data /var/www/django_websites/QuizOnline",
-              "sudo -u django bash -c 'umask 027; cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
               "install -d -m 700 -o root -g root /var/lib/fleet-deploy",
               "[ -d $M ] || git init --quiet --bare $M",
               "git --git-dir=$M fetch --quiet --depth=1 https://github.com/Foxugly/QuizOnline.git $SHA && git --git-dir=$M cat-file -e $SHA^{commit} || exit 1",
+              "git --git-dir=$M fetch --quiet --depth=200 https://github.com/Foxugly/QuizOnline.git +refs/heads/main:refs/heads/main && git --git-dir=$M merge-base --is-ancestor $SHA refs/heads/main || { echo \"Deploy refused: $SHA is not on main\" >&2; exit 1; }",
+              "chown -R -h django:www-data /var/www/django_websites/QuizOnline",
+              "sudo -u django bash -c 'umask 027; cd /var/www/django_websites/QuizOnline && git fetch --quiet && git reset --hard --quiet origin/main'",
               "git --git-dir=$M show $SHA:deploy/quizonline-env-fetch.service > /etc/systemd/system/quizonline-env-fetch.service",
               "git --git-dir=$M show $SHA:deploy/quizonline-frontend-runtime-fetch.service > /etc/systemd/system/quizonline-frontend-runtime-fetch.service",
               "git --git-dir=$M show $SHA:deploy/quizonline-gunicorn.service > /etc/systemd/system/quizonline-gunicorn.service",

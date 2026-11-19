@@ -1,6 +1,7 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 from rest_framework import serializers
 
 from domain.models import Domain, DomainJoinRequest
@@ -11,6 +12,34 @@ User = get_user_model()
 
 class PasswordResetOKSerializer(serializers.Serializer):
     detail = serializers.CharField()
+
+
+INVALID_DOMAIN_IDS_MESSAGE = "Invalid domain id(s)."
+
+
+def validate_self_service_domain_ids(user, value: list[int]) -> list[int]:
+    """Keep a self-service domain list to the domains ``user`` may hold.
+
+    A user may only list active domains that are public, or private ones they
+    already belong to (member, owner or manager). A private domain is joined
+    through an emailed invitation, never by putting its id here. Any other id
+    (unknown, inactive or private) fails with ONE generic message that names
+    no id, so the endpoint does not reveal which private domains exist.
+    """
+    domain_ids = sorted(set(value))
+    if not domain_ids:
+        return domain_ids
+    allowed = Q(public=True)
+    if user is not None and getattr(user, "is_authenticated", False):
+        allowed |= Q(members=user) | Q(owner=user) | Q(managers=user)
+    found_ids = set(
+        Domain.objects.filter(id__in=domain_ids, active=True)
+        .filter(allowed)
+        .values_list("id", flat=True)
+    )
+    if found_ids != set(domain_ids):
+        raise serializers.ValidationError(INVALID_DOMAIN_IDS_MESSAGE)
+    return domain_ids
 
 
 class StrictFieldsModelSerializer(serializers.ModelSerializer):
@@ -141,15 +170,9 @@ class CustomUserCreateSerializer(StrictFieldsModelSerializer):
         ]
 
     def _validate_domain_id_list(self, value: list[int]) -> list[int]:
-        domain_ids = sorted(set(value))
-        domains = Domain.objects.filter(id__in=domain_ids, active=True)
-        found_ids = set(domains.values_list("id", flat=True))
-        missing_ids = [domain_id for domain_id in domain_ids if domain_id not in found_ids]
-        if missing_ids:
-            raise serializers.ValidationError(
-                f"Unknown or inactive domain id(s): {', '.join(map(str, missing_ids))}."
-            )
-        return domain_ids
+        # The account does not exist yet: it belongs to no domain, so only
+        # public domains can be listed (whoever sends the request).
+        return validate_self_service_domain_ids(None, value)
 
     def validate_password(self, value: str) -> str:
         validate_password(value)
@@ -207,15 +230,7 @@ class CustomUserProfileUpdateSerializer(StrictFieldsModelSerializer):
         fields = ["email", "first_name", "last_name", "language", "managed_domain_ids", "notification_prefs"]
 
     def validate_managed_domain_ids(self, value: list[int]) -> list[int]:
-        domain_ids = sorted(set(value))
-        domains = Domain.objects.filter(id__in=domain_ids, active=True)
-        found_ids = set(domains.values_list("id", flat=True))
-        missing_ids = [domain_id for domain_id in domain_ids if domain_id not in found_ids]
-        if missing_ids:
-            raise serializers.ValidationError(
-                f"Unknown or inactive domain id(s): {', '.join(map(str, missing_ids))}."
-            )
-        return domain_ids
+        return validate_self_service_domain_ids(self.instance, value)
 
     def validate_notification_prefs(self, value) -> dict:
         # Canonicalise the payload: only known kinds, only False entries
