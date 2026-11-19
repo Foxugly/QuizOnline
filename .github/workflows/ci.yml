@@ -33,7 +33,7 @@ jobs:
     # Aucun changement de code : settings_base lit DATABASE_URL et retombe sur
     # SQLite quand la variable est absente (dev local inchange).
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # PostgreSQL n'est pas un `service` : un service se télécharge avant toute
       # étape, sans cache possible, et le registre refuse parfois (Docker Hub,
@@ -46,7 +46,7 @@ jobs:
 
       - name: Image PostgreSQL depuis le cache
         id: cache-postgres
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /tmp/postgres-16.tar
           key: postgres-16-${{ steps.cle-postgres.outputs.mois }}
@@ -73,7 +73,7 @@ jobs:
 
       - name: Mettre l'image du mois en cache
         if: steps.telechargement-postgres.outputs.neuve == 'true'
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /tmp/postgres-16.tar
           key: postgres-16-${{ steps.cle-postgres.outputs.mois }}
@@ -93,7 +93,7 @@ jobs:
           docker logs postgres
           echo "::error::PostgreSQL ne répond pas."; exit 1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -122,9 +122,9 @@ jobs:
       run:
         working-directory: quizonline-server
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -178,9 +178,9 @@ jobs:
       run:
         working-directory: quizonline-frontend
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: "npm"
@@ -227,9 +227,9 @@ jobs:
     # gated in CI.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -239,7 +239,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: "npm"
@@ -259,7 +259,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-fullstack-report
           path: quizonline-frontend/playwright-report/
@@ -272,19 +272,19 @@ jobs:
       - backend-quality
       - frontend
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: quizonline-frontend/package-lock.json
 
-      - uses: actions/setup-java@v6
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: "21"
@@ -303,7 +303,7 @@ jobs:
       # cache, le téléchargement est tenté trois fois.
       - name: JAR du générateur OpenAPI depuis le cache
         id: cache-openapi-jar
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: quizonline-frontend/node_modules/@openapitools/openapi-generator-cli/versions
           key: openapi-generator-jar-${{ hashFiles('quizonline-frontend/openapitools.json') }}
@@ -326,7 +326,7 @@ jobs:
 
       - name: Mettre le JAR du générateur OpenAPI en cache
         if: steps.telechargement-openapi-jar.outputs.neuf == 'true'
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: quizonline-frontend/node_modules/@openapitools/openapi-generator-cli/versions
           key: openapi-generator-jar-${{ hashFiles('quizonline-frontend/openapitools.json') }}
@@ -350,9 +350,9 @@ jobs:
       run:
         working-directory: quizonline-server
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           cache: pip
