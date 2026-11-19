@@ -136,7 +136,9 @@ BILLING_ENFORCE_BLOCK = env.bool("BILLING_ENFORCE_BLOCK", default=True)
 GEOIP_PATH = env("GEOIP_PATH")
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # admin.site with mandatory TOTP 2FA (admin_2fa/, CLAUDE.md "Admin 2FA"):
+    # replaces "django.contrib.admin", same app label.
+    "admin_2fa.apps.OTPAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -152,6 +154,10 @@ INSTALLED_APPS = [
     "django_extensions",
     "import_export",
     "parler",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
+    "admin_2fa",
     "customuser.apps.CustomuserConfig",
     "subject.apps.SubjectConfig",
     "question.apps.QuestionConfig",
@@ -178,6 +184,9 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Binds the session's verified OTP device to request.user (admin 2FA). After
+    # AuthenticationMiddleware; JWT API users are untouched (DRF authenticates later).
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "config.log_middleware.LogContextMiddleware",
@@ -186,6 +195,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 AUTH_USER_MODEL = "customuser.CustomUser"
+
+# --- Admin 2FA (django-otp). Label shown in the authenticator app. Throttling
+# stays on (factor 1 = 1 s, 2 s, 4 s... after each wrong code, per device). ---
+OTP_TOTP_ISSUER = "QuizOnline admin (quizonline.foxugly.com)"
+OTP_TOTP_THROTTLE_FACTOR = 1
+OTP_STATIC_THROTTLE_FACTOR = 1
 
 TEMPLATES = [
     {
