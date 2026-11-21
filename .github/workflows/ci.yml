@@ -100,7 +100,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --require-hashes -r requirements.txt
 
       - name: Run backend test suite (pytest + coverage gate)
         env:
@@ -131,7 +131,15 @@ jobs:
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --require-hashes -r requirements.txt
+
+      # Même installation que deploy/redeploy.sh, dans un venv propre : prouve que
+      # le verrou est complet (--no-deps) et cohérent (pip check).
+      - name: Lock is complete
+        run: |
+          python -m venv /tmp/lock-check
+          /tmp/lock-check/bin/pip install --quiet --require-hashes --no-deps -r requirements.txt
+          /tmp/lock-check/bin/pip check
 
       - name: Run backend lint
         run: ruff check . --exclude migrations
@@ -237,7 +245,7 @@ jobs:
         working-directory: quizonline-server
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --require-hashes -r requirements.txt
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -292,7 +300,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r quizonline-server/requirements.txt
+          pip install --require-hashes -r quizonline-server/requirements.txt
           cd quizonline-frontend
           npm ci
 
@@ -339,8 +347,8 @@ jobs:
         run: git diff --exit-code -- quizonline-server/openapi.yaml quizonline-frontend/openapi.yaml quizonline-frontend/src/app/api/generated
 
   # Audit des dépendances Python contre la base d'avis PyPI (OSV) : le job échoue
-  # sur toute vulnérabilité connue. pip-audit résout l'arbre complet, dépendances
-  # transitives comprises, dans un venv jetable ; outil épinglé, cache pip.
+  # sur toute vulnérabilité connue. requirements.txt est le verrou haché que la
+  # production installe (transitives comprises) ; outil épinglé, cache pip.
   # Exceptions : quizonline-server/.pip-audit-ignore, une ligne « ID AAAA-MM-JJ # raison » ;
   # une exception expirée fait échouer le job — à réexaminer, pas à oublier.
   pip-audit:
@@ -377,4 +385,4 @@ jobs:
               ignore+=(--ignore-vuln "$id")
             done < .pip-audit-ignore
           fi
-          pip-audit --progress-spinner off -r requirements.txt "${ignore[@]}"
+          pip-audit --progress-spinner off --require-hashes -r requirements.txt "${ignore[@]}"

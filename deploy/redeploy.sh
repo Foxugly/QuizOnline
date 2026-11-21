@@ -72,7 +72,13 @@ echo "[2/6] Updating backend..."
 # the guard was protecting an artefact that no longer drives the
 # services. See deploy/SECRETS-ROTATION.md for the new rotation flow.
 
-"$PIP" install -r "$BACKEND_DIR/requirements.txt" -q
+# requirements.txt is a hash-pinned lock (uv pip compile from requirements.in),
+# the exact set CI tested. A plain `pip install -r` of version ranges never
+# upgraded what was already installed, so prod silently missed patch/security
+# releases. --require-hashes refuses anything not in the lock, --no-deps refuses
+# to resolve anything missing from it, and pip check fails on an incoherent set.
+"$PIP" install -q --require-hashes --no-deps -r "$BACKEND_DIR/requirements.txt"
+"$PIP" check
 cd "$BACKEND_DIR"
 
 # Load the SSM-fetched env (DJANGO_ENV=prod, SECRET_KEY, DB_*, …) so manage.py
