@@ -213,7 +213,7 @@ sudo systemctl reload nginx
 EOL bumps (e.g. 3.8 → 3.12) — `deploy/upgrade-python.sh` does the
 swap in-place on the live box. Stops the three services, backs the
 old venv up to `.venv.bak.<timestamp>`, creates a fresh venv with
-the target interpreter, reinstalls `requirements.txt`, runs
+the target interpreter, reinstalls the `requirements.txt` lock, runs
 `manage.py check` + `migrate --plan` as a guard, then restarts and
 polls `/health/`. A `trap` triggers automatic rollback on any
 failure between stop and start.
@@ -589,7 +589,8 @@ ever rebuild:
        /var/www/django_websites/QuizOnline
    cd /var/www/django_websites/QuizOnline/quizonline-server
    sudo -u django python3 -m venv .venv
-   sudo -u django .venv/bin/pip install -r requirements.txt
+   sudo -u django .venv/bin/pip install --require-hashes --no-deps -r requirements.txt
+   sudo -u django .venv/bin/pip check
    ```
 5. **Seed SSM Parameter Store** from a local `.env`:
    ```bash

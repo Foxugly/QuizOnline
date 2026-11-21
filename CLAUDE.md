@@ -58,7 +58,7 @@ Monorepo with two main modules:
 - Iframe URLs: video / embed blocks only accept https YouTube / Vimeo (`block/url_policy.py`, + `LMS_EMBED_ALLOWED_HOSTS`); the SPA mirrors the CSP `frame-src` in `block-renderers/frame-policy.ts` and sandboxes every frame. Extend all three together.
 - Domain ownership transfer links carry a nonce stored on the `transfer.initiate` audit row: a newer transfer, an accept or `DELETE /domain/{id}/transfer/` kills the link (`transfer_token.transfer_is_current`).
 - Prod hides the OpenAPI schema / Swagger UI (`API_SCHEMA_PUBLIC=False`, staff only); `/health/` never returns error details and caches the Celery ping 30 s.
-- Lint: ruff is pinned to the same version in `requirements.txt`, `.pre-commit-config.yaml` (`rev:`) and CI — bump all three together.
+- Lint: ruff is pinned to the same version in `requirements.in` (and its lock), `.pre-commit-config.yaml` (`rev:`) and CI — bump all three together.
 
 ## Admin 2FA
 
@@ -166,6 +166,7 @@ Spec + plan:
 - **CI → Deploy pipeline** (GitHub Actions on push to `main`): assumes the `quizonline-deploy` IAM role via OIDC (no long-lived SSH key in GH Secrets), builds the Angular bundle on the runner, uploads it to S3 (`foxugly-deploy/builds/quizonline/<sha>.tar.gz`), then fires `aws ssm send-command` against the EC2 instance. On the box, `deploy/ssm-deploy.sh` runs `redeploy.sh --skip-frontend` (backend update + service restart), atomically swaps the bundle, reloads nginx, and keeps the previous bundle at `browser.prev/` for a one-step rollback
 - systemd units in `deploy/`: `quizonline-gunicorn.service`, `quizonline-celery.service`, `quizonline-celery-beat.service`. Scheduled DB backup is fleet-wide (`OPERATIONS.md §3.23`, weekly to S3); `deploy/backup-db.sh` stays for manual pre-migration dumps
 - Frontend bundle served from `quizonline-frontend/dist/quizonline-frontend/browser/` (Angular `outputPath.browser` default); CSS-referenced media bundled to `bundle-media/` to avoid clashing with Django uploads at `/media/`
+- **Dependencies**: `quizonline-server/requirements.in` lists the direct deps (dev tools included); `requirements.txt` is the hash-pinned lock generated from it — `uv pip compile requirements.in --generate-hashes --universal --python-version 3.12 -o requirements.txt` (universal: Linux prod + Windows dev). Install with `pip install --require-hashes -r requirements.txt`; `redeploy.sh` installs exactly the lock (`--require-hashes --no-deps` + `pip check`). Never hand-edit the lock.
 - **Full operator runbook** (day-to-day deploy, manual deploy, 3-level rollback, AWS resources inventory, bootstrap a fresh EC2): **`deploy/README.md`**
 - **Per-credential rotation procedures + EBS encryption check**: **`deploy/SECRETS-ROTATION.md`**
 

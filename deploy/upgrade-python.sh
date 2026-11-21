@@ -225,7 +225,9 @@ run "sudo -u $APP_USER '$VENV/bin/pip' install --upgrade pip wheel setuptools"
 
 STAGE="install"
 log "Installing dependencies"
-run "sudo -u $APP_USER '$VENV/bin/pip' install -r '$BACKEND_DIR/requirements.txt'"
+# Same install as redeploy.sh: exactly the hash-pinned lock, nothing resolved.
+run "sudo -u $APP_USER '$VENV/bin/pip' install --require-hashes --no-deps -r '$BACKEND_DIR/requirements.txt'"
+run "sudo -u $APP_USER '$VENV/bin/pip' check"
 
 STAGE="check"
 log "Running manage.py check"

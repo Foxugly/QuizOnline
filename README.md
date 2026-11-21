@@ -63,10 +63,18 @@ cd quizonline-server
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --require-hashes -r requirements.txt
 cp .env.example .env 2>/dev/null || true
 python manage.py migrate
 python manage.py runserver
+```
+
+`requirements.txt` est un verrou haché généré depuis `requirements.in` (dépendances directes,
+outils de dev compris) ; la production installe exactement ce verrou. Pour changer une
+dépendance, éditer `requirements.in` puis régénérer (`--universal` : Linux en prod, Windows en dev) :
+
+```bash
+uv pip compile requirements.in --generate-hashes --universal --python-version 3.12 -o requirements.txt
 ```
 
 Le backend tourne alors sur `http://127.0.0.1:8000`.
