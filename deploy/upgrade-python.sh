@@ -3,7 +3,7 @@
 # QuizOnline — In-place Python runtime upgrade for the production EC2.
 #
 # Replaces the active virtualenv with a fresh one built on a newer
-# Python interpreter (default: 3.12), reinstalls the dependencies,
+# Python interpreter (default: 3.14), reinstalls the dependencies,
 # runs ``manage.py check`` + ``migrate --plan`` as a guard, and only
 # then restarts the three systemd services (gunicorn / celery /
 # celery-beat). The previous virtualenv is preserved at
@@ -11,7 +11,7 @@
 #
 # Usage:
 #
-#   sudo bash deploy/upgrade-python.sh           # interactive, 3.12
+#   sudo bash deploy/upgrade-python.sh           # interactive, 3.14
 #   sudo bash deploy/upgrade-python.sh --dry-run # no mutations
 #   sudo bash deploy/upgrade-python.sh --version 3.11
 #   sudo bash deploy/upgrade-python.sh --yes     # skip the confirm prompt
@@ -26,16 +26,16 @@
 #
 set -euo pipefail
 
-TARGET_VERSION="3.12"
+TARGET_VERSION="3.14"
 DRY_RUN=false
 ASSUME_YES=false
 ROLLBACK=false
 
 usage() {
   cat <<EOF
-Usage: $0 [--version 3.12] [--dry-run] [--yes] [--rollback]
+Usage: $0 [--version 3.14] [--dry-run] [--yes] [--rollback]
 
-  --version X.Y   Target Python minor version (default: 3.12).
+  --version X.Y   Target Python minor version (default: 3.14).
   --dry-run       Print every command, mutate nothing.
   --yes           Skip the confirmation prompt — for unattended runs.
   --rollback      Restore the most recent .venv.bak.* and restart services.

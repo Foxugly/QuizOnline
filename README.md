@@ -34,7 +34,7 @@ Fonctionnalités principales :
 
 Prérequis recommandés :
 
-- `python3.12+`
+- `python3.14` (prod : deadsnakes `/usr/bin/python3.14`)
 - `nodejs 20+`
 - `npm`
 - `redis-server` si tu veux le flux email nominal avec Celery
@@ -74,7 +74,7 @@ outils de dev compris) ; la production installe exactement ce verrou. Pour chang
 dépendance, éditer `requirements.in` puis régénérer (`--universal` : Linux en prod, Windows en dev) :
 
 ```bash
-uv pip compile requirements.in --generate-hashes --universal --python-version 3.12 -o requirements.txt
+uv pip compile requirements.in --generate-hashes --universal --python-version 3.14 -o requirements.txt
 ```
 
 Le backend tourne alors sur `http://127.0.0.1:8000`.

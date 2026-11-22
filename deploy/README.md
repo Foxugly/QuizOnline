@@ -210,7 +210,9 @@ sudo systemctl reload nginx
 
 ## Upgrade the Python runtime
 
-EOL bumps (e.g. 3.8 → 3.12) — `deploy/upgrade-python.sh` does the
+EOL bumps (e.g. 3.12 → 3.14) — `deploy/redeploy.sh` now rebuilds the venv
+in place on its own when it is not on `/usr/bin/python3.14` (old venv kept as
+`.venv.prev`, restored on failure). `deploy/upgrade-python.sh` does the
 swap in-place on the live box. Stops the three services, backs the
 old venv up to `.venv.bak.<timestamp>`, creates a fresh venv with
 the target interpreter, reinstalls the `requirements.txt` lock, runs
@@ -221,8 +223,8 @@ failure between stop and start.
 ```bash
 # On EC2, as a sudoer:
 sudo bash deploy/upgrade-python.sh --dry-run        # preview, no mutations
-sudo bash deploy/upgrade-python.sh                  # interactive, target 3.12
-sudo bash deploy/upgrade-python.sh --version 3.13   # any minor version
+sudo bash deploy/upgrade-python.sh                  # interactive, target 3.14
+sudo bash deploy/upgrade-python.sh --version 3.15   # any minor version
 sudo bash deploy/upgrade-python.sh --yes            # skip the confirm prompt
 sudo bash deploy/upgrade-python.sh --rollback       # restore the most recent .venv.bak.*
 ```
@@ -588,7 +590,7 @@ ever rebuild:
    sudo -u django git clone https://github.com/Foxugly/QuizOnline.git \
        /var/www/django_websites/QuizOnline
    cd /var/www/django_websites/QuizOnline/quizonline-server
-   sudo -u django python3 -m venv .venv
+   sudo -u django /usr/bin/python3.14 -m venv .venv   # deadsnakes; system python3 is 3.12
    sudo -u django .venv/bin/pip install --require-hashes --no-deps -r requirements.txt
    sudo -u django .venv/bin/pip check
    ```

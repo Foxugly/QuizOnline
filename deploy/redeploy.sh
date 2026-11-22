@@ -72,6 +72,27 @@ echo "[2/6] Updating backend..."
 # the guard was protecting an artefact that no longer drives the
 # services. See deploy/SECRETS-ROTATION.md for the new rotation flow.
 
+# The venv must run on $BASE_PY (deadsnakes python3.14, root-owned in /usr/bin).
+# A venv on another version is rebuilt at its final path — never built
+# elsewhere and moved, since console-script shebangs (.venv/bin/gunicorn,
+# .venv/bin/celery, used by the units) hard-code the venv path. The old one is
+# kept as .venv.prev and put back if the rebuild fails. ($PYTHON is already the
+# venv interpreter below, hence the different name.)
+BASE_PY=/usr/bin/python3.14
+PY_WANT="$("$BASE_PY" -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
+PY_HAVE="$("$VENV/bin/python" -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>/dev/null || echo none)"
+if [ "$PY_HAVE" != "$PY_WANT" ]; then
+  echo "  Rebuilding the venv: Python $PY_HAVE -> $PY_WANT..."
+  rm -rf "$VENV.prev"
+  if [ -e "$VENV" ]; then mv "$VENV" "$VENV.prev"; fi
+  if ! { "$BASE_PY" -m venv "$VENV"          && "$PIP" install --quiet --require-hashes --no-deps -r "$BACKEND_DIR/requirements.txt"          && "$PIP" check; }; then
+    echo "ERROR: venv rebuild failed; restoring the previous venv." >&2
+    rm -rf "$VENV"
+    if [ -e "$VENV.prev" ]; then mv "$VENV.prev" "$VENV"; fi
+    exit 1
+  fi
+fi
+
 # requirements.txt is a hash-pinned lock (uv pip compile from requirements.in),
 # the exact set CI tested. A plain `pip install -r` of version ranges never
 # upgraded what was already installed, so prod silently missed patch/security
