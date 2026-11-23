@@ -20,7 +20,15 @@ from .models import AnswerOption, Question
 # ──────────────────────────────────────────────────────────────────────────────
 
 class StructuredImportError(Exception):
-    pass
+    """Validation failure of a structured import.
+
+    ``user_message`` is a message written by this module (never the text of a
+    third-party exception) and is the only part of the error sent to the client.
+    """
+
+    def __init__(self, user_message: str):
+        super().__init__(user_message)
+        self.user_message = user_message
 
 
 class StructuredImportPermissionError(StructuredImportError):

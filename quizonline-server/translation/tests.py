@@ -65,6 +65,31 @@ class TranslateBatchViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["translations"]["description"], "<p>Bonjour nl</p>")
 
+    @override_settings(USE_DEEPL=True)
+    def test_translate_batch_hides_upstream_error_text_and_logs_it(self):
+        from translation.views import TRANSLATION_UPSTREAM_ERROR
+
+        self.client.force_authenticate(self.user)
+
+        with (
+            patch("translation.views.deepl_translate_many", side_effect=DeepLError("upstream secret-detail")),
+            self.assertLogs("translation.views", level="WARNING") as logs,
+        ):
+            response = self.client.post(
+                self.url,
+                {
+                    "source": "fr",
+                    "target": "nl",
+                    "items": [{"key": "name", "text": "Bonjour", "format": "text"}],
+                },
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertEqual(response.data["detail"], TRANSLATION_UPSTREAM_ERROR)
+        self.assertNotIn("secret-detail", str(response.data))
+        self.assertIn("secret-detail", "\n".join(logs.output))
+
     def test_translate_batch_rejects_oversized_item_list(self):
         # SECURITY/COST: the batch is bounded to MAX_BATCH_ITEMS so a single
         # request cannot drive an unbounded paid DeepL call. An oversized

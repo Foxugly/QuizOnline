@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
@@ -16,7 +17,12 @@ from rest_framework.views import APIView
 
 from config.permissions import IsSuperUser
 from config.tools import ErrorDetailSerializer
-from translation.services.deepl import DeepLError, deepl_translate_many
+from translation.services.deepl import deepl_translate_many
+
+logger = logging.getLogger(__name__)
+
+# Returned for any failed check; the exception itself only goes to the logs.
+SYSTEM_CHECK_ERROR_DETAIL = "Check failed. See the server logs for details."
 
 
 def _mask_value(value: str, *, keep_start: int = 2, keep_end: int = 2) -> str:
@@ -223,11 +229,14 @@ class SystemCheckView(APIView):
                 result = _run_upload_check()
             else:
                 result = _run_deepl_check()
-        except (DeepLError, OSError, Exception) as exc:
+        except Exception:
+            # The exception text may carry hosts, paths or credentials: it is
+            # logged for the operator, the response only names the failed target.
+            logger.exception("System check %r failed", target)
             result = {
                 "target": target,
                 "status": "error",
-                "detail": str(exc),
+                "detail": SYSTEM_CHECK_ERROR_DETAIL,
                 "checked_at": timezone.localtime().isoformat(),
             }
 

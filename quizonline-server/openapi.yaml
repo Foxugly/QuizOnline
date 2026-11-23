@@ -5713,7 +5713,16 @@ paths:
         '403':
           description: Forbidden
         '502':
-          description: DeepL upstream error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDetail'
+              examples:
+                DeepLError(502):
+                  value:
+                    detail: Translation service unavailable. Please retry later.
+                  summary: Erreur DeepL (exemple)
+          description: DeepL upstream error (fixed message, details are only logged)
   /api/v1/unread-counts/:
     get:
       operationId: unread_counts_retrieve

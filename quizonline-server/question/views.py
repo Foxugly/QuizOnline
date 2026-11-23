@@ -473,7 +473,9 @@ class QuestionViewSet(MyModelViewSet):
             try:
                 data = json.loads(raw.decode("utf-8"))
             except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-                return Response({"detail": f"Fichier JSON invalide : {exc}"}, status=status.HTTP_400_BAD_REQUEST)
+                # The parser's message stays server-side; the client gets a stable text.
+                logger.info("import_structured: invalid JSON file: %s", exc)
+                return Response({"detail": "Fichier JSON invalide."}, status=status.HTTP_400_BAD_REQUEST)
         elif isinstance(request.data, dict) and "version" in request.data:
             data = request.data
         else:
@@ -485,9 +487,11 @@ class QuestionViewSet(MyModelViewSet):
         try:
             result = import_questions(data, request.user)
         except StructuredImportPermissionError as exc:
-            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
+            logger.info("import_structured: permission denied: %s", exc)
+            return Response({"detail": exc.user_message}, status=status.HTTP_403_FORBIDDEN)
         except StructuredImportError as exc:
-            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+            logger.info("import_structured: rejected: %s", exc)
+            return Response({"detail": exc.user_message}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             logger.exception("import_structured: unexpected error")
             return Response(

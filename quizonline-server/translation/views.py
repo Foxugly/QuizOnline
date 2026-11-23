@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from config.tools import ErrorDetailSerializer
+
 from .serializers import (
     TranslateBatchRequestSerializer,
     TranslateBatchResponseSerializer,
@@ -16,6 +18,9 @@ from .serializers import (
 from .services.deepl import DeepLError, deepl_translate_many
 
 logger = logging.getLogger(__name__)
+
+# Stable message for any DeepL failure: the upstream error text stays in the logs.
+TRANSLATION_UPSTREAM_ERROR = "Translation service unavailable. Please retry later."
 
 
 def _is_effectively_empty_html(html: str) -> bool:
@@ -89,7 +94,10 @@ def mock_deepl(texts: list, source: str, target: str, fmt: str)->list:
         400: OpenApiResponse(description="Validation error (payload invalide)"),
         401: OpenApiResponse(description="Unauthorized"),
         403: OpenApiResponse(description="Forbidden"),
-        502: OpenApiResponse(description="DeepL upstream error"),
+        502: OpenApiResponse(
+            response=ErrorDetailSerializer,
+            description="DeepL upstream error (fixed message, details are only logged)",
+        ),
     },
     examples=[
         OpenApiExample(
@@ -126,7 +134,7 @@ def mock_deepl(texts: list, source: str, target: str, fmt: str)->list:
         OpenApiExample(
             name="DeepL error (502)",
             summary="Erreur DeepL (exemple)",
-            value={"detail": "DeepL error: quota exceeded"},
+            value={"detail": TRANSLATION_UPSTREAM_ERROR},
             status_codes=["502"],
             response_only=True,
         ),
@@ -197,7 +205,7 @@ class TranslateBatchView(APIView):
 
         except DeepLError as e:
             logger.warning("Translation upstream error: %s", e)
-            return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+            return Response({"detail": TRANSLATION_UPSTREAM_ERROR}, status=status.HTTP_502_BAD_GATEWAY)
 
         resp_ser = TranslateBatchResponseSerializer({"translations": translations})
         return Response(resp_ser.data, status=status.HTTP_200_OK)
