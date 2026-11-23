@@ -39,17 +39,17 @@
     "@angular/platform-browser": "^22.3.0",
     "@angular/router": "^22.3.0",
     "@jsverse/transloco": "^8.4.0",
-    "@sentry/angular": "^10.78.0",
+    "@openng/icons": "^1.0.0",
+    "@openng/optimus-ui": "^2.0.2",
+    "@openng/optimus-ui-themes": "^2.0.2",
+    "@sentry/angular": "^11.16.0",
     "@types/leaflet": "^1.9.22",
     "chart.js": "^4.6.1",
     "leaflet": "^1.9.4",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.9.1",
-    "zone.js": "~0.16.3",
-    "@openng/optimus-ui": "^2.0.2",
-    "@openng/icons": "^1.0.0",
-    "@openng/optimus-ui-themes": "^2.0.2"
+    "zone.js": "~0.16.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^22.3.0",
@@ -57,25 +57,17 @@
     "@angular/cli": "^22.3.0",
     "@angular/compiler-cli": "^22.3.0",
     "@eslint/js": "^10.0.1",
-    "@openapitools/openapi-generator-cli": "^2.42.2",
+    "@openapitools/openapi-generator-cli": "^2.43.0",
     "@playwright/test": "^1.65.1",
-    "@types/jasmine": "~5.1.0",
-    "@vitest/browser-playwright": "^4.1.12",
-    "@vitest/coverage-v8": "^4.1.4",
+    "@types/jasmine": "^7.0.0",
+    "@vitest/browser-playwright": "^5.1.1",
+    "@vitest/coverage-v8": "^5.1.1",
     "angular-eslint": "^22.8.0",
     "eslint": "^10.14.0",
-    "jsdom": "^27.0.0",
+    "jsdom": "^31.0.1",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.73.0",
-    "vitest": "^4.1.4"
-  },
-  "overrides": {
-    "postcss": "^8.5.25",
-    "sockjs": {
-      "uuid": "^11.1.1"
-    },
-    "get-uri": "8.0.2",
-    "minimatch": "^11.0.9"
+    "vitest": "^5.1.1"
   }
 }
