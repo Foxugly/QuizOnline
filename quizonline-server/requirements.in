@@ -22,8 +22,7 @@ requests==2.34.2
 ruff==0.17.6
 reportlab==5.1.0
 pillow==13.0.0  # via reportlab; pinned so prod upgrades it (pip -r never bumps an unpinned transitive)
-# hold: sentry-sdk 3.0 is a day-0 major (2026-11-23); migrate after it stabilises — revisit 2026-12-07
-sentry-sdk[django,celery]>=2.76,<3
+sentry-sdk>=3.0.0,<4  # 3.0 dropped the django/celery extras (no-ops)
 nh3==0.3.8
 user-agents==2.2.0
 geoip2==5.4.0

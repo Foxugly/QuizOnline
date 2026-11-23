@@ -9,7 +9,8 @@ from __future__ import annotations
 from typing import Any
 
 from django.core.exceptions import DisallowedHost
-from sentry_sdk.scrubber import EventScrubber
+
+from .sentry_scrub import scrub_event, scrub_span
 
 REDIS_LOADING_MARKER = "Redis is loading the dataset in memory"
 
@@ -60,39 +61,70 @@ def drop_benign_noise(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, 
     return drop_redis_loading_noise(event, hint)
 
 
-#: What the SDK may collect, replacing the deprecated ``send_default_pii=False``
-#: (sentry-sdk 2.76). Never more than before: no user (id, e-mail, IP), no
-#: cookies, no request or response bodies, no Celery task arguments, no SQL
-#: parameters; headers, query strings and local variables go through the SDK's
-#: sensitive-key denylist, plus the proxy/IP header terms the SDK itself uses
-#: when it maps ``send_default_pii=False``.
+#: What the SDK may collect (sentry-sdk 3.x ``data_collection``, which replaced
+#: ``send_default_pii=False``). Never more than with 2.x: no user (id, e-mail,
+#: IP), no cookies, no request or response bodies, no Celery task arguments,
+#: no SQL parameters, no GenAI / MCP content; headers, query strings and local
+#: variables go through the SDK's sensitive-key denylist, plus the proxy/IP
+#: header terms the SDK itself used when it mapped ``send_default_pii=False``.
 _PII_TERMS = ["forwarded", "-ip", "remote-", "via", "-user"]
 DATA_COLLECTION: dict[str, Any] = {
     "user_info": False,
     "cookies": {"mode": "off"},
-    "http_headers": {"request": {"mode": "denylist", "terms": _PII_TERMS}},
+    # ``response`` is not read by sentry-sdk 3.0.0 (it only collects request
+    # headers); pinned off so a later release cannot start collecting them.
+    "http_headers": {
+        "request": {"mode": "denylist", "terms": _PII_TERMS},
+        "response": {"mode": "off"},
+    },
     "http_bodies": [],
     "url_query_params": {"mode": "denylist", "terms": _PII_TERMS},
     "graphql": {"document": False, "variables": False},
     "gen_ai": {"inputs": False, "outputs": False},
+    "mcp": {"inputs": False, "outputs": False},
     "database_query_data": False,
     "queues": False,
     "stack_frame_variables": {"mode": "denylist"},
     "frame_context_lines": 5,
 }
 
-# Passing ``data_collection`` switches off the SDK's built-in EventScrubber, so
-# it is re-applied here: extra, breadcrumbs, spans and frame variables keep the
-# same denylist scrubbing as before.
-_SCRUBBER = EventScrubber(send_default_pii=False)
-
-
-def scrub_event(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any]:
-    """``before_send_transaction``: the SDK's default denylist scrubbing."""
-    _SCRUBBER.scrub_event(event)
-    return event
-
 
 def before_send(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] | None:
-    """``before_send``: scrub, then drop the benign noise."""
+    """``before_send``: scrub (``sentry_scrub``, replacing the SDK's removed
+    ``EventScrubber``), then drop the benign noise."""
     return drop_benign_noise(scrub_event(event, hint), hint)
+
+
+def sentry_options(
+    *, dsn: str, environment: str, release: str, traces_sample_rate: float
+) -> dict[str, Any]:
+    """Keyword arguments for ``sentry_sdk.init`` (shared by ``settings_prod``
+    and the tests, so the tests exercise the production configuration)."""
+    import logging
+
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    return {
+        "dsn": dsn,
+        "environment": environment,
+        "release": release,
+        "integrations": [
+            # 3.0 turned cache spans on by default; keep 2.x's span volume.
+            DjangoIntegration(cache_spans=False),
+            CeleryIntegration(),
+            # 3.0 no longer auto-enables logging and defaults ``event_level``
+            # to None: ERROR logs become events, as in 2.x. No breadcrumbs
+            # from logs (as before) and no Sentry Logs (``level=None``; 3.0
+            # dropped ``enable_logs``, so the INFO default would ship them).
+            LoggingIntegration(level=None, breadcrumb_level=None, event_level=logging.ERROR),
+        ],
+        "before_send": before_send,
+        "before_send_span": scrub_span,
+        # 3.0 default is True; 2.x did not attach stack traces (and their
+        # local variables) to plain messages.
+        "attach_stacktrace": False,
+        "traces_sample_rate": traces_sample_rate,
+        "data_collection": DATA_COLLECTION,
+    }
