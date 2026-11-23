@@ -42,7 +42,7 @@
     "@openng/icons": "^1.0.0",
     "@openng/optimus-ui": "^2.0.2",
     "@openng/optimus-ui-themes": "^2.0.2",
-    "@sentry/angular": "^11.16.0",
+    "@sentry/angular": "^11.17.0",
     "@types/leaflet": "^1.9.22",
     "chart.js": "^4.6.1",
     "leaflet": "^1.9.4",
