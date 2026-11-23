@@ -58,7 +58,7 @@
     "@angular/compiler-cli": "^21.2.26",
     "@eslint/js": "^10.0.1",
     "@openapitools/openapi-generator-cli": "^2.42.2",
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "@types/jasmine": "~5.1.0",
     "@vitest/browser-playwright": "^4.1.12",
     "@vitest/coverage-v8": "^4.1.4",
