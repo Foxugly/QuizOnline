@@ -105,7 +105,7 @@ L'éditeur de leçon (`/lesson/<id>/edit`) propose 8 types de blocs. Cliquez sur
 | Type | Usage | Notes |
 |------|-------|-------|
 | **Texte enrichi** | Paragraphes formatés, listes, citations, code inline | Éditeur Quill — couleurs, alignements, etc. HTML sanitisé serveur-side. |
-| **Image** | Illustration | Upload via fileupload PrimeNG. Pas de redimensionnement automatique. |
+| **Image** | Illustration | Upload via fileupload Optimus UI. Pas de redimensionnement automatique. |
 | **Vidéo** | YouTube / Vimeo / upload | URL auto-détectée. Le rendu est un iframe live dans l'éditeur. |
 | **Fichier** | PDF, slides, doc | L'apprenant voit un lien de téléchargement. |
 | **Quiz** | Quiz intégré | Picker auto-complete sur les `QuizTemplate` du domaine du cours, score minimal configurable. |

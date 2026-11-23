@@ -12,12 +12,12 @@ import {
   untracked,
 } from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
-import {TextareaModule} from 'primeng/textarea';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
 
 import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
 import {CatalogService} from '../../../../../services/catalog/catalog.service';

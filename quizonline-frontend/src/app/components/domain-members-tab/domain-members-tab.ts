@@ -1,11 +1,11 @@
 import {NgClass} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TagModule} from '@openng/optimus-ui/tag';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 
 import {DomainDetailDto} from '../../api/generated/model/domain-detail';
 import {UserSummaryDto} from '../../api/generated/model/user-summary';

@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {DomainApi} from '../../../api/generated/api/domain.service';
 import {DomainBillingDto} from '../../../api/generated/model/domain-billing';

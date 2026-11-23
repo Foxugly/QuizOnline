@@ -70,7 +70,7 @@ test.describe('smoke — known regressions', () => {
     await expect(page).toHaveURL(/\/question\/\d+\/edit$/);
 
     // Click the eye (preview) button in the header trio (view / duplicate /
-    // delete). PrimeNG puts the aria-label on the p-button host wrapper, not
+    // delete). Optimus UI puts the aria-label on the p-button host wrapper, not
     // the inner <button>, so target the eye icon it renders instead — stable
     // and translation-independent.
     await page.locator('button:has(.pi-eye)').first().click();

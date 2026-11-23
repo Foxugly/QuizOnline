@@ -6,11 +6,11 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {Subscription} from 'rxjs';
 
-import {ConfirmationService} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {TagModule} from 'primeng/tag';
+import {ConfirmationService} from '@openng/optimus-ui/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {CATALOG, COURSE_DETAIL} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';

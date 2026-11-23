@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';
 import { QuestionService, QuestionTranslationForm } from '../../../services/question/question';
 import { selectTranslation } from '../../../shared/i18n/select-translation';

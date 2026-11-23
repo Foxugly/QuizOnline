@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, inpu
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {filter} from 'rxjs/operators';
 import {NavigationEnd, Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {TooltipModule} from 'primeng/tooltip';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {CustomUserReadDto} from '../../../api/generated/model/custom-user-read';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';

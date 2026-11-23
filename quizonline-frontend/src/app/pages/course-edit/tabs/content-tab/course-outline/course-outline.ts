@@ -14,12 +14,12 @@ import {
 } from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, CdkDropListGroup, moveItemInArray} from '@angular/cdk/drag-drop';
 import {finalize, Observable} from 'rxjs';
-import {ConfirmationService, MenuItem} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {Menu, MenuModule} from 'primeng/menu';
-import {TooltipModule} from 'primeng/tooltip';
+import {ConfirmationService, MenuItem} from '@openng/optimus-ui/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {Menu, MenuModule} from '@openng/optimus-ui/menu';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {CourseDetailDto} from '../../../../../api/generated/model/course-detail';
 import {LessonMoveResultDto} from '../../../../../api/generated/model/lesson-move-result';

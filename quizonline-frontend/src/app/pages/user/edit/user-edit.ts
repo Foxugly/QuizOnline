@@ -3,7 +3,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ReactiveFormsModule, Validators, NonNullableFormBuilder} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {UserAdminFormComponent} from '../../../components/user-admin-form/user-admin-form';

@@ -20,12 +20,12 @@ import {
 import {finalize} from 'rxjs/operators';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 
-import {InputTextModule} from 'primeng/inputtext';
-import {PasswordModule} from 'primeng/password';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {MessageModule} from 'primeng/message';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {PasswordModule} from '@openng/optimus-ui/password';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {MultiSelectModule} from '@openng/optimus-ui/multiselect';
+import {MessageModule} from '@openng/optimus-ui/message';
 
 import {FieldError} from '../../../shared/components/field-error/field-error';
 import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';

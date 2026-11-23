@@ -12,14 +12,14 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 
-import {ConfirmationService} from 'primeng/api';
-import {AutoCompleteModule} from 'primeng/autocomplete';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {SelectModule} from 'primeng/select';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
+import {ConfirmationService} from '@openng/optimus-ui/api';
+import {AutoCompleteModule} from '@openng/optimus-ui/autocomplete';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {CourseEnrollmentDto} from '../../../../api/generated/model/course-enrollment';
 import {CourseEnrollmentStatusEnumDto} from '../../../../api/generated/model/course-enrollment-status-enum';
@@ -42,7 +42,7 @@ import {getCourseEditEnrollmentTabUiText} from './enrollment-tab.i18n';
 /** Picker-friendly shape that wraps ``UserSummaryDto`` with a
  *  precomputed ``displayName``. The autocomplete binds to it via a
  *  function-valued ``[optionLabel]`` rather than ``field=""`` so a
- *  malformed row (non-string ``displayName``) cannot crash PrimeNG's
+ *  malformed row (non-string ``displayName``) cannot crash Optimus UI's
  *  ``forceSelection`` validator — see ``inviteeOptionLabel`` below. */
 interface MemberPickerItem extends UserSummaryDto {
   displayName: string;
@@ -65,7 +65,7 @@ function inviteeOptionLabel(option: MemberPickerItem | string): string {
  * "don't send the ``?status=`` query param" in :meth:`refresh`. */
 type StatusFilterValue = 'all' | CourseEnrollmentStatusEnumDto;
 
-/** PrimeNG tag severities used for the per-row enrollment status badge. */
+/** Optimus UI tag severities used for the per-row enrollment status badge. */
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 /**
@@ -145,7 +145,7 @@ export class CourseEditEnrollmentTab {
    *  once per course / domain change. Each row carries a precomputed
    *  ``displayName`` so the picker's ``field="displayName"`` binding
    *  can render the "First Last" (email fallback) shape without needing a
-   *  function-valued ``[field]`` binding (PrimeNG only supports a
+   *  function-valued ``[field]`` binding (Optimus UI only supports a
    *  string property name there). */
   private readonly domainMembers = signal<MemberPickerItem[]>([]);
   /** The narrowed picker suggestions matching the current ``query``. */

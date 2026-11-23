@@ -10,7 +10,7 @@
  * Mobile shrink — narrow-viewport fixes for content that would
  * otherwise push the page past the viewport width.
  *
- * The whole app uses ``<p-table>`` for every list page. PrimeNG sizes
+ * The whole app uses ``<p-table>`` for every list page. Optimus UI sizes
  * the inner ``<table>`` by its column count (no responsive collapsing
  * by default), so on a 375 px viewport a 6-column table is rendered
  * at ~700 px and the entire page acquires a horizontal scrollbar.
@@ -19,10 +19,10 @@
  * "duplicated" mid-page on iOS/mobile browsers.
  *
  * Fix: let the table itself overflow inside its own scrollable
- * wrapper, so the page outside stays the viewport width. PrimeNG
+ * wrapper, so the page outside stays the viewport width. Optimus UI
  * v21 ships ``.p-datatable-table-container`` around the table; on
  * older versions it is ``.p-datatable-wrapper``. We target both so
- * the rule survives a PrimeNG bump.
+ * the rule survives a Optimus UI bump.
  * ------------------------------------------------------------------- */
 @media (max-width: 768px) {
   .p-datatable-table-container,

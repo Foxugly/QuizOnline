@@ -5,9 +5,9 @@ import {AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validators
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {PasswordModule} from 'primeng/password';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {PasswordModule} from '@openng/optimus-ui/password';
 
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';

@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {AutoCompleteModule, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
-import {TagModule} from 'primeng/tag';
+import {AutoCompleteModule, AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {QuizTemplateListDto} from '../../../api/generated/model/quiz-template-list';
 import {QuizTemplateService} from '../../../services/quiz-template/quiz-template';
@@ -19,7 +19,7 @@ import {BlockTranslateButton} from './block-translate-button';
 import {getBlockEditorsUiText} from './block-editors.i18n';
 
 /** Defensive option-label resolver passed to ``<p-autoComplete>`` via
- *  ``[optionLabel]``. PrimeNG calls
+ *  ``[optionLabel]``. Optimus UI calls
  *  ``getOptionLabel(option).toLocaleLowerCase()`` for ``forceSelection``
  *  matching — if a single template comes back with ``title`` as a dict
  *  (translations object that escaped the serializer) the whole picker

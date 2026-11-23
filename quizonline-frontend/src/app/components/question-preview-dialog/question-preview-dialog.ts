@@ -3,7 +3,7 @@ import {Component, DestroyRef, computed, effect, inject, input, output, signal, 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
-import {DialogModule} from 'primeng/dialog';
+import {DialogModule} from '@openng/optimus-ui/dialog';
 
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuizQuestionComponent} from '../quiz-question/quiz-question';

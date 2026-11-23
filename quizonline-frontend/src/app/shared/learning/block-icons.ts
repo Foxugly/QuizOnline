@@ -1,7 +1,7 @@
 import {BlockType} from './learning-common.i18n';
 
 /**
- * PrimeNG / primeicons class string for each content-block type. Use
+ * Optimus UI `pi pi-*` icon class string for each content-block type. Use
  * with ``<i [class]="BLOCK_ICONS[block.block_type]"></i>`` so the
  * lesson editor, lesson viewer and any future block listing all render
  * the same iconography.

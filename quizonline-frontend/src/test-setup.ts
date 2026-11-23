@@ -1,7 +1,7 @@
 import {expect, vi, beforeEach, afterEach} from 'vitest';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoTestingModule} from '@jsverse/transloco';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 // Suffixe `Catalog` obligatoire : un `import it from ...` masquerait la
 // fonction de test it() du runner.
@@ -109,7 +109,7 @@ beforeEach(() => {
         preloadLangs: true,
       }),
     ],
-    // AppToastService dépend désormais du MessageService PrimeNG (migration
+    // AppToastService dépend désormais du MessageService Optimus UI (migration
     // vers <p-toast>) ; fourni globalement pour que tout spec l'injectant résolve.
     providers: [MessageService],
   });

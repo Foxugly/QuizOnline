@@ -2802,7 +2802,7 @@
           "description": "SPA per amministrazione e fruizione dei quiz.",
           "items": [
             "Angular 21, TypeScript e RxJS",
-            "PrimeNG 21 e PrimeIcons",
+            "Optimus UI e OpenNG Icons",
             "Client API generato da OpenAPI",
             "Vitest e Playwright"
           ]

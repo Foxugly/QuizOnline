@@ -1,10 +1,10 @@
 import {Component, ChangeDetectionStrategy, inject} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
-import {InputTextModule} from 'primeng/inputtext';
-import {PasswordModule} from 'primeng/password';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {PasswordModule} from '@openng/optimus-ui/password';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
 
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../services/auth/auth';

@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {DatePipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ProgressBarModule} from '@openng/optimus-ui/progressbar';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {CATALOG} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';

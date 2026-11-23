@@ -1,6 +1,6 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {ActivatedRoute} from '@angular/router';
 import {finalize} from 'rxjs';
 import {DomainService, DomainTranslationDto} from '../../../services/domain/domain';

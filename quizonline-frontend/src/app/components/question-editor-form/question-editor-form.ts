@@ -2,15 +2,15 @@ import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {InputTextModule} from 'primeng/inputtext';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {SelectModule} from 'primeng/select';
-import {TabsModule} from 'primeng/tabs';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MultiSelectModule} from '@openng/optimus-ui/multiselect';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {QuestionEditorForm, getTranslationsGroup} from '../../services/question/question-editor-form';

@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CardModule} from 'primeng/card';
-import {ChartModule} from 'primeng/chart';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {TableModule} from 'primeng/table';
+import {CardModule} from '@openng/optimus-ui/card';
+import {ChartModule} from '@openng/optimus-ui/chart';
+import {ProgressBarModule} from '@openng/optimus-ui/progressbar';
+import {TableModule} from '@openng/optimus-ui/table';
 
 import {DashboardStats, DomainStats, StatsService} from '../../../services/admin/stats';
 import {UserService} from '../../../services/user/user';

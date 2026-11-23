@@ -3,9 +3,9 @@ import {Component, ChangeDetectionStrategy, computed, inject, input, output} fro
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MultiSelectModule} from '@openng/optimus-ui/multiselect';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {QuestionLibraryCard} from '../../pages/quiz/create/quiz-template-builder.models';

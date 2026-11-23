@@ -1,7 +1,7 @@
 import {Component, computed, inject, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {interp} from '../../shared/i18n/format';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {QuizNav, QuizNavItem} from '../quiz-nav/quiz-nav';
 import {UserService} from '../../services/user/user';
 

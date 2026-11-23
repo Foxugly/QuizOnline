@@ -3,7 +3,7 @@ import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {Router, RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {ModerationSummaryItemDto} from '../../api/generated/model/moderation-summary-item';
 import {ROUTES} from '../../app.routes-paths';

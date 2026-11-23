@@ -12,8 +12,8 @@ import {catchError, finalize} from 'rxjs/operators';
 import {EMPTY} from 'rxjs';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
 
 import {DomainDetailDto} from '../../../api/generated/model/domain-detail';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';

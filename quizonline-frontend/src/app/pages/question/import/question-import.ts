@@ -2,9 +2,9 @@ import {CommonModule} from '@angular/common';
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {FileUploadModule} from 'primeng/fileupload';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {FileUploadModule} from '@openng/optimus-ui/fileupload';
 
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {

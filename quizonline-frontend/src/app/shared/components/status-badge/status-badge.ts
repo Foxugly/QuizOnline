@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {TagModule} from 'primeng/tag';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 /** The visual kinds this badge can render. ``active`` / ``published`` are
  *  positive (green); ``draft`` / ``inactive`` are neutral (grey, "not live");

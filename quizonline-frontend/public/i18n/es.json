@@ -2802,7 +2802,7 @@
           "description": "SPA de administracion y ejecucion de cuestionarios.",
           "items": [
             "Angular 21, TypeScript y RxJS",
-            "PrimeNG 21 y PrimeIcons",
+            "Optimus UI y OpenNG Icons",
             "Cliente API generado desde OpenAPI",
             "Vitest y Playwright"
           ]

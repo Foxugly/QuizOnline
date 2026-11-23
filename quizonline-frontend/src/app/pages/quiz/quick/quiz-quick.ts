@@ -3,7 +3,7 @@ import {Component, computed, DestroyRef, inject, signal, ViewChild, ChangeDetect
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject, switchMap} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {QuizSubjectCreatePayload, QuizService} from '../../../services/quiz/quiz';
 import {QuizSubjectForm} from '../subject-form/subject-form';
 import {logApiError, userFacingApiMessage} from '../../../shared/api/api-errors';

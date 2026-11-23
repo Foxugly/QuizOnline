@@ -1,7 +1,7 @@
 import {Component, computed, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../shared/i18n/ui-text.service';
-import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TagModule} from '@openng/optimus-ui/tag';
 import {QuizDto} from '../../api/generated/model/quiz';
 import {VisibilityEnumDto} from '../../api/generated/model/visibility-enum';
 import {UserService} from '../../services/user/user';

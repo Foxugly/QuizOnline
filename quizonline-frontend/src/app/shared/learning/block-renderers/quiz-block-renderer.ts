@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {SkeletonModule} from 'primeng/skeleton';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SkeletonModule} from '@openng/optimus-ui/skeleton';
+import {TagModule} from '@openng/optimus-ui/tag';
 import {forkJoin} from 'rxjs';
 
 import {ModeEnumDto} from '../../../api/generated/model/mode-enum';

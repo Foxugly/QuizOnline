@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {TabsModule} from 'primeng/tabs';
+import {TabsModule} from '@openng/optimus-ui/tabs';
 
 import {CONTACT_INFO, emailDisplay, openContactEmail, phoneDisplay} from '../../shared/contact';
 import {UiTextService} from '../../shared/i18n/ui-text.service';

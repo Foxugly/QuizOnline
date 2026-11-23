@@ -22,15 +22,15 @@ import {Router} from '@angular/router';
 import {of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {EditorModule} from 'primeng/editor';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {InputTextModule} from 'primeng/inputtext';
-import {MessageModule} from 'primeng/message';
-import {SelectModule} from 'primeng/select';
-import {TabsModule} from 'primeng/tabs';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {EditorModule} from '@openng/optimus-ui/editor';
+import {InputNumberModule} from '@openng/optimus-ui/inputnumber';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {TabsModule} from '@openng/optimus-ui/tabs';
 
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
 import {EnrollmentModeEnumDto} from '../../../../api/generated/model/enrollment-mode-enum';

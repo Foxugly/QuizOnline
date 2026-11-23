@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {CheckboxModule} from 'primeng/checkbox';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {logApiError} from '../../shared/api/api-errors';
 import {UiTextService} from '../../shared/i18n/ui-text.service';

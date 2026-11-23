@@ -2,13 +2,13 @@ import {CommonModule} from '@angular/common';
 import {Component, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {InputTextModule} from 'primeng/inputtext';
-import {MessageModule} from 'primeng/message';
-import {PasswordModule} from 'primeng/password';
-import {SelectModule} from 'primeng/select';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputNumberModule} from '@openng/optimus-ui/inputnumber';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {PasswordModule} from '@openng/optimus-ui/password';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
 
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 

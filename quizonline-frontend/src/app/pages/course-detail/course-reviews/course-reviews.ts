@@ -2,8 +2,8 @@ import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, sig
 import {DatePipe} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {TextareaModule} from 'primeng/textarea';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
 
 import {resolveApiBaseUrl} from '../../../shared/api/runtime-api-base-url';
 import {logApiError} from '../../../shared/api/api-errors';

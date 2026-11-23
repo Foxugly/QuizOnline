@@ -2,9 +2,9 @@ import {ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit,
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subscription} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {CERTIFICATE_VERIFY, ME_CERTIFICATES} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';

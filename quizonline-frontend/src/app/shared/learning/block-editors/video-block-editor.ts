@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SelectButtonModule} from '@openng/optimus-ui/selectbutton';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../i18n/ui-text.service';

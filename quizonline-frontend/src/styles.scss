@@ -14,12 +14,12 @@ $radius: 6px;
  * Width / display utilities.
  *
  * Many templates (login page, domain-invitations-tab, user-admin-form,
- * ...) use ``class="w-full"`` and ``styleClass="w-full"`` on PrimeNG
+ * ...) use ``class="w-full"`` and ``styleClass="w-full"`` on Optimus UI
  * components. These look like Tailwind classes, but the project does
  * NOT ship Tailwind — so without the rules below those usages are
  * silently inert. Define them globally so the class can survive both
  * the inline host application and the ``styleClass`` propagation onto
- * a PrimeNG-rendered inner element (which lives outside the parent
+ * a Optimus UI-rendered inner element (which lives outside the parent
  * component's emulated encapsulation and therefore cannot be reached
  * by a component-scoped selector).
  * ---------------------------------------------------------------- */
@@ -36,7 +36,7 @@ $radius: 6px;
 
 /* Typography.
  * NOTE: the former Material-era system token block (teal #006780) was
- * removed — it was dead legacy (this app themes with PrimeNG Aura, and grep
+ * removed — it was dead legacy (this app themes with Optimus UI Aura, and grep
  * confirmed zero references outside its own definition). The brand palette now
  * lives entirely in ``src/styles/_tokens.scss`` (canonical emerald tokens). */
 :root {

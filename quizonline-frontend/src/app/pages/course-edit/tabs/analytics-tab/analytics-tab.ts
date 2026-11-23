@@ -10,8 +10,8 @@ import {
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {DatePipe} from '@angular/common';
-import {ButtonModule} from 'primeng/button';
-import {SkeletonModule} from 'primeng/skeleton';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SkeletonModule} from '@openng/optimus-ui/skeleton';
 
 import {CourseDetailDto} from '../../../../api/generated/model/course-detail';
 

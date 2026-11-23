@@ -3,11 +3,11 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {finalize, map, of, switchMap} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {ProgressBarModule} from '@openng/optimus-ui/progressbar';
+import {TagModule} from '@openng/optimus-ui/tag';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {CATALOG, COURSE_EDIT, LESSON_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';

@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {logApiError} from '../../api/api-errors';
 import {isEmptyRichText} from '../../html/is-empty-rich-text';

@@ -2,17 +2,17 @@ import {DatePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
-import {BadgeModule} from 'primeng/badge';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmationService} from 'primeng/api';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {DialogModule} from 'primeng/dialog';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
-import {TagModule} from 'primeng/tag';
-import {TextareaModule} from 'primeng/textarea';
-import {TooltipModule} from 'primeng/tooltip';
+import {BadgeModule} from '@openng/optimus-ui/badge';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmationService} from '@openng/optimus-ui/api';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {MultiSelectModule} from '@openng/optimus-ui/multiselect';
+import {SelectButtonModule} from '@openng/optimus-ui/selectbutton';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TagModule} from '@openng/optimus-ui/tag';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {DomainInviteReadDto} from '../../api/generated/model/domain-invite-read';
 import {DomainInviteResultDto} from '../../api/generated/model/domain-invite-result';

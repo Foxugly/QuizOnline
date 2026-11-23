@@ -3,7 +3,7 @@ import {UiTextService} from '../../../shared/i18n/ui-text.service';
 
 import {ActivatedRoute} from '@angular/router';
 import {SubjectService, SubjectTranslationDto} from '../../../services/subject/subject';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {SubjectReadDto} from '../../../api/generated/model/subject-read';
 import {selectTranslation} from '../../../shared/i18n/select-translation';
 import {UserService} from '../../../services/user/user';

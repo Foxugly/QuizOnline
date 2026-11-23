@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {DatePipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {CATALOG, CERTIFICATE_VIEW} from '../../app.routes-paths';
 import {logApiError} from '../../shared/api/api-errors';

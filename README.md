@@ -19,7 +19,7 @@ Fonctionnalités principales :
 ## Stack
 
 - backend : Django 6, Django REST Framework, Celery, Redis, django-parler
-- frontend : Angular 21, PrimeNG
+- frontend : Angular 21, Optimus UI (`@openng/optimus-ui`, fork MIT de PrimeNG 21)
 - base locale par défaut : SQLite
 - production recommandée : PostgreSQL + Redis
 

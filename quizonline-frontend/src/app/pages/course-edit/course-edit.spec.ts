@@ -2,13 +2,13 @@ import {TestBed} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {BehaviorSubject, of} from 'rxjs';
-import {ConfirmationService} from 'primeng/api';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {CatalogService} from '../../services/catalog/catalog.service';
 import {AppToastService} from '../../shared/toast/app-toast.service';
-import {TabsModule} from 'primeng/tabs';
-import {Tabs} from 'primeng/tabs';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {Tabs} from '@openng/optimus-ui/tabs';
 import {CourseEdit} from './course-edit';
 
 describe('CourseEdit unsaved tab guard', () => {

@@ -15,11 +15,11 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import * as L from 'leaflet';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {DatePickerModule} from 'primeng/datepicker';
-import {DialogModule} from 'primeng/dialog';
-import {TableModule} from 'primeng/table';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {DatePickerModule} from '@openng/optimus-ui/datepicker';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {TableModule} from '@openng/optimus-ui/table';
 
 import {ConnectionEventReadDto} from '../../../api/generated/model/connection-event-read';
 import {PaginatedConnectionEventReadListDto} from '../../../api/generated/model/paginated-connection-event-read-list';

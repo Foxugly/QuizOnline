@@ -12,7 +12,7 @@ import {
 import {HttpClient} from '@angular/common/http';
 import {finalize} from 'rxjs';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {logApiError} from '../../api/api-errors';
 import {resolveApiBaseUrl} from '../../api/runtime-api-base-url';

@@ -11,7 +11,7 @@
  * enrollment/analytics tabs each carry their own surface chrome. Now
  * that they're nested inside the outer ``.card form-card builder-stack``
  * shell, that inner card paints a redundant border on top of the outer
- * one — flatten the immediate-child card chrome (PrimeNG's ``.p-card``
+ * one — flatten the immediate-child card chrome (Optimus UI's ``.p-card``
  * + plain ``.card``) while keeping its padding so the content still
  * breathes. Mirrors the pattern used in domain-edit.scss.
  */

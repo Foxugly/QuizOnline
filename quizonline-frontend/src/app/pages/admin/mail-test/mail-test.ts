@@ -3,10 +3,10 @@ import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {InputTextModule} from 'primeng/inputtext';
-import {TextareaModule} from 'primeng/textarea';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
 
 import {MailTestService} from '../../../services/admin/mail-test';
 import {UserService} from '../../../services/user/user';

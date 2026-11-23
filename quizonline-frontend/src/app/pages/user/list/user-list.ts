@@ -6,14 +6,14 @@ import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {forkJoin} from 'rxjs';
 
-import {ButtonModule} from 'primeng/button';
-import {CheckboxModule} from 'primeng/checkbox';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {PaginatorModule} from 'primeng/paginator';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {PaginatorModule} from '@openng/optimus-ui/paginator';
+import {TableModule} from '@openng/optimus-ui/table';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {AdminUserDto, UserService} from '../../../services/user/user';

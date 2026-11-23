@@ -4,7 +4,7 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
 
-import {MessageModule} from 'primeng/message';
+import {MessageModule} from '@openng/optimus-ui/message';
 
 import {AuthService} from '../../../services/auth/auth';
 import {ROUTES} from '../../../app.routes-paths';

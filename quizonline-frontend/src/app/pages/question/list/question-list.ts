@@ -3,15 +3,15 @@ import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} fr
 import {FormsModule} from '@angular/forms';
 import {forkJoin} from 'rxjs';
 
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {SelectModule} from 'primeng/select';
-import {CheckboxModule} from 'primeng/checkbox';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MultiSelectModule} from '@openng/optimus-ui/multiselect';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {TableLazyLoadEvent, TableModule} from '@openng/optimus-ui/table';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {PatchedQuestionPartialWritePayloadRequestDto} from '../../../api/generated/model/patched-question-partial-write-payload-request';

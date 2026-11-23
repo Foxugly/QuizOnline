@@ -3,15 +3,15 @@ import {Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetection
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {CheckboxModule} from 'primeng/checkbox';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {TableModule} from 'primeng/table';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {TooltipModule} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TableModule} from '@openng/optimus-ui/table';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 
 import {LanguageReadDto} from '../../../api/generated/model/language-read';
 import {LanguageWriteRequestDto} from '../../../api/generated/model/language-write-request';

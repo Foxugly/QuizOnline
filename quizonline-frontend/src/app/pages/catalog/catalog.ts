@@ -4,12 +4,12 @@ import {FormsModule} from '@angular/forms';
 import {DomSanitizer, type SafeHtml} from '@angular/platform-browser';
 import {RouterLink} from '@angular/router';
 import {Subject, debounceTime} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {PaginatorModule, type PaginatorState} from 'primeng/paginator';
-import {SelectModule} from 'primeng/select';
-import {TagModule} from 'primeng/tag';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {PaginatorModule, type PaginatorState} from '@openng/optimus-ui/paginator';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {TagModule} from '@openng/optimus-ui/tag';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {COURSE_DETAIL, COURSE_EDIT, COURSE_LIST, COURSE_NEW, LESSON_VIEW} from '../../app.routes-paths';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
@@ -127,16 +127,16 @@ export class Catalog implements OnInit {
   protected readonly levelFilter = signal<string | null>(null);
   protected readonly domainFilter = signal<number | null>(null);
   /** Total result count surfaced by DRF's pagination — feeds the
-   *  PrimeNG paginator's ``[totalRecords]`` so the page count is
+   *  Optimus UI paginator's ``[totalRecords]`` so the page count is
    *  accurate even though we only ever hold one page in memory. */
   protected readonly totalCount = signal(0);
-  /** Zero-based offset PrimeNG drives via ``PaginatorState.first``.
+  /** Zero-based offset Optimus UI drives via ``PaginatorState.first``.
    *  Mapped back to DRF's 1-based ``?page=`` in :meth:`refresh`. */
   protected readonly first = signal(0);
   /** Fixed page size. Must match ``settings.API_PAGE_SIZE`` (default
    *  20) since DRF's PageNumberPagination does not honour
    *  ``?page_size=`` unless ``page_size_query_param`` is explicitly
-   *  enabled. The PrimeNG paginator renders without a rows-per-page
+   *  enabled. The Optimus UI paginator renders without a rows-per-page
    *  control as a result. */
   protected readonly pageSize = 20;
   /** Domains the user belongs to (owner / manager / member). Drives
