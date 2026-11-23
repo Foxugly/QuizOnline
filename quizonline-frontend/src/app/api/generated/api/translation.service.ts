@@ -17,6 +17,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ErrorDetailDto } from '../model/error-detail';
+// @ts-ignore
 import { TranslateBatchRequestRequestDto } from '../model/translate-batch-request-request';
 // @ts-ignore
 import { TranslateBatchResponseDto } from '../model/translate-batch-response';

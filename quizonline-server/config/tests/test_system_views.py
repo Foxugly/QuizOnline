@@ -71,3 +71,22 @@ class SystemConfigViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], "ok")
         deepl_mock.assert_called_once()
+
+    @patch(
+        "admin_api.system_views._run_db_check",
+        side_effect=OSError("connection to db.internal:5432 failed: password=hunter2"),
+    )
+    def test_failed_check_hides_exception_text_and_logs_it(self, _db_mock):
+        from admin_api.system_views import SYSTEM_CHECK_ERROR_DETAIL
+
+        self.client.force_authenticate(user=self.admin)
+
+        with self.assertLogs("admin_api.system_views", level="ERROR") as logs:
+            response = self.client.post(self.CHECK_URL, {"target": "db"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["target"], "db")
+        self.assertEqual(response.data["detail"], SYSTEM_CHECK_ERROR_DETAIL)
+        self.assertNotIn("hunter2", str(response.data))
+        self.assertIn("hunter2", "\n".join(logs.output))

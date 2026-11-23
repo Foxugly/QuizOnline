@@ -1,9 +1,18 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from domain.models import Domain
 from language.models import Language
-from question.structured_import import StructuredImportError, import_questions
+from question.structured_import import (
+    StructuredImportError,
+    StructuredImportPermissionError,
+    import_questions,
+)
 
 User = get_user_model()
 
@@ -113,3 +122,59 @@ class StructuredImportDomainLanguagesTests(TestCase):
         self.assertIn("Langues introuvables", str(ctx.exception))
         self.assertIn("es", str(ctx.exception))
         self.assertEqual(self.superuser.owned_domains.count(), 0)
+
+
+class StructuredImportViewErrorTests(APITestCase):
+    URL = "/api/v1/question/import-structured/"
+
+    def setUp(self):
+        self.superuser = User.objects.create_superuser(
+            email="import-view-admin@example.com",
+            password="secret123",
+        )
+        self.client.force_authenticate(user=self.superuser)
+
+    def test_invalid_json_file_returns_stable_message_and_logs_parser_error(self):
+        upload = SimpleUploadedFile("bad.json", b'{"version": ', content_type="application/json")
+
+        with self.assertLogs("question.views", level="INFO") as logs:
+            response = self.client.post(self.URL, {"json_file": upload}, format="multipart")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["detail"], "Fichier JSON invalide.")
+        self.assertIn("Expecting value", "\n".join(logs.output))
+
+    def test_import_error_returns_its_user_message(self):
+        with (
+            patch("question.views.import_questions", side_effect=StructuredImportError("Clé 'domain' manquante.")),
+            self.assertLogs("question.views", level="INFO") as logs,
+        ):
+            response = self.client.post(self.URL, {"version": "1.0"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["detail"], "Clé 'domain' manquante.")
+        self.assertIn("rejected", "\n".join(logs.output))
+
+    def test_permission_error_returns_403_with_its_user_message(self):
+        with (
+            patch(
+                "question.views.import_questions",
+                side_effect=StructuredImportPermissionError("Seul un superutilisateur peut créer un domaine."),
+            ),
+            self.assertLogs("question.views", level="INFO"),
+        ):
+            response = self.client.post(self.URL, {"version": "1.0"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["detail"], "Seul un superutilisateur peut créer un domaine.")
+
+    def test_unexpected_error_returns_generic_500_without_exception_text(self):
+        with (
+            patch("question.views.import_questions", side_effect=RuntimeError("internal secret-detail")),
+            self.assertLogs("question.views", level="ERROR") as logs,
+        ):
+            response = self.client.post(self.URL, {"version": "1.0"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertNotIn("secret-detail", str(response.data))
+        self.assertIn("secret-detail", "\n".join(logs.output))
