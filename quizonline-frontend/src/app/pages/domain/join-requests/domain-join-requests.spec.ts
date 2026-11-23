@@ -3,7 +3,7 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {signal} from '@angular/core';
 import {of} from 'rxjs';
 import {provideRouter, ActivatedRoute} from '@angular/router';
-import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClient, withXhr} from '@angular/common/http';
 import {DomainJoinRequestsPage} from './domain-join-requests';
 import {DomainApi as DomainApiService} from '../../../api/generated/api/domain.service';
 import {UserService} from '../../../services/user/user';
@@ -15,7 +15,7 @@ describe('DomainJoinRequestsPage', () => {
       imports: [DomainJoinRequestsPage],
       providers: [MessageService, 
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: {get: () => '1'}}}},
         {provide: DomainApiService, useValue: {domainJoinRequestList: () => of({results: []}), domainRead: () => of({})}},
         {provide: UserService, useValue: {currentLang: 'fr', lang: signal('fr').asReadonly(), currentUser: signal(null), isAdmin: () => false, isSuperuser: () => false}},

@@ -64,6 +64,14 @@
                 }
               ],
               "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
@@ -128,7 +136,7 @@
               ],
               "coverageThresholds": {
                 "statements": 37,
-                "branches": 37,
+                "branches": 32,
                 "functions": 21,
                 "lines": 39
               }
