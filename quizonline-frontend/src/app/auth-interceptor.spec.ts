@@ -1,4 +1,4 @@
-import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
+import {HttpClient, provideHttpClient, withInterceptors, withXhr} from '@angular/common/http';
 import {HttpTestingController, TestRequest, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 
@@ -16,7 +16,7 @@ describe('AuthInterceptor', () => {
     localStorage.setItem(SESSION_HINT_KEY, '1');
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(withInterceptors([AuthInterceptor])),
+        provideHttpClient(withXhr(), withInterceptors([AuthInterceptor])),
         provideHttpClientTesting(),
       ],
     });
