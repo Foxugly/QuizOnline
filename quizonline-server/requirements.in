@@ -1,7 +1,7 @@
 Django==6.1.3
 celery[redis]==5.7.0
 redis==8.1.0  # via kombu[redis] (<9); pinned so prod upgrades it
-coverage==7.17.3
+coverage==7.17.4
 django-cors-headers==4.9.0
 django-environ==0.14.0
 django-extensions==4.1
@@ -15,7 +15,7 @@ djangorestframework==3.18.3
 djangorestframework-simplejwt==5.5.1
 drf-nested-routers==0.96.0
 drf-spectacular==0.30.0
-PyYAML==6.0.3
+PyYAML==6.0.4
 pytest==9.2.0
 pytest-django==4.14.0
 requests==2.34.2

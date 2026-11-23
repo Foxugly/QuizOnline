@@ -57,7 +57,23 @@ export async function initSentry(): Promise<void> {
     // back to the build's own release (the git SHA stamped by deploy.yml).
     release: w.__QUIZONLINE_SENTRY_RELEASE || environment.sentryRelease || undefined,
     tracesSampleRate: 0.0,
-    sendDefaultPii: false,
+    // SDK 11 replaced ``sendDefaultPii: false`` with ``dataCollection``, whose
+    // defaults are MORE permissive (user info, cookies, bodies). Pin the v10
+    // restrictive baseline explicitly.
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: {
+        request: {deny: ['forwarded', '-ip', 'remote-', 'via', '-user']},
+        response: {deny: ['forwarded', '-ip', 'remote-', 'via', '-user']},
+      },
+      httpBodies: [],
+      urlQueryParams: {deny: ['forwarded', '-ip', 'remote-', 'via', '-user']},
+      genAI: {inputs: false, outputs: false},
+      databaseQueryData: false,
+      queues: false,
+      graphQL: {document: false, variables: false},
+    },
     // One-time tokens live in some route paths: never ship them.
     beforeSend: (event) => scrubEvent(event),
     beforeBreadcrumb: (crumb) => scrubBreadcrumb(crumb),
