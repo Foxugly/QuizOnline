@@ -47,7 +47,7 @@
     "chart.js": "^4.6.1",
     "leaflet": "^1.9.4",
     "quill": "^2.0.3",
-    "rxjs": "~7.8.0",
+    "rxjs": "~7.8.2",
     "tslib": "^2.9.1",
     "zone.js": "~0.16.3"
   },
@@ -63,7 +63,7 @@
     "@vitest/browser-playwright": "^5.1.1",
     "@vitest/coverage-v8": "^5.1.1",
     "angular-eslint": "^22.8.0",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "jsdom": "^31.0.1",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
