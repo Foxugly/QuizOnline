@@ -5,7 +5,7 @@
     </div>
     @if (!reviewMode) {
       <app-quiz-countdown
-        [endedAt]="$safeNavigationMigration(quizSession()?.ended_at)"
+        [endedAt]="quizSession()?.ended_at"
         [active]="!!quizSession()?.active && !!quizSession()?.with_duration"
         [labelRemaining]="editorUi().quiz.timeRemaining"
         [autoClosing]="autoClosing()"

@@ -1,4 +1,4 @@
-import {provideHttpClient, withXhr} from '@angular/common/http';
+import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {provideRouter, Router} from '@angular/router';
@@ -18,7 +18,7 @@ describe('Preferences', () => {
     await TestBed.configureTestingModule({
       imports: [Preferences],
       providers: [
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
         MessageService,

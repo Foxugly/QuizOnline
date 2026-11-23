@@ -1,4 +1,4 @@
-import {provideHttpClient, withXhr} from '@angular/common/http';
+import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, TestRequest, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 
@@ -35,7 +35,7 @@ describe('AuthService — HttpOnly refresh cookie', () => {
 
   function setUp(): void {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(withXhr()), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(AuthService);
     backend = TestBed.inject(HttpTestingController);
