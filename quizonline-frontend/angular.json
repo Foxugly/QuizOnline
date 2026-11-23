@@ -135,10 +135,10 @@
                 "src/environments/**"
               ],
               "coverageThresholds": {
-                "statements": 37,
-                "branches": 32,
-                "functions": 21,
-                "lines": 39
+                "statements": 40,
+                "branches": 37,
+                "functions": 28,
+                "lines": 42
               }
             }
           }
