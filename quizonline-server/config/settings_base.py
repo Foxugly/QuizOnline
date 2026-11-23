@@ -83,7 +83,6 @@ env = environ.Env(
     SENTRY_RELEASE=(str, ""),
     SENTRY_ENVIRONMENT=(str, "production"),
     SENTRY_TRACES_SAMPLE_RATE=(float, 0.05),
-    SENTRY_PROFILES_SAMPLE_RATE=(float, 0.0),
 )
 ENV_FILE = BASE_DIR / ".env"
 environ.Env.read_env(str(ENV_FILE))

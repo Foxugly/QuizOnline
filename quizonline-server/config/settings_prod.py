@@ -112,33 +112,20 @@ LOGGING = PROD_LOGGING
 SENTRY_DSN = env("SENTRY_DSN", default="").strip()
 if SENTRY_DSN:
     import sentry_sdk
-    from sentry_sdk.integrations.celery import CeleryIntegration
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.logging import LoggingIntegration
 
-    from .sentry_filters import DATA_COLLECTION, before_send, scrub_event
+    from .sentry_filters import sentry_options
 
+    # Drop benign noise: transient Kombu reconnect events emitted while Redis
+    # reloads its dump (needrestart after unattended-upgrades; the Celery
+    # worker auto-recovers), plus DisallowedHost 400s from scanners / uptime
+    # probes / direct-IP curls hitting the box with a bad Host. Scrubbing,
+    # integrations and ``data_collection``: see ``sentry_filters``.
+    # Performance traces default to off (Sentry tier cost); tune via env.
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        environment=env("SENTRY_ENVIRONMENT", default="production"),
-        release=env("SENTRY_RELEASE", default=""),
-        integrations=[
-            DjangoIntegration(),
-            CeleryIntegration(),
-            # ``INFO`` adds breadcrumbs from our structured logs;
-            # ``ERROR`` events get auto-captured as their own issues.
-            LoggingIntegration(level=None, event_level="ERROR"),
-        ],
-        # Drop benign noise: transient Kombu reconnect events emitted while
-        # Redis reloads its dump (needrestart after unattended-upgrades; the
-        # Celery worker auto-recovers), plus DisallowedHost 400s from scanners
-        # / uptime probes / direct-IP curls hitting the box with a bad Host.
-        before_send=before_send,
-        before_send_transaction=scrub_event,
-        # Conservative defaults — tune via env without redeploy. Defaults
-        # to performance traces off (sentry tier cost). No PII, no cookies,
-        # no request bodies: see ``sentry_filters.DATA_COLLECTION``.
-        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
-        profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE", default=0.0),
-        data_collection=DATA_COLLECTION,
+        **sentry_options(
+            dsn=SENTRY_DSN,
+            environment=env("SENTRY_ENVIRONMENT", default="production"),
+            release=env("SENTRY_RELEASE", default=""),
+            traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
+        )
     )
