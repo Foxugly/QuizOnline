@@ -116,7 +116,7 @@ if SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
 
-    from .sentry_filters import drop_benign_noise
+    from .sentry_filters import DATA_COLLECTION, before_send, scrub_event
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -133,12 +133,12 @@ if SENTRY_DSN:
         # Redis reloads its dump (needrestart after unattended-upgrades; the
         # Celery worker auto-recovers), plus DisallowedHost 400s from scanners
         # / uptime probes / direct-IP curls hitting the box with a bad Host.
-        before_send=drop_benign_noise,
+        before_send=before_send,
+        before_send_transaction=scrub_event,
         # Conservative defaults — tune via env without redeploy. Defaults
-        # to performance traces off (sentry tier cost) and full PII off
-        # (GDPR safer; opt in via SENTRY_SEND_DEFAULT_PII=true once a
-        # processor is in place to scrub emails / tokens).
+        # to performance traces off (sentry tier cost). No PII, no cookies,
+        # no request bodies: see ``sentry_filters.DATA_COLLECTION``.
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
         profiles_sample_rate=env.float("SENTRY_PROFILES_SAMPLE_RATE", default=0.0),
-        send_default_pii=env.bool("SENTRY_SEND_DEFAULT_PII", default=False),
+        data_collection=DATA_COLLECTION,
     )
