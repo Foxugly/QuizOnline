@@ -2,8 +2,8 @@ import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal} f
 import {DatePipe} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
-import {CardModule} from 'primeng/card';
-import {TagModule} from 'primeng/tag';
+import {CardModule} from '@openng/optimus-ui/card';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {logApiError} from '../../shared/api/api-errors';
 import {LoadingSkeleton} from '../../shared/components/loading-skeleton/loading-skeleton';

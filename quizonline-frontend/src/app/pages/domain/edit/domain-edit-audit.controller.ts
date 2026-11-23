@@ -3,7 +3,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {of} from 'rxjs';
 import {catchError, finalize} from 'rxjs/operators';
 
-import {TableLazyLoadEvent} from 'primeng/table';
+import {TableLazyLoadEvent} from '@openng/optimus-ui/table';
 
 import {DomainAuditLogReadDto} from '../../../api/generated/model/domain-audit-log-read';
 import {DomainEditApi} from '../../../services/domain/domain-edit-api';

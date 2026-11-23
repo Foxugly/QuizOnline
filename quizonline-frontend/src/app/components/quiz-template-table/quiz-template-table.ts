@@ -1,10 +1,10 @@
 import {CommonModule} from '@angular/common';
 import {Component, input, output, ChangeDetectionStrategy} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {CheckboxModule} from 'primeng/checkbox';
-import {TableModule} from 'primeng/table';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {TableModule} from '@openng/optimus-ui/table';
 import {QuizTemplateListItem} from '../../pages/quiz/list/quiz-list.models';
-import {TooltipModule} from 'primeng/tooltip';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';
 import {interp} from '../../shared/i18n/format';
 

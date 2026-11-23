@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {fromEvent} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {UiTextService} from '../../i18n/ui-text.service';
 import {logApiError} from '../../api/api-errors';

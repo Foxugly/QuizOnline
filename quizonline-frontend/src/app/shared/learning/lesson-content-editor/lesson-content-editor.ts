@@ -11,9 +11,9 @@ import {
   viewChild,
 } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {resolveApiBaseUrl} from '../../api/runtime-api-base-url';
 import {logApiError} from '../../api/api-errors';

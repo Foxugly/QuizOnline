@@ -1,11 +1,11 @@
 import {CommonModule} from '@angular/common';
 import {Component, computed, input, output, signal, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {CheckboxModule} from 'primeng/checkbox';
-import {ButtonModule} from 'primeng/button';
-import {DialogModule} from 'primeng/dialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {TagModule} from 'primeng/tag';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TagModule} from '@openng/optimus-ui/tag';
 import {QuizTemplateDto} from '../../api/generated/model/quiz-template';
 import {AssignableRecipient} from '../../pages/quiz/list/quiz-list.models';
 import {QuizListUiText} from '../../pages/quiz/list/quiz-list.i18n';

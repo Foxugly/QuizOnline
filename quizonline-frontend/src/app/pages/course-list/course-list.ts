@@ -3,13 +3,13 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 import {Subject as RxSubject, debounceTime, forkJoin} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {PaginatorModule} from 'primeng/paginator';
-import {TableModule, type TableLazyLoadEvent} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {ConfirmationService} from 'primeng/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {PaginatorModule} from '@openng/optimus-ui/paginator';
+import {TableModule, type TableLazyLoadEvent} from '@openng/optimus-ui/table';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 
 import {CATALOG, COURSE_DETAIL, COURSE_EDIT, COURSE_NEW} from '../../app.routes-paths';
 import {DomainReadDto} from '../../api/generated/model/domain-read';
@@ -63,7 +63,7 @@ type BulkAction = 'publish' | 'unpublish' | 'delete';
  *  (default 20). DRF's ``PageNumberPagination`` does not honour
  *  ``?page_size=`` unless ``page_size_query_param`` is explicitly
  *  enabled, so we cannot drive this from the table's rows-per-page
- *  selector. The PrimeNG paginator therefore renders without a
+ *  selector. The Optimus UI paginator therefore renders without a
  *  rows-per-page control. */
 const PAGE_SIZE = 20;
 
@@ -111,11 +111,11 @@ export class CourseList implements OnInit {
   protected readonly courses = signal<CourseListRowDto[]>([]);
   protected readonly domains = signal<DomainReadDto[]>([]);
   /** Total result count surfaced by DRF's pagination — feeds the
-   *  PrimeNG table's ``[totalRecords]`` so the paginator renders the
+   *  Optimus UI table's ``[totalRecords]`` so the paginator renders the
    *  right number of pages even though we only hold one page in
    *  memory. */
   protected readonly totalCount = signal(0);
-  /** Zero-based offset PrimeNG drives via ``first`` in
+  /** Zero-based offset Optimus UI drives via ``first`` in
    *  ``TableLazyLoadEvent``. We translate it back to a 1-based DRF
    *  page index before talking to the backend. */
   protected readonly first = signal(0);

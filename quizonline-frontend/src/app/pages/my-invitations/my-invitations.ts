@@ -3,10 +3,10 @@ import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {RouterLink} from '@angular/router';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {TabsModule} from 'primeng/tabs';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {COURSE_INVITE_ACCEPT, COURSE_DETAIL} from '../../app.routes-paths';
 import {CourseInviteStatusEnumDto} from '../../api/generated/model/course-invite-status-enum';
@@ -20,7 +20,7 @@ import {AppToastService} from '../../shared/toast/app-toast.service';
 
 import {getMyInvitationsUiText} from './my-invitations.i18n';
 
-/** PrimeNG tag severities reused for invitation statuses. */
+/** Optimus UI tag severities reused for invitation statuses. */
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 /**

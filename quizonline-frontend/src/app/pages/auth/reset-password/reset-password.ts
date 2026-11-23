@@ -15,9 +15,9 @@ import {RouterLink} from '@angular/router';
 import {finalize} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {InputTextModule} from 'primeng/inputtext';
-import {MessageModule} from 'primeng/message';
-import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {AuthCardComponent} from '../../../shared/components/auth-card/auth-card.component';
 import {authErrorMessage} from '../../../shared/api/auth-errors';
 import {logApiError} from '../../../shared/api/api-errors';

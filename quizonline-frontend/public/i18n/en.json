@@ -2802,7 +2802,7 @@
           "description": "Single-page app for administration and quiz delivery.",
           "items": [
             "Angular 21, TypeScript and RxJS",
-            "PrimeNG 21 and PrimeIcons",
+            "Optimus UI and OpenNG Icons",
             "API client generated from OpenAPI",
             "Vitest and Playwright"
           ]

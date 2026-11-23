@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {FileUploadHandlerEvent, FileUploadModule} from '@openng/optimus-ui/fileupload';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
 
 import {logApiError} from '../../api/api-errors';
 import {UiTextService} from '../../i18n/ui-text.service';

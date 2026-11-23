@@ -4,10 +4,10 @@ import {FormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
-import {ButtonModule} from 'primeng/button';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableLazyLoadEvent, TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SelectButtonModule} from '@openng/optimus-ui/selectbutton';
+import {TableLazyLoadEvent, TableModule} from '@openng/optimus-ui/table';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {EmptyStateComponent} from '../../shared/components/empty-state/empty-state';
 import {TableSkeleton} from '../../shared/components/loading-skeleton/table-skeleton';

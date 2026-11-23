@@ -1,11 +1,11 @@
 import {Injectable, effect, inject} from '@angular/core';
-import {PrimeNG} from 'primeng/config';
+import {Optimus} from '@openng/optimus-ui/config';
 
 import {UserService} from '../../services/user/user';
 import {getPrimeNGTranslation} from './primeng-translations';
 
 /**
- * Keeps PrimeNG's internal Translation in sync with the user's chosen
+ * Keeps Optimus UI's internal Translation in sync with the user's chosen
  * UI language. Without this, paginator aria labels, calendar month/day
  * names, multiselect "Choose…", table empty messages, etc. stay in
  * English regardless of what the rest of the app shows.
@@ -15,7 +15,7 @@ import {getPrimeNGTranslation} from './primeng-translations';
  */
 @Injectable({providedIn: 'root'})
 export class PrimeNGTranslationService {
-  private readonly primeng = inject(PrimeNG);
+  private readonly primeng = inject(Optimus);
   private readonly userService = inject(UserService);
 
   constructor() {

@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {ProgressSpinnerModule} from '@openng/optimus-ui/progressspinner';
 
 import {AuthService} from '../../../services/auth/auth';
 import {ConnectionLogService} from '../../../services/connection-log/connection-log.service';

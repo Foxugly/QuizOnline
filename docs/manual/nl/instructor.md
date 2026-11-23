@@ -105,7 +105,7 @@ De lesbewerker (`/lesson/<id>/edit`) biedt 8 bloktypes aan. Klik op "Een blok to
 | Type | Gebruik | Opmerkingen |
 |------|---------|-------------|
 | **Rijke tekst** | Opgemaakte paragrafen, lijsten, citaten, inline code | Quill-editor — kleuren, uitlijning, enz. HTML server-side ontsmet. |
-| **Afbeelding** | Illustratie | Upload via PrimeNG-fileupload. Geen automatische schaling. |
+| **Afbeelding** | Illustratie | Upload via Optimus UI-fileupload. Geen automatische schaling. |
 | **Video** | YouTube / Vimeo / upload | URL automatisch herkend. De weergave is een live iframe in de bewerker. |
 | **Bestand** | PDF, slides, document | Cursisten zien een downloadlink. |
 | **Quiz** | Ingesloten quiz | Auto-complete-kiezer over de `QuizTemplate`s van het cursusdomein, minimumscore configureerbaar. |

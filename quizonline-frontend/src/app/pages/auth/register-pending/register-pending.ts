@@ -1,7 +1,7 @@
 import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';

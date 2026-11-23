@@ -7,7 +7,7 @@ import {UserService} from './services/user/user';
 import {logApiError} from './shared/api/api-errors';
 import {requiredSessionRedirect} from './shared/auth/session-access-policy';
 import {ROUTES} from './app.routes-paths';
-import {Toast} from 'primeng/toast';
+import {Toast} from '@openng/optimus-ui/toast';
 
 @Component({
   selector: 'app-root',

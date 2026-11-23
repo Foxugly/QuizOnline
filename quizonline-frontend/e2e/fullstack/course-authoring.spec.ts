@@ -55,7 +55,7 @@ test('instructor builds a section and a lesson with content, no dialog', async (
   const saved = page.waitForResponse(
     (r) => /\/api\/v1\/block\/\d+\/$/.test(r.url()) && r.request().method() === 'PATCH',
   );
-  // The accessible name starts with the PrimeIcons glyph, hence no ``^`` anchor.
+  // The accessible name starts with the `pi-*` icon glyph, hence no ``^`` anchor.
   await lessonPane.getByRole('button', {name: /(enregistrer|save)$/i}).first().click();
   expect((await saved).ok()).toBe(true);
 

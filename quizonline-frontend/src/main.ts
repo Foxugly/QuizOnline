@@ -13,7 +13,7 @@ import {environment} from './environments/environment';
 // No-op when no DSN is set.
 void initSentry();
 
-// Strip the stray ``autofocus="true"`` PrimeNG v21 renders on every
+// Strip the stray ``autofocus="true"`` Optimus UI (Optimus UI 21 fork) renders on every
 // ``<p-button>``. See the helper's docstring for the why; running it
 // before ``bootstrapApplication`` arms the MutationObserver in time
 // to catch the very first wave of component mounts.

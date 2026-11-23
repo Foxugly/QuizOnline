@@ -3,11 +3,11 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {finalize} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {CheckboxModule} from 'primeng/checkbox';
-import {InputTextModule} from 'primeng/inputtext';
-import {MessageModule} from 'primeng/message';
-import {PasswordModule} from 'primeng/password';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {PasswordModule} from '@openng/optimus-ui/password';
 
 import {AuthApi as AuthApiService} from '../../../api/generated/api/auth.service';
 import {ROUTES} from '../../../app.routes-paths';

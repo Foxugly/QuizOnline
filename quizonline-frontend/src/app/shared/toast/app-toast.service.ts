@@ -1,5 +1,5 @@
 import {Injectable, inject} from '@angular/core';
-import {MessageService} from 'primeng/api';
+import {MessageService} from '@openng/optimus-ui/api';
 
 import {userFacingApiMessage} from '../api/api-errors';
 
@@ -13,12 +13,12 @@ export type AppToastMessage = {
 };
 
 /**
- * Façade toast de l'app, adossée au ``MessageService`` de PrimeNG (rendu par le
+ * Façade toast de l'app, adossée au ``MessageService`` de Optimus UI (rendu par le
  * ``<p-toast>`` monté à la racine du shell dans ``app.html``). L'API historique
  * (``add`` / ``addApiError`` / ``clear``) est conservée pour ne pas toucher les
- * ~120 sites d'appel ; PrimeNG gère le cycle de vie (``life``, fermeture) et le
+ * ~120 sites d'appel ; Optimus UI gère le cycle de vie (``life``, fermeture) et le
  * thème (accent emerald + dark mode via ``darkModeSelector``). Les sévérités
- * (``success``/``info``/``warn``/``error``) correspondent 1:1 à celles de PrimeNG.
+ * (``success``/``info``/``warn``/``error``) correspondent 1:1 à celles de Optimus UI.
  */
 @Injectable({providedIn: 'root'})
 export class AppToastService {

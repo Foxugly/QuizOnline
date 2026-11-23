@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, computed, input, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {SelectModule} from 'primeng/select';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {SelectModule} from '@openng/optimus-ui/select';
 
 export type BulkActionOption = {
   label: string;

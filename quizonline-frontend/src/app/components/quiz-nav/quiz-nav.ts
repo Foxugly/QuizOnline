@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {PanelModule} from 'primeng/panel';
+import {PanelModule} from '@openng/optimus-ui/panel';
 import {QuestionButton} from '../question-button/question-button';
 import {QuestionReadDto} from '../../api/generated/model/question-read';
 import {UiTextService} from '../../shared/i18n/ui-text.service';

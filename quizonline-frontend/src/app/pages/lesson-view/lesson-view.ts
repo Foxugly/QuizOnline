@@ -3,10 +3,10 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {Subject, Subscription, auditTime, debounceTime, fromEvent} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {TagModule} from 'primeng/tag';
-import {TextareaModule} from 'primeng/textarea';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TagModule} from '@openng/optimus-ui/tag';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 import {FormsModule} from '@angular/forms';
 
 import {CATALOG, COURSE_DETAIL, LESSON_EDIT, LESSON_VIEW} from '../../app.routes-paths';

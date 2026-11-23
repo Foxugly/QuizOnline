@@ -4,12 +4,12 @@ import {AppTitleStrategy} from './shared/i18n/app-title-strategy';
 import {provideHttpClient, withFetch, withInterceptors,} from '@angular/common/http';
 import {provideTransloco} from '@jsverse/transloco';
 import {routes} from './app.routes';
-import {providePrimeNG} from 'primeng/config';
-import {MessageService} from 'primeng/api';
+import {provideOptimus} from '@openng/optimus-ui/config';
+import {MessageService} from '@openng/optimus-ui/api';
 import {StaleChunkService} from './shared/app-update/stale-chunk.service';
 import {CatalogLoader} from './shared/i18n/catalog-loader';
-import {definePreset} from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+import {definePreset} from '@openng/optimus-ui-themes';
+import Aura from '@openng/optimus-ui-themes/aura';
 import {AuthInterceptor} from './auth-interceptor';
 import {AuthService} from './services/auth/auth';
 import {NetworkInterceptor} from './network-interceptor';
@@ -24,7 +24,7 @@ import {SentryErrorHandler} from './shared/monitoring/sentry-init';
 // Emerald is the single fleet accent (STANDARD-frontend-layout.md §9). Remap BOTH
 // the `primary` semantic AND the `green` primitive onto Emerald so that
 // `severity="success"` renders in the exact same emerald as `primary` — otherwise
-// `success` falls back to PrimeNG's default green and the UI shows two greens.
+// `success` falls back to Optimus UI's default green and the UI shows two greens.
 const EMERALD_SCALE = {
   50: '{emerald.50}',
   100: '{emerald.100}',
@@ -63,9 +63,9 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     // Errors caught by Angular reach Sentry too (no-op without a DSN).
     {provide: ErrorHandler, useClass: SentryErrorHandler},
-    // 🔹 PrimeNG theme — emerald fleet accent + dark mode via `.dark-mode`
+    // 🔹 Optimus UI theme — emerald fleet accent + dark mode via `.dark-mode`
     //    (toggled on <html> by ThemeService / the anti-FOUC script).
-    providePrimeNG({
+    provideOptimus({
       theme: {
         preset: QuizOnlineAura,
         options: {
@@ -87,7 +87,7 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
-    // Instantiate the PrimeNG translation bridge eagerly so paginator,
+    // Instantiate the Optimus UI translation bridge eagerly so paginator,
     // calendar, multiselect, etc. render in the user's chosen language
     // from the very first frame, not after a navigation.
     {

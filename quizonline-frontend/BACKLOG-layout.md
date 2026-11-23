@@ -29,9 +29,9 @@
   laissé).
 - **Fond de shell dark-adapté** : `app.scss :host` avait un dégradé clair en dur sans override → la page restait
   claire en dark (seuls cartes/chrome/footer basculaient) ; `color`→`var(--ink)` + dégradé sombre en `.dark-mode`.
-- **Toast maison → `p-toast`** : `AppToastService` délègue désormais au `MessageService` PrimeNG (`<p-toast>` à
+- **Toast maison → `p-toast`** : `AppToastService` délègue désormais au `MessageService` Optimus UI (`<p-toast>` à
   la racine du shell), API conservée (~120 sites d'appel inchangés) ; composant `app-toast-outlet` supprimé.
-  Thème (emerald + dark) + cycle de vie gérés par PrimeNG.
+  Thème (emerald + dark) + cycle de vie gérés par Optimus UI.
 
 ## ✅ Shell formalisé (2026-07-13, déployé)
 - [x] **`public-layout` + `main-layout`** créés sous `core/layout/` + `_shell.scss` partagé ; shell sorti de

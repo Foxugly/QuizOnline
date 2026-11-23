@@ -3,12 +3,12 @@ import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {catchError, map, of, switchMap} from 'rxjs';
 import {FormsModule} from '@angular/forms';
-import {ConfirmationService} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {Tabs, TabsModule} from 'primeng/tabs';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {TooltipModule} from 'primeng/tooltip';
+import {ConfirmationService} from '@openng/optimus-ui/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ConfirmDialogModule} from '@openng/optimus-ui/confirmdialog';
+import {Tabs, TabsModule} from '@openng/optimus-ui/tabs';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {CATALOG, COURSE_DETAIL, COURSE_EDIT, CourseEditTab} from '../../app.routes-paths';
 import {CourseDetailDto} from '../../api/generated/model/course-detail';

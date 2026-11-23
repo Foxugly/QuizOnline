@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {InputTextModule} from 'primeng/inputtext';
-import {TabsModule} from 'primeng/tabs';
-import {TextareaModule} from 'primeng/textarea';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
 
 import {UserService} from '../../../services/user/user';
 import {UiTextService} from '../../i18n/ui-text.service';

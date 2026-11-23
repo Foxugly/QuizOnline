@@ -1,8 +1,8 @@
 /**
- * Neutralise PrimeNG's static ``autofocus="true"`` attribute on every
+ * Neutralise Optimus UI's static ``autofocus="true"`` attribute on every
  * rendered ``<p-button>`` button.
  *
- * Background — PrimeNG v21's Button template renders the inner
+ * Background — Optimus UI (Optimus UI 21 fork)'s Button template renders the inner
  * ``<button>`` with a literal ``autofocus="true"`` regardless of the
  * ``[autofocus]`` input value. The browser honours ``autofocus`` even
  * on elements inserted after the initial document load: when the
@@ -10,12 +10,12 @@
  * and a focusable element with ``autofocus`` is attached to the DOM,
  * focus jumps to it. On a typical app page that fires dozens of times
  * as the route's components mount, leaving a stray focus ring on
- * whichever PrimeNG button happens to be the last one inserted (often
+ * whichever Optimus UI button happens to be the last one inserted (often
  * a deep, narrow widget like the question's "Traduire" button — which
  * a user is then surprised to see highlighted on page load).
  *
  * Setting ``[autofocus]="false"`` on the ``<p-button>`` wrapper has
- * no effect because PrimeNG hard-codes the inner attribute. The only
+ * no effect because Optimus UI hard-codes the inner attribute. The only
  * reliable workaround is to scrub the attribute as soon as the
  * ``<button>`` element lands in the DOM — before the browser's
  * autofocus algorithm runs.
@@ -36,7 +36,7 @@ export function installPrimeNgAutofocusStripper(): void {
     if (!(root instanceof Element)) {
       return;
     }
-    // The PrimeNG-rendered button carries ``class="p-button ..."`` AND
+    // The Optimus UI-rendered button carries ``class="p-button ..."`` AND
     // ``autofocus="true"``. The combination scopes us to the quirk
     // without touching legitimate ``<input autofocus>`` form fields
     // a future page might rely on.

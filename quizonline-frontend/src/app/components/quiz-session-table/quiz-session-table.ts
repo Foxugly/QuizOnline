@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {Component, inject, input, output, ChangeDetectionStrategy} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TableModule} from '@openng/optimus-ui/table';
 import {UserQuizListItem} from '../../pages/quiz/list/quiz-list.models';
 import {UserService} from '../../services/user/user';
 import {formatLocalizedDateTime} from '../../shared/i18n/date-time';

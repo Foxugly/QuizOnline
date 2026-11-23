@@ -12,10 +12,10 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {finalize} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {TagModule} from 'primeng/tag';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {ProgressSpinnerModule} from '@openng/optimus-ui/progressspinner';
+import {TagModule} from '@openng/optimus-ui/tag';
 
 import {ActionEnumDto} from '../../api/generated/model/action-enum';
 import {DomainJoinRequestDecideResponseDto} from '../../api/generated/model/domain-join-request-decide-response';

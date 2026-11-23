@@ -10,9 +10,9 @@ import {
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {finalize} from 'rxjs';
-import {ButtonModule} from 'primeng/button';
-import {MessageModule} from 'primeng/message';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {ProgressSpinnerModule} from '@openng/optimus-ui/progressspinner';
 
 import {DomainInviteStateDto} from '../../api/generated/model/domain-invite-state';
 import {DomainService} from '../../services/domain/domain';

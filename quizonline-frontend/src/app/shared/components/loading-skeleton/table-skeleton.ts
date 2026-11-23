@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {SkeletonModule} from 'primeng/skeleton';
+import {SkeletonModule} from '@openng/optimus-ui/skeleton';
 
 @Component({
   selector: 'app-table-skeleton',

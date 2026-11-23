@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TableModule} from 'primeng/table';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ProgressSpinnerModule} from '@openng/optimus-ui/progressspinner';
+import {SelectButtonModule} from '@openng/optimus-ui/selectbutton';
+import {TableModule} from '@openng/optimus-ui/table';
 
 import {DomainAnalyticsDto} from '../../api/generated/model/domain-analytics';
 import {AnalyticsRange} from '../../services/domain/domain-edit-api';

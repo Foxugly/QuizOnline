@@ -8,12 +8,12 @@ import {
   output,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {ButtonModule} from 'primeng/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {RadioButtonModule} from '@openng/optimus-ui/radiobutton';
+import {ButtonModule} from '@openng/optimus-ui/button';
 import {FormsModule} from '@angular/forms';
-import {ToggleButtonModule} from 'primeng/togglebutton';
+import {ToggleButtonModule} from '@openng/optimus-ui/togglebutton';
 import {QuizNavItem} from '../quiz-nav/quiz-nav';
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 import {QuestionAnswerOptionReadDto} from '../../api/generated/model/question-answer-option-read';

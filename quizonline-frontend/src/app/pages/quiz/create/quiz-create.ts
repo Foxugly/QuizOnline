@@ -8,20 +8,20 @@ import {finalize} from 'rxjs/operators';
 import {QuizCreateCompositionController} from './quiz-create-composition.controller';
 import {QuizCreateTemplateTranslationsController} from './quiz-create-template-translations.controller';
 
-import {Translation} from 'primeng/api';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {CheckboxModule} from 'primeng/checkbox';
-import {PrimeNG} from 'primeng/config';
-import {DatePickerModule} from 'primeng/datepicker';
-import {DialogModule} from 'primeng/dialog';
-import {EditorModule} from 'primeng/editor';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectModule} from 'primeng/select';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {TabsModule} from 'primeng/tabs';
-import {TextareaModule} from 'primeng/textarea';
+import {Translation} from '@openng/optimus-ui/api';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {CheckboxModule} from '@openng/optimus-ui/checkbox';
+import {Optimus} from '@openng/optimus-ui/config';
+import {DatePickerModule} from '@openng/optimus-ui/datepicker';
+import {DialogModule} from '@openng/optimus-ui/dialog';
+import {EditorModule} from '@openng/optimus-ui/editor';
+import {InputNumberModule} from '@openng/optimus-ui/inputnumber';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {TextareaModule} from '@openng/optimus-ui/textarea';
 
 import {
   DomainReadDto,
@@ -151,7 +151,7 @@ export class QuizCreate implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly route = inject(ActivatedRoute);
-  private readonly primeng = inject(PrimeNG);
+  private readonly primeng = inject(Optimus);
   private readonly domainService = inject(DomainService);
   private readonly subjectService = inject(SubjectService);
   private readonly questionService = inject(QuestionService);

@@ -2,9 +2,9 @@ import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} fr
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute, Router} from '@angular/router';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {MessageModule} from 'primeng/message';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {MessageModule} from '@openng/optimus-ui/message';
 
 import {ROUTES} from '../../../app.routes-paths';
 import {UserService} from '../../../services/user/user';

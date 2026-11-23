@@ -7,8 +7,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {firstValueFrom, forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
 
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';

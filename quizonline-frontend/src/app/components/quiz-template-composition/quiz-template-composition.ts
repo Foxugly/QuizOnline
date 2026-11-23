@@ -2,9 +2,9 @@ import {CommonModule} from '@angular/common';
 import {Component, ChangeDetectionStrategy, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {InputNumberModule} from 'primeng/inputnumber';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {InputNumberModule} from '@openng/optimus-ui/inputnumber';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {SelectedQuestionCard} from '../../pages/quiz/create/quiz-template-builder.models';
 import {QuizCreateUiText} from '../../pages/quiz/create/quiz-create.i18n';

@@ -1,14 +1,14 @@
-import {Translation} from 'primeng/api';
+import {Translation} from '@openng/optimus-ui/api';
 
 import {LanguageEnumDto} from '../../api/generated/model/language-enum';
 
 /**
- * PrimeNG-internal translation strings (paginator aria labels, calendar
+ * Optimus UI-internal translation strings (paginator aria labels, calendar
  * month / day names, table empty messages, generic buttons, etc.) for
  * the five UI languages the app supports.
  *
  * Wired into the runtime by ``PrimeNGTranslationService`` which calls
- * ``PrimeNG.setTranslation`` whenever ``UserService.lang`` changes.
+ * ``Optimus.setTranslation`` whenever ``UserService.lang`` changes.
  */
 
 const FR: Translation = {

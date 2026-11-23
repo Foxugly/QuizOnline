@@ -7,9 +7,9 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {firstValueFrom, forkJoin, of, Subject} from 'rxjs';
 import {catchError, concatMap, finalize} from 'rxjs/operators';
 
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
 import {QuestionReadDto} from '../../../api/generated/model/question-read';

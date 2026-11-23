@@ -1,7 +1,7 @@
 import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
 import {UiTextService} from '../../../shared/i18n/ui-text.service';
 import {ActivatedRoute} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
+import {ButtonModule} from '@openng/optimus-ui/button';
 
 import {QuizTemplateDto} from '../../../api/generated/model/quiz-template';
 import {QuizService} from '../../../services/quiz/quiz';

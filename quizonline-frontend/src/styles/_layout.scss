@@ -144,7 +144,7 @@ $page-max-width: var(--content-max);
 /* ------------------------------------------------------------------
  * Builder layout
  *
- * Shared shell for "edit page with PrimeNG tabs" — quiz template,
+ * Shared shell for "edit page with Optimus UI tabs" — quiz template,
  * domain edit, preferences. The pattern is:
  *
  *   <div class="page">
@@ -161,7 +161,7 @@ $page-max-width: var(--content-max);
  *   </div>
  *
  * The outer .card paints the rounded surface; .builder-tabpanels
- * resets PrimeNG's own panel chrome so the body sits flush.
+ * resets Optimus UI's own panel chrome so the body sits flush.
  * .builder-pane gives breathing room without adding a second border.
  * ----------------------------------------------------------------*/
 .builder-stack {
@@ -169,7 +169,7 @@ $page-max-width: var(--content-max);
   gap: 1.5rem;
 
   // Grid children inherit min-width: auto, which means they expand
-  // to fit their intrinsic content. PrimeNG ``<p-tabs>`` with many
+  // to fit their intrinsic content. Optimus UI ``<p-tabs>`` with many
   // labels has a wide intrinsic width — let the children shrink
   // instead so the tab strip becomes horizontally scrollable inside
   // a narrow card on mobile rather than blowing past the viewport.
@@ -218,7 +218,7 @@ $page-max-width: var(--content-max);
   }
 
   // Tablist with many tabs becomes horizontally scrollable rather
-  // than wrapping (PrimeNG default), but its container must allow
+  // than wrapping (Optimus UI default), but its container must allow
   // shrink + overflow to actually expose the scroll.
   .builder-tabs ::ng-deep .p-tablist,
   .builder-tabs .p-tablist {

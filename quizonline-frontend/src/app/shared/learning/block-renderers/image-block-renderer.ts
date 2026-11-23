@@ -1,12 +1,12 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
-import {ImageModule} from 'primeng/image';
+import {ImageModule} from '@openng/optimus-ui/image';
 
 import {UserService} from '../../../services/user/user';
 import {ContentBlock} from '../content-block.types';
 import {pickTranslation} from '../learning-translations';
 
 /**
- * Renders the ``image`` ContentBlock via PrimeNG's ``<p-image>`` so the
+ * Renders the ``image`` ContentBlock via Optimus UI's ``<p-image>`` so the
  * card-clamped thumbnail can be expanded to a fullscreen preview with
  * built-in zoom / rotate / reset controls. The thumbnail itself is
  * width-clamped (max-width: 100%) so it never overflows the parent

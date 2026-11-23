@@ -105,7 +105,7 @@ The lesson editor (`/lesson/<id>/edit`) offers 8 block types. Click "Add a block
 | Type | Usage | Notes |
 |------|-------|-------|
 | **Rich text** | Formatted paragraphs, lists, quotes, inline code | Quill editor — colors, alignments, etc. HTML sanitized server-side. |
-| **Image** | Illustration | Upload via PrimeNG fileupload. No automatic resizing. |
+| **Image** | Illustration | Upload via Optimus UI fileupload. No automatic resizing. |
 | **Video** | YouTube / Vimeo / upload | URL auto-detected. The render is a live iframe in the editor. |
 | **File** | PDF, slides, doc | Learners see a download link. |
 | **Quiz** | Embedded quiz | Auto-complete picker over the parent course's domain `QuizTemplate`s, configurable minimum score. |

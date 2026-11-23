@@ -3,13 +3,13 @@ import {Component, computed, inject, input, output, ChangeDetectionStrategy} fro
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {EditorModule} from 'primeng/editor';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectModule} from 'primeng/select';
-import {TabsModule} from 'primeng/tabs';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {EditorModule} from '@openng/optimus-ui/editor';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
 
 import {UserService} from '../../services/user/user';
 

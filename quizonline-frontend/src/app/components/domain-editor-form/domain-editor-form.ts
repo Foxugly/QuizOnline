@@ -3,17 +3,17 @@ import {Component, computed, inject, input, output, ChangeDetectionStrategy} fro
 import {UiTextService} from '../../shared/i18n/ui-text.service';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {EditorModule} from 'primeng/editor';
-import {FieldsetModule} from 'primeng/fieldset';
-import {InputTextModule} from 'primeng/inputtext';
-import {MessageModule} from 'primeng/message';
-import {SelectModule} from 'primeng/select';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {TabsModule} from 'primeng/tabs';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
-import {TooltipModule} from 'primeng/tooltip';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {CardModule} from '@openng/optimus-ui/card';
+import {EditorModule} from '@openng/optimus-ui/editor';
+import {FieldsetModule} from '@openng/optimus-ui/fieldset';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {MessageModule} from '@openng/optimus-ui/message';
+import {SelectModule} from '@openng/optimus-ui/select';
+import {SelectButtonModule} from '@openng/optimus-ui/selectbutton';
+import {TabsModule} from '@openng/optimus-ui/tabs';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
 
 import {JoinPolicyEnumDto} from '../../api/generated/model/join-policy-enum';
 import {SavedAtComponent} from '../../shared/components/saved-at/saved-at';

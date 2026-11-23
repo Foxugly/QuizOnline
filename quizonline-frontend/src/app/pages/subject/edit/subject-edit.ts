@@ -8,10 +8,10 @@ import {catchError, finalize} from 'rxjs/operators';
 import {EMPTY, forkJoin, of} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {InputTextModule} from 'primeng/inputtext';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {ToggleSwitchModule} from 'primeng/toggleswitch';
+import {InputTextModule} from '@openng/optimus-ui/inputtext';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {TooltipModule} from '@openng/optimus-ui/tooltip';
+import {ToggleSwitchModule} from '@openng/optimus-ui/toggleswitch';
 
 import {DomainReadDto} from '../../../api/generated/model/domain-read';
 import {LanguageEnumDto} from '../../../api/generated/model/language-enum';
@@ -25,7 +25,7 @@ import {DomainService} from '../../../services/domain/domain';
 import {UserService} from '../../../services/user/user';
 import {QuestionService} from '../../../services/question/question';
 import {isLangCode, LangCode, TranslateBatchItem, TranslationService,} from '../../../services/translation/translation';
-import {TableModule} from 'primeng/table';
+import {TableModule} from '@openng/optimus-ui/table';
 import {
   buildLocalizedTextRecord,
   createLocalizedTextGroup,

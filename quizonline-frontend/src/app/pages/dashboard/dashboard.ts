@@ -1,9 +1,9 @@
 import {ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {RouterLink} from '@angular/router';
-import {ButtonModule} from 'primeng/button';
-import {ProgressBarModule} from 'primeng/progressbar';
-import {SkeletonModule} from 'primeng/skeleton';
+import {ButtonModule} from '@openng/optimus-ui/button';
+import {ProgressBarModule} from '@openng/optimus-ui/progressbar';
+import {SkeletonModule} from '@openng/optimus-ui/skeleton';
 
 import {
   CATALOG, COURSE_EDIT, COURSE_INVITE_ACCEPT, COURSE_LIST, COURSE_NEW, ME_CERTIFICATES, ME_INVITATIONS, ME_PROGRESS, ROUTES,
