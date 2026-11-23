@@ -1,4 +1,4 @@
-import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClient, withXhr} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -9,7 +9,7 @@ import {ContentBlock} from '../content-block.types';
 
 describe('BlockListEditor unsaved changes', () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({imports: [BlockListEditor], providers: [MessageService, provideHttpClient(), provideHttpClientTesting()]});
+    TestBed.configureTestingModule({imports: [BlockListEditor], providers: [MessageService, provideHttpClient(withXhr()), provideHttpClientTesting()]});
     TestBed.overrideComponent(BlockListEditor, {set: {imports: [], template: '<div></div>'}});
   });
 

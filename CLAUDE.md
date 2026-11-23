@@ -5,7 +5,7 @@
 Monorepo with two main modules:
 
 - `quizonline-server/` : Django 6 backend (REST API, Celery, Redis)
-- `quizonline-frontend/` : Angular 21 frontend (Optimus UI 1.x — `@openng/optimus-ui`, the MIT community fork of PrimeNG 21, same components/selectors/API, `provideOptimus`, Aura via `@openng/optimus-ui-themes`, `pi pi-*` icons via `@openng/icons`; **PrimeNG ≥ 22 is banned in the fleet** (commercial licence) — see foxugly-ops `STANDARD-frontend-layout.md` « Bibliothèque UI »; generated API client)
+- `quizonline-frontend/` : Angular 22 frontend (TypeScript 6.0; Optimus UI 2.x — 2.x = Angular 22, 1.x = Angular 21 — `@openng/optimus-ui`, the MIT community fork of PrimeNG 21, same components/selectors/API, `provideOptimus`, Aura via `@openng/optimus-ui-themes`, `pi pi-*` icons via `@openng/icons`; **PrimeNG ≥ 22 is banned in the fleet** (commercial licence) — see foxugly-ops `STANDARD-frontend-layout.md` « Bibliothèque UI »; generated API client)
 
 ## Frontend conventions
 
@@ -171,6 +171,7 @@ Spec + plan:
 - **Per-credential rotation procedures + EBS encryption check**: **`deploy/SECRETS-ROTATION.md`**
 
 ## CI notes
+- Frontend coverage gate (`angular.json` `test.configurations.coverage.coverageThresholds`): `branches` rebaselined 37 → 32 on the Angular 22 / TypeScript 6 upgrade (2026-11-23). Same tests, statements/lines unchanged (37.8 → 37.5 %, 39.6 → 39.3 %), but the instrumented branch total changed with the new compiled output (8307 → 7382 branches, 37.6 → 32.7 % covered) — a measurement shift, not lost coverage.
 
 - The `contract` job keeps the OpenAPI generator JAR (version pinned in `quizonline-frontend/openapitools.json`) in the Actions cache, with three download tries on a miss — bumping the generator version means a new cache key.
 - Unit specs run with a global `TestBed.resetTestingModule()` after each test (`src/test-setup.ts`); provide `MessageService` explicitly when a component injects `AppToastService`.
